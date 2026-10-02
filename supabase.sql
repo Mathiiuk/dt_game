@@ -197,3 +197,25 @@ CREATE POLICY "Permitir actualizar standings" ON public.standings FOR UPDATE USI
 CREATE POLICY "Permitir insertar standings" ON public.standings FOR INSERT WITH CHECK (true);
 
 
+
+
+-- Fase 14 & 15: Contratos y Ofertas
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS contract_salary int DEFAULT 10000;
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS contract_end date;
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS contract_role text DEFAULT 'Rotación';
+
+CREATE TABLE IF NOT EXISTS public.offers (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) NOT NULL,
+  from_club_id uuid REFERENCES public.clubs(id),
+  to_club_id uuid REFERENCES public.clubs(id),
+  amount int NOT NULL,
+  status text DEFAULT 'PENDING', -- PENDING, ACCEPTED, REJECTED
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.offers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leer offers" ON public.offers FOR SELECT USING (true);
+CREATE POLICY "Permitir insertar offers" ON public.offers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Permitir actualizar offers" ON public.offers FOR UPDATE USING (true);
+

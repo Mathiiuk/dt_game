@@ -82,6 +82,7 @@ export default function Dashboard() {
             <button 
               key={i} 
               onClick={() => {
+                if (item.label === 'Plantel') navigate('/squad')
                 if (item.label === 'Competición') navigate('/standings')
                 if (item.label === 'Mercado') navigate('/market')
               }}

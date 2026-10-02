@@ -65,5 +65,17 @@ export const clubApi = {
 
     if (error && error.code !== 'PGRST116') throw new Error(error.message)
     return data || null
+  },
+
+  async updateClub(clubId, updates) {
+    const { data, error } = await supabase
+      .from('clubs')
+      .update(updates)
+      .eq('id', clubId)
+      .select()
+      .single()
+
+    if (error) throw new Error(error.message)
+    return data
   }
 }
