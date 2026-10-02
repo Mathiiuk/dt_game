@@ -1,17 +1,26 @@
-import { useGameStore } from './store'
-import StartScreen from './components/StartScreen'
+import React, { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'sonner'
+import { initDB } from './api/db'
+import AuthScreen from './features/auth/AuthScreen'
 import PlayScreen from './components/PlayScreen'
-import GameOverScreen from './components/GameOverScreen'
 
 function App() {
-  const gameState = useGameStore(state => state.gameState)
+  useEffect(() => {
+    initDB()
+  }, [])
 
   return (
-    <div className="min-h-screen text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
-      {gameState === 'start' && <StartScreen />}
-      {gameState === 'playing' && <PlayScreen />}
-      {gameState === 'gameover' && <GameOverScreen />}
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
+        <Routes>
+          <Route path="/auth" element={<AuthScreen />} />
+          <Route path="/game" element={<PlayScreen />} />
+          <Route path="*" element={<Navigate to="/auth" replace />} />
+        </Routes>
+        <Toaster theme="dark" position="top-center" />
+      </div>
+    </BrowserRouter>
   )
 }
 
