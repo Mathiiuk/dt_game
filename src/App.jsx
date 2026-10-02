@@ -5,6 +5,7 @@ import { initDB } from './api/db'
 import AuthScreen from './features/auth/AuthScreen'
 import PlayScreen from './components/PlayScreen'
 import CreateManagerWizard from './features/manager/CreateManagerWizard'
+import CreateClubWizard from './features/club/CreateClubWizard'
 
 function App() {
   useEffect(() => {
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/auth" element={<AuthScreen />} />
           <Route path="/create-manager" element={<CreateManagerWizard />} />
+          <Route path="/create-club" element={<CreateClubWizard />} />
           <Route path="/game" element={<PlayScreen />} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>

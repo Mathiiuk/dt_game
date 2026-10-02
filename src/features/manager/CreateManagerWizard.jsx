@@ -84,8 +84,7 @@ export default function CreateManagerWizard() {
         philosophy
       })
       toast.success('¡Perfil de DT creado exitosamente!')
-      // In phase 3 we go to club creation, for now go to dashboard/game
-      navigate('/game')
+      navigate('/create-club')
     } catch (err) {
       toast.error(err.message)
     } finally {
