@@ -8,6 +8,7 @@ export const useGameStore = create((set) => ({
   week: 1,
   club: 'Rojo de Avellaneda',
   division: 3, // 3: Ascenso, 2: Segunda, 1: Primera
+  activeEvent: null, // null or event id
   stats: {
     board: 50,
     squad: 50,
@@ -18,9 +19,25 @@ export const useGameStore = create((set) => ({
     managerName: name, 
     managerStyle: style, 
     gameState: 'playing',
-    stats: { board: 60, squad: 60, fans: 60 } // Initial boost
+    activeEvent: null,
+    stats: { board: 60, squad: 60, fans: 60 } 
   }),
   
+  setActiveEvent: (event) => set({ activeEvent: event }),
+
+  resolveEvent: (effects) => set((state) => {
+    let newStats = { ...state.stats }
+    for (const [key, value] of Object.entries(effects)) {
+       newStats[key] = Math.min(100, Math.max(0, newStats[key] + value))
+    }
+    
+    if (newStats.board === 0 || newStats.squad === 0 || newStats.fans === 0) {
+      return { stats: newStats, gameState: 'gameover', activeEvent: null }
+    }
+    
+    return { stats: newStats, activeEvent: null }
+  }),
+
   updateStat: (stat, amount) => set((state) => {
     const newValue = Math.min(100, Math.max(0, state.stats[stat] + amount));
     const newStats = { ...state.stats, [stat]: newValue };
