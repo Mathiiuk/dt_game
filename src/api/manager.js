@@ -57,5 +57,40 @@ export const managerApi = {
     }
 
     return data || null
+  },
+
+  async addXp(managerId, xpAmount) {
+    // 1. Fetch current manager
+    const { data: manager, error: fetchError } = await supabase
+      .from('managers')
+      .select('xp, level')
+      .eq('id', managerId)
+      .single()
+
+    if (fetchError) throw new Error(fetchError.message)
+
+    const newXp = manager.xp + xpAmount
+    
+    // Simple XP curve for now: level = floor(sqrt(XP / 100)) + 1
+    // e.g. XP 0 -> Lvl 1
+    // XP 100 -> Lvl 2
+    // XP 400 -> Lvl 3
+    // XP 900 -> Lvl 4
+    let newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
+    if (newLevel > 50) newLevel = 50 // Max level is 50
+
+    const { data: updatedManager, error: updateError } = await supabase
+      .from('managers')
+      .update({ xp: newXp, level: newLevel })
+      .eq('id', managerId)
+      .select()
+      .single()
+
+    if (updateError) throw new Error(updateError.message)
+
+    return {
+      manager: updatedManager,
+      leveledUp: newLevel > manager.level
+    }
   }
 }
