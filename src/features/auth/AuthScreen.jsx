@@ -24,8 +24,7 @@ export default function AuthScreen() {
     
     setLoading(true)
     try {
-      const { user, token } = await authApi.register({ name, email, password })
-      localStorage.setItem('dt_token', token)
+      const { user } = await authApi.register({ name, email, password })
       toast.success(`¡Bienvenido, ${user.name}!`)
       navigate('/create-manager')
     } catch (err) {
@@ -39,8 +38,7 @@ export default function AuthScreen() {
     e.preventDefault()
     setLoading(true)
     try {
-      const { user, token } = await authApi.login({ email, password })
-      localStorage.setItem('dt_token', token)
+      const { user } = await authApi.login({ email, password })
       toast.success(`Hola de nuevo, ${user.name}`)
       navigate('/game')
     } catch (err) {

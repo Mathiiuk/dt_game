@@ -1,36 +1,61 @@
-import { getCollection, saveCollection } from './db'
+import { supabase } from './supabase'
 
 export const managerApi = {
   async createManager(userId, managerData) {
-    // Simulate network delay
-    await new Promise(r => setTimeout(r, 500))
-    
-    const managers = await getCollection('managers')
-    
-    // Check if user already has a manager profile (for MVP we assume 1 manager per user)
-    const existing = managers.find(m => m.userId === userId)
-    if (existing) {
+    const { data: existingManager } = await supabase
+      .from('managers')
+      .select('id')
+      .eq('user_id', userId)
+      .single()
+
+    if (existingManager) {
       throw new Error('Ya tienes un perfil de Director Técnico creado.')
     }
-    
-    const newManager = {
-      id: crypto.randomUUID(),
-      userId,
-      level: 1,
-      xp: 0,
-      reputation: 10,
-      ...managerData, // identity, attributes, philosophy
-      createdAt: new Date().toISOString()
-    }
-    
-    managers.push(newManager)
-    await saveCollection('managers', managers)
-    
-    return newManager
+
+    const { identity, attributes, philosophy } = managerData
+
+    const { data, error } = await supabase
+      .from('managers')
+      .insert([
+        {
+          user_id: userId,
+          level: 1,
+          xp: 0,
+          reputation: 10,
+          first_name: identity.firstName,
+          last_name: identity.lastName,
+          age: identity.age,
+          nationality: identity.nationality,
+          city: identity.city,
+          dominant_foot: identity.dominantFoot,
+          philosophy: philosophy,
+          attr_leadership: attributes.leadership,
+          attr_tactics: attributes.tactics,
+          attr_motivation: attributes.motivation,
+          attr_management: attributes.management,
+          attr_youth: attributes.youth,
+          attr_negotiation: attributes.negotiation,
+          attr_locker_room: attributes.lockerRoom
+        }
+      ])
+      .select()
+      .single()
+
+    if (error) throw new Error(error.message)
+    return data
   },
 
   async getManager(userId) {
-    const managers = await getCollection('managers')
-    return managers.find(m => m.userId === userId) || null
+    const { data, error } = await supabase
+      .from('managers')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 is "No rows found"
+      throw new Error(error.message)
+    }
+
+    return data || null
   }
 }

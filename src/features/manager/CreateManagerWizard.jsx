@@ -58,8 +58,7 @@ export default function CreateManagerWizard() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('dt_token')
-      const currentUser = await authApi.getSession(token)
+      const currentUser = await authApi.getSession()
       if (!currentUser) {
         navigate('/auth')
       } else {
