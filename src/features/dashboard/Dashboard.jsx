@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
-import { Home, Users, Calendar, Settings, Activity, Shield, Trophy } from 'lucide-react'
+import { gameLoopApi } from '../../api/gameLoop'
+import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const [data, setData] = useState({ user: null, manager: null, club: null })
   const [loading, setLoading] = useState(true)
+  const [advancing, setAdvancing] = useState(false)
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -22,6 +25,9 @@ export default function Dashboard() {
         const club = await clubApi.getClubByManager(manager.id)
         if (!club) return navigate('/create-club')
         
+        // Asignar default date si no existe para compatibilidad hacia atrás
+        if (!club.game_date) club.game_date = '2026-07-01'
+        
         setData({ user, manager, club })
       } catch (e) {
         console.error(e)
@@ -31,6 +37,19 @@ export default function Dashboard() {
     }
     loadDashboard()
   }, [navigate])
+
+  const handleAdvanceDay = async () => {
+    setAdvancing(true)
+    try {
+      const newDate = await gameLoopApi.advanceDay(data.club.id)
+      setData(prev => ({ ...prev, club: { ...prev.club, game_date: newDate } }))
+      toast.success('Día completado. Plantel entrenado.')
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setAdvancing(false)
+    }
+  }
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando la oficina...</div>
@@ -45,6 +64,10 @@ export default function Dashboard() {
     { icon: Activity, label: 'Entrenamiento' },
     { icon: Trophy, label: 'Competición' }
   ]
+  
+  const formattedDate = new Intl.DateTimeFormat('es-AR', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  }).format(new Date(club.game_date + 'T00:00:00'))
 
   return (
     <div className="flex min-h-screen bg-zinc-950">
@@ -76,14 +99,24 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto">
-        <header className="flex items-center justify-between mb-8">
-          <div>
+        <header className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
+          <div className="mb-4 md:mb-0">
             <h2 className="text-3xl font-black text-white">{club.name}</h2>
             <p className="text-zinc-400">{club.city}, {club.country}</p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-zinc-500">Presupuesto</p>
-            <p className="text-xl font-bold text-emerald-400">${Number(club.budget).toLocaleString()}</p>
+          <div className="flex items-center gap-6">
+            <div className="text-right">
+              <p className="text-sm text-zinc-500 capitalize">{formattedDate}</p>
+              <p className="text-xl font-bold text-emerald-400">Día de Gestión</p>
+            </div>
+            <button 
+              onClick={handleAdvanceDay}
+              disabled={advancing}
+              className="flex items-center gap-2 px-6 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50"
+            >
+              {advancing ? <Loader2 className="w-5 h-5 animate-spin" /> : <FastForward className="w-5 h-5" />}
+              Avanzar Día
+            </button>
           </div>
         </header>
 
@@ -108,8 +141,8 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <button className="w-full py-4 font-bold text-black transition-transform rounded-xl bg-emerald-500 hover:bg-emerald-400 hover:scale-[1.01]">
-              Preparar Partido
+            <button className="w-full py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
+              Ver Táctica
             </button>
           </div>
 

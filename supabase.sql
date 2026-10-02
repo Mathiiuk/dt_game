@@ -129,3 +129,7 @@ ALTER TABLE public.players ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir leer todos los jugadores" ON public.players FOR SELECT USING (true);
 CREATE POLICY "Permitir insertar jugadores" ON public.players FOR INSERT WITH CHECK (true);
 
+
+
+-- ALTER TABLE public.clubs ADD COLUMN game_date date DEFAULT '2026-07-01';
+
