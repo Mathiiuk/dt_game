@@ -133,3 +133,24 @@ CREATE POLICY "Permitir insertar jugadores" ON public.players FOR INSERT WITH CH
 
 -- ALTER TABLE public.clubs ADD COLUMN game_date date DEFAULT '2026-07-01';
 
+
+
+-- Script para crear la tabla de tácticas
+CREATE TABLE public.tactics (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) NOT NULL,
+  formation text DEFAULT '4-4-2',
+  mentality text DEFAULT 'Equilibrada',
+  pressure text DEFAULT 'Media',
+  tempo text DEFAULT 'Normal',
+  defensive_line text DEFAULT 'Media',
+  build_up text DEFAULT 'Mixta',
+  lineup jsonb DEFAULT '[]', -- Array de player_ids para los 11 titulares
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.tactics ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leer tácticas" ON public.tactics FOR SELECT USING (true);
+CREATE POLICY "Permitir insertar tácticas" ON public.tactics FOR INSERT WITH CHECK (true);
+CREATE POLICY "Permitir actualizar tácticas" ON public.tactics FOR UPDATE USING (true);
+

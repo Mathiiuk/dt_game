@@ -6,6 +6,7 @@ import AuthScreen from './features/auth/AuthScreen'
 import CreateManagerWizard from './features/manager/CreateManagerWizard'
 import CreateClubWizard from './features/club/CreateClubWizard'
 import Dashboard from './features/dashboard/Dashboard'
+import TacticsScreen from './features/tactics/TacticsScreen'
 
 function App() {
   useEffect(() => {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/create-manager" element={<CreateManagerWizard />} />
           <Route path="/create-club" element={<CreateClubWizard />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/tactics" element={<TacticsScreen />} />
           <Route path="/game" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>

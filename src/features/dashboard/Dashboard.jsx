@@ -141,7 +141,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <button className="w-full py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
+            <button onClick={() => navigate('/tactics')} className="w-full py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
               Ver Táctica
             </button>
           </div>
