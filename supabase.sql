@@ -67,3 +67,65 @@ ALTER TABLE public.clubs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir leer todos los clubes" ON public.clubs FOR SELECT USING (true);
 CREATE POLICY "Permitir insertar clubes" ON public.clubs FOR INSERT WITH CHECK (true);
 
+
+
+-- Script para crear la tabla de jugadores
+
+CREATE TABLE public.players (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  age int NOT NULL,
+  nationality text NOT NULL,
+  shirt_number int NOT NULL,
+  position text NOT NULL,
+  
+  -- Physical
+  attr_pace int NOT NULL,
+  attr_acceleration int NOT NULL,
+  attr_strength int NOT NULL,
+  attr_stamina int NOT NULL,
+  
+  -- Technical
+  attr_technique int NOT NULL,
+  attr_passing int NOT NULL,
+  attr_control int NOT NULL,
+  attr_dribbling int NOT NULL,
+  attr_finishing int NOT NULL,
+  attr_shooting int NOT NULL,
+  attr_heading int NOT NULL,
+  attr_marking int NOT NULL,
+  attr_tackling int NOT NULL,
+  
+  -- Mental
+  attr_positioning int NOT NULL,
+  attr_vision int NOT NULL,
+  attr_decisions int NOT NULL,
+  attr_mentality int NOT NULL,
+  attr_concentration int NOT NULL,
+  attr_leadership int NOT NULL,
+  attr_aggression int NOT NULL,
+  attr_professionalism int NOT NULL,
+  
+  -- State
+  state_fitness int DEFAULT 100,
+  state_morale int DEFAULT 100,
+  state_form int DEFAULT 5,
+  is_injured boolean DEFAULT false,
+  is_suspended boolean DEFAULT false,
+  
+  -- Contract
+  contract_wage numeric NOT NULL,
+  contract_years int NOT NULL,
+  market_value numeric NOT NULL,
+  release_clause numeric,
+  squad_role text NOT NULL,
+  
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.players ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leer todos los jugadores" ON public.players FOR SELECT USING (true);
+CREATE POLICY "Permitir insertar jugadores" ON public.players FOR INSERT WITH CHECK (true);
+

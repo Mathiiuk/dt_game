@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { playerApi } from './player'
 
 export const clubApi = {
   async createClub(managerId, clubData) {
@@ -24,7 +25,7 @@ export const clubApi = {
         budget = 50000; wageBudget = 2000; reputation = 10;
     }
 
-    const { data, error } = await supabase
+    const { data: club, error } = await supabase
       .from('clubs')
       .insert([
         {
@@ -48,7 +49,11 @@ export const clubApi = {
       .single()
 
     if (error) throw new Error(error.message)
-    return data
+    
+    // Generar el primer plantel automáticamente
+    await playerApi.generateInitialSquad(club.id, club.reputation)
+    
+    return club
   },
 
   async getClubByManager(managerId) {
