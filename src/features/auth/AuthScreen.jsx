@@ -27,7 +27,7 @@ export default function AuthScreen() {
       const { user, token } = await authApi.register({ name, email, password })
       localStorage.setItem('dt_token', token)
       toast.success(`¡Bienvenido, ${user.name}!`)
-      navigate('/game')
+      navigate('/create-manager')
     } catch (err) {
       toast.error(err.message)
     } finally {
