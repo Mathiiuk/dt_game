@@ -78,7 +78,13 @@ export default function Dashboard() {
         </div>
         <nav className="flex-1 space-y-2">
           {navItems.map((item, i) => (
-            <button key={i} className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-xl ${item.active ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'}`}>
+            <button 
+              key={i} 
+              onClick={() => {
+                if (item.label === 'Competición') navigate('/standings')
+              }}
+              className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-xl ${item.active ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'}`}
+            >
               <item.icon className="w-5 h-5" />
               {item.label}
             </button>

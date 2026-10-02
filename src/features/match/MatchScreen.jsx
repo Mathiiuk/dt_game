@@ -173,10 +173,10 @@ export default function MatchScreen() {
               </div>
             ) : (
               <button 
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/post-match', { state: { results: simResults, managerId: data.club.manager_id, clubId: data.club.id, clubName: data.club.name } })}
                 className="flex items-center justify-center w-full gap-2 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105"
               >
-                <CheckCircle className="w-5 h-5" /> Volver al Vestuario
+                <CheckCircle className="w-5 h-5" /> Ver Resumen
               </button>
             )}
           </div>

@@ -154,3 +154,39 @@ CREATE POLICY "Permitir leer tácticas" ON public.tactics FOR SELECT USING (true)
 CREATE POLICY "Permitir insertar tácticas" ON public.tactics FOR INSERT WITH CHECK (true);
 CREATE POLICY "Permitir actualizar tácticas" ON public.tactics FOR UPDATE USING (true);
 
+
+
+-- Script para tabla de competiciones
+CREATE TABLE public.competitions (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  level int DEFAULT 1,
+  teams_count int DEFAULT 20,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Script para standings (posiciones)
+CREATE TABLE public.standings (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  competition_id uuid REFERENCES public.competitions(id) NOT NULL,
+  club_id uuid REFERENCES public.clubs(id) NOT NULL,
+  played int DEFAULT 0,
+  won int DEFAULT 0,
+  drawn int DEFAULT 0,
+  lost int DEFAULT 0,
+  goals_for int DEFAULT 0,
+  goals_against int DEFAULT 0,
+  points int DEFAULT 0,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE (competition_id, club_id)
+);
+
+ALTER TABLE public.competitions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leer competiciones" ON public.competitions FOR SELECT USING (true);
+CREATE POLICY "Permitir insertar competiciones" ON public.competitions FOR INSERT WITH CHECK (true);
+
+ALTER TABLE public.standings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leer standings" ON public.standings FOR SELECT USING (true);
+CREATE POLICY "Permitir actualizar standings" ON public.standings FOR UPDATE USING (true);
+CREATE POLICY "Permitir insertar standings" ON public.standings FOR INSERT WITH CHECK (true);
+

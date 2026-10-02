@@ -8,6 +8,8 @@ import CreateClubWizard from './features/club/CreateClubWizard'
 import Dashboard from './features/dashboard/Dashboard'
 import TacticsScreen from './features/tactics/TacticsScreen'
 import MatchScreen from './features/match/MatchScreen'
+import PostMatchScreen from './features/match/PostMatchScreen'
+import StandingsScreen from './features/competition/StandingsScreen'
 
 function App() {
   useEffect(() => {
@@ -24,6 +26,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tactics" element={<TacticsScreen />} />
           <Route path="/match" element={<MatchScreen />} />
+          <Route path="/post-match" element={<PostMatchScreen />} />
+          <Route path="/standings" element={<StandingsScreen />} />
           <Route path="/game" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
