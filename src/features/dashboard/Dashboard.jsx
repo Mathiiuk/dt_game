@@ -62,7 +62,8 @@ export default function Dashboard() {
     { icon: Users, label: 'Plantel' },
     { icon: Calendar, label: 'Partidos' },
     { icon: Activity, label: 'Entrenamiento' },
-    { icon: Trophy, label: 'Competición' }
+    { icon: Trophy, label: 'Competición' },
+    { icon: Settings, label: 'Mercado' } // Usando Settings provisoriamente si no importé ShoppingCart en Dashboard.jsx
   ]
   
   const formattedDate = new Intl.DateTimeFormat('es-AR', {
@@ -82,6 +83,7 @@ export default function Dashboard() {
               key={i} 
               onClick={() => {
                 if (item.label === 'Competición') navigate('/standings')
+                if (item.label === 'Mercado') navigate('/market')
               }}
               className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-xl ${item.active ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'}`}
             >

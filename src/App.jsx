@@ -10,6 +10,7 @@ import TacticsScreen from './features/tactics/TacticsScreen'
 import MatchScreen from './features/match/MatchScreen'
 import PostMatchScreen from './features/match/PostMatchScreen'
 import StandingsScreen from './features/competition/StandingsScreen'
+import MarketScreen from './features/market/MarketScreen'
 
 function App() {
   useEffect(() => {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/match" element={<MatchScreen />} />
           <Route path="/post-match" element={<PostMatchScreen />} />
           <Route path="/standings" element={<StandingsScreen />} />
+          <Route path="/market" element={<MarketScreen />} />
           <Route path="/game" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>

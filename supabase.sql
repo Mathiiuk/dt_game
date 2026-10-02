@@ -1,6 +1,12 @@
+DROP TABLE IF EXISTS standings CASCADE;
+DROP TABLE IF EXISTS competitions CASCADE;
+DROP TABLE IF EXISTS tactics CASCADE;
+DROP TABLE IF EXISTS players CASCADE;
+DROP TABLE IF EXISTS clubs CASCADE;
+DROP TABLE IF EXISTS managers CASCADE;
 -- Script para crear la tabla de managers en Supabase
 
-CREATE TABLE public.managers (
+CREATE TABLE IF NOT EXISTS public.managers (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES auth.users NOT NULL,
   level int DEFAULT 1,
@@ -42,7 +48,7 @@ CREATE POLICY "Los usuarios pueden actualizar su propio manager"
 
 -- Script para crear la tabla de clubs
 
-CREATE TABLE public.clubs (
+CREATE TABLE IF NOT EXISTS public.clubs (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   manager_id uuid REFERENCES public.managers(id) NOT NULL,
   name text NOT NULL,
@@ -71,7 +77,7 @@ CREATE POLICY "Permitir insertar clubes" ON public.clubs FOR INSERT WITH CHECK (
 
 -- Script para crear la tabla de jugadores
 
-CREATE TABLE public.players (
+CREATE TABLE IF NOT EXISTS public.players (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   club_id uuid REFERENCES public.clubs(id) NOT NULL,
   first_name text NOT NULL,
@@ -136,7 +142,7 @@ CREATE POLICY "Permitir insertar jugadores" ON public.players FOR INSERT WITH CH
 
 
 -- Script para crear la tabla de tácticas
-CREATE TABLE public.tactics (
+CREATE TABLE IF NOT EXISTS public.tactics (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   club_id uuid REFERENCES public.clubs(id) NOT NULL,
   formation text DEFAULT '4-4-2',
@@ -157,7 +163,7 @@ CREATE POLICY "Permitir actualizar tácticas" ON public.tactics FOR UPDATE USING 
 
 
 -- Script para tabla de competiciones
-CREATE TABLE public.competitions (
+CREATE TABLE IF NOT EXISTS public.competitions (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   name text NOT NULL,
   level int DEFAULT 1,
@@ -166,7 +172,7 @@ CREATE TABLE public.competitions (
 );
 
 -- Script para standings (posiciones)
-CREATE TABLE public.standings (
+CREATE TABLE IF NOT EXISTS public.standings (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   competition_id uuid REFERENCES public.competitions(id) NOT NULL,
   club_id uuid REFERENCES public.clubs(id) NOT NULL,
@@ -189,4 +195,5 @@ ALTER TABLE public.standings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir leer standings" ON public.standings FOR SELECT USING (true);
 CREATE POLICY "Permitir actualizar standings" ON public.standings FOR UPDATE USING (true);
 CREATE POLICY "Permitir insertar standings" ON public.standings FOR INSERT WITH CHECK (true);
+
 
