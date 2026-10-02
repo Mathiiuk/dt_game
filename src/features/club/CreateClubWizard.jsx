@@ -69,7 +69,7 @@ export default function CreateClubWizard() {
     try {
       await clubApi.createClub(manager.id, { identity, history, stadium })
       toast.success('¡Club fundado exitosamente!')
-      navigate('/game')
+      navigate('/dashboard')
     } catch (err) {
       toast.error(err.message)
     } finally {
