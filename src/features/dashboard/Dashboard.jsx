@@ -141,9 +141,14 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <button onClick={() => navigate('/tactics')} className="w-full py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
-              Ver Táctica
-            </button>
+            <div className="flex gap-4">
+              <button onClick={() => navigate('/tactics')} className="flex-1 py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
+                Táctica
+              </button>
+              <button onClick={() => navigate('/match')} className="flex-1 py-4 font-bold text-black transition-transform rounded-xl bg-emerald-500 hover:bg-emerald-400 hover:scale-[1.01]">
+                Jugar Partido
+              </button>
+            </div>
           </div>
 
           {/* Status Panel */}
