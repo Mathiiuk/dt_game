@@ -6,7 +6,7 @@ export default function BottomNav() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const showNav = ['/dashboard', '/squad', '/club', '/market', '/standings'].includes(location.pathname)
+  const showNav = ['/dashboard', '/squad', '/club', '/market', '/standings', '/training'].includes(location.pathname)
 
   if (!showNav) return null
 

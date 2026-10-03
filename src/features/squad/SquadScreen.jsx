@@ -111,7 +111,7 @@ export default function SquadScreen() {
                   <th className="pb-3 font-medium">Nombre</th>
                   <th className="pb-3 font-medium">Pos</th>
                   <th className="pb-3 font-medium">Edad</th>
-                  <th className="pb-3 font-medium">Rol</th>
+                  <th className="pb-3 font-medium">Físico</th>
                   <th className="pb-3 font-medium">Salario</th>
                   <th className="pb-3 font-medium">Acción</th>
                 </tr>
@@ -132,6 +132,11 @@ export default function SquadScreen() {
                     <td className="py-3 text-zinc-400">
                       <div>{p.contract_role || 'Rotación'}</div>
                       <div className="text-[10px] text-zinc-500">{p.personality}</div>
+                    </td>
+                    <td className="py-3">
+                      <span className={`px-2 py-1 text-xs font-bold rounded-md ${p.state_fitness < 60 ? 'bg-red-500/10 text-red-400' : p.state_fitness < 80 ? 'bg-yellow-500/10 text-yellow-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                        {p.state_fitness}%
+                      </span>
                     </td>
                     <td className="py-3 font-mono text-emerald-400">${(p.contract_salary || 10000).toLocaleString()}</td>
                     <td className="py-3">
