@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T21:25:04.649Z",
+  "updatedAt": "2026-10-03T21:31:09.095Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 48,
-    "totalEdges": 190,
-    "totalTasks": 1,
+    "totalNodes": 51,
+    "totalEdges": 202,
+    "totalTasks": 2,
     "totalLessons": 0
   },
   "nodes": [
@@ -64,7 +64,7 @@
       "id": "src/api/clubHistory.js",
       "label": "clubHistory.js",
       "type": "module",
-      "sizeBytes": 10857,
+      "sizeBytes": 11158,
       "lineCount": 302,
       "imports": [
         "./supabase"
@@ -148,6 +148,19 @@
       "lineCount": 230,
       "imports": [
         "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/internationalCup.js",
+      "label": "internationalCup.js",
+      "type": "module",
+      "sizeBytes": 10335,
+      "lineCount": 315,
+      "imports": [
+        "./supabase",
+        "./clubHistory",
+        "./manager",
+        "./audit"
       ]
     },
     {
@@ -259,8 +272,8 @@
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
-      "sizeBytes": 2925,
-      "lineCount": 62,
+      "sizeBytes": 3095,
+      "lineCount": 64,
       "imports": [
         "react",
         "react-router-dom",
@@ -281,6 +294,7 @@
         "./features/finances/FinancesScreen",
         "./features/training/TrainingScreen",
         "./features/manager/ManagerCareerScreen",
+        "./features/competition/InternationalCupScreen",
         "./components/ReloadPrompt",
         "./context/GameContext",
         "./components/BottomNav"
@@ -380,7 +394,7 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 26516,
+      "sizeBytes": 27062,
       "lineCount": 547,
       "imports": [
         "react",
@@ -395,11 +409,26 @@
       ]
     },
     {
+      "id": "src/features/competition/InternationalCupScreen.jsx",
+      "label": "InternationalCupScreen.jsx",
+      "type": "module",
+      "sizeBytes": 11142,
+      "lineCount": 277,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/internationalCup",
+        "../../context/GameContext",
+        "lucide-react",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 5629,
-      "lineCount": 125,
+      "sizeBytes": 6213,
+      "lineCount": 134,
       "imports": [
         "react",
         "react-router-dom",
@@ -416,8 +445,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 18942,
-      "lineCount": 370,
+      "sizeBytes": 20405,
+      "lineCount": 393,
       "imports": [
         "react",
         "react-router-dom",
@@ -619,6 +648,13 @@
       ]
     },
     {
+      "id": "task:f2-34-international-cups",
+      "label": "f2-34-international-cups: Fase 34: Competiciones Internacionales y Copas Continentales",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:f2-36-37-club-history-idols",
       "label": "f2-36-37-club-history-idols: Fases 36 y 37: Historia del Club, Récords e Ídolos",
       "type": "task",
@@ -705,6 +741,26 @@
     {
       "from": "src/api/gameLoop.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/internationalCup.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/internationalCup.js",
+      "to": "./clubHistory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/internationalCup.js",
+      "to": "./manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/internationalCup.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -880,6 +936,11 @@
     {
       "from": "src/App.jsx",
       "to": "./features/manager/ManagerCareerScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/competition/InternationalCupScreen",
       "relation": "depends_on"
     },
     {
@@ -1080,6 +1141,36 @@
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "../../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "../../api/internationalCup",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -1571,6 +1662,11 @@
       "from": "src/store.js",
       "to": "zustand",
       "relation": "depends_on"
+    },
+    {
+      "from": "task:f2-34-international-cups",
+      "to": ".agents/workflow/tasks/f2-34-international-cups.yml",
+      "relation": "manifested_by"
     },
     {
       "from": "task:f2-36-37-club-history-idols",

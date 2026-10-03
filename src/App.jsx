@@ -17,6 +17,7 @@ import ClubScreen from './features/club/screens/ClubScreen'
 import FinancesScreen from './features/finances/FinancesScreen'
 import TrainingScreen from './features/training/TrainingScreen'
 import ManagerCareerScreen from './features/manager/ManagerCareerScreen'
+import InternationalCupScreen from './features/competition/InternationalCupScreen'
 import ReloadPrompt from './components/ReloadPrompt'
 import { GameProvider } from './context/GameContext'
 import BottomNav from './components/BottomNav'
@@ -46,6 +47,7 @@ function App() {
             <Route path="/finances" element={<FinancesScreen />} />
             <Route path="/training" element={<TrainingScreen />} />
             <Route path="/manager" element={<ManagerCareerScreen />} />
+            <Route path="/international-cup" element={<InternationalCupScreen />} />
             <Route path="/game" element={<Navigate to="/welcome" replace />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
           </Routes>

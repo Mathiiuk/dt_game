@@ -4,7 +4,7 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { gameLoopApi } from '../../api/gameLoop'
-import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign, Bell } from 'lucide-react'
+import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign, Bell, Globe, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useGameContext } from '../../context/GameContext'
@@ -214,6 +214,29 @@ export default function Dashboard() {
             </button>
           </div>
         </header>
+
+        {/* Acceso a Copa Continental (Fase 34) */}
+        <div 
+          onClick={() => navigate('/international-cup')}
+          className="mb-6 p-3.5 md:p-4 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 group-hover:scale-105 transition-transform">
+              <Globe className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-bold text-xs md:text-sm text-white">Copa Gloria Continental</h4>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">En Curso</span>
+              </div>
+              <p className="text-[11px] text-zinc-400 mt-0.5">Certamen internacional de clubes • Premio al campeón: $1,000,000</p>
+            </div>
+          </div>
+          <button className="hidden sm:flex items-center gap-1 text-xs font-bold text-amber-400 group-hover:text-amber-300 transition-colors">
+            <span>Ver Cuadro</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
 
         {/* Dynamic Events */}
         {data.events && data.events.length > 0 && data.events.map(ev => (

@@ -4,7 +4,7 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { competitionApi } from '../../api/competition'
-import { ArrowLeft, Trophy } from 'lucide-react'
+import { ArrowLeft, Trophy, Globe } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useGameContext } from '../../context/GameContext'
@@ -66,12 +66,21 @@ export default function StandingsScreen() {
           </div>
         </div>
         
-        <button 
-          onClick={handleEndSeason}
-          className="w-full md:w-auto px-4 py-3 md:py-2 text-sm font-bold text-black transition-colors bg-emerald-500 rounded-lg hover:bg-emerald-400"
-        >
-          Finalizar Temporada
-        </button>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <button 
+            onClick={() => navigate('/international-cup')}
+            className="flex-1 md:flex-initial px-4 py-2.5 md:py-2 text-xs md:text-sm font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg hover:bg-amber-500/20 transition-colors flex items-center justify-center gap-1.5"
+          >
+            <Globe className="w-4 h-4 text-amber-400" />
+            <span>Copa Continental</span>
+          </button>
+          <button 
+            onClick={handleEndSeason}
+            className="flex-1 md:flex-initial px-4 py-2.5 md:py-2 text-xs md:text-sm font-bold text-black transition-colors bg-emerald-500 rounded-lg hover:bg-emerald-400"
+          >
+            Finalizar Temporada
+          </button>
+        </div>
       </header>
 
       <div className="max-w-4xl p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
