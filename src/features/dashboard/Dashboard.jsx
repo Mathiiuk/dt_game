@@ -139,7 +139,11 @@ export default function Dashboard() {
             </button>
           ))}
         </nav>
-        <div className="pt-4 mt-auto border-t border-zinc-900 space-y-3">
+        <div 
+          onClick={() => navigate('/manager')}
+          className="pt-4 mt-auto border-t border-zinc-900 space-y-3 cursor-pointer p-2 rounded-2xl hover:bg-zinc-900 transition-colors"
+          title="Ver Carrera y Administración del DT"
+        >
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 font-bold text-black rounded-full bg-emerald-500 shrink-0">
               {manager.first_name[0]}{manager.last_name[0]}
@@ -170,17 +174,29 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8">
         <header className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
-          <div className="flex items-center gap-4 mb-4 md:mb-0">
-            <button 
-              onClick={() => setSidebarOpen(true)} 
-              className="p-2 transition-colors rounded-lg bg-zinc-900 text-emerald-500 lg:hidden hover:bg-zinc-800"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-            <div>
-              <h2 className="text-xl md:text-3xl font-black text-white">{club.name}</h2>
-              <p className="text-xs md:text-sm text-zinc-400">{club.city}, {club.country}</p>
+          <div className="flex items-center justify-between w-full md:w-auto gap-4 mb-4 md:mb-0">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setSidebarOpen(true)} 
+                className="p-2 transition-colors rounded-lg bg-zinc-900 text-emerald-500 lg:hidden hover:bg-zinc-800"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+              </button>
+              <div>
+                <h2 className="text-xl md:text-3xl font-black text-white">{club.name}</h2>
+                <p className="text-xs md:text-sm text-zinc-400">{club.city}, {club.country}</p>
+              </div>
             </div>
+            <button
+              onClick={() => navigate('/manager')}
+              className="lg:hidden flex items-center gap-2 p-1.5 pr-3 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors"
+              title="Perfil del DT"
+            >
+              <div className="w-7 h-7 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-xs">
+                {manager.first_name[0]}{manager.last_name[0]}
+              </div>
+              <span className="text-xs font-bold text-zinc-300">DT</span>
+            </button>
           </div>
 
           <div className="flex flex-wrap items-center justify-between w-full gap-4 md:gap-6 md:justify-end md:w-auto mt-4 md:mt-0">

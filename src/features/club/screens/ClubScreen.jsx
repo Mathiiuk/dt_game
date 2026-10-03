@@ -89,24 +89,9 @@ export default function ClubScreen() {
             <Building2 className="w-6 h-6 md:w-8 md:h-8 shrink-0" /> MI CLUB
           </h1>
         </div>
-        <div className="flex items-center gap-4 w-full md:w-auto bg-zinc-900 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none justify-between md:justify-end">
-          <button
-            onClick={async () => {
-              if (window.confirm('¿Seguro que deseas retirarte? Tu carrera finalizará aquí y quedarás en la historia.')) {
-                toast.success('Te has retirado del fútbol. ¡Leyenda!')
-                const { supabase } = await import('../../../api/supabase')
-                await supabase.from('managers').update({ is_retired: true }).eq('id', club.manager_id)
-                navigate('/auth')
-              }
-            }}
-            className="text-xs text-red-500 font-bold hover:underline"
-          >
-            Retirarse (DT)
-          </button>
-          <div className="text-right">
-            <p className="text-xs md:text-sm text-zinc-500">Presupuesto</p>
-            <p className="text-xl md:text-2xl font-black text-emerald-400">${Number(club?.budget || 0).toLocaleString()}</p>
-          </div>
+        <div className="text-right">
+          <p className="text-xs md:text-sm text-zinc-500">Presupuesto</p>
+          <p className="text-xl md:text-2xl font-black text-emerald-400">${Number(club?.budget || 0).toLocaleString()}</p>
         </div>
       </header>
 
