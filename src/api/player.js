@@ -64,7 +64,10 @@ export const playerApi = {
         is_injured: false,
         is_suspended: false,
         contract_wage: baseLevel * 100,
+        contract_salary: baseLevel * 100,
         contract_years: randomInt(1, 4),
+        contract_role: idx < 11 ? 'Titular' : 'Rotación',
+        attr_potential: Math.min(99, baseLevel + randomInt(0, 15)),
         market_value: baseLevel * 5000,
         release_clause: baseLevel * 10000,
         squad_role: idx < 11 ? 'Titular' : 'Rotación'

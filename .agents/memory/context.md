@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-03T22:35:00.777Z | **Nodos:** 57 | **Tareas:** 5
+> **Última sincronización:** 2026-10-03T22:42:27.658Z | **Nodos:** 58 | **Tareas:** 6
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -41,3 +41,4 @@ _(+27 módulos adicionales; consultar con `memory:query`)_
 - **f2-36-37-club-history-idols: Fases 36 y 37: Historia del Club, Récords e Ídolos** `[DONE]`
 - **f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX** `[DONE]`
 - **f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos** `[DONE]`
+- **f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs** `[DONE]`

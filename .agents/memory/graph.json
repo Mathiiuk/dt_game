@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T22:35:00.777Z",
+  "updatedAt": "2026-10-03T22:42:27.658Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 57,
-    "totalEdges": 217,
-    "totalTasks": 5,
+    "totalNodes": 58,
+    "totalEdges": 218,
+    "totalTasks": 6,
     "totalLessons": 0
   },
   "nodes": [
@@ -228,8 +228,8 @@
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 3272,
-      "lineCount": 109,
+      "sizeBytes": 3444,
+      "lineCount": 112,
       "imports": [
         "./supabase"
       ]
@@ -717,6 +717,13 @@
     {
       "id": "task:f2-db-audit-optimization",
       "label": "f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-db-deep-fixes",
+      "label": "f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -1806,6 +1813,11 @@
     {
       "from": "task:f2-db-audit-optimization",
       "to": ".agents/workflow/tasks/f2-db-audit-optimization.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-db-deep-fixes",
+      "to": ".agents/workflow/tasks/f2-db-deep-fixes.yml",
       "relation": "manifested_by"
     }
   ],
