@@ -4,34 +4,26 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { gameLoopApi } from '../../api/gameLoop'
-import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign } from 'lucide-react'
+import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign, Bell } from 'lucide-react'
 import { toast } from 'sonner'
+
+import { useGameContext } from '../../context/GameContext'
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const [data, setData] = useState({ user: null, manager: null, club: null })
+  const { user, manager, club, loading: contextLoading, refreshContext } = useGameContext()
+  const [data, setData] = useState({ levelInfo: null, nextFixture: null })
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
 
   useEffect(() => {
+    if (contextLoading || !club) return
+
     const loadDashboard = async () => {
       try {
-        const user = await authApi.getSession()
-        if (!user) return navigate('/auth')
-        
-        const manager = await managerApi.getManager(user.id)
-        if (!manager) return navigate('/create-manager')
-        
-        const club = await clubApi.getClubByManager(manager.id)
-        if (!club) return navigate('/create-club')
-        
-        // Asignar default date si no existe para compatibilidad hacia atrás
-        if (!club.game_date) club.game_date = '2026-07-01'
-        
         const { levelsApi } = await import('../../api/levels')
         const levelInfo = await levelsApi.getLevelInfo(manager.xp)
 
-        // Fetch Next Fixture
         const { supabase } = await import('../../api/supabase')
         const { data: fixture } = await supabase
           .from('fixtures')
@@ -42,7 +34,7 @@ export default function Dashboard() {
           .limit(1)
           .single()
 
-        setData({ user, manager, club, levelInfo, nextFixture: fixture || null })
+        setData({ levelInfo, nextFixture: fixture || null })
       } catch (e) {
         console.error(e)
       } finally {
@@ -50,10 +42,10 @@ export default function Dashboard() {
       }
     }
     loadDashboard()
-  }, [navigate])
+  }, [contextLoading, club, manager])
 
   const handleAdvanceWeek = async () => {
-    if (data.nextFixture && data.nextFixture.match_date <= data.club.game_date) {
+    if (data.nextFixture && data.nextFixture.match_date <= club.game_date) {
       toast.error('Debes jugar tu partido pendiente antes de avanzar de semana.')
       return
     }
@@ -61,11 +53,11 @@ export default function Dashboard() {
     setAdvancing(true)
     try {
       const { gameLoopApi } = await import('../../api/gameLoop')
-      const newDate = await gameLoopApi.advanceWeek(data.club.id, data.manager.id)
-      setData(prev => ({ ...prev, club: { ...prev.club, game_date: newDate } }))
+      const newDate = await gameLoopApi.advanceWeek(club.id, manager.id)
+      await refreshContext()
       toast.success('Semana completada. Plantel entrenado.')
-      // Recargar para traer el nuevo fixture
-      setTimeout(() => window.location.reload(), 1000)
+      // Recargar no es necesario si actualizamos context
+      window.location.reload()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -75,11 +67,9 @@ export default function Dashboard() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  if (loading) {
+  if (loading || contextLoading) {
     return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando la oficina...</div>
   }
-
-  const { manager, club } = data
 
   const navItems = [
     { icon: Home, label: 'Inicio', active: true },
@@ -161,7 +151,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8">
         <header className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
             <button 
@@ -171,25 +161,12 @@ export default function Dashboard() {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
             <div>
-              <h2 className="text-3xl font-black text-white">{club.name}</h2>
-              <p className="text-zinc-400">{club.city}, {club.country}</p>
+              <h2 className="text-xl md:text-3xl font-black text-white">{club.name}</h2>
+              <p className="text-xs md:text-sm text-zinc-400">{club.city}, {club.country}</p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between w-full gap-4 md:gap-6 md:justify-end md:w-auto mt-4 md:mt-0">
-            <button
-              onClick={async () => {
-                if (window.confirm('¿Seguro que deseas retirarte? Tu carrera finalizará aquí y quedarás en la historia.')) {
-                  toast.success('Te has retirado del fútbol. ¡Leyenda!')
-                  const { supabase } = await import('../../api/supabase')
-                  await supabase.from('managers').update({ is_retired: true }).eq('id', manager.id)
-                  navigate('/auth')
-                }
-              }}
-              className="text-xs text-red-500 font-bold hover:underline"
-            >
-              Retirarse
-            </button>
             <div className="text-right">
               <p className="text-sm text-zinc-500 capitalize">{formattedDate}</p>
               <p className="text-lg md:text-xl font-bold text-emerald-400">Semana de Gestión</p>
@@ -208,7 +185,9 @@ export default function Dashboard() {
         {/* Dynamic Event MVP */}
         {Math.random() > 0.8 && (
           <div className="p-6 mb-6 border border-blue-900/50 rounded-3xl bg-blue-900/10">
-            <h3 className="mb-2 font-bold text-blue-400">🔔 Evento: Mensaje del Presidente</h3>
+            <h3 className="mb-2 font-bold text-blue-400 flex items-center gap-2">
+              <Bell className="w-5 h-5" /> Evento: Mensaje del Presidente
+            </h3>
             <p className="mb-4 text-sm text-zinc-300">"Míster, confío en que el equipo empiece a mostrar los resultados prometidos. Necesitamos ganar el próximo partido."</p>
             <div className="flex gap-4">
               <button onClick={(e) => { e.target.parentElement.parentElement.style.display = 'none'; toast.success('Aceptaste el desafío') }} className="px-4 py-2 text-xs font-bold text-black bg-blue-500 rounded hover:bg-blue-400">Aceptar (+Presión)</button>

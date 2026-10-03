@@ -7,28 +7,23 @@ import { competitionApi } from '../../api/competition'
 import { ArrowLeft, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useGameContext } from '../../context/GameContext'
+
 export default function StandingsScreen() {
   const navigate = useNavigate()
+  const { club, loading: contextLoading } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [standings, setStandings] = useState([])
-  const [clubId, setClubId] = useState(null)
 
   useEffect(() => {
+    if (contextLoading || !club) return
     const load = async () => {
       try {
-        const user = await authApi.getSession()
-        if (!user) return navigate('/auth')
-        const manager = await managerApi.getManager(user.id)
-        const club = await clubApi.getClubByManager(manager.id)
-        setClubId(club.id)
-        
         let data = await competitionApi.getStandings(club.id)
         if (!data || data.length === 0) {
-          // Si es un club viejo que no generó liga al crearse, lo inicializamos ahora (Migración)
           await competitionApi.initializeLeague(club.id, club.country)
           data = await competitionApi.getStandings(club.id)
         }
-        
         setStandings(data)
       } catch (e) {
         toast.error(e.message)
@@ -37,7 +32,7 @@ export default function StandingsScreen() {
       }
     }
     load()
-  }, [navigate])
+  }, [contextLoading, club])
 
   const handleEndSeason = async () => {
     if (!window.confirm('¿Finalizar temporada? Se procesarán las edades, retiros, y se reiniciará la tabla.')) return
@@ -45,7 +40,7 @@ export default function StandingsScreen() {
     try {
       setLoading(true)
       const { gameLoopApi } = await import('../../api/gameLoop')
-      await gameLoopApi.endSeason(clubId)
+      await gameLoopApi.endSeason(club.id)
       toast.success('Temporada Finalizada')
       window.location.reload()
     } catch(e) {
@@ -54,10 +49,10 @@ export default function StandingsScreen() {
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando tabla...</div>
+  if (loading || contextLoading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando tabla...</div>
 
   return (
-    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950 pb-24 lg:pb-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
@@ -97,7 +92,7 @@ export default function StandingsScreen() {
             </thead>
             <tbody className="text-sm">
               {standings.map((s, idx) => {
-                const isMe = s.club_id === clubId
+                const isMe = s.club_id === club.id
                 const diff = s.goals_for - s.goals_against
                 
                 return (

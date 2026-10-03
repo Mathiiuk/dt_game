@@ -8,23 +8,21 @@ import { contractApi } from '../../api/contracts'
 import { ArrowLeft, Users, FileSignature, DollarSign, Bell } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useGameContext } from '../../context/GameContext'
+
 export default function SquadScreen() {
   const navigate = useNavigate()
+  const { user, manager, club, loading: contextLoading } = useGameContext()
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({ club: null, players: [], offers: [] })
+  const [data, setData] = useState({ players: [], offers: [] })
   const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   const loadData = async () => {
     try {
-      const user = await authApi.getSession()
-      if (!user) return navigate('/auth')
-      const manager = await managerApi.getManager(user.id)
-      const club = await clubApi.getClubByManager(manager.id)
       const players = await playerApi.getSquad(club.id)
-      
       const offers = await contractApi.getOffersForClub(club.id)
       
-      setData({ club, players, offers, manager })
+      setData({ players, offers })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -33,8 +31,9 @@ export default function SquadScreen() {
   }
 
   useEffect(() => {
+    if (contextLoading || !club) return
     loadData()
-  }, [navigate])
+  }, [contextLoading, club])
 
   const handleRenew = async (player) => {
     const newSalary = player.contract_salary + 5000
@@ -71,9 +70,9 @@ export default function SquadScreen() {
         status, 
         offer.player_id, 
         offer.from_club_id, 
-        data.club.id, 
+        club.id, 
         offer.amount, 
-        data.manager.id // We don't have manager ID directly? Wait, we have manager in data? We need to add manager to setData
+        manager.id
       )
       if (status === 'ACCEPTED') {
         toast.success(`Jugador vendido por $${offer.amount.toLocaleString()}`)
@@ -86,10 +85,10 @@ export default function SquadScreen() {
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando plantel...</div>
+  if (loading || contextLoading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando plantel...</div>
 
   return (
-    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950 pb-24 lg:pb-8">
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
@@ -136,16 +135,16 @@ export default function SquadScreen() {
                     </td>
                     <td className="py-3 font-mono text-emerald-400">${(p.contract_salary || 10000).toLocaleString()}</td>
                     <td className="py-3">
-                      <div className="flex gap-2">
+                      <div className="flex flex-col md:flex-row gap-2">
                         <button 
                           onClick={() => handleRenew(p)}
-                          className="flex items-center gap-1 text-xs font-bold text-black transition-colors bg-white rounded-lg px-3 py-1.5 hover:bg-zinc-200"
+                          className="flex items-center justify-center gap-1 text-xs font-bold text-black transition-colors bg-white rounded-lg px-3 py-1.5 hover:bg-zinc-200 w-full md:w-auto"
                         >
                           <FileSignature className="w-3 h-3" /> Renovar
                         </button>
                         <button 
                           onClick={() => handleTransferList(p)}
-                          className={`flex items-center gap-1 text-xs font-bold transition-colors border rounded-lg px-3 py-1.5 ${
+                          className={`flex items-center justify-center gap-1 text-xs font-bold transition-colors border rounded-lg px-3 py-1.5 w-full md:w-auto ${
                             p.is_transfer_listed 
                               ? 'bg-red-500/20 text-red-500 border-red-500/50 hover:bg-red-500/30' 
                               : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:bg-zinc-700'
@@ -174,10 +173,10 @@ export default function SquadScreen() {
               <div>
                 <div className="flex justify-between mb-2 text-sm">
                   <span className="text-zinc-400">Cohesión</span>
-                  <span className="text-emerald-400">{data.club?.cohesion || 50}%</span>
+                  <span className="text-emerald-400">{club?.cohesion || 50}%</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${data.club?.cohesion || 50}%` }} />
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${club?.cohesion || 50}%` }} />
                 </div>
               </div>
             </div>

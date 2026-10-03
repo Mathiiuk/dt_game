@@ -8,24 +8,24 @@ import { playerApi } from '../../api/player'
 import { ArrowLeft, Save, Loader2, LayoutGrid } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useGameContext } from '../../context/GameContext'
+
 export default function TacticsScreen() {
   const navigate = useNavigate()
-  const [data, setData] = useState({ club: null, tactic: null, players: [] })
+  const { club, loading: contextLoading } = useGameContext()
+  const [data, setData] = useState({ tactic: null, players: [] })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState(null)
 
   useEffect(() => {
+    if (contextLoading || !club) return
     const load = async () => {
       try {
-        const user = await authApi.getSession()
-        if (!user) return navigate('/auth')
-        const manager = await managerApi.getManager(user.id)
-        const club = await clubApi.getClubByManager(manager.id)
         const tactic = await tacticsApi.getTactic(club.id)
         const players = await playerApi.getSquad(club.id)
         
-        setData({ club, tactic, players })
+        setData({ tactic, players })
         setForm(tactic)
       } catch (e) {
         toast.error(e.message)
@@ -34,12 +34,12 @@ export default function TacticsScreen() {
       }
     }
     load()
-  }, [navigate])
+  }, [contextLoading, club])
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      await tacticsApi.updateTactic(data.club.id, form)
+      await tacticsApi.updateTactic(club.id, form)
       toast.success('Táctica guardada')
     } catch (e) {
       toast.error(e.message)
@@ -48,18 +48,18 @@ export default function TacticsScreen() {
     }
   }
 
-  if (loading || !form) {
+  if (loading || !form || contextLoading) {
     return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando pizarra...</div>
   }
 
   return (
-    <div className="min-h-screen p-8 text-white bg-zinc-950">
-      <header className="flex items-center justify-between mb-8">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950 pb-24 lg:pb-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-3xl font-black text-emerald-500">PIZARRA TÁCTICA</h1>
+          <h1 className="text-xl md:text-3xl font-black text-emerald-500 truncate leading-none mb-1">PIZARRA TÁCTICA</h1>
         </div>
         <button 
           onClick={handleSave}

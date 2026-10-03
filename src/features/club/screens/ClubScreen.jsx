@@ -7,18 +7,16 @@ import { staffApi, academyApi } from '../../../api/clubFeatures'
 import { ArrowLeft, Building2, UserPlus, GraduationCap, Briefcase } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useGameContext } from '../../../context/GameContext'
+
 export default function ClubScreen() {
   const navigate = useNavigate()
+  const { club, loading: contextLoading, refreshContext } = useGameContext()
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({ club: null, staff: [], youth: [], candidates: [] })
+  const [data, setData] = useState({ staff: [], youth: [], candidates: [], history: [], idols: [] })
   
   const loadData = async () => {
     try {
-      const user = await authApi.getSession()
-      if (!user) return navigate('/auth')
-      const manager = await managerApi.getManager(user.id)
-      const club = await clubApi.getClubByManager(manager.id)
-      
       const staff = await staffApi.getStaff(club.id)
       const youth = await academyApi.getYouthPlayers(club.id)
       const candidates = await staffApi.getAvailableStaff()
@@ -27,7 +25,7 @@ export default function ClubScreen() {
       const { data: history } = await supabase.from('season_history').select('*').eq('club_id', club.id).order('season_year', { ascending: false })
       const { data: idols } = await supabase.from('players').select('*').eq('club_id', club.id).eq('is_idol', true)
 
-      setData({ club, staff, youth, candidates, history: history || [], idols: idols || [] })
+      setData({ staff, youth, candidates, history: history || [], idols: idols || [] })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -36,12 +34,13 @@ export default function ClubScreen() {
   }
 
   useEffect(() => {
+    if (contextLoading || !club) return
     loadData()
-  }, [navigate])
+  }, [contextLoading, club])
 
   const handleHireStaff = async (staffMember) => {
     try {
-      await staffApi.hireStaff(data.club.id, staffMember)
+      await staffApi.hireStaff(club.id, staffMember)
       toast.success(`${staffMember.name} contratado como ${staffMember.role}`)
       loadData()
     } catch (e) {
@@ -52,9 +51,9 @@ export default function ClubScreen() {
   const handleGenerateProspect = async () => {
     try {
       // Costo de scouting 5k
-      if (data.club.budget < 5000) return toast.error('Presupuesto insuficiente')
-      await clubApi.updateClub(data.club.id, { budget: data.club.budget - 5000 })
-      await academyApi.generateYouthProspect(data.club.id, data.club.academy_level || 1)
+      if (club.budget < 5000) return toast.error('Presupuesto insuficiente')
+      await clubApi.updateClub(club.id, { budget: club.budget - 5000 })
+      await academyApi.generateYouthProspect(club.id, club.academy_level || 1)
       toast.success('¡Nuevo juvenil reclutado en la academia!')
       loadData()
     } catch(e) {
@@ -72,22 +71,37 @@ export default function ClubScreen() {
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando instalaciones...</div>
+  if (loading || contextLoading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando instalaciones...</div>
 
   return (
-    <div className="min-h-screen p-8 text-white bg-zinc-950">
-      <header className="flex items-center justify-between mb-8">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950 pb-24 lg:pb-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-3xl font-black flex items-center gap-2 text-emerald-500">
-            <Building2 className="w-8 h-8" /> MI CLUB
+          <h1 className="text-xl md:text-3xl font-black flex items-center gap-2 text-emerald-500 truncate leading-none mb-1">
+            <Building2 className="w-6 h-6 md:w-8 md:h-8 shrink-0" /> MI CLUB
           </h1>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-zinc-500">Presupuesto</p>
-          <p className="text-2xl font-black text-emerald-400">${Number(data.club?.budget || 0).toLocaleString()}</p>
+        <div className="flex items-center gap-4 w-full md:w-auto bg-zinc-900 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none justify-between md:justify-end">
+          <button
+            onClick={async () => {
+              if (window.confirm('¿Seguro que deseas retirarte? Tu carrera finalizará aquí y quedarás en la historia.')) {
+                toast.success('Te has retirado del fútbol. ¡Leyenda!')
+                const { supabase } = await import('../../../api/supabase')
+                await supabase.from('managers').update({ is_retired: true }).eq('id', club.manager_id)
+                navigate('/auth')
+              }
+            }}
+            className="text-xs text-red-500 font-bold hover:underline"
+          >
+            Retirarse (DT)
+          </button>
+          <div className="text-right">
+            <p className="text-xs md:text-sm text-zinc-500">Presupuesto</p>
+            <p className="text-xl md:text-2xl font-black text-emerald-400">${Number(club?.budget || 0).toLocaleString()}</p>
+          </div>
         </div>
       </header>
 
@@ -142,7 +156,7 @@ export default function ClubScreen() {
           <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
             <div className="flex justify-between items-center mb-6">
               <h2 className="flex items-center gap-2 font-bold text-white text-xl">
-                <GraduationCap className="w-5 h-5 text-emerald-500" /> Academia (Nv. {data.club?.academy_level})
+                <GraduationCap className="w-5 h-5 text-emerald-500" /> Academia (Nv. {club?.academy_level})
               </h2>
               <button onClick={handleGenerateProspect} className="px-4 py-2 bg-emerald-500 text-black font-bold text-sm rounded-lg hover:bg-emerald-400">
                 Otear Talento (-$5k)
@@ -183,7 +197,7 @@ export default function ClubScreen() {
               </p>
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <p className="font-bold text-white">Atlético Regional (Tier {Math.max(1, (data.club?.league_tier || 1) - 1)})</p>
+                  <p className="font-bold text-white">Atlético Regional (Tier {Math.max(1, (club?.league_tier || 1) - 1)})</p>
                   <p className="text-xs text-purple-400">Objetivo: Evitar el Descenso</p>
                 </div>
               </div>

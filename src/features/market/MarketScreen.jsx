@@ -7,25 +7,22 @@ import { marketApi } from '../../api/market'
 import { ArrowLeft, Search, ShoppingCart, UserPlus, Filter } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useGameContext } from '../../context/GameContext'
+
 export default function MarketScreen() {
   const navigate = useNavigate()
+  const { user, manager, club, loading: contextLoading } = useGameContext()
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({ club: null, players: [] })
+  const [data, setData] = useState({ players: [], marketStatus: null })
   const [filters, setFilters] = useState({ position: '', minPace: '' })
   const [buyingId, setBuyingId] = useState(null)
 
   const loadData = async () => {
     try {
-      const user = await authApi.getSession()
-      if (!user) return navigate('/auth')
-      const manager = await managerApi.getManager(user.id)
-      const club = await clubApi.getClubByManager(manager.id)
-      
       let players = await marketApi.getMarketPlayers(club.id, filters)
-      
       const marketStatus = marketApi.getMarketStatus(club.game_date)
       
-      setData({ club, players, marketStatus, manager })
+      setData({ players, marketStatus })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -34,8 +31,9 @@ export default function MarketScreen() {
   }
 
   useEffect(() => {
+    if (contextLoading || !club) return
     loadData()
-  }, []) // Removemos dependencias para no loopear al tipear
+  }, [contextLoading, club]) // Solo carga al montar o al tener el club
 
   const handleSearch = () => {
     setLoading(true)
@@ -56,7 +54,7 @@ export default function MarketScreen() {
 
     setBuyingId(player.id)
     try {
-      await marketApi.buyPlayer(data.club.id, player.id, offerAmount, data.manager.id)
+      await marketApi.buyPlayer(club.id, player.id, offerAmount, manager.id)
       toast.success(`¡Acuerdo cerrado! ${player.last_name} ha fichado por el club por $${offerAmount.toLocaleString()}.`)
       loadData()
     } catch (e) {
@@ -66,10 +64,10 @@ export default function MarketScreen() {
     }
   }
 
-  if (loading && !data.club) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando mercado...</div>
+  if (loading || contextLoading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando mercado...</div>
 
   return (
-    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950 pb-24 lg:pb-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
@@ -84,7 +82,7 @@ export default function MarketScreen() {
         </div>
         <div className="text-left md:text-right w-full md:w-auto bg-zinc-900 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none">
           <p className="text-xs md:text-sm text-zinc-500">Presupuesto Disponible</p>
-          <p className="text-xl md:text-2xl font-black text-emerald-400">${Number(data.club?.budget || 0).toLocaleString()}</p>
+          <p className="text-xl md:text-2xl font-black text-emerald-400">${Number(club?.budget || 0).toLocaleString()}</p>
         </div>
       </header>
 
@@ -144,7 +142,7 @@ export default function MarketScreen() {
             ) : (
               data.players.map(p => {
                 const price = p.market_value || (p.attr_pace * 10000)
-                const isAffordable = data.club?.budget >= price
+                const isAffordable = club?.budget >= price
                 return (
                   <div key={p.id} className="p-5 border border-zinc-800 rounded-2xl bg-zinc-900/50 hover:border-zinc-700 transition-colors">
                     <div className="flex justify-between items-start mb-4">
@@ -181,7 +179,7 @@ export default function MarketScreen() {
                           <button 
                             onClick={async () => {
                               try {
-                                await marketApi.scoutPlayer(data.club.id, p.id);
+                                await marketApi.scoutPlayer(club.id, p.id);
                                 toast.success(`Reporte de scout completado para ${p.last_name}`);
                                 loadData();
                               } catch(e) {

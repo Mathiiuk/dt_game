@@ -16,6 +16,8 @@ import SquadScreen from './features/squad/SquadScreen'
 import ClubScreen from './features/club/screens/ClubScreen'
 import FinancesScreen from './features/finances/FinancesScreen'
 import ReloadPrompt from './components/ReloadPrompt'
+import { GameProvider } from './context/GameContext'
+import BottomNav from './components/BottomNav'
 
 function App() {
   useEffect(() => {
@@ -25,25 +27,28 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
-        <Routes>
-          <Route path="/auth" element={<AuthScreen />} />
-          <Route path="/welcome" element={<WelcomeScreen />} />
-          <Route path="/create-manager" element={<CreateManagerWizard />} />
-          <Route path="/create-club" element={<CreateClubWizard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/tactics" element={<TacticsScreen />} />
-          <Route path="/match" element={<MatchScreen />} />
-          <Route path="/post-match" element={<PostMatchScreen />} />
-          <Route path="/standings" element={<StandingsScreen />} />
-          <Route path="/market" element={<MarketScreen />} />
-          <Route path="/squad" element={<SquadScreen />} />
-          <Route path="/club" element={<ClubScreen />} />
-          <Route path="/finances" element={<FinancesScreen />} />
-          <Route path="/game" element={<Navigate to="/welcome" replace />} />
-          <Route path="*" element={<Navigate to="/auth" replace />} />
-        </Routes>
-        <Toaster theme="dark" position="top-center" />
-        <ReloadPrompt />
+        <GameProvider>
+          <Routes>
+            <Route path="/auth" element={<AuthScreen />} />
+            <Route path="/welcome" element={<WelcomeScreen />} />
+            <Route path="/create-manager" element={<CreateManagerWizard />} />
+            <Route path="/create-club" element={<CreateClubWizard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/tactics" element={<TacticsScreen />} />
+            <Route path="/match" element={<MatchScreen />} />
+            <Route path="/post-match" element={<PostMatchScreen />} />
+            <Route path="/standings" element={<StandingsScreen />} />
+            <Route path="/market" element={<MarketScreen />} />
+            <Route path="/squad" element={<SquadScreen />} />
+            <Route path="/club" element={<ClubScreen />} />
+            <Route path="/finances" element={<FinancesScreen />} />
+            <Route path="/game" element={<Navigate to="/welcome" replace />} />
+            <Route path="*" element={<Navigate to="/auth" replace />} />
+          </Routes>
+          <BottomNav />
+          <Toaster theme="dark" position="top-center" />
+          <ReloadPrompt />
+        </GameProvider>
       </div>
     </BrowserRouter>
   )
