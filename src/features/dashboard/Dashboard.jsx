@@ -56,8 +56,6 @@ export default function Dashboard() {
       const newDate = await gameLoopApi.advanceWeek(club.id, manager.id)
       await refreshContext()
       toast.success('Semana completada. Plantel entrenado.')
-      // Recargar no es necesario si actualizamos context
-      window.location.reload()
     } catch (e) {
       toast.error(e.message)
     } finally {

@@ -4,7 +4,7 @@ import { authApi } from '../../../api/auth'
 import { managerApi } from '../../../api/manager'
 import { clubApi } from '../../../api/club'
 import { staffApi, academyApi } from '../../../api/clubFeatures'
-import { ArrowLeft, Building2, UserPlus, GraduationCap, Briefcase } from 'lucide-react'
+import { ArrowLeft, Building2, UserPlus, GraduationCap, Briefcase, DollarSign } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useGameContext } from '../../../context/GameContext'
@@ -25,7 +25,12 @@ export default function ClubScreen() {
       const { data: history } = await supabase.from('season_history').select('*').eq('club_id', club.id).order('season_year', { ascending: false })
       const { data: idols } = await supabase.from('players').select('*').eq('club_id', club.id).eq('is_idol', true)
 
-      setData({ staff, youth, candidates, history: history || [], idols: idols || [] })
+      const { data: squad } = await supabase.from('players').select('contract_salary').eq('club_id', club.id)
+      const playerSalaries = squad?.reduce((sum, p) => sum + Math.round((p.contract_salary || 1000) / 52), 0) || 0
+      const staffSalaries = staff?.reduce((sum, s) => sum + Math.round((s.salary || 1000) / 4), 0) || 0 // Assuming monthly salary for staff, so / 4 weeks
+      const totalSalaries = playerSalaries + staffSalaries
+
+      setData({ staff, youth, candidates, history: history || [], idols: idols || [], salaries: totalSalaries })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -210,7 +215,33 @@ export default function ClubScreen() {
                 className="w-full py-2 text-xs font-bold text-black bg-purple-500 rounded-lg hover:bg-purple-400"
               >
                 Aceptar Oferta
-              </button>
+            </div>
+          </div>
+          
+          {/* Finances */}
+          <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50 mt-6">
+            <h2 className="flex items-center gap-2 mb-6 font-bold text-white text-xl">
+              <DollarSign className="w-5 h-5 text-emerald-500" /> Finanzas y Presupuesto
+            </h2>
+            <div className="p-4 border border-zinc-800 rounded-xl bg-zinc-950">
+               <div className="flex justify-between text-sm mb-2">
+                 <span className="text-zinc-400">Balance Actual</span>
+                 <span className="font-bold text-emerald-400">${Number(club?.budget || 0).toLocaleString()}</span>
+               </div>
+               <div className="flex justify-between text-sm mb-2">
+                 <span className="text-zinc-400">Sueldos (Semanal)</span>
+                 <span className="font-bold text-red-400">-{data.salaries ? `$${data.salaries.toLocaleString()}` : 'Calc...'}</span>
+               </div>
+               <div className="flex justify-between text-sm mb-4">
+                 <span className="text-zinc-400">Ingresos (TV/Sponsors)</span>
+                 <span className="font-bold text-emerald-400">+$40,000</span>
+               </div>
+               <div className="pt-3 border-t border-zinc-800 flex justify-between text-sm">
+                 <span className="font-bold">Proyección Semanal</span>
+                 <span className={`font-bold ${40000 - (data.salaries || 0) >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                   {40000 - (data.salaries || 0) >= 0 ? '+' : ''}${(40000 - (data.salaries || 0)).toLocaleString()}
+                 </span>
+               </div>
             </div>
           </div>
         </div>

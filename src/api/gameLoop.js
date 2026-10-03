@@ -89,6 +89,10 @@ export const gameLoopApi = {
     const { data: fullPlayers } = await supabase.from('players').select('*').eq('club_id', clubId)
     await contractApi.generateRandomOffersForWeek(clubId, fullPlayers, marketStatus.isOpen)
 
+    // 5.6. Economia Semanal
+    const { economyApi } = await import('./economy')
+    await economyApi.processWeeklyFinances(clubId, nextDate, fullPlayers)
+
     // 6. Audit Log
     if (managerId) {
       await auditApi.logAction({
