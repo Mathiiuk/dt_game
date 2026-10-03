@@ -23,7 +23,7 @@ export default function ClubScreen() {
       const youth = await academyApi.getYouthPlayers(club.id)
       const candidates = await staffApi.getAvailableStaff()
       
-      const { supabase } = await import('../../api/supabase')
+      const { supabase } = await import('../../../api/supabase')
       const { data: history } = await supabase.from('season_history').select('*').eq('club_id', club.id).order('season_year', { ascending: false })
       const { data: idols } = await supabase.from('players').select('*').eq('club_id', club.id).eq('is_idol', true)
 
@@ -200,7 +200,7 @@ export default function ClubScreen() {
             </div>
           </div>
         </div>
-
+      </div>
 
       {/* Historia e Ídolos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
