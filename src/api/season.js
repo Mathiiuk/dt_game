@@ -75,7 +75,7 @@ export const seasonApi = {
       prize_money: prizeMoney
     })
 
-    // 4. Registrar logros del DT
+    // 4. Registrar logros del DT y Memoria Institucional del Club (Fase 36)
     if (isChampion) {
       await supabase.from('manager_achievements').insert({
         manager_id: managerId,
@@ -84,6 +84,15 @@ export const seasonApi = {
         year: currentYear,
         type: 'CHAMPION'
       })
+      await supabase.from('club_milestones').insert({
+        club_id: clubId,
+        year: currentYear,
+        game_date: club.game_date,
+        title: `¡Campeón: ${myStats.competitions?.name || `Tier ${currentTier}`}!`,
+        description: `El club se consagró campeón histórico finalizando 1° con ${myStats.points || 0} puntos (${myStats.won || 0}V - ${myStats.drawn || 0}E - ${myStats.lost || 0}D).`,
+        category: 'title',
+        importance: 5
+      })
     } else if (isPromoted) {
       await supabase.from('manager_achievements').insert({
         manager_id: managerId,
@@ -91,6 +100,25 @@ export const seasonApi = {
         title: `Ascenso a Tier ${newTier}`,
         year: currentYear,
         type: 'PROMOTION'
+      })
+      await supabase.from('club_milestones').insert({
+        club_id: clubId,
+        year: currentYear,
+        game_date: club.game_date,
+        title: `¡Ascenso Histórico a Tier ${newTier}!`,
+        description: `El club logró subir de categoría tras finalizar en la ${position}° posición.`,
+        category: 'promotion',
+        importance: 4
+      })
+    } else if (isRelegated) {
+      await supabase.from('club_milestones').insert({
+        club_id: clubId,
+        year: currentYear,
+        game_date: club.game_date,
+        title: `Descenso a Tier ${newTier}`,
+        description: `Una dura campaña culmina en el descenso a la división inferior (${position}° puesto).`,
+        category: 'relegation',
+        importance: 2
       })
     }
 

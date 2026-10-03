@@ -2,6 +2,7 @@ import { managerApi } from './manager'
 import { supabase } from './supabase'
 import { gameConfigApi } from './gameConfig'
 import { auditApi } from './audit'
+import { clubHistoryApi } from './clubHistory'
 
 export const postMatchApi = {
   async processResult(managerId, clubId, result) {
@@ -68,6 +69,20 @@ export const postMatchApi = {
           stateAfter: { budget: clubData.budget + matchIncome, amount: matchIncome }
         })
       }
+    }
+
+    // 5. Historia y Progresión de Ídolos / Récords del Club (Fases 36 y 37)
+    try {
+      const playerIds = players ? players.map(p => p.id) : []
+      await clubHistoryApi.processPostMatchPlayerStats(clubId, {
+        playedPlayerIds: playerIds,
+        homeScore: result.homeScore || 0,
+        awayScore: result.awayScore || 0,
+        opponentName: result.opponentName || 'Rival',
+        isHome: result.isHome
+      })
+    } catch (err) {
+      console.warn('Error recording club history / idol progress:', err)
     }
 
     // Recordatorio: ya no avanzamos tiempo aquí. El tiempo avanza con "Avanzar Semana" en el Dashboard.

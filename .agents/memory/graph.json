@@ -1,0 +1,1582 @@
+{
+  "updatedAt": "2026-10-03T21:25:04.649Z",
+  "project": "dt_game",
+  "metrics": {
+    "totalNodes": 48,
+    "totalEdges": 190,
+    "totalTasks": 1,
+    "totalLessons": 0
+  },
+  "nodes": [
+    {
+      "id": "src/api/audit.js",
+      "label": "audit.js",
+      "type": "module",
+      "sizeBytes": 1370,
+      "lineCount": 41,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/auth.js",
+      "label": "auth.js",
+      "type": "module",
+      "sizeBytes": 1344,
+      "lineCount": 54,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/career.js",
+      "label": "career.js",
+      "type": "module",
+      "sizeBytes": 5082,
+      "lineCount": 160,
+      "imports": [
+        "./supabase",
+        "./audit"
+      ]
+    },
+    {
+      "id": "src/api/club.js",
+      "label": "club.js",
+      "type": "module",
+      "sizeBytes": 2477,
+      "lineCount": 85,
+      "imports": [
+        "./supabase",
+        "./player"
+      ]
+    },
+    {
+      "id": "src/api/clubFeatures.js",
+      "label": "clubFeatures.js",
+      "type": "module",
+      "sizeBytes": 2934,
+      "lineCount": 76,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/clubHistory.js",
+      "label": "clubHistory.js",
+      "type": "module",
+      "sizeBytes": 10857,
+      "lineCount": 302,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/competition.js",
+      "label": "competition.js",
+      "type": "module",
+      "sizeBytes": 7330,
+      "lineCount": 213,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/contracts.js",
+      "label": "contracts.js",
+      "type": "module",
+      "sizeBytes": 3501,
+      "lineCount": 101,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/db.js",
+      "label": "db.js",
+      "type": "module",
+      "sizeBytes": 842,
+      "lineCount": 31,
+      "imports": [
+        "localforage"
+      ]
+    },
+    {
+      "id": "src/api/economy.js",
+      "label": "economy.js",
+      "type": "module",
+      "sizeBytes": 2709,
+      "lineCount": 85,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/events.js",
+      "label": "events.js",
+      "type": "module",
+      "sizeBytes": 3302,
+      "lineCount": 85,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/finances.js",
+      "label": "finances.js",
+      "type": "module",
+      "sizeBytes": 2112,
+      "lineCount": 50,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/gameConfig.js",
+      "label": "gameConfig.js",
+      "type": "module",
+      "sizeBytes": 1434,
+      "lineCount": 58,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/gameLoop.js",
+      "label": "gameLoop.js",
+      "type": "module",
+      "sizeBytes": 8725,
+      "lineCount": 230,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/levels.js",
+      "label": "levels.js",
+      "type": "module",
+      "sizeBytes": 1441,
+      "lineCount": 52,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/manager.js",
+      "label": "manager.js",
+      "type": "module",
+      "sizeBytes": 2645,
+      "lineCount": 95,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/market.js",
+      "label": "market.js",
+      "type": "module",
+      "sizeBytes": 6627,
+      "lineCount": 177,
+      "imports": [
+        "./supabase",
+        "./club"
+      ]
+    },
+    {
+      "id": "src/api/matchEngine.js",
+      "label": "matchEngine.js",
+      "type": "module",
+      "sizeBytes": 5310,
+      "lineCount": 141,
+      "imports": []
+    },
+    {
+      "id": "src/api/morale.js",
+      "label": "morale.js",
+      "type": "module",
+      "sizeBytes": 5476,
+      "lineCount": 135,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/player.js",
+      "label": "player.js",
+      "type": "module",
+      "sizeBytes": 3272,
+      "lineCount": 109,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/postMatch.js",
+      "label": "postMatch.js",
+      "type": "module",
+      "sizeBytes": 3767,
+      "lineCount": 93,
+      "imports": [
+        "./manager",
+        "./supabase",
+        "./gameConfig",
+        "./audit",
+        "./clubHistory"
+      ]
+    },
+    {
+      "id": "src/api/season.js",
+      "label": "season.js",
+      "type": "module",
+      "sizeBytes": 10805,
+      "lineCount": 304,
+      "imports": [
+        "./supabase",
+        "./competition",
+        "./audit"
+      ]
+    },
+    {
+      "id": "src/api/supabase.js",
+      "label": "supabase.js",
+      "type": "module",
+      "sizeBytes": 343,
+      "lineCount": 7,
+      "imports": [
+        "@supabase/supabase-js"
+      ]
+    },
+    {
+      "id": "src/api/tactics.js",
+      "label": "tactics.js",
+      "type": "module",
+      "sizeBytes": 1238,
+      "lineCount": 50,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
+      "id": "src/App.jsx",
+      "label": "App.jsx",
+      "type": "module",
+      "sizeBytes": 2925,
+      "lineCount": 62,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "sonner",
+        "./api/db",
+        "./features/auth/AuthScreen",
+        "./features/manager/CreateManagerWizard",
+        "./features/club/CreateClubWizard",
+        "./features/dashboard/Dashboard",
+        "./features/auth/WelcomeScreen",
+        "./features/tactics/TacticsScreen",
+        "./features/match/MatchScreen",
+        "./features/match/PostMatchScreen",
+        "./features/competition/StandingsScreen",
+        "./features/market/MarketScreen",
+        "./features/squad/SquadScreen",
+        "./features/club/screens/ClubScreen",
+        "./features/finances/FinancesScreen",
+        "./features/training/TrainingScreen",
+        "./features/manager/ManagerCareerScreen",
+        "./components/ReloadPrompt",
+        "./context/GameContext",
+        "./components/BottomNav"
+      ]
+    },
+    {
+      "id": "src/components/BottomNav.jsx",
+      "label": "BottomNav.jsx",
+      "type": "module",
+      "sizeBytes": 1649,
+      "lineCount": 43,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/components/ReloadPrompt.jsx",
+      "label": "ReloadPrompt.jsx",
+      "type": "module",
+      "sizeBytes": 1572,
+      "lineCount": 51,
+      "imports": [
+        "react",
+        "virtual:pwa-register/react"
+      ]
+    },
+    {
+      "id": "src/context/GameContext.jsx",
+      "label": "GameContext.jsx",
+      "type": "module",
+      "sizeBytes": 2235,
+      "lineCount": 69,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../api/auth",
+        "../api/manager",
+        "../api/club"
+      ]
+    },
+    {
+      "id": "src/data/events.js",
+      "label": "events.js",
+      "type": "module",
+      "sizeBytes": 3782,
+      "lineCount": 93,
+      "imports": []
+    },
+    {
+      "id": "src/features/auth/AuthScreen.jsx",
+      "label": "AuthScreen.jsx",
+      "type": "module",
+      "sizeBytes": 6005,
+      "lineCount": 163,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "sonner",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/auth/WelcomeScreen.jsx",
+      "label": "WelcomeScreen.jsx",
+      "type": "module",
+      "sizeBytes": 2822,
+      "lineCount": 79,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/club/CreateClubWizard.jsx",
+      "label": "CreateClubWizard.jsx",
+      "type": "module",
+      "sizeBytes": 12904,
+      "lineCount": 259,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "sonner",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/ClubScreen.jsx",
+      "label": "ClubScreen.jsx",
+      "type": "module",
+      "sizeBytes": 26516,
+      "lineCount": 547,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../../api/club",
+        "../../../api/clubFeatures",
+        "../../../api/clubHistory",
+        "../../../api/supabase",
+        "lucide-react",
+        "sonner",
+        "../../../context/GameContext"
+      ]
+    },
+    {
+      "id": "src/features/competition/StandingsScreen.jsx",
+      "label": "StandingsScreen.jsx",
+      "type": "module",
+      "sizeBytes": 5629,
+      "lineCount": 125,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "../../api/competition",
+        "lucide-react",
+        "sonner",
+        "../../context/GameContext"
+      ]
+    },
+    {
+      "id": "src/features/dashboard/Dashboard.jsx",
+      "label": "Dashboard.jsx",
+      "type": "module",
+      "sizeBytes": 18942,
+      "lineCount": 370,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "../../api/gameLoop",
+        "lucide-react",
+        "sonner",
+        "../../context/GameContext"
+      ]
+    },
+    {
+      "id": "src/features/finances/FinancesScreen.jsx",
+      "label": "FinancesScreen.jsx",
+      "type": "module",
+      "sizeBytes": 9402,
+      "lineCount": 176,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "../../api/finances",
+        "lucide-react",
+        "sonner"
+      ]
+    },
+    {
+      "id": "src/features/manager/CreateManagerWizard.jsx",
+      "label": "CreateManagerWizard.jsx",
+      "type": "module",
+      "sizeBytes": 14338,
+      "lineCount": 302,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/manager",
+        "../../api/auth",
+        "sonner",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/manager/ManagerCareerScreen.jsx",
+      "label": "ManagerCareerScreen.jsx",
+      "type": "module",
+      "sizeBytes": 17762,
+      "lineCount": 354,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../context/GameContext",
+        "../../api/career",
+        "lucide-react",
+        "sonner",
+        "../../components/BottomNav"
+      ]
+    },
+    {
+      "id": "src/features/market/MarketScreen.jsx",
+      "label": "MarketScreen.jsx",
+      "type": "module",
+      "sizeBytes": 11073,
+      "lineCount": 238,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "../../api/market",
+        "lucide-react",
+        "sonner",
+        "../../context/GameContext"
+      ]
+    },
+    {
+      "id": "src/features/match/MatchScreen.jsx",
+      "label": "MatchScreen.jsx",
+      "type": "module",
+      "sizeBytes": 11558,
+      "lineCount": 259,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "../../api/tactics",
+        "../../api/player",
+        "../../api/matchEngine",
+        "../../api/supabase",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/match/PostMatchScreen.jsx",
+      "label": "PostMatchScreen.jsx",
+      "type": "module",
+      "sizeBytes": 6820,
+      "lineCount": 155,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/postMatch",
+        "../../api/morale",
+        "lucide-react",
+        "sonner"
+      ]
+    },
+    {
+      "id": "src/features/squad/SquadScreen.jsx",
+      "label": "SquadScreen.jsx",
+      "type": "module",
+      "sizeBytes": 16603,
+      "lineCount": 346,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "../../api/player",
+        "../../api/contracts",
+        "lucide-react",
+        "sonner",
+        "../../context/GameContext"
+      ]
+    },
+    {
+      "id": "src/features/tactics/TacticsScreen.jsx",
+      "label": "TacticsScreen.jsx",
+      "type": "module",
+      "sizeBytes": 8363,
+      "lineCount": 193,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/auth",
+        "../../api/manager",
+        "../../api/club",
+        "../../api/tactics",
+        "../../api/player",
+        "lucide-react",
+        "sonner",
+        "../../context/GameContext"
+      ]
+    },
+    {
+      "id": "src/features/training/TrainingScreen.jsx",
+      "label": "TrainingScreen.jsx",
+      "type": "module",
+      "sizeBytes": 6678,
+      "lineCount": 137,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "sonner",
+        "../../context/GameContext",
+        "../../components/BottomNav",
+        "../../api/supabase"
+      ]
+    },
+    {
+      "id": "src/lib/utils.js",
+      "label": "utils.js",
+      "type": "module",
+      "sizeBytes": 141,
+      "lineCount": 7,
+      "imports": [
+        "clsx",
+        "tailwind-merge"
+      ]
+    },
+    {
+      "id": "src/main.jsx",
+      "label": "main.jsx",
+      "type": "module",
+      "sizeBytes": 245,
+      "lineCount": 11,
+      "imports": [
+        "react",
+        "react-dom/client",
+        "./App.jsx",
+        "./index.css"
+      ]
+    },
+    {
+      "id": "src/store.js",
+      "label": "store.js",
+      "type": "module",
+      "sizeBytes": 1916,
+      "lineCount": 67,
+      "imports": [
+        "zustand"
+      ]
+    },
+    {
+      "id": "task:f2-36-37-club-history-idols",
+      "label": "f2-36-37-club-history-idols: Fases 36 y 37: Historia del Club, Récords e Ídolos",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    }
+  ],
+  "edges": [
+    {
+      "from": "src/api/audit.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/auth.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/career.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/career.js",
+      "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/club.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/club.js",
+      "to": "./player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/clubFeatures.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/clubHistory.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/competition.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/contracts.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/db.js",
+      "to": "localforage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/economy.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/events.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/finances.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/gameConfig.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/gameLoop.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/levels.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/manager.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/market.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/market.js",
+      "to": "./club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/morale.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/player.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "./manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "./gameConfig",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "./clubHistory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/season.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/season.js",
+      "to": "./competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/season.js",
+      "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/supabase.js",
+      "to": "@supabase/supabase-js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/tactics.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./api/db",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/auth/AuthScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/manager/CreateManagerWizard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/club/CreateClubWizard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/dashboard/Dashboard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/auth/WelcomeScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/tactics/TacticsScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/match/MatchScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/match/PostMatchScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/competition/StandingsScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/market/MarketScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/squad/SquadScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/club/screens/ClubScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/finances/FinancesScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/training/TrainingScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/manager/ManagerCareerScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./components/ReloadPrompt",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./components/BottomNav",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/BottomNav.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/BottomNav.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/BottomNav.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ReloadPrompt.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ReloadPrompt.jsx",
+      "to": "virtual:pwa-register/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
+      "to": "../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
+      "to": "../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
+      "to": "../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/WelcomeScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/WelcomeScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/WelcomeScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/WelcomeScreen.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/WelcomeScreen.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/WelcomeScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../api/clubFeatures",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../api/clubHistory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../api/supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../api/competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../api/gameLoop",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../api/finances",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../../api/career",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../../components/BottomNav",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../api/market",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../api/tactics",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../api/player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../api/matchEngine",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../api/supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "../../api/postMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "../../api/morale",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../api/manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../api/tactics",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../api/player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "../../components/BottomNav",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "../../api/supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/lib/utils.js",
+      "to": "clsx",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/lib/utils.js",
+      "to": "tailwind-merge",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/main.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/main.jsx",
+      "to": "react-dom/client",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/main.jsx",
+      "to": "./App.jsx",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/main.jsx",
+      "to": "./index.css",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/store.js",
+      "to": "zustand",
+      "relation": "depends_on"
+    },
+    {
+      "from": "task:f2-36-37-club-history-idols",
+      "to": ".agents/workflow/tasks/f2-36-37-club-history-idols.yml",
+      "relation": "manifested_by"
+    }
+  ],
+  "lessons": []
+}
