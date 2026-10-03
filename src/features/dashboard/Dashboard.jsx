@@ -34,7 +34,10 @@ export default function Dashboard() {
           .limit(1)
           .single()
 
-        setData({ levelInfo, nextFixture: fixture || null })
+        const { eventsApi } = await import('../../api/events')
+        const events = await eventsApi.getPendingEvents(club.id)
+
+        setData({ levelInfo, nextFixture: fixture || null, events })
       } catch (e) {
         console.error(e)
       } finally {
@@ -189,19 +192,36 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {/* Dynamic Event MVP */}
-        {Math.random() > 0.8 && (
-          <div className="p-6 mb-6 border border-blue-900/50 rounded-3xl bg-blue-900/10">
+        {/* Dynamic Events */}
+        {data.events && data.events.length > 0 && data.events.map(ev => (
+          <div key={ev.id} className="p-6 mb-6 border border-blue-900/50 rounded-3xl bg-blue-900/10">
             <h3 className="mb-2 font-bold text-blue-400 flex items-center gap-2">
-              <Bell className="w-5 h-5" /> Evento: Mensaje del Presidente
+              <Bell className="w-5 h-5" /> Evento: {ev.title}
             </h3>
-            <p className="mb-4 text-sm text-zinc-300">"Míster, confío en que el equipo empiece a mostrar los resultados prometidos. Necesitamos ganar el próximo partido."</p>
-            <div className="flex gap-4">
-              <button onClick={(e) => { e.target.parentElement.parentElement.style.display = 'none'; toast.success('Aceptaste el desafío') }} className="px-4 py-2 text-xs font-bold text-black bg-blue-500 rounded hover:bg-blue-400">Aceptar (+Presión)</button>
-              <button onClick={(e) => { e.target.parentElement.parentElement.style.display = 'none'; toast.success('Pediste tiempo') }} className="px-4 py-2 text-xs font-bold text-white transition-colors border rounded border-zinc-700 hover:bg-zinc-800">Pedir paciencia</button>
+            <p className="mb-4 text-sm text-zinc-300">{ev.description}</p>
+            <div className="flex flex-wrap gap-4">
+              {ev.options.map(opt => (
+                <button 
+                  key={opt.id}
+                  onClick={async () => {
+                    try {
+                      const { eventsApi } = await import('../../api/events')
+                      await eventsApi.resolveEvent(ev.id, opt)
+                      setData(prev => ({ ...prev, events: prev.events.filter(e => e.id !== ev.id) }))
+                      await refreshContext()
+                      toast.success('Decisión tomada.')
+                    } catch (err) {
+                      toast.error(err.message)
+                    }
+                  }}
+                  className="px-4 py-2 text-xs font-bold transition-colors border rounded border-zinc-700 hover:bg-zinc-800 text-white"
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
           </div>
-        )}
+        ))}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           
