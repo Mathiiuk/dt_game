@@ -268,3 +268,12 @@ ALTER TABLE public.players ADD COLUMN IF NOT EXISTS is_youth boolean DEFAULT fal
 ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir todo staff" ON public.staff FOR ALL USING (true);
 
+
+
+-- Fase 20 & 21: Economía y Estadio
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS debt int DEFAULT 0;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS stadium_level int DEFAULT 1;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS stadium_condition int DEFAULT 100;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS medical_level int DEFAULT 1;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS store_level int DEFAULT 1;
+

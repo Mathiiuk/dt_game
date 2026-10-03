@@ -13,6 +13,7 @@ import StandingsScreen from './features/competition/StandingsScreen'
 import MarketScreen from './features/market/MarketScreen'
 import SquadScreen from './features/squad/SquadScreen'
 import ClubScreen from './features/club/screens/ClubScreen'
+import FinancesScreen from './features/finances/FinancesScreen'
 
 function App() {
   useEffect(() => {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/market" element={<MarketScreen />} />
           <Route path="/squad" element={<SquadScreen />} />
           <Route path="/club" element={<ClubScreen />} />
+          <Route path="/finances" element={<FinancesScreen />} />
           <Route path="/game" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
