@@ -14,6 +14,8 @@ export default function PostMatchScreen() {
   
   const { results, managerId, clubId, clubName } = location.state || {}
 
+  const [income, setIncome] = useState(0)
+
   useEffect(() => {
     if (!results) {
       navigate('/dashboard')
@@ -23,12 +25,14 @@ export default function PostMatchScreen() {
     const process = async () => {
       try {
         const isHome = true // Por MVP asumimos siempre local
-        const { xpAward } = await postMatchApi.processResult(managerId, clubId, {
+        const { xpAward, matchIncome } = await postMatchApi.processResult(managerId, clubId, {
           homeScore: results.homeScore,
           awayScore: results.awayScore,
-          isHome
+          isHome,
+          opponentName: 'Equipo Rival'
         })
         setXp(xpAward)
+        setIncome(matchIncome || 0)
         
         // 50% chance of press conference
         if (Math.random() > 0.5) {
@@ -82,12 +86,18 @@ export default function PostMatchScreen() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-10">
+        <div className="grid grid-cols-3 gap-4 mb-10">
           <div className="p-4 border rounded-xl bg-zinc-950 border-zinc-800">
             <h3 className="flex items-center gap-2 mb-2 font-bold text-zinc-300">
               <Trophy className="w-4 h-4 text-yellow-500" /> Experiencia DT
             </h3>
             <p className="text-2xl font-black text-emerald-400">+{xp} XP</p>
+          </div>
+          <div className="p-4 border rounded-xl bg-zinc-950 border-zinc-800">
+            <h3 className="flex items-center gap-2 mb-2 font-bold text-zinc-300">
+              <Star className="w-4 h-4 text-emerald-500" /> Taquilla
+            </h3>
+            <p className="text-2xl font-black text-emerald-400">+${income.toLocaleString()}</p>
           </div>
           <div className="p-4 border rounded-xl bg-zinc-950 border-zinc-800">
             <h3 className="flex items-center gap-2 mb-2 font-bold text-zinc-300">
