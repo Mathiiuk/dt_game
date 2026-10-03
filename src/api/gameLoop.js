@@ -1,7 +1,14 @@
 import { supabase } from './supabase'
 
 export const gameLoopApi = {
-  async advanceDay(clubId) {
+  async advanceWeek(clubId, managerId) {
+    const { gameConfigApi } = await import('./gameConfig')
+    const { auditApi } = await import('./audit')
+
+    const trainingCost = await gameConfigApi.getNumber('training_fitness_cost', 10)
+    const injuryProb = await gameConfigApi.getNumber('injury_base_prob', 0.05)
+    const injuryThreshold = await gameConfigApi.getNumber('injury_fitness_threshold', 60)
+
     // 1. Obtener la fecha actual del club
     const { data: club, error: fetchError } = await supabase
       .from('clubs')
@@ -11,48 +18,48 @@ export const gameLoopApi = {
       
     if (fetchError) throw new Error(fetchError.message)
 
-    // 2. Sumar 1 día
+    // 2. Sumar 7 días
     const currentDate = new Date(club.game_date)
-    currentDate.setDate(currentDate.getDate() + 1)
+    currentDate.setDate(currentDate.getDate() + 7)
     const nextDate = currentDate.toISOString().split('T')[0]
 
-    // 3. Simular efectos del entrenamiento de ese día (Phase 08)
-    // Reducir un poco el fitness de todos los jugadores simulando entrenamiento
-    
-    // En un caso real iteraríamos o usaríamos un RPC en postgres para actualizar masivamente
-    // Por simplicidad del MVP, haremos una llamada directa: update players set state_fitness = GREATEST(state_fitness - 5, 0)
-    // Lamentablemente supabase JS no permite cálculos relativos en updates de forma directa sin RPC, 
-    // así que obtendremos la plantilla y actualizaremos.
-    
+    // 3. Obtener jugadores
     const { data: players } = await supabase.from('players').select('id, state_fitness, injury_days').eq('club_id', clubId)
     
     if (players && players.length > 0) {
-      const dayOfWeek = currentDate.getDay()
-      const isTrainingDay = dayOfWeek >= 1 && dayOfWeek <= 5
-      
       for (const p of players) {
         let newFitness = p.state_fitness
         let newInjuryDays = p.injury_days || 0
         let newInjuryType = null
         
-        if (newInjuryDays > 0) {
-          newInjuryDays--
-          if (newInjuryDays === 0) {
-            newInjuryType = null
-            newFitness = Math.max(50, newFitness) // recupera un poco al volver
-          }
-        } else if (isTrainingDay) {
-          newFitness = Math.max(0, newFitness - 5)
-          
-          // Chance de lesionarse en entrenamiento si la fatiga es alta (fitness bajo)
-          if (newFitness < 60 && Math.random() < 0.05) {
-            newInjuryDays = Math.floor(Math.random() * 14) + 3 // 3 a 16 días
-            newInjuryType = 'Muscular'
+        // Simular la semana día a día
+        for (let i = 0; i < 7; i++) {
+          if (newInjuryDays > 0) {
+            newInjuryDays--
+            if (newInjuryDays === 0) {
+              newInjuryType = null
+              newFitness = Math.max(50, newFitness) // recupera un poco al volver
+            }
+          } else {
+            // Suponemos 5 días de entrenamiento y 2 de descanso en la semana de forma genérica
+            if (i < 5) {
+              // Costo de entrenamiento por día (costo semanal / 5)
+              newFitness = Math.max(0, newFitness - (trainingCost / 5))
+              
+              // Riesgo de lesión
+              if (newFitness < injuryThreshold && Math.random() < injuryProb) {
+                newInjuryDays = Math.floor(Math.random() * 14) + 3
+                newInjuryType = 'Muscular'
+              }
+            } else {
+              // Día de descanso (podría ser parametrizable)
+              newFitness = Math.min(100, newFitness + 5)
+            }
           }
         }
         
         await supabase.from('players').update({ 
-          state_fitness: newFitness,
+          state_fitness: Math.round(newFitness),
           injury_days: newInjuryDays,
           ...(newInjuryType !== null ? { injury_type: newInjuryType } : {})
         }).eq('id', p.id)
@@ -68,6 +75,18 @@ export const gameLoopApi = {
       .single()
 
     if (updateError) throw new Error(updateError.message)
+      
+    // 5. Audit Log
+    if (managerId) {
+      await auditApi.logAction({
+        whoId: managerId,
+        action: 'ADVANCE_WEEK',
+        entityType: 'club',
+        entityId: clubId,
+        stateBefore: { date: club.game_date },
+        stateAfter: { date: nextDate }
+      })
+    }
     
     return updatedClub.game_date
   },

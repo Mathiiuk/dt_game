@@ -38,12 +38,13 @@ export default function Dashboard() {
     loadDashboard()
   }, [navigate])
 
-  const handleAdvanceDay = async () => {
+  const handleAdvanceWeek = async () => {
     setAdvancing(true)
     try {
-      const newDate = await gameLoopApi.advanceDay(data.club.id)
+      const { gameLoopApi } = await import('../../api/gameLoop')
+      const newDate = await gameLoopApi.advanceWeek(data.club.id, data.manager.id)
       setData(prev => ({ ...prev, club: { ...prev.club, game_date: newDate } }))
-      toast.success('Día completado. Plantel entrenado.')
+      toast.success('Semana completada. Plantel entrenado.')
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -140,15 +141,15 @@ export default function Dashboard() {
             </button>
             <div className="text-right">
               <p className="text-sm text-zinc-500 capitalize">{formattedDate}</p>
-              <p className="text-xl font-bold text-emerald-400">Día de Gestión</p>
+              <p className="text-xl font-bold text-emerald-400">Semana de Gestión</p>
             </div>
             <button 
-              onClick={handleAdvanceDay}
+              onClick={handleAdvanceWeek}
               disabled={advancing}
               className="flex items-center gap-2 px-6 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50"
             >
               {advancing ? <Loader2 className="w-5 h-5 animate-spin" /> : <FastForward className="w-5 h-5" />}
-              Avanzar Día
+              Avanzar Semana
             </button>
           </div>
         </header>
