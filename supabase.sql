@@ -356,3 +356,20 @@ ALTER TABLE public.players ADD COLUMN IF NOT EXISTS is_idol boolean DEFAULT fals
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS achievements text[] DEFAULT '{}';
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS is_retired boolean DEFAULT false;
 
+
+
+-- Fase 2: Audit Log
+CREATE TABLE IF NOT EXISTS public.audit_log (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    who_id uuid NOT NULL,
+    what_action text NOT NULL,
+    entity_type text,
+    entity_id uuid,
+    state_before jsonb,
+    state_after jsonb,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_log_who ON public.audit_log(who_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_action ON public.audit_log(what_action);
+CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON public.audit_log(entity_type, entity_id);
