@@ -69,22 +69,22 @@ export default function MarketScreen() {
   if (loading && !data.club) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando mercado...</div>
 
   return (
-    <div className="min-h-screen p-8 text-white bg-zinc-950">
-      <header className="flex items-center justify-between mb-8">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950">
+      <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-3xl font-black text-emerald-500">MERCADO DE PASES</h1>
-            <p className={`text-sm font-bold ${data.marketStatus?.isOpen ? 'text-emerald-400' : 'text-red-400'}`}>
+            <h1 className="text-xl md:text-3xl font-black text-emerald-500 leading-none mb-1">MERCADO DE PASES</h1>
+            <p className={`text-xs md:text-sm font-bold ${data.marketStatus?.isOpen ? 'text-emerald-400' : 'text-red-400'}`}>
               {data.marketStatus?.name || 'Mercado Cerrado'}
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-zinc-500">Presupuesto Disponible</p>
-          <p className="text-2xl font-black text-emerald-400">${Number(data.club?.budget || 0).toLocaleString()}</p>
+        <div className="text-left md:text-right w-full md:w-auto bg-zinc-900 md:bg-transparent p-4 md:p-0 rounded-xl md:rounded-none">
+          <p className="text-xs md:text-sm text-zinc-500">Presupuesto Disponible</p>
+          <p className="text-xl md:text-2xl font-black text-emerald-400">${Number(data.club?.budget || 0).toLocaleString()}</p>
         </div>
       </header>
 

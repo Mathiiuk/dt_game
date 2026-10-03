@@ -173,10 +173,10 @@ export default function MatchScreen() {
 
       {/* Marcador */}
       <div className="py-8 bg-zinc-900/30">
-        <div className="flex items-center justify-center gap-8">
-          <div className="flex flex-col items-center w-32">
-            <Shield className={`w-16 h-16 mb-2 ${score.home > score.away ? 'text-emerald-500' : 'text-zinc-400'}`} />
-            <span className="font-bold text-center">{data.club?.short_name}</span>
+        <div className="flex items-center justify-center gap-4 md:gap-8">
+          <div className="flex flex-col items-center w-24 md:w-32">
+            <Shield className={`w-12 h-12 md:w-16 md:h-16 mb-2 ${score.home > score.away ? 'text-emerald-500' : 'text-zinc-400'}`} />
+            <span className="font-bold text-center truncate w-full">{data.club?.short_name}</span>
           </div>
           
           <div className="flex flex-col items-center">
@@ -190,8 +190,8 @@ export default function MatchScreen() {
             </div>
           </div>
           
-          <div className="flex flex-col items-center w-32">
-            <Shield className={`w-16 h-16 mb-2 ${score.away > score.home ? 'text-blue-500' : 'text-zinc-400'}`} />
+          <div className="flex flex-col items-center w-24 md:w-32">
+            <Shield className={`w-12 h-12 md:w-16 md:h-16 mb-2 ${score.away > score.home ? 'text-blue-500' : 'text-zinc-400'}`} />
             <span className="font-bold text-center truncate w-full" title={simResults?.opponentName || 'Rival'}>
               {simResults?.opponentName || 'RIVAL'}
             </span>

@@ -57,23 +57,23 @@ export default function StandingsScreen() {
   if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando tabla...</div>
 
   return (
-    <div className="min-h-screen p-8 text-white bg-zinc-950">
-      <header className="flex items-center justify-between mb-8">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950">
+      <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-0">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-3xl font-black flex items-center gap-2 text-emerald-500">
-              <Trophy className="w-8 h-8" /> TABLA DE POSICIONES
+            <h1 className="text-xl md:text-3xl font-black flex items-center gap-2 text-emerald-500 leading-none mb-1">
+              <Trophy className="w-6 h-6 md:w-8 md:h-8" /> TABLA DE POSICIONES
             </h1>
-            <p className="text-zinc-500">Liga Regional (MVP)</p>
+            <p className="text-xs md:text-sm text-zinc-500">Liga Regional (MVP)</p>
           </div>
         </div>
         
         <button 
           onClick={handleEndSeason}
-          className="px-4 py-2 text-sm font-bold text-black transition-colors bg-emerald-500 rounded-lg hover:bg-emerald-400"
+          className="w-full md:w-auto px-4 py-3 md:py-2 text-sm font-bold text-black transition-colors bg-emerald-500 rounded-lg hover:bg-emerald-400"
         >
           Finalizar Temporada
         </button>

@@ -89,14 +89,14 @@ export default function SquadScreen() {
   if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando plantel...</div>
 
   return (
-    <div className="min-h-screen p-8 text-white bg-zinc-950">
+    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950">
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-3xl font-black flex items-center gap-2 text-emerald-500">
-            <Users className="w-8 h-8" /> PLANTEL Y CONTRATOS
+          <h1 className="text-xl md:text-3xl font-black flex items-center gap-2 text-emerald-500 truncate">
+            <Users className="w-6 h-6 md:w-8 md:h-8 shrink-0" /> PLANTEL Y CONTRATOS
           </h1>
         </div>
       </header>

@@ -73,6 +73,8 @@ export default function Dashboard() {
     }
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando la oficina...</div>
   }
@@ -96,12 +98,23 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen bg-zinc-950">
+      {/* Overlay mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/80 lg:hidden backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex flex-col w-64 p-4 border-r border-zinc-900 bg-zinc-950">
-        <div className="mb-8">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col w-64 p-4 border-r border-zinc-900 bg-zinc-950 transition-transform duration-300 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-black text-emerald-500">EL PIZARRÓN</h1>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-zinc-400">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
         </div>
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-2 overflow-y-auto">
           {navItems.map((item, i) => (
             <button 
               key={i} 
@@ -121,11 +134,11 @@ export default function Dashboard() {
         </nav>
         <div className="pt-4 mt-auto border-t border-zinc-900 space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 font-bold text-black rounded-full bg-emerald-500">
+            <div className="flex items-center justify-center w-10 h-10 font-bold text-black rounded-full bg-emerald-500 shrink-0">
               {manager.first_name[0]}{manager.last_name[0]}
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-white leading-tight">{manager.first_name} {manager.last_name}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white truncate leading-tight">{manager.first_name} {manager.last_name}</p>
               <div className="flex justify-between items-center text-[10px] text-zinc-400 mt-1">
                 <span>Nvl {data.levelInfo?.currentLevel || manager.level}</span>
                 <span>{manager.xp} / {data.levelInfo?.xpRequiredForNext || '?'} XP</span>
@@ -139,23 +152,31 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-[10px] text-zinc-400 bg-zinc-900 px-2 py-1 rounded">Reputación: {manager.reputation_level || 'Local'}</p>
+            <p className="text-[10px] text-zinc-400 bg-zinc-900 px-2 py-1 rounded truncate">Reputación: {manager.reputation_level || 'Local'}</p>
             {manager.national_team_id && (
-              <p className="text-[10px] text-yellow-400 bg-yellow-900/20 px-2 py-1 rounded">DT Selección Nacional</p>
+              <p className="text-[10px] text-yellow-400 bg-yellow-900/20 px-2 py-1 rounded truncate">DT Selección Nacional</p>
             )}
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
         <header className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
-          <div className="mb-4 md:mb-0">
-            <h2 className="text-3xl font-black text-white">{club.name}</h2>
-            <p className="text-zinc-400">{club.city}, {club.country}</p>
+          <div className="flex items-center gap-4 mb-4 md:mb-0">
+            <button 
+              onClick={() => setSidebarOpen(true)} 
+              className="p-2 transition-colors rounded-lg bg-zinc-900 text-emerald-500 lg:hidden hover:bg-zinc-800"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <div>
+              <h2 className="text-3xl font-black text-white">{club.name}</h2>
+              <p className="text-zinc-400">{club.city}, {club.country}</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-between w-full gap-4 md:gap-6 md:justify-end md:w-auto mt-4 md:mt-0">
             <button
               onClick={async () => {
                 if (window.confirm('¿Seguro que deseas retirarte? Tu carrera finalizará aquí y quedarás en la historia.')) {
@@ -171,12 +192,12 @@ export default function Dashboard() {
             </button>
             <div className="text-right">
               <p className="text-sm text-zinc-500 capitalize">{formattedDate}</p>
-              <p className="text-xl font-bold text-emerald-400">Semana de Gestión</p>
+              <p className="text-lg md:text-xl font-bold text-emerald-400">Semana de Gestión</p>
             </div>
             <button 
               onClick={handleAdvanceWeek}
               disabled={advancing}
-              className="flex items-center gap-2 px-6 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50"
+              className="flex items-center justify-center w-full md:w-auto gap-2 px-6 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50"
             >
               {advancing ? <Loader2 className="w-5 h-5 animate-spin" /> : <FastForward className="w-5 h-5" />}
               Avanzar Semana
@@ -209,14 +230,14 @@ export default function Dashboard() {
               </div>
               
               {data.nextFixture ? (
-                <div className="flex items-center justify-center gap-8 py-8">
-                  <div className="text-center w-32">
-                    <Shield className={`w-16 h-16 mx-auto mb-2 ${data.nextFixture.home_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
+                <div className="flex items-center justify-center gap-4 py-8 md:gap-8">
+                  <div className="w-24 text-center md:w-32 shrink-0">
+                    <Shield className={`w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 ${data.nextFixture.home_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
                     <p className="font-bold text-white truncate" title={data.nextFixture.home.name}>{data.nextFixture.home.short_name}</p>
                   </div>
-                  <div className="text-2xl font-black text-zinc-700">VS</div>
-                  <div className="text-center w-32">
-                    <Shield className={`w-16 h-16 mx-auto mb-2 ${data.nextFixture.away_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
+                  <div className="text-xl font-black md:text-2xl text-zinc-700 shrink-0">VS</div>
+                  <div className="w-24 text-center md:w-32 shrink-0">
+                    <Shield className={`w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 ${data.nextFixture.away_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
                     <p className="font-bold text-white truncate" title={data.nextFixture.away.name}>{data.nextFixture.away.short_name}</p>
                   </div>
                 </div>
@@ -227,7 +248,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row">
               <button onClick={() => navigate('/tactics')} className="flex-1 py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
                 Táctica
               </button>
