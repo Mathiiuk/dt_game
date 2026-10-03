@@ -80,6 +80,15 @@ export const gameLoopApi = {
     const { competitionApi } = await import('./competition')
     await competitionApi.simulateMatchDay(nextDate)
 
+    // 5.5. Simular mercado de fichajes
+    const { marketApi } = await import('./market')
+    const { contractApi } = await import('./contracts')
+    const marketStatus = marketApi.getMarketStatus(nextDate)
+    
+    // Obtener los jugadores del club del jugador para evaluarlos
+    const { data: fullPlayers } = await supabase.from('players').select('*').eq('club_id', clubId)
+    await contractApi.generateRandomOffersForWeek(clubId, fullPlayers, marketStatus.isOpen)
+
     // 6. Audit Log
     if (managerId) {
       await auditApi.logAction({

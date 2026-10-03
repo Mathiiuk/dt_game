@@ -22,12 +22,9 @@ export default function SquadScreen() {
       const club = await clubApi.getClubByManager(manager.id)
       const players = await playerApi.getSquad(club.id)
       
-      // Intentar generar oferta aleatoria (10% chance)
-      await contractApi.generateRandomOffer(club.id, players)
-      
       const offers = await contractApi.getOffersForClub(club.id)
       
-      setData({ club, players, offers })
+      setData({ club, players, offers, manager })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -55,13 +52,31 @@ export default function SquadScreen() {
     }
   }
 
+  const handleTransferList = async (player) => {
+    try {
+      await playerApi.updatePlayer(player.id, { is_transfer_listed: !player.is_transfer_listed })
+      toast.success(player.is_transfer_listed 
+        ? `${player.last_name} ha sido retirado de la lista de transferibles.` 
+        : `${player.last_name} está ahora en la lista de transferibles.`)
+      loadData()
+    } catch (e) {
+      toast.error(e.message)
+    }
+  }
+
   const handleOffer = async (offer, status) => {
     try {
-      await contractApi.resolveOffer(offer.id, status, offer.player_id, null)
+      await contractApi.resolveOffer(
+        offer.id, 
+        status, 
+        offer.player_id, 
+        offer.from_club_id, 
+        data.club.id, 
+        offer.amount, 
+        data.manager.id // We don't have manager ID directly? Wait, we have manager in data? We need to add manager to setData
+      )
       if (status === 'ACCEPTED') {
         toast.success(`Jugador vendido por $${offer.amount.toLocaleString()}`)
-        // Sumar al presupuesto
-        await clubApi.updateClub(data.club.id, { budget: data.club.budget + offer.amount })
       } else {
         toast.info('Oferta rechazada')
       }
@@ -121,12 +136,25 @@ export default function SquadScreen() {
                     </td>
                     <td className="py-3 font-mono text-emerald-400">${(p.contract_salary || 10000).toLocaleString()}</td>
                     <td className="py-3">
-                      <button 
-                        onClick={() => handleRenew(p)}
-                        className="flex items-center gap-1 text-xs font-bold text-black transition-colors bg-white rounded-lg px-3 py-1.5 hover:bg-zinc-200"
-                      >
-                        <FileSignature className="w-3 h-3" /> Renovar
-                      </button>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleRenew(p)}
+                          className="flex items-center gap-1 text-xs font-bold text-black transition-colors bg-white rounded-lg px-3 py-1.5 hover:bg-zinc-200"
+                        >
+                          <FileSignature className="w-3 h-3" /> Renovar
+                        </button>
+                        <button 
+                          onClick={() => handleTransferList(p)}
+                          className={`flex items-center gap-1 text-xs font-bold transition-colors border rounded-lg px-3 py-1.5 ${
+                            p.is_transfer_listed 
+                              ? 'bg-red-500/20 text-red-500 border-red-500/50 hover:bg-red-500/30' 
+                              : 'bg-zinc-800 text-zinc-300 border-zinc-700 hover:bg-zinc-700'
+                          }`}
+                        >
+                          <DollarSign className="w-3 h-3" /> 
+                          {p.is_transfer_listed ? 'Quitar' : 'Vender'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

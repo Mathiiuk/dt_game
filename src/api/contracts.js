@@ -25,7 +25,9 @@ export const contractApi = {
     return data
   },
   
-  async resolveOffer(offerId, status, playerId, fromClubId) {
+  async resolveOffer(offerId, status, playerId, fromClubId, toClubId, offerAmount, managerId) {
+    const { auditApi } = await import('./audit')
+
     // status: 'ACCEPTED' or 'REJECTED'
     const { error } = await supabase
       .from('offers')
@@ -34,35 +36,65 @@ export const contractApi = {
       
     if (error) throw new Error(error.message)
     
-    // Si es aceptada, transferir al jugador
     if (status === 'ACCEPTED') {
-      await supabase.from('players').update({ club_id: fromClubId }).eq('id', playerId)
-      // NOTA: Para un MVP esto asume que fromClubId tiene fondos, idealmente 
-      // sumaríamos dinero a nuestro presupuesto aquí.
+      const { data: player } = await supabase.from('players').select('club_id').eq('id', playerId).single()
+      const { data: toClub } = await supabase.from('clubs').select('budget').eq('id', toClubId).single()
+      
+      const newBudget = toClub.budget + offerAmount
+
+      // Sumar dinero al club vendedor
+      await supabase.from('clubs').update({ budget: newBudget }).eq('id', toClubId)
+      
+      // Restar al club comprador (si no es NULL)
+      if (fromClubId) {
+        const { data: fromClub } = await supabase.from('clubs').select('budget').eq('id', fromClubId).single()
+        await supabase.from('clubs').update({ budget: fromClub.budget - offerAmount }).eq('id', fromClubId)
+      }
+
+      // Mover jugador
+      await supabase.from('players').update({ club_id: fromClubId, is_transfer_listed: false }).eq('id', playerId)
+
+      if (managerId) {
+        await auditApi.logAction({
+          whoId: managerId,
+          action: 'SELL_PLAYER',
+          entityType: 'player',
+          entityId: playerId,
+          stateBefore: { club_id: toClubId, budget: toClub.budget },
+          stateAfter: { club_id: fromClubId, budget: newBudget, amount: offerAmount }
+        })
+      }
     }
   },
 
-  // MVP: Método para generar una oferta aleatoria por uno de nuestros jugadores
-  async generateRandomOffer(myClubId, myPlayers) {
-    if (!myPlayers || myPlayers.length === 0) return null
+  async generateRandomOffersForWeek(clubId, players, isMarketOpen) {
+    if (!players || players.length === 0 || !isMarketOpen) return
     
-    // 10% de chance de recibir una oferta al avanzar el tiempo o cargar dashboard
-    if (Math.random() > 0.1) return null 
-    
-    const randomPlayer = myPlayers[Math.floor(Math.random() * myPlayers.length)]
-    
-    const offerAmount = (randomPlayer.attr_pace * randomPlayer.attr_shooting) * 100 // Valor ficticio
-    
-    const newOffer = {
-      player_id: randomPlayer.id,
-      to_club_id: myClubId,
-      amount: offerAmount,
-      status: 'PENDING'
+    // Obtener un bot aleatorio como comprador
+    const { data: bots } = await supabase.from('clubs').select('id, budget').eq('history_type', 'bot').limit(10)
+    if (!bots || bots.length === 0) return
+
+    for (const player of players) {
+      // Base chance 2%. If transfer listed, 30% chance.
+      const chance = player.is_transfer_listed ? 0.3 : 0.02
+      if (Math.random() < chance) {
+        const buyer = bots[Math.floor(Math.random() * bots.length)]
+        
+        // Oferta fluctúa entre 80% y 120% del valor
+        const factor = 0.8 + (Math.random() * 0.4)
+        const offerAmount = Math.round(player.market_value * factor)
+        
+        if (buyer.budget >= offerAmount) {
+          const newOffer = {
+            player_id: player.id,
+            from_club_id: buyer.id,
+            to_club_id: clubId,
+            amount: offerAmount,
+            status: 'PENDING'
+          }
+          await supabase.from('offers').insert(newOffer)
+        }
+      }
     }
-    
-    const { data, error } = await supabase.from('offers').insert(newOffer).select().single()
-    if (error) throw new Error(error.message)
-    
-    return data
   }
 }

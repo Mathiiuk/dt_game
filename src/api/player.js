@@ -92,5 +92,17 @@ export const playerApi = {
 
     if (error) throw new Error(error.message)
     return data
+  },
+
+  async updatePlayer(playerId, updates) {
+    const { data, error } = await supabase
+      .from('players')
+      .update(updates)
+      .eq('id', playerId)
+      .select()
+      .single()
+
+    if (error) throw new Error(error.message)
+    return data
   }
 }
