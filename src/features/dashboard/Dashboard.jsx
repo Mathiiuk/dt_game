@@ -91,9 +91,16 @@ export default function Dashboard() {
     { icon: DollarSign, label: 'Finanzas' }
   ]
   
+  const getSafeDate = (dateStr) => {
+    if (!dateStr) return new Date('2026-08-01T00:00:00')
+    const cleanStr = dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`
+    const d = new Date(cleanStr)
+    return isNaN(d.getTime()) ? new Date('2026-08-01T00:00:00') : d
+  }
+  
   const formattedDate = new Intl.DateTimeFormat('es-AR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  }).format(new Date(club.game_date + 'T00:00:00'))
+  }).format(getSafeDate(club?.game_date))
 
   return (
     <div className="flex min-h-screen bg-zinc-950">
@@ -263,10 +270,10 @@ export default function Dashboard() {
                   if (!data.nextFixture) return
                   navigate('/match', { state: { fixtureId: data.nextFixture.id } })
                 }}
-                disabled={!data.nextFixture || data.nextFixture.match_date > club.game_date}
+                disabled={!data.nextFixture || (club?.game_date && data.nextFixture.match_date > club.game_date)}
                 className="flex-1 py-4 font-bold text-black transition-transform rounded-xl bg-emerald-500 hover:bg-emerald-400 hover:scale-[1.01] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
               >
-                {data.nextFixture && data.nextFixture.match_date > club.game_date 
+                {data.nextFixture && club?.game_date && data.nextFixture.match_date > club.game_date 
                   ? `Jugar el ${new Date(data.nextFixture.match_date).toLocaleDateString('es-AR', {day: 'numeric', month: 'short'})}`
                   : 'Jugar Partido'}
               </button>
