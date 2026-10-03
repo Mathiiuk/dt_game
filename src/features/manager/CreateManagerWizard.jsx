@@ -45,15 +45,22 @@ export default function CreateManagerWizard() {
     }
   }
 
-  // Step 3: Philosophy
+  // Step 3: Philosophy & Specialization
   const [philosophy, setPhilosophy] = useState('Equilibrado')
   const philosophies = [
-    { id: 'Ofensivo', desc: 'Priorizar el ataque y la cantidad de llegadas.' },
-    { id: 'Defensivo', desc: 'Armar el equipo de atrás hacia adelante.' },
-    { id: 'Equilibrado', desc: 'No tomar riesgos innecesarios.' },
-    { id: 'Posesión', desc: 'Tener la pelota para controlar el juego.' },
-    { id: 'Contraataque', desc: 'Esperar agazapado y salir rápido.' },
-    { id: 'Desarrollo juvenil', desc: 'Apostar siempre por los pibes del club.' }
+    { id: 'Ofensivo', desc: 'Priorizar el ataque y la cantidad de llegadas. (+Ataque)' },
+    { id: 'Defensivo', desc: 'Armar el equipo de atrás hacia adelante. (+Defensa)' },
+    { id: 'Posesión', desc: 'Tener la pelota para controlar el juego. (Eficaz vs Presión Baja)' },
+    { id: 'Contragolpe', desc: 'Esperar agazapado y salir rápido. (Eficaz vs Presión Alta)' },
+    { id: 'Presión', desc: 'Asfixiar al rival en su campo. (Eficaz vs Posesión)' }
+  ]
+
+  const [specialization, setSpecialization] = useState('TACTICO')
+  const specializations = [
+    { id: 'JUVENILES', desc: 'Ganan XP más rápido y suben más atributos.' },
+    { id: 'TACTICO', desc: 'Tus cambios tácticos durante el partido tienen más impacto.' },
+    { id: 'MOTIVADOR', desc: 'La moral del equipo cae menos ante derrotas.' },
+    { id: 'MERCADO', desc: 'Mejores precios al comprar y vender jugadores.' }
   ]
 
   useEffect(() => {
@@ -81,7 +88,8 @@ export default function CreateManagerWizard() {
       await managerApi.createManager(user.id, {
         identity,
         attributes,
-        philosophy
+        philosophy,
+        specialization
       })
       toast.success('¡Perfil de DT creado exitosamente!')
       navigate('/create-club')
@@ -180,21 +188,41 @@ export default function CreateManagerWizard() {
 
         {/* STEP 3: PHILOSOPHY */}
         {step === 3 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <Brain className="w-5 h-5" /> Filosofía de Juego
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {philosophies.map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => setPhilosophy(p.id)}
-                  className={`p-4 text-left border rounded-xl transition-all ${philosophy === p.id ? 'border-emerald-500 bg-emerald-500/10' : 'border-zinc-800 bg-zinc-950 hover:border-zinc-700'}`}
-                >
-                  <h3 className={`font-bold ${philosophy === p.id ? 'text-emerald-400' : 'text-zinc-200'}`}>{p.id}</h3>
-                  <p className="mt-1 text-xs text-zinc-500">{p.desc}</p>
-                </button>
-              ))}
+          <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+            <div>
+              <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
+                <Brain className="w-5 h-5" /> Filosofía de Juego
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {philosophies.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => setPhilosophy(p.id)}
+                    className={`p-4 text-left border rounded-xl transition-all ${philosophy === p.id ? 'border-emerald-500 bg-emerald-500/10' : 'border-zinc-800 bg-zinc-950 hover:border-zinc-700'}`}
+                  >
+                    <h3 className={`font-bold ${philosophy === p.id ? 'text-emerald-400' : 'text-zinc-200'}`}>{p.id}</h3>
+                    <p className="mt-1 text-xs text-zinc-500">{p.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
+                <Brain className="w-5 h-5" /> Especialización
+              </h2>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {specializations.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSpecialization(s.id)}
+                    className={`p-4 text-left border rounded-xl transition-all ${specialization === s.id ? 'border-blue-500 bg-blue-500/10' : 'border-zinc-800 bg-zinc-950 hover:border-zinc-700'}`}
+                  >
+                    <h3 className={`font-bold ${specialization === s.id ? 'text-blue-400' : 'text-zinc-200'}`}>{s.id}</h3>
+                    <p className="mt-1 text-xs text-zinc-500">{s.desc}</p>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -212,9 +240,14 @@ export default function CreateManagerWizard() {
               
               <div className="my-4 border-t border-zinc-800" />
               
-              <p className="mb-2 text-sm text-zinc-300">
-                <span className="text-emerald-500">Filosofía:</span> {philosophy}
-              </p>
+              <div className="grid grid-cols-2 gap-4 mb-2 text-sm text-zinc-300">
+                <p>
+                  <span className="text-emerald-500">Filosofía:</span><br/>{philosophy}
+                </p>
+                <p>
+                  <span className="text-blue-500">Especialización:</span><br/>{specialization}
+                </p>
+              </div>
               
               <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
                 {Object.entries(attributes).map(([key, val]) => (

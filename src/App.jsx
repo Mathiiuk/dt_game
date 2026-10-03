@@ -6,6 +6,7 @@ import AuthScreen from './features/auth/AuthScreen'
 import CreateManagerWizard from './features/manager/CreateManagerWizard'
 import CreateClubWizard from './features/club/CreateClubWizard'
 import Dashboard from './features/dashboard/Dashboard'
+import WelcomeScreen from './features/auth/WelcomeScreen'
 import TacticsScreen from './features/tactics/TacticsScreen'
 import MatchScreen from './features/match/MatchScreen'
 import PostMatchScreen from './features/match/PostMatchScreen'
@@ -25,6 +26,7 @@ function App() {
       <div className="min-h-screen text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
         <Routes>
           <Route path="/auth" element={<AuthScreen />} />
+          <Route path="/welcome" element={<WelcomeScreen />} />
           <Route path="/create-manager" element={<CreateManagerWizard />} />
           <Route path="/create-club" element={<CreateClubWizard />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -36,7 +38,7 @@ function App() {
           <Route path="/squad" element={<SquadScreen />} />
           <Route path="/club" element={<ClubScreen />} />
           <Route path="/finances" element={<FinancesScreen />} />
-          <Route path="/game" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/game" element={<Navigate to="/welcome" replace />} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
         <Toaster theme="dark" position="top-center" />

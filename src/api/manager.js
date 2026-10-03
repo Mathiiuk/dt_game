@@ -12,7 +12,7 @@ export const managerApi = {
       throw new Error('Ya tienes un perfil de Director Técnico creado.')
     }
 
-    const { identity, attributes, philosophy } = managerData
+    const { identity, attributes, philosophy, specialization } = managerData
 
     const { data, error } = await supabase
       .from('managers')
@@ -29,6 +29,7 @@ export const managerApi = {
           city: identity.city,
           dominant_foot: identity.dominantFoot,
           philosophy: philosophy,
+          specialization: specialization,
           attr_leadership: attributes.leadership,
           attr_tactics: attributes.tactics,
           attr_motivation: attributes.motivation,

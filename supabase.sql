@@ -454,3 +454,8 @@ CREATE TABLE IF NOT EXISTS public.level_config (
     xp_required int NOT NULL,
     unlocks jsonb DEFAULT '{}'::jsonb
 );
+
+
+-- Fase 02: DT Attributes
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS nationality text;
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS specialization text;
