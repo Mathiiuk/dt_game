@@ -1,0 +1,42 @@
+id: f2-38-hall-of-fame
+external_ref: ''
+title: 'Fase 38: Salon de la Fama y Records Historicos Globales'
+type: fix
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Crear tabla hall_of_fame en PostgreSQL con snapshots inmutables de carreras
+    y leyendas
+  - >-
+    Implementar API src/api/hallOfFame.js para consultar ranking historico,
+    calcular legacy score e inmortalizar DTs
+  - >-
+    Construir interfaz HallOfFameScreen.jsx mobile-first con podio, comparador y
+    estadisticas historicas
+  - Integrar rutas en App.jsx y accesos desde Dashboard y Carrera del DT
+acceptance_criteria:
+  - El ranking de directores tecnicos calcula adecuadamente los puntos de legado
+  - Se visualizan leyendas historicas y directores tecnicos retirados
+  - Build pasa sin errores y respeta regla de cero emojis
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

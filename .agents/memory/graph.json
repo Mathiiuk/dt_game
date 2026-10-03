@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T22:42:27.658Z",
+  "updatedAt": "2026-10-03T23:18:42.915Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 58,
-    "totalEdges": 218,
-    "totalTasks": 6,
+    "totalNodes": 61,
+    "totalEdges": 227,
+    "totalTasks": 7,
     "totalLessons": 0
   },
   "nodes": [
@@ -151,6 +151,16 @@
       ]
     },
     {
+      "id": "src/api/hallOfFame.js",
+      "label": "hallOfFame.js",
+      "type": "module",
+      "sizeBytes": 5531,
+      "lineCount": 164,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
       "id": "src/api/internationalCup.js",
       "label": "internationalCup.js",
       "type": "module",
@@ -284,8 +294,8 @@
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
-      "sizeBytes": 3245,
-      "lineCount": 66,
+      "sizeBytes": 3388,
+      "lineCount": 68,
       "imports": [
         "react",
         "react-router-dom",
@@ -308,6 +318,7 @@
         "./features/manager/ManagerCareerScreen",
         "./features/manager/NationalTeamScreen",
         "./features/competition/InternationalCupScreen",
+        "./features/manager/HallOfFameScreen",
         "./components/ReloadPrompt",
         "./context/GameContext",
         "./components/BottomNav"
@@ -518,11 +529,26 @@
       ]
     },
     {
+      "id": "src/features/manager/HallOfFameScreen.jsx",
+      "label": "HallOfFameScreen.jsx",
+      "type": "module",
+      "sizeBytes": 14804,
+      "lineCount": 321,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/hallOfFame",
+        "../../context/GameContext",
+        "lucide-react",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 19696,
-      "lineCount": 391,
+      "sizeBytes": 20145,
+      "lineCount": 399,
       "imports": [
         "react",
         "react-router-dom",
@@ -708,6 +734,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:f2-38-hall-of-fame",
+      "label": "f2-38-hall-of-fame: Fase 38: Salon de la Fama y Records Historicos Globales",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:f2-audit-fixes-polish",
       "label": "f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX",
       "type": "task",
@@ -807,6 +840,11 @@
     },
     {
       "from": "src/api/gameLoop.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/hallOfFame.js",
       "to": "./supabase",
       "relation": "depends_on"
     },
@@ -1028,6 +1066,11 @@
     {
       "from": "src/App.jsx",
       "to": "./features/competition/InternationalCupScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/manager/HallOfFameScreen",
       "relation": "depends_on"
     },
     {
@@ -1441,6 +1484,36 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "../../api/hallOfFame",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/manager/ManagerCareerScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -1803,6 +1876,11 @@
     {
       "from": "task:f2-36-37-club-history-idols",
       "to": ".agents/workflow/tasks/f2-36-37-club-history-idols.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-38-hall-of-fame",
+      "to": ".agents/workflow/tasks/f2-38-hall-of-fame.yml",
       "relation": "manifested_by"
     },
     {

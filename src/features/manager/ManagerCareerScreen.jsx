@@ -162,6 +162,14 @@ export default function ManagerCareerScreen() {
             <p className="text-xs text-zinc-400">Perfil profesional, palmarés y administración</p>
           </div>
         </div>
+
+        <button
+          onClick={() => navigate('/hall-of-fame')}
+          className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-bold rounded-xl text-sm transition-all shadow-lg shadow-amber-500/5 shrink-0"
+        >
+          <Trophy className="w-4 h-4 text-amber-400" />
+          <span className="hidden sm:inline">Salón de la Fama</span>
+        </button>
       </header>
 
       <div className="max-w-6xl mx-auto space-y-8">
