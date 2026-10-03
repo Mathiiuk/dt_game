@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T21:31:09.095Z",
+  "updatedAt": "2026-10-03T21:35:00.994Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 51,
-    "totalEdges": 202,
-    "totalTasks": 2,
+    "totalNodes": 54,
+    "totalEdges": 213,
+    "totalTasks": 3,
     "totalLessons": 0
   },
   "nodes": [
@@ -154,7 +154,7 @@
       "id": "src/api/internationalCup.js",
       "label": "internationalCup.js",
       "type": "module",
-      "sizeBytes": 10335,
+      "sizeBytes": 10649,
       "lineCount": 315,
       "imports": [
         "./supabase",
@@ -210,6 +210,18 @@
       "lineCount": 135,
       "imports": [
         "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/nationalTeam.js",
+      "label": "nationalTeam.js",
+      "type": "module",
+      "sizeBytes": 8757,
+      "lineCount": 291,
+      "imports": [
+        "./supabase",
+        "./manager",
+        "./audit"
       ]
     },
     {
@@ -272,8 +284,8 @@
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
-      "sizeBytes": 3095,
-      "lineCount": 64,
+      "sizeBytes": 3245,
+      "lineCount": 66,
       "imports": [
         "react",
         "react-router-dom",
@@ -294,6 +306,7 @@
         "./features/finances/FinancesScreen",
         "./features/training/TrainingScreen",
         "./features/manager/ManagerCareerScreen",
+        "./features/manager/NationalTeamScreen",
         "./features/competition/InternationalCupScreen",
         "./components/ReloadPrompt",
         "./context/GameContext",
@@ -412,7 +425,7 @@
       "id": "src/features/competition/InternationalCupScreen.jsx",
       "label": "InternationalCupScreen.jsx",
       "type": "module",
-      "sizeBytes": 11142,
+      "sizeBytes": 11418,
       "lineCount": 277,
       "imports": [
         "react",
@@ -495,8 +508,8 @@
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 17762,
-      "lineCount": 354,
+      "sizeBytes": 19331,
+      "lineCount": 379,
       "imports": [
         "react",
         "react-router-dom",
@@ -505,6 +518,21 @@
         "lucide-react",
         "sonner",
         "../../components/BottomNav"
+      ]
+    },
+    {
+      "id": "src/features/manager/NationalTeamScreen.jsx",
+      "label": "NationalTeamScreen.jsx",
+      "type": "module",
+      "sizeBytes": 14537,
+      "lineCount": 348,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../api/nationalTeam",
+        "../../context/GameContext",
+        "lucide-react",
+        "sonner"
       ]
     },
     {
@@ -648,6 +676,13 @@
       ]
     },
     {
+      "id": "task:f2-33-national-teams",
+      "label": "f2-33-national-teams: Fase 33: Selecciones Nacionales y Doble Carrera",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:f2-34-international-cups",
       "label": "f2-34-international-cups: Fase 34: Competiciones Internacionales y Copas Continentales",
       "type": "task",
@@ -786,6 +821,21 @@
     {
       "from": "src/api/morale.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/nationalTeam.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/nationalTeam.js",
+      "to": "./manager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/nationalTeam.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -936,6 +986,11 @@
     {
       "from": "src/App.jsx",
       "to": "./features/manager/ManagerCareerScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/manager/NationalTeamScreen",
       "relation": "depends_on"
     },
     {
@@ -1369,6 +1424,36 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "../../api/nationalTeam",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/market/MarketScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -1662,6 +1747,11 @@
       "from": "src/store.js",
       "to": "zustand",
       "relation": "depends_on"
+    },
+    {
+      "from": "task:f2-33-national-teams",
+      "to": ".agents/workflow/tasks/f2-33-national-teams.yml",
+      "relation": "manifested_by"
     },
     {
       "from": "task:f2-34-international-cups",

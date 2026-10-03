@@ -4,7 +4,7 @@ import { useGameContext } from '../../context/GameContext'
 import { careerApi } from '../../api/career'
 import { 
   ArrowLeft, Award, Trophy, Star, Briefcase, TrendingUp, 
-  Shield, UserX, Loader2, Sparkles, AlertTriangle, CheckCircle 
+  Shield, UserX, Loader2, Sparkles, AlertTriangle, CheckCircle, Flag, ChevronRight 
 } from 'lucide-react'
 import { toast } from 'sonner'
 import BottomNav from '../../components/BottomNav'
@@ -281,6 +281,31 @@ export default function ManagerCareerScreen() {
               <p className="text-xs text-zinc-600 mt-1">Gana la liga o consigue un ascenso para llenar tu vitrina</p>
             </div>
           )}
+        </div>
+
+        {/* Acceso a Selección Nacional (Fase 33) */}
+        <div 
+          onClick={() => navigate('/national-team')}
+          className="p-5 border border-sky-500/30 rounded-3xl bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:border-sky-500/60 transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-2xl group-hover:scale-105 transition-transform shrink-0">
+              <Flag className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-white flex items-center gap-2">
+                <span>Selección Nacional & Doble Carrera</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">Fase FIFA</span>
+              </h3>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Dirige a tu país, gestiona convocatorias y disputa torneos internacionales sin descuidar a tu club.
+              </p>
+            </div>
+          </div>
+          <button className="px-4 py-2 bg-sky-500 text-zinc-950 rounded-xl font-bold text-xs flex items-center gap-1.5 group-hover:bg-sky-400 transition-colors shrink-0">
+            <span>Gestionar Selección</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Ofertas Laborales */}

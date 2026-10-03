@@ -1,0 +1,33 @@
+id: f2-33-national-teams
+external_ref: ''
+title: 'Fase 33: Selecciones Nacionales y Doble Carrera'
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - 'Implementar Fase 33: Selecciones Nacionales y Doble Carrera'
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Fase 33: Selecciones Nacionales y Doble
+    Carrera
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
