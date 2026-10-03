@@ -358,6 +358,7 @@ ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS is_retired boolean DEFAULT 
 
 
 
+
 -- Fase 2: Game Config
 CREATE TABLE IF NOT EXISTS public.game_config (
     key text PRIMARY KEY,
@@ -366,3 +367,20 @@ CREATE TABLE IF NOT EXISTS public.game_config (
     description text,
     updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Fase 2: Audit Log
+CREATE TABLE IF NOT EXISTS public.audit_log (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    who_id uuid NOT NULL,
+    what_action text NOT NULL,
+    entity_type text,
+    entity_id uuid,
+    state_before jsonb,
+    state_after jsonb,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_log_who ON public.audit_log(who_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_action ON public.audit_log(what_action);
+CREATE INDEX IF NOT EXISTS idx_audit_log_entity ON public.audit_log(entity_type, entity_id);
+
