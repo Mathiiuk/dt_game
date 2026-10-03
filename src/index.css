@@ -3,5 +3,13 @@
 @layer base {
   body {
     @apply bg-zinc-950 text-zinc-100 antialiased selection:bg-emerald-500/30;
+    /* PWA Mobile Optimization */
+    user-select: none; /* Prevent accidental text selection while tapping fast */
+    -webkit-user-select: none;
+    overscroll-behavior-y: contain; /* Prevent pull-to-refresh on mobile */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }

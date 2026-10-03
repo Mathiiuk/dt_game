@@ -15,6 +15,7 @@ import MarketScreen from './features/market/MarketScreen'
 import SquadScreen from './features/squad/SquadScreen'
 import ClubScreen from './features/club/screens/ClubScreen'
 import FinancesScreen from './features/finances/FinancesScreen'
+import ReloadPrompt from './components/ReloadPrompt'
 
 function App() {
   useEffect(() => {
@@ -42,6 +43,7 @@ function App() {
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
         <Toaster theme="dark" position="top-center" />
+        <ReloadPrompt />
       </div>
     </BrowserRouter>
   )

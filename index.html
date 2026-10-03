@@ -1,13 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>el-pizarron</title>
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
+    <!-- viewport-fit=cover es esencial para los safe-areas de iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#09090b" />
+    <meta name="description" content="El Pizarrón: Simulador de Director Técnico" />
+    <link rel="apple-touch-icon" href="/pwa-icon.svg">
+    <title>El Pizarrón</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
