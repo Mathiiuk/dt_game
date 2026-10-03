@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Dumbbell, Activity, HeartPulse } from 'lucide-react'
 import { toast } from 'sonner'
-import { useGameContext } from '../../../context/GameContext'
-import BottomNav from '../../../components/BottomNav'
+import { useGameContext } from '../../context/GameContext'
+import BottomNav from '../../components/BottomNav'
+import { supabase } from '../../api/supabase'
 
 const FOCUS_OPTIONS = [
   { id: 'EQUILIBRADO', label: 'Equilibrado', desc: 'Desarrolla todas las estadísticas de forma moderada.' },
@@ -24,7 +25,6 @@ export default function TrainingScreen() {
   const handleSave = async () => {
     setSaving(true)
     try {
-      const { supabase } = await import('../../../api/supabase')
       await supabase.from('clubs').update({ 
         training_intensity: intensity,
         training_focus: focus 
