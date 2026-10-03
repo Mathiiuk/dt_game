@@ -23,7 +23,11 @@ export default function ClubScreen() {
       const youth = await academyApi.getYouthPlayers(club.id)
       const candidates = await staffApi.getAvailableStaff()
       
-      setData({ club, staff, youth, candidates })
+      const { supabase } = await import('../../api/supabase')
+      const { data: history } = await supabase.from('season_history').select('*').eq('club_id', club.id).order('season_year', { ascending: false })
+      const { data: idols } = await supabase.from('players').select('*').eq('club_id', club.id).eq('is_idol', true)
+
+      setData({ club, staff, youth, candidates, history: history || [], idols: idols || [] })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -197,7 +201,58 @@ export default function ClubScreen() {
           </div>
         </div>
 
+        </div>
       </div>
+
+      {/* Historia e Ídolos */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
+          <h2 className="flex items-center gap-2 mb-6 font-bold text-white text-xl">
+            📖 Historia del Club
+          </h2>
+          <div className="space-y-4">
+            {data.history.length === 0 ? (
+              <p className="text-zinc-500 text-sm">Aún no hay temporadas registradas.</p>
+            ) : (
+              data.history.map(h => (
+                <div key={h.id} className="p-4 border rounded-xl border-zinc-800 bg-zinc-950 flex justify-between items-center">
+                  <div>
+                    <p className="font-bold text-white">Temporada {h.season_year}</p>
+                    <p className="text-xs text-emerald-400">Posición {h.position}</p>
+                  </div>
+                  <div className="text-right text-xs text-zinc-500">
+                    {h.matches_won}V - {h.matches_drawn}E - {h.matches_lost}D
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
+          <h2 className="flex items-center gap-2 mb-6 font-bold text-white text-xl">
+            ⭐ Ídolos y Leyendas
+          </h2>
+          <div className="space-y-4">
+            {data.idols.length === 0 ? (
+              <p className="text-zinc-500 text-sm">El club aún busca a sus próximos ídolos.</p>
+            ) : (
+              data.idols.map(i => (
+                <div key={i.id} className="p-4 border rounded-xl border-zinc-800 bg-zinc-950 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-black text-xl">
+                    {i.first_name[0]}{i.last_name[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-white">{i.first_name} {i.last_name}</p>
+                    <p className="text-xs text-zinc-400">Leyenda del Club</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }

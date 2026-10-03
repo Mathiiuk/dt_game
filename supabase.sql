@@ -345,3 +345,8 @@ ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS national_team_id uuid REFER
 -- Fase 34 & 35: Copas Internacionales y Eventos
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS in_international_cup boolean DEFAULT false;
 
+
+
+-- Fase 36 & 37: Historia e Ídolos
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS is_idol boolean DEFAULT false;
+
