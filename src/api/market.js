@@ -3,25 +3,40 @@ import { clubApi } from './club'
 
 export const marketApi = {
   async getMarketPlayers(currentClubId, filters = {}) {
-    // Buscar jugadores que no pertenezcan a nuestro club
     let query = supabase
       .from('players')
       .select('*, clubs(name, short_name)')
       .neq('club_id', currentClubId)
       
-    if (filters.position) {
-      query = query.eq('position', filters.position)
-    }
-    if (filters.minPace) {
-      query = query.gte('attr_pace', filters.minPace)
-    }
-    
-    // Limit to 50 for performance
+    if (filters.position) query = query.eq('position', filters.position)
+    if (filters.minPace) query = query.gte('attr_pace', filters.minPace)
     query = query.limit(50)
 
-    const { data, error } = await query
+    const { data: players, error } = await query
     if (error) throw new Error(error.message)
-    return data
+    
+    // Obtener reportes de scout para este club
+    const { data: reports } = await supabase
+      .from('scout_reports')
+      .select('player_id, level')
+      .eq('club_id', currentClubId)
+      
+    const reportMap = {}
+    if (reports) reports.forEach(r => reportMap[r.player_id] = r.level)
+    
+    return players.map(p => ({
+      ...p,
+      scout_level: reportMap[p.id] || 0
+    }))
+  },
+
+  async scoutPlayer(clubId, playerId) {
+    const { error } = await supabase
+      .from('scout_reports')
+      .upsert({ club_id: clubId, player_id: playerId, level: 1 }, { onConflict: 'club_id,player_id' })
+      
+    if (error) throw new Error(error.message)
+    return true
   },
 
   async buyPlayer(clubId, playerId, price) {

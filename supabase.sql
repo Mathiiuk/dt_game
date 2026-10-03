@@ -219,3 +219,32 @@ CREATE POLICY "Permitir leer offers" ON public.offers FOR SELECT USING (true);
 CREATE POLICY "Permitir insertar offers" ON public.offers FOR INSERT WITH CHECK (true);
 CREATE POLICY "Permitir actualizar offers" ON public.offers FOR UPDATE USING (true);
 
+
+
+-- Fase 16 & 17: Agentes y Scouting
+CREATE TABLE IF NOT EXISTS public.agents (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  greed int DEFAULT 50,
+  influence int DEFAULT 50,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS agent_id uuid REFERENCES public.agents(id);
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS attr_potential int DEFAULT 70;
+
+CREATE TABLE IF NOT EXISTS public.scout_reports (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) NOT NULL,
+  player_id uuid REFERENCES public.players(id) NOT NULL,
+  level int DEFAULT 1,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE (club_id, player_id)
+);
+
+ALTER TABLE public.agents ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo agents" ON public.agents FOR ALL USING (true);
+
+ALTER TABLE public.scout_reports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo scout" ON public.scout_reports FOR ALL USING (true);
+

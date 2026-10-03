@@ -153,27 +153,52 @@ export default function MarketScreen() {
                     <div className="grid grid-cols-2 gap-2 mb-6 text-sm">
                       <div className="p-2 rounded bg-zinc-950">
                         <p className="text-zinc-500 text-xs">Ritmo</p>
-                        <p className="font-mono text-emerald-400 font-bold">{p.attr_pace}</p>
+                        <p className="font-mono text-emerald-400 font-bold">
+                          {p.scout_level > 0 ? p.attr_pace : `${Math.max(10, p.attr_pace - 10)}-${Math.min(99, p.attr_pace + 10)}`}
+                        </p>
                       </div>
                       <div className="p-2 rounded bg-zinc-950">
-                        <p className="text-zinc-500 text-xs">Físico</p>
-                        <p className="font-mono text-blue-400 font-bold">{p.attr_physical}</p>
+                        <p className="text-zinc-500 text-xs">Potencial</p>
+                        <p className="font-mono text-blue-400 font-bold">
+                          {p.scout_level > 0 ? p.attr_potential : '?'}
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between mt-auto">
-                      <p className="font-bold text-zinc-300">${price.toLocaleString()}</p>
-                      <button 
-                        onClick={() => handleBuy(p)}
-                        disabled={buyingId === p.id || !isAffordable}
-                        className={`flex items-center gap-1 px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
-                          !isAffordable 
-                            ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
-                            : 'bg-emerald-500 text-black hover:bg-emerald-400'
-                        }`}
-                      >
-                        {buyingId === p.id ? '...' : <><ShoppingCart className="w-4 h-4" /> Fichar</>}
-                      </button>
+                      <p className="font-bold text-zinc-300">
+                        {p.scout_level > 0 ? `$${price.toLocaleString()}` : 'Desconocido'}
+                      </p>
+                      <div className="flex gap-2">
+                        {p.scout_level === 0 ? (
+                          <button 
+                            onClick={async () => {
+                              try {
+                                await marketApi.scoutPlayer(data.club.id, p.id);
+                                toast.success(`Reporte de scout completado para ${p.last_name}`);
+                                loadData();
+                              } catch(e) {
+                                toast.error(e.message);
+                              }
+                            }}
+                            className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-black transition-colors rounded-lg bg-blue-500 hover:bg-blue-400"
+                          >
+                            Scoutear
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleBuy(p)}
+                            disabled={buyingId === p.id || !isAffordable}
+                            className={`flex items-center gap-1 px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
+                              !isAffordable 
+                                ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
+                                : 'bg-emerald-500 text-black hover:bg-emerald-400'
+                            }`}
+                          >
+                            {buyingId === p.id ? '...' : <><ShoppingCart className="w-4 h-4" /> Fichar</>}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
