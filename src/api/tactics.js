@@ -2,13 +2,20 @@ import { supabase } from './supabase'
 
 export const tacticsApi = {
   async getTactic(clubId) {
+    if (!clubId) return null
+
     let { data, error } = await supabase
       .from('tactics')
       .select('*')
       .eq('club_id', clubId)
-      .single()
+      .limit(1)
+      .maybeSingle()
 
-    if (error && error.code === 'PGRST116') {
+    if (error) {
+      console.warn('Error fetching tactic:', error)
+    }
+
+    if (!data) {
       // Si no existe, crear la táctica por defecto
       const defaultTactic = {
         club_id: clubId,
@@ -22,24 +29,33 @@ export const tacticsApi = {
       }
       const { data: newTactic, error: insertError } = await supabase
         .from('tactics')
-        .insert([defaultTactic])
+        .upsert(defaultTactic, { onConflict: 'club_id' })
         .select()
         .single()
         
       if (insertError) throw new Error(insertError.message)
       return newTactic
-    } else if (error) {
-      throw new Error(error.message)
     }
 
     return data
   },
 
   async updateTactic(clubId, tacticData) {
+    if (!clubId) throw new Error('Club ID requerido')
+    
+    // Desestructurar para no pisar la primary key ni columnas protegidas
+    const { id, created_at, updated_at, ...cleanData } = tacticData || {}
+
     const { data, error } = await supabase
       .from('tactics')
-      .update(tacticData)
-      .eq('club_id', clubId)
+      .upsert(
+        { 
+          ...cleanData, 
+          club_id: clubId, 
+          updated_at: new Date().toISOString() 
+        }, 
+        { onConflict: 'club_id' }
+      )
       .select()
       .single()
 

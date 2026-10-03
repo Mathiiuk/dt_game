@@ -4,24 +4,35 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { financesApi } from '../../api/finances'
+import { useGameContext } from '../../context/GameContext'
 import { ArrowLeft, DollarSign, TrendingUp, TrendingDown, Building, ShieldPlus, ShoppingBag } from 'lucide-react'
 import { toast } from 'sonner'
 
+const FACILITY_NAMES = {
+  stadium_level: 'Tribunas del Estadio',
+  medical_level: 'Centro Médico',
+  store_level: 'Tienda Oficial'
+}
+
 export default function FinancesScreen() {
   const navigate = useNavigate()
+  const { club: contextClub, confirmAction } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState({ club: null, finances: null })
   
   const loadData = async () => {
     try {
-      const user = await authApi.getSession()
-      if (!user) return navigate('/auth')
-      const manager = await managerApi.getManager(user.id)
-      const club = await clubApi.getClubByManager(manager.id)
+      let activeClub = contextClub
+      if (!activeClub) {
+        const user = await authApi.getSession()
+        if (!user) return navigate('/auth')
+        const manager = await managerApi.getManager(user.id)
+        activeClub = await clubApi.getClubByManager(manager.id)
+      }
+      if (!activeClub) return
       
-      const finances = await financesApi.getFinances(club.id)
-      
-      setData({ club, finances })
+      const finances = await financesApi.getFinances(activeClub.id)
+      setData({ club: activeClub, finances })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -31,10 +42,19 @@ export default function FinancesScreen() {
 
   useEffect(() => {
     loadData()
-  }, [navigate])
+  }, [navigate, contextClub])
 
   const handleUpgrade = async (facility, currentLevel, cost) => {
-    if (!window.confirm(`¿Mejorar ${facility} por $${cost.toLocaleString()}?`)) return
+    const facilityName = FACILITY_NAMES[facility] || facility
+    const confirmed = await confirmAction({
+      title: `Mejorar ${facilityName}`,
+      description: `¿Confirmas la inversión de $${cost.toLocaleString()} para mejorar ${facilityName} al nivel ${currentLevel + 1}?`,
+      confirmText: 'Invertir y Mejorar',
+      cancelText: 'Cancelar',
+      variant: 'primary'
+    })
+    if (!confirmed) return
+
     try {
       await financesApi.upgradeFacility(data.club.id, facility, cost, currentLevel)
       toast.success('Instalación mejorada con éxito')
@@ -44,48 +64,55 @@ export default function FinancesScreen() {
     }
   }
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Analizando finanzas...</div>
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-emerald-400 font-medium text-sm animate-pulse">Analizando finanzas...</p>
+      </div>
+    )
+  }
 
   const f = data.finances
-  const isProfitable = f.monthlyProfit >= 0
+  const isProfitable = f?.monthlyProfit >= 0
 
   return (
-    <div className="min-h-screen p-8 text-white bg-zinc-950">
-      <header className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
+    <div className="min-h-screen p-3 sm:p-6 md:p-8 text-white bg-zinc-950 pb-28 md:pb-8">
+      <header className="flex items-center justify-between mb-6 md:mb-8">
+        <div className="flex items-center gap-3 md:gap-4">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-3xl font-black flex items-center gap-2 text-emerald-500">
-            <DollarSign className="w-8 h-8" /> ECONOMÍA Y ESTADIO
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black flex items-center gap-2 text-emerald-500">
+            <DollarSign className="w-6 h-6 md:w-8 md:h-8" /> ECONOMÍA Y ESTADIO
           </h1>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         
         {/* Resumen Financiero */}
-        <div className="space-y-6 lg:col-span-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-6 border rounded-3xl bg-zinc-900/50 border-zinc-800">
-              <p className="text-zinc-500 font-medium mb-1">Caja (Dinero Disponible)</p>
-              <p className="text-4xl font-black text-emerald-400">${f.balance.toLocaleString()}</p>
+        <div className="space-y-4 sm:space-y-6 lg:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="p-4 sm:p-6 border rounded-2xl md:rounded-3xl bg-zinc-900/50 border-zinc-800">
+              <p className="text-zinc-500 font-medium text-xs sm:text-sm mb-1">Caja (Dinero Disponible)</p>
+              <p className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-400 truncate">${f.balance.toLocaleString()}</p>
             </div>
-            <div className="p-6 border rounded-3xl bg-zinc-900/50 border-zinc-800">
-              <p className="text-zinc-500 font-medium mb-1">Balance Mensual</p>
+            <div className="p-4 sm:p-6 border rounded-2xl md:rounded-3xl bg-zinc-900/50 border-zinc-800">
+              <p className="text-zinc-500 font-medium text-xs sm:text-sm mb-1">Balance Mensual</p>
               <div className="flex items-center gap-2">
-                {isProfitable ? <TrendingUp className="w-6 h-6 text-emerald-500" /> : <TrendingDown className="w-6 h-6 text-red-500" />}
-                <p className={`text-4xl font-black ${isProfitable ? 'text-emerald-400' : 'text-red-400'}`}>
+                {isProfitable ? <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 shrink-0" /> : <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-500 shrink-0" />}
+                <p className={`text-2xl sm:text-3xl md:text-4xl font-black truncate ${isProfitable ? 'text-emerald-400' : 'text-red-400'}`}>
                   {isProfitable ? '+' : '-'}${Math.abs(f.monthlyProfit).toLocaleString()}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 border rounded-3xl bg-emerald-950/20 border-emerald-900/30">
-              <h3 className="font-bold text-emerald-500 mb-4 border-b border-emerald-900/30 pb-2">Ingresos Mensuales</h3>
-              <ul className="space-y-3 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <div className="p-4 sm:p-6 border rounded-2xl md:rounded-3xl bg-emerald-950/20 border-emerald-900/30">
+              <h3 className="font-bold text-emerald-500 mb-3 sm:mb-4 border-b border-emerald-900/30 pb-2 text-sm sm:text-base">Ingresos Mensuales</h3>
+              <ul className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
                 <li className="flex justify-between"><span className="text-zinc-400">Derechos de TV</span><span className="font-bold">${f.income.tvRights.toLocaleString()}</span></li>
                 <li className="flex justify-between"><span className="text-zinc-400">Patrocinadores</span><span className="font-bold">${f.income.sponsors.toLocaleString()}</span></li>
                 <li className="flex justify-between"><span className="text-zinc-400">Tienda / Merchandising</span><span className="font-bold">${f.income.storeIncome.toLocaleString()}</span></li>
@@ -93,9 +120,9 @@ export default function FinancesScreen() {
               </ul>
             </div>
 
-            <div className="p-6 border rounded-3xl bg-red-950/20 border-red-900/30">
-              <h3 className="font-bold text-red-500 mb-4 border-b border-red-900/30 pb-2">Gastos Mensuales</h3>
-              <ul className="space-y-3 text-sm">
+            <div className="p-4 sm:p-6 border rounded-2xl md:rounded-3xl bg-red-950/20 border-red-900/30">
+              <h3 className="font-bold text-red-500 mb-3 sm:mb-4 border-b border-red-900/30 pb-2 text-sm sm:text-base">Gastos Mensuales</h3>
+              <ul className="space-y-2.5 sm:space-y-3 text-xs sm:text-sm">
                 <li className="flex justify-between"><span className="text-zinc-400">Sueldos Jugadores</span><span className="font-bold">${f.expenses.playerWages.toLocaleString()}</span></li>
                 <li className="flex justify-between"><span className="text-zinc-400">Sueldos Staff</span><span className="font-bold">${f.expenses.staffWages.toLocaleString()}</span></li>
                 <li className="flex justify-between"><span className="text-zinc-400">Mantenimiento Estadio</span><span className="font-bold">${f.expenses.maintenance.toLocaleString()}</span></li>

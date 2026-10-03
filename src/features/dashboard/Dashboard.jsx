@@ -77,7 +77,12 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (loading || contextLoading) {
-    return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando la oficina...</div>
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-emerald-400 font-medium text-sm animate-pulse">Cargando la oficina...</p>
+      </div>
+    )
   }
 
   const navItems = [

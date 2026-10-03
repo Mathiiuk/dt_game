@@ -11,7 +11,7 @@ import BottomNav from '../../components/BottomNav'
 
 export default function ManagerCareerScreen() {
   const navigate = useNavigate()
-  const { manager, club, refreshContext } = useGameContext()
+  const { manager, club, refreshContext, confirmAction } = useGameContext()
   const [stats, setStats] = useState(null)
   const [offers, setOffers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -41,7 +41,13 @@ export default function ManagerCareerScreen() {
   }, [manager, club])
 
   const handleAcceptOffer = async (offer) => {
-    if (!window.confirm(`¿Deseas firmar contrato con ${offer.clubName}? Dejarás tu club actual.`)) return
+    const ok = await confirmAction({
+      title: 'Firmar con Nuevo Club',
+      description: `¿Deseas firmar contrato con ${offer.clubName}? Dejarás tu club actual para asumir el nuevo desafío.`,
+      confirmText: 'Firmar Contrato',
+      variant: 'purple'
+    })
+    if (!ok) return
 
     setTransferring(true)
     try {
@@ -57,7 +63,13 @@ export default function ManagerCareerScreen() {
   }
 
   const handleRetire = async () => {
-    if (!window.confirm('¿Estás seguro de retirarte del fútbol profesional? Tu carrera como DT finalizará aquí y se calculará tu legado histórico.')) return
+    const ok = await confirmAction({
+      title: 'Retiro del Fútbol Profesional',
+      description: '¿Estás seguro de retirarte? Tu carrera como entrenador finalizará aquí y se calculará tu legado histórico definitivo.',
+      confirmText: 'Colgar el Buzo de DT',
+      variant: 'red'
+    })
+    if (!ok) return
 
     setRetiring(true)
     try {

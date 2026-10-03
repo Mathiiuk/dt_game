@@ -29,7 +29,7 @@ import { useGameContext } from '../../../context/GameContext'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
-  const { club, loading: contextLoading } = useGameContext()
+  const { club, loading: contextLoading, confirmAction } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('gestion') // 'gestion' | 'historia' | 'idolos'
 
@@ -222,7 +222,14 @@ export default function ClubScreen() {
                     </div>
                     <button 
                       onClick={async () => {
-                        if (window.confirm(`¿Despedir a ${s.name}?`)) {
+                        const confirmed = await confirmAction({
+                          title: 'Despedir Staff',
+                          description: `¿Estás seguro de rescindir el contrato de ${s.name}? Dejará de aportar sus bonificaciones al club.`,
+                          confirmText: 'Despedir',
+                          cancelText: 'Cancelar',
+                          variant: 'danger'
+                        })
+                        if (confirmed) {
                           await staffApi.fireStaff(s.id)
                           toast.success('Contrato de staff rescindido')
                           loadData()

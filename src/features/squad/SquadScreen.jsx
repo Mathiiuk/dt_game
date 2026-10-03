@@ -12,7 +12,7 @@ import { useGameContext } from '../../context/GameContext'
 
 export default function SquadScreen() {
   const navigate = useNavigate()
-  const { user, manager, club, loading: contextLoading } = useGameContext()
+  const { user, manager, club, loading: contextLoading, confirmAction } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState({ players: [], offers: [] })
   const [selectedPlayer, setSelectedPlayer] = useState(null)
@@ -37,7 +37,14 @@ export default function SquadScreen() {
 
   const handleRenew = async (player) => {
     const newSalary = player.contract_salary + 5000
-    if (!window.confirm(`¿Renovar a ${player.last_name} por $${newSalary}/mes?`)) return
+    const confirmed = await confirmAction({
+      title: 'Renovar Contrato',
+      description: `¿Deseas ofrecer una renovación de contrato a ${player.first_name} ${player.last_name} con un nuevo salario de $${newSalary.toLocaleString()}/mes?`,
+      confirmText: 'Firmar Renovación',
+      cancelText: 'Cancelar',
+      variant: 'primary'
+    })
+    if (!confirmed) return
     
     try {
       await contractApi.renewContract(player.id, { 
@@ -85,12 +92,19 @@ export default function SquadScreen() {
     }
   }
 
-  if (loading || contextLoading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando plantel...</div>
+  if (loading || contextLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-emerald-400 font-medium text-sm animate-pulse">Cargando plantel...</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950 pb-24 lg:pb-8">
-      <header className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen p-3 sm:p-6 md:p-8 text-white bg-zinc-950 pb-28 md:pb-8">
+      <header className="flex items-center justify-between mb-6 md:mb-8">
+        <div className="flex items-center gap-3 md:gap-4">
           <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>

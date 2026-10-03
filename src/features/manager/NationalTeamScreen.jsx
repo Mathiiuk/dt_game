@@ -22,7 +22,7 @@ import { toast } from 'sonner'
 
 export default function NationalTeamScreen() {
   const navigate = useNavigate()
-  const { manager, loading: contextLoading } = useGameContext()
+  const { manager, loading: contextLoading, confirmAction } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [team, setTeam] = useState(null)
   const [offers, setOffers] = useState([])
@@ -66,6 +66,15 @@ export default function NationalTeamScreen() {
       if (!offer.is_eligible) {
         return toast.error(`Necesitas al menos ${offer.required_reputation} de reputación para esta selección.`)
       }
+      const confirmed = await confirmAction({
+        title: `Asumir en ${offer.name}`,
+        description: `¿Aceptar la propuesta para dirigir a ${offer.name}? Mantendrás tu cargo en el club en paralelo.`,
+        confirmText: 'Firmar Contrato',
+        cancelText: 'Rechazar',
+        variant: 'primary'
+      })
+      if (!confirmed) return
+
       setLoading(true)
       await nationalTeamApi.acceptOffer(manager.id, offer.id)
       toast.success(`¡Felicitaciones! Has asumido como DT de ${offer.name}`)
@@ -77,7 +86,15 @@ export default function NationalTeamScreen() {
   }
 
   const handleResign = async () => {
-    if (!window.confirm('¿Seguro que deseas renunciar a la Selección Nacional? Continuarás al mando de tu club normalmente.')) return
+    const confirmed = await confirmAction({
+      title: 'Renunciar a la Selección',
+      description: '¿Seguro que deseas renunciar a la Selección Nacional? Continuarás al mando de tu club normalmente.',
+      confirmText: 'Presentar Renuncia',
+      cancelText: 'Cancelar',
+      variant: 'danger'
+    })
+    if (!confirmed) return
+
     try {
       setLoading(true)
       await nationalTeamApi.resign(manager.id, team.id)

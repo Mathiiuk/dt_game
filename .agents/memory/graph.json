@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T21:35:00.994Z",
+  "updatedAt": "2026-10-03T22:21:57.585Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 54,
-    "totalEdges": 213,
-    "totalTasks": 3,
+    "totalNodes": 56,
+    "totalEdges": 216,
+    "totalTasks": 4,
     "totalLessons": 0
   },
   "nodes": [
@@ -54,8 +54,8 @@
       "id": "src/api/clubFeatures.js",
       "label": "clubFeatures.js",
       "type": "module",
-      "sizeBytes": 2934,
-      "lineCount": 76,
+      "sizeBytes": 2991,
+      "lineCount": 77,
       "imports": [
         "./supabase"
       ]
@@ -216,7 +216,7 @@
       "id": "src/api/nationalTeam.js",
       "label": "nationalTeam.js",
       "type": "module",
-      "sizeBytes": 8757,
+      "sizeBytes": 9047,
       "lineCount": 291,
       "imports": [
         "./supabase",
@@ -274,8 +274,8 @@
       "id": "src/api/tactics.js",
       "label": "tactics.js",
       "type": "module",
-      "sizeBytes": 1238,
-      "lineCount": 50,
+      "sizeBytes": 1585,
+      "lineCount": 66,
       "imports": [
         "./supabase"
       ]
@@ -314,6 +314,17 @@
       ]
     },
     {
+      "id": "src/components/ActionSheet.jsx",
+      "label": "ActionSheet.jsx",
+      "type": "module",
+      "sizeBytes": 3943,
+      "lineCount": 113,
+      "imports": [
+        "react",
+        "lucide-react"
+      ]
+    },
+    {
       "id": "src/components/BottomNav.jsx",
       "label": "BottomNav.jsx",
       "type": "module",
@@ -340,14 +351,15 @@
       "id": "src/context/GameContext.jsx",
       "label": "GameContext.jsx",
       "type": "module",
-      "sizeBytes": 2235,
-      "lineCount": 69,
+      "sizeBytes": 3445,
+      "lineCount": 109,
       "imports": [
         "react",
         "react-router-dom",
         "../api/auth",
         "../api/manager",
-        "../api/club"
+        "../api/club",
+        "../components/ActionSheet"
       ]
     },
     {
@@ -407,8 +419,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 27062,
-      "lineCount": 547,
+      "sizeBytes": 27483,
+      "lineCount": 554,
       "imports": [
         "react",
         "react-router-dom",
@@ -440,8 +452,8 @@
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 6213,
-      "lineCount": 134,
+      "sizeBytes": 7325,
+      "lineCount": 163,
       "imports": [
         "react",
         "react-router-dom",
@@ -458,8 +470,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 20405,
-      "lineCount": 393,
+      "sizeBytes": 20646,
+      "lineCount": 398,
       "imports": [
         "react",
         "react-router-dom",
@@ -476,8 +488,8 @@
       "id": "src/features/finances/FinancesScreen.jsx",
       "label": "FinancesScreen.jsx",
       "type": "module",
-      "sizeBytes": 9402,
-      "lineCount": 176,
+      "sizeBytes": 10875,
+      "lineCount": 203,
       "imports": [
         "react",
         "react-router-dom",
@@ -485,6 +497,7 @@
         "../../api/manager",
         "../../api/club",
         "../../api/finances",
+        "../../context/GameContext",
         "lucide-react",
         "sonner"
       ]
@@ -508,8 +521,8 @@
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 19331,
-      "lineCount": 379,
+      "sizeBytes": 19696,
+      "lineCount": 391,
       "imports": [
         "react",
         "react-router-dom",
@@ -524,8 +537,8 @@
       "id": "src/features/manager/NationalTeamScreen.jsx",
       "label": "NationalTeamScreen.jsx",
       "type": "module",
-      "sizeBytes": 14537,
-      "lineCount": 348,
+      "sizeBytes": 15467,
+      "lineCount": 365,
       "imports": [
         "react",
         "react-router-dom",
@@ -539,14 +552,11 @@
       "id": "src/features/market/MarketScreen.jsx",
       "label": "MarketScreen.jsx",
       "type": "module",
-      "sizeBytes": 11073,
-      "lineCount": 238,
+      "sizeBytes": 18727,
+      "lineCount": 408,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/auth",
-        "../../api/manager",
-        "../../api/club",
         "../../api/market",
         "lucide-react",
         "sonner",
@@ -557,8 +567,8 @@
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 11558,
-      "lineCount": 259,
+      "sizeBytes": 19937,
+      "lineCount": 477,
       "imports": [
         "react",
         "react-router-dom",
@@ -569,15 +579,16 @@
         "../../api/player",
         "../../api/matchEngine",
         "../../api/supabase",
-        "lucide-react"
+        "lucide-react",
+        "sonner"
       ]
     },
     {
       "id": "src/features/match/PostMatchScreen.jsx",
       "label": "PostMatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 6820,
-      "lineCount": 155,
+      "sizeBytes": 9301,
+      "lineCount": 210,
       "imports": [
         "react",
         "react-router-dom",
@@ -591,8 +602,8 @@
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 16603,
-      "lineCount": 346,
+      "sizeBytes": 17189,
+      "lineCount": 360,
       "imports": [
         "react",
         "react-router-dom",
@@ -610,8 +621,8 @@
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 8363,
-      "lineCount": 193,
+      "sizeBytes": 8728,
+      "lineCount": 198,
       "imports": [
         "react",
         "react-router-dom",
@@ -695,6 +706,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:f2-audit-fixes-polish",
+      "label": "f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     }
   ],
   "edges": [
@@ -1014,6 +1032,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/components/ActionSheet.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ActionSheet.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/components/BottomNav.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -1061,6 +1089,11 @@
     {
       "from": "src/context/GameContext.jsx",
       "to": "../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
+      "to": "../components/ActionSheet",
       "relation": "depends_on"
     },
     {
@@ -1350,6 +1383,11 @@
     },
     {
       "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
       "to": "lucide-react",
       "relation": "depends_on"
     },
@@ -1465,21 +1503,6 @@
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
-      "to": "../../api/auth",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/market/MarketScreen.jsx",
-      "to": "../../api/manager",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/market/MarketScreen.jsx",
-      "to": "../../api/club",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/market/MarketScreen.jsx",
       "to": "../../api/market",
       "relation": "depends_on"
     },
@@ -1546,6 +1569,11 @@
     {
       "from": "src/features/match/MatchScreen.jsx",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -1761,6 +1789,11 @@
     {
       "from": "task:f2-36-37-club-history-idols",
       "to": ".agents/workflow/tasks/f2-36-37-club-history-idols.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-audit-fixes-polish",
+      "to": ".agents/workflow/tasks/f2-audit-fixes-polish.yml",
       "relation": "manifested_by"
     }
   ],

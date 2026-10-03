@@ -11,12 +11,16 @@ import { useGameContext } from '../../context/GameContext'
 
 export default function StandingsScreen() {
   const navigate = useNavigate()
-  const { club, loading: contextLoading } = useGameContext()
+  const { club, loading: contextLoading, confirmAction } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [standings, setStandings] = useState([])
 
   useEffect(() => {
-    if (contextLoading || !club) return
+    if (contextLoading) return
+    if (!club) {
+      setLoading(false)
+      return
+    }
     const load = async () => {
       try {
         let data = await competitionApi.getStandings(club.id)
@@ -24,7 +28,7 @@ export default function StandingsScreen() {
           await competitionApi.initializeLeague(club.id, club.country)
           data = await competitionApi.getStandings(club.id)
         }
-        setStandings(data)
+        setStandings(data || [])
       } catch (e) {
         toast.error(e.message)
       } finally {
@@ -35,7 +39,14 @@ export default function StandingsScreen() {
   }, [contextLoading, club])
 
   const handleEndSeason = async () => {
-    if (!window.confirm('¿Finalizar temporada? Se procesarán las edades, retiros, y se reiniciará la tabla.')) return
+    const confirmed = await confirmAction({
+      title: 'Finalizar Temporada',
+      description: '¿Finalizar temporada? Se procesarán las edades de los jugadores, retiros, contratos y se reiniciará la tabla de posiciones para el próximo año.',
+      confirmText: 'Finalizar Temporada',
+      cancelText: 'Cancelar',
+      variant: 'warning'
+    })
+    if (!confirmed) return
     
     try {
       setLoading(true)
@@ -49,18 +60,36 @@ export default function StandingsScreen() {
     }
   }
 
-  if (loading || contextLoading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando tabla...</div>
+  if (loading || contextLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
+        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-emerald-400 font-medium text-sm animate-pulse">Cargando tabla de posiciones...</p>
+      </div>
+    )
+  }
+
+  if (!club) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-4 p-6 text-center">
+        <p className="text-zinc-400 text-base">No se encontró club activo para este mánager.</p>
+        <button onClick={() => navigate('/dashboard')} className="px-4 py-2 bg-emerald-500 text-black font-bold rounded-xl text-sm">
+          Volver al Inicio
+        </button>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 text-white bg-zinc-950 pb-24 lg:pb-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-0">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
+    <div className="min-h-screen p-3 sm:p-6 md:p-8 text-white bg-zinc-950 pb-28 md:pb-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
             <h1 className="text-xl md:text-3xl font-black flex items-center gap-2 text-emerald-500 leading-none mb-1">
-              <Trophy className="w-6 h-6 md:w-8 md:h-8" /> TABLA DE POSICIONES
+              <Trophy className="w-5 h-5 md:w-8 md:h-8" /> TABLA DE POSICIONES
             </h1>
             <p className="text-xs md:text-sm text-zinc-500">Liga Regional (MVP)</p>
           </div>
@@ -83,7 +112,7 @@ export default function StandingsScreen() {
         </div>
       </header>
 
-      <div className="max-w-4xl p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
+      <div className="max-w-4xl p-3 md:p-6 border border-zinc-800 rounded-2xl md:rounded-3xl bg-zinc-900/50">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
