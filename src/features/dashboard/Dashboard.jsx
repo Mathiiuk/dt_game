@@ -188,6 +188,26 @@ export default function Dashboard() {
                   <div className="w-[95%] h-full bg-blue-500 rounded-full" />
                 </div>
               </div>
+              <div>
+                <div className="flex justify-between mb-2 text-sm">
+                  <span className="text-zinc-400">Directiva (Confianza)</span>
+                  <span className="text-yellow-400">{club.board_confidence}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-zinc-800">
+                  <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${club.board_confidence}%` }} />
+                </div>
+                <p className="mt-1 text-[10px] text-zinc-500 text-right">Obj: {club.season_objective}</p>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-2 text-sm">
+                  <span className="text-zinc-400">Hinchada (Aprobación)</span>
+                  <span className="text-orange-400">{club.fans_confidence}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-zinc-800">
+                  <div className="h-full bg-orange-500 rounded-full" style={{ width: `${club.fans_confidence}%` }} />
+                </div>
+              </div>
             </div>
           </div>
         </div>

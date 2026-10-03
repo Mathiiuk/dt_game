@@ -277,3 +277,10 @@ ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS stadium_condition int DEFAULT 
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS medical_level int DEFAULT 1;
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS store_level int DEFAULT 1;
 
+
+
+-- Fase 22 & 23: Hinchada y Dirigencia
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS board_confidence int DEFAULT 80;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS fans_confidence int DEFAULT 80;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS season_objective text DEFAULT 'Mitad de tabla';
+
