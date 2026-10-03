@@ -139,13 +139,27 @@ export default function Dashboard() {
           </div>
         </header>
 
+        {/* Dynamic Event MVP */}
+        {Math.random() > 0.8 && (
+          <div className="p-6 mb-6 border border-blue-900/50 rounded-3xl bg-blue-900/10">
+            <h3 className="mb-2 font-bold text-blue-400">🔔 Evento: Mensaje del Presidente</h3>
+            <p className="mb-4 text-sm text-zinc-300">"Míster, confío en que el equipo empiece a mostrar los resultados prometidos. Necesitamos ganar el próximo partido."</p>
+            <div className="flex gap-4">
+              <button onClick={(e) => { e.target.parentElement.parentElement.style.display = 'none'; toast.success('Aceptaste el desafío') }} className="px-4 py-2 text-xs font-bold text-black bg-blue-500 rounded hover:bg-blue-400">Aceptar (+Presión)</button>
+              <button onClick={(e) => { e.target.parentElement.parentElement.style.display = 'none'; toast.success('Pediste tiempo') }} className="px-4 py-2 text-xs font-bold text-white transition-colors border rounded border-zinc-700 hover:bg-zinc-800">Pedir paciencia</button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           
           {/* Próximo Partido */}
           <div className="p-6 border lg:col-span-2 border-zinc-800 rounded-3xl bg-zinc-900/50">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-bold text-white">Próximo Partido</h3>
-              <span className="px-3 py-1 text-xs font-medium rounded-full bg-zinc-800 text-zinc-300">Amistoso de Pretemporada</span>
+              <span className="px-3 py-1 text-xs font-medium rounded-full bg-zinc-800 text-zinc-300">
+                {club.in_international_cup ? 'Copa Continental' : 'Liga Regional'}
+              </span>
             </div>
             
             <div className="flex items-center justify-center gap-8 py-8">
