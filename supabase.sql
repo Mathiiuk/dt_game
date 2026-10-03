@@ -316,3 +316,20 @@ CREATE TABLE IF NOT EXISTS public.season_history (
 ALTER TABLE public.season_history ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir todo season history" ON public.season_history FOR ALL USING (true);
 
+
+
+-- Fase 30 & 31: Ascensos y Carrera DT
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS league_tier int DEFAULT 1;
+
+CREATE TABLE IF NOT EXISTS public.manager_history (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid REFERENCES public.managers(id),
+  club_name text,
+  start_year int,
+  end_year int,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.manager_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo manager history" ON public.manager_history FOR ALL USING (true);
+

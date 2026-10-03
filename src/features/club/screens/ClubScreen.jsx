@@ -168,6 +168,33 @@ export default function ClubScreen() {
               )}
             </div>
           </div>
+          
+          <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50 mt-6">
+            <h2 className="flex items-center gap-2 mb-6 font-bold text-white text-xl">
+              💼 Ofertas de Trabajo
+            </h2>
+            <div className="p-4 border border-zinc-800 rounded-xl bg-purple-950/20">
+              <p className="mb-2 text-sm text-zinc-300">
+                Tu excelente desempeño ha llamado la atención de otro equipo.
+              </p>
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <p className="font-bold text-white">Atlético Regional (Tier {Math.max(1, (data.club?.league_tier || 1) - 1)})</p>
+                  <p className="text-xs text-purple-400">Objetivo: Evitar el Descenso</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  if (window.confirm('¿Aceptar la oferta? Cambiarás de club (MVP: Reinicio simulado de club actual).')) {
+                    toast.success('¡Has firmado con el nuevo equipo!')
+                  }
+                }}
+                className="w-full py-2 text-xs font-bold text-black bg-purple-500 rounded-lg hover:bg-purple-400"
+              >
+                Aceptar Oferta
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>

@@ -127,12 +127,22 @@ export const gameLoopApi = {
       }
     }
 
-    // 4. Avanzar fecha a la próxima temporada
-    const { data: club } = await supabase.from('clubs').select('game_date').eq('id', clubId).single()
+    // 4. Ascensos / Descensos (MVP: Si ganaste la liga y estás en tier 2, subes a 1)
+    const { data: club } = await supabase.from('clubs').select('*').eq('id', clubId).single()
+    let newTier = club.league_tier || 1
+    // Asumimos position=1 sube.
+    if (newTier > 1) {
+      newTier -= 1 
+    }
+    
+    // 5. Avanzar fecha a la próxima temporada
     const currentDate = new Date(club.game_date)
     currentDate.setMonth(currentDate.getMonth() + 2)
     
-    await supabase.from('clubs').update({ game_date: currentDate.toISOString().split('T')[0] }).eq('id', clubId)
+    await supabase.from('clubs').update({ 
+      game_date: currentDate.toISOString().split('T')[0],
+      league_tier: newTier
+    }).eq('id', clubId)
     
     return true
   }
