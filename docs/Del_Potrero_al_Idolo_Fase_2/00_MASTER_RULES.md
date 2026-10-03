@@ -74,3 +74,13 @@ Los clubes no controlados por el usuario tambi√©n deben:
 
 ## Regla de oro
 El juego debe producir historias a partir de sistemas, no depender exclusivamente de textos guionados.
+
+
+## 10. REGLA OPERATIVA DE GIT Y CI/CD (AUTO-MERGE)
+El entorno de GitHub del proyecto cuenta con un CI/CD automatizado que hace merge de las ramas a master automa¥ticamente. Por ende, la IA debe seguir estrictamente este flujo:
+1. Antes de iniciar un modulo: \git checkout master\ y \git pull\.
+2. Crear la rama \eature/fase-xyz\.
+3. Implementar, probar (build/lint) y hacer commit.
+4. Hacer \git push origin feature/fase-xyz\.
+5. NO realizar \git merge\ manual a master. GitHub lo hace solo.
+6. Pasar de inmediato a la siguiente rama volviendo al paso 1.
