@@ -129,7 +129,11 @@ export const gameLoopApi = {
       await supabase.from('managers').update({ is_looking_for_job: true }).eq('id', managerId)
     }
 
-    // 7. Audit Log
+    // 7. Eventos Dinámicos
+    const { eventsApi } = await import('./events')
+    await eventsApi.generateRandomEvents(clubId, managerId)
+
+    // 8. Audit Log
     if (managerId) {
       await auditApi.logAction({
         whoId: managerId,
