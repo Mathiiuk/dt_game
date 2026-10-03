@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T22:21:57.585Z",
+  "updatedAt": "2026-10-03T22:35:00.777Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 56,
-    "totalEdges": 216,
-    "totalTasks": 4,
+    "totalNodes": 57,
+    "totalEdges": 217,
+    "totalTasks": 5,
     "totalLessons": 0
   },
   "nodes": [
@@ -274,7 +274,7 @@
       "id": "src/api/tactics.js",
       "label": "tactics.js",
       "type": "module",
-      "sizeBytes": 1585,
+      "sizeBytes": 1650,
       "lineCount": 66,
       "imports": [
         "./supabase"
@@ -317,7 +317,7 @@
       "id": "src/components/ActionSheet.jsx",
       "label": "ActionSheet.jsx",
       "type": "module",
-      "sizeBytes": 3943,
+      "sizeBytes": 4055,
       "lineCount": 113,
       "imports": [
         "react",
@@ -351,7 +351,7 @@
       "id": "src/context/GameContext.jsx",
       "label": "GameContext.jsx",
       "type": "module",
-      "sizeBytes": 3445,
+      "sizeBytes": 3553,
       "lineCount": 109,
       "imports": [
         "react",
@@ -552,7 +552,7 @@
       "id": "src/features/market/MarketScreen.jsx",
       "label": "MarketScreen.jsx",
       "type": "module",
-      "sizeBytes": 18727,
+      "sizeBytes": 19134,
       "lineCount": 408,
       "imports": [
         "react",
@@ -567,7 +567,7 @@
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 19937,
+      "sizeBytes": 20413,
       "lineCount": 477,
       "imports": [
         "react",
@@ -587,7 +587,7 @@
       "id": "src/features/match/PostMatchScreen.jsx",
       "label": "PostMatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 9301,
+      "sizeBytes": 9510,
       "lineCount": 210,
       "imports": [
         "react",
@@ -710,6 +710,13 @@
     {
       "id": "task:f2-audit-fixes-polish",
       "label": "f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-db-audit-optimization",
+      "label": "f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -1794,6 +1801,11 @@
     {
       "from": "task:f2-audit-fixes-polish",
       "to": ".agents/workflow/tasks/f2-audit-fixes-polish.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-db-audit-optimization",
+      "to": ".agents/workflow/tasks/f2-db-audit-optimization.yml",
       "relation": "manifested_by"
     }
   ],

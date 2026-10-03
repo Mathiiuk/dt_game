@@ -1,0 +1,40 @@
+id: f2-db-audit-optimization
+external_ref: ''
+title: Optimizacion de Indices y Politicas RLS en Base de Datos
+type: fix
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Auditar calidad de datos e integridad relacional en PostgreSQL
+  - Resolver bloqueo de RLS en UPDATE de clubes y jugadores
+  - >-
+    Crear indices B-Tree de alto impacto para players, fixtures, clubs y
+    standings
+  - Reducir tiempos de consulta de 23ms a menos de 0.2ms
+acceptance_criteria:
+  - Las politicas RLS permiten actualizar clubes y jugadores sin errores
+  - >-
+    21 indices B-Tree optimizan el 100% de las consultas frecuentes y claves
+    foraneas
+  - La suite de build compila sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
