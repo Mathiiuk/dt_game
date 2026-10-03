@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameContext } from '../../context/GameContext'
 import { careerApi } from '../../api/career'
+import { endgameApi } from '../../api/endgame'
 import { 
   ArrowLeft, Award, Trophy, Star, Briefcase, TrendingUp, 
   Shield, UserX, Loader2, Sparkles, AlertTriangle, CheckCircle, Flag, ChevronRight 
@@ -65,7 +66,7 @@ export default function ManagerCareerScreen() {
   const handleRetire = async () => {
     const ok = await confirmAction({
       title: 'Retiro del Fútbol Profesional',
-      description: '¿Estás seguro de retirarte? Tu carrera como entrenador finalizará aquí y se calculará tu legado histórico definitivo.',
+      description: '¿Estás seguro de retirarte? Tu carrera como entrenador finalizará aquí. Se calculará tu legado histórico, ingresarás al Salón de la Fama y se emitirá la edición histórica del Diario del Retiro.',
       confirmText: 'Colgar el Buzo de DT',
       variant: 'red'
     })
@@ -73,11 +74,12 @@ export default function ManagerCareerScreen() {
 
     setRetiring(true)
     try {
-      const result = await careerApi.retireManager(manager.id)
-      setEndgameData(result)
+      await endgameApi.processRetirement(manager.id, club?.id)
       toast.success('Carrera finalizada con éxito.')
+      if (refreshContext) await refreshContext()
+      navigate('/endgame')
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err.message || 'Error al procesar el retiro')
     } finally {
       setRetiring(false)
     }
@@ -87,57 +89,6 @@ export default function ManagerCareerScreen() {
     return (
       <div className="flex items-center justify-center min-h-screen text-emerald-500">
         <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    )
-  }
-
-  // Modal / Pantalla de Endgame (Retiro voluntario)
-  if (endgameData) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-white p-4 md:p-8 flex items-center justify-center">
-        <div className="max-w-2xl w-full border border-yellow-500/30 rounded-3xl bg-zinc-900/90 p-8 text-center space-y-6 shadow-2xl shadow-yellow-500/10">
-          <div className="w-20 h-20 bg-yellow-500/20 text-yellow-400 rounded-full flex items-center justify-center mx-auto border border-yellow-500/40">
-            <Sparkles className="w-10 h-10" />
-          </div>
-
-          <div>
-            <span className="text-xs uppercase tracking-widest text-yellow-500 font-bold">Fin de Carrera</span>
-            <h1 className="text-3xl md:text-5xl font-black text-white mt-1">¡LEYENDA DEL FÚTBOL!</h1>
-            <p className="text-lg text-emerald-400 font-bold mt-2">{endgameData.legacyRank}</p>
-          </div>
-
-          <p className="text-sm text-zinc-300 max-w-lg mx-auto">
-            {manager.first_name} {manager.last_name} ha colgado el buzo de DT tras una trayectoria inolvidable. Tu nombre ha quedado grabado para siempre en la memoria de los hinchas.
-          </p>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-y border-zinc-800">
-            <div>
-              <p className="text-xs text-zinc-500 font-medium">Partidos</p>
-              <p className="text-2xl font-black text-white">{endgameData.stats.totalMatches}</p>
-            </div>
-            <div>
-              <p className="text-xs text-zinc-500 font-medium">Victorias</p>
-              <p className="text-2xl font-black text-emerald-400">{endgameData.stats.totalWon}</p>
-            </div>
-            <div>
-              <p className="text-xs text-zinc-500 font-medium">Títulos</p>
-              <p className="text-2xl font-black text-yellow-400">{endgameData.trophyCount}</p>
-            </div>
-            <div>
-              <p className="text-xs text-zinc-500 font-medium">Puntos de Leyenda</p>
-              <p className="text-2xl font-black text-purple-400">{endgameData.legacyScore}</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => navigate('/auth')}
-              className="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-xl transition-transform hover:scale-105"
-            >
-              Comenzar Nueva Partida
-            </button>
-          </div>
-        </div>
       </div>
     )
   }
@@ -384,22 +335,48 @@ export default function ManagerCareerScreen() {
         </div>
 
         {/* Zona de Administración y Retiro (Endgame) */}
-        <div className="p-6 border border-red-900/40 rounded-3xl bg-red-950/10">
-          <h2 className="text-lg font-bold flex items-center gap-2 text-red-400 mb-2">
-            <AlertTriangle className="w-5 h-5" /> Administración del DT & Retiro Voluntario
-          </h2>
-          <p className="text-xs text-zinc-400 mb-6">
-            Si decides retirarte, tu carrera como director técnico concluirá definitivamente. El sistema calculará tu Legado Histórico en base a tus partidos, victorias y trofeos obtenidos.
-          </p>
+        {manager.is_retired ? (
+          <div className="p-6 border border-amber-500/40 rounded-3xl bg-amber-950/10">
+            <h2 className="text-lg font-bold flex items-center gap-2 text-amber-400 mb-2">
+              <Trophy className="w-5 h-5 text-amber-400" /> Carrera Finalizada • DT Consagrado
+            </h2>
+            <p className="text-xs text-zinc-400 mb-6">
+              Has colgado el buzo de director técnico. Tu legado se encuentra inmortalizado en el Salón de la Fama y en la edición histórica del Diario del Retiro.
+            </p>
 
-          <button
-            onClick={handleRetire}
-            disabled={retiring}
-            className="px-6 py-3 border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-bold rounded-xl text-sm transition-all"
-          >
-            {retiring ? 'Procesando retiro...' : 'Retirarse del Fútbol Profesional'}
-          </button>
-        </div>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => navigate('/endgame')}
+                className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-black font-black rounded-xl text-sm transition-transform active:scale-95 shadow-lg shadow-amber-500/20"
+              >
+                Ver Diario del Retiro y Epílogo
+              </button>
+              <button
+                onClick={() => navigate('/hall-of-fame')}
+                className="px-6 py-3 border border-amber-500/40 bg-zinc-900 hover:bg-zinc-800 text-amber-400 font-bold rounded-xl text-sm transition-all"
+              >
+                Ver en el Salón de la Fama
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-6 border border-red-900/40 rounded-3xl bg-red-950/10">
+            <h2 className="text-lg font-bold flex items-center gap-2 text-red-400 mb-2">
+              <AlertTriangle className="w-5 h-5" /> Administración del DT & Retiro Voluntario
+            </h2>
+            <p className="text-xs text-zinc-400 mb-6">
+              Si decides retirarte, tu carrera como director técnico concluirá definitivamente. El sistema calculará tu Legado Histórico, registrará tu inducción al Salón de la Fama y redactará la crónica periodística de tu trayectoria.
+            </p>
+
+            <button
+              onClick={handleRetire}
+              disabled={retiring}
+              className="px-6 py-3 border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-bold rounded-xl text-sm transition-all"
+            >
+              {retiring ? 'Procesando retiro...' : 'Retirarse del Fútbol Profesional'}
+            </button>
+          </div>
+        )}
       </div>
 
       <BottomNav />

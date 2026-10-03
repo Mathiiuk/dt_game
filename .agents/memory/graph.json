@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T23:23:27.499Z",
+  "updatedAt": "2026-10-03T23:27:05.803Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 64,
-    "totalEdges": 241,
-    "totalTasks": 8,
+    "totalNodes": 67,
+    "totalEdges": 255,
+    "totalTasks": 9,
     "totalLessons": 0
   },
   "nodes": [
@@ -12,7 +12,7 @@
       "id": "src/api/achievements.js",
       "label": "achievements.js",
       "type": "module",
-      "sizeBytes": 16999,
+      "sizeBytes": 17564,
       "lineCount": 566,
       "imports": [
         "./supabase",
@@ -121,6 +121,19 @@
       "lineCount": 85,
       "imports": [
         "./supabase"
+      ]
+    },
+    {
+      "id": "src/api/endgame.js",
+      "label": "endgame.js",
+      "type": "module",
+      "sizeBytes": 7621,
+      "lineCount": 194,
+      "imports": [
+        "./supabase",
+        "./career",
+        "./hallOfFame",
+        "./audit"
       ]
     },
     {
@@ -308,8 +321,8 @@
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
-      "sizeBytes": 3536,
-      "lineCount": 70,
+      "sizeBytes": 3664,
+      "lineCount": 72,
       "imports": [
         "react",
         "react-router-dom",
@@ -334,6 +347,7 @@
         "./features/competition/InternationalCupScreen",
         "./features/manager/HallOfFameScreen",
         "./features/career/AchievementsScreen",
+        "./features/career/EndgameScreen",
         "./components/ReloadPrompt",
         "./context/GameContext",
         "./components/BottomNav"
@@ -429,13 +443,29 @@
       "id": "src/features/career/AchievementsScreen.jsx",
       "label": "AchievementsScreen.jsx",
       "type": "module",
-      "sizeBytes": 18875,
+      "sizeBytes": 19304,
       "lineCount": 430,
       "imports": [
         "react",
         "react-router-dom",
         "../../context/GameContext",
         "../../api/achievements",
+        "lucide-react",
+        "sonner",
+        "../../components/BottomNav"
+      ]
+    },
+    {
+      "id": "src/features/career/EndgameScreen.jsx",
+      "label": "EndgameScreen.jsx",
+      "type": "module",
+      "sizeBytes": 12768,
+      "lineCount": 255,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../context/GameContext",
+        "../../api/endgame",
         "lucide-react",
         "sonner",
         "../../components/BottomNav"
@@ -578,13 +608,14 @@
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 20736,
-      "lineCount": 409,
+      "sizeBytes": 19788,
+      "lineCount": 386,
       "imports": [
         "react",
         "react-router-dom",
         "../../context/GameContext",
         "../../api/career",
+        "../../api/endgame",
         "lucide-react",
         "sonner",
         "../../components/BottomNav"
@@ -779,6 +810,13 @@
       "taskType": "fix"
     },
     {
+      "id": "task:f2-40-endgame",
+      "label": "f2-40-endgame: Fase 40: Endgame, Epilogo de Carrera y Legado Dinastico",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:f2-audit-fixes-polish",
       "label": "f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX",
       "type": "task",
@@ -879,6 +917,26 @@
     {
       "from": "src/api/economy.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/endgame.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/endgame.js",
+      "to": "./career",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/endgame.js",
+      "to": "./hallOfFame",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/endgame.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -1143,6 +1201,11 @@
     },
     {
       "from": "src/App.jsx",
+      "to": "./features/career/EndgameScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
       "to": "./components/ReloadPrompt",
       "relation": "depends_on"
     },
@@ -1308,6 +1371,41 @@
     },
     {
       "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../components/BottomNav",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
+      "to": "../../api/endgame",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
       "to": "../../components/BottomNav",
       "relation": "depends_on"
     },
@@ -1634,6 +1732,11 @@
     {
       "from": "src/features/manager/ManagerCareerScreen.jsx",
       "to": "../../api/career",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../../api/endgame",
       "relation": "depends_on"
     },
     {
@@ -1989,6 +2092,11 @@
     {
       "from": "task:f2-39-achievements",
       "to": ".agents/workflow/tasks/f2-39-achievements.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-40-endgame",
+      "to": ".agents/workflow/tasks/f2-40-endgame.yml",
       "relation": "manifested_by"
     },
     {

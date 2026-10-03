@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-03T23:23:27.499Z | **Nodos:** 64 | **Tareas:** 8
+> **Última sincronización:** 2026-10-03T23:27:05.803Z | **Nodos:** 67 | **Tareas:** 9
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -11,8 +11,8 @@
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
 | `src/features/dashboard/Dashboard.jsx` | 433 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
-| `src/features/manager/ManagerCareerScreen.jsx` | 409 | react, react-router-dom, ../../context/GameContext |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
+| `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/features/squad/SquadScreen.jsx` | 360 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
@@ -23,16 +23,16 @@
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
 | `src/features/club/CreateClubWizard.jsx` | 259 | react, react-router-dom, ../../api/auth |
+| `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
 | `src/api/gameLoop.js` | 230 | ./supabase |
 | `src/api/competition.js` | 213 | ./supabase |
 | `src/features/match/PostMatchScreen.jsx` | 210 | react, react-router-dom, ../../api/postMatch |
 | `src/features/finances/FinancesScreen.jsx` | 203 | react, react-router-dom, ../../api/auth |
 | `src/features/tactics/TacticsScreen.jsx` | 198 | react, react-router-dom, ../../api/auth |
+| `src/api/endgame.js` | 194 | ./supabase, ./career, ./hallOfFame |
 | `src/api/market.js` | 177 | ./supabase, ./club |
-| `src/api/hallOfFame.js` | 164 | ./supabase |
-| `src/features/auth/AuthScreen.jsx` | 163 | react, react-router-dom, ../../api/auth |
 
-_(+31 módulos adicionales; consultar con `memory:query`)_
+_(+33 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -41,6 +41,7 @@ _(+31 módulos adicionales; consultar con `memory:query`)_
 - **f2-36-37-club-history-idols: Fases 36 y 37: Historia del Club, Récords e Ídolos** `[DONE]`
 - **f2-38-hall-of-fame: Fase 38: Salon de la Fama y Records Historicos Globales** `[DONE]`
 - **f2-39-achievements: Fase 39: Sistema de Logros y Desafios de Carrera** `[DONE]`
+- **f2-40-endgame: Fase 40: Endgame, Epilogo de Carrera y Legado Dinastico** `[DONE]`
 - **f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX** `[DONE]`
 - **f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos** `[DONE]`
 - **f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs** `[DONE]`

@@ -1,0 +1,48 @@
+id: f2-40-endgame
+external_ref: ''
+title: 'Fase 40: Endgame, Epilogo de Carrera y Legado Dinastico'
+type: fix
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Crear tabla career_snapshots en PostgreSQL para registrar el cierre
+    inmutable de la carrera de cada DT
+  - >-
+    Implementar API src/api/endgame.js para orquestar el retiro definitivo, la
+    induccion automatica al Salon de la Fama y la cronica periodistica
+  - >-
+    Implementar sucesion y legado dinastico (reiniciar con nuevo DT preservando
+    la historia del mundo, campeonatos y leyendas)
+  - >-
+    Construir pantalla EndgameScreen.jsx con diario del retiro, resumen
+    estadistico de gloria, opciones de sucesion y acceso al Salon de la Fama
+  - >-
+    Integrar rutas en App.jsx y enlazar el flujo de retiro en
+    ManagerCareerScreen.jsx
+acceptance_criteria:
+  - El retiro del DT es irreversible e inmutable segun las reglas de dominio
+  - El DT retirado es inducido al Salon de la Fama con su snapshot completo
+  - El sistema permite iniciar un nuevo ciclo dinastico conservando la historia
+  - Build pasa sin errores y respeta regla de cero emojis
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
