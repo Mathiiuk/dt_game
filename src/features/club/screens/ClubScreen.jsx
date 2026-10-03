@@ -201,8 +201,6 @@ export default function ClubScreen() {
           </div>
         </div>
 
-        </div>
-      </div>
 
       {/* Historia e Ídolos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
