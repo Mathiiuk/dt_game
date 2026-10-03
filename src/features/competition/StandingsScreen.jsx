@@ -50,20 +50,44 @@ export default function StandingsScreen() {
     load()
   }, [navigate])
 
+  const handleEndSeason = async () => {
+    if (!window.confirm('¿Finalizar temporada? Se procesarán las edades, retiros, y se reiniciará la tabla.')) return
+    
+    try {
+      setLoading(true)
+      const { gameLoopApi } = await import('../../api/gameLoop')
+      await gameLoopApi.endSeason(clubId)
+      toast.success('Temporada Finalizada')
+      window.location.reload()
+    } catch(e) {
+      toast.error(e.message)
+      setLoading(false)
+    }
+  }
+
   if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Cargando tabla...</div>
 
   return (
     <div className="min-h-screen p-8 text-white bg-zinc-950">
-      <header className="flex items-center gap-4 mb-8">
-        <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div>
-          <h1 className="text-3xl font-black flex items-center gap-2 text-emerald-500">
-            <Trophy className="w-8 h-8" /> TABLA DE POSICIONES
-          </h1>
-          <p className="text-zinc-500">Liga Regional (MVP)</p>
+      <header className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-black flex items-center gap-2 text-emerald-500">
+              <Trophy className="w-8 h-8" /> TABLA DE POSICIONES
+            </h1>
+            <p className="text-zinc-500">Liga Regional (MVP)</p>
+          </div>
         </div>
+        
+        <button 
+          onClick={handleEndSeason}
+          className="px-4 py-2 text-sm font-bold text-black transition-colors bg-emerald-500 rounded-lg hover:bg-emerald-400"
+        >
+          Finalizar Temporada
+        </button>
       </header>
 
       <div className="max-w-4xl p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">

@@ -297,3 +297,22 @@ ALTER TABLE public.players ADD COLUMN IF NOT EXISTS personality text DEFAULT 'Pr
 ALTER TABLE public.players ADD COLUMN IF NOT EXISTS injury_days int DEFAULT 0;
 ALTER TABLE public.players ADD COLUMN IF NOT EXISTS injury_type text;
 
+
+
+-- Fase 28 & 29: Evolución y Temporadas
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS is_retired boolean DEFAULT false;
+
+CREATE TABLE IF NOT EXISTS public.season_history (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id),
+  season_year int NOT NULL,
+  position int,
+  matches_won int DEFAULT 0,
+  matches_drawn int DEFAULT 0,
+  matches_lost int DEFAULT 0,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.season_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo season history" ON public.season_history FOR ALL USING (true);
+
