@@ -290,3 +290,10 @@ ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS season_objective text DEFAULT 
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS cohesion int DEFAULT 50;
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS authority int DEFAULT 50;
 
+
+
+-- Fase 26 & 27: Personalidades y Lesiones
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS personality text DEFAULT 'Profesional';
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS injury_days int DEFAULT 0;
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS injury_type text;
+

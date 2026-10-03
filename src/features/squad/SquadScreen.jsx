@@ -105,14 +105,20 @@ export default function SquadScreen() {
               <tbody className="text-sm">
                 {data.players.map(p => (
                   <tr key={p.id} className="border-b border-zinc-900/50 hover:bg-zinc-800/50">
-                    <td className="py-3 font-medium text-white">{p.first_name} {p.last_name}</td>
+                    <td className="py-3 font-medium text-white">
+                      {p.first_name} {p.last_name}
+                      {p.injury_days > 0 && <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold text-red-500 bg-red-500/20 rounded">Lesionado ({p.injury_days}d)</span>}
+                    </td>
                     <td className="py-3">
                       <span className="px-2 py-1 text-xs font-bold rounded-md bg-emerald-500/10 text-emerald-400">
                         {p.position}
                       </span>
                     </td>
                     <td className="py-3 text-zinc-400">{p.age}</td>
-                    <td className="py-3 text-zinc-400">{p.contract_role || 'Rotación'}</td>
+                    <td className="py-3 text-zinc-400">
+                      <div>{p.contract_role || 'Rotación'}</div>
+                      <div className="text-[10px] text-zinc-500">{p.personality}</div>
+                    </td>
                     <td className="py-3 font-mono text-emerald-400">${(p.contract_salary || 10000).toLocaleString()}</td>
                     <td className="py-3">
                       <button 

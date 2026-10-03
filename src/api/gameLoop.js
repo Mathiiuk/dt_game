@@ -24,22 +24,38 @@ export const gameLoopApi = {
     // Lamentablemente supabase JS no permite cálculos relativos en updates de forma directa sin RPC, 
     // así que obtendremos la plantilla y actualizaremos.
     
-    const { data: players } = await supabase.from('players').select('id, state_fitness').eq('club_id', clubId)
+    const { data: players } = await supabase.from('players').select('id, state_fitness, injury_days').eq('club_id', clubId)
     
     if (players && players.length > 0) {
-      // Aplicar fatiga mínima si entrenaron (ej: de lunes a viernes)
       const dayOfWeek = currentDate.getDay()
-      if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Lunes a Viernes
-        const updates = players.map(p => ({
-          id: p.id,
-          club_id: clubId, // requerido por RLS/Schema en un upsert a veces, pero haremos updates individuales (lento) o nada.
-          state_fitness: Math.max(0, p.state_fitness - 5)
-        }))
+      const isTrainingDay = dayOfWeek >= 1 && dayOfWeek <= 5
+      
+      for (const p of players) {
+        let newFitness = p.state_fitness
+        let newInjuryDays = p.injury_days || 0
+        let newInjuryType = null
         
-        // Upsert massivo para actualizar fitness (requiere todas las keys o manejar en RPC, para el MVP ignoraremos el error de performance)
-        for (const u of updates) {
-           await supabase.from('players').update({ state_fitness: u.state_fitness }).eq('id', u.id)
+        if (newInjuryDays > 0) {
+          newInjuryDays--
+          if (newInjuryDays === 0) {
+            newInjuryType = null
+            newFitness = Math.max(50, newFitness) // recupera un poco al volver
+          }
+        } else if (isTrainingDay) {
+          newFitness = Math.max(0, newFitness - 5)
+          
+          // Chance de lesionarse en entrenamiento si la fatiga es alta (fitness bajo)
+          if (newFitness < 60 && Math.random() < 0.05) {
+            newInjuryDays = Math.floor(Math.random() * 14) + 3 // 3 a 16 días
+            newInjuryType = 'Muscular'
+          }
         }
+        
+        await supabase.from('players').update({ 
+          state_fitness: newFitness,
+          injury_days: newInjuryDays,
+          ...(newInjuryType !== null ? { injury_type: newInjuryType } : {})
+        }).eq('id', p.id)
       }
     }
 
