@@ -1,0 +1,45 @@
+name: Auto Merge to Master
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+      - 'hotfix/**'
+      - 'feat/**'
+
+jobs:
+  build-and-merge:
+    name: 🚀 Build & Auto-Merge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 📥 Clonar Repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para hacer el merge
+
+      - name: ⚙️ Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 📥 Instalar npm (Vite build)
+        run: npm install
+
+      - name: 🔨 Compilar (Build)
+        run: npm run build
+
+      - name: 🔀 Auto-Merge a Master
+        if: success() # Solo hace merge si el build compila sin errores
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout master
+          git merge origin/${{ github.ref_name }} --no-edit
+          git push origin master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
