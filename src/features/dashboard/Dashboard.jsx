@@ -97,7 +97,7 @@ export default function Dashboard() {
             </button>
           ))}
         </nav>
-        <div className="pt-4 mt-auto border-t border-zinc-900">
+        <div className="pt-4 mt-auto border-t border-zinc-900 space-y-3">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 font-bold text-black rounded-full bg-emerald-500">
               {manager.first_name[0]}{manager.last_name[0]}
@@ -106,6 +106,12 @@ export default function Dashboard() {
               <p className="text-sm font-bold text-white">{manager.first_name} {manager.last_name}</p>
               <p className="text-xs text-zinc-500">Nivel {manager.level} • XP {manager.xp}</p>
             </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-[10px] text-zinc-400 bg-zinc-900 px-2 py-1 rounded">Reputación: {manager.reputation_level || 'Local'}</p>
+            {manager.national_team_id && (
+              <p className="text-[10px] text-yellow-400 bg-yellow-900/20 px-2 py-1 rounded">DT Selección Nacional</p>
+            )}
           </div>
         </div>
       </aside>

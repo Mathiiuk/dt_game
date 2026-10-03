@@ -333,3 +333,10 @@ CREATE TABLE IF NOT EXISTS public.manager_history (
 ALTER TABLE public.manager_history ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir todo manager history" ON public.manager_history FOR ALL USING (true);
 
+
+
+-- Fase 32 & 33: Reputación y Selecciones
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS reputation_level text DEFAULT 'Local';
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS is_national_team boolean DEFAULT false;
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS national_team_id uuid REFERENCES public.clubs(id);
+
