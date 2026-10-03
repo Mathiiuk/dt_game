@@ -123,7 +123,21 @@ export default function Dashboard() {
             <h2 className="text-3xl font-black text-white">{club.name}</h2>
             <p className="text-zinc-400">{club.city}, {club.country}</p>
           </div>
+
           <div className="flex items-center gap-6">
+            <button
+              onClick={async () => {
+                if (window.confirm('¿Seguro que deseas retirarte? Tu carrera finalizará aquí y quedarás en la historia.')) {
+                  toast.success('Te has retirado del fútbol. ¡Leyenda!')
+                  const { supabase } = await import('../../api/supabase')
+                  await supabase.from('managers').update({ is_retired: true }).eq('id', manager.id)
+                  navigate('/auth')
+                }
+              }}
+              className="text-xs text-red-500 font-bold hover:underline"
+            >
+              Retirarse
+            </button>
             <div className="text-right">
               <p className="text-sm text-zinc-500 capitalize">{formattedDate}</p>
               <p className="text-xl font-bold text-emerald-400">Día de Gestión</p>

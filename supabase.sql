@@ -350,3 +350,9 @@ ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS in_international_cup boolean D
 -- Fase 36 & 37: Historia e Ídolos
 ALTER TABLE public.players ADD COLUMN IF NOT EXISTS is_idol boolean DEFAULT false;
 
+
+
+-- Fase 38, 39 & 40: Salón de Fama, Logros y Endgame
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS achievements text[] DEFAULT '{}';
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS is_retired boolean DEFAULT false;
+
