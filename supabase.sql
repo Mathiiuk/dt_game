@@ -356,3 +356,13 @@ ALTER TABLE public.players ADD COLUMN IF NOT EXISTS is_idol boolean DEFAULT fals
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS achievements text[] DEFAULT '{}';
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS is_retired boolean DEFAULT false;
 
+
+
+-- Fase 2: Game Config
+CREATE TABLE IF NOT EXISTS public.game_config (
+    key text PRIMARY KEY,
+    value jsonb NOT NULL,
+    category text NOT NULL,
+    description text,
+    updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
