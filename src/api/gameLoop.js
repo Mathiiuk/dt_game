@@ -93,7 +93,17 @@ export const gameLoopApi = {
     const { economyApi } = await import('./economy')
     await economyApi.processWeeklyFinances(clubId, nextDate, fullPlayers)
 
-    // 6. Audit Log
+    // 6. Evaluacion Dirigencial
+    const { data: boardCheck } = await supabase.from('clubs').select('board_confidence').eq('id', clubId).single()
+    let isFired = false
+    if (boardCheck && boardCheck.board_confidence <= 0) {
+      isFired = true
+      // Despido!
+      await supabase.from('clubs').update({ manager_id: null }).eq('id', clubId)
+      await supabase.from('managers').update({ is_looking_for_job: true }).eq('id', managerId)
+    }
+
+    // 7. Audit Log
     if (managerId) {
       await auditApi.logAction({
         whoId: managerId,
@@ -101,11 +111,11 @@ export const gameLoopApi = {
         entityType: 'club',
         entityId: clubId,
         stateBefore: { date: club.game_date },
-        stateAfter: { date: nextDate }
+        stateAfter: { date: nextDate, fired: isFired }
       })
     }
     
-    return updatedClub.game_date
+    return { date: updatedClub.game_date, fired: isFired }
   },
 
   async endSeason(clubId) {

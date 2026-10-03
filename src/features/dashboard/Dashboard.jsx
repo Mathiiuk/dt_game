@@ -53,7 +53,15 @@ export default function Dashboard() {
     setAdvancing(true)
     try {
       const { gameLoopApi } = await import('../../api/gameLoop')
-      const newDate = await gameLoopApi.advanceWeek(club.id, manager.id)
+      const result = await gameLoopApi.advanceWeek(club.id, manager.id)
+      
+      if (result.fired) {
+        toast.error('¡LA DIRIGENCIA TE HA DESPEDIDO POR MALOS RESULTADOS!')
+        // MVP: go back to auth for now, in a real game we would go to a job center screen
+        navigate('/auth')
+        return
+      }
+
       await refreshContext()
       toast.success('Semana completada. Plantel entrenado.')
     } catch (e) {
@@ -268,15 +276,23 @@ export default function Dashboard() {
                   <div className="w-[95%] h-full bg-blue-500 rounded-full" />
                 </div>
               </div>
+              
               <div>
                 <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-zinc-400">Directiva (Confianza)</span>
-                  <span className="text-yellow-400">{club.board_confidence}%</span>
+                  <span className="text-zinc-400">Confianza de Dirigencia</span>
+                  <span className={`${(club?.board_confidence ?? 80) > 50 ? 'text-emerald-400' : (club?.board_confidence ?? 80) > 25 ? 'text-yellow-400' : 'text-red-400'}`}>
+                    {club?.board_confidence ?? 80}%
+                  </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${club.board_confidence}%` }} />
+                  <div className={`h-full rounded-full transition-all ${(club?.board_confidence ?? 80) > 50 ? 'bg-emerald-500' : (club?.board_confidence ?? 80) > 25 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${club?.board_confidence ?? 80}%` }} />
                 </div>
-                <p className="mt-1 text-[10px] text-zinc-500 text-right">Obj: {club.season_objective}</p>
+                <div className="flex justify-between mt-1">
+                  {(club?.board_confidence ?? 80) <= 25 ? (
+                    <p className="text-[10px] text-red-500 font-bold">¡Peligro de Despido!</p>
+                  ) : <span />}
+                  <p className="text-[10px] text-zinc-500 text-right">Obj: {club?.season_objective || 'Evitar Descenso'}</p>
+                </div>
               </div>
 
               <div>

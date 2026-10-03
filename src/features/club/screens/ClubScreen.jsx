@@ -215,6 +215,7 @@ export default function ClubScreen() {
                 className="w-full py-2 text-xs font-bold text-black bg-purple-500 rounded-lg hover:bg-purple-400"
               >
                 Aceptar Oferta
+              </button>
             </div>
           </div>
           
