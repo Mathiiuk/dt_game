@@ -120,6 +120,7 @@ export default function Dashboard() {
                 if (item.label === 'Mercado') navigate('/market')
                 if (item.label === 'Club') navigate('/club')
                 if (item.label === 'Finanzas') navigate('/finances')
+                if (item.label === 'Entrenamiento') navigate('/training')
               }}
               className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-xl ${item.active ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'}`}
             >

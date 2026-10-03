@@ -12,7 +12,7 @@ export const gameLoopApi = {
     // 1. Obtener la fecha actual del club
     const { data: club, error: fetchError } = await supabase
       .from('clubs')
-      .select('game_date')
+      .select('game_date, training_focus, training_intensity')
       .eq('id', clubId)
       .single()
       
@@ -24,13 +24,23 @@ export const gameLoopApi = {
     const nextDate = currentDate.toISOString().split('T')[0]
 
     // 3. Obtener jugadores
-    const { data: players } = await supabase.from('players').select('id, state_fitness, injury_days').eq('club_id', clubId)
+    const { data: players } = await supabase.from('players').select('*').eq('club_id', clubId)
     
     if (players && players.length > 0) {
       for (const p of players) {
         let newFitness = p.state_fitness
         let newInjuryDays = p.injury_days || 0
-        let newInjuryType = null
+        let newInjuryType = p.injury_type || null
+        
+        let growth_pace = p.attr_pace
+        let growth_passing = p.attr_passing
+        let growth_defending = p.attr_defending
+        let growth_shooting = p.attr_shooting
+        
+        // Intensity scale: 0-100. 50 is base.
+        const intensityMult = (club.training_intensity || 50) / 50
+        const dailyCost = (trainingCost * intensityMult) / 5
+        const dailyInjuryProb = injuryProb * intensityMult * (p.injury_risk ? 1.5 : 1)
         
         // Simular la semana día a día
         for (let i = 0; i < 7; i++) {
@@ -41,18 +51,30 @@ export const gameLoopApi = {
               newFitness = Math.max(50, newFitness) // recupera un poco al volver
             }
           } else {
-            // Suponemos 5 días de entrenamiento y 2 de descanso en la semana de forma genérica
             if (i < 5) {
-              // Costo de entrenamiento por día (costo semanal / 5)
-              newFitness = Math.max(0, newFitness - (trainingCost / 5))
+              newFitness = Math.max(0, newFitness - dailyCost)
               
+              // Crecimiento probabilístico por día de entrenamiento basado en el foco
+              if (Math.random() < 0.05 * intensityMult) {
+                if (club.training_focus === 'FISICO' && growth_pace < p.attr_potential) growth_pace++
+                else if (club.training_focus === 'TECNICO' && growth_passing < p.attr_potential) growth_passing++
+                else if (club.training_focus === 'TACTICO' && growth_defending < p.attr_potential) growth_defending++
+                else if (club.training_focus === 'OFENSIVO' && growth_shooting < p.attr_potential) growth_shooting++
+                else if (club.training_focus === 'EQUILIBRADO') {
+                  const r = Math.random()
+                  if (r < 0.25 && growth_pace < p.attr_potential) growth_pace++
+                  else if (r < 0.50 && growth_passing < p.attr_potential) growth_passing++
+                  else if (r < 0.75 && growth_defending < p.attr_potential) growth_defending++
+                  else if (growth_shooting < p.attr_potential) growth_shooting++
+                }
+              }
+
               // Riesgo de lesión
-              if (newFitness < injuryThreshold && Math.random() < injuryProb) {
-                newInjuryDays = Math.floor(Math.random() * 14) + 3
+              if (newFitness < injuryThreshold && Math.random() < dailyInjuryProb) {
+                newInjuryDays = Math.floor(Math.random() * 21) + 7
                 newInjuryType = 'Muscular'
               }
             } else {
-              // Día de descanso (podría ser parametrizable)
               newFitness = Math.min(100, newFitness + 5)
             }
           }
@@ -61,7 +83,11 @@ export const gameLoopApi = {
         await supabase.from('players').update({ 
           state_fitness: Math.round(newFitness),
           injury_days: newInjuryDays,
-          ...(newInjuryType !== null ? { injury_type: newInjuryType } : {})
+          injury_type: newInjuryType,
+          attr_pace: growth_pace,
+          attr_passing: growth_passing,
+          attr_defending: growth_defending,
+          attr_shooting: growth_shooting
         }).eq('id', p.id)
       }
     }
