@@ -129,8 +129,26 @@ export default function SquadScreen() {
           </div>
         </div>
 
-        {/* Panel de Ofertas Entrantes */}
+        {/* Panel de Ofertas y Vestuario */}
         <div className="space-y-6">
+          <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
+            <h2 className="flex items-center gap-2 mb-6 font-bold text-white">
+              <Users className="w-5 h-5 text-emerald-500" /> Vestuario
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-2 text-sm">
+                  <span className="text-zinc-400">Cohesión</span>
+                  <span className="text-emerald-400">{data.club?.cohesion || 50}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-zinc-800">
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${data.club?.cohesion || 50}%` }} />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="p-6 border border-zinc-800 rounded-3xl bg-emerald-950/20">
             <h2 className="flex items-center gap-2 mb-6 font-bold text-emerald-500">
               <Bell className="w-5 h-5" /> Ofertas ({data.offers.length})

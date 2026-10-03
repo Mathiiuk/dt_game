@@ -9,6 +9,8 @@ export default function PostMatchScreen() {
   const location = useLocation()
   const [loading, setLoading] = useState(true)
   const [xp, setXp] = useState(0)
+  const [pressActive, setPressActive] = useState(false)
+  const [pressAnswered, setPressAnswered] = useState(false)
   
   const { results, managerId, clubId, clubName } = location.state || {}
 
@@ -27,6 +29,11 @@ export default function PostMatchScreen() {
           isHome
         })
         setXp(xpAward)
+        
+        // 50% chance of press conference
+        if (Math.random() > 0.5) {
+          setPressActive(true)
+        }
       } catch (e) {
         toast.error(e.message)
       } finally {
@@ -36,6 +43,14 @@ export default function PostMatchScreen() {
     
     process()
   }, [results, managerId, clubId, navigate])
+
+  const handlePressAnswer = async (type) => {
+    setPressAnswered(true)
+    toast.success('Respuesta enviada a los medios')
+    // MVP: No actualizamos DB directamente aquí por simplicidad de dependencias,
+    // pero la idea es que 'type' (ej. protect_players -> +cohesion, critique_players -> +board, etc)
+    // dispare una llamada a la API.
+  }
 
   if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Procesando resultado...</div>
 
@@ -85,9 +100,31 @@ export default function PostMatchScreen() {
           </div>
         </div>
 
+        {pressActive && !pressAnswered ? (
+          <div className="p-6 mb-8 border border-zinc-700 rounded-2xl bg-zinc-800">
+            <h3 className="mb-4 text-xl font-bold text-white">🎙️ Rueda de Prensa</h3>
+            <p className="mb-6 text-zinc-300">"Míster, ¿qué opina del rendimiento del equipo hoy?"</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button onClick={() => handlePressAnswer('protect')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
+                Proteger a los jugadores (+Cohesión)
+              </button>
+              <button onClick={() => handlePressAnswer('critique')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
+                Ser autocrítico (+Dirigencia)
+              </button>
+              <button onClick={() => handlePressAnswer('fans')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
+                Elogiar a la hinchada (+Aprobación)
+              </button>
+              <button onClick={() => handlePressAnswer('neutral')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
+                Sin comentarios
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         <button 
           onClick={() => navigate('/dashboard')}
-          className="flex items-center justify-center w-full gap-2 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-[1.02]"
+          disabled={pressActive && !pressAnswered}
+          className="flex items-center justify-center w-full gap-2 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-[1.02] disabled:opacity-50"
         >
           Volver a la Oficina <ArrowRight className="w-5 h-5" />
         </button>

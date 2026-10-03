@@ -284,3 +284,9 @@ ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS board_confidence int DEFAULT 8
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS fans_confidence int DEFAULT 80;
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS season_objective text DEFAULT 'Mitad de tabla';
 
+
+
+-- Fase 24 & 25: Prensa y Vestuario
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS cohesion int DEFAULT 50;
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS authority int DEFAULT 50;
+
