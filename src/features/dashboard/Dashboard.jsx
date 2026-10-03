@@ -28,7 +28,10 @@ export default function Dashboard() {
         // Asignar default date si no existe para compatibilidad hacia atrás
         if (!club.game_date) club.game_date = '2026-07-01'
         
-        setData({ user, manager, club })
+        const { levelsApi } = await import('../../api/levels')
+        const levelInfo = await levelsApi.getLevelInfo(manager.xp)
+
+        setData({ user, manager, club, levelInfo })
       } catch (e) {
         console.error(e)
       } finally {
@@ -103,9 +106,18 @@ export default function Dashboard() {
             <div className="flex items-center justify-center w-10 h-10 font-bold text-black rounded-full bg-emerald-500">
               {manager.first_name[0]}{manager.last_name[0]}
             </div>
-            <div>
-              <p className="text-sm font-bold text-white">{manager.first_name} {manager.last_name}</p>
-              <p className="text-xs text-zinc-500">Nivel {manager.level} • XP {manager.xp}</p>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white leading-tight">{manager.first_name} {manager.last_name}</p>
+              <div className="flex justify-between items-center text-[10px] text-zinc-400 mt-1">
+                <span>Nvl {data.levelInfo?.currentLevel || manager.level}</span>
+                <span>{manager.xp} / {data.levelInfo?.xpRequiredForNext || '?'} XP</span>
+              </div>
+              <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-1 overflow-hidden">
+                <div 
+                  className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                  style={{ width: `${data.levelInfo?.progressPercent || 0}%` }}
+                ></div>
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-1">

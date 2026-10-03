@@ -60,6 +60,8 @@ export const managerApi = {
   },
 
   async addXp(managerId, xpAmount) {
+    const { levelsApi } = await import('./levels')
+    
     // 1. Fetch current manager
     const { data: manager, error: fetchError } = await supabase
       .from('managers')
@@ -71,13 +73,8 @@ export const managerApi = {
 
     const newXp = manager.xp + xpAmount
     
-    // Simple XP curve for now: level = floor(sqrt(XP / 100)) + 1
-    // e.g. XP 0 -> Lvl 1
-    // XP 100 -> Lvl 2
-    // XP 400 -> Lvl 3
-    // XP 900 -> Lvl 4
-    let newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1
-    if (newLevel > 50) newLevel = 50 // Max level is 50
+    const levelInfo = await levelsApi.getLevelInfo(newXp)
+    const newLevel = levelInfo.currentLevel
 
     const { data: updatedManager, error: updateError } = await supabase
       .from('managers')

@@ -446,3 +446,11 @@ CREATE TABLE IF NOT EXISTS public.match_history (
 );
 
 CREATE INDEX IF NOT EXISTS idx_match_history_club ON public.match_history(club_id);
+
+
+-- Fase 05: Level Config
+CREATE TABLE IF NOT EXISTS public.level_config (
+    level int PRIMARY KEY,
+    xp_required int NOT NULL,
+    unlocks jsonb DEFAULT '{}'::jsonb
+);
