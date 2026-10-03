@@ -22,25 +22,14 @@ export default function StandingsScreen() {
         const club = await clubApi.getClubByManager(manager.id)
         setClubId(club.id)
         
-        const data = await competitionApi.getStandings(club.id)
-        if (data && data.length > 0) {
-          setStandings(data)
-        } else {
-          // Generar tabla simulada de 10 equipos si no hay datos (MVP)
-          const dummy = Array.from({length: 9}).map((_, i) => ({
-            id: `dummy-${i}`,
-            club_id: `dummy-${i}`,
-            clubs: { name: `Club Rival ${i+1}`, short_name: `RIV${i+1}` },
-            played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, points: 0
-          }))
-          dummy.push({
-            id: 'my-standing',
-            club_id: club.id,
-            clubs: { name: club.name, short_name: club.short_name },
-            played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, points: 0
-          })
-          setStandings(dummy.sort(() => Math.random() - 0.5))
+        let data = await competitionApi.getStandings(club.id)
+        if (!data || data.length === 0) {
+          // Si es un club viejo que no generó liga al crearse, lo inicializamos ahora (Migración)
+          await competitionApi.initializeLeague(club.id, club.country)
+          data = await competitionApi.getStandings(club.id)
         }
+        
+        setStandings(data)
       } catch (e) {
         toast.error(e.message)
       } finally {

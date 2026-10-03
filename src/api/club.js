@@ -49,9 +49,12 @@ export const clubApi = {
       .single()
 
     if (error) throw new Error(error.message)
-    
     // Generar el primer plantel automáticamente
     await playerApi.generateInitialSquad(club.id, club.reputation)
+    
+    // Generar la liga (A7)
+    const { competitionApi } = await import('./competition')
+    await competitionApi.initializeLeague(club.id, club.country)
     
     return club
   },

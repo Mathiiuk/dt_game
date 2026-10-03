@@ -459,3 +459,20 @@ CREATE TABLE IF NOT EXISTS public.level_config (
 -- Fase 02: DT Attributes
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS nationality text;
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS specialization text;
+
+
+-- Fase 12: Competition Engine
+ALTER TABLE public.clubs ALTER COLUMN manager_id DROP NOT NULL;
+
+CREATE TABLE IF NOT EXISTS public.fixtures (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    competition_id uuid REFERENCES public.competitions(id) NOT NULL,
+    match_week int NOT NULL,
+    home_team_id uuid REFERENCES public.clubs(id) NOT NULL,
+    away_team_id uuid REFERENCES public.clubs(id) NOT NULL,
+    status text DEFAULT 'PENDING',
+    home_score int DEFAULT 0,
+    away_score int DEFAULT 0,
+    match_date date NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);

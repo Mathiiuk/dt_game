@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { tacticsApi } from '../../api/tactics'
 import { playerApi } from '../../api/player'
 import { simulateMatch } from '../../api/matchEngine'
+import { supabase } from '../../api/supabase'
 import { Shield, Play, Square, FastForward, CheckCircle, ArrowLeft } from 'lucide-react'
 
 export default function MatchScreen() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const fixtureId = location.state?.fixtureId
+
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({ club: null, tactic: null, players: [] })
+  const [data, setData] = useState({ club: null, tactic: null, players: [], fixture: null })
   
   // Simulation State
   const [matchState, setMatchState] = useState('pre-match') // pre-match, playing, finished
@@ -32,7 +36,13 @@ export default function MatchScreen() {
         const tactic = await tacticsApi.getTactic(club.id)
         const players = await playerApi.getSquad(club.id)
         
-        setData({ club, tactic, players })
+        let fixture = null
+        if (fixtureId) {
+          const { data: fix } = await supabase.from('fixtures').select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)').eq('id', fixtureId).single()
+          fixture = fix
+        }
+        
+        setData({ club, tactic, players, fixture })
       } catch (e) {
         console.error(e)
       } finally {
@@ -40,17 +50,35 @@ export default function MatchScreen() {
       }
     }
     load()
-  }, [navigate])
+  }, [navigate, fixtureId])
 
   const handleStartMatch = () => {
     // Generate opponent dummy data
     const awayTactic = { mentality: 'Equilibrada', build_up: 'Posesión', pressure: 'Media', tempo: 'Normal' }
+    
+    // Si tenemos fixture, usamos reputación real del rival
+    const opponentRep = data.fixture 
+      ? (data.fixture.home_team_id === data.club.id ? data.fixture.away.reputation : data.fixture.home.reputation) 
+      : 10
+      
     const awayPlayers = Array.from({length: 11}).map(() => ({
-      state_fitness: 90, attr_pace: 40, attr_finishing: 40, attr_defending: 40
+      state_fitness: 90, attr_pace: 40 + (opponentRep*0.5), attr_finishing: 40 + (opponentRep*0.5), attr_defending: 40 + (opponentRep*0.5)
     }))
     
-    const results = simulateMatch(data.tactic, data.players, awayTactic, awayPlayers)
-    setSimResults(results)
+    const isHome = data.fixture ? data.fixture.home_team_id === data.club.id : true
+    const oppName = data.fixture 
+      ? (isHome ? data.fixture.away.name : data.fixture.home.name) 
+      : 'Equipo Rival'
+    
+    const results = isHome 
+      ? simulateMatch(data.tactic, data.players, awayTactic, awayPlayers)
+      : simulateMatch(awayTactic, awayPlayers, data.tactic, data.players)
+      
+    setSimResults({
+      ...results,
+      isHome,
+      opponentName: oppName
+    })
     setMatchState('playing')
   }
 
@@ -64,14 +92,39 @@ export default function MatchScreen() {
         // Save to DB using simResults for final exact score to avoid closure staleness
         const saveMatch = async () => {
           const { supabase } = await import('../../api/supabase')
+          
+          const isHome = data.fixture ? data.fixture.home_team_id === data.club.id : true
+          const oppName = data.fixture 
+            ? (isHome ? data.fixture.away.name : data.fixture.home.name) 
+            : 'Equipo Rival'
+
+          // Historial local del club
           await supabase.from('match_history').insert({
             club_id: data.club.id,
-            opponent_name: 'Equipo Rival',
+            opponent_name: oppName,
             home_score: simResults.homeScore,
             away_score: simResults.awayScore,
-            is_home: true,
+            is_home: isHome,
             match_date: data.club.game_date
           })
+
+          // Si es de torneo, actualizar tabla general de tournament
+          if (data.fixture) {
+             const homeGoals = isHome ? simResults.homeScore : simResults.awayScore
+             const awayGoals = isHome ? simResults.awayScore : simResults.homeScore
+             
+             await supabase.from('fixtures')
+              .update({ status: 'PLAYED', home_score: homeGoals, away_score: awayGoals })
+              .eq('id', data.fixture.id)
+              
+             const { competitionApi } = await import('../../api/competition')
+             await competitionApi._updateStandings(
+               data.fixture.competition_id, 
+               data.fixture.home_team_id, 
+               data.fixture.away_team_id, 
+               homeGoals, awayGoals
+             )
+          }
         }
         saveMatch()
       }
@@ -113,7 +166,7 @@ export default function MatchScreen() {
         </button>
         <div className="text-center">
           <h1 className="text-2xl font-black text-emerald-500">DÍA DE PARTIDO</h1>
-          <p className="text-xs text-zinc-500">Amistoso</p>
+          <p className="text-xs text-zinc-500">{data.fixture ? `Liga Regional - Fecha ${data.fixture.match_week}` : 'Amistoso'}</p>
         </div>
         <div className="w-10"></div>
       </header>
@@ -139,7 +192,9 @@ export default function MatchScreen() {
           
           <div className="flex flex-col items-center w-32">
             <Shield className={`w-16 h-16 mb-2 ${score.away > score.home ? 'text-blue-500' : 'text-zinc-400'}`} />
-            <span className="font-bold text-center">RIVAL</span>
+            <span className="font-bold text-center truncate w-full" title={simResults?.opponentName || 'Rival'}>
+              {simResults?.opponentName || 'RIVAL'}
+            </span>
           </div>
         </div>
       </div>

@@ -76,7 +76,11 @@ export const gameLoopApi = {
 
     if (updateError) throw new Error(updateError.message)
       
-    // 5. Audit Log
+    // 5. Simular partidos de torneo
+    const { competitionApi } = await import('./competition')
+    await competitionApi.simulateMatchDay(nextDate)
+
+    // 6. Audit Log
     if (managerId) {
       await auditApi.logAction({
         whoId: managerId,

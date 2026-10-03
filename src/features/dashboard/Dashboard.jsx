@@ -31,7 +31,18 @@ export default function Dashboard() {
         const { levelsApi } = await import('../../api/levels')
         const levelInfo = await levelsApi.getLevelInfo(manager.xp)
 
-        setData({ user, manager, club, levelInfo })
+        // Fetch Next Fixture
+        const { supabase } = await import('../../api/supabase')
+        const { data: fixture } = await supabase
+          .from('fixtures')
+          .select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)')
+          .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
+          .eq('status', 'PENDING')
+          .order('match_week', { ascending: true })
+          .limit(1)
+          .single()
+
+        setData({ user, manager, club, levelInfo, nextFixture: fixture || null })
       } catch (e) {
         console.error(e)
       } finally {
@@ -42,12 +53,19 @@ export default function Dashboard() {
   }, [navigate])
 
   const handleAdvanceWeek = async () => {
+    if (data.nextFixture && data.nextFixture.match_date <= data.club.game_date) {
+      toast.error('Debes jugar tu partido pendiente antes de avanzar de semana.')
+      return
+    }
+
     setAdvancing(true)
     try {
       const { gameLoopApi } = await import('../../api/gameLoop')
       const newDate = await gameLoopApi.advanceWeek(data.club.id, data.manager.id)
       setData(prev => ({ ...prev, club: { ...prev.club, game_date: newDate } }))
       toast.success('Semana completada. Plantel entrenado.')
+      // Recargar para traer el nuevo fixture
+      setTimeout(() => window.location.reload(), 1000)
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -181,32 +199,49 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           
           {/* Próximo Partido */}
-          <div className="p-6 border lg:col-span-2 border-zinc-800 rounded-3xl bg-zinc-900/50">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold text-white">Próximo Partido</h3>
-              <span className="px-3 py-1 text-xs font-medium rounded-full bg-zinc-800 text-zinc-300">
-                {club.in_international_cup ? 'Copa Continental' : 'Liga Regional'}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-center gap-8 py-8">
-              <div className="text-center">
-                <Shield className="w-16 h-16 mx-auto mb-2 text-emerald-500" />
-                <p className="font-bold text-white">{club.short_name}</p>
+          <div className="p-6 border lg:col-span-2 border-zinc-800 rounded-3xl bg-zinc-900/50 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-white">Próximo Partido</h3>
+                <span className="px-3 py-1 text-xs font-medium rounded-full bg-zinc-800 text-zinc-300">
+                  {data.nextFixture ? `Fecha ${data.nextFixture.match_week}` : 'Pretemporada'}
+                </span>
               </div>
-              <div className="text-2xl font-black text-zinc-700">VS</div>
-              <div className="text-center">
-                <Shield className="w-16 h-16 mx-auto mb-2 text-zinc-600" />
-                <p className="font-bold text-zinc-400">Equipo Rival</p>
-              </div>
+              
+              {data.nextFixture ? (
+                <div className="flex items-center justify-center gap-8 py-8">
+                  <div className="text-center w-32">
+                    <Shield className={`w-16 h-16 mx-auto mb-2 ${data.nextFixture.home_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
+                    <p className="font-bold text-white truncate" title={data.nextFixture.home.name}>{data.nextFixture.home.short_name}</p>
+                  </div>
+                  <div className="text-2xl font-black text-zinc-700">VS</div>
+                  <div className="text-center w-32">
+                    <Shield className={`w-16 h-16 mx-auto mb-2 ${data.nextFixture.away_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
+                    <p className="font-bold text-white truncate" title={data.nextFixture.away.name}>{data.nextFixture.away.short_name}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-12 text-center text-zinc-500">
+                  No hay partidos programados
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4">
               <button onClick={() => navigate('/tactics')} className="flex-1 py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
                 Táctica
               </button>
-              <button onClick={() => navigate('/match')} className="flex-1 py-4 font-bold text-black transition-transform rounded-xl bg-emerald-500 hover:bg-emerald-400 hover:scale-[1.01]">
-                Jugar Partido
+              <button 
+                onClick={() => {
+                  if (!data.nextFixture) return
+                  navigate('/match', { state: { fixtureId: data.nextFixture.id } })
+                }}
+                disabled={!data.nextFixture || data.nextFixture.match_date > club.game_date}
+                className="flex-1 py-4 font-bold text-black transition-transform rounded-xl bg-emerald-500 hover:bg-emerald-400 hover:scale-[1.01] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+              >
+                {data.nextFixture && data.nextFixture.match_date > club.game_date 
+                  ? `Jugar el ${new Date(data.nextFixture.match_date).toLocaleDateString('es-AR', {day: 'numeric', month: 'short'})}`
+                  : 'Jugar Partido'}
               </button>
             </div>
           </div>
