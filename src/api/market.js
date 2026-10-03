@@ -2,6 +2,18 @@ import { supabase } from './supabase'
 import { clubApi } from './club'
 
 export const marketApi = {
+  // Las ventanas de mercado suelen ser Julio-Agosto y Enero.
+  getMarketStatus(gameDateStr) {
+    if (!gameDateStr) return { isOpen: true, name: 'Mercado Abierto' }
+    const date = new Date(gameDateStr + 'T00:00:00')
+    const month = date.getMonth() + 1 // 1-12
+    const day = date.getDate()
+
+    if (month === 7 || month === 8) return { isOpen: true, name: 'Mercado de Verano' }
+    if (month === 1) return { isOpen: true, name: 'Mercado de Invierno' }
+    return { isOpen: false, name: 'Mercado Cerrado' }
+  },
+
   async getMarketPlayers(currentClubId, filters = {}) {
     let query = supabase
       .from('players')
@@ -10,7 +22,8 @@ export const marketApi = {
       
     if (filters.position) query = query.eq('position', filters.position)
     if (filters.minPace) query = query.gte('attr_pace', filters.minPace)
-    query = query.limit(50)
+    
+    query = query.order('market_value', { ascending: false }).limit(50)
 
     const { data: players, error } = await query
     if (error) throw new Error(error.message)
@@ -39,33 +52,75 @@ export const marketApi = {
     return true
   },
 
-  async buyPlayer(clubId, playerId, price) {
+  async buyPlayer(buyerClubId, playerId, offerAmount, managerId) {
+    const { auditApi } = await import('./audit')
+
     // 1. Obtener club comprador
-    const { data: club, error: clubErr } = await supabase
+    const { data: buyer, error: buyerErr } = await supabase
       .from('clubs')
-      .select('budget')
-      .eq('id', clubId)
+      .select('budget, game_date')
+      .eq('id', buyerClubId)
       .single()
       
-    if (clubErr) throw new Error(clubErr.message)
-    if (club.budget < price) throw new Error('Presupuesto insuficiente')
+    if (buyerErr) throw new Error(buyerErr.message)
+
+    // Validar ventana
+    const marketStatus = this.getMarketStatus(buyer.game_date)
+    if (!marketStatus.isOpen) {
+      throw new Error('El mercado de fichajes está cerrado. Solo puedes comprar en Julio/Agosto o Enero.')
+    }
+
+    if (buyer.budget < offerAmount) throw new Error('Presupuesto insuficiente para la oferta.')
     
-    // 2. Restar presupuesto
-    const newBudget = club.budget - price
-    const { error: updateClubErr } = await supabase
-      .from('clubs')
-      .update({ budget: newBudget })
-      .eq('id', clubId)
-      
-    if (updateClubErr) throw new Error(updateClubErr.message)
+    // 2. Obtener jugador y club vendedor
+    const { data: player, error: playerErr } = await supabase
+      .from('players')
+      .select('*, clubs(*)')
+      .eq('id', playerId)
+      .single()
+
+    if (playerErr) throw new Error(playerErr.message)
+
+    // IA Rechazo de oferta
+    // Si la oferta es menor al 90% del valor de mercado, el club vendedor lo rechaza.
+    const minAcceptableOffer = player.market_value * 0.9
+    if (offerAmount < minAcceptableOffer) {
+      throw new Error(`El ${player.clubs.name} ha rechazado la oferta por considerarla muy baja. Piden al menos $${Math.round(player.market_value).toLocaleString()}.`)
+    }
+
+    // Voluntad del jugador
+    // Jugadores de gran potencial (ej: rating muy alto) pueden no querer ir a un club de menor reputación.
+    // (Simplificado para MVP)
+
+    // 3. Transferencia de fondos
+    const newBuyerBudget = buyer.budget - offerAmount
+    await supabase.from('clubs').update({ budget: newBuyerBudget }).eq('id', buyerClubId)
+
+    if (player.club_id) {
+       // Sumar al vendedor
+       const newSellerBudget = player.clubs.budget + offerAmount
+       await supabase.from('clubs').update({ budget: newSellerBudget }).eq('id', player.club_id)
+    }
     
-    // 3. Transferir jugador
+    // 4. Transferir jugador
     const { error: updatePlayerErr } = await supabase
       .from('players')
-      .update({ club_id: clubId })
+      .update({ club_id: buyerClubId })
       .eq('id', playerId)
       
     if (updatePlayerErr) throw new Error(updatePlayerErr.message)
+
+    // 5. Audit Log
+    if (managerId) {
+      await auditApi.logAction({
+        whoId: managerId,
+        action: 'BUY_PLAYER',
+        entityType: 'player',
+        entityId: playerId,
+        stateBefore: { club_id: player.club_id, budget: buyer.budget },
+        stateAfter: { club_id: buyerClubId, budget: newBuyerBudget, amount: offerAmount }
+      })
+    }
     
     return true
   },

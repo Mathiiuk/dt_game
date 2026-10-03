@@ -45,14 +45,10 @@ const generateAttributes = (baseLevel) => {
 }
 
 export const playerApi = {
-  async generateInitialSquad(clubId, reputation) {
-    // Reputation dictates the base level of the players
-    // e.g. reputation 5 -> base 30. reputation 40 -> base 60.
+  generatePlayersArray(clubId, reputation) {
     const baseLevel = 25 + Math.floor(reputation * 0.8)
-    
-    const playersToInsert = POSITIONS.map((pos, idx) => {
+    return POSITIONS.map((pos, idx) => {
       const age = randomInt(17, 35)
-      // Older players might have less pace but more mental stats, let's keep it simple for now
       return {
         club_id: clubId,
         first_name: randomItem(FIRST_NAMES),
@@ -74,7 +70,10 @@ export const playerApi = {
         squad_role: idx < 11 ? 'Titular' : 'Rotación'
       }
     })
+  },
 
+  async generateInitialSquad(clubId, reputation) {
+    const playersToInsert = this.generatePlayersArray(clubId, reputation)
     const { data, error } = await supabase
       .from('players')
       .insert(playersToInsert)

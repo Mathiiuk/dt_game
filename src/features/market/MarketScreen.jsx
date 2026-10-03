@@ -23,13 +23,9 @@ export default function MarketScreen() {
       
       let players = await marketApi.getMarketPlayers(club.id, filters)
       
-      // Si la base de datos de otros jugadores está vacía (por MVP), inyectamos agentes libres
-      if (players.length === 0 && !filters.position && !filters.minPace) {
-         await marketApi.generateFreeAgents(15)
-         players = await marketApi.getMarketPlayers(club.id, filters)
-      }
+      const marketStatus = marketApi.getMarketStatus(club.game_date)
       
-      setData({ club, players })
+      setData({ club, players, marketStatus, manager })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -47,15 +43,21 @@ export default function MarketScreen() {
   }
 
   const handleBuy = async (player) => {
-    const price = player.attr_pace * 10000 // Precio mockeado basado en ritmo (ej 500k)
+    if (!data.marketStatus?.isOpen) {
+      return toast.error('El mercado está cerrado. Solo puedes ojer jugadores.')
+    }
+
+    const minRecommended = Math.round(player.market_value * 0.9)
+    const offerStr = window.prompt(`Oferta por ${player.last_name}.\nValor de mercado: $${player.market_value.toLocaleString()}.\nEl club probablemente rechace menos de $${minRecommended.toLocaleString()}.\n\nIngresa tu oferta:`, player.market_value)
     
-    if (!window.confirm(`¿Comprar a ${player.last_name} por $${price.toLocaleString()}?`)) return
+    if (!offerStr) return
+    const offerAmount = parseInt(offerStr, 10)
+    if (isNaN(offerAmount) || offerAmount <= 0) return toast.error('Monto inválido')
 
     setBuyingId(player.id)
     try {
-      await marketApi.buyPlayer(data.club.id, player.id, price)
-      toast.success(`¡${player.last_name} ha fichado por el club!`)
-      // Refrescar data
+      await marketApi.buyPlayer(data.club.id, player.id, offerAmount, data.manager.id)
+      toast.success(`¡Acuerdo cerrado! ${player.last_name} ha fichado por el club por $${offerAmount.toLocaleString()}.`)
       loadData()
     } catch (e) {
       toast.error(e.message)
@@ -73,7 +75,12 @@ export default function MarketScreen() {
           <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-3xl font-black text-emerald-500">MERCADO DE PASES</h1>
+          <div>
+            <h1 className="text-3xl font-black text-emerald-500">MERCADO DE PASES</h1>
+            <p className={`text-sm font-bold ${data.marketStatus?.isOpen ? 'text-emerald-400' : 'text-red-400'}`}>
+              {data.marketStatus?.name || 'Mercado Cerrado'}
+            </p>
+          </div>
         </div>
         <div className="text-right">
           <p className="text-sm text-zinc-500">Presupuesto Disponible</p>
@@ -136,7 +143,7 @@ export default function MarketScreen() {
               </div>
             ) : (
               data.players.map(p => {
-                const price = p.attr_pace * 10000
+                const price = p.market_value || (p.attr_pace * 10000)
                 const isAffordable = data.club?.budget >= price
                 return (
                   <div key={p.id} className="p-5 border border-zinc-800 rounded-2xl bg-zinc-900/50 hover:border-zinc-700 transition-colors">
@@ -188,14 +195,15 @@ export default function MarketScreen() {
                         ) : (
                           <button 
                             onClick={() => handleBuy(p)}
-                            disabled={buyingId === p.id || !isAffordable}
+                            disabled={buyingId === p.id || !isAffordable || !data.marketStatus?.isOpen}
                             className={`flex items-center gap-1 px-4 py-2 text-sm font-bold rounded-lg transition-colors ${
+                              !data.marketStatus?.isOpen ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' :
                               !isAffordable 
                                 ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
                                 : 'bg-emerald-500 text-black hover:bg-emerald-400'
                             }`}
                           >
-                            {buyingId === p.id ? '...' : <><ShoppingCart className="w-4 h-4" /> Fichar</>}
+                            {buyingId === p.id ? '...' : <><ShoppingCart className="w-4 h-4" /> Ofertar</>}
                           </button>
                         )}
                       </div>

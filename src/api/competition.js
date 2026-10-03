@@ -55,6 +55,17 @@ export const competitionApi = {
 
     if (clubsErr) throw new Error(clubsErr.message)
 
+    // 2.5 Generar jugadores para la IA
+    const { playerApi } = await import('./player')
+    let aiPlayersToInsert = []
+    for (const ai of aiClubs) {
+      const players = playerApi.generatePlayersArray(ai.id, 10)
+      aiPlayersToInsert = [...aiPlayersToInsert, ...players]
+    }
+    
+    const { error: pErr } = await supabase.from('players').insert(aiPlayersToInsert)
+    if (pErr) throw new Error(pErr.message)
+
     const allClubIds = [playerClubId, ...aiClubs.map(c => c.id)]
 
     // 3. Insertar en Standings
