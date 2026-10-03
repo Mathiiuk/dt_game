@@ -1,0 +1,48 @@
+id: f2-39-achievements
+external_ref: ''
+title: 'Fase 39: Sistema de Logros y Desafios de Carrera'
+type: fix
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Crear tabla career_achievements en PostgreSQL con soporte para seguimiento,
+    rareza, reclamo de recompensas e idempotencia
+  - >-
+    Implementar API src/api/achievements.js para catalogar logros, evaluar
+    progreso, desbloquear hitos y otorgar recompensas (XP, Reputacion) de forma
+    autoritativa
+  - >-
+    Integrar disparadores de evaluacion en postMatch.js, market.js,
+    clubHistory.js y season.js
+  - >-
+    Construir interfaz AchievementsScreen.jsx mobile-first con filtros por
+    categoria (Titulos, Tactica, Fichajes, Cantera, Club, Leyenda), barras de
+    progreso y reclamo de recompensas
+  - Conectar rutas y accesos en App.jsx, Dashboard.jsx y ManagerCareerScreen.jsx
+acceptance_criteria:
+  - Los logros se evaluan contra la base de datos de manera idempotente
+  - Las recompensas solo pueden ser reclamadas una unica vez (anti-exploit)
+  - La interfaz sigue diseno mobile-first con cero emojis crudos (iconos Lucide)
+  - Build pasa correctamente con npm run build
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

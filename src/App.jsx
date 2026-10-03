@@ -20,6 +20,7 @@ import ManagerCareerScreen from './features/manager/ManagerCareerScreen'
 import NationalTeamScreen from './features/manager/NationalTeamScreen'
 import InternationalCupScreen from './features/competition/InternationalCupScreen'
 import HallOfFameScreen from './features/manager/HallOfFameScreen'
+import AchievementsScreen from './features/career/AchievementsScreen'
 import ReloadPrompt from './components/ReloadPrompt'
 import { GameProvider } from './context/GameContext'
 import BottomNav from './components/BottomNav'
@@ -52,6 +53,7 @@ function App() {
             <Route path="/national-team" element={<NationalTeamScreen />} />
             <Route path="/international-cup" element={<InternationalCupScreen />} />
             <Route path="/hall-of-fame" element={<HallOfFameScreen />} />
+            <Route path="/achievements" element={<AchievementsScreen />} />
             <Route path="/game" element={<Navigate to="/welcome" replace />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
           </Routes>

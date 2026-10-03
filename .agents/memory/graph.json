@@ -1,13 +1,26 @@
 {
-  "updatedAt": "2026-10-03T23:18:42.915Z",
+  "updatedAt": "2026-10-03T23:23:27.499Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 61,
-    "totalEdges": 227,
-    "totalTasks": 7,
+    "totalNodes": 64,
+    "totalEdges": 241,
+    "totalTasks": 8,
     "totalLessons": 0
   },
   "nodes": [
+    {
+      "id": "src/api/achievements.js",
+      "label": "achievements.js",
+      "type": "module",
+      "sizeBytes": 16999,
+      "lineCount": 566,
+      "imports": [
+        "./supabase",
+        "./career",
+        "./hallOfFame",
+        "./audit"
+      ]
+    },
     {
       "id": "src/api/audit.js",
       "label": "audit.js",
@@ -154,7 +167,7 @@
       "id": "src/api/hallOfFame.js",
       "label": "hallOfFame.js",
       "type": "module",
-      "sizeBytes": 5531,
+      "sizeBytes": 5694,
       "lineCount": 164,
       "imports": [
         "./supabase"
@@ -248,14 +261,15 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 3767,
-      "lineCount": 93,
+      "sizeBytes": 4128,
+      "lineCount": 103,
       "imports": [
         "./manager",
         "./supabase",
         "./gameConfig",
         "./audit",
-        "./clubHistory"
+        "./clubHistory",
+        "./achievements"
       ]
     },
     {
@@ -294,8 +308,8 @@
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
-      "sizeBytes": 3388,
-      "lineCount": 68,
+      "sizeBytes": 3536,
+      "lineCount": 70,
       "imports": [
         "react",
         "react-router-dom",
@@ -319,6 +333,7 @@
         "./features/manager/NationalTeamScreen",
         "./features/competition/InternationalCupScreen",
         "./features/manager/HallOfFameScreen",
+        "./features/career/AchievementsScreen",
         "./components/ReloadPrompt",
         "./context/GameContext",
         "./components/BottomNav"
@@ -411,6 +426,22 @@
       ]
     },
     {
+      "id": "src/features/career/AchievementsScreen.jsx",
+      "label": "AchievementsScreen.jsx",
+      "type": "module",
+      "sizeBytes": 18875,
+      "lineCount": 430,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "../../context/GameContext",
+        "../../api/achievements",
+        "lucide-react",
+        "sonner",
+        "../../components/BottomNav"
+      ]
+    },
+    {
       "id": "src/features/club/CreateClubWizard.jsx",
       "label": "CreateClubWizard.jsx",
       "type": "module",
@@ -481,8 +512,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 20646,
-      "lineCount": 398,
+      "sizeBytes": 22830,
+      "lineCount": 433,
       "imports": [
         "react",
         "react-router-dom",
@@ -532,7 +563,7 @@
       "id": "src/features/manager/HallOfFameScreen.jsx",
       "label": "HallOfFameScreen.jsx",
       "type": "module",
-      "sizeBytes": 14804,
+      "sizeBytes": 15124,
       "lineCount": 321,
       "imports": [
         "react",
@@ -547,8 +578,8 @@
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 20145,
-      "lineCount": 399,
+      "sizeBytes": 20736,
+      "lineCount": 409,
       "imports": [
         "react",
         "react-router-dom",
@@ -741,6 +772,13 @@
       "taskType": "fix"
     },
     {
+      "id": "task:f2-39-achievements",
+      "label": "f2-39-achievements: Fase 39: Sistema de Logros y Desafios de Carrera",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:f2-audit-fixes-polish",
       "label": "f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX",
       "type": "task",
@@ -763,6 +801,26 @@
     }
   ],
   "edges": [
+    {
+      "from": "src/api/achievements.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/achievements.js",
+      "to": "./career",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/achievements.js",
+      "to": "./hallOfFame",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/achievements.js",
+      "to": "./audit",
+      "relation": "depends_on"
+    },
     {
       "from": "src/api/audit.js",
       "to": "./supabase",
@@ -939,6 +997,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/postMatch.js",
+      "to": "./achievements",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/season.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -1075,6 +1138,11 @@
     },
     {
       "from": "src/App.jsx",
+      "to": "./features/career/AchievementsScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
       "to": "./components/ReloadPrompt",
       "relation": "depends_on"
     },
@@ -1206,6 +1274,41 @@
     {
       "from": "src/features/auth/WelcomeScreen.jsx",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../api/achievements",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../components/BottomNav",
       "relation": "depends_on"
     },
     {
@@ -1881,6 +1984,11 @@
     {
       "from": "task:f2-38-hall-of-fame",
       "to": ".agents/workflow/tasks/f2-38-hall-of-fame.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-39-achievements",
+      "to": ".agents/workflow/tasks/f2-39-achievements.yml",
       "relation": "manifested_by"
     },
     {

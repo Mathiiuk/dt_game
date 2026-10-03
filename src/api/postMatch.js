@@ -3,6 +3,7 @@ import { supabase } from './supabase'
 import { gameConfigApi } from './gameConfig'
 import { auditApi } from './audit'
 import { clubHistoryApi } from './clubHistory'
+import { achievementsApi } from './achievements'
 
 export const postMatchApi = {
   async processResult(managerId, clubId, result) {
@@ -83,6 +84,15 @@ export const postMatchApi = {
       })
     } catch (err) {
       console.warn('Error recording club history / idol progress:', err)
+    }
+
+    // 6. Evaluación de Logros de Carrera (Fase 39)
+    try {
+      achievementsApi.evaluateAchievements(managerId, clubId).catch(err => {
+        console.warn('Error evaluating career achievements post-match:', err)
+      })
+    } catch (e) {
+      // Ignorar para no bloquear flujo principal
     }
 
     // Recordatorio: ya no avanzamos tiempo aquí. El tiempo avanza con "Avanzar Semana" en el Dashboard.

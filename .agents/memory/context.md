@@ -1,16 +1,18 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-03T23:18:42.915Z | **Nodos:** 61 | **Tareas:** 7
+> **Última sincronización:** 2026-10-03T23:23:27.499Z | **Nodos:** 64 | **Tareas:** 8
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
+| `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/club/screens/ClubScreen.jsx` | 554 | react, react-router-dom, ../../../api/club |
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
+| `src/features/dashboard/Dashboard.jsx` | 433 | react, react-router-dom, ../../api/auth |
+| `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
+| `src/features/manager/ManagerCareerScreen.jsx` | 409 | react, react-router-dom, ../../context/GameContext |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
-| `src/features/manager/ManagerCareerScreen.jsx` | 399 | react, react-router-dom, ../../context/GameContext |
-| `src/features/dashboard/Dashboard.jsx` | 398 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/features/squad/SquadScreen.jsx` | 360 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
@@ -29,10 +31,8 @@
 | `src/api/market.js` | 177 | ./supabase, ./club |
 | `src/api/hallOfFame.js` | 164 | ./supabase |
 | `src/features/auth/AuthScreen.jsx` | 163 | react, react-router-dom, ../../api/auth |
-| `src/features/competition/StandingsScreen.jsx` | 163 | react, react-router-dom, ../../api/auth |
-| `src/api/career.js` | 160 | ./supabase, ./audit |
 
-_(+29 módulos adicionales; consultar con `memory:query`)_
+_(+31 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -40,6 +40,7 @@ _(+29 módulos adicionales; consultar con `memory:query`)_
 - **f2-34-international-cups: Fase 34: Competiciones Internacionales y Copas Continentales** `[DONE]`
 - **f2-36-37-club-history-idols: Fases 36 y 37: Historia del Club, Récords e Ídolos** `[DONE]`
 - **f2-38-hall-of-fame: Fase 38: Salon de la Fama y Records Historicos Globales** `[DONE]`
+- **f2-39-achievements: Fase 39: Sistema de Logros y Desafios de Carrera** `[DONE]`
 - **f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX** `[DONE]`
 - **f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos** `[DONE]`
 - **f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs** `[DONE]`

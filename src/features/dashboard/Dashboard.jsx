@@ -4,7 +4,7 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { gameLoopApi } from '../../api/gameLoop'
-import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign, Bell, Globe, ChevronRight } from 'lucide-react'
+import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign, Bell, Globe, ChevronRight, Award } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useGameContext } from '../../context/GameContext'
@@ -241,6 +241,41 @@ export default function Dashboard() {
             <span>Ver Cuadro</span>
             <ChevronRight className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Accesos Rápidos: Logros y Salón de la Fama (Fases 38 y 39) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div 
+            onClick={() => navigate('/achievements')}
+            className="p-3.5 md:p-4 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-emerald-500/60 transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 group-hover:scale-105 transition-transform">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs md:text-sm text-white">Logros y Desafíos</h4>
+                <p className="text-[11px] text-zinc-400 mt-0.5">Misiones de carrera y recompensas de XP</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+          </div>
+
+          <div 
+            onClick={() => navigate('/hall-of-fame')}
+            className="p-3.5 md:p-4 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 group-hover:scale-105 transition-transform">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs md:text-sm text-white">Salón de la Fama</h4>
+                <p className="text-[11px] text-zinc-400 mt-0.5">Ranking histórico de DTs y leyendas</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+          </div>
         </div>
 
         {/* Dynamic Events */}
