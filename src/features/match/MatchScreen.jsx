@@ -44,9 +44,9 @@ export default function MatchScreen() {
 
   const handleStartMatch = () => {
     // Generate opponent dummy data
-    const awayTactic = { mentality: 'Equilibrada' }
+    const awayTactic = { mentality: 'Equilibrada', build_up: 'Posesión', pressure: 'Media', tempo: 'Normal' }
     const awayPlayers = Array.from({length: 11}).map(() => ({
-      state_fitness: 90, attr_pace: 40, attr_finishing: 40
+      state_fitness: 90, attr_pace: 40, attr_finishing: 40, attr_defending: 40
     }))
     
     const results = simulateMatch(data.tactic, data.players, awayTactic, awayPlayers)
@@ -59,7 +59,22 @@ export default function MatchScreen() {
     if (matchState !== 'playing') return
     
     if (minute >= 90) {
-      setMatchState('finished')
+      if (matchState !== 'finished') {
+        setMatchState('finished')
+        // Save to DB using simResults for final exact score to avoid closure staleness
+        const saveMatch = async () => {
+          const { supabase } = await import('../../api/supabase')
+          await supabase.from('match_history').insert({
+            club_id: data.club.id,
+            opponent_name: 'Equipo Rival',
+            home_score: simResults.homeScore,
+            away_score: simResults.awayScore,
+            is_home: true,
+            match_date: data.club.game_date
+          })
+        }
+        saveMatch()
+      }
       return
     }
 

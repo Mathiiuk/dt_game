@@ -431,3 +431,18 @@ ALTER TABLE public.manager_history ADD COLUMN IF NOT EXISTS updated_at timestamp
 CREATE TRIGGER update_manager_history_updated_at BEFORE UPDATE ON public.manager_history FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 
+
+
+-- Fase 10: Match History
+CREATE TABLE IF NOT EXISTS public.match_history (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    club_id uuid REFERENCES public.clubs(id) NOT NULL,
+    opponent_name text NOT NULL,
+    home_score int NOT NULL,
+    away_score int NOT NULL,
+    is_home boolean NOT NULL,
+    match_date date NOT NULL,
+    created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_match_history_club ON public.match_history(club_id);
