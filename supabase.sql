@@ -248,3 +248,23 @@ CREATE POLICY "Permitir todo agents" ON public.agents FOR ALL USING (true);
 ALTER TABLE public.scout_reports ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir todo scout" ON public.scout_reports FOR ALL USING (true);
 
+
+
+-- Fase 18 & 19: Inferiores y Staff
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS academy_level int DEFAULT 1;
+
+CREATE TABLE IF NOT EXISTS public.staff (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id),
+  name text NOT NULL,
+  role text NOT NULL,
+  level int DEFAULT 1,
+  salary int DEFAULT 1000,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS is_youth boolean DEFAULT false;
+
+ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo staff" ON public.staff FOR ALL USING (true);
+

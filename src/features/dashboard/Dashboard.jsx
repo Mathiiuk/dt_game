@@ -4,7 +4,7 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { gameLoopApi } from '../../api/gameLoop'
-import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2 } from 'lucide-react'
+import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function Dashboard() {
@@ -63,7 +63,8 @@ export default function Dashboard() {
     { icon: Calendar, label: 'Partidos' },
     { icon: Activity, label: 'Entrenamiento' },
     { icon: Trophy, label: 'Competición' },
-    { icon: Settings, label: 'Mercado' } // Usando Settings provisoriamente si no importé ShoppingCart en Dashboard.jsx
+    { icon: Settings, label: 'Mercado' },
+    { icon: Building2, label: 'Club' }
   ]
   
   const formattedDate = new Intl.DateTimeFormat('es-AR', {
@@ -85,6 +86,7 @@ export default function Dashboard() {
                 if (item.label === 'Plantel') navigate('/squad')
                 if (item.label === 'Competición') navigate('/standings')
                 if (item.label === 'Mercado') navigate('/market')
+                if (item.label === 'Club') navigate('/club')
               }}
               className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-xl ${item.active ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'}`}
             >
