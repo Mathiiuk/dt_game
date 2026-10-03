@@ -280,11 +280,23 @@ export default function Dashboard() {
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-zinc-400">Moral Promedio</span>
-                  <span className="text-emerald-400">Excelente</span>
+                  <span className="text-zinc-400">Moral del Vestuario</span>
+                  <span className={(club?.squad_morale ?? 70) >= 80 ? 'text-emerald-400' : (club?.squad_morale ?? 70) >= 60 ? 'text-blue-400' : (club?.squad_morale ?? 70) >= 40 ? 'text-yellow-400' : 'text-red-400'}>
+                    {(club?.squad_morale ?? 70) >= 80 ? 'Excelente' : (club?.squad_morale ?? 70) >= 60 ? 'Buena' : (club?.squad_morale ?? 70) >= 40 ? 'Regular' : 'Baja'} ({club?.squad_morale ?? 70}%)
+                  </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className="w-[85%] h-full bg-emerald-500 rounded-full" />
+                  <div className={`h-full rounded-full transition-all ${(club?.squad_morale ?? 70) >= 60 ? 'bg-emerald-500' : (club?.squad_morale ?? 70) >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${club?.squad_morale ?? 70}%` }} />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between mb-2 text-sm">
+                  <span className="text-zinc-400">Cohesión de Grupo</span>
+                  <span className="text-purple-400">{club?.squad_cohesion ?? 70}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-zinc-800">
+                  <div className="h-full bg-purple-500 rounded-full transition-all" style={{ width: `${club?.squad_cohesion ?? 70}%` }} />
                 </div>
               </div>
 

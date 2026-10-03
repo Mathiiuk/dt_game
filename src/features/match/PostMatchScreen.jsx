@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { postMatchApi } from '../../api/postMatch'
+import { moraleApi } from '../../api/morale'
 import { ArrowRight, Trophy, Star, TrendingUp, TrendingDown } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -11,6 +12,7 @@ export default function PostMatchScreen() {
   const [xp, setXp] = useState(0)
   const [pressActive, setPressActive] = useState(false)
   const [pressAnswered, setPressAnswered] = useState(false)
+  const [pressQuestion, setPressQuestion] = useState(null)
   
   const { results, managerId, clubId, clubName } = location.state || {}
 
@@ -34,8 +36,11 @@ export default function PostMatchScreen() {
         setXp(xpAward)
         setIncome(matchIncome || 0)
         
-        // 50% chance of press conference
-        if (Math.random() > 0.5) {
+        const isWin = results.homeScore > results.awayScore
+        const context = isWin ? 'post_win' : 'post_loss'
+        const q = moraleApi.getPressConference(context)
+        if (q) {
+          setPressQuestion(q)
           setPressActive(true)
         }
       } catch (e) {
@@ -48,12 +53,17 @@ export default function PostMatchScreen() {
     process()
   }, [results, managerId, clubId, navigate])
 
-  const handlePressAnswer = async (type) => {
-    setPressAnswered(true)
-    toast.success('Respuesta enviada a los medios')
-    // MVP: No actualizamos DB directamente aquí por simplicidad de dependencias,
-    // pero la idea es que 'type' (ej. protect_players -> +cohesion, critique_players -> +board, etc)
-    // dispare una llamada a la API.
+  const handlePressAnswer = async (answerId) => {
+    if (!pressQuestion) return
+    try {
+      const { effects } = await moraleApi.answerPressConference(managerId, clubId, pressQuestion.id, answerId)
+      setPressAnswered(true)
+      const moraleSign = effects.morale >= 0 ? `+${effects.morale}` : effects.morale
+      const fansSign = effects.fans >= 0 ? `+${effects.fans}` : effects.fans
+      toast.success(`Declaraciones emitidas: Moral (${moraleSign}), Hinchada (${fansSign})`)
+    } catch (err) {
+      toast.error(err.message)
+    }
   }
 
   if (loading) return <div className="flex items-center justify-center min-h-screen text-emerald-500">Procesando resultado...</div>
@@ -110,23 +120,23 @@ export default function PostMatchScreen() {
           </div>
         </div>
 
-        {pressActive && !pressAnswered ? (
+        {pressActive && !pressAnswered && pressQuestion ? (
           <div className="p-6 mb-8 border border-zinc-700 rounded-2xl bg-zinc-800">
-            <h3 className="mb-4 text-xl font-bold text-white">🎙️ Rueda de Prensa</h3>
-            <p className="mb-6 text-zinc-300">"Míster, ¿qué opina del rendimiento del equipo hoy?"</p>
+            <h3 className="mb-2 text-xl font-bold text-white">🎙️ Rueda de Prensa</h3>
+            <p className="mb-6 text-zinc-300 font-medium italic">"{pressQuestion.question}"</p>
             <div className="grid gap-3 sm:grid-cols-2">
-              <button onClick={() => handlePressAnswer('protect')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
-                Proteger a los jugadores (+Cohesión)
-              </button>
-              <button onClick={() => handlePressAnswer('critique')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
-                Ser autocrítico (+Dirigencia)
-              </button>
-              <button onClick={() => handlePressAnswer('fans')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
-                Elogiar a la hinchada (+Aprobación)
-              </button>
-              <button onClick={() => handlePressAnswer('neutral')} className="p-3 text-sm font-medium transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700">
-                Sin comentarios
-              </button>
+              {pressQuestion.answers.map(ans => (
+                <button
+                  key={ans.id}
+                  onClick={() => handlePressAnswer(ans.id)}
+                  className="p-3 text-sm font-medium text-left transition-colors border rounded-lg text-zinc-300 border-zinc-600 hover:bg-zinc-700 hover:text-white"
+                >
+                  <span className="font-semibold text-white">{ans.label}</span>
+                  <div className="text-[11px] text-zinc-400 mt-1">
+                    Tono: <span className="text-emerald-400 font-medium">{ans.tone}</span>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         ) : null}

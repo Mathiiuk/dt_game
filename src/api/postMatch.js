@@ -18,19 +18,19 @@ export const postMatchApi = {
     let xpAward = isWin ? winXp : isDraw ? drawXp : lossXp
     await managerApi.addXp(managerId, xpAward)
 
-    // 2. Reducir fitness de los jugadores (los 11 titulares)
-    // Asumimos por ahora que todos jugaron los 90 min (hasta que haya sistema de suplentes activo)
-    const { data: players } = await supabase.from('players').select('id, state_fitness').eq('club_id', clubId)
+    // 2. Reducir fitness y actualizar moral de los jugadores
+    const { data: players } = await supabase.from('players').select('id, state_fitness, morale').eq('club_id', clubId)
     if (players) {
       for (const p of players) {
-        // En un MVP, bajamos fitness a todos o a los primeros 11. Aplicamos a todos como squad rotation simple.
         let newFitness = Math.max(0, p.state_fitness - matchCost)
-        await supabase.from('players').update({ state_fitness: newFitness }).eq('id', p.id)
+        let playerMorale = p.morale ?? 70
+        playerMorale = isWin ? Math.min(100, playerMorale + 5) : isDraw ? playerMorale : Math.max(0, playerMorale - 5)
+        await supabase.from('players').update({ state_fitness: newFitness, morale: playerMorale }).eq('id', p.id)
       }
     }
 
-    // 3. Dirigencia (Board Confidence)
-    const { data: clubData } = await supabase.from('clubs').select('budget, board_confidence').eq('id', clubId).single()
+    // 3. Dirigencia (Board Confidence) y Moral del Club
+    const { data: clubData } = await supabase.from('clubs').select('budget, board_confidence, squad_morale').eq('id', clubId).single()
     
     let currentConfidence = clubData?.board_confidence ?? 80
     if (isWin) currentConfidence += 5
@@ -39,7 +39,17 @@ export const postMatchApi = {
     
     // Clamp
     currentConfidence = Math.max(0, Math.min(100, currentConfidence))
-    await supabase.from('clubs').update({ board_confidence: currentConfidence }).eq('id', clubId)
+
+    let currentMorale = clubData?.squad_morale ?? 70
+    if (isWin) currentMorale += 6
+    else if (isDraw) currentMorale += 0
+    else currentMorale -= 6
+    currentMorale = Math.max(0, Math.min(100, currentMorale))
+
+    await supabase.from('clubs').update({ 
+      board_confidence: currentConfidence,
+      squad_morale: currentMorale
+    }).eq('id', clubId)
 
     // 4. Taquilla
     let matchIncome = 0

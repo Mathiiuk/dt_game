@@ -133,7 +133,11 @@ export const gameLoopApi = {
     const { eventsApi } = await import('./events')
     await eventsApi.generateRandomEvents(clubId, managerId)
 
-    // 8. Audit Log
+    // 8. Moral y Cohesión Semanal
+    const { moraleApi } = await import('./morale')
+    await moraleApi.processWeeklyMorale(clubId)
+
+    // 9. Audit Log
     if (managerId) {
       await auditApi.logAction({
         whoId: managerId,
