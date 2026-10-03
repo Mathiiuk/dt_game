@@ -124,6 +124,31 @@ export const marketApi = {
     
     return true
   },
+
+  async scoutPlayer(clubId, playerId, cost = 10000) {
+    // Check budget
+    const { data: club } = await supabase.from('clubs').select('budget').eq('id', clubId).single()
+    if (!club || club.budget < cost) throw new Error('Presupuesto insuficiente para ojear')
+
+    // Pay for scout
+    await supabase.from('clubs').update({ budget: club.budget - cost }).eq('id', clubId)
+
+    // Check if already scouted
+    const { data: existing } = await supabase
+      .from('scout_reports')
+      .select('*')
+      .eq('club_id', clubId)
+      .eq('player_id', playerId)
+      .single()
+
+    if (existing) {
+      if (existing.level >= 2) throw new Error('Jugador ya ojeado al máximo')
+      await supabase.from('scout_reports').update({ level: existing.level + 1 }).eq('id', existing.id)
+    } else {
+      await supabase.from('scout_reports').insert([{ club_id: clubId, player_id: playerId, level: 1 }])
+    }
+    return true
+  },
   
   // Generar algunos agentes libres ficticios si el mercado está vacío (MVP)
   async generateFreeAgents(count = 10) {

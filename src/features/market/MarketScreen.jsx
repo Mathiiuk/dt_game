@@ -22,7 +22,24 @@ export default function MarketScreen() {
       let players = await marketApi.getMarketPlayers(club.id, filters)
       const marketStatus = marketApi.getMarketStatus(club.game_date)
       
-      setData({ players, marketStatus })
+      const { supabase } = await import('../../api/supabase')
+      const { data: scouted } = await supabase
+        .from('scout_reports')
+        .select('*')
+        .eq('club_id', club.id)
+      
+      const scoutedMap = new Map(scouted?.map(s => [s.player_id, s]) || [])
+
+      const playersWithScout = players.map(p => {
+        const report = scoutedMap.get(p.id)
+        return {
+          ...p,
+          scout_level: report ? report.level : 0,
+          scout_date: report ? report.created_at : null
+        }
+      })
+
+      setData({ players: playersWithScout, marketStatus })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -56,6 +73,7 @@ export default function MarketScreen() {
     try {
       await marketApi.buyPlayer(club.id, player.id, offerAmount, manager.id)
       toast.success(`¡Acuerdo cerrado! ${player.last_name} ha fichado por el club por $${offerAmount.toLocaleString()}.`)
+      await refreshContext()
       loadData()
     } catch (e) {
       toast.error(e.message)
@@ -181,6 +199,7 @@ export default function MarketScreen() {
                               try {
                                 await marketApi.scoutPlayer(club.id, p.id);
                                 toast.success(`Reporte de scout completado para ${p.last_name}`);
+                                await refreshContext(); // Update budget
                                 loadData();
                               } catch(e) {
                                 toast.error(e.message);
@@ -188,7 +207,7 @@ export default function MarketScreen() {
                             }}
                             className="flex items-center gap-1 px-4 py-2 text-sm font-bold text-black transition-colors rounded-lg bg-blue-500 hover:bg-blue-400"
                           >
-                            Scoutear
+                            Ojear ($10k)
                           </button>
                         ) : (
                           <button 
