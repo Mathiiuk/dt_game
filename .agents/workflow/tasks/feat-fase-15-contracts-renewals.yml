@@ -1,0 +1,57 @@
+id: feat-fase-15-contracts-renewals
+external_ref: 15_contratos
+title: 'Fase 15: Contratos, Renovaciones, Cláusulas y Masa Salarial'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/contracts.js
+    - src/features/squad/SquadScreen.jsx
+    - src/features/squad/ContractRenewalModal.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades contracts, contract_negotiations y contracts_audit_log en
+    supabase.sql
+  - >-
+    Implementar algoritmo de pretensiones salariales del futbolista según OVR,
+    rol y ambición
+  - >-
+    Máquina de negociación interactiva con rondas (máx 3), contrapropuestas y
+    bloqueo por colapso
+  - >-
+    Control autoritativo de masa salarial del club (wage_budget) impidiendo
+    firmas por encima de capacidad
+  - Gestión de cláusulas de rescisión proporcionales y primas de firma
+  - >-
+    Componente ContractRenewalModal responsive con ActionSheet para móvil y
+    escritorio
+acceptance_criteria:
+  - >-
+    Firma de contratos valida presupuesto salarial y actualiza expiración y
+    sueldo en base de datos
+  - >-
+    Negociación rechazada incrementa número de ronda y tras 3 intentos bloquea
+    temporalmente al jugador
+  - Moral del jugador aumenta tras renovar exitosamente
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

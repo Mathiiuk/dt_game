@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:40:58.748Z",
+  "updatedAt": "2026-10-04T02:43:18.601Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 91,
-    "totalEdges": 299,
-    "totalTasks": 28,
+    "totalNodes": 93,
+    "totalEdges": 305,
+    "totalTasks": 29,
     "totalLessons": 0
   },
   "nodes": [
@@ -111,8 +111,8 @@
       "id": "src/api/contracts.js",
       "label": "contracts.js",
       "type": "module",
-      "sizeBytes": 14208,
-      "lineCount": 445,
+      "sizeBytes": 23846,
+      "lineCount": 735,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -754,11 +754,24 @@
       ]
     },
     {
+      "id": "src/features/squad/ContractRenewalModal.jsx",
+      "label": "ContractRenewalModal.jsx",
+      "type": "module",
+      "sizeBytes": 13432,
+      "lineCount": 319,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../api/contracts",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 37244,
-      "lineCount": 787,
+      "sizeBytes": 37806,
+      "lineCount": 783,
       "imports": [
         "react",
         "react-router-dom",
@@ -767,7 +780,8 @@
         "lucide-react",
         "sonner",
         "../../context/GameContext",
-        "../../utils/cache"
+        "../../utils/cache",
+        "./ContractRenewalModal"
       ]
     },
     {
@@ -1036,6 +1050,13 @@
     {
       "id": "task:feat-fase-14-player-sales",
       "label": "feat-fase-14-player-sales: Fase 14: Ventas de Jugadores, Lista de Transferibles y Ofertas de IA",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-15-contracts-renewals",
+      "label": "feat-fase-15-contracts-renewals: Fase 15: Contratos, Renovaciones, Cláusulas y Masa Salarial",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -2253,6 +2274,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "../../api/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2290,6 +2331,11 @@
     {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "./ContractRenewalModal",
       "relation": "depends_on"
     },
     {
@@ -2535,6 +2581,11 @@
     {
       "from": "task:feat-fase-14-player-sales",
       "to": ".agents/workflow/tasks/feat-fase-14-player-sales.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-15-contracts-renewals",
+      "to": ".agents/workflow/tasks/feat-fase-15-contracts-renewals.yml",
       "relation": "manifested_by"
     }
   ],

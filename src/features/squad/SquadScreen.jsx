@@ -19,6 +19,7 @@ import {
 import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
+import ContractRenewalModal from './ContractRenewalModal'
 
 export default function SquadScreen() {
   const navigate = useNavigate()
@@ -35,6 +36,7 @@ export default function SquadScreen() {
   const [activeTab, setActiveTab] = useState('squad') // 'squad' | 'offers'
 
   // Modals state
+  const [renewalModalPlayer, setRenewalModalPlayer] = useState(null)
   const [transferModalPlayer, setTransferModalPlayer] = useState(null)
   const [askingPriceInput, setAskingPriceInput] = useState('')
   const [counterModalOffer, setCounterModalOffer] = useState(null)
@@ -61,29 +63,8 @@ export default function SquadScreen() {
     loadData()
   }, [contextLoading, club])
 
-  const handleRenew = async (player) => {
-    const currentSalary = player.contract_salary || 5000
-    const newSalary = Math.round(currentSalary * 1.25)
-    const confirmed = await confirmAction({
-      title: `Renovar a ${player.first_name} ${player.last_name}`,
-      description: `¿Ofrecer extensión de contrato con aumento salarial a $${newSalary.toLocaleString()}/sem?`,
-      confirmText: 'Firmar Renovación',
-      cancelText: 'Cancelar',
-      variant: 'primary'
-    })
-    if (!confirmed) return
-    
-    try {
-      await contractApi.renewContract(player.id, { 
-        contract_salary: newSalary,
-        contract_role: player.contract_role || 'Titular'
-      })
-      toast.success(`Contrato de ${player.last_name} renovado exitosamente`)
-      if (typeof refreshContext === 'function') await refreshContext()
-      loadData()
-    } catch (e) {
-      toast.error(e.message)
-    }
+  const handleRenew = (player) => {
+    setRenewalModalPlayer(player)
   }
 
   const handleOpenTransferModal = (player) => {
@@ -780,6 +761,21 @@ export default function SquadScreen() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal: Negociación y Renovación de Contrato (Fase 15) */}
+      {renewalModalPlayer && (
+        <ContractRenewalModal 
+          player={renewalModalPlayer}
+          club={club}
+          manager={manager}
+          currentWeek={club?.current_week || 1}
+          onClose={() => setRenewalModalPlayer(null)}
+          onSuccess={() => {
+            loadData()
+            if (typeof refreshContext === 'function') refreshContext()
+          }}
+        />
       )}
     </div>
   )

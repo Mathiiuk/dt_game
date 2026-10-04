@@ -905,3 +905,64 @@ CREATE POLICY "Permitir todo contract_terminations_log" ON public.contract_termi
 
 CREATE INDEX IF NOT EXISTS idx_contract_terminations_club ON public.contract_terminations_log(club_id);
 CREATE INDEX IF NOT EXISTS idx_offers_to_club_status ON public.offers(to_club_id, status);
+
+-- FASE 15: CONTRATOS, RENOVACIONES, CLÁUSULAS Y MASA SALARIAL
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS release_clause numeric(12,2);
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS negotiation_lockout_week int;
+
+CREATE TABLE IF NOT EXISTS public.contracts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  wage_weekly numeric(10,2) NOT NULL,
+  starts_at date DEFAULT CURRENT_DATE,
+  expires_at date,
+  contract_years_total int DEFAULT 1 NOT NULL,
+  release_clause numeric(12,2),
+  squad_role text DEFAULT 'ROTATION' NOT NULL,
+  goal_bonus numeric(8,2) DEFAULT 0 NOT NULL,
+  clean_sheet_bonus numeric(8,2) DEFAULT 0 NOT NULL,
+  status text DEFAULT 'ACTIVE' NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_player_active_contract UNIQUE (player_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.contract_negotiations (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  wage_offered numeric(10,2) NOT NULL,
+  years_offered int DEFAULT 1 NOT NULL,
+  release_clause_offered numeric(12,2),
+  squad_role_offered text DEFAULT 'ROTATION',
+  rounds_completed int DEFAULT 1 NOT NULL,
+  negotiation_status text DEFAULT 'OPEN' NOT NULL,
+  player_demands_snapshot jsonb,
+  lockout_until_week int,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.contracts_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  action text NOT NULL,
+  previous_wage numeric(10,2),
+  new_wage numeric(10,2),
+  previous_expiry text,
+  new_expiry text,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.contracts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo contracts" ON public.contracts FOR ALL USING (true);
+
+ALTER TABLE public.contract_negotiations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo contract_negotiations" ON public.contract_negotiations FOR ALL USING (true);
+
+ALTER TABLE public.contracts_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo contracts_audit_log" ON public.contracts_audit_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_contracts_club ON public.contracts(club_id);
+CREATE INDEX IF NOT EXISTS idx_contracts_player ON public.contracts(player_id);
