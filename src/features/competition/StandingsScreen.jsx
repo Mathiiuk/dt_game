@@ -10,11 +10,13 @@ import {
   TrendingUp, 
   TrendingDown, 
   Calendar,
-  Loader2
+  Loader2,
+  Layers
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
+import LeaguePyramidModal from './LeaguePyramidModal'
 
 export default function StandingsScreen() {
   const navigate = useNavigate()
@@ -23,6 +25,7 @@ export default function StandingsScreen() {
   const [loading, setLoading] = useState(true)
   const [standings, setStandings] = useState([])
   const [refreshing, setRefreshing] = useState(false)
+  const [showPyramidModal, setShowPyramidModal] = useState(false)
 
   const loadData = async (force = false) => {
     if (!club?.id) return
@@ -130,6 +133,14 @@ export default function StandingsScreen() {
           >
             <Calendar className="w-4 h-4 text-emerald-400" />
             <span>Calendario</span>
+          </button>
+
+          <button 
+            onClick={() => setShowPyramidModal(true)}
+            className="px-3.5 py-2 text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl hover:bg-amber-500/20 transition-colors flex items-center gap-1.5"
+          >
+            <Layers className="w-4 h-4 text-amber-400" />
+            <span>Pirámide & Reducido</span>
           </button>
 
           <button 
@@ -265,6 +276,17 @@ export default function StandingsScreen() {
           </div>
         </div>
       </div>
+
+      {/* Modal: Pirámide de Ligas y Reducido (Fase 30) */}
+      {showPyramidModal && (
+        <LeaguePyramidModal
+          club={club}
+          currentTier={club?.league_tier || 5}
+          careerId={club?.career_id}
+          seasonYear={club?.current_season_year || 2026}
+          onClose={() => setShowPyramidModal(false)}
+        />
+      )}
     </div>
   )
 }

@@ -1,0 +1,39 @@
+id: feat-fase-30-promotion-relegation-pyramid
+external_ref: ''
+title: Fase 30 - Ascensos, Descensos y Estructura Piramidal de Ligas
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - competitionTiers
+    - playoffs
+    - standings
+    - seasonClose
+requirements:
+  - Implementar Fase 30 - Ascensos, Descensos y Estructura Piramidal de Ligas
+acceptance_criteria:
+  - Pirámide oficial de 5 divisiones (Tiers 1 a 5) en league_tiers_config
+  - Ascensos directos (Puestos 1 y 2) y descensos (Puestos 18 a 20)
+  - Torneo Reducido / Playoffs (Puestos 3 a 6) por el tercer boleto de ascenso
+  - Historial de movimientos inmutables en promotion_relegation_ledger
+  - >-
+    Ajuste de reputación, presupuesto salarial y derechos televisivos según
+    división
+  - UI interactiva de mapa piramidal y llaves de playoffs
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

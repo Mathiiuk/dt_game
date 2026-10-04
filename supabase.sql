@@ -1635,3 +1635,70 @@ CREATE POLICY "Permitir todo season_transition_log" ON public.season_transition_
 
 CREATE INDEX IF NOT EXISTS idx_season_snapshots_career ON public.season_snapshots(career_id, season_year);
 CREATE INDEX IF NOT EXISTS idx_annual_financial_club ON public.annual_financial_statements(club_id, season_year);
+
+-- ==============================================================================
+-- FASE 30: ASCENSOS, DESCENSOS Y ESTRUCTURA PIRAMIDAL DE LIGAS
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.league_tiers_config (
+  tier_level integer PRIMARY KEY,
+  tier_name text NOT NULL,
+  total_teams integer DEFAULT 20 NOT NULL,
+  automatic_promotions integer DEFAULT 2 NOT NULL,
+  playoff_promotions integer DEFAULT 1 NOT NULL,
+  relegations_count integer DEFAULT 3 NOT NULL,
+  base_tv_revenue_weekly numeric(10,2) DEFAULT 500 NOT NULL,
+  base_wage_cap_weekly numeric(10,2) DEFAULT 10000 NOT NULL,
+  min_stadium_capacity_required integer DEFAULT 1000 NOT NULL
+);
+
+INSERT INTO public.league_tiers_config (tier_level, tier_name, total_teams, automatic_promotions, playoff_promotions, relegations_count, base_tv_revenue_weekly, base_wage_cap_weekly, min_stadium_capacity_required)
+VALUES
+  (1, 'Liga Profesional', 20, 0, 0, 3, 12000, 150000, 15000),
+  (2, 'Primera Nacional', 20, 2, 1, 3, 5000, 60000, 8000),
+  (3, 'Primera B Metropolitana / Federal A', 20, 2, 1, 3, 2000, 28000, 4000),
+  (4, 'Primera C Metropolitana', 20, 2, 1, 3, 900, 14000, 2000),
+  (5, 'Torneo Promocional Regional / Potrero', 20, 2, 1, 0, 400, 7000, 800)
+ON CONFLICT (tier_level) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS public.promotion_relegation_ledger (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  season_year integer NOT NULL,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  movement_type text NOT NULL CHECK (movement_type IN ('PROMOTION_CHAMPION', 'PROMOTION_RUNNER_UP', 'PROMOTION_PLAYOFF', 'RELEGATION', 'MAINTAINED')),
+  from_tier integer NOT NULL,
+  to_tier integer NOT NULL,
+  final_position integer NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_season_move UNIQUE (career_id, season_year, club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.playoff_fixtures (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  season_year integer NOT NULL,
+  division_tier integer DEFAULT 5 NOT NULL,
+  round_name text NOT NULL CHECK (round_name IN ('SEMI_FINAL', 'FINAL')),
+  home_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  away_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  home_score integer DEFAULT 0 NOT NULL,
+  away_score integer DEFAULT 0 NOT NULL,
+  penalty_home_score integer,
+  penalty_away_score integer,
+  winner_club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  status text DEFAULT 'SCHEDULED' NOT NULL CHECK (status IN ('SCHEDULED', 'FINISHED')),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.league_tiers_config ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo league_tiers_config" ON public.league_tiers_config FOR ALL USING (true);
+
+ALTER TABLE public.promotion_relegation_ledger ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo promotion_relegation_ledger" ON public.promotion_relegation_ledger FOR ALL USING (true);
+
+ALTER TABLE public.playoff_fixtures ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo playoff_fixtures" ON public.playoff_fixtures FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_prom_rel_career ON public.promotion_relegation_ledger(career_id, season_year);
+CREATE INDEX IF NOT EXISTS idx_playoff_fixtures_career ON public.playoff_fixtures(career_id, season_year, division_tier);

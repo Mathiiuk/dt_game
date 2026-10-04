@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:34:04.254Z",
+  "updatedAt": "2026-10-04T03:38:01.857Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 132,
-    "totalEdges": 412,
-    "totalTasks": 43,
+    "totalNodes": 135,
+    "totalEdges": 420,
+    "totalTasks": 44,
     "totalLessons": 0
   },
   "nodes": [
@@ -137,6 +137,17 @@
       "type": "module",
       "sizeBytes": 13104,
       "lineCount": 366,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
+      "id": "src/api/competitionTiers.js",
+      "label": "competitionTiers.js",
+      "type": "module",
+      "sizeBytes": 9379,
+      "lineCount": 282,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -452,7 +463,7 @@
       "id": "src/api/seasonClose.js",
       "label": "seasonClose.js",
       "type": "module",
-      "sizeBytes": 8799,
+      "sizeBytes": 9070,
       "lineCount": 272,
       "imports": [
         "./supabase",
@@ -853,11 +864,24 @@
       ]
     },
     {
+      "id": "src/features/competition/LeaguePyramidModal.jsx",
+      "label": "LeaguePyramidModal.jsx",
+      "type": "module",
+      "sizeBytes": 11244,
+      "lineCount": 243,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../api/competitionTiers",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 11814,
-      "lineCount": 271,
+      "sizeBytes": 12720,
+      "lineCount": 293,
       "imports": [
         "react",
         "react-router-dom",
@@ -865,7 +889,8 @@
         "lucide-react",
         "sonner",
         "../../context/GameContext",
-        "../../utils/cache"
+        "../../utils/cache",
+        "./LeaguePyramidModal"
       ]
     },
     {
@@ -1019,7 +1044,7 @@
       "id": "src/features/season/SeasonCloseModal.jsx",
       "label": "SeasonCloseModal.jsx",
       "type": "module",
-      "sizeBytes": 8369,
+      "sizeBytes": 8552,
       "lineCount": 184,
       "imports": [
         "react",
@@ -1476,6 +1501,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-30-promotion-relegation-pyramid",
+      "label": "feat-fase-30-promotion-relegation-pyramid: Fase 30 - Ascensos, Descensos y Estructura Piramidal de Ligas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1606,6 +1638,16 @@
     },
     {
       "from": "src/api/competition.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/competitionTiers.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/competitionTiers.js",
       "to": "../utils/cache",
       "relation": "depends_on"
     },
@@ -2690,6 +2732,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "../../api/competitionTiers",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/competition/StandingsScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2722,6 +2784,11 @@
     {
       "from": "src/features/competition/StandingsScreen.jsx",
       "to": "../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "./LeaguePyramidModal",
       "relation": "depends_on"
     },
     {
@@ -3537,6 +3604,11 @@
     {
       "from": "task:feat-fase-29-season-close-annual-transition",
       "to": ".agents/workflow/tasks/feat-fase-29-season-close-annual-transition.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-30-promotion-relegation-pyramid",
+      "to": ".agents/workflow/tasks/feat-fase-30-promotion-relegation-pyramid.yml",
       "relation": "manifested_by"
     }
   ],

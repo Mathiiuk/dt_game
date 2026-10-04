@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:34:04.254Z | **Nodos:** 132 | **Tareas:** 43
+> **Última sincronización:** 2026-10-04T03:38:01.857Z | **Nodos:** 135 | **Tareas:** 44
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -32,7 +32,7 @@
 | `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 
-_(+64 módulos adicionales; consultar con `memory:query`)_
+_(+66 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -79,3 +79,4 @@ _(+64 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-27-injuries-medical-infirmary: Fase 27 - Lesiones, Recuperacion y Cuerpo Medico** `[DONE]`
 - **feat-fase-28-player-evolution-aging-decline: Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive** `[DONE]`
 - **feat-fase-29-season-close-annual-transition: Fase 29 - Temporadas, Ciclos Anuales y Balance Deportivo** `[DONE]`
+- **feat-fase-30-promotion-relegation-pyramid: Fase 30 - Ascensos, Descensos y Estructura Piramidal de Ligas** `[DONE]`
