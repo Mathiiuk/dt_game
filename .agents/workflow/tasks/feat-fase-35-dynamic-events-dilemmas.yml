@@ -1,0 +1,33 @@
+id: feat-fase-35-dynamic-events-dilemmas
+external_ref: ''
+title: Fase 35 - Eventos Dinamicos Narrativos y Dilemas del DT
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Fase 35 - Eventos Dinamicos Narrativos y Dilemas del DT
+acceptance_criteria:
+  - Motor de eventos dinámicos narrativos en 4 categorías temáticas
+  - Consecuencias autoritativas, dilemas ramificados y ledger de auditoría
+  - Bloqueo de avance en eventos críticos y efecto mariposa
+  - Build sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

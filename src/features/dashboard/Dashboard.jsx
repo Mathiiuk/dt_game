@@ -357,34 +357,88 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Dynamic Events */}
-        {pendingEvents && pendingEvents.length > 0 && pendingEvents.map(ev => (
-          <div key={ev.id} className="p-5 mb-6 border border-blue-900/40 rounded-2xl bg-blue-950/20">
-            <h3 className="mb-1.5 font-bold text-sm text-blue-400 flex items-center gap-2">
-              <Bell className="w-4 h-4" /> Sucesos del Club: {ev.title}
-            </h3>
-            <p className="mb-4 text-xs text-zinc-300 leading-relaxed">{ev.description}</p>
-            <div className="flex flex-wrap gap-2.5">
-              {ev.options.map(opt => (
-                <button 
-                  key={opt.id}
-                  onClick={async () => {
-                    try {
-                      await eventsApi.resolveEvent(ev.id, opt)
-                      await refreshContext()
-                      toast.success('Decisión ejecutada con éxito.')
-                    } catch (err) {
-                      toast.error(err.message || 'Error al procesar decisión.')
-                    }
-                  }}
-                  className="px-3.5 py-1.5 text-xs font-semibold transition-colors border rounded-xl border-zinc-700/80 bg-zinc-900 hover:bg-zinc-800 text-white"
-                >
-                  {opt.label}
-                </button>
-              ))}
+        {/* Dynamic Events (Fase 35) */}
+        {pendingEvents && pendingEvents.length > 0 && pendingEvents.map(ev => {
+          const isCritical = ev.severity === 'CRITICAL'
+          const optionsList = Array.isArray(ev.options) ? ev.options : []
+          const categoryColors = {
+            COMMUNITY: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+            LOCKER_ROOM: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
+            BOARD_PRESS: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
+            FINANCIAL_CRISIS: 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+          }
+          const categoryLabels = {
+            COMMUNITY: 'Comunidad & Barrio',
+            LOCKER_ROOM: 'Vestuario & Disciplina',
+            BOARD_PRESS: 'Dirigencia & Prensa',
+            FINANCIAL_CRISIS: 'Economía & Crisis'
+          }
+
+          return (
+            <div 
+              key={ev.id} 
+              className={`p-5 mb-6 border rounded-2xl transition-all ${
+                isCritical 
+                  ? 'border-red-500/50 bg-red-950/20 shadow-lg shadow-red-950/20' 
+                  : 'border-zinc-800 bg-zinc-900/60'
+              }`}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${categoryColors[ev.category] || 'text-zinc-400 bg-zinc-800'}`}>
+                    {categoryLabels[ev.category] || ev.category}
+                  </span>
+                  {isCritical && (
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Requiere Decisión Urgente
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <h3 className="mb-1 font-bold text-sm sm:text-base text-white flex items-center gap-2">
+                <Bell className={`w-4 h-4 ${isCritical ? 'text-red-400' : 'text-blue-400'}`} />
+                <span>{ev.title}</span>
+              </h3>
+              <p className="mb-4 text-xs text-zinc-300 leading-relaxed">{ev.description}</p>
+
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2.5">
+                {optionsList.map(opt => {
+                  const optCost = Number(opt.cost || 0)
+                  const canAfford = optCost === 0 || Number(clubSummary?.budget || 0) >= optCost
+
+                  return (
+                    <button 
+                      key={opt.id}
+                      disabled={!canAfford}
+                      onClick={async () => {
+                        try {
+                          await eventsApi.resolveEvent(ev.id, opt, manager?.id)
+                          await refreshContext()
+                          toast.success('Decisión ejecutada con éxito.')
+                        } catch (err) {
+                          toast.error(err.message || 'Error al procesar decisión.')
+                        }
+                      }}
+                      className={`px-3.5 py-2 text-xs font-semibold transition-all border rounded-xl flex items-center justify-between gap-2 ${
+                        !canAfford 
+                          ? 'border-zinc-800 bg-zinc-950 text-zinc-600 cursor-not-allowed'
+                          : 'border-zinc-700/80 bg-zinc-900 hover:bg-zinc-800 text-white hover:border-zinc-600'
+                      }`}
+                    >
+                      <span>{opt.label}</span>
+                      {optCost > 0 && (
+                        <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${canAfford ? 'bg-amber-500/20 text-amber-300' : 'bg-red-500/20 text-red-400'}`}>
+                          -${optCost.toLocaleString()}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
 
         {/* Grid Principal */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

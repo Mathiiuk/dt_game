@@ -208,6 +208,19 @@ export const calendarApi = {
         err.code = 'ERR_MATCH_MUST_BE_PLAYED_FIRST'
         throw err
       }
+
+      // 4b. Regla 35.1: Comprobar eventos críticos no resueltos
+      try {
+        const { eventsApi } = await import('./events')
+        const hasCritical = await eventsApi.hasCriticalPendingEvent(clubId)
+        if (hasCritical) {
+          const err = new Error('ERR_CRITICAL_EVENT_PENDING: Hay un dilema institucional crítico que requiere tu decisión antes de avanzar la semana.')
+          err.code = 'ERR_CRITICAL_EVENT_PENDING'
+          throw err
+        }
+      } catch (evtErr) {
+        if (evtErr.code === 'ERR_CRITICAL_EVENT_PENDING') throw evtErr
+      }
     }
 
     // 5. Adquirir semáforo
@@ -332,6 +345,14 @@ export const calendarApi = {
           } catch (careerErr) {
             console.warn('Aviso: no se pudo procesar avance de carrera del DT:', careerErr)
           }
+        }
+
+        // 11f. Disparo de eventos dinámicos narrativos y dilemas del DT (Fase 35)
+        try {
+          const { eventsApi } = await import('./events')
+          await eventsApi.generateWeeklyEvents(clubId, managerId, nextWeek, careerId)
+        } catch (evtErr) {
+          console.warn('Aviso: no se pudo procesar eventos dinámicos semanales:', evtErr)
         }
 
         // Sincronizar fecha en clubs para compatibilidad

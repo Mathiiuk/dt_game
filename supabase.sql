@@ -1907,3 +1907,49 @@ CREATE POLICY "Permitir todo international_group_standings" ON public.internatio
 CREATE INDEX IF NOT EXISTS idx_intl_tournaments_season ON public.international_tournaments(season_year);
 CREATE INDEX IF NOT EXISTS idx_intl_fixtures_tourn_stage ON public.international_fixtures(tournament_id, stage);
 CREATE INDEX IF NOT EXISTS idx_intl_standings_tourn ON public.international_group_standings(tournament_id);
+
+-- ========================================================
+-- FASE 35: EVENTOS DINÁMICOS NARRATIVOS Y DILEMAS DEL DT
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS public.dynamic_events (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE CASCADE,
+  template_code text NOT NULL,
+  title text NOT NULL,
+  description text NOT NULL,
+  category text DEFAULT 'COMMUNITY' NOT NULL CHECK (category IN ('COMMUNITY', 'LOCKER_ROOM', 'BOARD_PRESS', 'FINANCIAL_CRISIS')),
+  severity text DEFAULT 'MEDIUM' NOT NULL CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
+  options jsonb NOT NULL,
+  status text DEFAULT 'PENDING' NOT NULL CHECK (status IN ('PENDING', 'RESOLVED', 'EXPIRED')),
+  created_at_week integer DEFAULT 1 NOT NULL,
+  resolved_option_id text,
+  resolved_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.event_consequences_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  event_id uuid REFERENCES public.dynamic_events(id) ON DELETE CASCADE,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  money_delta numeric(10,2) DEFAULT 0.00 NOT NULL,
+  morale_delta integer DEFAULT 0 NOT NULL,
+  reputation_delta numeric(4,2) DEFAULT 0.00 NOT NULL,
+  board_confidence_delta integer DEFAULT 0 NOT NULL,
+  fans_confidence_delta integer DEFAULT 0 NOT NULL,
+  delayed_trigger_event_code text,
+  description text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.dynamic_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo dynamic_events" ON public.dynamic_events FOR ALL USING (true);
+
+ALTER TABLE public.event_consequences_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo event_consequences_log" ON public.event_consequences_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_dynamic_events_club_pending ON public.dynamic_events(club_id, status);
+CREATE INDEX IF NOT EXISTS idx_event_consequences_event ON public.event_consequences_log(event_id);

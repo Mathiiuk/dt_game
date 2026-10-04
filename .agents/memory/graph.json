@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:54:14.183Z",
+  "updatedAt": "2026-10-04T03:58:26.153Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 142,
-    "totalEdges": 438,
-    "totalTasks": 48,
+    "totalNodes": 143,
+    "totalEdges": 440,
+    "totalTasks": 49,
     "totalLessons": 0
   },
   "nodes": [
@@ -82,8 +82,8 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 16122,
-      "lineCount": 410,
+      "sizeBytes": 17088,
+      "lineCount": 431,
       "imports": [
         "./supabase"
       ]
@@ -216,11 +216,12 @@
       "id": "src/api/events.js",
       "label": "events.js",
       "type": "module",
-      "sizeBytes": 3525,
-      "lineCount": 91,
+      "sizeBytes": 15040,
+      "lineCount": 452,
       "imports": [
         "./supabase",
-        "../utils/cache"
+        "../utils/cache",
+        "./audit"
       ]
     },
     {
@@ -291,7 +292,7 @@
       "id": "src/api/internationalCup.js",
       "label": "internationalCup.js",
       "type": "module",
-      "sizeBytes": 12596,
+      "sizeBytes": 12973,
       "lineCount": 378,
       "imports": [
         "./supabase",
@@ -935,8 +936,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 27542,
-      "lineCount": 574,
+      "sizeBytes": 30411,
+      "lineCount": 628,
       "imports": [
         "react",
         "react-router-dom",
@@ -1577,6 +1578,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-35-dynamic-events-dilemmas",
+      "label": "feat-fase-35-dynamic-events-dilemmas: Fase 35 - Eventos Dinamicos Narrativos y Dilemas del DT",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1798,6 +1806,11 @@
     {
       "from": "src/api/events.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/events.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -3768,6 +3781,11 @@
     {
       "from": "task:feat-fase-34-international-cups",
       "to": ".agents/workflow/tasks/feat-fase-34-international-cups.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-35-dynamic-events-dilemmas",
+      "to": ".agents/workflow/tasks/feat-fase-35-dynamic-events-dilemmas.yml",
       "relation": "manifested_by"
     }
   ],
