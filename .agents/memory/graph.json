@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T04:02:53.177Z",
+  "updatedAt": "2026-10-04T04:05:17.288Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 145,
-    "totalEdges": 448,
-    "totalTasks": 50,
+    "totalNodes": 148,
+    "totalEdges": 457,
+    "totalTasks": 51,
     "totalLessons": 0
   },
   "nodes": [
@@ -126,7 +126,7 @@
       "id": "src/api/clubHistory.js",
       "label": "clubHistory.js",
       "type": "module",
-      "sizeBytes": 15087,
+      "sizeBytes": 15501,
       "lineCount": 415,
       "imports": [
         "./supabase"
@@ -299,6 +299,18 @@
         "./clubHistory",
         "./manager",
         "./audit"
+      ]
+    },
+    {
+      "id": "src/api/legends.js",
+      "label": "legends.js",
+      "type": "module",
+      "sizeBytes": 5404,
+      "lineCount": 164,
+      "imports": [
+        "./supabase",
+        "./clubHistory",
+        "./reputation"
       ]
     },
     {
@@ -770,7 +782,7 @@
       "id": "src/features/club/screens/ClubHistoryTab.jsx",
       "label": "ClubHistoryTab.jsx",
       "type": "module",
-      "sizeBytes": 15607,
+      "sizeBytes": 15949,
       "lineCount": 343,
       "imports": [
         "react",
@@ -784,8 +796,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 28006,
-      "lineCount": 631,
+      "sizeBytes": 23073,
+      "lineCount": 550,
       "imports": [
         "react",
         "react-router-dom",
@@ -805,7 +817,8 @@
         "./LockerRoomTab",
         "./PressRoomModal",
         "./InfirmaryTab",
-        "./ClubHistoryTab"
+        "./ClubHistoryTab",
+        "./IdolsLegendsTab"
       ]
     },
     {
@@ -818,6 +831,19 @@
         "react",
         "lucide-react",
         "../../../api/fanbase",
+        "sonner"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/IdolsLegendsTab.jsx",
+      "label": "IdolsLegendsTab.jsx",
+      "type": "module",
+      "sizeBytes": 19746,
+      "lineCount": 429,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/legends",
         "sonner"
       ]
     },
@@ -1608,6 +1634,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-37-club-idols-legends",
+      "label": "feat-fase-37-club-idols-legends: Fase 37 - Idolos, Leyendas y Retiro de Camisetas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1904,6 +1937,21 @@
     {
       "from": "src/api/internationalCup.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/legends.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/legends.js",
+      "to": "./clubHistory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/legends.js",
+      "to": "./reputation",
       "relation": "depends_on"
     },
     {
@@ -2737,6 +2785,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./IdolsLegendsTab",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/FanbaseManagementTab.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2753,6 +2806,26 @@
     },
     {
       "from": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/IdolsLegendsTab.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/IdolsLegendsTab.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/IdolsLegendsTab.jsx",
+      "to": "../../../api/legends",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/IdolsLegendsTab.jsx",
       "to": "sonner",
       "relation": "depends_on"
     },
@@ -3849,6 +3922,11 @@
     {
       "from": "task:feat-fase-36-club-history-records",
       "to": ".agents/workflow/tasks/feat-fase-36-club-history-records.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-37-club-idols-legends",
+      "to": ".agents/workflow/tasks/feat-fase-37-club-idols-legends.yml",
       "relation": "manifested_by"
     }
   ],

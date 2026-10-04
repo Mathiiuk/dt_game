@@ -40,6 +40,7 @@ import LockerRoomTab from './LockerRoomTab'
 import PressRoomModal from './PressRoomModal'
 import InfirmaryTab from './InfirmaryTab'
 import ClubHistoryTab from './ClubHistoryTab'
+import IdolsLegendsTab from './IdolsLegendsTab'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
@@ -508,94 +509,12 @@ export default function ClubScreen() {
 
       {/* CONTENIDO TAB 3: ÍDOLOS & LEYENDAS (FASE 37) */}
       {activeTab === 'idolos' && (
-        <div className="space-y-6">
-          {/* Banner de Impacto Cultural e Hinchada */}
-          <div className="p-4 md:p-6 border border-amber-500/30 rounded-2xl bg-amber-500/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
-                <Crown className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm md:text-base text-amber-300">Impacto en el Vestuario e Hinchada</h3>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  Los referentes y leyendas transmiten mística, elevan la moral (+5 de moral colectiva) y llenan las tribunas en los momentos decisivos.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20 shrink-0">
-              <Sparkles className="w-4 h-4" />
-              <span>{data.idols.length} Figuras Históricas</span>
-            </div>
-          </div>
-
-          {/* Galería de Ídolos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.idols.length === 0 ? (
-              <div className="col-span-full p-8 text-center border border-dashed border-zinc-800 rounded-2xl bg-zinc-900/20">
-                <Crown className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-                <h4 className="font-bold text-zinc-300 text-sm md:text-base">El club forja su nuevo legado</h4>
-                <p className="text-zinc-500 text-xs mt-1 max-w-md mx-auto">
-                  Tus jugadores ganan estatus según su trayectoria: Referente (20+ PJ), Ídolo (40+ PJ) y Leyenda (80+ PJ o máximo goleador).
-                </p>
-              </div>
-            ) : (
-              data.idols.map(i => (
-                <div 
-                  key={i.id} 
-                  className="p-4 border rounded-2xl border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm border ${
-                          i.club_status === 'legend' 
-                            ? 'bg-amber-500 text-zinc-950 border-amber-400 shadow-md shadow-amber-500/20' 
-                            : i.club_status === 'idol'
-                            ? 'bg-emerald-500 text-zinc-950 border-emerald-400 shadow-md shadow-emerald-500/20'
-                            : 'bg-blue-500 text-white border-blue-400'
-                        }`}>
-                          {i.first_name?.[0]}{i.last_name?.[0]}
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm text-white leading-tight">
-                            {i.first_name} {i.last_name}
-                          </p>
-                          <p className="text-[11px] text-zinc-400">
-                            {i.position} • {i.age} años
-                          </p>
-                        </div>
-                      </div>
-
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${i.badge_color || 'bg-zinc-800 text-zinc-400'}`}>
-                        {i.status_label || (i.club_status === 'legend' ? 'Leyenda' : i.club_status === 'idol' ? 'Ídolo' : 'Referente')}
-                      </span>
-                    </div>
-
-                    <div className="p-2.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80 mb-3">
-                      <p className="text-[11px] text-zinc-400 italic">
-                        "{i.legend_reason || 'Pilar fundamental en la historia y vestuario del club.'}"
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-xs text-zinc-400">
-                    <div className="flex items-center gap-1 font-semibold text-zinc-200">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{i.matches_played || 0} PJ</span>
-                    </div>
-                    <div className="flex items-center gap-1 font-semibold text-zinc-200">
-                      <Flame className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{i.goals_scored || 0} Goles</span>
-                    </div>
-                    <span className="text-[11px] text-zinc-500">
-                      ${Number(i.market_value || 0).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        <IdolsLegendsTab
+          club={club}
+          manager={manager}
+          confirmAction={confirmAction}
+          onUpdateClub={() => loadData(true)}
+        />
       )}
 
       {/* Modal: Cantera y Camada Anual (Fase 18) */}

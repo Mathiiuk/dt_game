@@ -2007,3 +2007,43 @@ CREATE POLICY "Permitir todo club_hemeroteca" ON public.club_hemeroteca FOR ALL 
 CREATE INDEX IF NOT EXISTS idx_club_milestones_club ON public.club_milestones(club_id, year DESC);
 CREATE INDEX IF NOT EXISTS idx_club_records_club ON public.club_records(club_id);
 CREATE INDEX IF NOT EXISTS idx_club_hemeroteca_club ON public.club_hemeroteca(club_id, created_at DESC);
+
+-- ==============================================================================
+-- FASE 37: ÍDOLOS, LEYENDAS Y RETIRO DE CAMISETAS
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.club_legends (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid NOT NULL REFERENCES public.clubs(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  player_name text NOT NULL,
+  status_level text NOT NULL DEFAULT 'IDOL',
+  matches_played integer DEFAULT 0 NOT NULL,
+  goals_scored integer DEFAULT 0 NOT NULL,
+  honors_summary text,
+  induction_year integer NOT NULL DEFAULT 2026,
+  is_retired boolean DEFAULT false NOT NULL,
+  retired_number integer,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.retired_shirt_numbers (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid NOT NULL REFERENCES public.clubs(id) ON DELETE CASCADE,
+  shirt_number integer NOT NULL,
+  player_name text NOT NULL,
+  retired_year integer NOT NULL DEFAULT 2026,
+  reason text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(club_id, shirt_number)
+);
+
+ALTER TABLE public.club_legends ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_legends" ON public.club_legends FOR ALL USING (true);
+
+ALTER TABLE public.retired_shirt_numbers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo retired_shirt_numbers" ON public.retired_shirt_numbers FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_club_legends_club ON public.club_legends(club_id, status_level);
+CREATE INDEX IF NOT EXISTS idx_retired_shirt_numbers_club ON public.retired_shirt_numbers(club_id);
