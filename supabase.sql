@@ -1101,3 +1101,41 @@ ALTER TABLE public.youth_intake_audit_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir todo youth_intake_audit_log" ON public.youth_intake_audit_log FOR ALL USING (true);
 
 CREATE INDEX IF NOT EXISTS idx_youth_candidates_club ON public.youth_candidates(club_id, status);
+
+-- FASE 19: CUERPO TÉCNICO, STAFF Y ESPECIALISTAS
+ALTER TABLE public.staff ADD COLUMN IF NOT EXISTS first_name text;
+ALTER TABLE public.staff ADD COLUMN IF NOT EXISTS last_name text;
+ALTER TABLE public.staff ADD COLUMN IF NOT EXISTS skill_rating int DEFAULT 10;
+ALTER TABLE public.staff ADD COLUMN IF NOT EXISTS wage_weekly numeric(8,2) DEFAULT 150;
+ALTER TABLE public.staff ADD COLUMN IF NOT EXISTS contract_expires_at date;
+
+CREATE TABLE IF NOT EXISTS public.staff_candidates (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  role text NOT NULL,
+  skill_rating int DEFAULT 10 NOT NULL,
+  wage_demanded numeric(8,2) DEFAULT 150 NOT NULL,
+  status text DEFAULT 'AVAILABLE' NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.staff_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  staff_id uuid,
+  role text NOT NULL,
+  action text NOT NULL,
+  severance_cost numeric(8,2) DEFAULT 0 NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.staff_candidates ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo staff_candidates" ON public.staff_candidates FOR ALL USING (true);
+
+ALTER TABLE public.staff_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo staff_audit_log" ON public.staff_audit_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_staff_club_role ON public.staff(club_id, role);
+CREATE INDEX IF NOT EXISTS idx_staff_candidates_role ON public.staff_candidates(role, status);

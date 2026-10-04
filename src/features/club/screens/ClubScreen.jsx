@@ -29,6 +29,7 @@ import { useGameContext } from '../../../context/GameContext'
 
 import { queryCache } from '../../../utils/cache'
 import YouthAcademyModal from './YouthAcademyModal'
+import StaffManagementModal from './StaffManagementModal'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
@@ -38,6 +39,7 @@ export default function ClubScreen() {
   const [loading, setLoading] = useState(!cachedClubData)
   const [activeTab, setActiveTab] = useState('gestion') // 'gestion' | 'historia' | 'idolos'
   const [showYouthModal, setShowYouthModal] = useState(false)
+  const [showStaffModal, setShowStaffModal] = useState(false)
 
   const [data, setData] = useState(cachedClubData || {
     staff: [],
@@ -218,9 +220,18 @@ export default function ClubScreen() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Cuerpo Técnico */}
           <div className="p-4 md:p-6 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <h2 className="flex items-center gap-2 mb-4 font-bold text-base md:text-lg text-white">
-              <Briefcase className="w-5 h-5 text-emerald-400 shrink-0" /> Cuerpo Técnico Actual
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="flex items-center gap-2 font-bold text-base md:text-lg text-white">
+                <Briefcase className="w-5 h-5 text-emerald-400 shrink-0" /> Cuerpo Técnico Actual
+              </h2>
+              <button 
+                onClick={() => setShowStaffModal(true)}
+                className="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold text-xs rounded-lg hover:bg-emerald-400 transition-colors flex items-center gap-1 shadow-sm"
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Especialistas (5 Roles)</span>
+              </button>
+            </div>
             
             <div className="space-y-2.5 mb-6">
               {data.staff.length === 0 ? (
@@ -579,6 +590,16 @@ export default function ClubScreen() {
           manager={manager}
           onClose={() => setShowYouthModal(false)}
           onCandidatePromoted={() => loadData(true)}
+        />
+      )}
+
+      {/* Modal: Especialistas y Cuerpo Técnico (Fase 19) */}
+      {showStaffModal && (
+        <StaffManagementModal
+          club={club}
+          manager={manager}
+          onClose={() => setShowStaffModal(false)}
+          onStaffUpdated={() => loadData(true)}
         />
       )}
     </div>

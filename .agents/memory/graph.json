@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:51:07.035Z",
+  "updatedAt": "2026-10-04T02:54:43.787Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 101,
-    "totalEdges": 326,
-    "totalTasks": 32,
+    "totalNodes": 104,
+    "totalEdges": 336,
+    "totalTasks": 33,
     "totalLessons": 0
   },
   "nodes": [
@@ -12,7 +12,7 @@
       "id": "src/api/academy.js",
       "label": "academy.js",
       "type": "module",
-      "sizeBytes": 11991,
+      "sizeBytes": 12354,
       "lineCount": 364,
       "imports": [
         "./supabase",
@@ -371,6 +371,18 @@
       ]
     },
     {
+      "id": "src/api/staff.js",
+      "label": "staff.js",
+      "type": "module",
+      "sizeBytes": 10206,
+      "lineCount": 295,
+      "imports": [
+        "./supabase",
+        "../utils/cache",
+        "./audit"
+      ]
+    },
+    {
       "id": "src/api/supabase.js",
       "label": "supabase.js",
       "type": "module",
@@ -593,8 +605,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 28861,
-      "lineCount": 587,
+      "sizeBytes": 29778,
+      "lineCount": 608,
       "imports": [
         "react",
         "react-router-dom",
@@ -606,14 +618,29 @@
         "sonner",
         "../../../context/GameContext",
         "../../../utils/cache",
-        "./YouthAcademyModal"
+        "./YouthAcademyModal",
+        "./StaffManagementModal"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/StaffManagementModal.jsx",
+      "label": "StaffManagementModal.jsx",
+      "type": "module",
+      "sizeBytes": 12443,
+      "lineCount": 282,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/staff",
+        "sonner",
+        "../../../context/GameContext"
       ]
     },
     {
       "id": "src/features/club/screens/YouthAcademyModal.jsx",
       "label": "YouthAcademyModal.jsx",
       "type": "module",
-      "sizeBytes": 12856,
+      "sizeBytes": 13164,
       "lineCount": 309,
       "imports": [
         "react",
@@ -1144,6 +1171,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-19-staff-roles",
+      "label": "feat-fase-19-staff-roles: Fase 19: Cuerpo Técnico, Staff y Especialistas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1514,6 +1548,21 @@
     },
     {
       "from": "src/api/season.js",
+      "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/staff.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/staff.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/staff.js",
       "to": "./audit",
       "relation": "depends_on"
     },
@@ -1995,6 +2044,36 @@
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "./YouthAcademyModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./StaffManagementModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "../../../api/staff",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "../../../context/GameContext",
       "relation": "depends_on"
     },
     {
@@ -2775,6 +2854,11 @@
     {
       "from": "task:feat-fase-18-youth-academy",
       "to": ".agents/workflow/tasks/feat-fase-18-youth-academy.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-19-staff-roles",
+      "to": ".agents/workflow/tasks/feat-fase-19-staff-roles.yml",
       "relation": "manifested_by"
     }
   ],

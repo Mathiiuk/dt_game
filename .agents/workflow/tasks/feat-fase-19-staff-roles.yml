@@ -1,0 +1,54 @@
+id: feat-fase-19-staff-roles
+external_ref: 19_cuerpo_tecnico
+title: 'Fase 19: Cuerpo Técnico, Staff y Especialistas'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/staff.js
+    - src/features/club/screens/ClubScreen.jsx
+    - src/features/club/screens/StaffManagementModal.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades club_staff, staff_candidates y staff_audit_log en
+    supabase.sql con restricción única por rol
+  - >-
+    Modelar 5 roles esenciales: ASSISTANT_MANAGER, FITNESS_COACH, PHYSIO,
+    HEAD_SCOUT, GOALKEEPER_COACH
+  - >-
+    Implementar bonificaciones pasivas autoritativas (recuperación de lesiones,
+    fitness semanal, margen de ojeo)
+  - >-
+    Contratación y despido con liquidación reglamentaria de 8 semanas de
+    indemnización
+  - >-
+    Componente StaffManagementModal con diseño responsive mobile-first y
+    ActionSheet drawers
+acceptance_criteria:
+  - >-
+    Contratar especialistas asigna bonificaciones y debita salarios semanales
+    del club
+  - Despedir un empleado aplica 8 semanas de indemnización debitadas de la caja
+  - Unicidad por rol garantizada (reemplazo automático atómico)
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
