@@ -2079,3 +2079,48 @@ CREATE POLICY "Permitir todo hall_of_fame" ON public.hall_of_fame FOR ALL USING 
 
 CREATE INDEX IF NOT EXISTS idx_hall_of_fame_score ON public.hall_of_fame(legacy_score DESC);
 CREATE INDEX IF NOT EXISTS idx_hall_of_fame_manager ON public.hall_of_fame(manager_id);
+
+-- ==============================================================================
+-- FASE 39: SISTEMA DE LOGROS Y DESAFÍOS DE CARRERA
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.career_achievements (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid NOT NULL REFERENCES public.managers(id) ON DELETE CASCADE,
+  achievement_code text NOT NULL,
+  category text NOT NULL DEFAULT 'general',
+  title text NOT NULL,
+  description text,
+  rarity text NOT NULL DEFAULT 'common',
+  current_progress integer NOT NULL DEFAULT 0,
+  target_progress integer NOT NULL DEFAULT 1,
+  is_unlocked boolean NOT NULL DEFAULT false,
+  is_claimed boolean NOT NULL DEFAULT false,
+  unlocked_at timestamp with time zone,
+  claimed_at timestamp with time zone,
+  reward_xp integer NOT NULL DEFAULT 0,
+  reward_reputation numeric(5,2) NOT NULL DEFAULT 0.00,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(manager_id, achievement_code)
+);
+
+CREATE TABLE IF NOT EXISTS public.manager_achievements (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid NOT NULL REFERENCES public.managers(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  title text NOT NULL,
+  year integer NOT NULL DEFAULT 2026,
+  type text,
+  achievement_type text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.career_achievements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo career_achievements" ON public.career_achievements FOR ALL USING (true);
+
+ALTER TABLE public.manager_achievements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo manager_achievements" ON public.manager_achievements FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_career_achievements_manager ON public.career_achievements(manager_id, is_unlocked, is_claimed);
+CREATE INDEX IF NOT EXISTS idx_manager_achievements_manager ON public.manager_achievements(manager_id, year DESC);

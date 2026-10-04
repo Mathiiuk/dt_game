@@ -1,0 +1,35 @@
+id: feat-fase-39-achievements-career-challenges
+external_ref: ''
+title: Fase 39 - Sistema de Logros y Desafios de Carrera
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Fase 39 - Sistema de Logros y Desafios de Carrera
+acceptance_criteria:
+  - Esquema en supabase.sql para career_achievements y manager_achievements
+  - >-
+    Servicio achievementsApi con 20+ desafios de carrera categorizados y canje
+    anti-exploit
+  - >-
+    Interfaz AchievementsScreen interactiva con filtros, reclamacion de
+    recompensas y mobile-first
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

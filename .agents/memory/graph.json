@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T04:08:08.651Z",
+  "updatedAt": "2026-10-04T04:10:41.331Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 149,
-    "totalEdges": 459,
-    "totalTasks": 52,
+    "totalNodes": 150,
+    "totalEdges": 460,
+    "totalTasks": 53,
     "totalLessons": 0
   },
   "nodes": [
@@ -271,7 +271,7 @@
       "id": "src/api/hallOfFame.js",
       "label": "hallOfFame.js",
       "type": "module",
-      "sizeBytes": 8352,
+      "sizeBytes": 8622,
       "lineCount": 271,
       "imports": [
         "./supabase"
@@ -1027,7 +1027,7 @@
       "id": "src/features/manager/HallOfFameScreen.jsx",
       "label": "HallOfFameScreen.jsx",
       "type": "module",
-      "sizeBytes": 21580,
+      "sizeBytes": 22038,
       "lineCount": 459,
       "imports": [
         "react",
@@ -1646,6 +1646,13 @@
     {
       "id": "task:feat-fase-38-hall-of-fame-records",
       "label": "feat-fase-38-hall-of-fame-records: Fase 38 - Salon de la Fama y Records Globales",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-39-achievements-career-challenges",
+      "label": "feat-fase-39-achievements-career-challenges: Fase 39 - Sistema de Logros y Desafios de Carrera",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -3945,6 +3952,11 @@
     {
       "from": "task:feat-fase-38-hall-of-fame-records",
       "to": ".agents/workflow/tasks/feat-fase-38-hall-of-fame-records.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-39-achievements-career-challenges",
+      "to": ".agents/workflow/tasks/feat-fase-39-achievements-career-challenges.yml",
       "relation": "manifested_by"
     }
   ],
