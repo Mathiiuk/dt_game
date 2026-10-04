@@ -4,6 +4,10 @@ import { gameConfigApi } from './gameConfig'
 import { auditApi } from './audit'
 import { clubHistoryApi } from './clubHistory'
 import { achievementsApi } from './achievements'
+import { rollAggravations, AGGRAVATION_EXTRA_WEEKS } from '../domain/matchSquad'
+
+// Señal interna para saltear la tirada de lesión nueva de un jugador que ya jugó lesionado
+class SkipInjuryRoll extends Error {}
 
 // Promesas de procesamiento en curso por fixture (deduplica montajes dobles de la pantalla)
 const postMatchInFlight = new Map()
@@ -71,6 +75,34 @@ export const postMatchApi = {
     return postMatchInFlight.get(fixtureId)
   },
 
+  /**
+   * Alarga la lesión activa de los jugadores que jugaron lesionados y empeoraron
+   */
+  async _applyAggravations(clubId, playerIds) {
+    for (const playerId of playerIds) {
+      try {
+        const { data: injury } = await supabase
+          .from('player_injuries')
+          .select('id, weeks_remaining, weeks_total')
+          .eq('club_id', clubId)
+          .eq('player_id', playerId)
+          .eq('is_cleared', false)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (!injury) continue
+        await supabase.rpc('batch_update_injuries', {
+          rows: [{ id: injury.id, weeks_remaining: injury.weeks_remaining + AGGRAVATION_EXTRA_WEEKS, is_cleared: false }]
+        })
+        const { playerApi } = await import('./player')
+        await playerApi.batchUpdate([{ id: playerId, injury_days: (injury.weeks_remaining + AGGRAVATION_EXTRA_WEEKS) * 7 }])
+      } catch (e) {
+        console.warn('Aviso: no se pudo registrar el agravamiento de la lesión:', e)
+      }
+    }
+  },
+
   async _processResult(managerId, clubId, result, fixtureId = null) {
     // 1. Idempotencia: si el partido ya fue procesado, devolver el resultado consolidado
     if (fixtureId) {
@@ -128,6 +160,7 @@ export const postMatchApi = {
 
     const postMatchUpdates = []
     const playedIds = []
+    const injuredPlayingSet = new Set(result.injuredPlayingIds || [])
 
     if (players && players.length > 0) {
       for (const p of players) {
@@ -169,8 +202,11 @@ export const postMatchApi = {
         const newMorale = Math.max(10, Math.min(100, (p.morale || p.state_morale || 70) + moraleDelta))
 
         // Evaluación de riesgo de lesión en partido (Fase 27)
+        // Un lesionado que jugó no sufre una lesión nueva: se evalúa aparte si agrava la que ya tenía
+        const playedInjured = injuredPlayingSet.has(p.id)
         let playerInjured = false
         try {
+          if (playedInjured) throw new SkipInjuryRoll()
           const { injuriesApi } = await import('./injuries')
           const pitchQual = result.pitchQuality || 70
           const injuryRisk = injuriesApi.calculateInjuryRisk(p, pitchQual)
@@ -183,7 +219,7 @@ export const postMatchApi = {
             playerInjured = true
           }
         } catch (injErr) {
-          console.warn('Aviso: error evaluando lesión en post-partido:', injErr)
+          if (!(injErr instanceof SkipInjuryRoll)) console.warn('Aviso: error evaluando lesión en post-partido:', injErr)
         }
 
         playerRatings.push({
@@ -207,6 +243,9 @@ export const postMatchApi = {
         }
         playedIds.push(p.id)
       }
+
+      // Lesionados que jugaron: 35% de agravar la lesión (+2 semanas)
+      await this._applyAggravations(clubId, rollAggravations([...injuredPlayingSet]))
 
       // Una sola llamada para el estado de todo el plantel y otra para los minutos oficiales (Fase 28)
       try {

@@ -71,7 +71,7 @@ export const dashboardApi = {
           id: 'ALERT_MIN_PLAYERS',
           priority: 'HIGH',
           title: 'Plantel Insuficiente',
-          message: `Solo tienes ${availableCount} jugadores aptos. Necesitas al menos 11 habilitados para el partido.`,
+          message: `Solo tienes ${availableCount} jugadores aptos. Puedes jugar igual: el once se completa con juveniles de la cantera y, si hace falta, con lesionados (rinden un 20% menos y pueden agravar la lesión).`,
           actionUrl: '/squad'
         })
       }

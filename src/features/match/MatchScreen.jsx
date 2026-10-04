@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { isFixturePlayed } from '../../domain/fixtureStatus'
+import { buildMatchSquad } from '../../domain/matchSquad'
 
 export default function MatchScreen() {
   const navigate = useNavigate()
@@ -42,6 +43,12 @@ export default function MatchScreen() {
   const [activeOrder, setActiveOrder] = useState(null)
   const [savedToDb, setSavedToDb] = useState(false)
   const [showStats, setShowStats] = useState(false)
+
+  // Vista previa del once: avisa antes del pitazo si el plantel está incompleto
+  const previewSquad = data?.club && data.players?.length > 0 ? buildMatchSquad(data.players, data.tactic?.lineup) : null
+  const squadNotes = previewSquad?.notes || []
+  const youthNotes = squadNotes.filter(n => n.type === 'YOUTH_CALLUP')
+  const injuredNotes = squadNotes.filter(n => n.type === 'INJURED_PLAYING')
 
   // Load initial club & fixture data
   useEffect(() => {
@@ -164,14 +171,19 @@ export default function MatchScreen() {
       ? (isHome ? data.fixture.away?.name : data.fixture.home?.name) 
       : 'Equipo Rival'
     
+    // Once real que sale a la cancha: alineación del DT + reemplazos (juveniles y lesionados con penalización si faltan aptos)
+    const matchSquad = buildMatchSquad(data.players, data.tactic?.lineup)
+    
     const results = isHome 
-      ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, data.players, awayTactic, awayPlayers)
-      : await matchEngineApi.startMatch(fixtureId, data.club.id, awayTactic, awayPlayers, data.tactic, data.players)
+      ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, matchSquad.starters, awayTactic, awayPlayers)
+      : await matchEngineApi.startMatch(fixtureId, data.club.id, awayTactic, awayPlayers, data.tactic, matchSquad.starters)
       
     const matchData = {
       ...results,
       isHome,
-      opponentName: oppName
+      opponentName: oppName,
+      // Lesionados que jugaron: el post-partido evalúa si agravan la lesión
+      injuredPlayingIds: matchSquad.injuredPlayingIds
     }
 
     setSimResults(matchData)
@@ -466,6 +478,21 @@ export default function MatchScreen() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
               Dirección Técnica
             </h3>
+
+            {matchState === 'pre-match' && squadNotes.length > 0 && (
+              <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-[11px] text-amber-200 space-y-1.5" role="status">
+                <p className="font-bold uppercase tracking-wider text-amber-400">Plantel incompleto</p>
+                {youthNotes.length > 0 && (
+                  <p>Se convocan {youthNotes.length} juvenil(es) de la cantera para completar el once (rendimiento bajo).</p>
+                )}
+                {injuredNotes.length > 0 && (
+                  <p>
+                    Jugarán lesionados: {injuredNotes.map(n => n.name).join(', ')}. Rinden un 20% menos y tienen un 35% de
+                    riesgo de empeorar la lesión.
+                  </p>
+                )}
+              </div>
+            )}
 
             {matchState === 'pre-match' ? (
               <button 
