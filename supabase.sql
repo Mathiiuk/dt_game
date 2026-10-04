@@ -1344,3 +1344,53 @@ CREATE POLICY "Permitir todo manager_dismissals_log" ON public.manager_dismissal
 CREATE INDEX IF NOT EXISTS idx_board_conf_club ON public.club_board_confidence(club_id);
 CREATE INDEX IF NOT EXISTS idx_board_meetings_club ON public.board_meetings_log(club_id);
 CREATE INDEX IF NOT EXISTS idx_dismissals_club ON public.manager_dismissals_log(club_id);
+
+-- FASE 24: Prensa Deportiva, Ruedas de Prensa y Reputación
+CREATE TABLE IF NOT EXISTS public.press_conferences (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  fixture_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE SET NULL,
+  delegated_to_assistant boolean DEFAULT false NOT NULL,
+  status text DEFAULT 'PENDING' NOT NULL CHECK (status IN ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'SKIPPED')),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  completed_at timestamp with time zone
+);
+
+CREATE TABLE IF NOT EXISTS public.press_qa_items (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  conference_id uuid REFERENCES public.press_conferences(id) ON DELETE CASCADE,
+  order_index integer NOT NULL,
+  journalist_name text NOT NULL,
+  media_outlet text NOT NULL,
+  topic_category text NOT NULL,
+  question_text text NOT NULL,
+  chosen_tone text CHECK (chosen_tone IN ('COMBATIVE', 'SELF_CRITICAL', 'PRAISING', 'PRAGMATIC', 'NO_COMMENT')),
+  manager_answer_text text,
+  morale_impact_applied integer DEFAULT 0 NOT NULL,
+  options jsonb NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.press_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE SET NULL,
+  conference_id uuid REFERENCES public.press_conferences(id) ON DELETE CASCADE,
+  reputation_delta integer DEFAULT 0 NOT NULL,
+  board_reaction text NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.press_conferences ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo press_conferences" ON public.press_conferences FOR ALL USING (true);
+
+ALTER TABLE public.press_qa_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo press_qa_items" ON public.press_qa_items FOR ALL USING (true);
+
+ALTER TABLE public.press_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo press_audit_log" ON public.press_audit_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_press_conf_club ON public.press_conferences(club_id);
+CREATE INDEX IF NOT EXISTS idx_press_qa_conf ON public.press_qa_items(conference_id);
+CREATE INDEX IF NOT EXISTS idx_press_audit_manager ON public.press_audit_log(manager_id);

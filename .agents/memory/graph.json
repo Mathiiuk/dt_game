@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:06:43.302Z",
+  "updatedAt": "2026-10-04T03:13:07.001Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 114,
-    "totalEdges": 360,
-    "totalTasks": 37,
+    "totalNodes": 117,
+    "totalEdges": 368,
+    "totalTasks": 38,
     "totalLessons": 0
   },
   "nodes": [
@@ -70,7 +70,7 @@
       "id": "src/api/board.js",
       "label": "board.js",
       "type": "module",
-      "sizeBytes": 11527,
+      "sizeBytes": 11856,
       "lineCount": 330,
       "imports": [
         "./supabase",
@@ -371,6 +371,17 @@
       ]
     },
     {
+      "id": "src/api/press.js",
+      "label": "press.js",
+      "type": "module",
+      "sizeBytes": 13836,
+      "lineCount": 396,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
       "id": "src/api/scouting.js",
       "label": "scouting.js",
       "type": "module",
@@ -640,7 +651,7 @@
       "id": "src/features/club/screens/BoardManagementTab.jsx",
       "label": "BoardManagementTab.jsx",
       "type": "module",
-      "sizeBytes": 15523,
+      "sizeBytes": 15857,
       "lineCount": 335,
       "imports": [
         "react",
@@ -653,8 +664,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 32144,
-      "lineCount": 672,
+      "sizeBytes": 33020,
+      "lineCount": 694,
       "imports": [
         "react",
         "react-router-dom",
@@ -670,7 +681,8 @@
         "./StaffManagementModal",
         "./StadiumManagementTab",
         "./FanbaseManagementTab",
-        "./BoardManagementTab"
+        "./BoardManagementTab",
+        "./PressRoomModal"
       ]
     },
     {
@@ -683,6 +695,19 @@
         "react",
         "lucide-react",
         "../../../api/fanbase",
+        "sonner"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/PressRoomModal.jsx",
+      "label": "PressRoomModal.jsx",
+      "type": "module",
+      "sizeBytes": 4762,
+      "lineCount": 112,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/press",
         "sonner"
       ]
     },
@@ -893,13 +918,13 @@
       "id": "src/features/match/PostMatchScreen.jsx",
       "label": "PostMatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 21627,
-      "lineCount": 452,
+      "sizeBytes": 28714,
+      "lineCount": 589,
       "imports": [
         "react",
         "react-router-dom",
         "../../api/postMatch",
-        "../../api/morale",
+        "../../api/press",
         "lucide-react",
         "sonner"
       ]
@@ -1280,6 +1305,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-24-press-conferences",
+      "label": "feat-fase-24-press-conferences: Fase 24: Prensa Deportiva, Ruedas de Prensa y Reputacion",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1651,6 +1683,16 @@
     {
       "from": "src/api/postMatch.js",
       "to": "./achievements",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/press.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/press.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2229,6 +2271,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./PressRoomModal",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/FanbaseManagementTab.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2245,6 +2292,26 @@
     },
     {
       "from": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/PressRoomModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/PressRoomModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/PressRoomModal.jsx",
+      "to": "../../../api/press",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/PressRoomModal.jsx",
       "to": "sonner",
       "relation": "depends_on"
     },
@@ -2695,7 +2762,7 @@
     },
     {
       "from": "src/features/match/PostMatchScreen.jsx",
-      "to": "../../api/morale",
+      "to": "../../api/press",
       "relation": "depends_on"
     },
     {
@@ -3081,6 +3148,11 @@
     {
       "from": "task:feat-fase-23-board-confidence",
       "to": ".agents/workflow/tasks/feat-fase-23-board-confidence.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-24-press-conferences",
+      "to": ".agents/workflow/tasks/feat-fase-24-press-conferences.yml",
       "relation": "manifested_by"
     }
   ],

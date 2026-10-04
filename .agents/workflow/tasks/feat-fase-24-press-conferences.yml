@@ -1,0 +1,56 @@
+id: feat-fase-24-press-conferences
+external_ref: 24_prensa
+title: 'Fase 24: Prensa Deportiva, Ruedas de Prensa y Reputacion'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/press.js
+    - src/features/match/PostMatchScreen.jsx
+    - src/features/club/screens/PressRoomModal.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades press_conferences, press_qa_items y press_audit_log en
+    supabase.sql con RLS e índices
+  - >-
+    Motor contextual de generación de preguntas post-partido según resultado,
+    goleador, polémica o clásico
+  - >-
+    4 tonos canónicos de respuesta (Combativo, Autocrítico, Elogioso, Cauteloso)
+    y delegación a 2do DT
+  - >-
+    Impacto en moral del vestuario, relación con la directiva y fervor de la
+    hinchada
+  - >-
+    Integración fluida en PostMatchScreen y archivo histórico de conferencias en
+    PressRoomModal
+acceptance_criteria:
+  - >-
+    Tras cada partido se genera una rueda de prensa procedural con medios
+    locales
+  - >-
+    Cada respuesta altera la moral de jugadores o la relación dirigencial de
+    acuerdo al tono
+  - Es posible delegar la rueda de prensa al segundo entrenador
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

@@ -23,7 +23,8 @@ import {
   Sparkles,
   TrendingUp,
   UserCheck,
-  Landmark
+  Landmark,
+  Mic
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGameContext } from '../../../context/GameContext'
@@ -34,6 +35,7 @@ import StaffManagementModal from './StaffManagementModal'
 import StadiumManagementTab from './StadiumManagementTab'
 import FanbaseManagementTab from './FanbaseManagementTab'
 import BoardManagementTab from './BoardManagementTab'
+import PressRoomModal from './PressRoomModal'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
@@ -44,6 +46,7 @@ export default function ClubScreen() {
   const [activeTab, setActiveTab] = useState('gestion') // 'gestion' | 'historia' | 'idolos'
   const [showYouthModal, setShowYouthModal] = useState(false)
   const [showStaffModal, setShowStaffModal] = useState(false)
+  const [showPressModal, setShowPressModal] = useState(false)
 
   const [data, setData] = useState(cachedClubData || {
     staff: [],
@@ -172,11 +175,22 @@ export default function ClubScreen() {
           </div>
         </div>
 
-        <div className="text-right shrink-0">
-          <p className="text-[11px] text-zinc-400 font-medium">Presupuesto</p>
-          <p className="text-base md:text-xl font-black text-emerald-400">
-            ${Number(club?.budget || 0).toLocaleString()}
-          </p>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => setShowPressModal(true)}
+            className="p-2 sm:px-3 sm:py-2 rounded-xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 flex items-center gap-1.5 transition-colors"
+            title="Sala de Prensa & Hemeroteca"
+          >
+            <Mic className="w-4 h-4 text-amber-400" />
+            <span className="hidden sm:inline">Prensa</span>
+          </button>
+
+          <div className="text-right">
+            <p className="text-[11px] text-zinc-400 font-medium">Presupuesto</p>
+            <p className="text-base md:text-xl font-black text-emerald-400">
+              ${Number(club?.budget || 0).toLocaleString()}
+            </p>
+          </div>
         </div>
       </header>
 
@@ -664,6 +678,14 @@ export default function ClubScreen() {
           manager={manager}
           onClose={() => setShowStaffModal(false)}
           onStaffUpdated={() => loadData(true)}
+        />
+      )}
+
+      {/* Modal: Sala de Prensa & Hemeroteca (Fase 24) */}
+      {showPressModal && (
+        <PressRoomModal
+          club={club}
+          onClose={() => setShowPressModal(false)}
         />
       )}
     </div>

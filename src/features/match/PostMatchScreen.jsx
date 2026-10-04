@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { postMatchApi } from '../../api/postMatch'
-import { moraleApi } from '../../api/morale'
+import { pressApi } from '../../api/press'
 import { 
   ArrowRight, 
   Trophy, 
@@ -18,7 +18,9 @@ import {
   Users,
   Activity,
   HeartPulse,
-  Home
+  Home,
+  MessageSquare,
+  UserCheck
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -28,11 +30,15 @@ export default function PostMatchScreen() {
   const { results, managerId, clubId, clubName } = location.state || {}
 
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('CRONICA') // 'CRONICA' | 'STATS' | 'RATINGS' | 'FINANCES'
+  const [activeTab, setActiveTab] = useState('CRONICA') // 'CRONICA' | 'STATS' | 'RATINGS' | 'FINANCES' | 'PRENSA'
   const [processedData, setProcessedData] = useState(null)
-  const [pressActive, setPressActive] = useState(false)
-  const [pressAnswered, setPressAnswered] = useState(false)
-  const [pressQuestion, setPressQuestion] = useState(null)
+  
+  // Conferencia de Prensa (Fase 24)
+  const [pressConference, setPressConference] = useState(null)
+  const [pressQuestions, setPressQuestions] = useState([])
+  const [currentQIndex, setCurrentQIndex] = useState(0)
+  const [isPressFinished, setIsPressFinished] = useState(false)
+  const [isPressDelegated, setIsPressDelegated] = useState(false)
 
   useEffect(() => {
     if (!results) {
@@ -64,13 +70,28 @@ export default function PostMatchScreen() {
 
         setProcessedData(processed)
 
-        // Conferencia de Prensa
-        const isWin = (isHome && results.homeScore > results.awayScore) || (!isHome && results.awayScore > results.homeScore)
-        const context = isWin ? 'post_win' : 'post_loss'
-        const q = moraleApi.getPressConference(context)
-        if (q) {
-          setPressQuestion(q)
-          setPressActive(true)
+        // Inicializar Rueda de Prensa procedimental (Fase 24)
+        try {
+          const pressRes = await pressApi.generatePostMatchConference({
+            fixtureId: results.fixtureId || null,
+            clubId,
+            managerId,
+            results,
+            mvpPlayer: processed?.mvp || null,
+            isDerby: Boolean(results.isDerby)
+          })
+          if (pressRes) {
+            setPressConference(pressRes.conference)
+            setPressQuestions(pressRes.questions || [])
+            const pendingIdx = pressRes.questions.findIndex(q => !q.chosen_tone)
+            if (pendingIdx !== -1) {
+              setCurrentQIndex(pendingIdx)
+            } else if (pressRes.questions.length > 0) {
+              setIsPressFinished(true)
+            }
+          }
+        } catch (prErr) {
+          console.warn('Error iniciando conferencia de prensa:', prErr)
         }
       } catch (e) {
         console.error('Error procesando post-partido:', e)
@@ -83,16 +104,41 @@ export default function PostMatchScreen() {
     process()
   }, [results, managerId, clubId, navigate])
 
-  const handlePressAnswer = async (answerId) => {
-    if (!pressQuestion) return
+  const handleSelectPressOption = async (questionId, option) => {
+    if (!pressConference) return
     try {
-      const { effects } = await moraleApi.answerPressConference(managerId, clubId, pressQuestion.id, answerId)
-      setPressAnswered(true)
-      const moraleSign = effects.morale >= 0 ? `+${effects.morale}` : effects.morale
-      const fansSign = effects.fans >= 0 ? `+${effects.fans}` : effects.fans
-      toast.success(`Declaraciones emitidas: Moral (${moraleSign}), Hinchada (${fansSign})`)
+      const res = await pressApi.submitAnswer({
+        conferenceId: pressConference.id,
+        questionId,
+        chosenTone: option.tone,
+        answerText: option.text,
+        moraleImpact: option.moraleDelta,
+        clubId,
+        managerId
+      })
+      toast.success(`Declaración emitida (${option.tone}) • Moral (${option.moraleDelta >= 0 ? '+' : ''}${option.moraleDelta})`)
+      
+      setPressQuestions(prev => prev.map(q => q.id === questionId ? { ...q, chosen_tone: option.tone, manager_answer_text: option.text } : q))
+
+      if (res.isFinished || currentQIndex + 1 >= pressQuestions.length) {
+        setIsPressFinished(true)
+      } else {
+        setCurrentQIndex(prev => prev + 1)
+      }
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err.message || 'Error al emitir respuesta')
+    }
+  }
+
+  const handleDelegatePress = async () => {
+    if (!pressConference) return
+    try {
+      await pressApi.delegateToAssistant(pressConference.id, clubId)
+      setIsPressDelegated(true)
+      setIsPressFinished(true)
+      toast.info('Conferencia delegada en el ayudante de campo.')
+    } catch (err) {
+      toast.error('Error al delegar rueda de prensa')
     }
   }
 
@@ -174,7 +220,8 @@ export default function PostMatchScreen() {
             { id: 'CRONICA', label: 'Crónica & Incidencias', icon: Trophy },
             { id: 'STATS', label: 'Estadísticas de Equipo', icon: BarChart3 },
             { id: 'RATINGS', label: 'Calificaciones Individuales', icon: Users },
-            { id: 'FINANCES', label: 'Finanzas & Prensa', icon: DollarSign }
+            { id: 'FINANCES', label: 'Boletería', icon: DollarSign },
+            { id: 'PRENSA', label: 'Rueda de Prensa', icon: Mic }
           ].map(tab => {
             const Icon = tab.icon
             const isSelected = activeTab === tab.id
@@ -358,10 +405,9 @@ export default function PostMatchScreen() {
           </div>
         )}
 
-        {/* Tab 4: Finanzas & Conferencia de Prensa */}
+        {/* Tab 4: Boletería */}
         {activeTab === 'FINANCES' && (
           <div className="space-y-4">
-            {/* Taquilla Card */}
             <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-emerald-400" />
@@ -393,38 +439,129 @@ export default function PostMatchScreen() {
                 </div>
               )}
             </div>
+          </div>
+        )}
 
-            {/* Conferencia de Prensa */}
-            {pressActive && pressQuestion && (
-              <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-                  <Mic className="w-4 h-4 text-amber-400" />
-                  Conferencia de Prensa Oficial
-                </h3>
-
-                <p className="text-xs text-zinc-300 font-medium italic">
-                  "{pressQuestion.question}"
-                </p>
-
-                <div className="space-y-2 pt-2">
-                  {pressQuestion.answers.map(ans => (
-                    <button
-                      key={ans.id}
-                      disabled={pressAnswered}
-                      onClick={() => handlePressAnswer(ans.id)}
-                      className={`w-full p-2.5 text-left rounded-xl border text-xs transition-all ${
-                        pressAnswered 
-                          ? 'opacity-50 cursor-not-allowed border-zinc-800 bg-zinc-950 text-zinc-500'
-                          : 'border-zinc-800 bg-zinc-950/60 text-zinc-200 hover:border-emerald-500 hover:bg-emerald-950/20'
-                      }`}
-                    >
-                      <span className="font-bold text-emerald-400 block mb-0.5">{ans.label}</span>
-                      <span className="text-[11px] text-zinc-400 leading-snug">{ans.text}</span>
-                    </button>
-                  ))}
+        {/* Tab 5: Rueda de Prensa Oficial (Fase 24) */}
+        {activeTab === 'PRENSA' && (
+          <div className="space-y-4">
+            <div className="p-4 sm:p-6 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-800 gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                    <Mic className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-white">Sala de Conferencias Oficial</h3>
+                    <p className="text-xs text-zinc-400">Micrófonos abiertos ante los cronistas locales</p>
+                  </div>
                 </div>
+
+                {!isPressFinished && (
+                  <button
+                    onClick={handleDelegatePress}
+                    className="px-3 py-1.5 rounded-xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-800 text-xs text-zinc-300 font-semibold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+                  >
+                    <UserCheck className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Delegar en 2º Entrenador</span>
+                  </button>
+                )}
               </div>
-            )}
+
+              {isPressDelegated ? (
+                <div className="p-6 rounded-xl bg-zinc-950/80 border border-zinc-800 text-center space-y-2">
+                  <UserCheck className="w-8 h-8 text-emerald-400 mx-auto" />
+                  <p className="text-sm font-bold text-white">Conferencia atendida por el Ayudante de Campo</p>
+                  <p className="text-xs text-zinc-400">
+                    Tu segundo entrenador respondió con diplomacia y cautela ante los medios sin generar polémicas. (+1 moral general)
+                  </p>
+                </div>
+              ) : isPressFinished ? (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-800/50 flex items-center gap-2 text-xs text-emerald-400 font-bold">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>Rueda de prensa finalizada. Las declaraciones han sido publicadas en los medios.</span>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    {pressQuestions.map((q, idx) => (
+                      <div key={q.id || idx} className="p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px] text-zinc-500">
+                          <span className="font-semibold text-zinc-400">{q.media_outlet} • {q.journalist_name}</span>
+                          <span className="uppercase font-mono font-bold text-emerald-400">{q.chosen_tone || 'RESPONDIDA'}</span>
+                        </div>
+                        <p className="font-medium text-zinc-200 italic">"{q.question_text}"</p>
+                        <p className="text-zinc-400 pl-3 border-l-2 border-emerald-500/50 text-[11px]">
+                          "{q.manager_answer_text}"
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : pressQuestions.length > 0 && pressQuestions[currentQIndex] ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span className="font-semibold text-emerald-400">
+                      {pressQuestions[currentQIndex].media_outlet}
+                    </span>
+                    <span className="font-mono text-zinc-500">
+                      Pregunta {currentQIndex + 1} de {pressQuestions.length}
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800">
+                    <p className="text-xs text-zinc-400 font-semibold mb-1">
+                      {pressQuestions[currentQIndex].journalist_name}:
+                    </p>
+                    <p className="text-sm font-medium text-white italic">
+                      "{pressQuestions[currentQIndex].question_text}"
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 pt-2">
+                    <p className="text-xs font-semibold text-zinc-400">Elige tu postura y respuesta:</p>
+                    {(pressQuestions[currentQIndex].options || []).map((opt, optIdx) => {
+                      const toneColors = {
+                        PRAISING: 'border-emerald-500/40 text-emerald-400 bg-emerald-950/20',
+                        COMBATIVE: 'border-rose-500/40 text-rose-400 bg-rose-950/20',
+                        SELF_CRITICAL: 'border-blue-500/40 text-blue-400 bg-blue-950/20',
+                        PRAGMATIC: 'border-zinc-700 text-zinc-300 bg-zinc-900/40'
+                      }
+                      const toneNames = {
+                        PRAISING: 'Elogioso / Motivador',
+                        COMBATIVE: 'Combativo / Confrontativo',
+                        SELF_CRITICAL: 'Autocrítico / Exigente',
+                        PRAGMATIC: 'Cauteloso / Pragmático'
+                      }
+
+                      return (
+                        <button
+                          key={optIdx}
+                          onClick={() => handleSelectPressOption(pressQuestions[currentQIndex].id, opt)}
+                          className="w-full p-3 text-left rounded-xl border border-zinc-800 bg-zinc-950/70 hover:border-emerald-500/60 hover:bg-zinc-900 transition-all text-xs group"
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${toneColors[opt.tone] || 'border-zinc-800 text-zinc-400'}`}>
+                              {toneNames[opt.tone] || opt.tone}
+                            </span>
+                            <span className="text-[10px] text-zinc-500">
+                              Impacto moral: {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}
+                            </span>
+                          </div>
+                          <p className="text-zinc-200 group-hover:text-white leading-snug">
+                            "{opt.text}"
+                          </p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-zinc-500 py-6 text-center">
+                  Sin preguntas de prensa para este encuentro.
+                </p>
+              )}
+            </div>
           </div>
         )}
 
