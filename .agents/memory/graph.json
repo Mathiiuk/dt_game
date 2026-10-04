@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:22:00.988Z",
+  "updatedAt": "2026-10-04T02:24:14.278Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 83,
-    "totalEdges": 300,
-    "totalTasks": 21,
+    "totalNodes": 85,
+    "totalEdges": 302,
+    "totalTasks": 22,
     "totalLessons": 0
   },
   "nodes": [
@@ -47,8 +47,8 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 13840,
-      "lineCount": 368,
+      "sizeBytes": 14589,
+      "lineCount": 376,
       "imports": [
         "./supabase"
       ]
@@ -201,7 +201,7 @@
       "id": "src/api/gameLoop.js",
       "label": "gameLoop.js",
       "type": "module",
-      "sizeBytes": 4935,
+      "sizeBytes": 5107,
       "lineCount": 173,
       "imports": [
         "./supabase",
@@ -356,6 +356,16 @@
       ]
     },
     {
+      "id": "src/api/training.js",
+      "label": "training.js",
+      "type": "module",
+      "sizeBytes": 13054,
+      "lineCount": 372,
+      "imports": [
+        "./supabase"
+      ]
+    },
+    {
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
@@ -483,7 +493,7 @@
       "id": "src/features/calendar/CalendarScreen.jsx",
       "label": "CalendarScreen.jsx",
       "type": "module",
-      "sizeBytes": 12021,
+      "sizeBytes": 12299,
       "lineCount": 279,
       "imports": [
         "react",
@@ -788,15 +798,15 @@
       "id": "src/features/training/TrainingScreen.jsx",
       "label": "TrainingScreen.jsx",
       "type": "module",
-      "sizeBytes": 6678,
-      "lineCount": 137,
+      "sizeBytes": 19241,
+      "lineCount": 422,
       "imports": [
         "react",
         "react-router-dom",
         "lucide-react",
         "sonner",
         "../../context/GameContext",
-        "../../components/BottomNav",
+        "../../api/training",
         "../../api/supabase"
       ]
     },
@@ -985,6 +995,13 @@
     {
       "id": "task:feat-fase-07-calendar-engine",
       "label": "feat-fase-07-calendar-engine: Fase 07: Calendario, Motor de Tiempo y Avance Semanal",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-08-training-regime",
+      "label": "feat-fase-08-training-regime: Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -1334,6 +1351,11 @@
     {
       "from": "src/api/tactics.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/training.js",
+      "to": "./supabase",
       "relation": "depends_on"
     },
     {
@@ -2343,7 +2365,7 @@
     },
     {
       "from": "src/features/training/TrainingScreen.jsx",
-      "to": "../../components/BottomNav",
+      "to": "../../api/training",
       "relation": "depends_on"
     },
     {
@@ -2489,6 +2511,11 @@
     {
       "from": "task:feat-fase-07-calendar-engine",
       "to": ".agents/workflow/tasks/feat-fase-07-calendar-engine.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-08-training-regime",
+      "to": ".agents/workflow/tasks/feat-fase-08-training-regime.yml",
       "relation": "manifested_by"
     }
   ],

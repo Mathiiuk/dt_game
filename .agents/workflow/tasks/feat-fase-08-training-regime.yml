@@ -1,0 +1,58 @@
+id: feat-fase-08-training-regime
+external_ref: 08_entrenamiento
+title: 'Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/training.js
+    - src/features/training/TrainingScreen.jsx
+    - src/api/calendar.js
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades club_training_plans, player_training_assignments y
+    training_execution_logs en supabase.sql
+  - >-
+    Implementar servicio de entrenamiento autoritativo con balance de
+    intensidades (LOW: -5 fitness / 0.1% lesión, MEDIUM: -10 fitness / 0.6%
+    lesión, HIGH: -20 fitness / 2.2% lesión, RECOVERY_REST: +15 fitness / 0%
+    lesión)
+  - >-
+    Aplicar rendimientos decrecientes por edad (veteranos > 29 no mejoran
+    físicos) y tope estricto de potencial
+  - Permitir asignación de foco individual a juveniles y promesas
+  - >-
+    Interfaz móvil optimizada para plan semanal, asignaciones individuales y
+    reporte de evolución
+acceptance_criteria:
+  - >-
+    El DT puede cambiar plan de entrenamiento e intensidad con persistencia
+    autoritativa
+  - >-
+    El motor semanal calcula el desgaste físico y mejoras según instalaciones y
+    edad
+  - >-
+    Prevención de doble ejecución semanal mediante log de ejecución con clave
+    única club_id y week_number
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

@@ -271,6 +271,14 @@ export const calendarApi = {
               })
               .eq('id', p.id)
           }
+
+          // 7.1. Cascada de Entrenamiento y Desarrollo Individual (Fase 08)
+          try {
+            const { trainingApi } = await import('./training')
+            await trainingApi.processWeeklyTraining(clubId, calendar.current_week, careerId)
+          } catch (tErr) {
+            console.warn('Aviso: error en cálculo de entrenamiento semanal:', tErr)
+          }
         }
 
         // 8. Cascada de Finanzas (Salarios semanales e ingresos)

@@ -634,3 +634,50 @@ CREATE POLICY "Permitir calendar_events" ON public.calendar_events FOR ALL USING
 
 ALTER TABLE public.time_advance_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir time_advance_log" ON public.time_advance_log FOR ALL USING (true);
+
+-- ============================================================================
+-- Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.club_training_plans (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  general_focus text DEFAULT 'BALANCED' NOT NULL,
+  intensity_level text DEFAULT 'MEDIUM' NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_training_plan UNIQUE (club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.player_training_assignments (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  focus_attribute text NOT NULL,
+  retraining_position text,
+  familiarity_percentage int DEFAULT 0 NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_player_training_assignment UNIQUE (player_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.training_execution_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  week_number int NOT NULL,
+  focus_applied text NOT NULL,
+  intensity_applied text NOT NULL,
+  average_stamina_cost numeric DEFAULT 0,
+  injuries_sustained int DEFAULT 0,
+  attributes_improved_count int DEFAULT 0,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_training_club_week UNIQUE (club_id, week_number)
+);
+
+ALTER TABLE public.club_training_plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir club_training_plans" ON public.club_training_plans FOR ALL USING (true);
+
+ALTER TABLE public.player_training_assignments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir player_training_assignments" ON public.player_training_assignments FOR ALL USING (true);
+
+ALTER TABLE public.training_execution_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir training_execution_logs" ON public.training_execution_logs FOR ALL USING (true);

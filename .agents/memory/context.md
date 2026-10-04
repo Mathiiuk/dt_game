@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:22:00.988Z | **Nodos:** 83 | **Tareas:** 21
+> **Última sincronización:** 2026-10-04T02:24:14.278Z | **Nodos:** 85 | **Tareas:** 22
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -15,9 +15,11 @@
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
+| `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
-| `src/api/calendar.js` | 368 | ./supabase |
+| `src/api/calendar.js` | 376 | ./supabase |
+| `src/api/training.js` | 372 | ./supabase |
 | `src/features/squad/SquadScreen.jsx` | 368 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
@@ -29,10 +31,8 @@
 | `src/features/calendar/CalendarScreen.jsx` | 279 | react, react-router-dom, lucide-react |
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
 | `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
-| `src/api/player.js` | 249 | ./supabase, ../utils/cache, ./audit |
-| `src/api/competition.js` | 240 | ./supabase, ../utils/cache |
 
-_(+37 módulos adicionales; consultar con `memory:query`)_
+_(+38 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -57,3 +57,4 @@ _(+37 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-05-manager-levels: Fase 05: Niveles y Progresión del DT, Curva Polinómica y Ledger de XP** `[DONE]`
 - **feat-fase-06-dashboard-overview: Fase 06: Dashboard Central y Modelo de Lectura Agregado SWR** `[DONE]`
 - **feat-fase-07-calendar-engine: Fase 07: Calendario, Motor de Tiempo y Avance Semanal** `[DONE]`
+- **feat-fase-08-training-regime: Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual** `[DONE]`
