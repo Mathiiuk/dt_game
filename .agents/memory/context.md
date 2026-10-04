@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T01:00:35.951Z | **Nodos:** 78 | **Tareas:** 19
+> **Última sincronización:** 2026-10-04T02:17:27.025Z | **Nodos:** 80 | **Tareas:** 20
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -9,10 +9,10 @@
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
+| `src/features/dashboard/Dashboard.jsx` | 539 | react, react-router-dom, ../../api/dashboard |
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
-| `src/features/dashboard/Dashboard.jsx` | 444 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
@@ -32,7 +32,7 @@
 | `src/api/gameLoop.js` | 230 | ./supabase |
 | `src/api/manager.js` | 221 | ./supabase, ./audit |
 
-_(+34 módulos adicionales; consultar con `memory:query`)_
+_(+35 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -55,3 +55,4 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-03-club-foundation: Fase 03: Creación y Fundación del Club, Identidad Visual y Balance Tier 5** `[DONE]`
 - **feat-fase-04-initial-squad: Fase 04: Generación Procedural del Primer Plantel, Cuotas Posicionales y Contratos** `[DONE]`
 - **feat-fase-05-manager-levels: Fase 05: Niveles y Progresión del DT, Curva Polinómica y Ledger de XP** `[DONE]`
+- **feat-fase-06-dashboard-overview: Fase 06: Dashboard Central y Modelo de Lectura Agregado SWR** `[DONE]`

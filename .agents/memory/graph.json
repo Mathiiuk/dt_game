@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T01:00:35.951Z",
+  "updatedAt": "2026-10-04T02:17:27.025Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 78,
+    "totalNodes": 80,
     "totalEdges": 289,
-    "totalTasks": 19,
+    "totalTasks": 20,
     "totalLessons": 0
   },
   "nodes": [
@@ -110,6 +110,19 @@
       ]
     },
     {
+      "id": "src/api/dashboard.js",
+      "label": "dashboard.js",
+      "type": "module",
+      "sizeBytes": 5509,
+      "lineCount": 158,
+      "imports": [
+        "./supabase",
+        "../utils/cache",
+        "./levels",
+        "./events"
+      ]
+    },
+    {
       "id": "src/api/db.js",
       "label": "db.js",
       "type": "module",
@@ -211,7 +224,7 @@
       "id": "src/api/levels.js",
       "label": "levels.js",
       "type": "module",
-      "sizeBytes": 8837,
+      "sizeBytes": 9128,
       "lineCount": 292,
       "imports": [
         "./supabase",
@@ -559,22 +572,17 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 23159,
-      "lineCount": 444,
+      "sizeBytes": 25226,
+      "lineCount": 539,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/auth",
-        "../../api/manager",
-        "../../api/club",
-        "../../api/gameLoop",
-        "../../api/levels",
+        "../../api/dashboard",
         "../../api/events",
-        "../../api/supabase",
         "../../utils/cache",
+        "../../context/GameContext",
         "lucide-react",
-        "sonner",
-        "../../context/GameContext"
+        "sonner"
       ]
     },
     {
@@ -938,6 +946,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-06-dashboard-overview",
+      "label": "feat-fase-06-dashboard-overview: Fase 06: Dashboard Central y Modelo de Lectura Agregado SWR",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1039,6 +1054,26 @@
     {
       "from": "src/api/contracts.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/dashboard.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/dashboard.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/dashboard.js",
+      "to": "./levels",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/dashboard.js",
+      "to": "./events",
       "relation": "depends_on"
     },
     {
@@ -1763,27 +1798,7 @@
     },
     {
       "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../api/auth",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../api/manager",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../api/club",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../api/gameLoop",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../api/levels",
+      "to": "../../api/dashboard",
       "relation": "depends_on"
     },
     {
@@ -1793,12 +1808,12 @@
     },
     {
       "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../api/supabase",
+      "to": "../../utils/cache",
       "relation": "depends_on"
     },
     {
       "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../utils/cache",
+      "to": "../../context/GameContext",
       "relation": "depends_on"
     },
     {
@@ -1809,11 +1824,6 @@
     {
       "from": "src/features/dashboard/Dashboard.jsx",
       "to": "sonner",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "../../context/GameContext",
       "relation": "depends_on"
     },
     {
@@ -2384,6 +2394,11 @@
     {
       "from": "task:feat-fase-05-manager-levels",
       "to": ".agents/workflow/tasks/feat-fase-05-manager-levels.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-06-dashboard-overview",
+      "to": ".agents/workflow/tasks/feat-fase-06-dashboard-overview.yml",
       "relation": "manifested_by"
     }
   ],

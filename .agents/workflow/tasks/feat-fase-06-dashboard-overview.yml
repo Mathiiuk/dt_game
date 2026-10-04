@@ -1,0 +1,45 @@
+id: feat-fase-06-dashboard-overview
+external_ref: ''
+title: 'Fase 06: Dashboard Central y Modelo de Lectura Agregado SWR'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/features/dashboard
+    - src/api/dashboard.js
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar modelo de lectura agregado `dashboardApi.getOverview` que
+    consolide métricas en una llamada cacheada SWR
+  - >-
+    Sistema de alertas críticas y bloqueantes (lesionados, contratos por vencer,
+    deudas, eventos pendientes)
+  - >-
+    Tarjeta de próximo partido con localía, estadio y botón unificado de avance
+    / juego
+  - Reorganización visual mobile-first sin emojis en crudo (100% iconos Lucide)
+acceptance_criteria:
+  - Carga agregada de dashboard en menos de 100ms mediante queryCache SWR
+  - Alertas prioritarias visibles con badges de estado
+  - Visualización coherente en móvil y escritorio
+  - Build de Vite 100% verde
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

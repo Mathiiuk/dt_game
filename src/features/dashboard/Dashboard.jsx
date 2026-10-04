@@ -1,65 +1,73 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { authApi } from '../../api/auth'
-import { managerApi } from '../../api/manager'
-import { clubApi } from '../../api/club'
-import { gameLoopApi } from '../../api/gameLoop'
-import { levelsApi } from '../../api/levels'
+import { dashboardApi } from '../../api/dashboard'
 import { eventsApi } from '../../api/events'
-import { supabase } from '../../api/supabase'
 import { queryCache } from '../../utils/cache'
-import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign, Bell, Globe, ChevronRight, Award } from 'lucide-react'
-import { toast } from 'sonner'
-
 import { useGameContext } from '../../context/GameContext'
+import { 
+  Home, 
+  Users, 
+  Calendar, 
+  Settings, 
+  Activity, 
+  Shield, 
+  Trophy, 
+  FastForward, 
+  Loader2, 
+  Building2, 
+  DollarSign, 
+  Bell, 
+  Globe, 
+  ChevronRight, 
+  Award,
+  AlertTriangle,
+  AlertCircle,
+  Heart,
+  TrendingUp,
+  Play
+} from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { user, manager, club, loading: contextLoading, refreshContext } = useGameContext()
-  const [data, setData] = useState({ levelInfo: null, nextFixture: null })
+  const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    if (contextLoading || !club) return
+    if (contextLoading || !club || !manager) return
 
     let isMounted = true
 
-    const loadDashboard = async () => {
+    const loadData = async () => {
       try {
-        const levelInfo = await levelsApi.getLevelInfo(manager.xp)
-
-        const fixture = await queryCache.fetch(`fixture:pending:${club.id}`, async () => {
-          const { data } = await supabase
-            .from('fixtures')
-            .select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)')
-            .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
-            .eq('status', 'PENDING')
-            .order('match_week', { ascending: true })
-            .limit(1)
-            .maybeSingle()
-          return data || null
-        }, 45000)
-
-        const events = await eventsApi.getPendingEvents(club.id)
-
+        const overview = await dashboardApi.getOverview(club, manager)
         if (isMounted) {
-          setData({ levelInfo, nextFixture: fixture || null, events })
+          setDashboardData(overview)
           setLoading(false)
         }
       } catch (e) {
-        console.error(e)
+        console.error('Error cargando proyección del dashboard:', e)
         if (isMounted) setLoading(false)
       }
     }
 
-    loadDashboard()
+    loadData()
     return () => { isMounted = false }
-  }, [contextLoading, club?.id, manager?.id, manager?.xp])
+  }, [contextLoading, club?.id, club?.game_date, club?.budget, manager?.id, manager?.xp])
 
   const handleAdvanceWeek = async () => {
-    if (data.nextFixture && data.nextFixture.match_date <= club.game_date) {
-      toast.error('Debes jugar tu partido pendiente antes de avanzar de semana.')
+    // Alerta bloqueante
+    const blockingAlert = dashboardData?.urgentAlerts?.find(a => a.priority === 'HIGH')
+    if (blockingAlert && blockingAlert.id === 'ALERT_MIN_PLAYERS') {
+      toast.error(blockingAlert.message)
+      return
+    }
+
+    if (dashboardData?.nextFixture && dashboardData.nextFixture.match_date <= club.game_date) {
+      toast.error('Debes disputar tu partido pendiente antes de avanzar de semana.')
       return
     }
 
@@ -67,60 +75,69 @@ export default function Dashboard() {
     try {
       const { gameLoopApi } = await import('../../api/gameLoop')
       const result = await gameLoopApi.advanceWeek(club.id, manager.id)
-      
+
       if (result.fired) {
-        toast.error('¡LA DIRIGENCIA TE HA DESPEDIDO POR MALOS RESULTADOS!')
-        // MVP: go back to auth for now, in a real game we would go to a job center screen
+        toast.error('¡LA DIRIGENCIA TE HA DESTITUIDO POR RESULTADOS DEPORTIVOS!')
         navigate('/auth')
         return
       }
 
       queryCache.clear()
       await refreshContext()
-      toast.success('Semana completada. Plantel entrenado.')
+      toast.success('Semana completada con éxito. Plan de trabajo ejecutado.')
     } catch (e) {
-      toast.error(e.message)
+      toast.error(e.message || 'Error al avanzar de semana.')
     } finally {
       setAdvancing(false)
     }
   }
 
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  if (loading || contextLoading) {
+  if (loading || contextLoading || !dashboardData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-emerald-400 font-medium text-sm animate-pulse">Cargando la oficina...</p>
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <p className="text-emerald-400 font-medium text-sm animate-pulse">Cargando centro de mando del club...</p>
       </div>
     )
   }
 
+  const {
+    managerSummary,
+    clubSummary,
+    financesSummary,
+    squadHealth,
+    standingsSnippet,
+    nextFixture,
+    urgentAlerts,
+    pendingEvents
+  } = dashboardData
+
   const navItems = [
-    { icon: Home, label: 'Inicio', active: true },
-    { icon: Users, label: 'Plantel' },
-    { icon: Calendar, label: 'Partidos' },
-    { icon: Activity, label: 'Entrenamiento' },
-    { icon: Trophy, label: 'Competición' },
-    { icon: Settings, label: 'Mercado' },
-    { icon: Building2, label: 'Club' },
-    { icon: DollarSign, label: 'Finanzas' }
+    { icon: Home, label: 'Inicio', active: true, path: '/dashboard' },
+    { icon: Users, label: 'Plantel', path: '/squad' },
+    { icon: Trophy, label: 'Competición', path: '/standings' },
+    { icon: Activity, label: 'Entrenamiento', path: '/training' },
+    { icon: Settings, label: 'Mercado', path: '/market' },
+    { icon: Building2, label: 'Club', path: '/club' },
+    { icon: DollarSign, label: 'Finanzas', path: '/finances' }
   ]
-  
+
   const getSafeDate = (dateStr) => {
     if (!dateStr) return new Date('2026-08-01T00:00:00')
     const cleanStr = dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`
     const d = new Date(cleanStr)
     return isNaN(d.getTime()) ? new Date('2026-08-01T00:00:00') : d
   }
-  
+
   const formattedDate = new Intl.DateTimeFormat('es-AR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  }).format(getSafeDate(club?.game_date))
+  }).format(getSafeDate(clubSummary.gameDate))
+
+  const isMatchReady = nextFixture && nextFixture.match_date <= clubSummary.gameDate
 
   return (
-    <div className="flex min-h-screen bg-zinc-950">
-      {/* Overlay mobile */}
+    <div className="flex min-h-screen bg-zinc-950 text-zinc-100">
+      {/* Mobile Drawer Overlay */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 z-40 bg-black/80 lg:hidden backdrop-blur-sm"
@@ -128,145 +145,176 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar Navigation */}
       <aside className={`fixed inset-y-0 left-0 z-50 flex flex-col w-64 p-4 border-r border-zinc-900 bg-zinc-950 transition-transform duration-300 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-black text-emerald-500">EL PIZARRÓN</h1>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-zinc-400">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <Shield className="w-5 h-5" />
+            </div>
+            <h1 className="text-xl font-black text-emerald-500">DEL POTRERO</h1>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-zinc-400 hover:text-white">
+            <ChevronRight className="w-5 h-5 rotate-180" />
           </button>
         </div>
-        <nav className="flex-1 space-y-2 overflow-y-auto">
+
+        <nav className="flex-1 space-y-1.5 overflow-y-auto">
           {navItems.map((item, i) => (
             <button 
               key={i} 
               onClick={() => {
-                if (item.label === 'Plantel') navigate('/squad')
-                if (item.label === 'Competición') navigate('/standings')
-                if (item.label === 'Mercado') navigate('/market')
-                if (item.label === 'Club') navigate('/club')
-                if (item.label === 'Finanzas') navigate('/finances')
-                if (item.label === 'Entrenamiento') navigate('/training')
+                if (item.path) navigate(item.path)
               }}
-              className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-xl ${item.active ? 'bg-emerald-500/10 text-emerald-400' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'}`}
+              className={`flex items-center w-full gap-3 px-3.5 py-2.5 text-xs font-semibold transition-colors rounded-xl ${
+                item.active 
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+              }`}
             >
-              <item.icon className="w-5 h-5" />
-              {item.label}
+              <item.icon className="w-4 h-4" />
+              <span>{item.label}</span>
             </button>
           ))}
         </nav>
+
+        {/* DT Summary Card at Bottom */}
         <div 
           onClick={() => navigate('/manager')}
-          className="pt-4 mt-auto border-t border-zinc-900 space-y-3 cursor-pointer p-2 rounded-2xl hover:bg-zinc-900 transition-colors"
+          className="pt-4 mt-auto border-t border-zinc-900 space-y-2.5 cursor-pointer p-2 rounded-2xl hover:bg-zinc-900 transition-colors"
           title="Ver Carrera y Administración del DT"
         >
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 font-bold text-black rounded-full bg-emerald-500 shrink-0">
-              {manager.first_name[0]}{manager.last_name[0]}
+            <div className="flex items-center justify-center w-10 h-10 font-bold text-black rounded-full bg-emerald-500 shrink-0 text-sm">
+              {managerSummary.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-white truncate leading-tight">{manager.first_name} {manager.last_name}</p>
+              <p className="text-xs font-bold text-white truncate leading-tight">{managerSummary.name}</p>
               <div className="flex justify-between items-center text-[10px] text-zinc-400 mt-1">
-                <span>Nvl {data.levelInfo?.currentLevel || manager.level}</span>
-                <span>{manager.xp} / {data.levelInfo?.xpRequiredForNext || '?'} XP</span>
+                <span>Nvl {managerSummary.level} • {managerSummary.title}</span>
+                <span className="font-mono">{managerSummary.currentXp} XP</span>
               </div>
               <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-1 overflow-hidden">
                 <div 
                   className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
-                  style={{ width: `${data.levelInfo?.progressPercent || 0}%` }}
-                ></div>
+                  style={{ width: `${managerSummary.progressPercent || 0}%` }}
+                />
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-[10px] text-zinc-400 bg-zinc-900 px-2 py-1 rounded truncate">Reputación: {manager.reputation_level || 'Local'}</p>
-            {manager.national_team_id && (
-              <p className="text-[10px] text-yellow-400 bg-yellow-900/20 px-2 py-1 rounded truncate">DT Selección Nacional</p>
-            )}
+          <div className="text-[10px] text-zinc-400 bg-zinc-900/80 px-2.5 py-1 rounded-lg border border-zinc-800 flex justify-between">
+            <span>Reputación:</span>
+            <span className="font-bold text-emerald-400 font-mono">{managerSummary.reputation} pts</span>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8">
-        <header className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
-          <div className="flex items-center justify-between w-full md:w-auto gap-4 mb-4 md:mb-0">
-            <div className="flex items-center gap-4">
+      {/* Main Dashboard Workspace */}
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 lg:pb-8 max-w-7xl mx-auto w-full">
+        {/* Header */}
+        <header className="flex flex-col items-start justify-between mb-6 md:flex-row md:items-center gap-4">
+          <div className="flex items-center justify-between w-full md:w-auto gap-4">
+            <div className="flex items-center gap-3">
               <button 
                 onClick={() => setSidebarOpen(true)} 
-                className="p-2 transition-colors rounded-lg bg-zinc-900 text-emerald-500 lg:hidden hover:bg-zinc-800"
+                className="p-2 transition-colors rounded-xl bg-zinc-900 text-emerald-500 lg:hidden hover:bg-zinc-800 border border-zinc-800"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <Home className="w-5 h-5" />
               </button>
               <div>
-                <h2 className="text-xl md:text-3xl font-black text-white">{club.name}</h2>
-                <p className="text-xs md:text-sm text-zinc-400">{club.city}, {club.country}</p>
+                <h2 className="text-xl md:text-2xl font-black text-white">{clubSummary.name}</h2>
+                <p className="text-xs text-zinc-400">{clubSummary.city}, {clubSummary.country} • {clubSummary.stadiumName}</p>
               </div>
             </div>
-            <button
-              onClick={() => navigate('/manager')}
-              className="lg:hidden flex items-center gap-2 p-1.5 pr-3 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors"
-              title="Perfil del DT"
-            >
-              <div className="w-7 h-7 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-xs">
-                {manager.first_name[0]}{manager.last_name[0]}
-              </div>
-              <span className="text-xs font-bold text-zinc-300">DT</span>
-            </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between w-full gap-4 md:gap-6 md:justify-end md:w-auto mt-4 md:mt-0">
-            <div className="text-right">
-              <p className="text-sm text-zinc-500 capitalize">{formattedDate}</p>
-              <p className="text-lg md:text-xl font-bold text-emerald-400">Semana de Gestión</p>
+          <div className="flex flex-wrap items-center justify-between w-full gap-3 md:gap-4 md:justify-end md:w-auto">
+            <div className="text-left md:text-right">
+              <p className="text-xs text-zinc-500 capitalize">{formattedDate}</p>
+              <p className="text-xs md:text-sm font-bold text-emerald-400">Torneo Regional • Tier 5</p>
             </div>
+
             <button 
               onClick={handleAdvanceWeek}
-              disabled={advancing}
-              className="flex items-center justify-center w-full md:w-auto gap-2 px-6 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50"
+              disabled={advancing || isMatchReady}
+              className={`flex items-center justify-center gap-2 px-5 py-3 text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 ${
+                isMatchReady 
+                  ? 'bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed'
+                  : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20'
+              }`}
             >
-              {advancing ? <Loader2 className="w-5 h-5 animate-spin" /> : <FastForward className="w-5 h-5" />}
-              Avanzar Semana
+              {advancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <FastForward className="w-4 h-4" />}
+              <span>{isMatchReady ? 'Partido Programado Hoy' : 'Avanzar Semana'}</span>
             </button>
           </div>
         </header>
 
-        {/* Acceso a Copa Continental (Fase 34) */}
-        <div 
-          onClick={() => navigate('/international-cup')}
-          className="mb-6 p-3.5 md:p-4 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 group-hover:scale-105 transition-transform">
-              <Globe className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-bold text-xs md:text-sm text-white">Copa Gloria Continental</h4>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">En Curso</span>
+        {/* Banners de Alertas Urgentes */}
+        {urgentAlerts && urgentAlerts.length > 0 && (
+          <div className="space-y-2 mb-6">
+            {urgentAlerts.map(alert => (
+              <div 
+                key={alert.id}
+                onClick={() => alert.actionUrl && navigate(alert.actionUrl)}
+                className={`flex items-center justify-between p-3.5 rounded-xl border text-xs cursor-pointer transition-all hover:scale-[1.01] ${
+                  alert.priority === 'HIGH'
+                    ? 'bg-rose-950/40 border-rose-500/40 text-rose-200'
+                    : alert.priority === 'MEDIUM'
+                    ? 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+                    : 'bg-blue-950/40 border-blue-500/40 text-blue-200'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  {alert.priority === 'HIGH' ? (
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  ) : alert.priority === 'MEDIUM' ? (
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                  ) : (
+                    <Bell className="w-4 h-4 text-blue-400 shrink-0" />
+                  )}
+                  <div>
+                    <span className="font-bold mr-2">[{alert.title}]</span>
+                    <span>{alert.message}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 font-semibold underline text-[11px] shrink-0">
+                  <span>Resolver</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <p className="text-[11px] text-zinc-400 mt-0.5">Certamen internacional de clubes • Premio al campeón: $1,000,000</p>
-            </div>
+            ))}
           </div>
-          <button className="hidden sm:flex items-center gap-1 text-xs font-bold text-amber-400 group-hover:text-amber-300 transition-colors">
-            <span>Ver Cuadro</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+        )}
 
-        {/* Accesos Rápidos: Logros y Salón de la Fama (Fases 38 y 39) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        {/* Quick Hub Access: Copas Internacionales y Salón de la Fama */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           <div 
-            onClick={() => navigate('/achievements')}
-            className="p-3.5 md:p-4 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-emerald-500/60 transition-all group"
+            onClick={() => navigate('/international-cup')}
+            className="p-3.5 rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition-all group"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 group-hover:scale-105 transition-transform">
-                <Award className="w-5 h-5" />
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <Globe className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="font-bold text-xs md:text-sm text-white">Logros y Desafíos</h4>
-                <p className="text-[11px] text-zinc-400 mt-0.5">Misiones de carrera y recompensas de XP</p>
+                <h4 className="font-bold text-xs text-white">Copa Continental</h4>
+                <p className="text-[10px] text-zinc-400">Torneo internacional de clubes</p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+          </div>
+
+          <div 
+            onClick={() => navigate('/achievements')}
+            className="p-3.5 rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-emerald-500/60 transition-all group"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <Award className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs text-white">Logros de DT</h4>
+                <p className="text-[10px] text-zinc-400">Misiones y recompensas</p>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
@@ -274,44 +322,42 @@ export default function Dashboard() {
 
           <div 
             onClick={() => navigate('/hall-of-fame')}
-            className="p-3.5 md:p-4 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition-all group"
+            className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/60 flex items-center justify-between cursor-pointer hover:border-zinc-700 transition-all group"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 group-hover:scale-105 transition-transform">
-                <Trophy className="w-5 h-5" />
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700">
+                <Trophy className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="font-bold text-xs md:text-sm text-white">Salón de la Fama</h4>
-                <p className="text-[11px] text-zinc-400 mt-0.5">Ranking histórico de DTs y leyendas</p>
+                <h4 className="font-bold text-xs text-white">Salón de la Fama</h4>
+                <p className="text-[10px] text-zinc-400">Leyendas del fútbol</p>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
 
         {/* Dynamic Events */}
-        {data.events && data.events.length > 0 && data.events.map(ev => (
-          <div key={ev.id} className="p-6 mb-6 border border-blue-900/50 rounded-3xl bg-blue-900/10">
-            <h3 className="mb-2 font-bold text-blue-400 flex items-center gap-2">
-              <Bell className="w-5 h-5" /> Evento: {ev.title}
+        {pendingEvents && pendingEvents.length > 0 && pendingEvents.map(ev => (
+          <div key={ev.id} className="p-5 mb-6 border border-blue-900/40 rounded-2xl bg-blue-950/20">
+            <h3 className="mb-1.5 font-bold text-sm text-blue-400 flex items-center gap-2">
+              <Bell className="w-4 h-4" /> Sucesos del Club: {ev.title}
             </h3>
-            <p className="mb-4 text-sm text-zinc-300">{ev.description}</p>
-            <div className="flex flex-wrap gap-4">
+            <p className="mb-4 text-xs text-zinc-300 leading-relaxed">{ev.description}</p>
+            <div className="flex flex-wrap gap-2.5">
               {ev.options.map(opt => (
                 <button 
                   key={opt.id}
                   onClick={async () => {
                     try {
-                      const { eventsApi } = await import('../../api/events')
                       await eventsApi.resolveEvent(ev.id, opt)
-                      setData(prev => ({ ...prev, events: prev.events.filter(e => e.id !== ev.id) }))
                       await refreshContext()
-                      toast.success('Decisión tomada.')
+                      toast.success('Decisión ejecutada con éxito.')
                     } catch (err) {
-                      toast.error(err.message)
+                      toast.error(err.message || 'Error al procesar decisión.')
                     }
                   }}
-                  className="px-4 py-2 text-xs font-bold transition-colors border rounded border-zinc-700 hover:bg-zinc-800 text-white"
+                  className="px-3.5 py-1.5 text-xs font-semibold transition-colors border rounded-xl border-zinc-700/80 bg-zinc-900 hover:bg-zinc-800 text-white"
                 >
                   {opt.label}
                 </button>
@@ -320,120 +366,169 @@ export default function Dashboard() {
           </div>
         ))}
 
+        {/* Grid Principal */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           
-          {/* Próximo Partido */}
-          <div className="p-6 border lg:col-span-2 border-zinc-800 rounded-3xl bg-zinc-900/50 flex flex-col justify-between">
+          {/* Tarjeta de Próximo Partido */}
+          <div className="p-6 border lg:col-span-2 border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-sm flex flex-col justify-between shadow-xl">
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-white">Próximo Partido</h3>
-                <span className="px-3 py-1 text-xs font-medium rounded-full bg-zinc-800 text-zinc-300">
-                  {data.nextFixture ? `Fecha ${data.nextFixture.match_week}` : 'Pretemporada'}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-emerald-400" />
+                  <h3 className="font-bold text-sm text-white">Compromiso Oficial</h3>
+                </div>
+                <span className="px-2.5 py-0.5 text-xs font-mono font-bold rounded-full bg-zinc-800 text-zinc-300">
+                  {nextFixture ? `Fecha ${nextFixture.match_week || 1}` : 'Pretemporada'}
                 </span>
               </div>
               
-              {data.nextFixture ? (
+              {nextFixture ? (
                 <div className="flex items-center justify-center gap-4 py-8 md:gap-8">
-                  <div className="w-24 text-center md:w-32 shrink-0">
-                    <Shield className={`w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 ${data.nextFixture.home_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
-                    <p className="font-bold text-white truncate" title={data.nextFixture.home.name}>{data.nextFixture.home.short_name}</p>
+                  <div className="w-28 text-center md:w-36 shrink-0">
+                    <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 rounded-2xl flex items-center justify-center bg-zinc-950 border border-zinc-800">
+                      <Shield className={`w-8 h-8 md:w-10 md:h-10 ${nextFixture.home_team_id === club.id ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                    </div>
+                    <p className="font-bold text-xs md:text-sm text-white truncate" title={nextFixture.home?.name || 'Local'}>
+                      {nextFixture.home?.name || 'Local'}
+                    </p>
+                    <span className="text-[10px] text-zinc-500 uppercase">{nextFixture.home_team_id === club.id ? 'Tu Club' : 'Rival'}</span>
                   </div>
-                  <div className="text-xl font-black md:text-2xl text-zinc-700 shrink-0">VS</div>
-                  <div className="w-24 text-center md:w-32 shrink-0">
-                    <Shield className={`w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 ${data.nextFixture.away_team_id === club.id ? 'text-emerald-500' : 'text-zinc-600'}`} />
-                    <p className="font-bold text-white truncate" title={data.nextFixture.away.name}>{data.nextFixture.away.short_name}</p>
+
+                  <div className="flex flex-col items-center shrink-0">
+                    <span className="text-xl font-black md:text-2xl text-zinc-600 font-mono">VS</span>
+                    <span className="text-[10px] text-zinc-500 mt-1 font-mono">{nextFixture.match_date}</span>
+                  </div>
+
+                  <div className="w-28 text-center md:w-36 shrink-0">
+                    <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 rounded-2xl flex items-center justify-center bg-zinc-950 border border-zinc-800">
+                      <Shield className={`w-8 h-8 md:w-10 md:h-10 ${nextFixture.away_team_id === club.id ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                    </div>
+                    <p className="font-bold text-xs md:text-sm text-white truncate" title={nextFixture.away?.name || 'Visitante'}>
+                      {nextFixture.away?.name || 'Visitante'}
+                    </p>
+                    <span className="text-[10px] text-zinc-500 uppercase">{nextFixture.away_team_id === club.id ? 'Tu Club' : 'Rival'}</span>
                   </div>
                 </div>
               ) : (
-                <div className="py-12 text-center text-zinc-500">
-                  No hay partidos programados
+                <div className="py-12 text-center text-zinc-500 text-xs">
+                  No hay compromisos oficiales agendados para esta semana
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <button onClick={() => navigate('/tactics')} className="flex-1 py-4 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl bg-zinc-800 hover:bg-zinc-700">
-                Táctica
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-zinc-800/80">
+              <button 
+                onClick={() => navigate('/tactics')} 
+                className="flex-1 py-3 px-4 text-xs font-bold transition-colors border text-zinc-300 border-zinc-700/80 rounded-xl bg-zinc-800/70 hover:bg-zinc-700"
+              >
+                Ajustar Táctica y XI Titular
               </button>
               <button 
                 onClick={() => {
-                  if (!data.nextFixture) return
-                  navigate('/match', { state: { fixtureId: data.nextFixture.id } })
+                  if (!nextFixture) return
+                  navigate('/match', { state: { fixtureId: nextFixture.id } })
                 }}
-                disabled={!data.nextFixture || (club?.game_date && data.nextFixture.match_date > club.game_date)}
-                className="flex-1 py-4 font-bold text-black transition-transform rounded-xl bg-emerald-500 hover:bg-emerald-400 hover:scale-[1.01] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                disabled={!nextFixture || nextFixture.match_date > clubSummary.gameDate}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 ${
+                  !nextFixture || nextFixture.match_date > clubSummary.gameDate
+                    ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/80 cursor-not-allowed'
+                    : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20'
+                }`}
               >
-                {data.nextFixture && club?.game_date && data.nextFixture.match_date > club.game_date 
-                  ? `Jugar el ${new Date(data.nextFixture.match_date).toLocaleDateString('es-AR', {day: 'numeric', month: 'short'})}`
-                  : 'Jugar Partido'}
+                <Play className="w-4 h-4 fill-current" />
+                <span>
+                  {nextFixture && nextFixture.match_date > clubSummary.gameDate
+                    ? `Partido el ${nextFixture.match_date}`
+                    : 'Disputar Partido'}
+                </span>
               </button>
             </div>
           </div>
 
-          {/* Status Panel */}
-          <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
-            <h3 className="mb-6 font-bold text-white">Estado del Plantel</h3>
+          {/* Panel de Estado Institucional y Plantel */}
+          <div className="p-6 border border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-sm space-y-5 shadow-xl">
+            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+              <h3 className="font-bold text-sm text-white">Estado del Plantel</h3>
+              <span className="text-[11px] font-mono text-zinc-400">
+                {squadHealth.availableCount} / {squadHealth.totalPlayers} Aptos
+              </span>
+            </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4">
+              {/* Condición Física */}
               <div>
-                <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-zinc-400">Moral del Vestuario</span>
-                  <span className={(club?.squad_morale ?? 70) >= 80 ? 'text-emerald-400' : (club?.squad_morale ?? 70) >= 60 ? 'text-blue-400' : (club?.squad_morale ?? 70) >= 40 ? 'text-yellow-400' : 'text-red-400'}>
-                    {(club?.squad_morale ?? 70) >= 80 ? 'Excelente' : (club?.squad_morale ?? 70) >= 60 ? 'Buena' : (club?.squad_morale ?? 70) >= 40 ? 'Regular' : 'Baja'} ({club?.squad_morale ?? 70}%)
+                <div className="flex justify-between mb-1.5 text-xs">
+                  <span className="text-zinc-400 flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                    Condición Física Media
+                  </span>
+                  <span className="font-mono font-bold text-emerald-400">{squadHealth.averageFitness}%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-zinc-800">
+                  <div 
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-500" 
+                    style={{ width: `${squadHealth.averageFitness}%` }} 
+                  />
+                </div>
+              </div>
+
+              {/* Moral del Plantel */}
+              <div>
+                <div className="flex justify-between mb-1.5 text-xs">
+                  <span className="text-zinc-400 flex items-center gap-1.5">
+                    <Heart className="w-3.5 h-3.5 text-blue-400" />
+                    Moral del Vestuario
+                  </span>
+                  <span className="font-mono font-bold text-blue-400">{squadHealth.averageMorale}%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-zinc-800">
+                  <div 
+                    className="h-full rounded-full bg-blue-500 transition-all duration-500" 
+                    style={{ width: `${squadHealth.averageMorale}%` }} 
+                  />
+                </div>
+              </div>
+
+              {/* Salud Financiera */}
+              <div className="pt-2 border-t border-zinc-800/80">
+                <div className="flex justify-between mb-1.5 text-xs">
+                  <span className="text-zinc-400 flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                    Caja del Club
+                  </span>
+                  <span className={`font-mono font-bold ${financesSummary.balance >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    ${financesSummary.balance.toLocaleString()} USD
                   </span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className={`h-full rounded-full transition-all ${(club?.squad_morale ?? 70) >= 60 ? 'bg-emerald-500' : (club?.squad_morale ?? 70) >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${club?.squad_morale ?? 70}%` }} />
+                <div className="flex justify-between text-[11px] text-zinc-500 font-mono">
+                  <span>Sueldos: ${financesSummary.weeklyWageBill}/sem</span>
+                  <span>Tope: ${financesSummary.wageBudget}/sem</span>
                 </div>
               </div>
 
-              <div>
-                <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-zinc-400">Cohesión de Grupo</span>
-                  <span className="text-purple-400">{club?.squad_cohesion ?? 70}%</span>
+              {/* Mini Standings */}
+              {standingsSnippet && (
+                <div className="pt-3 border-t border-zinc-800/80">
+                  <div className="flex justify-between items-center text-xs mb-2">
+                    <span className="text-zinc-400 font-semibold">Posición en Liga</span>
+                    <button onClick={() => navigate('/standings')} className="text-[10px] text-emerald-400 hover:underline">
+                      Ver Tabla
+                    </button>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[10px]">
+                        {standingsSnippet.rank || 1}º
+                      </span>
+                      <span className="text-white font-sans">{clubSummary.shortName}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-zinc-400">
+                      <span>{standingsSnippet.played || 0} PJ</span>
+                      <span className="font-bold text-white">{standingsSnippet.points || 0} PTS</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className="h-full bg-purple-500 rounded-full transition-all" style={{ width: `${club?.squad_cohesion ?? 70}%` }} />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-zinc-400">Condición Física</span>
-                  <span className="text-blue-400">Óptima</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className="w-[95%] h-full bg-blue-500 rounded-full" />
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-zinc-400">Confianza de Dirigencia</span>
-                  <span className={`${(club?.board_confidence ?? 80) > 50 ? 'text-emerald-400' : (club?.board_confidence ?? 80) > 25 ? 'text-yellow-400' : 'text-red-400'}`}>
-                    {club?.board_confidence ?? 80}%
-                  </span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className={`h-full rounded-full transition-all ${(club?.board_confidence ?? 80) > 50 ? 'bg-emerald-500' : (club?.board_confidence ?? 80) > 25 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${club?.board_confidence ?? 80}%` }} />
-                </div>
-                <div className="flex justify-between mt-1">
-                  {(club?.board_confidence ?? 80) <= 25 ? (
-                    <p className="text-[10px] text-red-500 font-bold">¡Peligro de Despido!</p>
-                  ) : <span />}
-                  <p className="text-[10px] text-zinc-500 text-right">Obj: {club?.season_objective || 'Evitar Descenso'}</p>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between mb-2 text-sm">
-                  <span className="text-zinc-400">Hinchada (Aprobación)</span>
-                  <span className="text-orange-400">{club.fans_confidence}%</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-zinc-800">
-                  <div className="h-full bg-orange-500 rounded-full" style={{ width: `${club.fans_confidence}%` }} />
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
