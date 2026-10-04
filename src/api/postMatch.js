@@ -174,6 +174,14 @@ export const postMatchApi = {
           stateBefore: { budget: clubData.budget },
           stateAfter: { budget: Number(clubData.budget || 0) + netIncome, netIncome, attendance }
         })
+
+        // Regla 21.2: Desgaste gradual del césped (-3 pts)
+        try {
+          const { stadiumApi } = await import('./stadium')
+          await stadiumApi.degradePitchHomeMatch(clubId)
+        } catch (stErr) {
+          console.warn('Aviso: no se pudo actualizar desgaste de césped:', stErr)
+        }
       }
     }
 

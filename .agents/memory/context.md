@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:57:50.843Z | **Nodos:** 105 | **Tareas:** 34
+> **Última sincronización:** 2026-10-04T03:01:20.962Z | **Nodos:** 108 | **Tareas:** 35
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | `src/features/squad/SquadScreen.jsx` | 783 | react, react-router-dom, ../../api/player |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
-| `src/features/club/screens/ClubScreen.jsx` | 608 | react, react-router-dom, ../../../api/club |
+| `src/features/club/screens/ClubScreen.jsx` | 631 | react, react-router-dom, ../../../api/club |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
@@ -22,17 +22,17 @@
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
 | `src/features/market/MarketScreen.jsx` | 411 | react, react-router-dom, ../../api/market |
 | `src/api/matchEngine.js` | 409 | ./supabase |
+| `src/api/stadium.js` | 396 | ./supabase, ../utils/cache, ./finances |
+| `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
-| `src/api/calendar.js` | 376 | ./supabase |
+| `src/api/calendar.js` | 384 | ./supabase |
 | `src/features/tactics/TacticsScreen.jsx` | 376 | react, react-router-dom, lucide-react |
 | `src/api/training.js` | 372 | ./supabase |
 | `src/api/competition.js` | 366 | ./supabase, ../utils/cache |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/api/academy.js` | 364 | ./supabase, ../utils/cache, ./levels |
-| `src/features/squad/ContractRenewalModal.jsx` | 346 | react, lucide-react, ../../api/contracts |
-| `src/api/market.js` | 321 | ./supabase, ../utils/cache |
 
-_(+46 módulos adicionales; consultar con `memory:query`)_
+_(+48 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -70,3 +70,4 @@ _(+46 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-18-youth-academy: Fase 18: Cantera, Divisiones Inferiores y Camada Anual** `[DONE]`
 - **feat-fase-19-staff-roles: Fase 19: Cuerpo Técnico, Staff y Especialistas** `[DONE]`
 - **feat-fase-20-economy-finances: Fase 20: Economia Integral, Balance Semanal y Finanzas del Club** `[DONE]`
+- **feat-fase-21-stadium-infrastructure: Fase 21: Estadio, Infraestructura y Mejoras Edilicias** `[DONE]`

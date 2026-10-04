@@ -1192,3 +1192,51 @@ ALTER TABLE public.club_sponsorships ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir todo club_sponsorships" ON public.club_sponsorships FOR ALL USING (true);
 
 CREATE INDEX IF NOT EXISTS idx_ledger_club ON public.financial_transactions_ledger(club_id, week_number);
+
+-- FASE 21: Estadio, Infraestructura y Obras Edilicias
+CREATE TABLE IF NOT EXISTS public.club_stadiums (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  stadium_name text NOT NULL DEFAULT 'Estadio Principal',
+  capacity integer DEFAULT 1500 NOT NULL CHECK (capacity BETWEEN 500 AND 120000),
+  pitch_quality integer DEFAULT 60 NOT NULL CHECK (pitch_quality BETWEEN 1 AND 100),
+  stands_tier integer DEFAULT 1 NOT NULL CHECK (stands_tier BETWEEN 1 AND 4),
+  floodlights_installed boolean DEFAULT false NOT NULL,
+  vip_boxes_count integer DEFAULT 0 NOT NULL,
+  weekly_maintenance_cost numeric(10,2) DEFAULT 200.00 NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_stadium UNIQUE (club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.stadium_projects (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  project_type text NOT NULL,
+  cost_paid numeric(12,2) NOT NULL,
+  capacity_delta integer DEFAULT 0 NOT NULL,
+  weeks_remaining integer NOT NULL,
+  status text DEFAULT 'UNDER_CONSTRUCTION' NOT NULL CHECK (status IN ('UNDER_CONSTRUCTION', 'COMPLETED', 'CANCELLED')),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.stadium_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  action text NOT NULL,
+  cost numeric(12,2) DEFAULT 0.00 NOT NULL,
+  capacity_before integer,
+  capacity_after integer,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_stadiums ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_stadiums" ON public.club_stadiums FOR ALL USING (true);
+
+ALTER TABLE public.stadium_projects ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo stadium_projects" ON public.stadium_projects FOR ALL USING (true);
+
+ALTER TABLE public.stadium_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo stadium_audit_log" ON public.stadium_audit_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_stadium_projects_club ON public.stadium_projects(club_id, status);
+CREATE INDEX IF NOT EXISTS idx_stadium_audit_club ON public.stadium_audit_log(club_id);

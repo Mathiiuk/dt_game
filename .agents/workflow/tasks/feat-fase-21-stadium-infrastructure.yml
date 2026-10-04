@@ -1,0 +1,56 @@
+id: feat-fase-21-stadium-infrastructure
+external_ref: 21_estadio
+title: 'Fase 21: Estadio, Infraestructura y Mejoras Edilicias'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/stadium.js
+    - src/features/club/screens/StadiumManagementTab.jsx
+    - src/features/club/screens/ClubScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades club_stadiums, stadium_projects y stadium_audit_log en
+    supabase.sql con RLS e índices
+  - >-
+    Servicio StadiumManagementService con catálogo de proyectos de ampliación,
+    césped, iluminación y palcos
+  - >-
+    Validación financiera autoritativa (1 sola obra en curso simultánea, saldo
+    suficiente, cobro con ledger contable)
+  - >-
+    Avance temporal semanal de obras en construcción en ciclo de calendario y
+    finalización automática de proyectos
+  - >-
+    Pantalla y pestaña de Estadio integrada en ClubScreen con métricas de aforo,
+    desgaste de césped y obras activas
+acceptance_criteria:
+  - >-
+    Se puede inspeccionar el estado del estadio, aforo, calidad del césped e
+    iluminación
+  - Se puede iniciar una obra si hay fondos y no hay obra activa en curso
+  - >-
+    El avance semanal de calendario decrementa las semanas de obra restantes y
+    actualiza la capacidad al terminar
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

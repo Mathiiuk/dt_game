@@ -300,6 +300,14 @@ export const calendarApi = {
         await eventsApi.generateRandomEvents(clubId, managerId)
         await moraleApi.processWeeklyMorale(clubId)
 
+        // 11b. Avance de obras de infraestructura del estadio (Fase 21)
+        try {
+          const { stadiumApi } = await import('./stadium')
+          await stadiumApi.advanceConstructionWeek(clubId, nextWeek, calendar.current_season_year)
+        } catch (stErr) {
+          console.warn('Aviso: no se pudo procesar avance de obras de estadio:', stErr)
+        }
+
         // Sincronizar fecha en clubs para compatibilidad
         await supabase
           .from('clubs')
