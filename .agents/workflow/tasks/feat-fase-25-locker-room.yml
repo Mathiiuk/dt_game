@@ -1,0 +1,54 @@
+id: feat-fase-25-locker-room
+external_ref: 25_vestuario
+title: 'Fase 25: Vestuario, Cohesion y Jerarquia de Liderazgo'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/lockerRoom.js
+    - src/features/club/screens/LockerRoomTab.jsx
+    - src/features/club/screens/ClubScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades club_locker_room, player_social_status y
+    locker_room_events_log en supabase.sql con RLS e índices
+  - >-
+    Motor de cohesión de equipo (team_cohesion_score) y jerarquía de liderazgo
+    (Líderes, Influyentes, Relegados)
+  - Designación de Capitán y Subcapitán con impacto anímico en caso de remoción
+  - >-
+    Reuniones de equipo (Team Meetings) con cooldown de 4 semanas y diferentes
+    tonos tácticos
+  - >-
+    Pestaña de Vestuario & Dinámica Social en ClubScreen con clanes, moral
+    individual y resolución de reclamos
+acceptance_criteria:
+  - >-
+    El DT puede auditar la cohesión del plantel, los clanes sociales y los
+    líderes del vestuario
+  - >-
+    Se pueden designar Capitán y Subcapitán del equipo con consecuencias
+    realistas
+  - Se pueden convocar charlas de equipo respetando la ventana de enfriamiento
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

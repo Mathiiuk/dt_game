@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:13:07.001Z | **Nodos:** 117 | **Tareas:** 38
+> **Última sincronización:** 2026-10-04T03:16:30.299Z | **Nodos:** 120 | **Tareas:** 39
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -8,12 +8,13 @@
 |---|---|---|
 | `src/features/squad/SquadScreen.jsx` | 783 | react, react-router-dom, ../../api/player |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
-| `src/features/club/screens/ClubScreen.jsx` | 694 | react, react-router-dom, ../../../api/club |
+| `src/features/club/screens/ClubScreen.jsx` | 716 | react, react-router-dom, ../../../api/club |
 | `src/features/match/PostMatchScreen.jsx` | 589 | react, react-router-dom, ../../api/postMatch |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
 | `src/features/match/MatchScreen.jsx` | 525 | react, react-router-dom, ../../api/auth |
+| `src/features/club/screens/LockerRoomTab.jsx` | 480 | react, lucide-react, ../../../api/lockerRoom |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/finances/FinancesScreen.jsx` | 451 | react, react-router-dom, ../../api/finances |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
@@ -22,6 +23,7 @@
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
 | `src/features/market/MarketScreen.jsx` | 411 | react, react-router-dom, ../../api/market |
 | `src/api/matchEngine.js` | 409 | ./supabase |
+| `src/api/lockerRoom.js` | 408 | ./supabase, ../utils/cache |
 | `src/api/press.js` | 396 | ./supabase, ../utils/cache |
 | `src/api/stadium.js` | 396 | ./supabase, ../utils/cache, ./finances |
 | `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
@@ -29,10 +31,8 @@
 | `src/api/calendar.js` | 384 | ./supabase |
 | `src/features/tactics/TacticsScreen.jsx` | 376 | react, react-router-dom, lucide-react |
 | `src/api/training.js` | 372 | ./supabase |
-| `src/api/competition.js` | 366 | ./supabase, ../utils/cache |
-| `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 
-_(+54 módulos adicionales; consultar con `memory:query`)_
+_(+56 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -74,3 +74,4 @@ _(+54 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-22-fanbase-support: Fase 22: Hinchada, Aficion y Masa Social** `[DONE]`
 - **feat-fase-23-board-confidence: Fase 23: Dirigencia, Confianza y Condicion de Despido** `[DONE]`
 - **feat-fase-24-press-conferences: Fase 24: Prensa Deportiva, Ruedas de Prensa y Reputacion** `[DONE]`
+- **feat-fase-25-locker-room: Fase 25: Vestuario, Cohesion y Jerarquia de Liderazgo** `[DONE]`

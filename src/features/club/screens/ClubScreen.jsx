@@ -35,6 +35,7 @@ import StaffManagementModal from './StaffManagementModal'
 import StadiumManagementTab from './StadiumManagementTab'
 import FanbaseManagementTab from './FanbaseManagementTab'
 import BoardManagementTab from './BoardManagementTab'
+import LockerRoomTab from './LockerRoomTab'
 import PressRoomModal from './PressRoomModal'
 
 export default function ClubScreen() {
@@ -206,6 +207,18 @@ export default function ClubScreen() {
         >
           <Briefcase className="w-4 h-4 shrink-0" />
           <span>Gestión & Staff</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('vestuario')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
+            activeTab === 'vestuario'
+              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+          }`}
+        >
+          <Users className="w-4 h-4 shrink-0" />
+          <span>Vestuario</span>
         </button>
 
         <button
@@ -429,6 +442,15 @@ export default function ClubScreen() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* CONTENIDO TAB: VESTUARIO & DINÁMICA SOCIAL (FASE 25) */}
+      {activeTab === 'vestuario' && (
+        <LockerRoomTab 
+          club={club} 
+          confirmAction={confirmAction} 
+          onUpdateClub={() => loadData(true)} 
+        />
       )}
 
       {/* CONTENIDO TAB: ESTADIO & INFRAESTRUCTURA (FASE 21) */}

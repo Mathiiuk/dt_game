@@ -1394,3 +1394,53 @@ CREATE POLICY "Permitir todo press_audit_log" ON public.press_audit_log FOR ALL 
 CREATE INDEX IF NOT EXISTS idx_press_conf_club ON public.press_conferences(club_id);
 CREATE INDEX IF NOT EXISTS idx_press_qa_conf ON public.press_qa_items(conference_id);
 CREATE INDEX IF NOT EXISTS idx_press_audit_manager ON public.press_audit_log(manager_id);
+
+-- FASE 25: Vestuario, Cohesion y Jerarquía de Liderazgo
+CREATE TABLE IF NOT EXISTS public.club_locker_room (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  team_cohesion_score integer DEFAULT 60 NOT NULL CHECK (team_cohesion_score BETWEEN 0 AND 100),
+  captain_player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  vice_captain_player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  manager_support_level text DEFAULT 'FAVORABLE' NOT NULL CHECK (manager_support_level IN ('COMMITTED', 'FAVORABLE', 'DIVIDED', 'SKEPTICAL', 'MUTINOUS')),
+  last_team_meeting_week integer DEFAULT 0 NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_locker_room UNIQUE (club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.player_social_status (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  hierarchy_tier text DEFAULT 'INFLUENTIAL' NOT NULL CHECK (hierarchy_tier IN ('TEAM_LEADER', 'HIGHLY_INFLUENTIAL', 'INFLUENTIAL', 'FRINGE_PLAYER')),
+  social_group text DEFAULT 'HOMEGROWN_CORE' NOT NULL CHECK (social_group IN ('HOMEGROWN_CORE', 'EXPERIENCED_VETS', 'FOREIGN_NEWCOMERS', 'NEUTRAL')),
+  satisfaction_with_manager integer DEFAULT 70 NOT NULL CHECK (satisfaction_with_manager BETWEEN 0 AND 100),
+  satisfaction_playing_time integer DEFAULT 75 NOT NULL CHECK (satisfaction_playing_time BETWEEN 0 AND 100),
+  satisfaction_wage integer DEFAULT 70 NOT NULL CHECK (satisfaction_wage BETWEEN 0 AND 100),
+  is_demanding_talk boolean DEFAULT false NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_player_social UNIQUE (player_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.locker_room_events_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  event_type text NOT NULL,
+  cohesion_delta integer DEFAULT 0 NOT NULL,
+  details text NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_locker_room ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_locker_room" ON public.club_locker_room FOR ALL USING (true);
+
+ALTER TABLE public.player_social_status ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo player_social_status" ON public.player_social_status FOR ALL USING (true);
+
+ALTER TABLE public.locker_room_events_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo locker_room_events_log" ON public.locker_room_events_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_locker_club ON public.club_locker_room(club_id);
+CREATE INDEX IF NOT EXISTS idx_player_social_club ON public.player_social_status(club_id);
+CREATE INDEX IF NOT EXISTS idx_locker_events_club ON public.locker_room_events_log(club_id);
