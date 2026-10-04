@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { ensureRow } from '../utils/ensureRow'
 import { queryCache } from '../utils/cache'
 import { financesApi } from './finances'
 
@@ -75,11 +76,7 @@ export const boardApi = {
       ultimatum_points_gathered: 0
     }
 
-    const { data: created, error: insertErr } = await supabase
-      .from('club_board_confidence')
-      .insert(initialBoard)
-      .select()
-      .single()
+    const { data: created, error: insertErr } = await ensureRow(supabase, 'club_board_confidence', initialBoard, 'club_id')
 
     if (insertErr) {
       console.warn('Error al insertar club_board_confidence:', insertErr)

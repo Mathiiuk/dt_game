@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { ensureRow } from '../utils/ensureRow'
 import { queryCache } from '../utils/cache'
 
 export const FANBASE_BALANCE = {
@@ -44,11 +45,7 @@ export const fanbaseApi = {
       ]
     }
 
-    const { data: created, error: insertErr } = await supabase
-      .from('club_fanbase')
-      .insert(initialFanbase)
-      .select()
-      .single()
+    const { data: created, error: insertErr } = await ensureRow(supabase, 'club_fanbase', initialFanbase, 'club_id')
 
     if (insertErr) {
       console.warn('Error al insertar club_fanbase:', insertErr)

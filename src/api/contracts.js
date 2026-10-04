@@ -407,7 +407,7 @@ export const contractApi = {
           if (offer.from_club_id) {
             const { data: clubData } = await supabase
               .from('clubs')
-              .select('name, tier')
+              .select('name, league_tier')
               .eq('id', offer.from_club_id)
               .maybeSingle()
             if (clubData) fromClubName = clubData.name
@@ -697,7 +697,7 @@ export const contractApi = {
     
     const { data: bots } = await supabase
       .from('clubs')
-      .select('id, name, budget, tier')
+      .select('id, name, budget, league_tier')
       .neq('id', clubId)
       .limit(15)
 
