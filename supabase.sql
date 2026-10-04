@@ -1240,3 +1240,52 @@ CREATE POLICY "Permitir todo stadium_audit_log" ON public.stadium_audit_log FOR 
 
 CREATE INDEX IF NOT EXISTS idx_stadium_projects_club ON public.stadium_projects(club_id, status);
 CREATE INDEX IF NOT EXISTS idx_stadium_audit_club ON public.stadium_audit_log(club_id);
+
+-- FASE 22: Hinchada, Aficion y Masa Social
+CREATE TABLE IF NOT EXISTS public.club_fanbase (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  loyal_members_count integer DEFAULT 350 NOT NULL,
+  casual_fanbase_potential integer DEFAULT 2500 NOT NULL,
+  fan_support_score integer DEFAULT 65 NOT NULL CHECK (fan_support_score BETWEEN 0 AND 100),
+  stadium_atmosphere_status text DEFAULT 'PASSIONATE' NOT NULL CHECK (stadium_atmosphere_status IN ('HOSTILE_PROTEST', 'DISAPPOINTED', 'NEUTRAL', 'PASSIONATE', 'EUPHORIC_FORTRESS')),
+  derby_rival_club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  chants text[] DEFAULT ARRAY['¡Vamos los pibes!', '¡En las buenas y en las malas!'],
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_fanbase UNIQUE (club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.match_attendance_records (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  fixture_id uuid,
+  home_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  attendance integer NOT NULL,
+  capacity_fill_percentage numeric(5,2) NOT NULL,
+  home_advantage_bonus numeric(4,2) DEFAULT 1.00 NOT NULL,
+  ticket_price_applied numeric(8,2) NOT NULL,
+  fan_mood_after_match integer DEFAULT 65 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.fanbase_events_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  event_type text NOT NULL,
+  impact_on_morale integer DEFAULT 0 NOT NULL,
+  details text NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_fanbase ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_fanbase" ON public.club_fanbase FOR ALL USING (true);
+
+ALTER TABLE public.match_attendance_records ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo match_attendance_records" ON public.match_attendance_records FOR ALL USING (true);
+
+ALTER TABLE public.fanbase_events_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo fanbase_events_log" ON public.fanbase_events_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_fanbase_club ON public.club_fanbase(club_id);
+CREATE INDEX IF NOT EXISTS idx_attendance_home ON public.match_attendance_records(home_club_id);
+CREATE INDEX IF NOT EXISTS idx_fanbase_events_club ON public.fanbase_events_log(club_id);

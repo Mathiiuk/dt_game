@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:01:20.962Z",
+  "updatedAt": "2026-10-04T03:03:52.070Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 108,
-    "totalEdges": 343,
-    "totalTasks": 35,
+    "totalNodes": 111,
+    "totalEdges": 351,
+    "totalTasks": 36,
     "totalLessons": 0
   },
   "nodes": [
@@ -200,6 +200,17 @@
       ]
     },
     {
+      "id": "src/api/fanbase.js",
+      "label": "fanbase.js",
+      "type": "module",
+      "sizeBytes": 9476,
+      "lineCount": 307,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
       "id": "src/api/finances.js",
       "label": "finances.js",
       "type": "module",
@@ -336,8 +347,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 9598,
-      "lineCount": 266,
+      "sizeBytes": 10690,
+      "lineCount": 297,
       "imports": [
         "./manager",
         "./supabase",
@@ -374,7 +385,7 @@
       "id": "src/api/stadium.js",
       "label": "stadium.js",
       "type": "module",
-      "sizeBytes": 12238,
+      "sizeBytes": 12633,
       "lineCount": 396,
       "imports": [
         "./supabase",
@@ -617,8 +628,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 30612,
-      "lineCount": 631,
+      "sizeBytes": 31308,
+      "lineCount": 649,
       "imports": [
         "react",
         "react-router-dom",
@@ -632,14 +643,28 @@
         "../../../utils/cache",
         "./YouthAcademyModal",
         "./StaffManagementModal",
-        "./StadiumManagementTab"
+        "./StadiumManagementTab",
+        "./FanbaseManagementTab"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "label": "FanbaseManagementTab.jsx",
+      "type": "module",
+      "sizeBytes": 12554,
+      "lineCount": 295,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/fanbase",
+        "sonner"
       ]
     },
     {
       "id": "src/features/club/screens/StadiumManagementTab.jsx",
       "label": "StadiumManagementTab.jsx",
       "type": "module",
-      "sizeBytes": 17013,
+      "sizeBytes": 17399,
       "lineCount": 387,
       "imports": [
         "react",
@@ -1215,6 +1240,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-22-fanbase-support",
+      "label": "feat-fase-22-fanbase-support: Fase 22: Hinchada, Aficion y Masa Social",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1405,6 +1437,16 @@
     },
     {
       "from": "src/api/events.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/fanbase.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/fanbase.js",
       "to": "../utils/cache",
       "relation": "depends_on"
     },
@@ -2106,6 +2148,31 @@
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "./StadiumManagementTab",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./FanbaseManagementTab",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "to": "../../../api/fanbase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -2931,6 +2998,11 @@
     {
       "from": "task:feat-fase-21-stadium-infrastructure",
       "to": ".agents/workflow/tasks/feat-fase-21-stadium-infrastructure.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-22-fanbase-support",
+      "to": ".agents/workflow/tasks/feat-fase-22-fanbase-support.yml",
       "relation": "manifested_by"
     }
   ],

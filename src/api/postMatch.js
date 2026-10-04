@@ -152,10 +152,23 @@ export const postMatchApi = {
 
     if (result.isHome) {
       const capacity = clubData?.stadium_capacity || 1500
-      // 70% a 92% de ocupación
-      const rate = 0.70 + Math.random() * 0.22
-      attendance = Math.round(capacity * rate)
       const ticketPrice = Number(clubData?.ticket_price) || 10.0
+
+      let computed = null
+      try {
+        const { fanbaseApi } = await import('./fanbase')
+        computed = await fanbaseApi.computeMatchAttendance({
+          clubId,
+          stadiumCapacity: capacity,
+          ticketPrice,
+          isDerby: Boolean(result.isDerby),
+          recentWins: isWin ? 3 : 1
+        })
+      } catch (err) {
+        console.warn('Fallback attendance computation:', err)
+      }
+
+      attendance = computed?.attendance || Math.round(capacity * 0.75)
       grossIncome = Math.round(attendance * ticketPrice)
       operatingCost = Math.round(grossIncome * 0.15) // 15% seguridad y logística
       netIncome = grossIncome - operatingCost
@@ -174,6 +187,24 @@ export const postMatchApi = {
           stateBefore: { budget: clubData.budget },
           stateAfter: { budget: Number(clubData.budget || 0) + netIncome, netIncome, attendance }
         })
+
+        // Registrar informe de atmósfera de afición (Fase 22)
+        try {
+          const { fanbaseApi } = await import('./fanbase')
+          await fanbaseApi.recordMatchAtmosphere({
+            fixtureId: result.fixtureId || null,
+            homeClubId: clubId,
+            attendance,
+            capacityFillPercentage: computed?.capacityFillPercentage || 75,
+            homeAdvantageBonus: computed?.homeAdvantageBonus || 1.02,
+            ticketPriceApplied: ticketPrice,
+            isWin,
+            isDraw,
+            isDerby: Boolean(result.isDerby)
+          })
+        } catch (fbErr) {
+          console.warn('Aviso: no se pudo persistir match atmosphere:', fbErr)
+        }
 
         // Regla 21.2: Desgaste gradual del césped (-3 pts)
         try {
