@@ -1289,3 +1289,58 @@ CREATE POLICY "Permitir todo fanbase_events_log" ON public.fanbase_events_log FO
 CREATE INDEX IF NOT EXISTS idx_fanbase_club ON public.club_fanbase(club_id);
 CREATE INDEX IF NOT EXISTS idx_attendance_home ON public.match_attendance_records(home_club_id);
 CREATE INDEX IF NOT EXISTS idx_fanbase_events_club ON public.fanbase_events_log(club_id);
+
+-- FASE 23: Dirigencia, Confianza y Condicion de Despido
+CREATE TABLE IF NOT EXISTS public.club_board_confidence (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE SET NULL,
+  season_year integer DEFAULT 1 NOT NULL,
+  confidence_score integer DEFAULT 70 NOT NULL CHECK (confidence_score BETWEEN 0 AND 100),
+  sports_satisfaction integer DEFAULT 70 NOT NULL CHECK (sports_satisfaction BETWEEN 0 AND 100),
+  financial_satisfaction integer DEFAULT 70 NOT NULL CHECK (financial_satisfaction BETWEEN 0 AND 100),
+  squad_satisfaction integer DEFAULT 70 NOT NULL CHECK (squad_satisfaction BETWEEN 0 AND 100),
+  season_objective text DEFAULT 'MID_TABLE' NOT NULL,
+  is_under_ultimatum boolean DEFAULT false NOT NULL,
+  ultimatum_points_required integer DEFAULT 0 NOT NULL,
+  ultimatum_matches_remaining integer DEFAULT 0 NOT NULL,
+  ultimatum_points_gathered integer DEFAULT 0 NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_board UNIQUE (club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.board_meetings_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE SET NULL,
+  meeting_reason text NOT NULL,
+  board_statement text NOT NULL,
+  manager_response text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.manager_dismissals_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE SET NULL,
+  dismissal_reason text NOT NULL,
+  final_confidence_score integer NOT NULL,
+  matches_managed integer DEFAULT 0 NOT NULL,
+  severance_compensation_paid numeric(10,2) DEFAULT 0.00 NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_board_confidence ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_board_confidence" ON public.club_board_confidence FOR ALL USING (true);
+
+ALTER TABLE public.board_meetings_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo board_meetings_log" ON public.board_meetings_log FOR ALL USING (true);
+
+ALTER TABLE public.manager_dismissals_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo manager_dismissals_log" ON public.manager_dismissals_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_board_conf_club ON public.club_board_confidence(club_id);
+CREATE INDEX IF NOT EXISTS idx_board_meetings_club ON public.board_meetings_log(club_id);
+CREATE INDEX IF NOT EXISTS idx_dismissals_club ON public.manager_dismissals_log(club_id);

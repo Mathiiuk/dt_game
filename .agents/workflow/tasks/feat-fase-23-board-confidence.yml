@@ -1,0 +1,57 @@
+id: feat-fase-23-board-confidence
+external_ref: 23_dirigencia
+title: 'Fase 23: Dirigencia, Confianza y Condicion de Despido'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/board.js
+    - src/features/club/screens/BoardManagementTab.jsx
+    - src/features/club/screens/ClubScreen.jsx
+    - src/api/postMatch.js
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades club_board_confidence, board_meetings_log y
+    manager_dismissals_log en supabase.sql con RLS e índices
+  - >-
+    Servicio BoardManagementService con cálculo multidimensional de confianza
+    (deportiva, financiera y plantel)
+  - >-
+    Mecanismo de reuniones de crisis y ultimátum dirigencial condicionado por
+    puntos y partidos restantes
+  - >-
+    Proceso formal de rescisión y despido autoritativo en caso de incumplir
+    metas de ultimátum
+  - >-
+    Pestaña de Directiva en ClubScreen con desglose de satisfacción, objetivos
+    de temporada y peticiones al presidente
+acceptance_criteria:
+  - >-
+    El DT puede auditar la satisfacción dirigencial, desglose por áreas y
+    objetivos de la temporada
+  - >-
+    Un mal momento deportivo prolongado activa el estado de Ultimátum
+    Dirigencial con cuenta regresiva
+  - Se registran formalmente las reuniones y declaraciones del presidente
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

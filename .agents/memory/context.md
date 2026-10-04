@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:03:52.070Z | **Nodos:** 111 | **Tareas:** 36
+> **Última sincronización:** 2026-10-04T03:06:43.302Z | **Nodos:** 114 | **Tareas:** 37
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | `src/features/squad/SquadScreen.jsx` | 783 | react, react-router-dom, ../../api/player |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
-| `src/features/club/screens/ClubScreen.jsx` | 649 | react, react-router-dom, ../../../api/club |
+| `src/features/club/screens/ClubScreen.jsx` | 672 | react, react-router-dom, ../../../api/club |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
@@ -32,7 +32,7 @@
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/api/academy.js` | 364 | ./supabase, ../utils/cache, ./levels |
 
-_(+50 módulos adicionales; consultar con `memory:query`)_
+_(+52 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -72,3 +72,4 @@ _(+50 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-20-economy-finances: Fase 20: Economia Integral, Balance Semanal y Finanzas del Club** `[DONE]`
 - **feat-fase-21-stadium-infrastructure: Fase 21: Estadio, Infraestructura y Mejoras Edilicias** `[DONE]`
 - **feat-fase-22-fanbase-support: Fase 22: Hinchada, Aficion y Masa Social** `[DONE]`
+- **feat-fase-23-board-confidence: Fase 23: Dirigencia, Confianza y Condicion de Despido** `[DONE]`

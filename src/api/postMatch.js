@@ -216,18 +216,29 @@ export const postMatchApi = {
       }
     }
 
-    // 5. Ajustar confianza de la directiva
+    // 5. Ajustar confianza de la directiva (Fase 23)
     if (clubData) {
-      let currentConfidence = clubData.board_confidence ?? 80
-      if (isWin) currentConfidence += 4
-      else if (isDraw) currentConfidence -= 1
-      else currentConfidence -= 6
-      currentConfidence = Math.max(0, Math.min(100, currentConfidence))
+      try {
+        const { boardApi } = await import('./board')
+        await boardApi.updateConfidenceAfterMatch({
+          clubId,
+          managerId,
+          isWin,
+          isDraw
+        })
+      } catch (boardErr) {
+        console.warn('Fallback board confidence update:', boardErr)
+        let currentConfidence = clubData.board_confidence ?? 80
+        if (isWin) currentConfidence += 4
+        else if (isDraw) currentConfidence -= 1
+        else currentConfidence -= 6
+        currentConfidence = Math.max(0, Math.min(100, currentConfidence))
 
-      await supabase
-        .from('clubs')
-        .update({ board_confidence: currentConfidence })
-        .eq('id', clubId)
+        await supabase
+          .from('clubs')
+          .update({ board_confidence: currentConfidence })
+          .eq('id', clubId)
+      }
     }
 
     // 6. Registrar match_reports y player_match_stats en BD

@@ -33,6 +33,7 @@ import YouthAcademyModal from './YouthAcademyModal'
 import StaffManagementModal from './StaffManagementModal'
 import StadiumManagementTab from './StadiumManagementTab'
 import FanbaseManagementTab from './FanbaseManagementTab'
+import BoardManagementTab from './BoardManagementTab'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
@@ -215,6 +216,18 @@ export default function ClubScreen() {
         >
           <Flame className="w-4 h-4 shrink-0" />
           <span>Hinchada</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('directiva')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
+            activeTab === 'directiva'
+              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+          }`}
+        >
+          <Award className="w-4 h-4 shrink-0" />
+          <span>Directiva</span>
         </button>
 
         <button
@@ -416,6 +429,16 @@ export default function ClubScreen() {
       {/* CONTENIDO TAB: HINCHADA & AFICIÓN (FASE 22) */}
       {activeTab === 'hinchada' && (
         <FanbaseManagementTab club={club} />
+      )}
+
+      {/* CONTENIDO TAB: COMISIÓN DIRECTIVA (FASE 23) */}
+      {activeTab === 'directiva' && (
+        <BoardManagementTab 
+          club={club} 
+          manager={manager} 
+          confirmAction={confirmAction} 
+          onUpdateClub={() => loadData(true)} 
+        />
       )}
 
       {/* CONTENIDO TAB 2: HISTORIA & RÉCORDS (FASE 36) */}

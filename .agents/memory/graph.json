@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:03:52.070Z",
+  "updatedAt": "2026-10-04T03:06:43.302Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 111,
-    "totalEdges": 351,
-    "totalTasks": 36,
+    "totalNodes": 114,
+    "totalEdges": 360,
+    "totalTasks": 37,
     "totalLessons": 0
   },
   "nodes": [
@@ -64,6 +64,18 @@
         "./supabase",
         "../utils/cache",
         "./audit"
+      ]
+    },
+    {
+      "id": "src/api/board.js",
+      "label": "board.js",
+      "type": "module",
+      "sizeBytes": 11527,
+      "lineCount": 330,
+      "imports": [
+        "./supabase",
+        "../utils/cache",
+        "./finances"
       ]
     },
     {
@@ -203,7 +215,7 @@
       "id": "src/api/fanbase.js",
       "label": "fanbase.js",
       "type": "module",
-      "sizeBytes": 9476,
+      "sizeBytes": 9782,
       "lineCount": 307,
       "imports": [
         "./supabase",
@@ -347,8 +359,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 10690,
-      "lineCount": 297,
+      "sizeBytes": 11033,
+      "lineCount": 308,
       "imports": [
         "./manager",
         "./supabase",
@@ -625,11 +637,24 @@
       ]
     },
     {
+      "id": "src/features/club/screens/BoardManagementTab.jsx",
+      "label": "BoardManagementTab.jsx",
+      "type": "module",
+      "sizeBytes": 15523,
+      "lineCount": 335,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/board",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 31308,
-      "lineCount": 649,
+      "sizeBytes": 32144,
+      "lineCount": 672,
       "imports": [
         "react",
         "react-router-dom",
@@ -644,14 +669,15 @@
         "./YouthAcademyModal",
         "./StaffManagementModal",
         "./StadiumManagementTab",
-        "./FanbaseManagementTab"
+        "./FanbaseManagementTab",
+        "./BoardManagementTab"
       ]
     },
     {
       "id": "src/features/club/screens/FanbaseManagementTab.jsx",
       "label": "FanbaseManagementTab.jsx",
       "type": "module",
-      "sizeBytes": 12554,
+      "sizeBytes": 12848,
       "lineCount": 295,
       "imports": [
         "react",
@@ -1247,6 +1273,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-23-board-confidence",
+      "label": "feat-fase-23-board-confidence: Fase 23: Dirigencia, Confianza y Condicion de Despido",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1313,6 +1346,21 @@
     {
       "from": "src/api/auth.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/board.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/board.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/board.js",
+      "to": "./finances",
       "relation": "depends_on"
     },
     {
@@ -2086,6 +2134,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/BoardManagementTab.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/BoardManagementTab.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/BoardManagementTab.jsx",
+      "to": "../../../api/board",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/BoardManagementTab.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2153,6 +2221,11 @@
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "./FanbaseManagementTab",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./BoardManagementTab",
       "relation": "depends_on"
     },
     {
@@ -3003,6 +3076,11 @@
     {
       "from": "task:feat-fase-22-fanbase-support",
       "to": ".agents/workflow/tasks/feat-fase-22-fanbase-support.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-23-board-confidence",
+      "to": ".agents/workflow/tasks/feat-fase-23-board-confidence.yml",
       "relation": "manifested_by"
     }
   ],
