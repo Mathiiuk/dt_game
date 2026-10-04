@@ -1,0 +1,43 @@
+id: f2-1-block-b-management
+external_ref: ''
+title: >-
+  Fase 2.1: Bloque B - Contratos de Dominio Gestion Deportiva y Economica (Fases
+  11 a 20)
+type: fix
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Redactar contratos de dominio profundos y exhaustivos para Fases 11 a 20
+    (Bloque B: Gestión Deportiva y Económica) en
+    docs/Del_Potrero_al_Idolo_Fase_2_1/
+  - >-
+    Cumplir las 15 Master Rules 3.0 (Backend autoridad económica, niebla de
+    guerra en scouting, contratos idempotentes, finanzas auditables)
+  - >-
+    Completar todas las 20 secciones por documento con criterios de aceptación
+    marcados
+acceptance_criteria:
+  - Todas las especificaciones de Fases 11 a 20 profundizadas sin ambigüedades
+  - Calidad de build 100% verde (npm run build)
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

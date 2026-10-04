@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:20:19.883Z",
+  "updatedAt": "2026-10-04T00:23:57.778Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 70,
-    "totalEdges": 275,
-    "totalTasks": 11,
+    "totalNodes": 71,
+    "totalEdges": 276,
+    "totalTasks": 12,
     "totalLessons": 0
   },
   "nodes": [
@@ -803,6 +803,13 @@
     {
       "id": "task:f2-1-block-a-fundamentals",
       "label": "f2-1-block-a-fundamentals: Fase 2.1: Bloque A - Contratos de Dominio Fundamentos (Fases 01 a 10)",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-1-block-b-management",
+      "label": "f2-1-block-b-management: Fase 2.1: Bloque B - Contratos de Dominio Gestion Deportiva y Economica (Fases 11 a 20)",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -2202,6 +2209,11 @@
     {
       "from": "task:f2-1-block-a-fundamentals",
       "to": ".agents/workflow/tasks/f2-1-block-a-fundamentals.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-1-block-b-management",
+      "to": ".agents/workflow/tasks/f2-1-block-b-management.yml",
       "relation": "manifested_by"
     },
     {
