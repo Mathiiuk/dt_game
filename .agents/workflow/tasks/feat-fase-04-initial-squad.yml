@@ -1,0 +1,49 @@
+id: feat-fase-04-initial-squad
+external_ref: ''
+title: >-
+  Fase 04: Generación Procedural del Primer Plantel, Cuotas Posicionales y
+  Contratos
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/player.js
+    - src/features/squad
+  environments:
+    - local
+requirements:
+  - >-
+    Generación de exactamente 20 futbolistas respetando cuotas posicionales (2
+    GK, 6 DEF, 7 MED, 5 DEL)
+  - >-
+    Medias ponderadas de Tier 5 (media OVR 50 ± 4, con 2+ juveniles con
+    potencial > 68 y estrella hasta 62)
+  - >-
+    Salarios individuales y masa salarial acotada entre 70% y 85% del
+    presupuesto semanal ($3,500)
+  - >-
+    Asignación estricta de dorsales únicos del 1 al 20 e idempotencia ante
+    ejecuciones repetidas
+acceptance_criteria:
+  - El plantel contiene exactamente 20 futbolistas sin posiciones descubiertas
+  - Dorsales 1 al 20 sin duplicados por club
+  - Idempotencia: si el club ya tiene jugadores no se duplican en BD
+  - Build de Vite 100% verde
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

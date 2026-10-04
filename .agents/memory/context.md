@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T00:54:03.838Z | **Nodos:** 76 | **Tareas:** 17
+> **Última sincronización:** 2026-10-04T00:57:20.374Z | **Nodos:** 77 | **Tareas:** 18
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -26,11 +26,11 @@
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
 | `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
+| `src/api/player.js` | 249 | ./supabase, ../utils/cache, ./audit |
 | `src/api/manager.js` | 247 | ./supabase, ./audit |
 | `src/api/competition.js` | 240 | ./supabase, ../utils/cache |
 | `src/api/gameLoop.js` | 230 | ./supabase |
 | `src/features/match/PostMatchScreen.jsx` | 210 | react, react-router-dom, ../../api/postMatch |
-| `src/features/finances/FinancesScreen.jsx` | 208 | react, react-router-dom, ../../api/auth |
 
 _(+34 módulos adicionales; consultar con `memory:query`)_
 
@@ -53,3 +53,4 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-01-auth-session: Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras** `[DONE]`
 - **feat-fase-02-dt-creation: Fase 02: Creación de DT, Presets de Trasfondo y Validación Suma Cero** `[DONE]`
 - **feat-fase-03-club-foundation: Fase 03: Creación y Fundación del Club, Identidad Visual y Balance Tier 5** `[DONE]`
+- **feat-fase-04-initial-squad: Fase 04: Generación Procedural del Primer Plantel, Cuotas Posicionales y Contratos** `[DONE]`

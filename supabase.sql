@@ -543,3 +543,9 @@ ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS is_user_club boolean DEFAULT t
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS primary_color text DEFAULT '#047857';
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS secondary_color text DEFAULT '#FFFFFF';
 ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS badge_id text DEFAULT 'SHIELD';
+
+-- ============================================================================
+-- Fase 04: Generación del Primer Plantel y Dorsales Únicos
+-- ============================================================================
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_club_jersey_number ON public.players(club_id, shirt_number);

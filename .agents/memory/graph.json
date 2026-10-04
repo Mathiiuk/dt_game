@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:54:03.838Z",
+  "updatedAt": "2026-10-04T00:57:20.374Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 76,
-    "totalEdges": 285,
-    "totalTasks": 17,
+    "totalNodes": 77,
+    "totalEdges": 287,
+    "totalTasks": 18,
     "totalLessons": 0
   },
   "nodes": [
@@ -58,7 +58,7 @@
       "id": "src/api/club.js",
       "label": "club.js",
       "type": "module",
-      "sizeBytes": 5071,
+      "sizeBytes": 5237,
       "lineCount": 167,
       "imports": [
         "./supabase",
@@ -274,11 +274,12 @@
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 3653,
-      "lineCount": 118,
+      "sizeBytes": 9020,
+      "lineCount": 249,
       "imports": [
         "./supabase",
-        "../utils/cache"
+        "../utils/cache",
+        "./audit"
       ]
     },
     {
@@ -488,7 +489,7 @@
       "id": "src/features/club/CreateClubWizard.jsx",
       "label": "CreateClubWizard.jsx",
       "type": "module",
-      "sizeBytes": 20935,
+      "sizeBytes": 21384,
       "lineCount": 450,
       "imports": [
         "react",
@@ -922,6 +923,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-04-initial-squad",
+      "label": "feat-fase-04-initial-squad: Fase 04: Generación Procedural del Primer Plantel, Cuotas Posicionales y Contratos",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1168,6 +1176,11 @@
     {
       "from": "src/api/player.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/player.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -2348,6 +2361,11 @@
     {
       "from": "task:feat-fase-03-club-foundation",
       "to": ".agents/workflow/tasks/feat-fase-03-club-foundation.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-04-initial-squad",
+      "to": ".agents/workflow/tasks/feat-fase-04-initial-squad.yml",
       "relation": "manifested_by"
     }
   ],
