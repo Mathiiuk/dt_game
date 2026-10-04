@@ -1,0 +1,56 @@
+id: feat-fase-12-league-standings
+external_ref: 12_competicion
+title: 'Fase 12: Competicion de Liga, Tabla de Posiciones y Criterios de Desempate'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/competition.js
+    - src/features/competition/StandingsScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Solucionar el error de pantalla en negro al cargar la tabla de posiciones
+    con fallback y recuperacion automatica
+  - >-
+    Crear entidades de dominio competition_audit_log y restriccion unica
+    uq_standings_club_competition en supabase.sql
+  - Permitir clubes de IA sin manager humano (DROP NOT NULL en clubs.manager_id)
+  - >-
+    Implementar criterios canónicos de desempate: Puntos, Diferencia de Gol,
+    Goles a Favor, Nombre
+  - >-
+    Zonas deportivas oficiales: Campeon y Ascenso Directo (1-2), Reducido (3-6),
+    Descenso (18-20)
+  - >-
+    Racha reciente de resultados (Form W, D, L) y persistencia autoritativa tras
+    cada jornada
+acceptance_criteria:
+  - >-
+    La pantalla de tabla de posiciones carga de inmediato con 20 clubes sin
+    quedar en negro
+  - Ordenamiento riguroso por Puntos, DG, GF
+  - >-
+    Doble inicialización o guardado duplicado en standings está bloqueado por
+    restricción de base de datos
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

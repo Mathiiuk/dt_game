@@ -803,3 +803,32 @@ CREATE POLICY "Permitir match_reports" ON public.match_reports FOR ALL USING (tr
 
 ALTER TABLE public.player_match_stats ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir player_match_stats" ON public.player_match_stats FOR ALL USING (true);
+
+-- ============================================================================
+-- Fase 12: Competicion de Liga, Tabla de Posiciones y Criterios de Desempate
+-- ============================================================================
+
+ALTER TABLE public.clubs ALTER COLUMN manager_id DROP NOT NULL;
+
+ALTER TABLE public.competitions ADD COLUMN IF NOT EXISTS division_tier int DEFAULT 5;
+ALTER TABLE public.competitions ADD COLUMN IF NOT EXISTS season_year int DEFAULT 2026;
+ALTER TABLE public.competitions ADD COLUMN IF NOT EXISTS total_match_days int DEFAULT 38;
+ALTER TABLE public.competitions ADD COLUMN IF NOT EXISTS current_match_day int DEFAULT 1;
+ALTER TABLE public.competitions ADD COLUMN IF NOT EXISTS status text DEFAULT 'ACTIVE';
+
+ALTER TABLE public.standings ADD COLUMN IF NOT EXISTS goal_difference int DEFAULT 0;
+ALTER TABLE public.standings ADD COLUMN IF NOT EXISTS form text DEFAULT 'E';
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_standings_club_competition ON public.standings(club_id, competition_id);
+
+CREATE TABLE IF NOT EXISTS public.competition_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  competition_id uuid REFERENCES public.competitions(id) ON DELETE CASCADE,
+  career_id uuid,
+  action text NOT NULL,
+  details jsonb DEFAULT '{}'::jsonb,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.competition_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir competition_audit_log" ON public.competition_audit_log FOR ALL USING (true);

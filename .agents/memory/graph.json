@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:31:22.246Z",
+  "updatedAt": "2026-10-04T02:33:55.531Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 88,
-    "totalEdges": 302,
-    "totalTasks": 25,
+    "totalNodes": 89,
+    "totalEdges": 300,
+    "totalTasks": 26,
     "totalLessons": 0
   },
   "nodes": [
@@ -100,8 +100,8 @@
       "id": "src/api/competition.js",
       "label": "competition.js",
       "type": "module",
-      "sizeBytes": 8205,
-      "lineCount": 240,
+      "sizeBytes": 12739,
+      "lineCount": 366,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -313,7 +313,7 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 9022,
+      "sizeBytes": 9279,
       "lineCount": 258,
       "imports": [
         "./manager",
@@ -593,14 +593,11 @@
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 8547,
-      "lineCount": 186,
+      "sizeBytes": 11544,
+      "lineCount": 271,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/auth",
-        "../../api/manager",
-        "../../api/club",
         "../../api/competition",
         "lucide-react",
         "sonner",
@@ -745,7 +742,7 @@
       "id": "src/features/match/PostMatchScreen.jsx",
       "label": "PostMatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 21176,
+      "sizeBytes": 21627,
       "lineCount": 452,
       "imports": [
         "react",
@@ -1021,6 +1018,13 @@
     {
       "id": "task:feat-fase-11-post-match",
       "label": "feat-fase-11-post-match: Fase 11: Resumen Post-Partido, Calificaciones, Taquilla y Secciones Mobile",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-12-league-standings",
+      "label": "feat-fase-12-league-standings: Fase 12: Competicion de Liga, Tabla de Posiciones y Criterios de Desempate",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -1879,21 +1883,6 @@
     },
     {
       "from": "src/features/competition/StandingsScreen.jsx",
-      "to": "../../api/auth",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/competition/StandingsScreen.jsx",
-      "to": "../../api/manager",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/competition/StandingsScreen.jsx",
-      "to": "../../api/club",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/competition/StandingsScreen.jsx",
       "to": "../../api/competition",
       "relation": "depends_on"
     },
@@ -2535,6 +2524,11 @@
     {
       "from": "task:feat-fase-11-post-match",
       "to": ".agents/workflow/tasks/feat-fase-11-post-match.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-12-league-standings",
+      "to": ".agents/workflow/tasks/feat-fase-12-league-standings.yml",
       "relation": "manifested_by"
     }
   ],
