@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:50:48.037Z | **Nodos:** 141 | **Tareas:** 47
+> **Última sincronización:** 2026-10-04T03:54:14.183Z | **Nodos:** 142 | **Tareas:** 48
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -83,3 +83,4 @@ _(+69 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-31-manager-career-job-offers: Fase 31 - Carrera del DT, Ofertas de Trabajo y Renuncias** `[DONE]`
 - **feat-fase-32-manager-reputation-prestige: Fase 32 - Reputacion Profesional y Prestigio del DT** `[DONE]`
 - **feat-fase-33-national-teams-dual-career: Fase 33 - Selecciones Nacionales y Doble Carrera** `[DONE]`
+- **feat-fase-34-international-cups: Fase 34 - Competiciones Internacionales y Copas Continentales** `[DONE]`

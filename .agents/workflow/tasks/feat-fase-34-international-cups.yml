@@ -1,0 +1,33 @@
+id: feat-fase-34-international-cups
+external_ref: ''
+title: Fase 34 - Competiciones Internacionales y Copas Continentales
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Fase 34 - Competiciones Internacionales y Copas Continentales
+acceptance_criteria:
+  - Formato oficial de torneos continentales y llaves de eliminación directa
+  - Premios económicos en divisas e impacto en tesorería
+  - Desgaste por viajes transcontinentales y consagración continental (+25 rep)
+  - Build sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

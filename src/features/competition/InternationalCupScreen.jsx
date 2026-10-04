@@ -16,6 +16,7 @@ import {
   Flame
 } from 'lucide-react'
 import { toast } from 'sonner'
+import BottomNav from '../../components/BottomNav'
 
 export default function InternationalCupScreen() {
   const navigate = useNavigate()
@@ -200,6 +201,7 @@ export default function InternationalCupScreen() {
         </section>
 
       </div>
+      <BottomNav />
     </div>
   )
 }

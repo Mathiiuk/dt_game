@@ -3,9 +3,21 @@ import { clubHistoryApi } from './clubHistory'
 import { managerApi } from './manager'
 import { auditApi } from './audit'
 
+export const INTERNATIONAL_CUPS_CONFIG = {
+  group_stage_qualification_prize: 300000,
+  group_stage_win_bonus: 50000,
+  round_of_16_prize: 400000,
+  quarter_finals_prize: 600000,
+  semi_finals_prize: 900000,
+  runner_up_prize: 1200000,
+  champion_prize: 2000000,
+  continental_title_reputation_boost: 25.0,
+  travel_fatigue_penalty: -10
+}
+
 /**
  * Servicio de Competiciones Internacionales (Fase 34)
- * Maneja la Copa Gloria Continental (Copa continental principal estilo Libertadores/Champions)
+ * Maneja la Copa Gloria Continental (Copa continental principal estilo Libertadores)
  */
 export const internationalCupApi = {
   /**
@@ -15,13 +27,13 @@ export const internationalCupApi = {
     if (!clubId) return null
 
     // 1. Obtener datos del club y fecha actual
-    const { data: club } = await supabase.from('clubs').select('*').eq('id', clubId).single()
+    const { data: club } = await supabase.from('clubs').select('*').eq('id', clubId).maybeSingle()
     const seasonYear = club?.game_date ? new Date(club.game_date).getFullYear() : 2026
 
     // 2. Buscar torneo existente para la temporada
     let { data: tournament } = await supabase
       .from('international_tournaments')
-      .select('*, champion:clubs!international_tournaments_champion_id_fkey(name)')
+      .select('*, champion:clubs(name)')
       .eq('season_year', seasonYear)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -61,10 +73,12 @@ export const internationalCupApi = {
       .from('international_tournaments')
       .insert({
         name: 'Copa Gloria Continental',
+        tournament_type: 'CONTINENTAL_CHAMPIONS_CUP',
         season_year: seasonYear,
         tier: 1,
         status: 'in_progress',
-        prize_pool: 1500000
+        current_stage: 'quarter_finals',
+        prize_pool: INTERNATIONAL_CUPS_CONFIG.champion_prize
       })
       .select()
       .single()
@@ -92,7 +106,6 @@ export const internationalCupApi = {
     }
 
     // 3. Generar los 4 partidos de Cuartos de Final (quarter_finals)
-    // El club del usuario juega el Match 1
     const quarterFixtures = [
       {
         tournament_id: tournament.id,
@@ -143,7 +156,7 @@ export const internationalCupApi = {
     const homeScore = Math.floor(Math.random() * 4)
     let awayScore = Math.floor(Math.random() * 4)
     if (homeScore === awayScore) {
-      // Definición en penales si empatan en eliminación directa
+      // Definición en penales si empatan en eliminación directa (Regla 34.2)
       awayScore = Math.random() > 0.5 ? homeScore + 1 : Math.max(0, homeScore - 1)
     }
 
@@ -183,7 +196,7 @@ export const internationalCupApi = {
     // 2. Recompensas de Copa Continental
     const { data: club } = await supabase.from('clubs').select('budget, reputation').eq('id', userClubId).single()
     const matchBonus = userWon ? 200000 : 75000 // Gran premio económico por partido de copa
-    const xpBonus = userWon ? 80 : 25
+    const xpBonus = userWon ? 100 : 35
 
     if (club) {
       await supabase.from('clubs').update({
@@ -203,6 +216,40 @@ export const internationalCupApi = {
 
     if (managerId) {
       await managerApi.addXp(managerId, xpBonus)
+
+      // Reputación de DT (Fase 32)
+      if (userWon) {
+        try {
+          const { reputationApi } = await import('./reputation')
+          await reputationApi.applyReputationDelta({
+            managerId,
+            eventType: 'INTERNATIONAL_TRIUMPH',
+            sourceEntityId: fixtureId,
+            delta: 2.0,
+            description: `Victoria internacional en ${fixture.stage}`
+          })
+        } catch (repErr) {
+          console.warn('Aviso: no se pudo actualizar reputación por partido continental:', repErr)
+        }
+      }
+    }
+
+    // Regla 34.4: Desgaste físico por viaje transcontinental (-10 fitness)
+    try {
+      const { data: squad } = await supabase
+        .from('players')
+        .select('id, state_fitness')
+        .eq('club_id', userClubId)
+        .limit(14)
+
+      if (squad) {
+        for (const p of squad) {
+          const newFit = Math.max(30, (p.state_fitness || 85) + INTERNATIONAL_CUPS_CONFIG.travel_fatigue_penalty)
+          await supabase.from('players').update({ state_fitness: newFit }).eq('id', p.id)
+        }
+      }
+    } catch (e) {
+      console.warn('Aviso fatiga continental:', e)
     }
 
     // 3. Simular los demás partidos de la misma fase que no se hayan jugado aún
@@ -221,9 +268,9 @@ export const internationalCupApi = {
       }
     }
 
-    // 4. Si era la FINAL y el usuario ganó: Consagración continental
+    // 4. Si era la FINAL y el usuario ganó: Consagración continental suprema
     if (fixture.stage === 'final' && userWon) {
-      const champPrize = 1000000
+      const champPrize = INTERNATIONAL_CUPS_CONFIG.champion_prize // $2,000,000
       await supabase.from('clubs').update({
         budget: Number(club.budget || 0) + matchBonus + champPrize
       }).eq('id', userClubId)
@@ -242,7 +289,23 @@ export const internationalCupApi = {
         importance: 5
       })
 
-      // Registrar logro del DT (Fase 38/39)
+      // Registrar logro del DT en vitrina de carrera (Fase 31 / 38 / 39)
+      try {
+        const { careerApi } = await import('./career')
+        await careerApi.recordTrophyInStint(managerId, userClubId, 'Copa Gloria Continental')
+
+        const { reputationApi } = await import('./reputation')
+        await reputationApi.applyReputationDelta({
+          managerId,
+          eventType: 'TITLE_WON',
+          sourceEntityId: `champ_${fixture.tournament_id}`,
+          delta: INTERNATIONAL_CUPS_CONFIG.continental_title_reputation_boost, // +25 pts
+          description: '¡Campeón de la Copa Gloria Continental!'
+        })
+      } catch (e) {
+        console.warn('Aviso trofeo de DT:', e)
+      }
+
       await supabase.from('manager_achievements').insert({
         manager_id: managerId,
         club_id: userClubId,

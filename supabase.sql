@@ -1843,3 +1843,67 @@ CREATE POLICY "Permitir todo national_fixtures" ON public.national_fixtures FOR 
 CREATE INDEX IF NOT EXISTS idx_national_teams_mgr ON public.national_teams(manager_id);
 CREATE INDEX IF NOT EXISTS idx_national_callups_team ON public.national_team_callups(national_team_id);
 CREATE INDEX IF NOT EXISTS idx_national_fixtures_team ON public.national_fixtures(national_team_id);
+
+-- ========================================================
+-- FASE 34: COMPETICIONES INTERNACIONALES Y COPAS CONTINENTALES
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS public.international_tournaments (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  tournament_type text DEFAULT 'CONTINENTAL_CHAMPIONS_CUP' NOT NULL,
+  season_year integer DEFAULT 2026 NOT NULL,
+  tier integer DEFAULT 1 NOT NULL,
+  status text DEFAULT 'in_progress' NOT NULL,
+  current_stage text DEFAULT 'quarter_finals' NOT NULL,
+  prize_pool numeric(12,2) DEFAULT 1500000.00 NOT NULL,
+  champion_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.international_fixtures (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  tournament_id uuid REFERENCES public.international_tournaments(id) ON DELETE CASCADE,
+  stage text NOT NULL,
+  match_number integer DEFAULT 1 NOT NULL,
+  home_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  away_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  home_score integer DEFAULT 0 NOT NULL,
+  away_score integer DEFAULT 0 NOT NULL,
+  played boolean DEFAULT false NOT NULL,
+  match_date date,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.international_group_standings (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  tournament_id uuid REFERENCES public.international_tournaments(id) ON DELETE CASCADE,
+  group_letter text NOT NULL,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  points integer DEFAULT 0 NOT NULL,
+  played integer DEFAULT 0 NOT NULL,
+  won integer DEFAULT 0 NOT NULL,
+  drawn integer DEFAULT 0 NOT NULL,
+  lost integer DEFAULT 0 NOT NULL,
+  goals_for integer DEFAULT 0 NOT NULL,
+  goals_against integer DEFAULT 0 NOT NULL,
+  goal_difference integer DEFAULT 0 NOT NULL,
+  qualified_to_knockout boolean DEFAULT false NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_intl_group_club UNIQUE (tournament_id, group_letter, club_id)
+);
+
+ALTER TABLE public.international_tournaments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo international_tournaments" ON public.international_tournaments FOR ALL USING (true);
+
+ALTER TABLE public.international_fixtures ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo international_fixtures" ON public.international_fixtures FOR ALL USING (true);
+
+ALTER TABLE public.international_group_standings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo international_group_standings" ON public.international_group_standings FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_intl_tournaments_season ON public.international_tournaments(season_year);
+CREATE INDEX IF NOT EXISTS idx_intl_fixtures_tourn_stage ON public.international_fixtures(tournament_id, stage);
+CREATE INDEX IF NOT EXISTS idx_intl_standings_tourn ON public.international_group_standings(tournament_id);

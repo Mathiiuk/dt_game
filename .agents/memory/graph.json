@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:50:48.037Z",
+  "updatedAt": "2026-10-04T03:54:14.183Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 141,
-    "totalEdges": 436,
-    "totalTasks": 47,
+    "totalNodes": 142,
+    "totalEdges": 438,
+    "totalTasks": 48,
     "totalLessons": 0
   },
   "nodes": [
@@ -291,8 +291,8 @@
       "id": "src/api/internationalCup.js",
       "label": "internationalCup.js",
       "type": "module",
-      "sizeBytes": 10649,
-      "lineCount": 315,
+      "sizeBytes": 12596,
+      "lineCount": 378,
       "imports": [
         "./supabase",
         "./clubHistory",
@@ -369,7 +369,7 @@
       "id": "src/api/nationalTeam.js",
       "label": "nationalTeam.js",
       "type": "module",
-      "sizeBytes": 15834,
+      "sizeBytes": 16327,
       "lineCount": 494,
       "imports": [
         "./supabase",
@@ -889,15 +889,16 @@
       "id": "src/features/competition/InternationalCupScreen.jsx",
       "label": "InternationalCupScreen.jsx",
       "type": "module",
-      "sizeBytes": 11418,
-      "lineCount": 277,
+      "sizeBytes": 11491,
+      "lineCount": 279,
       "imports": [
         "react",
         "react-router-dom",
         "../../api/internationalCup",
         "../../context/GameContext",
         "lucide-react",
-        "sonner"
+        "sonner",
+        "../../components/BottomNav"
       ]
     },
     {
@@ -1017,7 +1018,7 @@
       "id": "src/features/manager/NationalTeamScreen.jsx",
       "label": "NationalTeamScreen.jsx",
       "type": "module",
-      "sizeBytes": 17468,
+      "sizeBytes": 17870,
       "lineCount": 403,
       "imports": [
         "react",
@@ -1566,6 +1567,13 @@
     {
       "id": "task:feat-fase-33-national-teams-dual-career",
       "label": "feat-fase-33-national-teams-dual-career: Fase 33 - Selecciones Nacionales y Doble Carrera",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-34-international-cups",
+      "label": "feat-fase-34-international-cups: Fase 34 - Competiciones Internacionales y Copas Continentales",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -2843,6 +2851,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "../../components/BottomNav",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/competition/LeaguePyramidModal.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -3750,6 +3763,11 @@
     {
       "from": "task:feat-fase-33-national-teams-dual-career",
       "to": ".agents/workflow/tasks/feat-fase-33-national-teams-dual-career.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-34-international-cups",
+      "to": ".agents/workflow/tasks/feat-fase-34-international-cups.yml",
       "relation": "manifested_by"
     }
   ],
