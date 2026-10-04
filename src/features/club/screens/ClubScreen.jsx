@@ -39,6 +39,7 @@ import BoardManagementTab from './BoardManagementTab'
 import LockerRoomTab from './LockerRoomTab'
 import PressRoomModal from './PressRoomModal'
 import InfirmaryTab from './InfirmaryTab'
+import ClubHistoryTab from './ClubHistoryTab'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
@@ -498,116 +499,11 @@ export default function ClubScreen() {
 
       {/* CONTENIDO TAB 2: HISTORIA & RÉCORDS (FASE 36) */}
       {activeTab === 'historia' && (
-        <div className="space-y-6">
-          {/* Vitrina de Récords del Club */}
-          <section className="p-4 md:p-6 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <h2 className="flex items-center gap-2 mb-4 font-bold text-base md:text-lg text-white">
-              <Trophy className="w-5 h-5 text-amber-400 shrink-0" />
-              <span>Récords Institucionales</span>
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {data.records.map((r, i) => (
-                <div key={i} className="p-4 border border-zinc-800/80 rounded-xl bg-zinc-950/70 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 text-zinc-400 mb-1">
-                      {r.record_type === 'biggest_win' && <Trophy className="w-4 h-4 text-emerald-400" />}
-                      {r.record_type === 'top_scorer_history' && <Flame className="w-4 h-4 text-amber-400" />}
-                      {r.record_type === 'most_appearances' && <ShieldCheck className="w-4 h-4 text-blue-400" />}
-                      {r.record_type === 'highest_attendance' && <Users className="w-4 h-4 text-purple-400" />}
-                      <span className="text-xs font-semibold">{r.title}</span>
-                    </div>
-                    <p className="text-lg md:text-xl font-black text-white">{r.record_value}</p>
-                  </div>
-                  <div className="mt-2 pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400">
-                    <span className="truncate">{r.holder_name}</span>
-                    <span className="text-zinc-500 shrink-0">{r.record_date}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Línea de Tiempo Cronológica (Hitos del Club) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <section className="p-4 md:p-6 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-              <h2 className="flex items-center gap-2 mb-4 font-bold text-base md:text-lg text-white">
-                <History className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>Línea de Tiempo del Club</span>
-              </h2>
-              <div className="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-zinc-800">
-                {data.milestones.length === 0 ? (
-                  <p className="text-zinc-500 text-xs md:text-sm">Sin hitos registrados aún.</p>
-                ) : (
-                  data.milestones.map((m) => (
-                    <div key={m.id} className="relative">
-                      {/* Nodo del timeline */}
-                      <span className="absolute -left-[29px] top-1 w-3.5 h-3.5 rounded-full bg-zinc-950 border-2 border-emerald-400" />
-                      <div className="p-3.5 border border-zinc-800/80 rounded-xl bg-zinc-950/70">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 border border-zinc-700">
-                            {m.year}
-                          </span>
-                          <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
-                            {m.category || 'Hito'}
-                          </span>
-                        </div>
-                        <h4 className="font-bold text-sm text-white">{m.title}</h4>
-                        <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{m.description}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
-
-            {/* Temporadas Jugadas */}
-            <section className="p-4 md:p-6 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-              <h2 className="flex items-center gap-2 mb-4 font-bold text-base md:text-lg text-white">
-                <Calendar className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>Registro de Temporadas</span>
-              </h2>
-              <div className="space-y-3">
-                {data.history.length === 0 ? (
-                  <div className="p-6 text-center border border-dashed border-zinc-800 rounded-xl">
-                    <p className="text-zinc-400 text-xs md:text-sm font-medium">Temporada inaugural en curso.</p>
-                    <p className="text-zinc-600 text-[11px] mt-1">El historial se actualizará al cerrar cada campeonato.</p>
-                  </div>
-                ) : (
-                  data.history.map((h) => (
-                    <div key={h.id} className="p-3.5 border rounded-xl border-zinc-800 bg-zinc-950/70 flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-sm text-white">Temporada {h.season_year}</p>
-                          {h.champion && (
-                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 rounded border border-amber-500/30 flex items-center gap-1">
-                              <Trophy className="w-3 h-3 text-amber-400" /> Campeón
-                            </span>
-                          )}
-                          {h.promoted && !h.champion && (
-                            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/30 flex items-center gap-1">
-                              <TrendingUp className="w-3 h-3 text-emerald-400" /> Ascenso
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-zinc-400 mt-0.5">
-                          {h.competition_name || 'Liga'} • Posición {h.position}°
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs font-semibold text-zinc-300">
-                          {h.matches_won ?? h.won ?? 0}V - {h.matches_drawn ?? h.drawn ?? 0}E - {h.matches_lost ?? h.lost ?? 0}D
-                        </p>
-                        <p className="text-[11px] text-zinc-500">
-                          {h.points ?? 0} pts
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
-          </div>
-        </div>
+        <ClubHistoryTab 
+          club={club}
+          confirmAction={confirmAction}
+          onUpdateClub={() => loadData(true)}
+        />
       )}
 
       {/* CONTENIDO TAB 3: ÍDOLOS & LEYENDAS (FASE 37) */}

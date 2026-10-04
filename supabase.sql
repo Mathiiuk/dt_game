@@ -1953,3 +1953,57 @@ CREATE POLICY "Permitir todo event_consequences_log" ON public.event_consequence
 
 CREATE INDEX IF NOT EXISTS idx_dynamic_events_club_pending ON public.dynamic_events(club_id, status);
 CREATE INDEX IF NOT EXISTS idx_event_consequences_event ON public.event_consequences_log(event_id);
+
+-- ==============================================================================
+-- FASE 36: HISTORIA DEL CLUB, RÉCORDS Y HEMEROTECA
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.club_milestones (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid NOT NULL REFERENCES public.clubs(id) ON DELETE CASCADE,
+  year integer NOT NULL DEFAULT 2026,
+  game_date text,
+  title text NOT NULL,
+  description text,
+  category text NOT NULL DEFAULT 'milestone',
+  importance integer NOT NULL DEFAULT 1,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.club_records (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid NOT NULL REFERENCES public.clubs(id) ON DELETE CASCADE,
+  record_type text NOT NULL,
+  title text NOT NULL,
+  record_value text NOT NULL,
+  holder_name text NOT NULL,
+  record_date text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(club_id, record_type)
+);
+
+CREATE TABLE IF NOT EXISTS public.club_hemeroteca (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid NOT NULL REFERENCES public.clubs(id) ON DELETE CASCADE,
+  season_year integer NOT NULL DEFAULT 2026,
+  headline text NOT NULL,
+  snippet text NOT NULL,
+  media_source text NOT NULL DEFAULT 'El Grafico del Potrero',
+  tag text DEFAULT 'CRONICA',
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_milestones ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_milestones" ON public.club_milestones FOR ALL USING (true);
+
+ALTER TABLE public.club_records ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_records" ON public.club_records FOR ALL USING (true);
+
+ALTER TABLE public.club_hemeroteca ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_hemeroteca" ON public.club_hemeroteca FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_club_milestones_club ON public.club_milestones(club_id, year DESC);
+CREATE INDEX IF NOT EXISTS idx_club_records_club ON public.club_records(club_id);
+CREATE INDEX IF NOT EXISTS idx_club_hemeroteca_club ON public.club_hemeroteca(club_id, created_at DESC);

@@ -1,0 +1,35 @@
+id: feat-fase-36-club-history-records
+external_ref: ''
+title: Fase 36 - Historia del Club, Récords y Memoria Institucional
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Fase 36 - Historia del Club, Récords y Memoria Institucional
+acceptance_criteria:
+  - Definir esquemas para club_milestones y club_records en supabase.sql
+  - >-
+    Enriquecer clubHistoryApi con seguimiento integral de records de rachas,
+    asistencias, goleadas y hemeroteca
+  - >-
+    Interfaz responsiva mobile-first (pb-28) de Historia y Hemeroteca con
+    filtrado y detalles
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

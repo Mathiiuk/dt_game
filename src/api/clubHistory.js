@@ -1,22 +1,28 @@
 import { supabase } from './supabase'
 
 /**
- * Servicio de Historia del Club, Récords e Ídolos
- * Cumple con las especificaciones de Fase 36 (Historia del Club) y Fase 37 (Ídolos).
+ * Servicio de Historia del Club, Récords, Hemeroteca e Ídolos
+ * Cumple con las especificaciones de Fase 36 (Historia del Club y Récords) y Fase 37 (Ídolos).
  */
 export const clubHistoryApi = {
   /**
    * Obtiene la línea de tiempo completa del club (hitos históricos)
    */
-  async getClubMilestones(clubId) {
+  async getClubMilestones(clubId, category = 'all') {
     if (!clubId) return []
 
-    const { data: milestones, error } = await supabase
+    let query = supabase
       .from('club_milestones')
       .select('*')
       .eq('club_id', clubId)
       .order('year', { ascending: false })
       .order('created_at', { ascending: false })
+
+    if (category && category !== 'all') {
+      query = query.eq('category', category)
+    }
+
+    const { data: milestones, error } = await query
 
     if (error) {
       console.error('Error fetching club milestones:', error)
@@ -33,7 +39,7 @@ export const clubHistoryApi = {
           year,
           game_date: `${year}-08-01`,
           title: 'Fundación Oficial del Club',
-          description: `Nace el Club ${club.name} en ${club.city || 'su localidad'}, dando inicio al sueño institucional.`,
+          description: `Nace el Club ${club.name} en ${club.city || 'su localidad'}, dando inicio al sueño institucional con trabajo, potrero y pasión comunitaria.`,
           category: 'foundation',
           importance: 5
         }
@@ -53,7 +59,7 @@ export const clubHistoryApi = {
     const { data, error } = await supabase.from('club_milestones').insert({
       club_id: clubId,
       year: year || 2026,
-      game_date,
+      game_date: game_date || new Date().toISOString().split('T')[0],
       title,
       description,
       category,
@@ -62,6 +68,63 @@ export const clubHistoryApi = {
 
     if (error) {
       console.error('Error adding club milestone:', error)
+      return null
+    }
+    return data
+  },
+
+  /**
+   * Obtiene los artículos y crónicas periodísticas históricas (Hemeroteca)
+   */
+  async getHemeroteca(clubId) {
+    if (!clubId) return []
+
+    const { data, error } = await supabase
+      .from('club_hemeroteca')
+      .select('*')
+      .eq('club_id', clubId)
+      .order('season_year', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching hemeroteca:', error)
+      return []
+    }
+
+    if (!data || data.length === 0) {
+      // Sembrar nota fundacional inaugural
+      const { data: club } = await supabase.from('clubs').select('name, city, founded_year').eq('id', clubId).single()
+      const initialArticle = {
+        club_id: clubId,
+        season_year: club?.founded_year || 2026,
+        headline: `Comienza la odisea de ${club?.name || 'nuestro club'} hacia el profesionalismo`,
+        snippet: `Con tribunas colmadas de sueños y un vestuario comprometido, el club abre una nueva página en el fútbol argentino. La ilusión de la hinchada está intacta para forjar un legado eterno.`,
+        media_source: 'El Gráfico del Potrero',
+        tag: 'INSTITUCIONAL'
+      }
+      const { data: created } = await supabase.from('club_hemeroteca').insert(initialArticle).select().single()
+      return created ? [created] : [initialArticle]
+    }
+
+    return data
+  },
+
+  /**
+   * Agrega un nuevo recorte de prensa a la hemeroteca
+   */
+  async addHemerotecaArticle(clubId, { season_year = 2026, headline, snippet, media_source = 'El Clarín Deportivo', tag = 'CRONICA' }) {
+    if (!clubId || !headline) return null
+    const { data, error } = await supabase.from('club_hemeroteca').insert({
+      club_id: clubId,
+      season_year,
+      headline,
+      snippet,
+      media_source,
+      tag
+    }).select().single()
+
+    if (error) {
+      console.error('Error adding hemeroteca article:', error)
       return null
     }
     return data
@@ -139,10 +202,46 @@ export const clubHistoryApi = {
         record_value: `${Number(club?.stadium_capacity || 4500).toLocaleString()} espectadores`,
         holder_name: club?.stadium_name || 'Estadio Principal',
         record_date: 'Capacidad Máxima'
+      },
+      {
+        record_type: 'longest_win_streak',
+        title: 'Mayor Racha de Victorias',
+        record_value: recordsMap['longest_win_streak']?.record_value || '5 Triunfos Seguidos',
+        holder_name: recordsMap['longest_win_streak']?.holder_name || 'Campaña Regular',
+        record_date: recordsMap['longest_win_streak']?.record_date || '2026'
+      },
+      {
+        record_type: 'record_sale',
+        title: 'Venta Histórica Más Alta',
+        record_value: recordsMap['record_sale']?.record_value || '$150,000',
+        holder_name: recordsMap['record_sale']?.holder_name || 'Mercado de Pases',
+        record_date: recordsMap['record_sale']?.record_date || '2026'
       }
     ]
 
     return defaultRecords
+  },
+
+  /**
+   * Actualiza o crea un récord en la base de datos
+   */
+  async updateRecord(clubId, { record_type, title, record_value, holder_name, record_date }) {
+    if (!clubId || !record_type) return null
+
+    const { data, error } = await supabase.from('club_records').upsert({
+      club_id: clubId,
+      record_type,
+      title,
+      record_value,
+      holder_name,
+      record_date: record_date || 'Temporada Actual'
+    }, { onConflict: 'club_id, record_type' }).select().single()
+
+    if (error) {
+      console.error('Error updating club record:', error)
+      return null
+    }
+    return data
   },
 
   /**
@@ -269,6 +368,14 @@ export const clubHistoryApi = {
             category: 'legend',
             importance: evalAfter.status === 'legend' ? 5 : 4
           })
+
+          await this.addHemerotecaArticle(clubId, {
+            season_year: 2026,
+            headline: `Nace un Ídolo: ${playerName} consagra su nombre en la memoria del club`,
+            snippet: `La afición ovacionó de pie a ${playerName} tras alcanzar un nuevo escalón en la galería inmortal de la institución. Su entrega conmueve a la tribuna.`,
+            media_source: 'Diario Olé Barrial',
+            tag: 'IDOLO'
+          })
         }
       }
     }
@@ -279,15 +386,13 @@ export const clubHistoryApi = {
     const margin = myScore - oppScore
 
     if (margin >= 4) {
-      const recordTitle = `${myScore} - ${oppScore} vs ${opponentName}`
-      await supabase.from('club_records').upsert({
-        club_id: clubId,
+      await this.updateRecord(clubId, {
         record_type: 'biggest_win',
         title: 'Mayor Goleada Histórica',
         record_value: `${myScore} - ${oppScore}`,
         holder_name: `vs ${opponentName}`,
         record_date: 'Temporada Actual'
-      }, { onConflict: 'club_id, record_type' })
+      })
 
       await this.addMilestone(clubId, {
         year: 2026,
@@ -295,6 +400,14 @@ export const clubHistoryApi = {
         description: `Victoria aplastante frente a ${opponentName} marcando un nuevo récord en los libros del club.`,
         category: 'record',
         importance: 4
+      })
+
+      await this.addHemerotecaArticle(clubId, {
+        season_year: 2026,
+        headline: `Baile de antología: Imponente ${myScore}-${oppScore} ante ${opponentName}`,
+        snippet: `Una exhibición futbolística que quedará en la retina de todos los presentes. El equipo arrolló de principio a fin batiendo la marca de goleo del club.`,
+        media_source: 'El Gráfico del Potrero',
+        tag: 'GOLEADA'
       })
     }
   }

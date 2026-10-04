@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:58:26.153Z | **Nodos:** 143 | **Tareas:** 49
+> **Última sincronización:** 2026-10-04T04:02:53.177Z | **Nodos:** 145 | **Tareas:** 50
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -10,7 +10,7 @@
 | `src/features/manager/ManagerCareerScreen.jsx` | 809 | react, react-router-dom, ../../context/GameContext |
 | `src/api/career.js` | 757 | ./supabase, ./audit, ../utils/cache |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
-| `src/features/club/screens/ClubScreen.jsx` | 735 | react, react-router-dom, ../../../api/club |
+| `src/features/club/screens/ClubScreen.jsx` | 631 | react, react-router-dom, ../../../api/club |
 | `src/features/dashboard/Dashboard.jsx` | 628 | react, react-router-dom, ../../api/dashboard |
 | `src/features/match/PostMatchScreen.jsx` | 589 | react, react-router-dom, ../../api/postMatch |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
@@ -27,12 +27,12 @@
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
 | `src/api/injuries.js` | 420 | ./supabase, ../utils/cache |
+| `src/api/clubHistory.js` | 415 | ./supabase |
 | `src/features/market/MarketScreen.jsx` | 411 | react, react-router-dom, ../../api/market |
 | `src/api/matchEngine.js` | 409 | ./supabase |
 | `src/api/lockerRoom.js` | 408 | ./supabase, ../utils/cache |
-| `src/features/manager/NationalTeamScreen.jsx` | 403 | react, react-router-dom, ../../api/nationalTeam |
 
-_(+69 módulos adicionales; consultar con `memory:query`)_
+_(+70 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -85,3 +85,4 @@ _(+69 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-33-national-teams-dual-career: Fase 33 - Selecciones Nacionales y Doble Carrera** `[DONE]`
 - **feat-fase-34-international-cups: Fase 34 - Competiciones Internacionales y Copas Continentales** `[DONE]`
 - **feat-fase-35-dynamic-events-dilemmas: Fase 35 - Eventos Dinamicos Narrativos y Dilemas del DT** `[DONE]`
+- **feat-fase-36-club-history-records: Fase 36 - Historia del Club, Récords y Memoria Institucional** `[DONE]`

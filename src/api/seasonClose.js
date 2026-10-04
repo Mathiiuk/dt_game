@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { playerEvolutionApi } from './playerEvolution'
+import { clubHistoryApi } from './clubHistory'
 
 export const SEASON_PRIZES = {
   1: { position: 1, prize: 100000, label: 'Campeón de Liga' },
@@ -121,6 +122,39 @@ export const seasonCloseApi = {
         league_tier: newTier
       })
       .eq('id', clubId)
+
+    // Registrar hitos y crónica de hemeroteca institucional (Fase 36)
+    if (championClub?.club_id === clubId) {
+      await clubHistoryApi.addMilestone(clubId, {
+        year: seasonYear,
+        title: `Campeón de División (Temporada ${seasonYear})`,
+        description: `El club se corona campeón absoluto sumando una nueva estrella histórica a sus vitrinas.`,
+        category: 'title',
+        importance: 5
+      })
+      await clubHistoryApi.addHemerotecaArticle(clubId, {
+        season_year: seasonYear,
+        headline: `¡Gloria Eterna! El club se corona campeón indiscutido`,
+        snippet: `Una campaña inolvidable que culmina con la vuelta olímpica. La ciudad festeja una conquista histórica que perdurará en la memoria de los hinchas.`,
+        media_source: 'El Gráfico del Potrero',
+        tag: 'CAMPEON'
+      })
+    } else if (isPromoted) {
+      await clubHistoryApi.addMilestone(clubId, {
+        year: seasonYear,
+        title: `Ascenso Histórico a División Superior`,
+        description: `El club logra el codiciado ascenso a una categoría de mayor jerarquía.`,
+        category: 'promotion',
+        importance: 4
+      })
+      await clubHistoryApi.addHemerotecaArticle(clubId, {
+        season_year: seasonYear,
+        headline: `Hazaña cumplida: ¡Ascenso asegurado!`,
+        snippet: `Con garra y corazón, el equipo selló su boleto a la categoría superior desatando el delirio en las tribunas.`,
+        media_source: 'Crónica Barrial',
+        tag: 'ASCENSO'
+      })
+    }
 
     // Registrar balance financiero anual
     const estExpenses = 42000

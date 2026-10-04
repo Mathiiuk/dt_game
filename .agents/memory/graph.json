@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:58:26.153Z",
+  "updatedAt": "2026-10-04T04:02:53.177Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 143,
-    "totalEdges": 440,
-    "totalTasks": 49,
+    "totalNodes": 145,
+    "totalEdges": 448,
+    "totalTasks": 50,
     "totalLessons": 0
   },
   "nodes": [
@@ -126,8 +126,8 @@
       "id": "src/api/clubHistory.js",
       "label": "clubHistory.js",
       "type": "module",
-      "sizeBytes": 11158,
-      "lineCount": 302,
+      "sizeBytes": 15087,
+      "lineCount": 415,
       "imports": [
         "./supabase"
       ]
@@ -216,7 +216,7 @@
       "id": "src/api/events.js",
       "label": "events.js",
       "type": "module",
-      "sizeBytes": 15040,
+      "sizeBytes": 15491,
       "lineCount": 452,
       "imports": [
         "./supabase",
@@ -478,12 +478,13 @@
       "id": "src/api/seasonClose.js",
       "label": "seasonClose.js",
       "type": "module",
-      "sizeBytes": 9070,
-      "lineCount": 272,
+      "sizeBytes": 10686,
+      "lineCount": 306,
       "imports": [
         "./supabase",
         "../utils/cache",
-        "./playerEvolution"
+        "./playerEvolution",
+        "./clubHistory"
       ]
     },
     {
@@ -766,11 +767,25 @@
       ]
     },
     {
+      "id": "src/features/club/screens/ClubHistoryTab.jsx",
+      "label": "ClubHistoryTab.jsx",
+      "type": "module",
+      "sizeBytes": 15607,
+      "lineCount": 343,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/clubHistory",
+        "../../../api/supabase",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 34618,
-      "lineCount": 735,
+      "sizeBytes": 28006,
+      "lineCount": 631,
       "imports": [
         "react",
         "react-router-dom",
@@ -789,7 +804,8 @@
         "./BoardManagementTab",
         "./LockerRoomTab",
         "./PressRoomModal",
-        "./InfirmaryTab"
+        "./InfirmaryTab",
+        "./ClubHistoryTab"
       ]
     },
     {
@@ -1585,6 +1601,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-36-club-history-records",
+      "label": "feat-fase-36-club-history-records: Fase 36 - Historia del Club, Récords y Memoria Institucional",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -2089,6 +2112,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/seasonClose.js",
+      "to": "./clubHistory",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/stadium.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -2589,6 +2617,31 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubHistoryTab.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubHistoryTab.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubHistoryTab.jsx",
+      "to": "../../../api/clubHistory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubHistoryTab.jsx",
+      "to": "../../../api/supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubHistoryTab.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2676,6 +2729,11 @@
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "./InfirmaryTab",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./ClubHistoryTab",
       "relation": "depends_on"
     },
     {
@@ -3786,6 +3844,11 @@
     {
       "from": "task:feat-fase-35-dynamic-events-dilemmas",
       "to": ".agents/workflow/tasks/feat-fase-35-dynamic-events-dilemmas.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-36-club-history-records",
+      "to": ".agents/workflow/tasks/feat-fase-36-club-history-records.yml",
       "relation": "manifested_by"
     }
   ],
