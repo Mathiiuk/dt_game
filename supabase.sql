@@ -587,7 +587,7 @@ CREATE TABLE IF NOT EXISTS public.career_calendar (
   career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
   current_season_year int DEFAULT 2026 NOT NULL,
   current_week int DEFAULT 1 NOT NULL,
-  current_date date DEFAULT '2026-07-01' NOT NULL,
+  "current_date" date DEFAULT '2026-07-01' NOT NULL,
   season_phase text DEFAULT 'PRE_SEASON' NOT NULL,
   transfer_window_open boolean DEFAULT true NOT NULL,
   is_advancing boolean DEFAULT false NOT NULL,
