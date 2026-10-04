@@ -152,6 +152,14 @@ export const postMatchApi = {
             })
             .eq('id', p.id)
         }
+
+        // Acumular minutos oficiales para curva de maduración y evolución (Fase 28)
+        try {
+          const { playerEvolutionApi } = await import('./playerEvolution')
+          await playerEvolutionApi.trackMatchMinutes(p.id, 90)
+        } catch (mErr) {
+          console.warn('Aviso: error registrando minutos de partido:', mErr)
+        }
       }
     }
 

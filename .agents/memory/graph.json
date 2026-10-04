@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:26:51.306Z",
+  "updatedAt": "2026-10-04T03:30:34.063Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 126,
-    "totalEdges": 394,
-    "totalTasks": 41,
+    "totalNodes": 129,
+    "totalEdges": 402,
+    "totalTasks": 42,
     "totalLessons": 0
   },
   "nodes": [
@@ -247,8 +247,8 @@
       "id": "src/api/gameLoop.js",
       "label": "gameLoop.js",
       "type": "module",
-      "sizeBytes": 5107,
-      "lineCount": 173,
+      "sizeBytes": 4471,
+      "lineCount": 144,
       "imports": [
         "./supabase",
         "./calendar"
@@ -268,7 +268,7 @@
       "id": "src/api/injuries.js",
       "label": "injuries.js",
       "type": "module",
-      "sizeBytes": 12488,
+      "sizeBytes": 12907,
       "lineCount": 420,
       "imports": [
         "./supabase",
@@ -389,11 +389,22 @@
       ]
     },
     {
+      "id": "src/api/playerEvolution.js",
+      "label": "playerEvolution.js",
+      "type": "module",
+      "sizeBytes": 10413,
+      "lineCount": 356,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 11938,
-      "lineCount": 329,
+      "sizeBytes": 12298,
+      "lineCount": 337,
       "imports": [
         "./manager",
         "./supabase",
@@ -737,7 +748,7 @@
       "id": "src/features/club/screens/InfirmaryTab.jsx",
       "label": "InfirmaryTab.jsx",
       "type": "module",
-      "sizeBytes": 16384,
+      "sizeBytes": 16719,
       "lineCount": 336,
       "imports": [
         "react",
@@ -1031,11 +1042,24 @@
       ]
     },
     {
+      "id": "src/features/squad/PlayerEvolutionModal.jsx",
+      "label": "PlayerEvolutionModal.jsx",
+      "type": "module",
+      "sizeBytes": 12708,
+      "lineCount": 269,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../api/playerEvolution",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 41138,
-      "lineCount": 839,
+      "sizeBytes": 42012,
+      "lineCount": 859,
       "imports": [
         "react",
         "react-router-dom",
@@ -1047,6 +1071,7 @@
         "../../utils/cache",
         "./ContractRenewalModal",
         "./MentorshipModal",
+        "./PlayerEvolutionModal",
         "../../api/personalities"
       ]
     },
@@ -1407,6 +1432,13 @@
     {
       "id": "task:feat-fase-27-injuries-medical-infirmary",
       "label": "feat-fase-27-injuries-medical-infirmary: Fase 27 - Lesiones, Recuperacion y Cuerpo Medico",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-28-player-evolution-aging-decline",
+      "label": "feat-fase-28-player-evolution-aging-decline: Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -1781,6 +1813,16 @@
     {
       "from": "src/api/player.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/playerEvolution.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/playerEvolution.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -3019,6 +3061,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/squad/PlayerEvolutionModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/PlayerEvolutionModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/PlayerEvolutionModal.jsx",
+      "to": "../../api/playerEvolution",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/PlayerEvolutionModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -3066,6 +3128,11 @@
     {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "./MentorshipModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "./PlayerEvolutionModal",
       "relation": "depends_on"
     },
     {
@@ -3381,6 +3448,11 @@
     {
       "from": "task:feat-fase-27-injuries-medical-infirmary",
       "to": ".agents/workflow/tasks/feat-fase-27-injuries-medical-infirmary.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-28-player-evolution-aging-decline",
+      "to": ".agents/workflow/tasks/feat-fase-28-player-evolution-aging-decline.yml",
       "relation": "manifested_by"
     }
   ],

@@ -99,42 +99,13 @@ export const gameLoopApi = {
       console.warn('Error guardando historial de temporada:', e)
     }
 
-    // 2. Evolución y Envejecimiento
-    const { data: players } = await supabase
-      .from('players')
-      .select('*')
-      .eq('club_id', clubId)
-      .eq('is_retired', false)
-
-    if (players) {
-      for (const p of players) {
-        let newAge = (p.age || 20) + 1
-        let isRetired = false
-
-        if (newAge > 35 && Math.random() > 0.5) {
-          isRetired = true
-        }
-
-        let pace = p.attr_pace || 50
-        let physical = p.attr_physical || 50
-
-        if (!isRetired) {
-          if (newAge < 24) {
-            pace = Math.min(99, pace + 2)
-            physical = Math.min(99, physical + 2)
-          } else if (newAge > 31) {
-            pace = Math.max(10, pace - 3)
-            physical = Math.max(10, physical - 2)
-          }
-        }
-
-        await supabase.from('players').update({
-          age: newAge,
-          is_retired: isRetired,
-          attr_pace: pace,
-          attr_physical: physical
-        }).eq('id', p.id)
-      }
+    // 2. Evolución, Maduración y Declive Natural (Fase 28)
+    try {
+      const { playerEvolutionApi } = await import('./playerEvolution')
+      const seasonYear = new Date().getFullYear()
+      await playerEvolutionApi.processAnnualEvolution(clubId, seasonYear)
+    } catch (evoErr) {
+      console.warn('Aviso: error en evolución anual de futbolistas:', evoErr)
     }
 
     // 3. Reiniciar tabla de posiciones

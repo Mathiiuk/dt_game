@@ -1,12 +1,12 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:26:51.306Z | **Nodos:** 126 | **Tareas:** 41
+> **Última sincronización:** 2026-10-04T03:30:34.063Z | **Nodos:** 129 | **Tareas:** 42
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
-| `src/features/squad/SquadScreen.jsx` | 839 | react, react-router-dom, ../../api/player |
+| `src/features/squad/SquadScreen.jsx` | 859 | react, react-router-dom, ../../api/player |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
 | `src/features/club/screens/ClubScreen.jsx` | 735 | react, react-router-dom, ../../../api/club |
 | `src/features/match/PostMatchScreen.jsx` | 589 | react, react-router-dom, ../../api/postMatch |
@@ -32,7 +32,7 @@
 | `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 
-_(+60 módulos adicionales; consultar con `memory:query`)_
+_(+62 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -77,3 +77,4 @@ _(+60 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-25-locker-room: Fase 25: Vestuario, Cohesion y Jerarquia de Liderazgo** `[DONE]`
 - **feat-fase-26-player-personalities: Fase 26: Personalidades, Rasgos y Psicologia del Jugador** `[DONE]`
 - **feat-fase-27-injuries-medical-infirmary: Fase 27 - Lesiones, Recuperacion y Cuerpo Medico** `[DONE]`
+- **feat-fase-28-player-evolution-aging-decline: Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive** `[DONE]`

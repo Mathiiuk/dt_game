@@ -1,0 +1,42 @@
+id: feat-fase-28-player-evolution-aging-decline
+external_ref: ''
+title: Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - playerEvolution
+    - squad
+    - postMatch
+    - calendar
+requirements:
+  - Implementar Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive
+acceptance_criteria:
+  - >-
+    Curva biológica en 5 etapas etarias (YOUTH_GROWTH, PRIME_DEVELOPMENT, PEAK,
+    EXPERIENCED_TRANSITION, DECLINING)
+  - Acumulación de minutos jugados en partidos oficiales (minutes_played_season)
+  - >-
+    Crecimiento de juveniles según minutos jugados y potencial sin superarlo
+    (Regla 28.1 y 28.3)
+  - Declive físico de veteranos amortiguado por profesionalismo (Regla 28.2)
+  - Sistema de anuncios de retiro para veteranos mayores de 34 años
+  - Registro de auditoría anual en player_evolution_history y player_retirements
+  - UI interactiva de evolución de plantilla y retiros
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

@@ -1532,3 +1532,47 @@ CREATE POLICY "Permitir todo medical_infiltrations" ON public.medical_infiltrati
 CREATE INDEX IF NOT EXISTS idx_player_injuries_active ON public.player_injuries(player_id, is_cleared);
 CREATE INDEX IF NOT EXISTS idx_player_injuries_club ON public.player_injuries(club_id, is_cleared);
 CREATE INDEX IF NOT EXISTS idx_medical_infiltrations_player ON public.medical_infiltrations(player_id);
+
+-- ==============================================================================
+-- FASE 28: EVOLUCIÓN, MADURACIÓN Y DECLIVE NATURAL DEL JUGADOR
+-- ==============================================================================
+
+ALTER TABLE public.players 
+  ADD COLUMN IF NOT EXISTS minutes_played_season integer DEFAULT 0 NOT NULL,
+  ADD COLUMN IF NOT EXISTS career_phase text DEFAULT 'PRIME_DEVELOPMENT',
+  ADD COLUMN IF NOT EXISTS announced_retirement_year integer DEFAULT NULL;
+
+CREATE TABLE IF NOT EXISTS public.player_evolution_history (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  season_year integer NOT NULL,
+  age_at_season integer NOT NULL,
+  ovr_before integer NOT NULL,
+  ovr_after integer NOT NULL,
+  attributes_delta jsonb DEFAULT '{}'::jsonb NOT NULL,
+  minutes_played integer DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_player_season_evolution UNIQUE (player_id, season_year)
+);
+
+CREATE TABLE IF NOT EXISTS public.player_retirements (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  announcement_week integer NOT NULL,
+  planned_retirement_season integer NOT NULL,
+  future_role_interest text DEFAULT 'LEAVE_FOOTBALL' NOT NULL CHECK (future_role_interest IN ('COACH', 'SCOUT', 'PHYSIO', 'LEAVE_FOOTBALL')),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_player_retirement UNIQUE (player_id)
+);
+
+ALTER TABLE public.player_evolution_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo player_evolution_history" ON public.player_evolution_history FOR ALL USING (true);
+
+ALTER TABLE public.player_retirements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo player_retirements" ON public.player_retirements FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_player_evolution_history_player ON public.player_evolution_history(player_id);
+CREATE INDEX IF NOT EXISTS idx_player_evolution_history_club ON public.player_evolution_history(club_id, season_year);
+CREATE INDEX IF NOT EXISTS idx_player_retirements_club ON public.player_retirements(club_id);
