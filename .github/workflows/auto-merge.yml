@@ -39,7 +39,20 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git checkout master
-          git merge origin/${{ github.ref_name }} --no-edit
-          git push origin master
+          # Varias ramas pueden publicarse a la vez: si master avanzó entre el merge y el push,
+          # se vuelve a traer master, se re-mergea la rama y se reintenta (hasta 6 veces).
+          for attempt in 1 2 3 4 5 6; do
+            git fetch origin master "${{ github.ref_name }}"
+            git reset --hard origin/master
+            git merge "origin/${{ github.ref_name }}" --no-edit || { echo "::error::Conflicto real al mergear ${{ github.ref_name }} en master"; exit 1; }
+            if git push origin master; then
+              echo "Merge publicado en el intento $attempt"
+              exit 0
+            fi
+            echo "Push rechazado (master avanzó). Reintento $attempt de 6..."
+            sleep $((RANDOM % 8 + 3))
+          done
+          echo "::error::No se pudo publicar el merge tras 6 intentos"
+          exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
