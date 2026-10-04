@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:47:36.117Z | **Nodos:** 140 | **Tareas:** 46
+> **Última sincronización:** 2026-10-04T03:50:48.037Z | **Nodos:** 141 | **Tareas:** 47
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -16,6 +16,7 @@
 | `src/features/dashboard/Dashboard.jsx` | 574 | react, react-router-dom, ../../api/dashboard |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/match/MatchScreen.jsx` | 525 | react, react-router-dom, ../../api/auth |
+| `src/api/nationalTeam.js` | 494 | ./supabase, ./manager, ./audit |
 | `src/features/club/screens/LockerRoomTab.jsx` | 480 | react, lucide-react, ../../../api/lockerRoom |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/finances/FinancesScreen.jsx` | 451 | react, react-router-dom, ../../api/finances |
@@ -28,9 +29,8 @@
 | `src/api/calendar.js` | 410 | ./supabase |
 | `src/api/matchEngine.js` | 409 | ./supabase |
 | `src/api/lockerRoom.js` | 408 | ./supabase, ../utils/cache |
+| `src/features/manager/NationalTeamScreen.jsx` | 403 | react, react-router-dom, ../../api/nationalTeam |
 | `src/api/press.js` | 396 | ./supabase, ../utils/cache |
-| `src/api/stadium.js` | 396 | ./supabase, ../utils/cache, ./finances |
-| `src/features/tactics/TacticsScreen.jsx` | 391 | react, react-router-dom, lucide-react |
 
 _(+69 módulos adicionales; consultar con `memory:query`)_
 
@@ -82,3 +82,4 @@ _(+69 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-30-promotion-relegation-pyramid: Fase 30 - Ascensos, Descensos y Estructura Piramidal de Ligas** `[DONE]`
 - **feat-fase-31-manager-career-job-offers: Fase 31 - Carrera del DT, Ofertas de Trabajo y Renuncias** `[DONE]`
 - **feat-fase-32-manager-reputation-prestige: Fase 32 - Reputacion Profesional y Prestigio del DT** `[DONE]`
+- **feat-fase-33-national-teams-dual-career: Fase 33 - Selecciones Nacionales y Doble Carrera** `[DONE]`

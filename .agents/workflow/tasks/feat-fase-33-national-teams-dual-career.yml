@@ -1,0 +1,33 @@
+id: feat-fase-33-national-teams-dual-career
+external_ref: ''
+title: Fase 33 - Selecciones Nacionales y Doble Carrera
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Fase 33 - Selecciones Nacionales y Doble Carrera
+acceptance_criteria:
+  - Esquema de selecciones, convocatorias y fixture FIFA
+  - Regla de pasaporte estricto y cuota de 3 arqueros
+  - Desgaste de viaje y bonus anímico patrio
+  - Build sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

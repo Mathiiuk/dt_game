@@ -1781,3 +1781,65 @@ CREATE POLICY "Permitir todo manager_reputation_ledger" ON public.manager_reputa
 
 CREATE INDEX IF NOT EXISTS idx_reputation_ledger_mgr ON public.manager_reputation_ledger(manager_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_reputation_ledger_career ON public.manager_reputation_ledger(career_id);
+
+-- ========================================================
+-- FASE 33: SELECCIONES NACIONALES Y DOBLE CARRERA
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS public.national_teams (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  country_code text NOT NULL,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE SET NULL,
+  world_ranking integer DEFAULT 10 NOT NULL,
+  federation text DEFAULT 'CONMEBOL' NOT NULL CHECK (federation IN ('CONMEBOL', 'UEFA', 'CONCACAF', 'CAF', 'AFC')),
+  reputation integer DEFAULT 80 NOT NULL,
+  category text DEFAULT 'senior' NOT NULL CHECK (category IN ('senior', 'u20', 'u23')),
+  colors jsonb DEFAULT '{"primary": "#75AADB", "secondary": "#FFFFFF"}'::jsonb,
+  matches_played integer DEFAULT 0 NOT NULL,
+  matches_won integer DEFAULT 0 NOT NULL,
+  matches_drawn integer DEFAULT 0 NOT NULL,
+  matches_lost integer DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.national_team_callups (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  national_team_id uuid REFERENCES public.national_teams(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  is_starter boolean DEFAULT false NOT NULL,
+  caps integer DEFAULT 0 NOT NULL,
+  international_goals integer DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_callup_team_player UNIQUE (national_team_id, player_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.national_fixtures (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  national_team_id uuid REFERENCES public.national_teams(id) ON DELETE CASCADE,
+  opponent_name text NOT NULL,
+  tournament_name text NOT NULL,
+  match_date date NOT NULL,
+  is_home boolean DEFAULT true NOT NULL,
+  home_score integer DEFAULT 0 NOT NULL,
+  away_score integer DEFAULT 0 NOT NULL,
+  played boolean DEFAULT false NOT NULL,
+  status text DEFAULT 'SCHEDULED' NOT NULL CHECK (status IN ('SCHEDULED', 'FINISHED')),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.national_teams ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo national_teams" ON public.national_teams FOR ALL USING (true);
+
+ALTER TABLE public.national_team_callups ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo national_team_callups" ON public.national_team_callups FOR ALL USING (true);
+
+ALTER TABLE public.national_fixtures ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo national_fixtures" ON public.national_fixtures FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_national_teams_mgr ON public.national_teams(manager_id);
+CREATE INDEX IF NOT EXISTS idx_national_callups_team ON public.national_team_callups(national_team_id);
+CREATE INDEX IF NOT EXISTS idx_national_fixtures_team ON public.national_fixtures(national_team_id);

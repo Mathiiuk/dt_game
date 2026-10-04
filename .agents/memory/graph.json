@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:47:36.117Z",
+  "updatedAt": "2026-10-04T03:50:48.037Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 140,
-    "totalEdges": 433,
-    "totalTasks": 46,
+    "totalNodes": 141,
+    "totalEdges": 436,
+    "totalTasks": 47,
     "totalLessons": 0
   },
   "nodes": [
@@ -369,12 +369,13 @@
       "id": "src/api/nationalTeam.js",
       "label": "nationalTeam.js",
       "type": "module",
-      "sizeBytes": 9047,
-      "lineCount": 291,
+      "sizeBytes": 15834,
+      "lineCount": 494,
       "imports": [
         "./supabase",
         "./manager",
-        "./audit"
+        "./audit",
+        "../utils/cache"
       ]
     },
     {
@@ -441,7 +442,7 @@
       "id": "src/api/reputation.js",
       "label": "reputation.js",
       "type": "module",
-      "sizeBytes": 8719,
+      "sizeBytes": 9001,
       "lineCount": 283,
       "imports": [
         "./supabase",
@@ -726,7 +727,7 @@
       "id": "src/features/career/ReputationHistoryModal.jsx",
       "label": "ReputationHistoryModal.jsx",
       "type": "module",
-      "sizeBytes": 9647,
+      "sizeBytes": 9850,
       "lineCount": 204,
       "imports": [
         "react",
@@ -1016,15 +1017,16 @@
       "id": "src/features/manager/NationalTeamScreen.jsx",
       "label": "NationalTeamScreen.jsx",
       "type": "module",
-      "sizeBytes": 15467,
-      "lineCount": 365,
+      "sizeBytes": 17468,
+      "lineCount": 403,
       "imports": [
         "react",
         "react-router-dom",
         "../../api/nationalTeam",
         "../../context/GameContext",
         "lucide-react",
-        "sonner"
+        "sonner",
+        "../../components/BottomNav"
       ]
     },
     {
@@ -1560,6 +1562,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-33-national-teams-dual-career",
+      "label": "feat-fase-33-national-teams-dual-career: Fase 33 - Selecciones Nacionales y Doble Carrera",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1921,6 +1930,11 @@
     {
       "from": "src/api/nationalTeam.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/nationalTeam.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -3109,6 +3123,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "../../components/BottomNav",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/market/MarketScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -3726,6 +3745,11 @@
     {
       "from": "task:feat-fase-32-manager-reputation-prestige",
       "to": ".agents/workflow/tasks/feat-fase-32-manager-reputation-prestige.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-33-national-teams-dual-career",
+      "to": ".agents/workflow/tasks/feat-fase-33-national-teams-dual-career.yml",
       "relation": "manifested_by"
     }
   ],
