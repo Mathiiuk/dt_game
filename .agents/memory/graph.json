@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:24:14.278Z",
+  "updatedAt": "2026-10-04T02:26:25.006Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 85,
-    "totalEdges": 302,
-    "totalTasks": 22,
+    "totalNodes": 86,
+    "totalEdges": 299,
+    "totalTasks": 23,
     "totalLessons": 0
   },
   "nodes": [
@@ -348,8 +348,8 @@
       "id": "src/api/tactics.js",
       "label": "tactics.js",
       "type": "module",
-      "sizeBytes": 1884,
-      "lineCount": 70,
+      "sizeBytes": 10944,
+      "lineCount": 317,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -359,7 +359,7 @@
       "id": "src/api/training.js",
       "label": "training.js",
       "type": "module",
-      "sizeBytes": 13054,
+      "sizeBytes": 13425,
       "lineCount": 372,
       "imports": [
         "./supabase"
@@ -778,27 +778,23 @@
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 9167,
-      "lineCount": 208,
+      "sizeBytes": 14543,
+      "lineCount": 376,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/auth",
-        "../../api/manager",
-        "../../api/club",
-        "../../api/tactics",
-        "../../api/player",
         "lucide-react",
         "sonner",
         "../../context/GameContext",
-        "../../utils/cache"
+        "../../api/tactics",
+        "../../api/player"
       ]
     },
     {
       "id": "src/features/training/TrainingScreen.jsx",
       "label": "TrainingScreen.jsx",
       "type": "module",
-      "sizeBytes": 19241,
+      "sizeBytes": 19662,
       "lineCount": 422,
       "imports": [
         "react",
@@ -1002,6 +998,13 @@
     {
       "id": "task:feat-fase-08-training-regime",
       "label": "feat-fase-08-training-regime: Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-09-tactics-system",
+      "label": "feat-fase-09-tactics-system: Fase 09: Tacticas, Formaciones, Pizarra y Afinidad Posicional",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -2295,31 +2298,6 @@
     },
     {
       "from": "src/features/tactics/TacticsScreen.jsx",
-      "to": "../../api/auth",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/tactics/TacticsScreen.jsx",
-      "to": "../../api/manager",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/tactics/TacticsScreen.jsx",
-      "to": "../../api/club",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/tactics/TacticsScreen.jsx",
-      "to": "../../api/tactics",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/tactics/TacticsScreen.jsx",
-      "to": "../../api/player",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/tactics/TacticsScreen.jsx",
       "to": "lucide-react",
       "relation": "depends_on"
     },
@@ -2335,7 +2313,12 @@
     },
     {
       "from": "src/features/tactics/TacticsScreen.jsx",
-      "to": "../../utils/cache",
+      "to": "../../api/tactics",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../api/player",
       "relation": "depends_on"
     },
     {
@@ -2516,6 +2499,11 @@
     {
       "from": "task:feat-fase-08-training-regime",
       "to": ".agents/workflow/tasks/feat-fase-08-training-regime.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-09-tactics-system",
+      "to": ".agents/workflow/tasks/feat-fase-09-tactics-system.yml",
       "relation": "manifested_by"
     }
   ],

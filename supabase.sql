@@ -681,3 +681,41 @@ CREATE POLICY "Permitir player_training_assignments" ON public.player_training_a
 
 ALTER TABLE public.training_execution_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir training_execution_logs" ON public.training_execution_logs FOR ALL USING (true);
+
+-- ============================================================================
+-- Fase 09: Tacticas, Formaciones, Pizarra y Afinidad Posicional
+-- ============================================================================
+
+ALTER TABLE public.tactics ADD COLUMN IF NOT EXISTS slot_number int DEFAULT 1;
+ALTER TABLE public.tactics ADD COLUMN IF NOT EXISTS is_active boolean DEFAULT true;
+ALTER TABLE public.tactics ADD COLUMN IF NOT EXISTS passing_style text DEFAULT 'MIXED';
+ALTER TABLE public.tactics ADD COLUMN IF NOT EXISTS width text DEFAULT 'BALANCED';
+ALTER TABLE public.tactics ADD COLUMN IF NOT EXISTS pressing_intensity text DEFAULT 'BALANCED';
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_club_tactic_slot ON public.tactics(club_id, slot_number);
+
+CREATE TABLE IF NOT EXISTS public.tactic_lineup_slots (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  tactic_id uuid REFERENCES public.tactics(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id),
+  pitch_position text NOT NULL,
+  player_role text DEFAULT 'DEFAULT',
+  is_starter boolean DEFAULT true NOT NULL,
+  order_index int DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.tactics_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid,
+  tactic_id uuid,
+  formation_applied text NOT NULL,
+  lineup_snapshot jsonb DEFAULT '[]'::jsonb,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.tactic_lineup_slots ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir tactic_lineup_slots" ON public.tactic_lineup_slots FOR ALL USING (true);
+
+ALTER TABLE public.tactics_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir tactics_audit_log" ON public.tactics_audit_log FOR ALL USING (true);

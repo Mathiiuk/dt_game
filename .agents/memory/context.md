@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:24:14.278Z | **Nodos:** 85 | **Tareas:** 22
+> **Última sincronización:** 2026-10-04T02:26:25.006Z | **Nodos:** 86 | **Tareas:** 23
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -19,18 +19,18 @@
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 | `src/api/calendar.js` | 376 | ./supabase |
+| `src/features/tactics/TacticsScreen.jsx` | 376 | react, react-router-dom, lucide-react |
 | `src/api/training.js` | 372 | ./supabase |
 | `src/features/squad/SquadScreen.jsx` | 368 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
+| `src/api/tactics.js` | 317 | ./supabase, ../utils/cache |
 | `src/api/internationalCup.js` | 315 | ./supabase, ./clubHistory, ./manager |
 | `src/api/season.js` | 304 | ./supabase, ./competition, ./audit |
 | `src/api/clubHistory.js` | 302 | ./supabase |
 | `src/api/levels.js` | 292 | ./supabase, ../utils/cache, ./audit |
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
 | `src/features/calendar/CalendarScreen.jsx` | 279 | react, react-router-dom, lucide-react |
-| `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
-| `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
 
 _(+38 módulos adicionales; consultar con `memory:query`)_
 
@@ -58,3 +58,4 @@ _(+38 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-06-dashboard-overview: Fase 06: Dashboard Central y Modelo de Lectura Agregado SWR** `[DONE]`
 - **feat-fase-07-calendar-engine: Fase 07: Calendario, Motor de Tiempo y Avance Semanal** `[DONE]`
 - **feat-fase-08-training-regime: Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual** `[DONE]`
+- **feat-fase-09-tactics-system: Fase 09: Tacticas, Formaciones, Pizarra y Afinidad Posicional** `[DONE]`

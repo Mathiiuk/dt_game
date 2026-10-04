@@ -1,0 +1,54 @@
+id: feat-fase-09-tactics-system
+external_ref: 09_tacticas
+title: 'Fase 09: Tacticas, Formaciones, Pizarra y Afinidad Posicional'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/tactics.js
+    - src/features/tactics/TacticsScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Solucionar de forma definitiva e idempotente el error tactics_pkey al
+    guardar táctica
+  - >-
+    Crear entidades de dominio tactic_lineup_slots y tactics_audit_log en
+    supabase.sql
+  - >-
+    Implementar cálculo autoritativo de afinidad posicional (Natural 100%,
+    Compatible 85%, Adaptada 65%, Fuera de puesto 40%)
+  - >-
+    Soportar 7 formaciones tácticas estándar con asignación interactiva de 11
+    titulares y banco de suplentes
+  - >-
+    Validar alineaciones legales (11 titulares únicos, 1 arquero estricto,
+    pertenencia al club)
+  - Notificaciones nativas integradas en la app con Sonner toast
+acceptance_criteria:
+  - Guardar táctica repetidamente jamás arroja error duplicate key tactics_pkey
+  - Validación estricta de 11 titulares y exactamente 1 arquero
+  - >-
+    Afinidad posicional se refleja visualmente con códigos de color e impacto en
+    atributos
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

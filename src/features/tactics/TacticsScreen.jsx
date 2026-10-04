@@ -1,207 +1,375 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { authApi } from '../../api/auth'
-import { managerApi } from '../../api/manager'
-import { clubApi } from '../../api/club'
-import { tacticsApi } from '../../api/tactics'
-import { playerApi } from '../../api/player'
-import { ArrowLeft, Save, Loader2, LayoutGrid } from 'lucide-react'
+import { 
+  ArrowLeft, 
+  Save, 
+  Loader2, 
+  LayoutGrid, 
+  Users, 
+  Shield, 
+  Sparkles, 
+  Zap, 
+  Sliders, 
+  CheckCircle2, 
+  AlertCircle 
+} from 'lucide-react'
 import { toast } from 'sonner'
-
 import { useGameContext } from '../../context/GameContext'
-import { queryCache } from '../../utils/cache'
+import { 
+  tacticsApi, 
+  FORMATIONS, 
+  calculatePositionalAffinity,
+  TACTICAL_MENTALITIES,
+  PASSING_STYLES,
+  PRESSING_LEVELS,
+  TEMPO_LEVELS
+} from '../../api/tactics'
+import { playerApi } from '../../api/player'
 
 export default function TacticsScreen() {
   const navigate = useNavigate()
   const { club, loading: contextLoading } = useGameContext()
 
-  const cachedTactic = club?.id ? queryCache.get(`tactics:${club.id}`) : null
-  const cachedPlayers = club?.id ? queryCache.get(`squad:${club.id}`) : null
-
-  const [data, setData] = useState({ tactic: cachedTactic || null, players: cachedPlayers || [] })
-  const [loading, setLoading] = useState(!cachedTactic || !cachedPlayers)
+  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState(cachedTactic || null)
+  const [squad, setSquad] = useState([])
+  const [formation, setFormation] = useState('4-4-2')
+  const [mentality, setMentality] = useState('BALANCED')
+  const [passingStyle, setPassingStyle] = useState('MIXED')
+  const [pressing, setPressing] = useState('BALANCED')
+  const [tempo, setTempo] = useState('NORMAL')
+  const [lineup, setLineup] = useState({}) // { [slot]: playerId }
+  const [tacticId, setTacticId] = useState(null)
 
   useEffect(() => {
-    if (contextLoading || !club) return
-    let isMounted = true
+    if (contextLoading || !club?.id) return
 
-    const load = async () => {
+    const loadData = async () => {
       try {
-        const tactic = await tacticsApi.getTactic(club.id)
-        const players = await playerApi.getSquad(club.id)
-        
-        if (isMounted) {
-          setData({ tactic, players })
-          setForm(prev => prev || tactic)
-          setLoading(false)
+        setLoading(true)
+        const [tactic, players] = await Promise.all([
+          tacticsApi.getTactic(club.id),
+          playerApi.getSquad(club.id)
+        ])
+
+        setSquad(players || [])
+
+        if (tactic) {
+          setTacticId(tactic.id)
+          setFormation(tactic.formation || '4-4-2')
+          setMentality(tactic.mentality || 'BALANCED')
+          setPassingStyle(tactic.passing_style || 'MIXED')
+          setPressing(tactic.pressing_intensity || 'BALANCED')
+          setTempo(tactic.tempo || 'NORMAL')
+
+          // Si ya hay un array de lineup o mapa guardado
+          if (Array.isArray(tactic.lineup) && tactic.lineup.length > 0) {
+            const formConfig = FORMATIONS[tactic.formation || '4-4-2'] || FORMATIONS['4-4-2']
+            const initialMap = {}
+            formConfig.slots.forEach((slot, idx) => {
+              if (tactic.lineup[idx]) {
+                initialMap[slot] = tactic.lineup[idx]
+              }
+            })
+            setLineup(initialMap)
+          } else {
+            // Auto-armar 11 inicial por defecto
+            autoAssignLineup(tactic.formation || '4-4-2', players || [])
+          }
         }
       } catch (e) {
-        toast.error(e.message)
-        if (isMounted) setLoading(false)
+        console.error('Error cargando táctica:', e)
+        toast.error('Error al cargar la pizarra táctica.')
+      } finally {
+        setLoading(false)
       }
     }
-    load()
-    return () => { isMounted = false }
+
+    loadData()
   }, [contextLoading, club?.id])
+
+  const autoAssignLineup = (formKey, playersList) => {
+    const formConfig = FORMATIONS[formKey] || FORMATIONS['4-4-2']
+    const newMap = {}
+    const usedIds = new Set()
+
+    // 1. Asignar arquero
+    const gk = playersList.find(p => p.position === 'GK')
+    if (gk) {
+      newMap['GK'] = gk.id
+      usedIds.add(gk.id)
+    }
+
+    // 2. Asignar los demás puestos
+    formConfig.slots.forEach(slot => {
+      if (slot === 'GK') return
+      // Buscar mejor coincidencia no usada
+      const candidate = playersList.find(p => !usedIds.has(p.id))
+      if (candidate) {
+        newMap[slot] = candidate.id
+        usedIds.add(candidate.id)
+      }
+    })
+
+    setLineup(newMap)
+  }
+
+  const handleFormationChange = (newForm) => {
+    setFormation(newForm)
+    autoAssignLineup(newForm, squad)
+  }
+
+  const handlePlayerSlotChange = (slot, newPlayerId) => {
+    setLineup(prev => ({
+      ...prev,
+      [slot]: newPlayerId
+    }))
+  }
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      await tacticsApi.updateTactic(club.id, form)
-      toast.success('Táctica guardada')
+      const formConfig = FORMATIONS[formation] || FORMATIONS['4-4-2']
+      const lineupArray = formConfig.slots.map(s => lineup[s]).filter(Boolean)
+
+      const lineupDetails = formConfig.slots.map((s, idx) => ({
+        player_id: lineup[s],
+        pitch_position: s,
+        is_starter: true,
+        order_index: idx
+      })).filter(item => item.player_id)
+
+      const payload = {
+        id: tacticId,
+        club_id: club.id,
+        formation,
+        mentality,
+        passing_style: passingStyle,
+        pressing_intensity: pressing,
+        tempo,
+        lineup: lineupArray,
+        lineupDetails
+      }
+
+      const saved = await tacticsApi.updateTactic(club.id, payload)
+      if (saved?.id) setTacticId(saved.id)
+
+      toast.success('Pizarra táctica y alineación guardadas exitosamente.')
     } catch (e) {
-      toast.error(e.message)
+      toast.error(e.message || 'Error al guardar la táctica.')
     } finally {
       setSaving(false)
     }
   }
 
-  if (loading || !form || contextLoading) {
+  if (loading || contextLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-emerald-400 font-medium text-sm animate-pulse">Cargando pizarra táctica...</p>
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <p className="text-zinc-400 font-medium text-sm">Cargando pizarra técnica...</p>
       </div>
     )
   }
 
+  const currentFormConfig = FORMATIONS[formation] || FORMATIONS['4-4-2']
+  const playerMap = new Map(squad.map(p => [p.id, p]))
+
   return (
-    <div className="min-h-screen p-3 sm:p-6 md:p-8 text-white bg-zinc-950 pb-28 md:pb-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4 md:gap-0">
-        <div className="flex items-center gap-3 md:gap-4">
-          <button onClick={() => navigate('/dashboard')} className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0">
+    <div className="min-h-screen p-4 md:p-8 text-zinc-100 bg-zinc-950 pb-24 lg:pb-8">
+      {/* Top Header */}
+      <header className="max-w-6xl mx-auto flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/dashboard')} 
+            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-xl md:text-3xl font-black text-emerald-500 truncate leading-none">PIZARRA TÁCTICA</h1>
+          <div>
+            <h1 className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+              <LayoutGrid className="w-6 h-6 text-emerald-400" />
+              Pizarra Táctica y Esquema
+            </h1>
+            <p className="text-xs text-zinc-400">Diseño estratégico, roles y compatibilidad posicional</p>
+          </div>
         </div>
+
         <button 
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center justify-center gap-2 px-6 py-3 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50 text-sm shadow-lg shadow-emerald-500/10"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 font-bold text-zinc-950 transition-all bg-emerald-500 rounded-xl hover:bg-emerald-400 active:scale-95 disabled:opacity-50 text-xs shadow-lg shadow-emerald-950/50"
         >
-          {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Guardar Cambios
         </button>
       </header>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Panel Izquierdo: Opciones Tácticas */}
-        <div className="space-y-6">
-          <div className="p-4 sm:p-6 border border-zinc-800 rounded-2xl md:rounded-3xl bg-zinc-900/50">
-            <h2 className="flex items-center gap-2 mb-4 sm:mb-6 text-lg sm:text-xl font-bold">
-              <LayoutGrid className="w-5 h-5 text-emerald-500" /> Sistema
+      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Panel Izquierdo: Configuración e Instrucciones */}
+        <div className="space-y-4">
+          <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-4">
+            <h2 className="text-sm font-bold text-white flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-emerald-400" />
+              Instrucciones de Equipo
             </h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block mb-2 text-sm font-medium text-zinc-400">Formación</label>
-                <select 
-                  value={form.formation} 
-                  onChange={e => setForm({...form, formation: e.target.value})}
-                  className="w-full p-3 border rounded-xl bg-zinc-950 border-zinc-800 focus:border-emerald-500 focus:outline-none"
-                >
-                  {['4-4-2', '4-3-3', '4-2-3-1', '3-5-2', '5-3-2', '4-1-4-1'].map(f => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-              </div>
 
-              <div>
-                <label className="block mb-2 text-sm font-medium text-zinc-400">Mentalidad</label>
-                <select 
-                  value={form.mentality} 
-                  onChange={e => setForm({...form, mentality: e.target.value})}
-                  className="w-full p-3 border rounded-xl bg-zinc-950 border-zinc-800 focus:border-emerald-500 focus:outline-none"
-                >
-                  {['Defensiva', 'Equilibrada', 'Ofensiva'].map(f => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Formación Selector */}
+            <div>
+              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Esquema Táctico</label>
+              <select 
+                value={formation} 
+                onChange={e => handleFormationChange(e.target.value)}
+                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
+              >
+                {Object.keys(FORMATIONS).map(key => (
+                  <option key={key} value={key}>{FORMATIONS[key].name}</option>
+                ))}
+              </select>
+              <p className="text-[11px] text-zinc-500 mt-1">{currentFormConfig.description}</p>
+            </div>
 
-              <div>
-                <label className="block mb-2 text-sm font-medium text-zinc-400">Presión</label>
-                <select 
-                  value={form.pressure} 
-                  onChange={e => setForm({...form, pressure: e.target.value})}
-                  className="w-full p-3 border rounded-xl bg-zinc-950 border-zinc-800 focus:border-emerald-500 focus:outline-none"
-                >
-                  {['Baja', 'Media', 'Alta'].map(f => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Mentalidad */}
+            <div>
+              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Mentalidad</label>
+              <select 
+                value={mentality} 
+                onChange={e => setMentality(e.target.value)}
+                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
+              >
+                {TACTICAL_MENTALITIES.map(m => (
+                  <option key={m.id} value={m.id}>{m.label}</option>
+                ))}
+              </select>
+            </div>
 
-              <div>
-                <label className="block mb-2 text-sm font-medium text-zinc-400">Ritmo</label>
-                <select 
-                  value={form.tempo} 
-                  onChange={e => setForm({...form, tempo: e.target.value})}
-                  className="w-full p-3 border rounded-xl bg-zinc-950 border-zinc-800 focus:border-emerald-500 focus:outline-none"
-                >
-                  {['Lento', 'Normal', 'Alto'].map(f => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Estilo de Pase */}
+            <div>
+              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Estilo de Pase</label>
+              <select 
+                value={passingStyle} 
+                onChange={e => setPassingStyle(e.target.value)}
+                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
+              >
+                {PASSING_STYLES.map(s => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </div>
 
-              <div>
-                <label className="block mb-2 text-sm font-medium text-zinc-400">Construcción</label>
-                <select 
-                  value={form.build_up} 
-                  onChange={e => setForm({...form, build_up: e.target.value})}
-                  className="w-full p-3 border rounded-xl bg-zinc-950 border-zinc-800 focus:border-emerald-500 focus:outline-none"
-                >
-                  {['Directa', 'Mixta', 'Posesión'].map(f => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Presión */}
+            <div>
+              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Intensidad de Presión</label>
+              <select 
+                value={pressing} 
+                onChange={e => setPressing(e.target.value)}
+                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
+              >
+                {PRESSING_LEVELS.map(p => (
+                  <option key={p.id} value={p.id}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Ritmo */}
+            <div>
+              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Ritmo de Juego</label>
+              <select 
+                value={tempo} 
+                onChange={e => setTempo(e.target.value)}
+                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
+              >
+                {TEMPO_LEVELS.map(t => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
 
-        {/* Panel Derecho: Plantel y Once Inicial */}
-        <div className="p-6 border lg:col-span-2 border-zinc-800 rounded-3xl bg-zinc-900/50">
-          <h2 className="mb-6 text-xl font-bold">Plantel</h2>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b text-zinc-500 border-zinc-800">
-                  <th className="pb-3 font-medium">Nº</th>
-                  <th className="pb-3 font-medium">Nombre</th>
-                  <th className="pb-3 font-medium">Posición</th>
-                  <th className="pb-3 font-medium">Fitness</th>
-                  <th className="pb-3 font-medium">Moral</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {data.players.map(p => (
-                  <tr key={p.id} className="border-b border-zinc-900/50 hover:bg-zinc-800/50">
-                    <td className="py-3 font-bold text-zinc-400">{p.shirt_number}</td>
-                    <td className="py-3 font-medium text-white">{p.first_name} {p.last_name}</td>
-                    <td className="py-3">
-                      <span className="px-2 py-1 text-xs font-bold rounded-md bg-emerald-500/10 text-emerald-400">
-                        {p.position}
-                      </span>
-                    </td>
-                    <td className="py-3">
-                      <div className="w-16 h-2 rounded-full bg-zinc-800">
-                        <div className="h-full bg-blue-500 rounded-full" style={{width: `${p.state_fitness}%`}} />
+        {/* Panel Central / Derecho: 11 Titulares y Afinidad */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Users className="w-4 h-4 text-emerald-400" />
+                  Once Inicial ({formation})
+                </h2>
+                <p className="text-[11px] text-zinc-400">Asigna a los 11 titulares verificando la química de posición</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => autoAssignLineup(formation, squad)}
+                className="px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/10 transition-colors"
+              >
+                Auto-alinear
+              </button>
+            </div>
+
+            {/* Slots List */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {currentFormConfig.slots.map(slot => {
+                const assignedPlayerId = lineup[slot]
+                const assignedPlayer = playerMap.get(assignedPlayerId)
+                const affinity = assignedPlayer ? calculatePositionalAffinity(assignedPlayer.position, slot) : null
+
+                const colorClass = affinity?.code === 'NATURAL'
+                  ? 'border-emerald-500/40 bg-emerald-950/20'
+                  : affinity?.code === 'COMPATIBLE'
+                  ? 'border-amber-500/40 bg-amber-950/20'
+                  : affinity?.code === 'ADAPTED'
+                  ? 'border-orange-500/40 bg-orange-950/20'
+                  : 'border-red-500/40 bg-red-950/20'
+
+                return (
+                  <div 
+                    key={slot}
+                    className={`p-3 rounded-xl border transition-all ${assignedPlayer ? colorClass : 'border-zinc-800 bg-zinc-950/40'}`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-8 h-6 rounded bg-zinc-800 text-[11px] font-black text-white flex items-center justify-center">
+                          {slot}
+                        </span>
+                        {affinity && (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                            affinity.code === 'NATURAL' ? 'text-emerald-400 bg-emerald-500/10' :
+                            affinity.code === 'COMPATIBLE' ? 'text-amber-400 bg-amber-500/10' :
+                            affinity.code === 'ADAPTED' ? 'text-orange-400 bg-orange-500/10' :
+                            'text-red-400 bg-red-500/10'
+                          }`}>
+                            {affinity.label} ({(affinity.rating * 100).toFixed(0)}%)
+                          </span>
+                        )}
                       </div>
-                    </td>
-                    <td className="py-3 text-zinc-300">{p.state_morale}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+                      {assignedPlayer && (
+                        <span className="text-[10px] text-zinc-400">
+                          {assignedPlayer.state_fitness || 75}% fit
+                        </span>
+                      )}
+                    </div>
+
+                    <select
+                      value={assignedPlayerId || ''}
+                      onChange={e => handlePlayerSlotChange(slot, e.target.value)}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
+                    >
+                      <option value="">Seleccionar futbolista...</option>
+                      {squad.map(p => (
+                        <option key={p.id} value={p.id}>
+                          #{p.shirt_number} {p.first_name} {p.last_name} ({p.position} - Media: {p.attr_overall || 50})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )
+              })}
+            </div>
           </div>
-          
         </div>
-      </div>
+      </main>
     </div>
   )
 }
