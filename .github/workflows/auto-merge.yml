@@ -30,6 +30,9 @@ jobs:
       - name: 📥 Instalar npm (Vite build)
         run: npm install
 
+      - name: 🧪 Ejecutar Pruebas Unitarias
+        run: npm test
+
       - name: 🔨 Compilar (Build)
         run: npm run build
 

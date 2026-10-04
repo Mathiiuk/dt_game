@@ -24,7 +24,7 @@ jobs:
         run: npm install
 
       - name: 🧪 Ejecutar Pruebas Unitarias
-        run: npm test || echo "Sin pruebas unitarias configuradas"
+        run: npm test
 
       - name: 🔨 Compilar (Build)
         run: npm run build
