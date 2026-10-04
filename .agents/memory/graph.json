@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T04:13:47.089Z",
+  "updatedAt": "2026-10-04T19:56:46.382Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 151,
-    "totalEdges": 461,
-    "totalTasks": 54,
+    "totalNodes": 155,
+    "totalEdges": 465,
+    "totalTasks": 58,
     "totalLessons": 0
   },
   "nodes": [
@@ -203,7 +203,7 @@
       "id": "src/api/endgame.js",
       "label": "endgame.js",
       "type": "module",
-      "sizeBytes": 7631,
+      "sizeBytes": 7825,
       "lineCount": 195,
       "imports": [
         "./supabase",
@@ -271,8 +271,8 @@
       "id": "src/api/hallOfFame.js",
       "label": "hallOfFame.js",
       "type": "module",
-      "sizeBytes": 8622,
-      "lineCount": 271,
+      "sizeBytes": 8903,
+      "lineCount": 280,
       "imports": [
         "./supabase"
       ]
@@ -395,8 +395,8 @@
       "id": "src/api/personalities.js",
       "label": "personalities.js",
       "type": "module",
-      "sizeBytes": 10170,
-      "lineCount": 283,
+      "sizeBytes": 10467,
+      "lineCount": 288,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -548,8 +548,8 @@
       "id": "src/api/training.js",
       "label": "training.js",
       "type": "module",
-      "sizeBytes": 13425,
-      "lineCount": 372,
+      "sizeBytes": 13306,
+      "lineCount": 377,
       "imports": [
         "./supabase"
       ]
@@ -1364,6 +1364,13 @@
       "taskType": "fix"
     },
     {
+      "id": "task:f2-audit-gaps-perf",
+      "label": "f2-audit-gaps-perf: Auditoria de gaps Fase 2.1, rendimiento DB y recorrido UX",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:f2-db-audit-optimization",
       "label": "f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos",
       "type": "task",
@@ -1378,8 +1385,29 @@
       "taskType": "fix"
     },
     {
+      "id": "task:f2-db-missing-tables",
+      "label": "f2-db-missing-tables: Migracion aditiva de 63 tablas faltantes en la BD viva",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:f2-perf-optimization",
       "label": "f2-perf-optimization: Optimizacion de Rendimiento de Navegacion y Cache de Consultas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-schema-column-drift",
+      "label": "f2-schema-column-drift: Sincronizar columnas faltantes en tablas existentes de la BD viva",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-scripts-env-credentials",
+      "label": "f2-scripts-env-credentials: Eliminar credencial de BD hardcodeada de scripts versionados",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -3757,6 +3785,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:f2-audit-gaps-perf",
+      "to": ".agents/workflow/tasks/f2-audit-gaps-perf.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:f2-db-audit-optimization",
       "to": ".agents/workflow/tasks/f2-db-audit-optimization.yml",
       "relation": "manifested_by"
@@ -3767,8 +3800,23 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:f2-db-missing-tables",
+      "to": ".agents/workflow/tasks/f2-db-missing-tables.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:f2-perf-optimization",
       "to": ".agents/workflow/tasks/f2-perf-optimization.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-schema-column-drift",
+      "to": ".agents/workflow/tasks/f2-schema-column-drift.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-scripts-env-credentials",
+      "to": ".agents/workflow/tasks/f2-scripts-env-credentials.yml",
       "relation": "manifested_by"
     },
     {

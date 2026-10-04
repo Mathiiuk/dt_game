@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T04:13:47.089Z | **Nodos:** 151 | **Tareas:** 54
+> **Última sincronización:** 2026-10-04T19:56:46.382Z | **Nodos:** 155 | **Tareas:** 58
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -47,9 +47,13 @@ _(+72 módulos adicionales; consultar con `memory:query`)_
 - **f2-39-achievements: Fase 39: Sistema de Logros y Desafios de Carrera** `[DONE]`
 - **f2-40-endgame: Fase 40: Endgame, Epilogo de Carrera y Legado Dinastico** `[DONE]`
 - **f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX** `[DONE]`
+- **f2-audit-gaps-perf: Auditoria de gaps Fase 2.1, rendimiento DB y recorrido UX** `[DONE]`
 - **f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos** `[DONE]`
 - **f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs** `[DONE]`
+- **f2-db-missing-tables: Migracion aditiva de 63 tablas faltantes en la BD viva** `[DONE]`
 - **f2-perf-optimization: Optimizacion de Rendimiento de Navegacion y Cache de Consultas** `[DONE]`
+- **f2-schema-column-drift: Sincronizar columnas faltantes en tablas existentes de la BD viva** `[DONE]`
+- **f2-scripts-env-credentials: Eliminar credencial de BD hardcodeada de scripts versionados** `[DONE]`
 - **feat-fase-01-auth-session: Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras** `[DONE]`
 - **feat-fase-02-dt-creation: Fase 02: Creación de DT, Presets de Trasfondo y Validación Suma Cero** `[DONE]`
 - **feat-fase-03-club-foundation: Fase 03: Creación y Fundación del Club, Identidad Visual y Balance Tier 5** `[DONE]`

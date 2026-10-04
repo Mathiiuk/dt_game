@@ -2,7 +2,7 @@
 
 - **Tarea**: Auditoría de gaps Fase 2.1, rendimiento DB y recorrido UX
 - **Rama**: `fix/f2-audit-gaps-perf`
-- **Estado**: `IN_PROGRESS` (hallazgos documentados; remediación de DB pendiente de aprobación del usuario)
+- **Estado**: `DONE` (remediación aplicada; quedan 3 acciones manuales/de arquitectura, ver sección 5)
 - **Fecha**: 2026-10-04
 - **Alcance**: proyecto Supabase `dt_database`, app local en `localhost:5173` (cuenta de prueba), contratos `docs/Del_Potrero_al_Idolo_Fase_2_1`.
 
@@ -66,3 +66,15 @@ Mejora propuesta: pasar `/manager` y `/national-team` por `queryCache.fetch` (ya
 2. Autorizar la migración aditiva de las 63 tablas faltantes.
 3. Rotar la contraseña de la base y migrar los scripts a `DATABASE_URL`.
 4. `VACUUM FULL players;`
+
+## 5. Resolución (actualizado)
+| Hallazgo | Estado | Tarea / rama |
+|---|---|---|
+| G-01 63 tablas faltantes | Resuelto (31 -> 94 tablas) | `f2-db-missing-tables` |
+| G-01b Deriva de columnas código/esquema (9 errores 400/409 destapados) | Resuelto, 0 errores 4xx en 14 rutas | `f2-schema-column-drift` |
+| G-03 Credencial en scripts | Resuelto en código; **rotar contraseña (manual)** | `f2-scripts-env-credentials` |
+| G-04 RLS initplan + search_path | Resuelto | `f2-db-missing-tables` |
+| G-04 Leaked password protection | **Pendiente manual**: Dashboard Supabase > Auth > Passwords | - |
+| G-05 Bloat `players` | Resuelto (6 MB -> 112 kB) | `f2-db-missing-tables` |
+| Rendimiento `/manager`, `/national-team` | Resuelto (20 -> 11 requests en carga fría) | `f2-frontend-request-dedup` |
+| G-02 RLS abierto a `anon` | **Pendiente (arquitectura)**: requiere RPC `SECURITY DEFINER`/Edge Functions (Fase 3) | - |
