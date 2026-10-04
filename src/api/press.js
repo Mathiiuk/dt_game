@@ -9,11 +9,26 @@ export const MEDIA_OUTLETS = [
   { name: 'Cadena Deportiva Sur', journalist: 'Ramiro Carrizo', tier: 4 }
 ]
 
+// Armados de conferencia en curso por fixture
+const pressInFlight = new Map()
+
 export const pressApi = {
   /**
    * Genera o recupera la conferencia de prensa post-partido
    */
-  async generatePostMatchConference({
+  async generatePostMatchConference(params) {
+    // Un solo armado por partido aunque la pantalla se monte dos veces (StrictMode, recarga)
+    const { fixtureId } = params || {}
+    if (!fixtureId) return this._generatePostMatchConference(params)
+
+    if (!pressInFlight.has(fixtureId)) {
+      const promise = this._generatePostMatchConference(params).finally(() => pressInFlight.delete(fixtureId))
+      pressInFlight.set(fixtureId, promise)
+    }
+    return pressInFlight.get(fixtureId)
+  },
+
+  async _generatePostMatchConference({
     fixtureId = null,
     clubId,
     managerId,

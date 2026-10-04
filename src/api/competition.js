@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
+import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
 // Lista de clubes regionales para poblar la división Tier 5
 export const DEFAULT_REGION_CLUBS = [
@@ -324,42 +325,91 @@ export const competitionApi = {
   },
 
   /**
-   * Simula los partidos de la fecha para los clubes de IA.
+   * Calcula el marcador simulado de un partido de IA (puro, inyectable para tests)
    */
-  async simulateMatchDay(dateString) {
-    if (!dateString) return
+  simulateAiScore(rng = Math.random) {
+    const hGoals = Math.floor(rng() * 3) + (rng() < 0.25 ? 1 : 0)
+    const aGoals = Math.floor(rng() * 3)
+    return { hGoals, aGoals }
+  },
+
+  /**
+   * Convierte resultados en deltas de tabla por club (puro): un objeto por club y competición
+   */
+  buildStandingsDeltas(results) {
+    const byKey = new Map()
+    const touch = (competitionId, clubId) => {
+      const key = `${competitionId}:${clubId}`
+      if (!byKey.has(key)) {
+        byKey.set(key, { competition_id: competitionId, club_id: clubId, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, points: 0, formChars: [] })
+      }
+      return byKey.get(key)
+    }
+    for (const r of results) {
+      const home = touch(r.competitionId, r.homeId)
+      const away = touch(r.competitionId, r.awayId)
+      const homeWin = r.hGoals > r.aGoals
+      const draw = r.hGoals === r.aGoals
+      home.played++; away.played++
+      home.goals_for += r.hGoals; home.goals_against += r.aGoals
+      away.goals_for += r.aGoals; away.goals_against += r.hGoals
+      if (draw) { home.drawn++; away.drawn++; home.points += 1; away.points += 1; home.formChars.unshift('E'); away.formChars.unshift('E') }
+      else if (homeWin) { home.won++; away.lost++; home.points += 3; home.formChars.unshift('V'); away.formChars.unshift('D') }
+      else { away.won++; home.lost++; away.points += 3; away.formChars.unshift('V'); home.formChars.unshift('D') }
+    }
+    return [...byKey.values()].map(({ formChars, ...d }) => ({ ...d, form: formChars.join(',') }))
+  },
+
+  /**
+   * Simula los partidos de IA vencidos hasta la fecha de juego (incluida).
+   * - La fecha del juego avanza de a 7 días y los fixtures caen en otros días de la semana, por lo que se juega todo
+   *   lo que ya venció (<= fecha) y no sólo los de la fecha exacta (antes: la liga de IA nunca avanzaba).
+   * - Se excluye el club del usuario: sus partidos los dirige el DT.
+   * - Escritura en lote: 2 llamadas RPC en vez de ~3 consultas por partido.
+   */
+  async simulateMatchDay(dateString, excludeClubId = null) {
+    if (!dateString) return 0
 
     try {
       const { data: fixtures } = await supabase
         .from('fixtures')
-        .select('*')
-        .eq('match_date', dateString)
-        .eq('status', 'SCHEDULED')
+        .select('id, competition_id, home_team_id, away_team_id')
+        .in('status', FIXTURE_OPEN_STATUSES)
+        .lte('match_date', dateString)
 
-      if (!fixtures || fixtures.length === 0) return
+      const due = (fixtures || []).filter(f =>
+        !excludeClubId || (f.home_team_id !== excludeClubId && f.away_team_id !== excludeClubId))
+      if (due.length === 0) return 0
 
-      for (const f of fixtures) {
-        // Marcador simulado creíble
-        const hGoals = Math.floor(Math.random() * 3) + (Math.random() < 0.25 ? 1 : 0)
-        const aGoals = Math.floor(Math.random() * 3)
+      const results = due.map(f => ({
+        id: f.id,
+        competitionId: f.competition_id,
+        homeId: f.home_team_id,
+        awayId: f.away_team_id,
+        ...this.simulateAiScore()
+      }))
 
-        await supabase
-          .from('fixtures')
-          .update({
-            home_score: hGoals,
-            away_score: aGoals,
-            status: 'PLAYED'
-          })
-          .eq('id', f.id)
+      // 1) Cierra los fixtures (idempotente: sólo los que siguen abiertos) y 2) aplica la tabla
+      const { data: closed, error: finishErr } = await supabase.rpc('batch_finish_fixtures', {
+        rows: results.map(r => ({ id: r.id, home_score: r.hGoals, away_score: r.aGoals }))
+      })
+      if (finishErr) throw new Error(finishErr.message)
 
-        if (f.competition_id) {
-          const homeId = f.home_club_id || f.home_team_id
-          const awayId = f.away_club_id || f.away_team_id
-          await this._updateStandings(f.competition_id, homeId, awayId, hGoals, aGoals)
-        }
+      // Sólo cuentan en la tabla los partidos que efectivamente se cerraron en esta llamada
+      const closedIds = new Set(closed || [])
+      const withCompetition = results.filter(r => r.competitionId && closedIds.has(r.id))
+      if (withCompetition.length > 0) {
+        const { error: standingsErr } = await supabase.rpc('apply_standings_deltas', {
+          rows: this.buildStandingsDeltas(withCompetition)
+        })
+        if (standingsErr) throw new Error(standingsErr.message)
       }
+
+      queryCache.invalidate('standings:')
+      return due.length
     } catch (e) {
       console.warn('Error simulando fecha de IA:', e)
+      return 0
     }
   }
 }

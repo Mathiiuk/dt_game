@@ -254,6 +254,8 @@ export const calendarApi = {
 
         if (players && players.length > 0) {
           playersProcessedCount = players.length
+          // Se acumulan los cambios y se aplican en una sola llamada (antes: un UPDATE por jugador)
+          const weeklyUpdates = []
           for (const p of players) {
             let updatedFitness = p.state_fitness || 70
             let updatedInjuryDays = p.injury_days || 0
@@ -275,16 +277,16 @@ export const calendarApi = {
               staminaRecoveredCount++
             }
 
-            await supabase
-              .from('players')
-              .update({
-                state_fitness: updatedFitness,
-                injury_days: updatedInjuryDays,
-                injury_type: updatedInjuryType,
-                is_injured: isInjured
-              })
-              .eq('id', p.id)
+            weeklyUpdates.push({
+              id: p.id,
+              state_fitness: updatedFitness,
+              injury_days: updatedInjuryDays,
+              injury_type: updatedInjuryType,
+              is_injured: isInjured
+            })
           }
+          const { playerApi } = await import('./player')
+          await playerApi.batchUpdate(weeklyUpdates)
 
           // 7.1. Cascada de Entrenamiento y Desarrollo Individual (Fase 08)
           try {
@@ -301,7 +303,8 @@ export const calendarApi = {
 
         // 9. Simulación de partidos de liga IA
         const { competitionApi } = await import('./competition')
-        await competitionApi.simulateMatchDay(nextDate)
+        // La fecha del juego avanza de a 7 días: se juegan todos los partidos de IA vencidos (excepto el del club del usuario)
+        await competitionApi.simulateMatchDay(nextDate, clubId)
 
         // 10. Mercado de fichajes y ofertas aleatorias
         const { marketApi } = await import('./market')

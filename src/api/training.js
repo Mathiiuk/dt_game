@@ -245,6 +245,7 @@ export const trainingApi = {
     let totalFitnessCost = 0
 
     // 3. Iterar futbolistas
+    const trainingUpdates = []
     for (const p of players) {
       let fitness = p.state_fitness || 75
       let injuryDays = p.injury_days || 0
@@ -333,20 +334,22 @@ export const trainingApi = {
         }
       }
 
-      await supabase
-        .from('players')
-        .update({
-          state_fitness: Math.round(fitness),
-          injury_days: injuryDays,
-          injury_type: injuryType,
-          is_injured: isInjured,
-          attr_pace: pace,
-          attr_passing: passing,
-          attr_defending: defending,
-          attr_shooting: shooting
-        })
-        .eq('id', p.id)
+      trainingUpdates.push({
+        id: p.id,
+        state_fitness: Math.round(fitness),
+        injury_days: injuryDays,
+        injury_type: injuryType,
+        is_injured: isInjured,
+        attr_pace: pace,
+        attr_passing: passing,
+        attr_defending: defending,
+        attr_shooting: shooting
+      })
     }
+
+    // Un solo UPDATE masivo para todo el plantel (antes: uno por jugador)
+    const { playerApi } = await import('./player')
+    await playerApi.batchUpdate(trainingUpdates)
 
     // 4. Registrar auditoría en training_execution_logs
     try {

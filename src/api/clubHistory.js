@@ -333,51 +333,57 @@ export const clubHistoryApi = {
   async processPostMatchPlayerStats(clubId, { playedPlayerIds = [], scorers = [], homeScore = 0, awayScore = 0, opponentName = '', isHome = true }) {
     if (!clubId) return
 
-    // 1. Incrementar matches_played para los jugadores convocados
-    for (const pid of playedPlayerIds) {
-      const { data: p } = await supabase.from('players').select('id, matches_played, goals_scored, is_idol, club_status').eq('id', pid).single()
-      if (p) {
-        const newMatches = (p.matches_played || 0) + 1
-        const goalsInMatch = scorers.filter(id => id === pid).length
-        const newGoals = (p.goals_scored || 0) + goalsInMatch
+    // 1. Incrementar matches_played para los jugadores convocados (lectura y escritura en lote)
+    const { data: playedPlayers } = playedPlayerIds.length > 0
+      ? await supabase.from('players').select('id, first_name, last_name, matches_played, goals_scored, is_idol, club_status').in('id', playedPlayerIds)
+      : { data: [] }
 
-        const evalBefore = this.evaluatePlayerStatus(p)
-        const evalAfter = this.evaluatePlayerStatus({ ...p, matches_played: newMatches, goals_scored: newGoals })
+    const statusChanges = []
+    const updateRows = (playedPlayers || []).map(p => {
+      const newMatches = (p.matches_played || 0) + 1
+      const goalsInMatch = scorers.filter(id => id === p.id).length
+      const newGoals = (p.goals_scored || 0) + goalsInMatch
 
-        const updates = {
-          matches_played: newMatches,
-          goals_scored: newGoals,
-          club_status: evalAfter.status,
-          legend_reason: evalAfter.reason
-        }
+      const evalBefore = this.evaluatePlayerStatus(p)
+      const evalAfter = this.evaluatePlayerStatus({ ...p, matches_played: newMatches, goals_scored: newGoals })
 
-        if (evalAfter.status === 'idol' || evalAfter.status === 'legend') {
-          updates.is_idol = true
-        }
-
-        await supabase.from('players').update(updates).eq('id', pid)
-
-        // Si subió de estatus a Ídolo o Leyenda, crear hito institucional
-        if (evalBefore.status !== evalAfter.status && (evalAfter.status === 'idol' || evalAfter.status === 'legend')) {
-          const { data: playerFull } = await supabase.from('players').select('first_name, last_name').eq('id', pid).single()
-          const playerName = playerFull ? `${playerFull.first_name} ${playerFull.last_name}` : 'Un jugador'
-          await this.addMilestone(clubId, {
-            year: 2026,
-            title: `Nuevo ${evalAfter.label}: ${playerName}`,
-            description: `${playerName} alcanza el rango sagrado de ${evalAfter.label} del club. (${evalAfter.reason})`,
-            category: 'legend',
-            importance: evalAfter.status === 'legend' ? 5 : 4
-          })
-
-          await this.addHemerotecaArticle(clubId, {
-            season_year: 2026,
-            headline: `Nace un Ídolo: ${playerName} consagra su nombre en la memoria del club`,
-            snippet: `La afición ovacionó de pie a ${playerName} tras alcanzar un nuevo escalón en la galería inmortal de la institución. Su entrega conmueve a la tribuna.`,
-            media_source: 'Diario Olé Barrial',
-            tag: 'IDOLO'
-          })
-        }
+      const row = {
+        id: p.id,
+        matches_played: newMatches,
+        goals_scored: newGoals,
+        club_status: evalAfter.status,
+        legend_reason: evalAfter.reason
       }
+      if (evalAfter.status === 'idol' || evalAfter.status === 'legend') row.is_idol = true
+
+      // Si subió de estatus a Ídolo o Leyenda, se crea el hito institucional (caso poco frecuente)
+      if (evalBefore.status !== evalAfter.status && (evalAfter.status === 'idol' || evalAfter.status === 'legend')) {
+        statusChanges.push({ player: p, evalAfter })
+      }
+      return row
+    })
+
+    if (updateRows.length > 0) {
+      await supabase.rpc('batch_update_players', { rows: updateRows })
+    }
+
+    for (const { player, evalAfter } of statusChanges) {
+      const playerName = `${player.first_name} ${player.last_name}`
+      await this.addMilestone(clubId, {
+        year: 2026,
+        title: `Nuevo ${evalAfter.label}: ${playerName}`,
+        description: `${playerName} alcanza el rango sagrado de ${evalAfter.label} del club. (${evalAfter.reason})`,
+        category: 'legend',
+        importance: evalAfter.status === 'legend' ? 5 : 4
+      })
+
+      await this.addHemerotecaArticle(clubId, {
+        season_year: 2026,
+        headline: `Nace un Ídolo: ${playerName} consagra su nombre en la memoria del club`,
+        snippet: `La afición ovacionó de pie a ${playerName} tras alcanzar un nuevo escalón en la galería inmortal de la institución. Su entrega conmueve a la tribuna.`,
+        media_source: 'Diario Olé Barrial',
+        tag: 'IDOLO'
+      })
     }
 
     // 2. Verificar récord de goleada

@@ -298,12 +298,42 @@ export const boardApi = {
       manager_response: 'Lamento no haber cumplido los objetivos trazados. Le deseo éxitos al club.'
     })
 
-    // Actualizar manager
+    // El despido debe tener efecto real: cerrar el ciclo en el club, liberar el banquillo y dejar al DT desempleado
+    // (antes se escribía una columna inexistente `status` y el DT seguía en el cargo con el despido solo registrado)
     if (managerId) {
       await supabase
+        .from('manager_career_stints')
+        .update({ ended_at: new Date().toISOString(), departure_reason: 'SACKED' })
+        .eq('manager_id', managerId)
+        .eq('club_id', clubId)
+        .is('ended_at', null)
+
+      await supabase
+        .from('clubs')
+        .update({ manager_id: null })
+        .eq('id', clubId)
+
+      await supabase
         .from('managers')
-        .update({ status: 'UNEMPLOYED' })
+        .update({ employment_status: 'UNEMPLOYED', current_contract_wage: 0 })
         .eq('id', managerId)
+
+      try {
+        const { reputationApi, REPUTATION_DELTAS } = await import('./reputation')
+        await reputationApi.applyReputationDelta({
+          managerId,
+          eventType: 'DISMISSAL',
+          sourceEntityId: `${clubId}:dismissal:${Date.now()}`,
+          delta: REPUTATION_DELTAS.dismissal,
+          description: 'Despido por decisión de la comisión directiva'
+        })
+      } catch (repErr) {
+        console.warn('Aviso: no se pudo aplicar la penalización de reputación por despido:', repErr)
+      }
+
+      queryCache.invalidate('manager:')
+      queryCache.invalidate('club:')
+      queryCache.invalidate('dashboard:')
     }
 
     queryCache.invalidate(`board:${clubId}`)

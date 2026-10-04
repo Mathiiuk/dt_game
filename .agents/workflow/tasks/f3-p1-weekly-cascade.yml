@@ -1,0 +1,35 @@
+id: f3-p1-weekly-cascade
+external_ref: ''
+title: 'Ciclo semanal: simular fechas de IA y reemplazar N+1 por RPC en lote'
+type: fix
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar Ciclo semanal: simular fechas de IA y reemplazar N+1 por RPC en
+    lote
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Ciclo semanal: simular fechas de IA y
+    reemplazar N+1 por RPC en lote
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  unit_tests: npm test

@@ -62,13 +62,8 @@ export default function Dashboard() {
   }, [contextLoading, club?.id, club?.game_date, club?.budget, manager?.id, manager?.xp])
 
   const handleAdvanceWeek = async () => {
-    // Alerta bloqueante
-    const blockingAlert = dashboardData?.urgentAlerts?.find(a => a.priority === 'HIGH')
-    if (blockingAlert && blockingAlert.id === 'ALERT_MIN_PLAYERS') {
-      toast.error(blockingAlert.message)
-      return
-    }
-
+    // Nota: tener menos de 11 aptos NO impide avanzar la semana (si no, un plantel lesionado jamás se recuperaría:
+    // la recuperación ocurre al avanzar). El mínimo de 11 sólo condiciona jugar el partido (ver alerta del dashboard).
     if (dashboardData?.nextFixture && isFixtureDue(dashboardData.nextFixture.match_date, club.game_date)) {
       toast.error('Debes disputar tu partido pendiente antes de avanzar de semana.')
       return

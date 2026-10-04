@@ -256,6 +256,10 @@ export const injuriesApi = {
     let recoveredCount = 0
     let ongoingCount = 0
 
+    // Se calculan todas las altas/avances y se escriben en lote (2 llamadas en vez de 2 UPDATE por lesión)
+    const injuryRows = []
+    const playerRows = []
+
     for (const record of activeInjuries) {
       // Descontar semana
       let discount = 1
@@ -266,52 +270,26 @@ export const injuriesApi = {
       const remaining = Math.max(0, record.weeks_remaining - discount)
 
       if (remaining <= 0) {
-        // Alta médica definitiva
-        await supabase
-          .from('player_injuries')
-          .update({
-            weeks_remaining: 0,
-            is_cleared: true,
-            cleared_at: new Date().toISOString()
-          })
-          .eq('id', record.id)
-
-        // Habilitar futbolista con condición física moderada
-        await supabase
-          .from('players')
-          .update({
-            is_injured: false,
-            injury_days: 0,
-            injury_type: null,
-            state_fitness: 70
-          })
-          .eq('id', record.player_id)
-
+        // Alta médica definitiva: habilita al futbolista con condición física moderada
+        injuryRows.push({ id: record.id, weeks_remaining: 0, is_cleared: true })
+        playerRows.push({ id: record.player_id, is_injured: false, injury_days: 0, injury_type: null, state_fitness: 70 })
         recoveredCount++
       } else {
         // Aún en tratamiento
-        await supabase
-          .from('player_injuries')
-          .update({
-            weeks_remaining: remaining
-          })
-          .eq('id', record.id)
-
-        await supabase
-          .from('players')
-          .update({
-            injury_days: remaining * 7
-          })
-          .eq('id', record.player_id)
-
+        injuryRows.push({ id: record.id, weeks_remaining: remaining, is_cleared: false })
+        playerRows.push({ id: record.player_id, injury_days: remaining * 7 })
         ongoingCount++
       }
     }
 
+    await supabase.rpc('batch_update_injuries', { rows: injuryRows })
+    const { playerApi } = await import('./player')
+    await playerApi.batchUpdate(playerRows)
+
     queryCache.invalidate(`infirmary:${clubId}`)
     queryCache.invalidate(`squad:${clubId}`)
 
-    return { recovered: recoveredCount, ongoing: ongoingCount }
+    return injuryRecord
   },
 
   /**

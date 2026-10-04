@@ -126,6 +126,9 @@ export const postMatchApi = {
     const playerRatings = []
     const matchEvents = result.events || []
 
+    const postMatchUpdates = []
+    const playedIds = []
+
     if (players && players.length > 0) {
       for (const p of players) {
         // Calificación de rendimiento (1.0 a 10.0)
@@ -198,24 +201,20 @@ export const postMatchApi = {
           injured: playerInjured
         })
 
-        // Persistir estado físico y moral si no se gestionó por lesión
+        // Estado físico y moral (si no se gestionó por lesión): se aplica en lote al final del bucle
         if (!playerInjured) {
-          await supabase
-            .from('players')
-            .update({
-              state_fitness: newFitness,
-              state_morale: newMorale
-            })
-            .eq('id', p.id)
+          postMatchUpdates.push({ id: p.id, state_fitness: newFitness, state_morale: newMorale })
         }
+        playedIds.push(p.id)
+      }
 
-        // Acumular minutos oficiales para curva de maduración y evolución (Fase 28)
-        try {
-          const { playerEvolutionApi } = await import('./playerEvolution')
-          await playerEvolutionApi.trackMatchMinutes(p.id, 90)
-        } catch (mErr) {
-          console.warn('Aviso: error registrando minutos de partido:', mErr)
-        }
+      // Una sola llamada para el estado de todo el plantel y otra para los minutos oficiales (Fase 28)
+      try {
+        const { playerApi } = await import('./player')
+        await playerApi.batchUpdate(postMatchUpdates)
+        await supabase.rpc('increment_players_minutes', { player_ids: playedIds, mins: 90 })
+      } catch (batchErr) {
+        console.warn('Aviso: error persistiendo estado físico/minutos del plantel:', batchErr)
       }
     }
 

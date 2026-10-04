@@ -84,6 +84,17 @@ const generateAttributes = (targetOvr, position) => {
 
 export const playerApi = {
   /**
+   * Actualiza varios jugadores en UNA sola llamada (RPC batch_update_players).
+   * Cada fila lleva { id, ...columnas }; sólo se tocan las claves presentes.
+   */
+  async batchUpdate(rows) {
+    if (!rows || rows.length === 0) return 0
+    const { data, error } = await supabase.rpc('batch_update_players', { rows })
+    if (error) throw new Error(error.message)
+    return data
+  },
+
+  /**
    * Genera el arreglo oficial de 20 jugadores respetando cuotas posicionales y Tier 5
    */
   generatePlayersArray(clubId, reputation = 15, gameDate = '2026-07-01') {
