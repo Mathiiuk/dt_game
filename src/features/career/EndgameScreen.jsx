@@ -12,14 +12,21 @@ import BottomNav from '../../components/BottomNav'
 
 export default function EndgameScreen() {
   const navigate = useNavigate()
-  const { user, manager, club, refreshContext, confirmAction } = useGameContext()
+  const { user, manager: activeManager, retiredManager, club, loading: contextLoading, confirmAction } = useGameContext()
+  // El epílogo se muestra para el DT activo (si todavía no se retiró) o para el último DT retirado
+  const manager = activeManager || retiredManager
+  const isRetiredView = !activeManager && !!retiredManager
 
   const [snapshot, setSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
   const [startingDynasty, setStartingDynasty] = useState(false)
 
   useEffect(() => {
-    if (!manager) return
+    if (contextLoading) return
+    if (!manager) {
+      navigate('/create-manager', { replace: true })
+      return
+    }
 
     const loadEndgame = async () => {
       setLoading(true)
@@ -41,7 +48,7 @@ export default function EndgameScreen() {
     }
 
     loadEndgame()
-  }, [manager?.id, club?.id])
+  }, [manager?.id, club?.id, contextLoading])
 
   const handleStartDynasty = async () => {
     if (!user || !manager || startingDynasty) return
@@ -61,10 +68,9 @@ export default function EndgameScreen() {
     try {
       await endgameApi.startNewDynasty(user.id, manager.id)
       toast.success('¡El mundo continúa! Creando nuevo Director Técnico para la dinastía...')
-      if (refreshContext) await refreshContext()
-      navigate('/create-manager')
+      navigate('/create-manager', { replace: true })
     } catch (err) {
-      toast.error('Error al iniciar la nueva dinastía')
+      toast.error(err.message || 'Error al iniciar la nueva dinastía')
       setStartingDynasty(false)
     }
   }
@@ -103,12 +109,15 @@ export default function EndgameScreen() {
       {/* Barra Superior */}
       <header className="flex items-center justify-between mb-6 max-w-5xl mx-auto">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/manager')}
-            className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          {/* Con el DT retirado no hay a dónde volver: el único camino es la sucesión o el Salón de la Fama */}
+          {!isRetiredView && (
+            <button 
+              onClick={() => navigate('/manager')}
+              className="p-2 transition-colors border rounded-lg border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
           <div>
             <span className="text-[10px] font-black uppercase tracking-widest text-amber-500">Epílogo & Dinastía</span>
             <h1 className="text-lg sm:text-2xl font-black text-white flex items-center gap-2">
