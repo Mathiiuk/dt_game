@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:23:57.778Z",
+  "updatedAt": "2026-10-04T00:27:53.687Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 71,
-    "totalEdges": 276,
-    "totalTasks": 12,
+    "totalNodes": 72,
+    "totalEdges": 277,
+    "totalTasks": 13,
     "totalLessons": 0
   },
   "nodes": [
@@ -810,6 +810,13 @@
     {
       "id": "task:f2-1-block-b-management",
       "label": "f2-1-block-b-management: Fase 2.1: Bloque B - Contratos de Dominio Gestion Deportiva y Economica (Fases 11 a 20)",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-1-block-c-human-environment",
+      "label": "f2-1-block-c-human-environment: Fase 2.1: Bloque C - Contratos de Dominio Entorno y Simulacion Humana (Fases 21 a 30)",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -2214,6 +2221,11 @@
     {
       "from": "task:f2-1-block-b-management",
       "to": ".agents/workflow/tasks/f2-1-block-b-management.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-1-block-c-human-environment",
+      "to": ".agents/workflow/tasks/f2-1-block-c-human-environment.yml",
       "relation": "manifested_by"
     },
     {

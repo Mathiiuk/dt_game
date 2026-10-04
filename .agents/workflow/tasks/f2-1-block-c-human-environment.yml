@@ -1,0 +1,43 @@
+id: f2-1-block-c-human-environment
+external_ref: ''
+title: >-
+  Fase 2.1: Bloque C - Contratos de Dominio Entorno y Simulacion Humana (Fases
+  21 a 30)
+type: fix
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Redactar contratos de dominio profundos y exhaustivos para Fases 21 a 30
+    (Bloque C: Entorno y Simulación Humana) en
+    docs/Del_Potrero_al_Idolo_Fase_2_1/
+  - >-
+    Cumplir las 15 Master Rules 3.0 (Backend autoridad de vestuario y despidos,
+    idempotencia en cierre de temporada, inmutabilidad de ascensos/descensos)
+  - >-
+    Completar todas las 20 secciones por documento con criterios de aceptación
+    marcados
+acceptance_criteria:
+  - Todas las especificaciones de Fases 21 a 30 profundizadas sin ambigüedades
+  - Calidad de build 100% verde (npm run build)
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
