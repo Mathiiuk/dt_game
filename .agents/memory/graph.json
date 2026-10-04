@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:27:53.687Z",
+  "updatedAt": "2026-10-04T00:32:20.639Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 72,
-    "totalEdges": 277,
-    "totalTasks": 13,
+    "totalNodes": 73,
+    "totalEdges": 278,
+    "totalTasks": 14,
     "totalLessons": 0
   },
   "nodes": [
@@ -817,6 +817,13 @@
     {
       "id": "task:f2-1-block-c-human-environment",
       "label": "f2-1-block-c-human-environment: Fase 2.1: Bloque C - Contratos de Dominio Entorno y Simulacion Humana (Fases 21 a 30)",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-1-block-d-career-endgame",
+      "label": "f2-1-block-d-career-endgame: Fase 2.1: Bloque D - Contratos de Dominio Carrera, Gloria y Endgame (Fases 31 a 40)",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -2226,6 +2233,11 @@
     {
       "from": "task:f2-1-block-c-human-environment",
       "to": ".agents/workflow/tasks/f2-1-block-c-human-environment.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-1-block-d-career-endgame",
+      "to": ".agents/workflow/tasks/f2-1-block-d-career-endgame.yml",
       "relation": "manifested_by"
     },
     {

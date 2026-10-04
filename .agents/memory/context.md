@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T00:27:53.687Z | **Nodos:** 72 | **Tareas:** 13
+> **Última sincronización:** 2026-10-04T00:32:20.639Z | **Nodos:** 73 | **Tareas:** 14
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -39,6 +39,7 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 - **f2-1-block-a-fundamentals: Fase 2.1: Bloque A - Contratos de Dominio Fundamentos (Fases 01 a 10)** `[DONE]`
 - **f2-1-block-b-management: Fase 2.1: Bloque B - Contratos de Dominio Gestion Deportiva y Economica (Fases 11 a 20)** `[DONE]`
 - **f2-1-block-c-human-environment: Fase 2.1: Bloque C - Contratos de Dominio Entorno y Simulacion Humana (Fases 21 a 30)** `[DONE]`
+- **f2-1-block-d-career-endgame: Fase 2.1: Bloque D - Contratos de Dominio Carrera, Gloria y Endgame (Fases 31 a 40)** `[DONE]`
 - **f2-33-national-teams: Fase 33: Selecciones Nacionales y Doble Carrera** `[DONE]`
 - **f2-34-international-cups: Fase 34: Competiciones Internacionales y Copas Continentales** `[DONE]`
 - **f2-36-37-club-history-idols: Fases 36 y 37: Historia del Club, Récords e Ídolos** `[DONE]`
