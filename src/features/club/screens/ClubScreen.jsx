@@ -28,14 +28,16 @@ import { toast } from 'sonner'
 import { useGameContext } from '../../../context/GameContext'
 
 import { queryCache } from '../../../utils/cache'
+import YouthAcademyModal from './YouthAcademyModal'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
-  const { club, loading: contextLoading, confirmAction } = useGameContext()
+  const { club, manager, loading: contextLoading, confirmAction } = useGameContext()
 
   const cachedClubData = club?.id ? queryCache.get(`club:screen:${club.id}`) : null
   const [loading, setLoading] = useState(!cachedClubData)
   const [activeTab, setActiveTab] = useState('gestion') // 'gestion' | 'historia' | 'idolos'
+  const [showYouthModal, setShowYouthModal] = useState(false)
 
   const [data, setData] = useState(cachedClubData || {
     staff: [],
@@ -287,13 +289,22 @@ export default function ClubScreen() {
                   <GraduationCap className="w-5 h-5 text-emerald-400 shrink-0" />
                   <span>Academia (Nv. {club?.academy_level || 1})</span>
                 </h2>
-                <button 
-                  onClick={handleGenerateProspect} 
-                  className="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold text-xs rounded-lg hover:bg-emerald-400 transition-colors flex items-center gap-1"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Otear Talento (-$5k)</span>
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setShowYouthModal(true)} 
+                    className="px-3 py-1.5 bg-amber-400 text-zinc-950 font-bold text-xs rounded-lg hover:bg-amber-300 transition-colors flex items-center gap-1 shadow-sm"
+                  >
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    <span>Cantera & Camada</span>
+                  </button>
+                  <button 
+                    onClick={handleGenerateProspect} 
+                    className="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold text-xs rounded-lg hover:bg-emerald-400 transition-colors flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Otear (-$5k)</span>
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2.5">
@@ -559,6 +570,16 @@ export default function ClubScreen() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Modal: Cantera y Camada Anual (Fase 18) */}
+      {showYouthModal && (
+        <YouthAcademyModal 
+          club={club}
+          manager={manager}
+          onClose={() => setShowYouthModal(false)}
+          onCandidatePromoted={() => loadData(true)}
+        />
       )}
     </div>
   )

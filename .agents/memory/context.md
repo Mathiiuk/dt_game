@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:47:52.500Z | **Nodos:** 98 | **Tareas:** 31
+> **Última sincronización:** 2026-10-04T02:51:07.035Z | **Nodos:** 101 | **Tareas:** 32
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -8,9 +8,9 @@
 |---|---|---|
 | `src/features/squad/SquadScreen.jsx` | 783 | react, react-router-dom, ../../api/player |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
+| `src/features/club/screens/ClubScreen.jsx` | 587 | react, react-router-dom, ../../../api/club |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
-| `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
 | `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
 | `src/features/match/MatchScreen.jsx` | 525 | react, react-router-dom, ../../api/auth |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
@@ -27,12 +27,12 @@
 | `src/api/training.js` | 372 | ./supabase |
 | `src/api/competition.js` | 366 | ./supabase, ../utils/cache |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
+| `src/api/academy.js` | 364 | ./supabase, ../utils/cache, ./levels |
 | `src/features/squad/ContractRenewalModal.jsx` | 346 | react, lucide-react, ../../api/contracts |
 | `src/api/market.js` | 321 | ./supabase, ../utils/cache |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
-| `src/api/tactics.js` | 317 | ./supabase, ../utils/cache |
 
-_(+42 módulos adicionales; consultar con `memory:query`)_
+_(+44 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -67,3 +67,4 @@ _(+42 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-15-contracts-renewals: Fase 15: Contratos, Renovaciones, Cláusulas y Masa Salarial** `[DONE]`
 - **feat-fase-16-agents-reps: Fase 16: Agentes, Representantes y Relaciones con el DT** `[DONE]`
 - **feat-fase-17-scouting-fow: Fase 17: Red de Ojeadores, Misiones y Niebla de Guerra** `[DONE]`
+- **feat-fase-18-youth-academy: Fase 18: Cantera, Divisiones Inferiores y Camada Anual** `[DONE]`

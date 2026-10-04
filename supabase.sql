@@ -1052,3 +1052,52 @@ CREATE POLICY "Permitir todo scouting_missions_log" ON public.scouting_missions_
 
 CREATE INDEX IF NOT EXISTS idx_club_scouts_club ON public.club_scouts(club_id);
 CREATE INDEX IF NOT EXISTS idx_scouting_missions_club ON public.scouting_missions_log(club_id);
+
+-- FASE 18: CANTERA, DIVISIONES INFERIORES Y CAPTACIÓN DE POTRERO
+CREATE TABLE IF NOT EXISTS public.club_academies (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  academy_level int DEFAULT 1 NOT NULL,
+  scouting_network_tier int DEFAULT 1 NOT NULL,
+  weekly_maintenance_cost numeric(8,2) DEFAULT 100 NOT NULL,
+  last_intake_year int,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_academy UNIQUE (club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.youth_candidates (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  age int DEFAULT 16 NOT NULL,
+  position text NOT NULL,
+  overall_rating int NOT NULL,
+  potential_rating int NOT NULL,
+  potential_stars_perceived numeric(2,1) DEFAULT 3.0 NOT NULL,
+  attributes jsonb DEFAULT '{}'::jsonb NOT NULL,
+  status text DEFAULT 'TRIAL' NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.youth_intake_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  season_year int NOT NULL,
+  candidates_generated_count int NOT NULL,
+  top_potential_rating int NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_academies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_academies" ON public.club_academies FOR ALL USING (true);
+
+ALTER TABLE public.youth_candidates ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo youth_candidates" ON public.youth_candidates FOR ALL USING (true);
+
+ALTER TABLE public.youth_intake_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo youth_intake_audit_log" ON public.youth_intake_audit_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_youth_candidates_club ON public.youth_candidates(club_id, status);

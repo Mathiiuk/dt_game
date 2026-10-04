@@ -1,13 +1,25 @@
 {
-  "updatedAt": "2026-10-04T02:47:52.500Z",
+  "updatedAt": "2026-10-04T02:51:07.035Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 98,
-    "totalEdges": 316,
-    "totalTasks": 31,
+    "totalNodes": 101,
+    "totalEdges": 326,
+    "totalTasks": 32,
     "totalLessons": 0
   },
   "nodes": [
+    {
+      "id": "src/api/academy.js",
+      "label": "academy.js",
+      "type": "module",
+      "sizeBytes": 11991,
+      "lineCount": 364,
+      "imports": [
+        "./supabase",
+        "../utils/cache",
+        "./levels"
+      ]
+    },
     {
       "id": "src/api/achievements.js",
       "label": "achievements.js",
@@ -339,7 +351,7 @@
       "id": "src/api/scouting.js",
       "label": "scouting.js",
       "type": "module",
-      "sizeBytes": 7929,
+      "sizeBytes": 8180,
       "lineCount": 252,
       "imports": [
         "./supabase",
@@ -581,8 +593,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 27940,
-      "lineCount": 566,
+      "sizeBytes": 28861,
+      "lineCount": 587,
       "imports": [
         "react",
         "react-router-dom",
@@ -593,7 +605,22 @@
         "lucide-react",
         "sonner",
         "../../../context/GameContext",
-        "../../../utils/cache"
+        "../../../utils/cache",
+        "./YouthAcademyModal"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/YouthAcademyModal.jsx",
+      "label": "YouthAcademyModal.jsx",
+      "type": "module",
+      "sizeBytes": 12856,
+      "lineCount": 309,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/academy",
+        "sonner",
+        "../../../context/GameContext"
       ]
     },
     {
@@ -1110,9 +1137,31 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-18-youth-academy",
+      "label": "feat-fase-18-youth-academy: Fase 18: Cantera, Divisiones Inferiores y Camada Anual",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
+    {
+      "from": "src/api/academy.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/academy.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/academy.js",
+      "to": "./levels",
+      "relation": "depends_on"
+    },
     {
       "from": "src/api/achievements.js",
       "to": "./supabase",
@@ -1944,6 +1993,36 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./YouthAcademyModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "../../../api/academy",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "../../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/competition/InternationalCupScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2691,6 +2770,11 @@
     {
       "from": "task:feat-fase-17-scouting-fow",
       "to": ".agents/workflow/tasks/feat-fase-17-scouting-fow.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-18-youth-academy",
+      "to": ".agents/workflow/tasks/feat-fase-18-youth-academy.yml",
       "relation": "manifested_by"
     }
   ],

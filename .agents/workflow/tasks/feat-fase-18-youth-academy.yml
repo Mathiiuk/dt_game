@@ -1,0 +1,58 @@
+id: feat-fase-18-youth-academy
+external_ref: 18_inferiores
+title: 'Fase 18: Cantera, Divisiones Inferiores y Camada Anual'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/academy.js
+    - src/features/club/screens/ClubScreen.jsx
+    - src/features/club/screens/YouthAcademyModal.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear tablas club_academies, youth_candidates y youth_intake_audit_log en
+    supabase.sql
+  - >-
+    Implementar motor de generación de camada anual (Youth Intake) en Semana 35
+    con azar acotado según nivel de cantera
+  - >-
+    Promoción autoritativa al primer equipo con creación de contrato protegido
+    de 3 años a $60/sem y +100 XP para el DT
+  - >-
+    Ocultamiento estricto de potencial en servidor y visualización en estrellas
+    (1 a 5 estrellas)
+  - >-
+    Componente interactivo YouthAcademyModal con mobile-first y ActionSheet
+    drawers
+acceptance_criteria:
+  - >-
+    La camada anual genera entre 4 y 8 jóvenes con atributos y potencial
+    deterministas
+  - >-
+    Promocionar un juvenil lo añade a la tabla de jugadores del primer plantel
+    con dorsal válido
+  - >-
+    Mejorar el nivel de infraestructura de cantera incrementa las probabilidades
+    de generar talentos generacionales
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
