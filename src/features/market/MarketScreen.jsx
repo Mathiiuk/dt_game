@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { marketApi } from '../../api/market'
+import { scoutingApi } from '../../api/scouting'
 import { 
   ArrowLeft, 
   Search, 
@@ -49,8 +50,10 @@ export default function MarketScreen() {
         const report = scoutedMap.get(p.id)
         return {
           ...p,
-          scout_level: report ? report.level : 0,
-          scout_date: report ? report.created_at : null
+          scout_level: report ? (report.knowledge_level ?? report.level ?? 1) : 0,
+          scout_date: report ? report.created_at : null,
+          pros: report?.pros || [],
+          recommendation: report?.recommended_action || null
         }
       })
 
@@ -109,15 +112,15 @@ export default function MarketScreen() {
   const handleScoutPlayer = async (p) => {
     const confirmed = await confirmAction({
       title: `Ojear a ${p.first_name} ${p.last_name}`,
-      description: `Enviar un ojeador costará $1,000 para revelar sus atributos y potencial reales. ¿Deseas continuar?`,
-      confirmText: 'Enviar Ojeador ($1k)',
+      description: `Enviar un ojeador para elaborar un informe completo revelará sus atributos, potencial y fortalezas por $300. ¿Confirmar misión?`,
+      confirmText: 'Enviar Ojeador ($300)',
       cancelText: 'Cancelar',
       variant: 'primary'
     })
     if (!confirmed) return
 
     try {
-      await marketApi.scoutPlayer(club.id, p.id)
+      await scoutingApi.scoutPlayer(club.id, p.id, 'FULL')
       toast.success(`Reporte de scout completado para ${p.last_name}`)
       if (typeof refreshContext === 'function') {
         await refreshContext()
@@ -270,7 +273,7 @@ export default function MarketScreen() {
                             onClick={() => handleScoutPlayer(p)}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-black transition-colors rounded-xl bg-blue-500 hover:bg-blue-400 shadow-sm"
                           >
-                            <Eye className="w-3.5 h-3.5" /> Ojear ($1k)
+                            <Eye className="w-3.5 h-3.5" /> Ojear ($300)
                           </button>
                         ) : (
                           <button 

@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:45:29.233Z | **Nodos:** 96 | **Tareas:** 30
+> **Última sincronización:** 2026-10-04T02:47:52.500Z | **Nodos:** 98 | **Tareas:** 31
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -19,8 +19,8 @@
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
+| `src/features/market/MarketScreen.jsx` | 411 | react, react-router-dom, ../../api/market |
 | `src/api/matchEngine.js` | 409 | ./supabase |
-| `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 | `src/api/calendar.js` | 376 | ./supabase |
 | `src/features/tactics/TacticsScreen.jsx` | 376 | react, react-router-dom, lucide-react |
@@ -32,7 +32,7 @@
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
 | `src/api/tactics.js` | 317 | ./supabase, ../utils/cache |
 
-_(+41 módulos adicionales; consultar con `memory:query`)_
+_(+42 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -66,3 +66,4 @@ _(+41 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-14-player-sales: Fase 14: Ventas de Jugadores, Lista de Transferibles y Ofertas de IA** `[DONE]`
 - **feat-fase-15-contracts-renewals: Fase 15: Contratos, Renovaciones, Cláusulas y Masa Salarial** `[DONE]`
 - **feat-fase-16-agents-reps: Fase 16: Agentes, Representantes y Relaciones con el DT** `[DONE]`
+- **feat-fase-17-scouting-fow: Fase 17: Red de Ojeadores, Misiones y Niebla de Guerra** `[DONE]`

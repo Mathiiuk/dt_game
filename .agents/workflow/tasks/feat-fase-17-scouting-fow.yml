@@ -1,0 +1,52 @@
+id: feat-fase-17-scouting-fow
+external_ref: 17_scouting
+title: 'Fase 17: Red de Ojeadores, Misiones y Niebla de Guerra'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/scouting.js
+    - src/api/market.js
+    - src/features/market/MarketScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades club_scouts, scouting_missions_log y enriquecer
+    scout_reports en supabase.sql
+  - >-
+    Implementar sistema formal de 4 niveles de Niebla de Guerra (Fog of War) con
+    enmascaramiento estricto
+  - >-
+    Motor de asignación de ojeadores del club y resolución de misiones
+    temporales
+  - Corrección integral del bug de refresco de contexto en ojeo (refreshContext)
+  - Costes operativos de ojeo balanceados ($100 rápido, $300 completo)
+acceptance_criteria:
+  - >-
+    Futbolistas rivales no ojeados muestran rangos probabilísticos o atributos
+    ocultos sin fugas
+  - El ojeo revela datos de forma escalonada según el nivel de conocimiento
+  - >-
+    Asignar ojeadores descuenta viáticos y actualiza la UI reactivamente sin
+    errores de consola
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

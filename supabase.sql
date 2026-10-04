@@ -1012,3 +1012,43 @@ CREATE POLICY "Permitir todo agent_action_log" ON public.agent_action_log FOR AL
 
 CREATE INDEX IF NOT EXISTS idx_agent_clients_agent ON public.agent_clients(agent_id);
 CREATE INDEX IF NOT EXISTS idx_manager_agent_rel ON public.manager_agent_relations(manager_id, agent_id);
+
+-- FASE 17: SCOUTING, OJEO Y NIEBLA DE GUERRA
+CREATE TABLE IF NOT EXISTS public.club_scouts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  judging_ability int DEFAULT 10 NOT NULL,
+  judging_potential int DEFAULT 10 NOT NULL,
+  wage_weekly numeric(8,2) DEFAULT 200 NOT NULL,
+  current_assignment_player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  weeks_remaining_on_task int DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.scout_reports ADD COLUMN IF NOT EXISTS knowledge_level int DEFAULT 1;
+ALTER TABLE public.scout_reports ADD COLUMN IF NOT EXISTS perceived_ovr_min int;
+ALTER TABLE public.scout_reports ADD COLUMN IF NOT EXISTS perceived_ovr_max int;
+ALTER TABLE public.scout_reports ADD COLUMN IF NOT EXISTS perceived_potential_tier text DEFAULT 'UNKNOWN';
+ALTER TABLE public.scout_reports ADD COLUMN IF NOT EXISTS pros text[];
+ALTER TABLE public.scout_reports ADD COLUMN IF NOT EXISTS cons text[];
+ALTER TABLE public.scout_reports ADD COLUMN IF NOT EXISTS recommended_action text DEFAULT 'CONSIDER';
+
+CREATE TABLE IF NOT EXISTS public.scouting_missions_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  scout_id uuid REFERENCES public.club_scouts(id) ON DELETE SET NULL,
+  player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  cost_incurred numeric(8,2) DEFAULT 0 NOT NULL,
+  status text DEFAULT 'COMPLETED' NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_scouts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_scouts" ON public.club_scouts FOR ALL USING (true);
+
+ALTER TABLE public.scouting_missions_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo scouting_missions_log" ON public.scouting_missions_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_club_scouts_club ON public.club_scouts(club_id);
+CREATE INDEX IF NOT EXISTS idx_scouting_missions_club ON public.scouting_missions_log(club_id);

@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:45:29.233Z",
+  "updatedAt": "2026-10-04T02:47:52.500Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 96,
-    "totalEdges": 312,
-    "totalTasks": 30,
+    "totalNodes": 98,
+    "totalEdges": 316,
+    "totalTasks": 31,
     "totalLessons": 0
   },
   "nodes": [
@@ -25,7 +25,7 @@
       "id": "src/api/agents.js",
       "label": "agents.js",
       "type": "module",
-      "sizeBytes": 8028,
+      "sizeBytes": 8282,
       "lineCount": 255,
       "imports": [
         "./supabase",
@@ -333,6 +333,17 @@
         "./audit",
         "./clubHistory",
         "./achievements"
+      ]
+    },
+    {
+      "id": "src/api/scouting.js",
+      "label": "scouting.js",
+      "type": "module",
+      "sizeBytes": 7929,
+      "lineCount": 252,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
@@ -718,12 +729,13 @@
       "id": "src/features/market/MarketScreen.jsx",
       "label": "MarketScreen.jsx",
       "type": "module",
-      "sizeBytes": 19131,
-      "lineCount": 408,
+      "sizeBytes": 19356,
+      "lineCount": 411,
       "imports": [
         "react",
         "react-router-dom",
         "../../api/market",
+        "../../api/scouting",
         "lucide-react",
         "sonner",
         "../../context/GameContext"
@@ -768,7 +780,7 @@
       "id": "src/features/squad/AgentProfileCard.jsx",
       "label": "AgentProfileCard.jsx",
       "type": "module",
-      "sizeBytes": 3809,
+      "sizeBytes": 3900,
       "lineCount": 92,
       "imports": [
         "react",
@@ -779,7 +791,7 @@
       "id": "src/features/squad/ContractRenewalModal.jsx",
       "label": "ContractRenewalModal.jsx",
       "type": "module",
-      "sizeBytes": 14495,
+      "sizeBytes": 14840,
       "lineCount": 346,
       "imports": [
         "react",
@@ -1088,6 +1100,13 @@
     {
       "id": "task:feat-fase-16-agents-reps",
       "label": "feat-fase-16-agents-reps: Fase 16: Agentes, Representantes y Relaciones con el DT",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-17-scouting-fow",
+      "label": "feat-fase-17-scouting-fow: Fase 17: Red de Ojeadores, Misiones y Niebla de Guerra",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -1422,6 +1441,16 @@
     {
       "from": "src/api/postMatch.js",
       "to": "./achievements",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/scouting.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/scouting.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2216,6 +2245,11 @@
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../api/scouting",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
       "to": "lucide-react",
       "relation": "depends_on"
     },
@@ -2652,6 +2686,11 @@
     {
       "from": "task:feat-fase-16-agents-reps",
       "to": ".agents/workflow/tasks/feat-fase-16-agents-reps.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-17-scouting-fow",
+      "to": ".agents/workflow/tasks/feat-fase-17-scouting-fow.yml",
       "relation": "manifested_by"
     }
   ],
