@@ -1,0 +1,47 @@
+id: feat-fase-03-club-foundation
+external_ref: ''
+title: 'Fase 03: Creación y Fundación del Club, Identidad Visual y Balance Tier 5'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/features/club
+    - src/api/club.js
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar parámetros oficiales de balance para Tier 5 ($25,000 caja,
+    $3,500 salarios semanales, 1,500 aforo)
+  - >-
+    Identidad visual completa con colores primario/secundario Hex y selector de
+    escudo
+  - Previsualización en vivo de indumentaria y credencial fundacional del club
+  - Validación autoritativa de unicidad de nombre de club por carrera
+acceptance_criteria:
+  - >-
+    Creación de club inicializa con presupuesto oficial de Tier 5 sin
+    manipulación del cliente
+  - >-
+    Estadio inicial asignado con capacidad de 1,500 espectadores y césped de
+    60/100
+  - Previsualización interactiva de colores y camiseta en el Wizard
+  - Build de Vite 100% verde
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:51:23.303Z",
+  "updatedAt": "2026-10-04T00:54:03.838Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 75,
-    "totalEdges": 283,
-    "totalTasks": 16,
+    "totalNodes": 76,
+    "totalEdges": 285,
+    "totalTasks": 17,
     "totalLessons": 0
   },
   "nodes": [
@@ -58,11 +58,12 @@
       "id": "src/api/club.js",
       "label": "club.js",
       "type": "module",
-      "sizeBytes": 2477,
-      "lineCount": 85,
+      "sizeBytes": 5071,
+      "lineCount": 167,
       "imports": [
         "./supabase",
-        "./player"
+        "./player",
+        "./audit"
       ]
     },
     {
@@ -221,7 +222,7 @@
       "id": "src/api/manager.js",
       "label": "manager.js",
       "type": "module",
-      "sizeBytes": 7129,
+      "sizeBytes": 7375,
       "lineCount": 247,
       "imports": [
         "./supabase",
@@ -487,8 +488,8 @@
       "id": "src/features/club/CreateClubWizard.jsx",
       "label": "CreateClubWizard.jsx",
       "type": "module",
-      "sizeBytes": 12904,
-      "lineCount": 259,
+      "sizeBytes": 20935,
+      "lineCount": 450,
       "imports": [
         "react",
         "react-router-dom",
@@ -597,7 +598,7 @@
       "id": "src/features/manager/CreateManagerWizard.jsx",
       "label": "CreateManagerWizard.jsx",
       "type": "module",
-      "sizeBytes": 27069,
+      "sizeBytes": 27653,
       "lineCount": 585,
       "imports": [
         "react",
@@ -914,6 +915,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-03-club-foundation",
+      "label": "feat-fase-03-club-foundation: Fase 03: Creación y Fundación del Club, Identidad Visual y Balance Tier 5",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -975,6 +983,11 @@
     {
       "from": "src/api/club.js",
       "to": "./player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/club.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -2330,6 +2343,11 @@
     {
       "from": "task:feat-fase-02-dt-creation",
       "to": ".agents/workflow/tasks/feat-fase-02-dt-creation.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-03-club-foundation",
+      "to": ".agents/workflow/tasks/feat-fase-03-club-foundation.yml",
       "relation": "manifested_by"
     }
   ],

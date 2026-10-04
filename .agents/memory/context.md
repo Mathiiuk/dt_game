@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T00:51:23.303Z | **Nodos:** 75 | **Tareas:** 16
+> **Última sincronización:** 2026-10-04T00:54:03.838Z | **Nodos:** 76 | **Tareas:** 17
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -11,6 +11,7 @@
 | `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
+| `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
 | `src/features/dashboard/Dashboard.jsx` | 444 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
@@ -24,7 +25,6 @@
 | `src/api/clubHistory.js` | 302 | ./supabase |
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
-| `src/features/club/CreateClubWizard.jsx` | 259 | react, react-router-dom, ../../api/auth |
 | `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
 | `src/api/manager.js` | 247 | ./supabase, ./audit |
 | `src/api/competition.js` | 240 | ./supabase, ../utils/cache |
@@ -52,3 +52,4 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 - **f2-perf-optimization: Optimizacion de Rendimiento de Navegacion y Cache de Consultas** `[DONE]`
 - **feat-fase-01-auth-session: Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras** `[DONE]`
 - **feat-fase-02-dt-creation: Fase 02: Creación de DT, Presets de Trasfondo y Validación Suma Cero** `[DONE]`
+- **feat-fase-03-club-foundation: Fase 03: Creación y Fundación del Club, Identidad Visual y Balance Tier 5** `[DONE]`

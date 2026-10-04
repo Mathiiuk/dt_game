@@ -2,47 +2,72 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
-import { clubApi } from '../../api/club'
+import { clubApi, TIER_5_STARTING_CONFIG } from '../../api/club'
 import { toast } from 'sonner'
-import { Loader2, Shield, History, MapPin, CheckCircle, ChevronRight, ChevronLeft } from 'lucide-react'
+import { 
+  Loader2, 
+  Shield, 
+  MapPin, 
+  CheckCircle, 
+  ChevronRight, 
+  ChevronLeft,
+  Palette,
+  Building2,
+  Coins,
+  Check,
+  Award
+} from 'lucide-react'
+
+const COLOR_PRESETS = [
+  { name: 'Verde y Blanco', primary: '#047857', secondary: '#FFFFFF', desc: 'Esperanza y pureza barrial' },
+  { name: 'Azul y Oro', primary: '#1E3A8A', secondary: '#F59E0B', desc: 'Fuerza popular y gloria' },
+  { name: 'Rojo y Blanco', primary: '#DC2626', secondary: '#FFFFFF', desc: 'Pasión y tradición' },
+  { name: 'Negro y Blanco', primary: '#18181B', secondary: '#FFFFFF', desc: 'Elegancia y combate' },
+  { name: 'Celeste y Blanco', primary: '#0284C7', secondary: '#FFFFFF', desc: 'Identidad nacional' },
+  { name: 'Granate y Blanco', primary: '#831843', secondary: '#F4F4F5', desc: 'Orgullo obrero del sur' }
+]
+
+const BADGES = [
+  { id: 'SHIELD', label: 'Escudo Clásico', icon: Shield },
+  { id: 'CREST', label: 'Blasón Real', icon: Award },
+  { id: 'CIRCLE', label: 'Emblema Circular', icon: Shield },
+  { id: 'DIAMOND', label: 'Rombo Moderno', icon: Shield }
+]
 
 export default function CreateClubWizard() {
   const navigate = useNavigate()
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(1) // 1: Identity, 2: Visual/Colors, 3: Stadium, 4: Confirmation
   const [loading, setLoading] = useState(false)
   const [manager, setManager] = useState(null)
 
   // Step 1: Identity
   const [identity, setIdentity] = useState({
-    name: 'Atlético del Sur',
-    shortName: 'SUR',
+    name: 'Club Atlético Potrero',
+    shortName: 'CAP',
     city: 'Buenos Aires',
     country: 'Argentina',
-    foundedYear: new Date().getFullYear(),
-    colors: 'Verde y Negro',
-    nickname: 'Los Teros'
+    foundedYear: 2026,
+    nickname: 'El Expreso del Barrio'
   })
 
-  // Step 2: History
-  const [history, setHistory] = useState('barrio')
-  const historyOptions = [
-    { id: 'barrio', name: 'Club de barrio', desc: 'Humilde, con fuerte apoyo local pero sin dinero.' },
-    { id: 'familiar', name: 'Club familiar', desc: 'Estabilidad moderada, sin grandes sobresaltos.' },
-    { id: 'trabajadores', name: 'Club de trabajadores', desc: 'Hinchada fiel y exigente, presupuesto justo.' },
-    { id: 'decadencia', name: 'Histórico en decadencia', desc: 'Gran reputación, estadio grande, pero en la ruina económica.' },
-    { id: 'ambicioso', name: 'Nuevo ambicioso', desc: 'Mucho dinero, estadio nuevo, sin hinchada ni historia.' }
-  ]
+  // Step 2: Visual Identity & Colors
+  const [colors, setColors] = useState({
+    primary: '#047857',
+    secondary: '#FFFFFF'
+  })
+  const [badgeId, setBadgeId] = useState('SHIELD')
 
   // Step 3: Stadium
   const [stadium, setStadium] = useState({
-    name: 'El Fortín del Sur',
-    capacity: 2500
+    name: 'Estadio El Fortín del Potrero',
+    capacity: TIER_5_STARTING_CONFIG.stadiumCapacity,
+    pitchCondition: TIER_5_STARTING_CONFIG.pitchCondition
   })
 
-  // Pre-fill stadium name based on club name
+  // Auto-sync stadium name when club name changes
   useEffect(() => {
     if (step === 3 && identity.name) {
-      if (stadium.name === 'El Fortín del Sur') {
+      if (stadium.name === 'Estadio El Fortín del Potrero' || !stadium.name) {
         setStadium(prev => ({ ...prev, name: `Estadio ${identity.name}` }))
       }
     }
@@ -52,12 +77,12 @@ export default function CreateClubWizard() {
     const checkAuthAndManager = async () => {
       const currentUser = await authApi.getSession()
       if (!currentUser) return navigate('/auth')
-      
+
       const currentManager = await managerApi.getManager(currentUser.id)
       if (!currentManager) return navigate('/create-manager')
-      
+
       setManager(currentManager)
-      
+
       const existingClub = await clubApi.getClubByManager(currentManager.id)
       if (existingClub) return navigate('/game')
     }
@@ -67,188 +92,354 @@ export default function CreateClubWizard() {
   const handleCreate = async () => {
     setLoading(true)
     try {
-      await clubApi.createClub(manager.id, { identity, history, stadium })
-      toast.success('¡Club fundado exitosamente!')
+      await clubApi.createClub(manager.id, {
+        identity,
+        colors,
+        badgeId,
+        stadium
+      })
+      toast.success('¡Institución fundada e inscripta en la liga!')
       navigate('/dashboard')
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err.message || 'Error al fundar el club.')
     } finally {
       setLoading(false)
     }
   }
 
   const StepIndicator = () => (
-    <div className="flex items-center justify-between mb-8">
-      {[1, 2, 3, 4].map(s => (
-        <div key={s} className="flex items-center">
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold ${step >= s ? 'bg-emerald-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-            {s}
+    <div className="flex items-center justify-between mb-8 overflow-x-auto pb-2">
+      {[1, 2, 3, 4].map(s => {
+        const labels = ['Identidad', 'Colores y Escudo', 'Estadio', 'Acta Fundacional']
+        return (
+          <div key={s} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div 
+                className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs transition-all ${
+                  step === s 
+                    ? 'bg-emerald-500 text-black ring-4 ring-emerald-500/20 shadow-md' 
+                    : step > s 
+                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40' 
+                    : 'bg-zinc-900 text-zinc-600 border border-zinc-800'
+                }`}
+              >
+                {step > s ? <Check className="w-4 h-4" /> : s}
+              </div>
+              <span className={`text-[10px] mt-1 font-medium hidden sm:block ${step >= s ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                {labels[s - 1]}
+              </span>
+            </div>
+            {s < 4 && (
+              <div className={`w-8 sm:w-16 h-0.5 mx-2 transition-all ${step > s ? 'bg-emerald-500' : 'bg-zinc-800'}`} />
+            )}
           </div>
-          {s < 4 && (
-            <div className={`w-8 sm:w-16 h-1 mx-2 ${step > s ? 'bg-emerald-500' : 'bg-zinc-800'}`} />
-          )}
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4 py-12">
-      <div className="w-full max-w-2xl p-8 border border-zinc-800 rounded-3xl bg-zinc-900/50 backdrop-blur-md">
-        <h1 className="mb-2 text-3xl font-black text-white">Fundación del Club</h1>
-        <p className="mb-8 text-zinc-400">Crea el equipo de tus sueños desde cero.</p>
-        
-        <StepIndicator />
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-zinc-950">
+      <div className="w-full max-w-2xl p-6 sm:p-8 border border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-md shadow-2xl">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">Fundación de la Institución</h1>
+            <p className="text-xs sm:text-sm text-zinc-400">Paso {step} de 4 • Origen en el Torneo Regional</p>
+          </div>
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <Shield className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="my-6">
+          <StepIndicator />
+        </div>
 
         {/* STEP 1: IDENTITY */}
         {step === 1 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <Shield className="w-5 h-5" /> Identidad
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 sm:col-span-1">
-                <label className="block mb-1 text-sm text-zinc-400">Nombre del Club</label>
-                <input type="text" maxLength={30} value={identity.name} onChange={e => setIdentity({...identity, name: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+              <MapPin className="w-5 h-5" />
+              <span>Identidad Institucional</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Nombre Oficial del Club</label>
+                <input 
+                  type="text" 
+                  value={identity.name} 
+                  onChange={e => setIdentity({...identity, name: e.target.value})} 
+                  placeholder="Ej: Club Atlético Potrero"
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                />
               </div>
-              <div className="col-span-2 sm:col-span-1">
-                <label className="block mb-1 text-sm text-zinc-400">Abreviatura (3 letras)</label>
-                <input type="text" maxLength={3} value={identity.shortName} onChange={e => setIdentity({...identity, shortName: e.target.value.toUpperCase()})} className="w-full px-4 py-2 text-white border uppercase rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
-              </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Ciudad</label>
-                <input type="text" value={identity.city} onChange={e => setIdentity({...identity, city: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Siglas / Nombre Corto (3-4 letras)</label>
+                <input 
+                  type="text" 
+                  maxLength={4}
+                  value={identity.shortName} 
+                  onChange={e => setIdentity({...identity, shortName: e.target.value.toUpperCase()})} 
+                  placeholder="CAP"
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600 uppercase font-mono" 
+                />
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">País</label>
-                <input type="text" value={identity.country} onChange={e => setIdentity({...identity, country: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Apodo del Equipo</label>
+                <input 
+                  type="text" 
+                  value={identity.nickname} 
+                  onChange={e => setIdentity({...identity, nickname: e.target.value})} 
+                  placeholder="Los Guerreros del Barro"
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                />
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Colores (Ej. Azul y Oro)</label>
-                <input type="text" value={identity.colors} onChange={e => setIdentity({...identity, colors: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Ciudad de Origen</label>
+                <input 
+                  type="text" 
+                  value={identity.city} 
+                  onChange={e => setIdentity({...identity, city: e.target.value})} 
+                  placeholder="Buenos Aires"
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                />
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Apodo</label>
-                <input type="text" value={identity.nickname} onChange={e => setIdentity({...identity, nickname: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">País</label>
+                <input 
+                  type="text" 
+                  value={identity.country} 
+                  onChange={e => setIdentity({...identity, country: e.target.value})} 
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+                />
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 2: HISTORY */}
+        {/* STEP 2: COLORS & BADGE */}
         {step === 2 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <History className="w-5 h-5" /> Origen e Historia
-            </h2>
-            <p className="mb-4 text-sm text-zinc-400">
-              Tu origen determinará tu presupuesto, reputación e hinchada inicial.
-            </p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {historyOptions.map(h => (
-                <button
-                  key={h.id}
-                  onClick={() => setHistory(h.id)}
-                  className={`p-4 text-left border rounded-xl transition-all ${history === h.id ? 'border-emerald-500 bg-emerald-500/10' : 'border-zinc-800 bg-zinc-950 hover:border-zinc-700'}`}
-                >
-                  <h3 className={`font-bold ${history === h.id ? 'text-emerald-400' : 'text-zinc-200'}`}>{h.name}</h3>
-                  <p className="mt-1 text-xs text-zinc-500">{h.desc}</p>
-                </button>
-              ))}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold text-base">
+              <Palette className="w-5 h-5" />
+              <span>Colores y Blasón Oficial</span>
+            </div>
+
+            {/* Live Jersey Preview */}
+            <div className="flex flex-col sm:flex-row items-center justify-center p-6 border rounded-2xl bg-zinc-950/80 border-zinc-800 gap-6">
+              <div className="flex flex-col items-center">
+                {/* SVG Jersey */}
+                <div className="relative w-28 h-32 flex items-center justify-center filter drop-shadow-md">
+                  <svg viewBox="0 0 100 100" className="w-full h-full">
+                    {/* Shirt Body */}
+                    <path d="M25,25 L10,40 L22,50 L28,42 L28,90 L72,90 L72,42 L78,50 L90,40 L75,25 L65,25 C63,33 37,33 35,25 Z" fill={colors.primary} stroke="#27272a" strokeWidth="2" />
+                    {/* Vertical Center Stripe */}
+                    <rect x="42" y="30" width="16" height="60" fill={colors.secondary} opacity="0.9" />
+                    {/* Collar */}
+                    <path d="M35,25 C37,33 63,33 65,25" fill="none" stroke={colors.secondary} strokeWidth="3" />
+                  </svg>
+                </div>
+                <span className="text-[11px] font-mono text-zinc-400 mt-2">Camiseta Titular</span>
+              </div>
+
+              <div className="flex-1 w-full space-y-3">
+                <p className="text-xs font-semibold text-zinc-300">Paletas Tradicionales:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {COLOR_PRESETS.map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setColors({ primary: p.primary, secondary: p.secondary })}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all ${
+                        colors.primary === p.primary && colors.secondary === p.secondary
+                          ? 'border-emerald-500 bg-emerald-500/10'
+                          : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: p.primary }} />
+                        <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: p.secondary }} />
+                      </div>
+                      <span className="text-xs text-zinc-200 truncate">{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-4 pt-2">
+                  <div>
+                    <label className="block mb-1 text-[11px] text-zinc-400">Color Primario</label>
+                    <input 
+                      type="color" 
+                      value={colors.primary} 
+                      onChange={e => setColors({...colors, primary: e.target.value})} 
+                      className="w-10 h-8 rounded-lg bg-zinc-800 border border-zinc-700 cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-[11px] text-zinc-400">Color Secundario</label>
+                    <input 
+                      type="color" 
+                      value={colors.secondary} 
+                      onChange={e => setColors({...colors, secondary: e.target.value})} 
+                      className="w-10 h-8 rounded-lg bg-zinc-800 border border-zinc-700 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold text-zinc-300 mb-2">Modelo de Escudo:</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {BADGES.map(b => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => setBadgeId(b.id)}
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                      badgeId === b.id 
+                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' 
+                        : 'border-zinc-800 bg-zinc-950/70 text-zinc-400 hover:border-zinc-700'
+                    }`}
+                  >
+                    <b.icon className="w-6 h-6 mb-1" />
+                    <span className="text-[11px] font-medium">{b.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* STEP 3: STADIUM */}
+        {/* STEP 3: STADIUM & INFRASTRUCTURE */}
         {step === 3 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <MapPin className="w-5 h-5" /> El Estadio
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block mb-1 text-sm text-zinc-400">Nombre del Estadio</label>
-                <input type="text" value={stadium.name} onChange={e => setStadium({...stadium, name: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+              <Building2 className="w-5 h-5" />
+              <span>Estadio e Infraestructura Inicial</span>
+            </div>
+
+            <div>
+              <label className="block mb-1 text-xs font-medium text-zinc-300">Nombre del Estadio</label>
+              <input 
+                type="text" 
+                value={stadium.name} 
+                onChange={e => setStadium({...stadium, name: e.target.value})} 
+                className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="p-3 border rounded-xl bg-zinc-950/70 border-zinc-800">
+                <span className="text-[10px] text-zinc-500 uppercase block">Aforo Oficial</span>
+                <span className="text-lg font-black text-white font-mono">1,500</span>
+                <span className="text-[11px] text-zinc-400 block mt-0.5">Capacidad autorizada Tier 5</span>
               </div>
-              <div>
-                <label className="block mb-1 text-sm text-zinc-400">Capacidad Inicial</label>
-                <input type="number" min="500" max="10000" step="500" value={stadium.capacity} onChange={e => setStadium({...stadium, capacity: parseInt(e.target.value)})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
-                <p className="mt-2 text-xs text-zinc-500">La capacidad irá aumentando a medida que asciendas.</p>
+
+              <div className="p-3 border rounded-xl bg-zinc-950/70 border-zinc-800">
+                <span className="text-[10px] text-zinc-500 uppercase block">Calidad del Césped</span>
+                <span className="text-lg font-black text-amber-400 font-mono">60 / 100</span>
+                <span className="text-[11px] text-zinc-400 block mt-0.5">Potrero con sectores de tierra</span>
+              </div>
+
+              <div className="p-3 border rounded-xl bg-zinc-950/70 border-zinc-800">
+                <span className="text-[10px] text-zinc-500 uppercase block">Entrada General</span>
+                <span className="text-lg font-black text-emerald-400 font-mono">$10.00</span>
+                <span className="text-[11px] text-zinc-400 block mt-0.5">Precio regulado de taquilla</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 4: CONFIRMATION */}
+        {/* STEP 4: CONFIRMATION & CHARTER */}
         {step === 4 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <CheckCircle className="w-5 h-5" /> Resumen del Club
-            </h2>
-            
-            <div className="p-6 border border-emerald-900/50 bg-emerald-950/20 rounded-2xl">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-2xl font-black text-white">{identity.name}</h3>
-                <span className="px-2 py-1 text-xs font-bold bg-zinc-900 text-zinc-400 rounded-md">{identity.shortName}</span>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+              <CheckCircle className="w-5 h-5" />
+              <span>Acta de Fundación Oficial</span>
+            </div>
+
+            <div className="p-5 border border-emerald-500/30 rounded-2xl bg-gradient-to-br from-emerald-950/30 via-zinc-950 to-zinc-900/80 shadow-lg">
+              <div className="flex items-start justify-between border-b border-zinc-800 pb-4 mb-4">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                    Club Afiliado a la Liga Regional (Tier 5)
+                  </span>
+                  <h3 className="text-2xl font-black text-white mt-0.5">
+                    {identity.name} ({identity.shortName})
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    "{identity.nickname}" • Fundado en {identity.foundedYear} • {identity.city}, {identity.country}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-zinc-900 border border-zinc-800">
+                  <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: colors.primary }} />
+                  <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: colors.secondary }} />
+                </div>
               </div>
-              <p className="text-sm text-zinc-400">{identity.city}, {identity.country} • Fundado en {identity.foundedYear}</p>
-              <p className="mt-1 text-xs text-emerald-400">"{identity.nickname}"</p>
-              
-              <div className="my-4 border-t border-zinc-800" />
-              
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="block text-zinc-500">Colores</span>
-                  <span className="font-medium text-zinc-300">{identity.colors}</span>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 text-xs">
+                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                  <span className="text-zinc-500 text-[10px] block">Director Técnico</span>
+                  <span className="font-bold text-white">{manager ? `${manager.first_name} ${manager.last_name}` : 'Asignado'}</span>
                 </div>
-                <div>
-                  <span className="block text-zinc-500">Origen</span>
-                  <span className="font-medium text-zinc-300">{historyOptions.find(h => h.id === history)?.name}</span>
+                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                  <span className="text-zinc-500 text-[10px] block">Caja Inicial Oficial</span>
+                  <span className="font-bold text-emerald-400 font-mono">$25,000 USD</span>
                 </div>
-                <div>
-                  <span className="block text-zinc-500">Estadio</span>
-                  <span className="font-medium text-zinc-300">{stadium.name}</span>
+                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                  <span className="text-zinc-500 text-[10px] block">Tope Salarial Semanal</span>
+                  <span className="font-bold text-blue-400 font-mono">$3,500 USD</span>
                 </div>
-                <div>
-                  <span className="block text-zinc-500">Aforo</span>
-                  <span className="font-medium text-zinc-300">{stadium.capacity} espectadores</span>
-                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 text-xs text-zinc-400">
+                <span className="text-zinc-300 font-semibold">Cancha Oficial: </span>
+                {stadium.name} (Capacidad: 1,500 espectadores • Césped: 60/100)
               </div>
             </div>
           </div>
         )}
 
         {/* NAVIGATION BUTTONS */}
-        <div className="flex justify-between mt-10">
+        <div className="flex items-center justify-between mt-8 pt-4 border-t border-zinc-800/80">
           {step > 1 ? (
             <button 
+              type="button"
               onClick={() => setStep(step - 1)}
-              className="flex items-center gap-2 px-6 py-3 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl hover:bg-zinc-800"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl hover:bg-zinc-800"
             >
               <ChevronLeft className="w-4 h-4" /> Atrás
             </button>
           ) : <div />}
-          
+
           {step < 4 ? (
             <button 
+              type="button"
               onClick={() => {
-                if (step === 1 && (!identity.name || !identity.shortName)) {
-                  toast.error('Completa los datos principales')
+                if (step === 1 && !identity.name.trim()) {
+                  toast.error('Por favor escribe el nombre de la institución.')
                   return
                 }
                 setStep(step + 1)
               }}
-              className="flex items-center gap-2 px-6 py-3 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105"
+              className="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 active:scale-95"
             >
               Siguiente <ChevronRight className="w-4 h-4" />
             </button>
           ) : (
             <button 
+              type="button"
               onClick={handleCreate}
               disabled={loading}
-              className="flex items-center gap-2 px-8 py-3 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50"
+              className="flex items-center gap-2 px-8 py-3 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Fundar Club'}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fundar Club y Comenzar Temporada'}
             </button>
           )}
         </div>

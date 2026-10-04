@@ -532,3 +532,14 @@ CREATE POLICY "Permitir ver audit propio" ON public.security_audit_log
 
 ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS background text DEFAULT 'STREET_COACH';
 CREATE UNIQUE INDEX IF NOT EXISTS uq_active_manager_per_user ON public.managers(user_id) WHERE is_retired = false;
+
+-- ============================================================================
+-- Fase 03: Fundación del Club, Estadio y Balance Tier 5
+-- ============================================================================
+
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS pitch_condition int DEFAULT 60;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS ticket_price numeric DEFAULT 10.0;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS is_user_club boolean DEFAULT true;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS primary_color text DEFAULT '#047857';
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS secondary_color text DEFAULT '#FFFFFF';
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS badge_id text DEFAULT 'SHIELD';
