@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:43:18.601Z | **Nodos:** 93 | **Tareas:** 29
+> **Última sincronización:** 2026-10-04T02:45:29.233Z | **Nodos:** 96 | **Tareas:** 30
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -27,12 +27,12 @@
 | `src/api/training.js` | 372 | ./supabase |
 | `src/api/competition.js` | 366 | ./supabase, ../utils/cache |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
+| `src/features/squad/ContractRenewalModal.jsx` | 346 | react, lucide-react, ../../api/contracts |
 | `src/api/market.js` | 321 | ./supabase, ../utils/cache |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
-| `src/features/squad/ContractRenewalModal.jsx` | 319 | react, lucide-react, ../../api/contracts |
 | `src/api/tactics.js` | 317 | ./supabase, ../utils/cache |
 
-_(+39 módulos adicionales; consultar con `memory:query`)_
+_(+41 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -65,3 +65,4 @@ _(+39 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-13-transfer-market: Fase 13: Mercado de Pases, Transferencias y Agentes Libres** `[DONE]`
 - **feat-fase-14-player-sales: Fase 14: Ventas de Jugadores, Lista de Transferibles y Ofertas de IA** `[DONE]`
 - **feat-fase-15-contracts-renewals: Fase 15: Contratos, Renovaciones, Cláusulas y Masa Salarial** `[DONE]`
+- **feat-fase-16-agents-reps: Fase 16: Agentes, Representantes y Relaciones con el DT** `[DONE]`

@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:43:18.601Z",
+  "updatedAt": "2026-10-04T02:45:29.233Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 93,
-    "totalEdges": 305,
-    "totalTasks": 29,
+    "totalNodes": 96,
+    "totalEdges": 312,
+    "totalTasks": 30,
     "totalLessons": 0
   },
   "nodes": [
@@ -19,6 +19,17 @@
         "./career",
         "./hallOfFame",
         "./audit"
+      ]
+    },
+    {
+      "id": "src/api/agents.js",
+      "label": "agents.js",
+      "type": "module",
+      "sizeBytes": 8028,
+      "lineCount": 255,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
@@ -111,7 +122,7 @@
       "id": "src/api/contracts.js",
       "label": "contracts.js",
       "type": "module",
-      "sizeBytes": 23846,
+      "sizeBytes": 24580,
       "lineCount": 735,
       "imports": [
         "./supabase",
@@ -754,15 +765,28 @@
       ]
     },
     {
+      "id": "src/features/squad/AgentProfileCard.jsx",
+      "label": "AgentProfileCard.jsx",
+      "type": "module",
+      "sizeBytes": 3809,
+      "lineCount": 92,
+      "imports": [
+        "react",
+        "lucide-react"
+      ]
+    },
+    {
       "id": "src/features/squad/ContractRenewalModal.jsx",
       "label": "ContractRenewalModal.jsx",
       "type": "module",
-      "sizeBytes": 13432,
-      "lineCount": 319,
+      "sizeBytes": 14495,
+      "lineCount": 346,
       "imports": [
         "react",
         "lucide-react",
         "../../api/contracts",
+        "../../api/agents",
+        "./AgentProfileCard",
         "sonner"
       ]
     },
@@ -1060,6 +1084,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-16-agents-reps",
+      "label": "feat-fase-16-agents-reps: Fase 16: Agentes, Representantes y Relaciones con el DT",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1081,6 +1112,16 @@
     {
       "from": "src/api/achievements.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/agents.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/agents.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2274,6 +2315,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/squad/AgentProfileCard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/AgentProfileCard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/squad/ContractRenewalModal.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2286,6 +2337,16 @@
     {
       "from": "src/features/squad/ContractRenewalModal.jsx",
       "to": "../../api/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "../../api/agents",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "./AgentProfileCard",
       "relation": "depends_on"
     },
     {
@@ -2586,6 +2647,11 @@
     {
       "from": "task:feat-fase-15-contracts-renewals",
       "to": ".agents/workflow/tasks/feat-fase-15-contracts-renewals.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-16-agents-reps",
+      "to": ".agents/workflow/tasks/feat-fase-16-agents-reps.yml",
       "relation": "manifested_by"
     }
   ],

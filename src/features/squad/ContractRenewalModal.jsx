@@ -11,6 +11,8 @@ import {
   Sparkles
 } from 'lucide-react'
 import { contractApi } from '../../api/contracts'
+import { agentsApi } from '../../api/agents'
+import AgentProfileCard from './AgentProfileCard'
 import { toast } from 'sonner'
 
 export default function ContractRenewalModal({ 
@@ -22,6 +24,7 @@ export default function ContractRenewalModal({
   onSuccess 
 }) {
   const [demands, setDemands] = useState(null)
+  const [agentData, setAgentData] = useState(null)
   const [wageInput, setWageInput] = useState('')
   const [yearsInput, setYearsInput] = useState(2)
   const [roleInput, setRoleInput] = useState('ROTATION')
@@ -37,11 +40,16 @@ export default function ContractRenewalModal({
     if (!player || !club) return
     const init = async () => {
       try {
-        const status = await contractApi.getNegotiationStatus(club.id, player.id, currentWeek)
+        const [status, agentInfo] = await Promise.all([
+          contractApi.getNegotiationStatus(club.id, player.id, currentWeek),
+          agentsApi.getAgentForPlayer(player.id, club?.career_id, manager?.id)
+        ])
+
         setDemands(status.demands)
         setRoundsCompleted(status.roundsCompleted)
         setIsLockedOut(status.isLockedOut)
         setLockoutWeeks(status.lockoutWeeksRemaining)
+        setAgentData(agentInfo)
 
         // Inicializar con valores sugeridos de las demandas
         setWageInput(String(status.demands.expectedWage))
@@ -82,10 +90,26 @@ export default function ContractRenewalModal({
       })
 
       if (res.status === 'ACCEPTED') {
+        // Impacto positivo en la relación con el representante
+        if (agentData?.agent?.id && manager?.id) {
+          await agentsApi.recordInteraction(manager.id, agentData.agent.id, 'SUCCESS', currentWeek)
+          // Liquidar comisión pactada
+          await agentsApi.disburseCommission(
+            club.id, 
+            agentData.agent.id, 
+            player.id, 
+            wage * 4, 
+            agentData.effectiveCommissionRate
+          )
+        }
+
         toast.success(res.message)
         if (typeof onSuccess === 'function') onSuccess()
         onClose()
       } else if (res.status === 'COLLAPSED') {
+        if (agentData?.agent?.id && manager?.id) {
+          await agentsApi.recordInteraction(manager.id, agentData.agent.id, 'FAILED', currentWeek)
+        }
         toast.error(res.message)
         setIsLockedOut(true)
         setLockoutWeeks(contractApi.BALANCE.lockout_duration_on_collapse_weeks)
@@ -156,6 +180,9 @@ export default function ContractRenewalModal({
           </div>
         ) : (
           <>
+            {/* Card del Agente / Representante */}
+            {agentData && <AgentProfileCard agentData={agentData} />}
+
             {/* Rondas & Demandas */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-xl">

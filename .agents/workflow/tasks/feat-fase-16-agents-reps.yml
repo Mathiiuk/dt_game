@@ -1,0 +1,58 @@
+id: feat-fase-16-agents-reps
+external_ref: 16_agentes
+title: 'Fase 16: Agentes, Representantes y Relaciones con el DT'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/agents.js
+    - src/features/squad/ContractRenewalModal.jsx
+    - src/features/squad/AgentProfileCard.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades agents, agent_clients, manager_agent_relations y
+    agent_action_log en supabase.sql
+  - >-
+    Implementar arquetipos de personalidad de agentes: GREEDY, FAIR, PROTECTIVE,
+    AGGRESSIVE
+  - >-
+    Cálculo autoritativo de comisiones legales (tope 15%) y modulación por nivel
+    de afinidad DT-Agente
+  - >-
+    Seguimiento de relación DT-Agente con persistencia histórica y variación por
+    acuerdos o rupturas
+  - >-
+    Integrar información del agente y medidor de relación en la mesa de
+    negociación de contratos
+acceptance_criteria:
+  - >-
+    Comisiones de agentes son calculadas y debitadas con tope del 15% de acuerdo
+    a la afinidad
+  - >-
+    Afinidad con el agente sube +6 con firmas exitosas y baja -14 tras
+    negociaciones rotas
+  - >-
+    Los agentes influyen dinámicamente en las pretensiones salariales del
+    futbolista
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

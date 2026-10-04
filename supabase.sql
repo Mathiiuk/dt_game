@@ -966,3 +966,49 @@ CREATE POLICY "Permitir todo contracts_audit_log" ON public.contracts_audit_log 
 
 CREATE INDEX IF NOT EXISTS idx_contracts_club ON public.contracts(club_id);
 CREATE INDEX IF NOT EXISTS idx_contracts_player ON public.contracts(player_id);
+
+-- FASE 16: AGENTES, REPRESENTANTES E INTERMEDIARIOS
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS career_id uuid;
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS personality text DEFAULT 'FAIR';
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS patience_rating int DEFAULT 50;
+ALTER TABLE public.agents ADD COLUMN IF NOT EXISTS base_commission_rate numeric(4,2) DEFAULT 0.08;
+
+CREATE TABLE IF NOT EXISTS public.agent_clients (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  agent_id uuid REFERENCES public.agents(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  contract_expiry date,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_agent_client_player UNIQUE (player_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.manager_agent_relations (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE CASCADE,
+  agent_id uuid REFERENCES public.agents(id) ON DELETE CASCADE,
+  relationship_score int DEFAULT 50 NOT NULL,
+  last_interaction_week int,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_manager_agent UNIQUE (manager_id, agent_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.agent_action_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  agent_id uuid REFERENCES public.agents(id) ON DELETE SET NULL,
+  player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  action_type text NOT NULL,
+  financial_impact numeric(12,2) DEFAULT 0 NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.agent_clients ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo agent_clients" ON public.agent_clients FOR ALL USING (true);
+
+ALTER TABLE public.manager_agent_relations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo manager_agent_relations" ON public.manager_agent_relations FOR ALL USING (true);
+
+ALTER TABLE public.agent_action_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo agent_action_log" ON public.agent_action_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_agent_clients_agent ON public.agent_clients(agent_id);
+CREATE INDEX IF NOT EXISTS idx_manager_agent_rel ON public.manager_agent_relations(manager_id, agent_id);
