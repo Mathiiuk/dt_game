@@ -308,10 +308,8 @@ export const calendarApi = {
         const { contractApi } = await import('./contracts')
         await contractApi.generateRandomOffersForWeek(clubId, players || [], nextTransferWindow)
 
-        // 11. Eventos dinámicos y moral
-        const { eventsApi } = await import('./events')
+        // 11. Moral semanal (los eventos dinámicos se generan en el paso 11f con eventsApi.generateWeeklyEvents)
         const { moraleApi } = await import('./morale')
-        await eventsApi.generateRandomEvents(clubId, managerId)
         await moraleApi.processWeeklyMorale(clubId)
 
         // 11b. Avance de obras de infraestructura del estadio (Fase 21)
