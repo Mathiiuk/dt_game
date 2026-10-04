@@ -164,11 +164,20 @@ export const hallOfFameApi = {
     // 1. Obtener datos del DT
     const { data: manager } = await supabase
       .from('managers')
-      .select('*, club:clubs!club_id(*)')
+      .select('*')
       .eq('id', managerId)
       .single()
 
     if (!manager) return null
+
+    // El vínculo vive en clubs.manager_id (managers no tiene club_id)
+    const { data: managerClub } = await supabase
+      .from('clubs')
+      .select('*')
+      .eq('manager_id', managerId)
+      .maybeSingle()
+    manager.club = managerClub
+    manager.club_id = managerClub?.id || null
 
     // 2. Obtener historial de partidos
     const { data: matches } = await supabase

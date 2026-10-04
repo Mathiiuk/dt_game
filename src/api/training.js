@@ -84,16 +84,21 @@ export const trainingApi = {
         updated_at: new Date().toISOString()
       }
 
+      // upsert idempotente: evita 409 (uq_club_training_plan) ante cargas concurrentes
+      await supabase
+        .from('club_training_plans')
+        .upsert(defaultPlan, { onConflict: 'club_id', ignoreDuplicates: true })
+
       const { data: created, error: insertError } = await supabase
         .from('club_training_plans')
-        .insert(defaultPlan)
-        .select()
-        .single()
+        .select('*')
+        .eq('club_id', clubId)
+        .maybeSingle()
 
       if (insertError) {
         return defaultPlan
       }
-      return created
+      return created || defaultPlan
     } catch (e) {
       console.warn('Error leyendo club_training_plans:', e)
       return { general_focus: 'BALANCED', intensity_level: 'MEDIUM' }

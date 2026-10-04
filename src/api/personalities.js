@@ -122,10 +122,15 @@ export const personalitiesApi = {
     }
 
     if (toInsert.length > 0) {
+      // upsert idempotente: evita 409 (uq_player_personality) cuando dos cargas concurrentes generan el mismo plantel
+      await supabase
+        .from('player_personalities')
+        .upsert(toInsert, { onConflict: 'player_id', ignoreDuplicates: true })
+
       const { data: inserted } = await supabase
         .from('player_personalities')
-        .insert(toInsert)
-        .select()
+        .select('*')
+        .in('player_id', toInsert.map(i => i.player_id))
 
       if (inserted) {
         inserted.forEach(item => existingMap.set(item.player_id, item))
