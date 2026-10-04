@@ -1139,3 +1139,56 @@ CREATE POLICY "Permitir todo staff_audit_log" ON public.staff_audit_log FOR ALL 
 
 CREATE INDEX IF NOT EXISTS idx_staff_club_role ON public.staff(club_id, role);
 CREATE INDEX IF NOT EXISTS idx_staff_candidates_role ON public.staff_candidates(role, status);
+
+-- FASE 20: ECONOMÍA INTEGRAL, BALANCE SEMANAL Y FINANZAS DEL CLUB
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS ticket_price numeric(6,2) DEFAULT 10.00;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS consecutive_deficit_weeks int DEFAULT 0;
+ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS financial_status text DEFAULT 'HEALTHY';
+
+CREATE TABLE IF NOT EXISTS public.club_finances (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  balance numeric(12,2) DEFAULT 25000 NOT NULL,
+  wage_budget_weekly numeric(10,2) DEFAULT 5000 NOT NULL,
+  transfer_budget numeric(12,2) DEFAULT 15000 NOT NULL,
+  ticket_price numeric(6,2) DEFAULT 10.00 NOT NULL,
+  consecutive_deficit_weeks int DEFAULT 0 NOT NULL,
+  financial_status text DEFAULT 'HEALTHY' NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_finances UNIQUE (club_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.financial_transactions_ledger (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  season_year int DEFAULT 1 NOT NULL,
+  week_number int DEFAULT 1 NOT NULL,
+  category text NOT NULL,
+  amount numeric(12,2) NOT NULL,
+  balance_after numeric(12,2) NOT NULL,
+  description text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.club_sponsorships (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  sponsor_name text NOT NULL,
+  weekly_fixed_amount numeric(8,2) DEFAULT 750 NOT NULL,
+  win_bonus numeric(8,2) DEFAULT 200 NOT NULL,
+  expires_at_season int DEFAULT 1 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_sponsor UNIQUE (club_id)
+);
+
+ALTER TABLE public.club_finances ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_finances" ON public.club_finances FOR ALL USING (true);
+
+ALTER TABLE public.financial_transactions_ledger ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo financial_transactions_ledger" ON public.financial_transactions_ledger FOR ALL USING (true);
+
+ALTER TABLE public.club_sponsorships ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo club_sponsorships" ON public.club_sponsorships FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_ledger_club ON public.financial_transactions_ledger(club_id, week_number);

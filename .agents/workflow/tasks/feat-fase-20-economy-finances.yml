@@ -1,0 +1,57 @@
+id: feat-fase-20-economy-finances
+external_ref: 20_economia
+title: 'Fase 20: Economia Integral, Balance Semanal y Finanzas del Club'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/finances.js
+    - src/features/finances/FinancesScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades financial_transactions_ledger y club_sponsorships en
+    supabase.sql con RLS e índices
+  - >-
+    Motor financiero integral con categorización contable (ingresos y egresos
+    recurrentes vs variables)
+  - >-
+    Cálculo de salud financiera (HEALTHY, CAUTION, CRITICAL, INSOLVENT) y
+    semanas de liquidez proyectada
+  - >-
+    Regulación autoritativa del precio de entrada (ticket_price) con impacto en
+    taquilla
+  - >-
+    Rediseño mobile-first de FinancesScreen corrigiendo márgenes ajustados y
+    agregando pestañas
+acceptance_criteria:
+  - >-
+    La pantalla de finanzas muestra con claridad desglose semanal, liquidez y
+    balance contable
+  - >-
+    Los márgenes móviles aprovechan el ancho de pantalla de forma holgada sin
+    compresión excesiva
+  - >-
+    El libro mayor de transacciones registra ingresos y egresos de forma
+    inmutable
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

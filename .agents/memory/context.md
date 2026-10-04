@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:54:43.787Z | **Nodos:** 104 | **Tareas:** 33
+> **Última sincronización:** 2026-10-04T02:57:50.843Z | **Nodos:** 105 | **Tareas:** 34
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -15,6 +15,7 @@
 | `src/features/match/MatchScreen.jsx` | 525 | react, react-router-dom, ../../api/auth |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/match/PostMatchScreen.jsx` | 452 | react, react-router-dom, ../../api/postMatch |
+| `src/features/finances/FinancesScreen.jsx` | 451 | react, react-router-dom, ../../api/finances |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
@@ -30,7 +31,6 @@
 | `src/api/academy.js` | 364 | ./supabase, ../utils/cache, ./levels |
 | `src/features/squad/ContractRenewalModal.jsx` | 346 | react, lucide-react, ../../api/contracts |
 | `src/api/market.js` | 321 | ./supabase, ../utils/cache |
-| `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
 
 _(+46 módulos adicionales; consultar con `memory:query`)_
 
@@ -69,3 +69,4 @@ _(+46 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-17-scouting-fow: Fase 17: Red de Ojeadores, Misiones y Niebla de Guerra** `[DONE]`
 - **feat-fase-18-youth-academy: Fase 18: Cantera, Divisiones Inferiores y Camada Anual** `[DONE]`
 - **feat-fase-19-staff-roles: Fase 19: Cuerpo Técnico, Staff y Especialistas** `[DONE]`
+- **feat-fase-20-economy-finances: Fase 20: Economia Integral, Balance Semanal y Finanzas del Club** `[DONE]`

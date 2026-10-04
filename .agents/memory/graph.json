@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:54:43.787Z",
+  "updatedAt": "2026-10-04T02:57:50.843Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 104,
-    "totalEdges": 336,
-    "totalTasks": 33,
+    "totalNodes": 105,
+    "totalEdges": 334,
+    "totalTasks": 34,
     "totalLessons": 0
   },
   "nodes": [
@@ -203,8 +203,8 @@
       "id": "src/api/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 2409,
-      "lineCount": 58,
+      "sizeBytes": 6669,
+      "lineCount": 201,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -374,7 +374,7 @@
       "id": "src/api/staff.js",
       "label": "staff.js",
       "type": "module",
-      "sizeBytes": 10206,
+      "sizeBytes": 10500,
       "lineCount": 295,
       "imports": [
         "./supabase",
@@ -626,7 +626,7 @@
       "id": "src/features/club/screens/StaffManagementModal.jsx",
       "label": "StaffManagementModal.jsx",
       "type": "module",
-      "sizeBytes": 12443,
+      "sizeBytes": 12724,
       "lineCount": 282,
       "imports": [
         "react",
@@ -702,14 +702,11 @@
       "id": "src/features/finances/FinancesScreen.jsx",
       "label": "FinancesScreen.jsx",
       "type": "module",
-      "sizeBytes": 11095,
-      "lineCount": 208,
+      "sizeBytes": 22141,
+      "lineCount": 451,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/auth",
-        "../../api/manager",
-        "../../api/club",
         "../../api/finances",
         "../../context/GameContext",
         "lucide-react",
@@ -1175,6 +1172,13 @@
     {
       "id": "task:feat-fase-19-staff-roles",
       "label": "feat-fase-19-staff-roles: Fase 19: Cuerpo Técnico, Staff y Especialistas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-20-economy-finances",
+      "label": "feat-fase-20-economy-finances: Fase 20: Economia Integral, Balance Semanal y Finanzas del Club",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -2218,21 +2222,6 @@
     },
     {
       "from": "src/features/finances/FinancesScreen.jsx",
-      "to": "../../api/auth",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/finances/FinancesScreen.jsx",
-      "to": "../../api/manager",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/finances/FinancesScreen.jsx",
-      "to": "../../api/club",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/finances/FinancesScreen.jsx",
       "to": "../../api/finances",
       "relation": "depends_on"
     },
@@ -2859,6 +2848,11 @@
     {
       "from": "task:feat-fase-19-staff-roles",
       "to": ".agents/workflow/tasks/feat-fase-19-staff-roles.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-20-economy-finances",
+      "to": ".agents/workflow/tasks/feat-fase-20-economy-finances.yml",
       "relation": "manifested_by"
     }
   ],
