@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { ensureRow } from '../utils/ensureRow'
 import { queryCache } from '../utils/cache'
 import { financesApi } from './finances'
 
@@ -123,11 +124,7 @@ export const stadiumApi = {
       weekly_maintenance_cost: 200.00 + (Math.floor(initialCapacity / 1000) * 40)
     }
 
-    const { data: created, error: insertErr } = await supabase
-      .from('club_stadiums')
-      .insert(newStadium)
-      .select()
-      .single()
+    const { data: created, error: insertErr } = await ensureRow(supabase, 'club_stadiums', newStadium, 'club_id')
 
     if (insertErr) {
       console.warn('Error al inicializar club_stadiums:', insertErr)

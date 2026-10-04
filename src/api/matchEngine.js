@@ -1,6 +1,8 @@
 import { supabase } from './supabase'
 import { FIXTURE_STATUS } from '../domain/fixtureStatus'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export const SHOUT_TYPES = [
   { 
     id: 'SHOUT_FOCUS', 
@@ -389,12 +391,14 @@ export const matchEngineApi = {
         // Registrar eventos en match_events
         const keyEvents = events.filter(e => ['GOAL', 'CARD_RED', 'CARD_YELLOW'].includes(e.type))
         if (keyEvents.length > 0) {
+          // Los rivales simulados usan ids sintéticos ('rival_1'): sólo se persisten ids reales (uuid)
+          const asUuid = (id) => (typeof id === 'string' && UUID_RE.test(id) ? id : null)
           const rows = keyEvents.map(e => ({
             fixture_id: fixtureId,
             minute: e.minute,
             event_type: e.type,
-            player_id: e.playerId || null,
-            assist_player_id: e.assistId || null,
+            player_id: asUuid(e.playerId),
+            assist_player_id: asUuid(e.assistId),
             description: e.text
           }))
           await supabase.from('match_events').insert(rows)

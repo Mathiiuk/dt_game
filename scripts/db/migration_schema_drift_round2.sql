@@ -1,0 +1,20 @@
+-- Aplicada en Supabase como: schema_drift_round2_columns (tarea f3-b5-schema-drift-round2)
+ALTER TABLE public.club_finances ADD COLUMN IF NOT EXISTS balance numeric(12,2) DEFAULT 25000, ADD COLUMN IF NOT EXISTS consecutive_deficit_weeks int DEFAULT 0, ADD COLUMN IF NOT EXISTS financial_status text DEFAULT 'HEALTHY', ADD COLUMN IF NOT EXISTS ticket_price numeric(6,2) DEFAULT 10.00, ADD COLUMN IF NOT EXISTS transfer_budget numeric(12,2) DEFAULT 15000, ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()), ADD COLUMN IF NOT EXISTS wage_budget_weekly numeric(10,2) DEFAULT 5000;
+ALTER TABLE public.club_milestones ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone DEFAULT timezone('utc'::text, now());
+ALTER TABLE public.club_records ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone DEFAULT timezone('utc'::text, now());
+ALTER TABLE public.dynamic_events ADD COLUMN IF NOT EXISTS career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE, ADD COLUMN IF NOT EXISTS category text DEFAULT 'COMMUNITY' CHECK (category IN ('COMMUNITY', 'LOCKER_ROOM', 'BOARD_PRESS', 'FINANCIAL_CRISIS')), ADD COLUMN IF NOT EXISTS created_at_week integer DEFAULT 1, ADD COLUMN IF NOT EXISTS resolved_at timestamp with time zone, ADD COLUMN IF NOT EXISTS resolved_option_id text, ADD COLUMN IF NOT EXISTS severity text DEFAULT 'MEDIUM' CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')), ADD COLUMN IF NOT EXISTS template_code text;
+ALTER TABLE public.hall_of_fame ADD COLUMN IF NOT EXISTS created_at timestamp with time zone DEFAULT timezone('utc'::text, now()), ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone DEFAULT timezone('utc'::text, now());
+ALTER TABLE public.international_tournaments ADD COLUMN IF NOT EXISTS career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE, ADD COLUMN IF NOT EXISTS current_stage text DEFAULT 'quarter_finals', ADD COLUMN IF NOT EXISTS tournament_type text DEFAULT 'CONTINENTAL_CHAMPIONS_CUP', ADD COLUMN IF NOT EXISTS updated_at timestamp with time zone DEFAULT timezone('utc'::text, now());
+ALTER TABLE public.manager_achievements ADD COLUMN IF NOT EXISTS achievement_type text;
+ALTER TABLE public.national_fixtures ADD COLUMN IF NOT EXISTS career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE, ADD COLUMN IF NOT EXISTS status text DEFAULT 'SCHEDULED' CHECK (status IN ('SCHEDULED', 'FINISHED'));
+ALTER TABLE public.national_team_callups ADD COLUMN IF NOT EXISTS career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE;
+ALTER TABLE public.national_teams ADD COLUMN IF NOT EXISTS career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE, ADD COLUMN IF NOT EXISTS country_code text, ADD COLUMN IF NOT EXISTS federation text DEFAULT 'CONMEBOL' CHECK (federation IN ('CONMEBOL', 'UEFA', 'CONCACAF', 'CAF', 'AFC')), ADD COLUMN IF NOT EXISTS world_ranking integer DEFAULT 10;
+ALTER TABLE public.press_conferences ADD COLUMN IF NOT EXISTS completed_at timestamp with time zone, ADD COLUMN IF NOT EXISTS delegated_to_assistant boolean DEFAULT false, ADD COLUMN IF NOT EXISTS fixture_id uuid, ADD COLUMN IF NOT EXISTS status text DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'IN_PROGRESS', 'COMPLETED', 'SKIPPED'));
+-- Aplicada como: press_conferences_relax_legacy_columns (columnas del modelo antiguo; el detalle vive en press_qa_items)
+ALTER TABLE public.press_conferences ALTER COLUMN question DROP NOT NULL, ALTER COLUMN answer_chosen DROP NOT NULL, ALTER COLUMN tone DROP NOT NULL;
+-- Indices de FKs de las nuevas columnas career_id
+CREATE INDEX IF NOT EXISTS idx_fk_dynamic_events_career ON public.dynamic_events(career_id);
+CREATE INDEX IF NOT EXISTS idx_fk_international_tournaments_career ON public.international_tournaments(career_id);
+CREATE INDEX IF NOT EXISTS idx_fk_national_fixtures_career ON public.national_fixtures(career_id);
+CREATE INDEX IF NOT EXISTS idx_fk_national_team_callups_career ON public.national_team_callups(career_id);
+CREATE INDEX IF NOT EXISTS idx_fk_national_teams_career ON public.national_teams(career_id);
