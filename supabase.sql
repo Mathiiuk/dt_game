@@ -476,3 +476,52 @@ CREATE TABLE IF NOT EXISTS public.fixtures (
     match_date date NOT NULL,
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- ============================================================================
+-- Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.careers (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  status text DEFAULT 'ACTIVE', -- ACTIVE, COMPLETED, ABANDONED, CORRUPTED
+  ruleset_version text DEFAULT '3.0.0',
+  balance_version text DEFAULT '1.0.0',
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  last_accessed_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.careers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir carreras propias" ON public.careers 
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS public.user_sessions (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users NOT NULL,
+  device_fingerprint text,
+  ip_address text,
+  active_career_id uuid REFERENCES public.careers(id),
+  expires_at timestamp with time zone,
+  is_revoked boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.user_sessions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir sesiones propias" ON public.user_sessions 
+  FOR ALL USING (auth.uid() = user_id);
+
+CREATE TABLE IF NOT EXISTS public.security_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid,
+  event_type text NOT NULL, -- USER_REGISTERED, LOGIN_SUCCESS, LOGIN_FAILED, LOGOUT, PASSWORD_RESET_REQ, SESSION_REVOKED
+  ip_address text,
+  user_agent text,
+  payload jsonb DEFAULT '{}'::jsonb,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.security_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir insertar audit seguridad" ON public.security_audit_log 
+  FOR INSERT WITH CHECK (true);
+CREATE POLICY "Permitir ver audit propio" ON public.security_audit_log 
+  FOR SELECT USING (auth.uid() = user_id);

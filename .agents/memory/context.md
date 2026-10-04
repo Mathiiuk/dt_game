@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T00:32:20.639Z | **Nodos:** 73 | **Tareas:** 14
+> **Última sincronización:** 2026-10-04T00:48:41.420Z | **Nodos:** 74 | **Tareas:** 15
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -9,8 +9,10 @@
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
+| `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/dashboard/Dashboard.jsx` | 444 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
+| `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 | `src/features/squad/SquadScreen.jsx` | 368 | react, react-router-dom, ../../api/auth |
@@ -29,8 +31,6 @@
 | `src/features/match/PostMatchScreen.jsx` | 210 | react, react-router-dom, ../../api/postMatch |
 | `src/features/finances/FinancesScreen.jsx` | 208 | react, react-router-dom, ../../api/auth |
 | `src/features/tactics/TacticsScreen.jsx` | 208 | react, react-router-dom, ../../api/auth |
-| `src/api/endgame.js` | 194 | ./supabase, ./career, ./hallOfFame |
-| `src/features/competition/StandingsScreen.jsx` | 186 | react, react-router-dom, ../../api/auth |
 
 _(+34 módulos adicionales; consultar con `memory:query`)_
 
@@ -50,3 +50,4 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 - **f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos** `[DONE]`
 - **f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs** `[DONE]`
 - **f2-perf-optimization: Optimizacion de Rendimiento de Navegacion y Cache de Consultas** `[DONE]`
+- **feat-fase-01-auth-session: Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras** `[DONE]`

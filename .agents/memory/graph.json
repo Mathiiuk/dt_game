@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:32:20.639Z",
+  "updatedAt": "2026-10-04T00:48:41.420Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 73,
-    "totalEdges": 278,
-    "totalTasks": 14,
+    "totalNodes": 74,
+    "totalEdges": 281,
+    "totalTasks": 15,
     "totalLessons": 0
   },
   "nodes": [
@@ -35,10 +35,12 @@
       "id": "src/api/auth.js",
       "label": "auth.js",
       "type": "module",
-      "sizeBytes": 1344,
-      "lineCount": 54,
+      "sizeBytes": 12341,
+      "lineCount": 428,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache",
+        "./audit"
       ]
     },
     {
@@ -423,8 +425,8 @@
       "id": "src/features/auth/AuthScreen.jsx",
       "label": "AuthScreen.jsx",
       "type": "module",
-      "sizeBytes": 6005,
-      "lineCount": 163,
+      "sizeBytes": 18990,
+      "lineCount": 464,
       "imports": [
         "react",
         "react-router-dom",
@@ -897,6 +899,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
+    },
+    {
+      "id": "task:feat-fase-01-auth-session",
+      "label": "feat-fase-01-auth-session: Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -928,6 +937,16 @@
     {
       "from": "src/api/auth.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/auth.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/auth.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -2288,6 +2307,11 @@
     {
       "from": "task:f2-perf-optimization",
       "to": ".agents/workflow/tasks/f2-perf-optimization.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-01-auth-session",
+      "to": ".agents/workflow/tasks/feat-fase-01-auth-session.yml",
       "relation": "manifested_by"
     }
   ],

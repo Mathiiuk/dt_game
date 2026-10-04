@@ -1,0 +1,51 @@
+id: feat-fase-01-auth-session
+external_ref: ''
+title: 'Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/features/auth
+    - src/api/auth.js
+    - src/context/GameContext.jsx
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar servicio de autenticación robusto con rate limiting (5 intentos
+    fallidos máx antes de bloqueo de 15 min)
+  - >-
+    Soporte de recuperación de contraseña con política anti-enumeración de
+    usuarios
+  - >-
+    Gestión y auditoría de sesiones (`user_sessions`, `security_audit_log`) y
+    particionado de carreras (`careers`)
+  - >-
+    Interfaz de usuario AuthScreen con modos Splash, Login, Register y Forgot
+    Password con validaciones en tiempo real
+acceptance_criteria:
+  - >-
+    Registro con validación de contraseña robusta (8+ chars, número,
+    símbolo/mayúscula) y confirmación
+  - Login con rate limiting de 5 intentos fallidos y advertencia temporal
+  - Flujo de recuperación de contraseña con respuesta segura
+  - Cierre de sesión y revocación con limpieza de caché SWR
+  - Build de Vite 100% verde sin errores ni advertencias bloqueantes
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
