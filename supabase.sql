@@ -1755,3 +1755,29 @@ CREATE INDEX IF NOT EXISTS idx_job_offers_manager_status ON public.manager_job_o
 CREATE INDEX IF NOT EXISTS idx_job_offers_career ON public.manager_job_offers(career_id);
 CREATE INDEX IF NOT EXISTS idx_career_stints_manager ON public.manager_career_stints(manager_id);
 CREATE INDEX IF NOT EXISTS idx_career_stints_career ON public.manager_career_stints(career_id);
+
+-- ========================================================
+-- FASE 32: REPUTACIÓN PROFESIONAL Y PRESTIGIO DEL DT
+-- ========================================================
+
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS reputation_rank text DEFAULT 'LOCAL_UNKNOWN' CHECK (reputation_rank IN ('LOCAL_UNKNOWN', 'REGIONAL_PROSPECT', 'ASCENT_SPECIALIST', 'FIRST_TIER_PRO', 'CONTINENTAL_ELITE', 'WORLD_LEGEND'));
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS peak_career_reputation integer DEFAULT 20;
+
+CREATE TABLE IF NOT EXISTS public.manager_reputation_ledger (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE CASCADE,
+  event_type text NOT NULL CHECK (event_type IN ('MATCH_RESULT', 'DERBY_VICTORY', 'TITLE_WON', 'PROMOTION', 'RELEGATION', 'DISMISSAL', 'INTERNATIONAL_TRIUMPH', 'RESIGNATION')),
+  delta_amount numeric(5,2) NOT NULL,
+  reputation_after integer NOT NULL,
+  source_entity_id text,
+  description text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_manager_reputation_event UNIQUE (manager_id, event_type, source_entity_id)
+);
+
+ALTER TABLE public.manager_reputation_ledger ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo manager_reputation_ledger" ON public.manager_reputation_ledger FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_reputation_ledger_mgr ON public.manager_reputation_ledger(manager_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_reputation_ledger_career ON public.manager_reputation_ledger(career_id);

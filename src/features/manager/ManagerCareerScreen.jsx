@@ -4,10 +4,11 @@ import { useGameContext } from '../../context/GameContext'
 import { careerApi, CAREER_PROGRESSION_RULES } from '../../api/career'
 import { endgameApi } from '../../api/endgame'
 import JobOfferBottomSheet from '../career/JobOfferBottomSheet'
+import ReputationHistoryModal from '../career/ReputationHistoryModal'
 import { 
   ArrowLeft, Award, Trophy, Star, Briefcase, TrendingUp, 
   Shield, UserX, Loader2, Sparkles, AlertTriangle, CheckCircle, 
-  Flag, ChevronRight, DollarSign, Wallet, FileText, Send, Building
+  Flag, ChevronRight, DollarSign, Wallet, FileText, Send, Building, History
 } from 'lucide-react'
 import { toast } from 'sonner'
 import BottomNav from '../../components/BottomNav'
@@ -26,6 +27,7 @@ export default function ManagerCareerScreen() {
   const [selectedOffer, setSelectedOffer] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
   const [retiring, setRetiring] = useState(false)
+  const [reputationModalOpen, setReputationModalOpen] = useState(false)
 
   const loadCareerData = async () => {
     if (!manager) return
@@ -313,8 +315,21 @@ export default function ManagerCareerScreen() {
           {/* Economía Personal y Reputación */}
           <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/60 flex flex-col justify-between">
             <div>
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Reputación Deportiva</h3>
-              <div className="flex items-center gap-1 mb-1.5">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Reputación Deportiva</h3>
+                <button
+                  onClick={() => setReputationModalOpen(true)}
+                  className="text-[11px] text-yellow-400 font-bold hover:underline flex items-center gap-1"
+                >
+                  <History className="w-3.5 h-3.5" />
+                  <span>Ver Ledger</span>
+                </button>
+              </div>
+              <div 
+                className="flex items-center gap-1 mb-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setReputationModalOpen(true)}
+                title="Abrir libro mayor de prestigio"
+              >
                 {[1, 2, 3, 4, 5].map(star => (
                   <Star 
                     key={star} 
@@ -778,6 +793,13 @@ export default function ManagerCareerScreen() {
         onAccept={handleAcceptOffer}
         onReject={handleRejectOffer}
         loading={actionLoading}
+      />
+
+      {/* Modal / Sheet del Libro Mayor de Prestigio (Fase 32) */}
+      <ReputationHistoryModal
+        isOpen={reputationModalOpen}
+        onClose={() => setReputationModalOpen(false)}
+        managerId={manager?.id}
       />
 
       <BottomNav />

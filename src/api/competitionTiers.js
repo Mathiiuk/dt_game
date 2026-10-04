@@ -214,7 +214,7 @@ export const competitionTiersApi = {
       if (toTier !== currentTier) {
         const { data: c } = await supabase
           .from('clubs')
-          .select('reputation, wage_budget')
+          .select('reputation, wage_budget, manager_id')
           .eq('id', clubId)
           .single()
 
@@ -228,6 +228,24 @@ export const competitionTiersApi = {
             reputation: newRep
           })
           .eq('id', clubId)
+
+        // Impacto en Reputación y Prestigio del DT (Fase 32)
+        if (c?.manager_id) {
+          try {
+            const { reputationApi, REPUTATION_DELTAS } = await import('./reputation')
+            const isPromotion = moveType.startsWith('PROMOTION')
+            await reputationApi.applyReputationDelta({
+              managerId: c.manager_id,
+              eventType: isPromotion ? 'PROMOTION' : 'RELEGATION',
+              sourceEntityId: `promrel_${careerId}_${seasonYear}_${clubId}`,
+              delta: isPromotion ? REPUTATION_DELTAS.promotion : REPUTATION_DELTAS.relegation,
+              description: isPromotion ? `Ascenso de categoría a Tier ${toTier}` : `Descenso de categoría a Tier ${toTier}`,
+              careerId
+            })
+          } catch (mgrRepErr) {
+            console.warn('Aviso: no se pudo actualizar reputación de DT en ascenso/descenso:', mgrRepErr)
+          }
+        }
       }
 
       // Asentar en promotion_relegation_ledger

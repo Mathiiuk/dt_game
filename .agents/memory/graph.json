@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:43:58.821Z",
+  "updatedAt": "2026-10-04T03:47:36.117Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 137,
-    "totalEdges": 425,
-    "totalTasks": 45,
+    "totalNodes": 140,
+    "totalEdges": 433,
+    "totalTasks": 46,
     "totalLessons": 0
   },
   "nodes": [
@@ -92,7 +92,7 @@
       "id": "src/api/career.js",
       "label": "career.js",
       "type": "module",
-      "sizeBytes": 25157,
+      "sizeBytes": 25913,
       "lineCount": 757,
       "imports": [
         "./supabase",
@@ -147,8 +147,8 @@
       "id": "src/api/competitionTiers.js",
       "label": "competitionTiers.js",
       "type": "module",
-      "sizeBytes": 9660,
-      "lineCount": 282,
+      "sizeBytes": 10609,
+      "lineCount": 300,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -415,8 +415,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 12708,
-      "lineCount": 347,
+      "sizeBytes": 13507,
+      "lineCount": 366,
       "imports": [
         "./manager",
         "./supabase",
@@ -434,6 +434,18 @@
       "lineCount": 396,
       "imports": [
         "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
+      "id": "src/api/reputation.js",
+      "label": "reputation.js",
+      "type": "module",
+      "sizeBytes": 8719,
+      "lineCount": 283,
+      "imports": [
+        "./supabase",
+        "./audit",
         "../utils/cache"
       ]
     },
@@ -703,10 +715,22 @@
       "id": "src/features/career/JobOfferBottomSheet.jsx",
       "label": "JobOfferBottomSheet.jsx",
       "type": "module",
-      "sizeBytes": 6242,
+      "sizeBytes": 6385,
       "lineCount": 144,
       "imports": [
         "react",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/career/ReputationHistoryModal.jsx",
+      "label": "ReputationHistoryModal.jsx",
+      "type": "module",
+      "sizeBytes": 9647,
+      "lineCount": 204,
+      "imports": [
+        "react",
+        "../../api/reputation",
         "lucide-react"
       ]
     },
@@ -973,8 +997,8 @@
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 39752,
-      "lineCount": 787,
+      "sizeBytes": 41564,
+      "lineCount": 809,
       "imports": [
         "react",
         "react-router-dom",
@@ -982,6 +1006,7 @@
         "../../api/career",
         "../../api/endgame",
         "../career/JobOfferBottomSheet",
+        "../career/ReputationHistoryModal",
         "lucide-react",
         "sonner",
         "../../components/BottomNav"
@@ -1528,6 +1553,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-32-manager-reputation-prestige",
+      "label": "feat-fase-32-manager-reputation-prestige: Fase 32 - Reputacion Profesional y Prestigio del DT",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1963,6 +1995,21 @@
     },
     {
       "from": "src/api/press.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/reputation.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/reputation.js",
+      "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/reputation.js",
       "to": "../utils/cache",
       "relation": "depends_on"
     },
@@ -2433,6 +2480,21 @@
     },
     {
       "from": "src/features/career/JobOfferBottomSheet.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/ReputationHistoryModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/ReputationHistoryModal.jsx",
+      "to": "../../api/reputation",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/ReputationHistoryModal.jsx",
       "to": "lucide-react",
       "relation": "depends_on"
     },
@@ -2994,6 +3056,11 @@
     {
       "from": "src/features/manager/ManagerCareerScreen.jsx",
       "to": "../career/JobOfferBottomSheet",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../career/ReputationHistoryModal",
       "relation": "depends_on"
     },
     {
@@ -3654,6 +3721,11 @@
     {
       "from": "task:feat-fase-31-manager-career-job-offers",
       "to": ".agents/workflow/tasks/feat-fase-31-manager-career-job-offers.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-32-manager-reputation-prestige",
+      "to": ".agents/workflow/tasks/feat-fase-32-manager-reputation-prestige.yml",
       "relation": "manifested_by"
     }
   ],

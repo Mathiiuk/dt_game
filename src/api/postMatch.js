@@ -280,6 +280,25 @@ export const postMatchApi = {
       }
     }
 
+    // 5c. Actualizar reputación y prestigio del DT con ledger (Fase 32)
+    if (managerId) {
+      try {
+        const { reputationApi, REPUTATION_DELTAS } = await import('./reputation')
+        const delta = isWin ? REPUTATION_DELTAS.regular_win : (!isWin && !isDraw ? REPUTATION_DELTAS.regular_loss : 0)
+        if (delta !== 0) {
+          await reputationApi.applyReputationDelta({
+            managerId,
+            eventType: 'MATCH_RESULT',
+            sourceEntityId: fixtureId || `match_${Date.now()}`,
+            delta,
+            description: isWin ? 'Victoria en partido oficial' : 'Derrota en partido oficial'
+          })
+        }
+      } catch (repErr) {
+        console.warn('Aviso: no se pudo actualizar reputación tras el partido:', repErr)
+      }
+    }
+
     // 6. Registrar match_reports y player_match_stats en BD
     try {
       if (fixtureId) {

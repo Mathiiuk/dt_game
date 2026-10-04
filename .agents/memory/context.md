@@ -1,13 +1,13 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:43:58.821Z | **Nodos:** 137 | **Tareas:** 45
+> **Última sincronización:** 2026-10-04T03:47:36.117Z | **Nodos:** 140 | **Tareas:** 46
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
 | `src/features/squad/SquadScreen.jsx` | 859 | react, react-router-dom, ../../api/player |
-| `src/features/manager/ManagerCareerScreen.jsx` | 787 | react, react-router-dom, ../../context/GameContext |
+| `src/features/manager/ManagerCareerScreen.jsx` | 809 | react, react-router-dom, ../../context/GameContext |
 | `src/api/career.js` | 757 | ./supabase, ./audit, ../utils/cache |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
 | `src/features/club/screens/ClubScreen.jsx` | 735 | react, react-router-dom, ../../../api/club |
@@ -32,7 +32,7 @@
 | `src/api/stadium.js` | 396 | ./supabase, ../utils/cache, ./finances |
 | `src/features/tactics/TacticsScreen.jsx` | 391 | react, react-router-dom, lucide-react |
 
-_(+67 módulos adicionales; consultar con `memory:query`)_
+_(+69 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -81,3 +81,4 @@ _(+67 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-29-season-close-annual-transition: Fase 29 - Temporadas, Ciclos Anuales y Balance Deportivo** `[DONE]`
 - **feat-fase-30-promotion-relegation-pyramid: Fase 30 - Ascensos, Descensos y Estructura Piramidal de Ligas** `[DONE]`
 - **feat-fase-31-manager-career-job-offers: Fase 31 - Carrera del DT, Ofertas de Trabajo y Renuncias** `[DONE]`
+- **feat-fase-32-manager-reputation-prestige: Fase 32 - Reputacion Profesional y Prestigio del DT** `[DONE]`
