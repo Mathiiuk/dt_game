@@ -1492,3 +1492,43 @@ CREATE POLICY "Permitir todo personality_events_log" ON public.personality_event
 
 CREATE INDEX IF NOT EXISTS idx_mentorship_club ON public.player_mentorships(club_id, status);
 CREATE INDEX IF NOT EXISTS idx_personality_events_player ON public.personality_events_log(player_id);
+
+-- ==============================================================================
+-- FASE 27: LESIONES, ENFERMERÍA Y GESTIÓN MÉDICA
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.player_injuries (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  injury_type text NOT NULL,
+  severity_tier text NOT NULL CHECK (severity_tier IN ('MINOR', 'MODERATE', 'SEVERE', 'CATASTROPHIC')),
+  occurred_in_context text NOT NULL CHECK (occurred_in_context IN ('MATCH', 'TRAINING', 'INFILTRATION_RELAPSE')),
+  weeks_total integer NOT NULL DEFAULT 1,
+  weeks_remaining integer NOT NULL DEFAULT 1,
+  is_cleared boolean DEFAULT false NOT NULL,
+  permanent_attribute_loss jsonb DEFAULT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  cleared_at timestamp with time zone
+);
+
+CREATE TABLE IF NOT EXISTS public.medical_infiltrations (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  fixture_id uuid REFERENCES public.fixtures(id) ON DELETE SET NULL,
+  was_successful boolean NOT NULL,
+  resulting_injury_id uuid REFERENCES public.player_injuries(id) ON DELETE SET NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.player_injuries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo player_injuries" ON public.player_injuries FOR ALL USING (true);
+
+ALTER TABLE public.medical_infiltrations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo medical_infiltrations" ON public.medical_infiltrations FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_player_injuries_active ON public.player_injuries(player_id, is_cleared);
+CREATE INDEX IF NOT EXISTS idx_player_injuries_club ON public.player_injuries(club_id, is_cleared);
+CREATE INDEX IF NOT EXISTS idx_medical_infiltrations_player ON public.medical_infiltrations(player_id);

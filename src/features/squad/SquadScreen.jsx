@@ -328,6 +328,11 @@ export default function SquadScreen() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-white text-base">{p.first_name} {p.last_name}</span>
+                        {p.is_injured && (
+                          <span className="px-1.5 py-0.2 text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded">
+                            Lesionado
+                          </span>
+                        )}
                         <span className={`px-2 py-0.5 text-[10px] font-black rounded ${
                           p.position === 'GK' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
                           p.position === 'DEF' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
@@ -429,6 +434,11 @@ export default function SquadScreen() {
                       <td className="py-3 font-medium text-white">
                         <div className="flex items-center gap-2">
                           <span>{p.first_name} {p.last_name}</span>
+                          {p.is_injured && (
+                            <span className="px-1.5 py-0.2 text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded">
+                              Lesionado ({p.injury_type || 'Baja'})
+                            </span>
+                          )}
                           {p.morale_unhappy_transfer_blocked && (
                             <span className="px-1.5 py-0.2 text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded">
                               Descontento

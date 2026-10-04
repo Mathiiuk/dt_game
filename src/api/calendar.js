@@ -316,6 +316,14 @@ export const calendarApi = {
           console.warn('Aviso: no se pudo procesar avance de mentorías:', persErr)
         }
 
+        // 11d. Avance de recuperación médica de lesionados (Fase 27)
+        try {
+          const { injuriesApi } = await import('./injuries')
+          await injuriesApi.processWeeklyInjuriesRecovery(clubId)
+        } catch (injErr) {
+          console.warn('Aviso: no se pudo procesar recuperación de lesiones:', injErr)
+        }
+
         // Sincronizar fecha en clubs para compatibilidad
         await supabase
           .from('clubs')

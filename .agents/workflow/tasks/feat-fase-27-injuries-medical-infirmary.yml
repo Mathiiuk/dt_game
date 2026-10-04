@@ -1,0 +1,37 @@
+id: feat-fase-27-injuries-medical-infirmary
+external_ref: ''
+title: Fase 27 - Lesiones, Recuperacion y Cuerpo Medico
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - injuries
+    - infirmary
+    - calendar
+    - club
+requirements:
+  - Implementar Fase 27 - Lesiones, Recuperacion y Cuerpo Medico
+acceptance_criteria:
+  - Catálogo de severidad de lesiones (MINOR, MODERATE, SEVERE, CATASTROPHIC)
+  - Registro de bajas médicas en player_injuries y medical_infiltrations
+  - Cálculo de riesgo de lesión por fatiga física y mal estado del campo
+  - Recuperación semanal de bajas con bonificación de fisioterapeuta del club
+  - Mecánica de infiltración médica con riesgo del 50% de recaída y secuela
+  - Pantalla o pestaña de Enfermería en la gestión de club
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

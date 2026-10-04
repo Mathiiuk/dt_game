@@ -1,14 +1,14 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:21:08.703Z | **Nodos:** 123 | **Tareas:** 40
+> **Última sincronización:** 2026-10-04T03:26:51.306Z | **Nodos:** 126 | **Tareas:** 41
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
-| `src/features/squad/SquadScreen.jsx` | 829 | react, react-router-dom, ../../api/player |
+| `src/features/squad/SquadScreen.jsx` | 839 | react, react-router-dom, ../../api/player |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
-| `src/features/club/screens/ClubScreen.jsx` | 716 | react, react-router-dom, ../../../api/club |
+| `src/features/club/screens/ClubScreen.jsx` | 735 | react, react-router-dom, ../../../api/club |
 | `src/features/match/PostMatchScreen.jsx` | 589 | react, react-router-dom, ../../api/postMatch |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
@@ -21,18 +21,18 @@
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
+| `src/api/injuries.js` | 420 | ./supabase, ../utils/cache |
 | `src/features/market/MarketScreen.jsx` | 411 | react, react-router-dom, ../../api/market |
 | `src/api/matchEngine.js` | 409 | ./supabase |
 | `src/api/lockerRoom.js` | 408 | ./supabase, ../utils/cache |
+| `src/api/calendar.js` | 400 | ./supabase |
 | `src/api/press.js` | 396 | ./supabase, ../utils/cache |
 | `src/api/stadium.js` | 396 | ./supabase, ../utils/cache, ./finances |
-| `src/api/calendar.js` | 392 | ./supabase |
+| `src/features/tactics/TacticsScreen.jsx` | 391 | react, react-router-dom, lucide-react |
 | `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
-| `src/features/tactics/TacticsScreen.jsx` | 376 | react, react-router-dom, lucide-react |
-| `src/api/training.js` | 372 | ./supabase |
 
-_(+58 módulos adicionales; consultar con `memory:query`)_
+_(+60 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -76,3 +76,4 @@ _(+58 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-24-press-conferences: Fase 24: Prensa Deportiva, Ruedas de Prensa y Reputacion** `[DONE]`
 - **feat-fase-25-locker-room: Fase 25: Vestuario, Cohesion y Jerarquia de Liderazgo** `[DONE]`
 - **feat-fase-26-player-personalities: Fase 26: Personalidades, Rasgos y Psicologia del Jugador** `[DONE]`
+- **feat-fase-27-injuries-medical-infirmary: Fase 27 - Lesiones, Recuperacion y Cuerpo Medico** `[DONE]`

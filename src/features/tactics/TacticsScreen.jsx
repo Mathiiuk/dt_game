@@ -93,18 +93,18 @@ export default function TacticsScreen() {
     const newMap = {}
     const usedIds = new Set()
 
-    // 1. Asignar arquero
-    const gk = playersList.find(p => p.position === 'GK')
+    // 1. Asignar arquero (priorizar jugadores sanos)
+    const gk = playersList.find(p => p.position === 'GK' && !p.is_injured) || playersList.find(p => p.position === 'GK')
     if (gk) {
       newMap['GK'] = gk.id
       usedIds.add(gk.id)
     }
 
-    // 2. Asignar los demás puestos
+    // 2. Asignar los demás puestos (priorizar sanos)
     formConfig.slots.forEach(slot => {
       if (slot === 'GK') return
-      // Buscar mejor coincidencia no usada
-      const candidate = playersList.find(p => !usedIds.has(p.id))
+      // Buscar mejor coincidencia no usada ni lesionada
+      const candidate = playersList.find(p => !usedIds.has(p.id) && !p.is_injured) || playersList.find(p => !usedIds.has(p.id))
       if (candidate) {
         newMap[slot] = candidate.id
         usedIds.add(candidate.id)
@@ -131,6 +131,14 @@ export default function TacticsScreen() {
     try {
       const formConfig = FORMATIONS[formation] || FORMATIONS['4-4-2']
       const lineupArray = formConfig.slots.map(s => lineup[s]).filter(Boolean)
+
+      // Regla 27.1: No alinear futbolistas lesionados sin autorización médica
+      const injuredStarter = lineupArray.map(id => playerMap.get(id)).find(p => p?.is_injured)
+      if (injuredStarter) {
+        toast.error(`Regla 27.1: ${injuredStarter.first_name} ${injuredStarter.last_name} está en la enfermería (${injuredStarter.injury_type || 'Baja médica'}). No puede jugar de titular sin infiltración médica autorizada.`)
+        setSaving(false)
+        return
+      }
 
       const lineupDetails = formConfig.slots.map((s, idx) => ({
         player_id: lineup[s],
@@ -345,9 +353,16 @@ export default function TacticsScreen() {
                       </div>
 
                       {assignedPlayer && (
-                        <span className="text-[10px] text-zinc-400">
-                          {assignedPlayer.state_fitness || 75}% fit
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {assignedPlayer.is_injured && (
+                            <span className="text-[9px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1 py-0.2 rounded">
+                              Enfermería
+                            </span>
+                          )}
+                          <span className="text-[10px] text-zinc-400">
+                            {assignedPlayer.state_fitness || 75}% fit
+                          </span>
+                        </div>
                       )}
                     </div>
 
@@ -358,8 +373,8 @@ export default function TacticsScreen() {
                     >
                       <option value="">Seleccionar futbolista...</option>
                       {squad.map(p => (
-                        <option key={p.id} value={p.id}>
-                          #{p.shirt_number} {p.first_name} {p.last_name} ({p.position} - Media: {p.attr_overall || 50})
+                        <option key={p.id} value={p.id} disabled={p.is_injured}>
+                          #{p.shirt_number} {p.first_name} {p.last_name} ({p.position} - Media: {p.attr_overall || 50}) {p.is_injured ? '⚠️ (ENFERMERÍA)' : ''}
                         </option>
                       ))}
                     </select>

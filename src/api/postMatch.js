@@ -109,6 +109,24 @@ export const postMatchApi = {
         }
         const newMorale = Math.max(10, Math.min(100, (p.morale || p.state_morale || 70) + moraleDelta))
 
+        // Evaluación de riesgo de lesión en partido (Fase 27)
+        let playerInjured = false
+        try {
+          const { injuriesApi } = await import('./injuries')
+          const pitchQual = result.pitchQuality || 70
+          const injuryRisk = injuriesApi.calculateInjuryRisk(p, pitchQual)
+          // Probabilidad de sufrir percance en los 90 minutos
+          if (Math.random() < injuryRisk) {
+            await injuriesApi.registerInjury(clubId, p.id, {
+              occurred_in_context: 'MATCH',
+              career_id: result.careerId || null
+            })
+            playerInjured = true
+          }
+        } catch (injErr) {
+          console.warn('Aviso: error evaluando lesión en post-partido:', injErr)
+        }
+
         playerRatings.push({
           player_id: p.id,
           name: `${p.first_name} ${p.last_name}`,
@@ -119,18 +137,21 @@ export const postMatchApi = {
           assists: playerAssists,
           yellow_cards: playerYellows,
           red_cards: playerReds,
-          fitness_after_match: newFitness,
-          morale_delta: moraleDelta
+          fitness_after_match: playerInjured ? 30 : newFitness,
+          morale_delta: moraleDelta,
+          injured: playerInjured
         })
 
-        // Persistir estado físico y moral
-        await supabase
-          .from('players')
-          .update({
-            state_fitness: newFitness,
-            state_morale: newMorale
-          })
-          .eq('id', p.id)
+        // Persistir estado físico y moral si no se gestionó por lesión
+        if (!playerInjured) {
+          await supabase
+            .from('players')
+            .update({
+              state_fitness: newFitness,
+              state_morale: newMorale
+            })
+            .eq('id', p.id)
+        }
       }
     }
 

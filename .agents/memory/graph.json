@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:21:08.703Z",
+  "updatedAt": "2026-10-04T03:26:51.306Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 123,
-    "totalEdges": 385,
-    "totalTasks": 40,
+    "totalNodes": 126,
+    "totalEdges": 394,
+    "totalTasks": 41,
     "totalLessons": 0
   },
   "nodes": [
@@ -82,8 +82,8 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 15321,
-      "lineCount": 392,
+      "sizeBytes": 15668,
+      "lineCount": 400,
       "imports": [
         "./supabase"
       ]
@@ -265,6 +265,17 @@
       ]
     },
     {
+      "id": "src/api/injuries.js",
+      "label": "injuries.js",
+      "type": "module",
+      "sizeBytes": 12488,
+      "lineCount": 420,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
       "id": "src/api/internationalCup.js",
       "label": "internationalCup.js",
       "type": "module",
@@ -358,7 +369,7 @@
       "id": "src/api/personalities.js",
       "label": "personalities.js",
       "type": "module",
-      "sizeBytes": 9888,
+      "sizeBytes": 10170,
       "lineCount": 283,
       "imports": [
         "./supabase",
@@ -381,8 +392,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 11033,
-      "lineCount": 308,
+      "sizeBytes": 11938,
+      "lineCount": 329,
       "imports": [
         "./manager",
         "./supabase",
@@ -686,8 +697,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 33820,
-      "lineCount": 716,
+      "sizeBytes": 34618,
+      "lineCount": 735,
       "imports": [
         "react",
         "react-router-dom",
@@ -705,7 +716,8 @@
         "./FanbaseManagementTab",
         "./BoardManagementTab",
         "./LockerRoomTab",
-        "./PressRoomModal"
+        "./PressRoomModal",
+        "./InfirmaryTab"
       ]
     },
     {
@@ -718,6 +730,20 @@
         "react",
         "lucide-react",
         "../../../api/fanbase",
+        "sonner"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/InfirmaryTab.jsx",
+      "label": "InfirmaryTab.jsx",
+      "type": "module",
+      "sizeBytes": 16384,
+      "lineCount": 336,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../api/injuries",
+        "../../../context/GameContext",
         "sonner"
       ]
     },
@@ -995,7 +1021,7 @@
       "id": "src/features/squad/MentorshipModal.jsx",
       "label": "MentorshipModal.jsx",
       "type": "module",
-      "sizeBytes": 9131,
+      "sizeBytes": 9343,
       "lineCount": 213,
       "imports": [
         "react",
@@ -1008,8 +1034,8 @@
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 40518,
-      "lineCount": 829,
+      "sizeBytes": 41138,
+      "lineCount": 839,
       "imports": [
         "react",
         "react-router-dom",
@@ -1028,8 +1054,8 @@
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 14918,
-      "lineCount": 376,
+      "sizeBytes": 16083,
+      "lineCount": 391,
       "imports": [
         "react",
         "react-router-dom",
@@ -1377,6 +1403,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-27-injuries-medical-infirmary",
+      "label": "feat-fase-27-injuries-medical-infirmary: Fase 27 - Lesiones, Recuperacion y Cuerpo Medico",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1623,6 +1656,16 @@
     {
       "from": "src/api/hallOfFame.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/injuries.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/injuries.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2366,6 +2409,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "./InfirmaryTab",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/FanbaseManagementTab.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2382,6 +2430,31 @@
     },
     {
       "from": "src/features/club/screens/FanbaseManagementTab.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
+      "to": "../../../api/injuries",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
+      "to": "../../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
       "to": "sonner",
       "relation": "depends_on"
     },
@@ -3303,6 +3376,11 @@
     {
       "from": "task:feat-fase-26-player-personalities",
       "to": ".agents/workflow/tasks/feat-fase-26-player-personalities.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-27-injuries-medical-infirmary",
+      "to": ".agents/workflow/tasks/feat-fase-27-injuries-medical-infirmary.yml",
       "relation": "manifested_by"
     }
   ],

@@ -24,7 +24,8 @@ import {
   TrendingUp,
   UserCheck,
   Landmark,
-  Mic
+  Mic,
+  HeartPulse
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGameContext } from '../../../context/GameContext'
@@ -37,6 +38,7 @@ import FanbaseManagementTab from './FanbaseManagementTab'
 import BoardManagementTab from './BoardManagementTab'
 import LockerRoomTab from './LockerRoomTab'
 import PressRoomModal from './PressRoomModal'
+import InfirmaryTab from './InfirmaryTab'
 
 export default function ClubScreen() {
   const navigate = useNavigate()
@@ -196,10 +198,10 @@ export default function ClubScreen() {
       </header>
 
       {/* Selector de pestañas */}
-      <nav className="flex rounded-xl bg-zinc-900/80 p-1 mb-6 border border-zinc-800 text-xs md:text-sm font-semibold">
+      <nav className="flex overflow-x-auto no-scrollbar gap-1 rounded-xl bg-zinc-900/80 p-1 mb-6 border border-zinc-800 text-xs md:text-sm font-semibold shrink-0">
         <button
           onClick={() => setActiveTab('gestion')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-all shrink-0 ${
             activeTab === 'gestion'
               ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
               : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
@@ -211,7 +213,7 @@ export default function ClubScreen() {
 
         <button
           onClick={() => setActiveTab('vestuario')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-all shrink-0 ${
             activeTab === 'vestuario'
               ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
               : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
@@ -219,6 +221,18 @@ export default function ClubScreen() {
         >
           <Users className="w-4 h-4 shrink-0" />
           <span>Vestuario</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('enfermeria')}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-all shrink-0 ${
+            activeTab === 'enfermeria'
+              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
+              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+          }`}
+        >
+          <HeartPulse className="w-4 h-4 shrink-0" />
+          <span>Enfermería</span>
         </button>
 
         <button
@@ -451,6 +465,11 @@ export default function ClubScreen() {
           confirmAction={confirmAction} 
           onUpdateClub={() => loadData(true)} 
         />
+      )}
+
+      {/* CONTENIDO TAB: ENFERMERÍA Y GESTIÓN MÉDICA (FASE 27) */}
+      {activeTab === 'enfermeria' && (
+        <InfirmaryTab club={club} />
       )}
 
       {/* CONTENIDO TAB: ESTADIO & INFRAESTRUCTURA (FASE 21) */}
