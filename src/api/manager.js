@@ -213,6 +213,24 @@ export const managerApi = {
     return data || null
   },
 
+  /**
+   * Último DT retirado del usuario (para el epílogo y la sucesión dinástica).
+   * Se conserva user_id en el DT retirado: así sigue siendo visible para su dueño (RLS) y su legado queda ligado a la cuenta.
+   */
+  async getLatestRetiredManager(userId) {
+    const { data, error } = await supabase
+      .from('managers')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_retired', true)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (error && error.code !== 'PGRST116') throw new Error(error.message)
+    return data || null
+  },
+
   async addXp(managerId, xpAmount, sourceType = 'MATCH_WON', sourceEntityId = null) {
     const { levelsApi } = await import('./levels')
     return await levelsApi.awardXp(managerId, sourceType, sourceEntityId, xpAmount)

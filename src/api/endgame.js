@@ -177,16 +177,29 @@ export const endgameApi = {
       throw new Error('Parámetros insuficientes para nueva dinastía')
     }
 
-    // Desvincular el user_id del DT viejo para que no bloquee la creación de un nuevo DT
-    // pero dejando al DT viejo, sus récords, snapshots y trofeos 100% preservados en la BD
-    const { error } = await supabase
+    // Verificar que el DT anterior efectivamente esté retirado (la sucesión sólo existe tras el retiro)
+    const { data: oldManager, error } = await supabase
       .from('managers')
-      .update({ user_id: null })
+      .select('id, is_retired')
       .eq('id', oldManagerId)
+      .eq('user_id', userId)
+      .maybeSingle()
 
-    if (error) {
-      console.error('Error al desvincular DT para nueva dinastía:', error)
-      throw new Error('No se pudo inicializar la sucesión')
+    if (error || !oldManager) throw new Error('No se encontró al DT a suceder')
+    if (!oldManager.is_retired) throw new Error('El DT todavía no se retiró: no puede iniciarse una nueva dinastía')
+
+    // El DT retirado conserva user_id: su legado, snapshot y récords quedan intactos y ligados a la cuenta.
+    // getManager() ya ignora a los retirados, por lo que el nuevo DT se crea sin conflicto.
+    try {
+      await auditApi.logAction({
+        whoId: userId,
+        action: 'DYNASTY_STARTED',
+        entityType: 'manager',
+        entityId: oldManagerId,
+        stateAfter: { predecessorManagerId: oldManagerId }
+      })
+    } catch (e) {
+      console.warn('No se pudo registrar el inicio de dinastía:', e)
     }
 
     return { success: true }
