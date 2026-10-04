@@ -577,3 +577,60 @@ CREATE TABLE IF NOT EXISTS public.manager_unlocked_perks (
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   UNIQUE (manager_id, perk_code)
 );
+
+-- ============================================================================
+-- Fase 07: Calendario, Motor de Tiempo y Avance Semanal
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.career_calendar (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  current_season_year int DEFAULT 2026 NOT NULL,
+  current_week int DEFAULT 1 NOT NULL,
+  current_date date DEFAULT '2026-07-01' NOT NULL,
+  season_phase text DEFAULT 'PRE_SEASON' NOT NULL,
+  transfer_window_open boolean DEFAULT true NOT NULL,
+  is_advancing boolean DEFAULT false NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT chk_valid_week CHECK (current_week BETWEEN 1 AND 53)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_career_calendar_career_id ON public.career_calendar(career_id);
+
+CREATE TABLE IF NOT EXISTS public.calendar_events (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  season_year int NOT NULL,
+  week_number int NOT NULL,
+  event_date date NOT NULL,
+  event_type text NOT NULL, -- LEAGUE_MATCH, CUP_MATCH, FRIENDLY, TRANSFER_DEADLINE, SALARY_PAYMENT, YOUTH_INTAKE, BOARD_MEETING
+  title text NOT NULL,
+  description text,
+  entity_id uuid,
+  is_completed boolean DEFAULT false NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_calendar_events_career_week ON public.calendar_events(career_id, season_year, week_number);
+
+CREATE TABLE IF NOT EXISTS public.time_advance_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid,
+  week_advanced_from int NOT NULL,
+  week_advanced_to int NOT NULL,
+  financials_processed boolean DEFAULT true,
+  fixtures_simulated_count int DEFAULT 0,
+  injuries_updated_count int DEFAULT 0,
+  duration_ms int DEFAULT 0,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.career_calendar ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir leer y actualizar calendar" ON public.career_calendar FOR ALL USING (true);
+
+ALTER TABLE public.calendar_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir calendar_events" ON public.calendar_events FOR ALL USING (true);
+
+ALTER TABLE public.time_advance_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir time_advance_log" ON public.time_advance_log FOR ALL USING (true);

@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:17:27.025Z",
+  "updatedAt": "2026-10-04T02:22:00.988Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 80,
-    "totalEdges": 289,
-    "totalTasks": 20,
+    "totalNodes": 83,
+    "totalEdges": 300,
+    "totalTasks": 21,
     "totalLessons": 0
   },
   "nodes": [
@@ -41,6 +41,16 @@
         "./supabase",
         "../utils/cache",
         "./audit"
+      ]
+    },
+    {
+      "id": "src/api/calendar.js",
+      "label": "calendar.js",
+      "type": "module",
+      "sizeBytes": 13840,
+      "lineCount": 368,
+      "imports": [
+        "./supabase"
       ]
     },
     {
@@ -113,7 +123,7 @@
       "id": "src/api/dashboard.js",
       "label": "dashboard.js",
       "type": "module",
-      "sizeBytes": 5509,
+      "sizeBytes": 5666,
       "lineCount": 158,
       "imports": [
         "./supabase",
@@ -191,10 +201,11 @@
       "id": "src/api/gameLoop.js",
       "label": "gameLoop.js",
       "type": "module",
-      "sizeBytes": 8725,
-      "lineCount": 230,
+      "sizeBytes": 4935,
+      "lineCount": 173,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "./calendar"
       ]
     },
     {
@@ -348,8 +359,8 @@
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
-      "sizeBytes": 3664,
-      "lineCount": 72,
+      "sizeBytes": 3798,
+      "lineCount": 74,
       "imports": [
         "react",
         "react-router-dom",
@@ -360,6 +371,7 @@
         "./features/club/CreateClubWizard",
         "./features/dashboard/Dashboard",
         "./features/auth/WelcomeScreen",
+        "./features/calendar/CalendarScreen",
         "./features/tactics/TacticsScreen",
         "./features/match/MatchScreen",
         "./features/match/PostMatchScreen",
@@ -395,7 +407,7 @@
       "id": "src/components/BottomNav.jsx",
       "label": "BottomNav.jsx",
       "type": "module",
-      "sizeBytes": 1649,
+      "sizeBytes": 1662,
       "lineCount": 43,
       "imports": [
         "react",
@@ -465,6 +477,22 @@
         "../../api/manager",
         "../../api/club",
         "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/calendar/CalendarScreen.jsx",
+      "label": "CalendarScreen.jsx",
+      "type": "module",
+      "sizeBytes": 12021,
+      "lineCount": 279,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "../../context/GameContext",
+        "../../api/calendar",
+        "../../utils/cache",
+        "sonner"
       ]
     },
     {
@@ -572,8 +600,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 25226,
-      "lineCount": 539,
+      "sizeBytes": 26286,
+      "lineCount": 547,
       "imports": [
         "react",
         "react-router-dom",
@@ -953,6 +981,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-07-calendar-engine",
+      "label": "feat-fase-07-calendar-engine: Fase 07: Calendario, Motor de Tiempo y Avance Semanal",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -994,6 +1029,11 @@
     {
       "from": "src/api/auth.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/calendar.js",
+      "to": "./supabase",
       "relation": "depends_on"
     },
     {
@@ -1134,6 +1174,11 @@
     {
       "from": "src/api/gameLoop.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/gameLoop.js",
+      "to": "./calendar",
       "relation": "depends_on"
     },
     {
@@ -1334,6 +1379,11 @@
     {
       "from": "src/App.jsx",
       "to": "./features/auth/WelcomeScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/calendar/CalendarScreen",
       "relation": "depends_on"
     },
     {
@@ -1549,6 +1599,41 @@
     {
       "from": "src/features/auth/WelcomeScreen.jsx",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../api/calendar",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -2399,6 +2484,11 @@
     {
       "from": "task:feat-fase-06-dashboard-overview",
       "to": ".agents/workflow/tasks/feat-fase-06-dashboard-overview.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-07-calendar-engine",
+      "to": ".agents/workflow/tasks/feat-fase-07-calendar-engine.yml",
       "relation": "manifested_by"
     }
   ],

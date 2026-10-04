@@ -114,6 +114,7 @@ export default function Dashboard() {
 
   const navItems = [
     { icon: Home, label: 'Inicio', active: true, path: '/dashboard' },
+    { icon: Calendar, label: 'Calendario', path: '/calendar' },
     { icon: Users, label: 'Plantel', path: '/squad' },
     { icon: Trophy, label: 'Competición', path: '/standings' },
     { icon: Activity, label: 'Entrenamiento', path: '/training' },
@@ -229,8 +230,15 @@ export default function Dashboard() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between w-full gap-3 md:gap-4 md:justify-end md:w-auto">
-            <div className="text-left md:text-right">
-              <p className="text-xs text-zinc-500 capitalize">{formattedDate}</p>
+            <div 
+              onClick={() => navigate('/calendar')}
+              className="text-left md:text-right cursor-pointer group hover:opacity-90 transition-opacity"
+              title="Ver calendario anual de la temporada"
+            >
+              <div className="flex items-center md:justify-end gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400 transition-colors" />
+                <p className="text-xs text-zinc-500 group-hover:text-zinc-300 capitalize transition-colors">{formattedDate}</p>
+              </div>
               <p className="text-xs md:text-sm font-bold text-emerald-400">Torneo Regional • Tier 5</p>
             </div>
 

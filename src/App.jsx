@@ -7,6 +7,7 @@ import CreateManagerWizard from './features/manager/CreateManagerWizard'
 import CreateClubWizard from './features/club/CreateClubWizard'
 import Dashboard from './features/dashboard/Dashboard'
 import WelcomeScreen from './features/auth/WelcomeScreen'
+import CalendarScreen from './features/calendar/CalendarScreen'
 import TacticsScreen from './features/tactics/TacticsScreen'
 import MatchScreen from './features/match/MatchScreen'
 import PostMatchScreen from './features/match/PostMatchScreen'
@@ -41,6 +42,7 @@ function App() {
             <Route path="/create-manager" element={<CreateManagerWizard />} />
             <Route path="/create-club" element={<CreateClubWizard />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/calendar" element={<CalendarScreen />} />
             <Route path="/tactics" element={<TacticsScreen />} />
             <Route path="/match" element={<MatchScreen />} />
             <Route path="/post-match" element={<PostMatchScreen />} />

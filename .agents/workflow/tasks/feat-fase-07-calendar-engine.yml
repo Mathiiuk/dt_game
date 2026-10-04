@@ -1,0 +1,57 @@
+id: feat-fase-07-calendar-engine
+external_ref: 07_calendario
+title: 'Fase 07: Calendario, Motor de Tiempo y Avance Semanal'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/calendar.js
+    - src/api/gameLoop.js
+    - src/features/calendar/CalendarScreen.jsx
+    - src/features/dashboard/Dashboard.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades de dominio career_calendar, calendar_events y
+    time_advance_log en supabase.sql
+  - >-
+    Implementar reglas canónicas de calendario (52 semanas, apertura/clausura,
+    ventanas de traspasos, descansos)
+  - >-
+    Implementar servicio autoritativo calendarApi con mutex is_advancing,
+    bloqueo optimista por week version e idempotencia
+  - >-
+    Orquestar cascada semanal: devengo de salarios, recuperación física +20
+    capped 100, deducción días de lesión, simulación de liga IA y auditoría
+  - >-
+    Diseñar interfaz de usuario para Calendario institucional con visión 52
+    semanas y resumen de jornada
+acceptance_criteria:
+  - >-
+    career_calendar mantiene semana 1-52 y fecha en UTC administrada
+    exclusivamente por backend
+  - >-
+    Avance semanal bloquea peticiones concurrentes y dobles saltos con
+    is_advancing
+  - Jugadores recuperan condición física y reducen semanas de baja de lesiones
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

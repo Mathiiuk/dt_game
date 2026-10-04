@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:17:27.025Z | **Nodos:** 80 | **Tareas:** 20
+> **Última sincronización:** 2026-10-04T02:22:00.988Z | **Nodos:** 83 | **Tareas:** 21
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -9,7 +9,7 @@
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
-| `src/features/dashboard/Dashboard.jsx` | 539 | react, react-router-dom, ../../api/dashboard |
+| `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
@@ -17,6 +17,7 @@
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
+| `src/api/calendar.js` | 368 | ./supabase |
 | `src/features/squad/SquadScreen.jsx` | 368 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
@@ -25,14 +26,13 @@
 | `src/api/clubHistory.js` | 302 | ./supabase |
 | `src/api/levels.js` | 292 | ./supabase, ../utils/cache, ./audit |
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
+| `src/features/calendar/CalendarScreen.jsx` | 279 | react, react-router-dom, lucide-react |
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
 | `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
 | `src/api/player.js` | 249 | ./supabase, ../utils/cache, ./audit |
 | `src/api/competition.js` | 240 | ./supabase, ../utils/cache |
-| `src/api/gameLoop.js` | 230 | ./supabase |
-| `src/api/manager.js` | 221 | ./supabase, ./audit |
 
-_(+35 módulos adicionales; consultar con `memory:query`)_
+_(+37 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -56,3 +56,4 @@ _(+35 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-04-initial-squad: Fase 04: Generación Procedural del Primer Plantel, Cuotas Posicionales y Contratos** `[DONE]`
 - **feat-fase-05-manager-levels: Fase 05: Niveles y Progresión del DT, Curva Polinómica y Ledger de XP** `[DONE]`
 - **feat-fase-06-dashboard-overview: Fase 06: Dashboard Central y Modelo de Lectura Agregado SWR** `[DONE]`
+- **feat-fase-07-calendar-engine: Fase 07: Calendario, Motor de Tiempo y Avance Semanal** `[DONE]`
