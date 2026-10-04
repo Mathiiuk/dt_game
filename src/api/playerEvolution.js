@@ -280,9 +280,9 @@ export const playerEvolutionApi = {
           last_name,
           position,
           age,
-          number,
+          number:shirt_number,
           overall,
-          potential_rating,
+          potential_rating:attr_potential,
           career_phase,
           minutes_played_season
         )
@@ -320,7 +320,7 @@ export const playerEvolutionApi = {
           position,
           age,
           overall,
-          number
+          number:shirt_number
         )
       `)
       .eq('club_id', clubId)
