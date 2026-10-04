@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:37:49.272Z",
+  "updatedAt": "2026-10-04T02:40:58.748Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 90,
-    "totalEdges": 301,
-    "totalTasks": 27,
+    "totalNodes": 91,
+    "totalEdges": 299,
+    "totalTasks": 28,
     "totalLessons": 0
   },
   "nodes": [
@@ -111,8 +111,8 @@
       "id": "src/api/contracts.js",
       "label": "contracts.js",
       "type": "module",
-      "sizeBytes": 3890,
-      "lineCount": 113,
+      "sizeBytes": 14208,
+      "lineCount": 445,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -258,7 +258,7 @@
       "id": "src/api/market.js",
       "label": "market.js",
       "type": "module",
-      "sizeBytes": 10925,
+      "sizeBytes": 11245,
       "lineCount": 321,
       "imports": [
         "./supabase",
@@ -757,14 +757,11 @@
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 17456,
-      "lineCount": 368,
+      "sizeBytes": 37244,
+      "lineCount": 787,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/auth",
-        "../../api/manager",
-        "../../api/club",
         "../../api/player",
         "../../api/contracts",
         "lucide-react",
@@ -1032,6 +1029,13 @@
     {
       "id": "task:feat-fase-13-transfer-market",
       "label": "feat-fase-13-transfer-market: Fase 13: Mercado de Pases, Transferencias y Agentes Libres",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-14-player-sales",
+      "label": "feat-fase-14-player-sales: Fase 14: Ventas de Jugadores, Lista de Transferibles y Ofertas de IA",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -2260,21 +2264,6 @@
     },
     {
       "from": "src/features/squad/SquadScreen.jsx",
-      "to": "../../api/auth",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/SquadScreen.jsx",
-      "to": "../../api/manager",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/SquadScreen.jsx",
-      "to": "../../api/club",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/SquadScreen.jsx",
       "to": "../../api/player",
       "relation": "depends_on"
     },
@@ -2541,6 +2530,11 @@
     {
       "from": "task:feat-fase-13-transfer-market",
       "to": ".agents/workflow/tasks/feat-fase-13-transfer-market.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-14-player-sales",
+      "to": ".agents/workflow/tasks/feat-fase-14-player-sales.yml",
       "relation": "manifested_by"
     }
   ],

@@ -880,3 +880,28 @@ CREATE POLICY "Permitir todo transfer_audit_log" ON public.transfer_audit_log FO
 CREATE INDEX IF NOT EXISTS idx_transfer_listings_status ON public.transfer_market_listings(status);
 CREATE INDEX IF NOT EXISTS idx_transfer_bids_status ON public.transfer_bids(status);
 CREATE INDEX IF NOT EXISTS idx_transfer_audit_to_club ON public.transfer_audit_log(to_club_id);
+
+-- FASE 14: VENTAS DE JUGADORES, LISTA DE TRANSFERIBLES Y OFERTAS DE IA
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS transfer_status text DEFAULT 'NOT_FOR_SALE';
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS asking_price numeric(12,2);
+ALTER TABLE public.players ADD COLUMN IF NOT EXISTS morale_unhappy_transfer_blocked boolean DEFAULT false;
+
+ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS counter_amount numeric(12,2);
+ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS expires_at_week int;
+ALTER TABLE public.offers ADD COLUMN IF NOT EXISTS sell_on_fee_percentage int DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS public.contract_terminations_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  termination_type text DEFAULT 'MUTUAL_CONSENT' NOT NULL,
+  severance_paid numeric(12,2) DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.contract_terminations_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo contract_terminations_log" ON public.contract_terminations_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_contract_terminations_club ON public.contract_terminations_log(club_id);
+CREATE INDEX IF NOT EXISTS idx_offers_to_club_status ON public.offers(to_club_id, status);

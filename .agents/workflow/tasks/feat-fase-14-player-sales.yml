@@ -1,0 +1,63 @@
+id: feat-fase-14-player-sales
+external_ref: 14_ventas
+title: 'Fase 14: Ventas de Jugadores, Lista de Transferibles y Ofertas de IA'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/contracts.js
+    - src/features/squad/SquadScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar colocación en lista de transferibles con precio pedido
+    (asking_price) y estado de transferibilidad
+  - >-
+    Crear motor de ofertas entrantes de clubes de IA con soporte de contraoferta
+    y expiración en calendario
+  - >-
+    Aceptación de ofertas con reparto financiero autoritativo (80% a presupuesto
+    de fichajes, 20% a reservas)
+  - >-
+    Rechazo de ofertas con ajuste de moral en futbolistas descontentos si la
+    oferta es lucrativa
+  - >-
+    Rescisión unilateral de contrato con indemnización obligatoria (65% salarios
+    restantes) y validación de saldo
+  - >-
+    Crear tablas transfer_offers y contract_terminations_log en supabase.sql con
+    RLS e índices
+  - >-
+    UI mobile-first en SquadScreen con ActionSheet drawers para confirmaciones y
+    contraofertas
+acceptance_criteria:
+  - >-
+    Aceptar oferta acredita fondos al club y transfiere al jugador atómicamente
+    sin duplicaciones
+  - >-
+    Rescisión calcula indemnización exacta y falla de forma controlada si el
+    club carece de fondos
+  - >-
+    Contraofertar a la IA evalúa dentro del margen de tolerancia y actualiza el
+    estado de la oferta
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

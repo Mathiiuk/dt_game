@@ -1,11 +1,12 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:37:49.272Z | **Nodos:** 90 | **Tareas:** 27
+> **Última sincronización:** 2026-10-04T02:40:58.748Z | **Nodos:** 91 | **Tareas:** 28
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
+| `src/features/squad/SquadScreen.jsx` | 787 | react, react-router-dom, ../../api/player |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
@@ -14,6 +15,7 @@
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/match/PostMatchScreen.jsx` | 452 | react, react-router-dom, ../../api/postMatch |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
+| `src/api/contracts.js` | 445 | ./supabase, ../utils/cache, ./audit |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
@@ -23,14 +25,12 @@
 | `src/api/calendar.js` | 376 | ./supabase |
 | `src/features/tactics/TacticsScreen.jsx` | 376 | react, react-router-dom, lucide-react |
 | `src/api/training.js` | 372 | ./supabase |
-| `src/features/squad/SquadScreen.jsx` | 368 | react, react-router-dom, ../../api/auth |
 | `src/api/competition.js` | 366 | ./supabase, ../utils/cache |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
 | `src/api/market.js` | 321 | ./supabase, ../utils/cache |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
 | `src/api/tactics.js` | 317 | ./supabase, ../utils/cache |
 | `src/api/internationalCup.js` | 315 | ./supabase, ./clubHistory, ./manager |
-| `src/api/season.js` | 304 | ./supabase, ./competition, ./audit |
 
 _(+38 módulos adicionales; consultar con `memory:query`)_
 
@@ -63,3 +63,4 @@ _(+38 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-11-post-match: Fase 11: Resumen Post-Partido, Calificaciones, Taquilla y Secciones Mobile** `[DONE]`
 - **feat-fase-12-league-standings: Fase 12: Competicion de Liga, Tabla de Posiciones y Criterios de Desempate** `[DONE]`
 - **feat-fase-13-transfer-market: Fase 13: Mercado de Pases, Transferencias y Agentes Libres** `[DONE]`
+- **feat-fase-14-player-sales: Fase 14: Ventas de Jugadores, Lista de Transferibles y Ofertas de IA** `[DONE]`
