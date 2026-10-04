@@ -1,0 +1,55 @@
+id: feat-fase-10-match-engine
+external_ref: 10_motor_partido
+title: >-
+  Fase 10: Motor de Simulacion de Partidos, Direccion en Vivo y Anti-Save
+  Scumming
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/matchEngine.js
+    - src/features/match/MatchScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades match_events y match_interventions y columnas de estado en
+    fixtures en supabase.sql
+  - >-
+    Implementar motor de partido probabilístico minuto a minuto con semilla
+    determinista y nombres de futbolistas
+  - Control de velocidad dinámico x1, x2, x4 y simulación instantánea
+  - >-
+    Persistencia continua en BD y anti-save scumming (recargar web no reinicia
+    el partido)
+  - >-
+    Órdenes tácticas interactivas del DT en vivo (arengas con buffs/debuffs) y
+    gestión de cambios
+acceptance_criteria:
+  - >-
+    Iniciar partido marca status IN_PROGRESS de inmediato impidiendo reinicio a
+    0 tras recargar
+  - >-
+    Los eventos del partido identifican a futbolistas específicos del club y
+    rival
+  - Controles x1, x2, x4 ajustan con fluidez la cadencia del partido
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

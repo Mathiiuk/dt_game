@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:26:25.006Z",
+  "updatedAt": "2026-10-04T02:29:10.968Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 86,
-    "totalEdges": 299,
-    "totalTasks": 23,
+    "totalNodes": 87,
+    "totalEdges": 301,
+    "totalTasks": 24,
     "totalLessons": 0
   },
   "nodes": [
@@ -269,9 +269,11 @@
       "id": "src/api/matchEngine.js",
       "label": "matchEngine.js",
       "type": "module",
-      "sizeBytes": 5310,
-      "lineCount": 141,
-      "imports": []
+      "sizeBytes": 13326,
+      "lineCount": 409,
+      "imports": [
+        "./supabase"
+      ]
     },
     {
       "id": "src/api/morale.js",
@@ -348,7 +350,7 @@
       "id": "src/api/tactics.js",
       "label": "tactics.js",
       "type": "module",
-      "sizeBytes": 10944,
+      "sizeBytes": 11260,
       "lineCount": 317,
       "imports": [
         "./supabase",
@@ -723,8 +725,8 @@
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 20413,
-      "lineCount": 477,
+      "sizeBytes": 21478,
+      "lineCount": 525,
       "imports": [
         "react",
         "react-router-dom",
@@ -778,7 +780,7 @@
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 14543,
+      "sizeBytes": 14918,
       "lineCount": 376,
       "imports": [
         "react",
@@ -1005,6 +1007,13 @@
     {
       "id": "task:feat-fase-09-tactics-system",
       "label": "feat-fase-09-tactics-system: Fase 09: Tacticas, Formaciones, Pizarra y Afinidad Posicional",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-10-match-engine",
+      "label": "feat-fase-10-match-engine: Fase 10: Motor de Simulacion de Partidos, Direccion en Vivo y Anti-Save Scumming",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -1259,6 +1268,11 @@
     {
       "from": "src/api/market.js",
       "to": "./club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/matchEngine.js",
+      "to": "./supabase",
       "relation": "depends_on"
     },
     {
@@ -2504,6 +2518,11 @@
     {
       "from": "task:feat-fase-09-tactics-system",
       "to": ".agents/workflow/tasks/feat-fase-09-tactics-system.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-10-match-engine",
+      "to": ".agents/workflow/tasks/feat-fase-10-match-engine.yml",
       "relation": "manifested_by"
     }
   ],

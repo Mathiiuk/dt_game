@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:26:25.006Z | **Nodos:** 86 | **Tareas:** 23
+> **Última sincronización:** 2026-10-04T02:29:10.968Z | **Nodos:** 87 | **Tareas:** 24
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -10,12 +10,13 @@
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
 | `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
-| `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
+| `src/features/match/MatchScreen.jsx` | 525 | react, react-router-dom, ../../api/auth |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
+| `src/api/matchEngine.js` | 409 | ./supabase |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 | `src/api/calendar.js` | 376 | ./supabase |
@@ -30,7 +31,6 @@
 | `src/api/clubHistory.js` | 302 | ./supabase |
 | `src/api/levels.js` | 292 | ./supabase, ../utils/cache, ./audit |
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
-| `src/features/calendar/CalendarScreen.jsx` | 279 | react, react-router-dom, lucide-react |
 
 _(+38 módulos adicionales; consultar con `memory:query`)_
 
@@ -59,3 +59,4 @@ _(+38 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-07-calendar-engine: Fase 07: Calendario, Motor de Tiempo y Avance Semanal** `[DONE]`
 - **feat-fase-08-training-regime: Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual** `[DONE]`
 - **feat-fase-09-tactics-system: Fase 09: Tacticas, Formaciones, Pizarra y Afinidad Posicional** `[DONE]`
+- **feat-fase-10-match-engine: Fase 10: Motor de Simulacion de Partidos, Direccion en Vivo y Anti-Save Scumming** `[DONE]`

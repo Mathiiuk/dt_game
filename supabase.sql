@@ -719,3 +719,43 @@ CREATE POLICY "Permitir tactic_lineup_slots" ON public.tactic_lineup_slots FOR A
 
 ALTER TABLE public.tactics_audit_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir tactics_audit_log" ON public.tactics_audit_log FOR ALL USING (true);
+
+-- ============================================================================
+-- Fase 10: Motor de Simulacion de Partidos y Direccion en Vivo
+-- ============================================================================
+
+ALTER TABLE public.fixtures ADD COLUMN IF NOT EXISTS current_minute int DEFAULT 0;
+ALTER TABLE public.fixtures ADD COLUMN IF NOT EXISTS seed text;
+ALTER TABLE public.fixtures ADD COLUMN IF NOT EXISTS match_stats jsonb DEFAULT '{}'::jsonb;
+ALTER TABLE public.fixtures ADD COLUMN IF NOT EXISTS simulation_payload jsonb;
+ALTER TABLE public.fixtures ADD COLUMN IF NOT EXISTS started_at timestamp with time zone;
+ALTER TABLE public.fixtures ADD COLUMN IF NOT EXISTS finished_at timestamp with time zone;
+
+CREATE TABLE IF NOT EXISTS public.match_events (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  fixture_id uuid REFERENCES public.fixtures(id) ON DELETE CASCADE,
+  minute int NOT NULL,
+  event_type text NOT NULL, -- GOAL, CARD_YELLOW, CARD_RED, INJURY, SAVE, CORNER, MISS
+  club_id uuid,
+  player_id uuid,
+  assist_player_id uuid,
+  description text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_match_events_fixture ON public.match_events(fixture_id, minute);
+
+CREATE TABLE IF NOT EXISTS public.match_interventions (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  fixture_id uuid REFERENCES public.fixtures(id) ON DELETE CASCADE,
+  minute int NOT NULL,
+  intervention_type text NOT NULL, -- SHOUT, SUBSTITUTION, TACTIC_CHANGE
+  payload jsonb DEFAULT '{}'::jsonb,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.match_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir match_events" ON public.match_events FOR ALL USING (true);
+
+ALTER TABLE public.match_interventions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir match_interventions" ON public.match_interventions FOR ALL USING (true);
