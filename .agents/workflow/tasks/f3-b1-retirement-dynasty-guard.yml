@@ -1,0 +1,36 @@
+id: f3-b1-retirement-dynasty-guard
+external_ref: ''
+title: 'Guard de retiro: obligar a iniciar nueva dinastia y bloquear volver atras'
+type: fix
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar Guard de retiro: obligar a iniciar nueva dinastia y bloquear
+    volver atras
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Guard de retiro: obligar a iniciar nueva
+    dinastia y bloquear volver atras
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd

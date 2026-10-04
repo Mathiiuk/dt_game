@@ -4,6 +4,7 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi, TIER_5_STARTING_CONFIG } from '../../api/club'
 import { toast } from 'sonner'
+import { useGameContext } from '../../context/GameContext'
 import { 
   Loader2, 
   Shield, 
@@ -36,6 +37,7 @@ const BADGES = [
 
 export default function CreateClubWizard() {
   const navigate = useNavigate()
+  const { refreshContext } = useGameContext()
   const [step, setStep] = useState(1) // 1: Identity, 2: Visual/Colors, 3: Stadium, 4: Confirmation
   const [loading, setLoading] = useState(false)
   const [manager, setManager] = useState(null)
@@ -99,7 +101,9 @@ export default function CreateClubWizard() {
         stadium
       })
       toast.success('¡Institución fundada e inscripta en la liga!')
-      navigate('/dashboard')
+      // Recargar manager y club en el contexto global antes de entrar al juego (evita estado obsoleto tras una sucesión)
+      await refreshContext()
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       toast.error(err.message || 'Error al fundar el club.')
     } finally {

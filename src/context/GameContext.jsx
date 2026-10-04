@@ -12,10 +12,13 @@ export const useGameContext = () => useContext(GameContext)
 
 let inFlightContextPromise = null
 
+// Rutas accesibles para un usuario cuyo DT ya se retiró y todavía no fundó su sucesor
+export const RETIRED_ALLOWED_ROUTES = ['/endgame', '/hall-of-fame', '/create-manager']
+
 export const GameProvider = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const [gameState, setGameState] = useState({ user: null, manager: null, club: null, loading: true })
+  const [gameState, setGameState] = useState({ user: null, manager: null, club: null, retiredManager: null, loading: true })
 
   // ActionSheet Bottom Drawer confirmation state
   const [sheetConfig, setSheetConfig] = useState(null)
@@ -53,8 +56,14 @@ export const GameProvider = ({ children }) => {
         )
 
         if (!manager) {
-          if (location.pathname !== '/create-manager') navigate('/create-manager')
-          setGameState(prev => ({ ...prev, loading: false }))
+          // Sin DT activo: si el usuario tiene un DT retirado, debe pasar por el epílogo antes de fundar una nueva dinastía
+          const retiredManager = await managerApi.getLatestRetiredManager(user.id).catch(() => null)
+          setGameState({ user, manager: null, club: null, retiredManager, loading: false })
+          if (retiredManager) {
+            if (!RETIRED_ALLOWED_ROUTES.includes(location.pathname)) navigate('/endgame', { replace: true })
+          } else if (location.pathname !== '/create-manager') {
+            navigate('/create-manager', { replace: true })
+          }
           return
         }
 
@@ -67,7 +76,7 @@ export const GameProvider = ({ children }) => {
         if (!club) {
           if (manager.employment_status === 'UNEMPLOYED') {
             if (location.pathname !== '/manager') navigate('/manager')
-            setGameState({ user, manager, club: null, loading: false })
+            setGameState({ user, manager, club: null, retiredManager: null, loading: false })
             return
           }
           if (location.pathname !== '/create-club') navigate('/create-club')
@@ -75,7 +84,7 @@ export const GameProvider = ({ children }) => {
           return
         }
 
-        setGameState({ user, manager, club, loading: false })
+        setGameState({ user, manager, club, retiredManager: null, loading: false })
       } catch (e) {
         console.error('Error loading game context:', e)
         setGameState(prev => ({ ...prev, loading: false }))
