@@ -1,0 +1,8 @@
+# Reporte de Ejecución: f3-b2-fixture-status-unification
+- **Rama**: `fix/f3-b2-fixture-status-unification` | **Estado**: `DONE`
+- **Causa raíz (verificada con datos)**: el club nuevo tenía 19 fixtures `SCHEDULED` (creados por `competition.js`), pero el dashboard buscaba el próximo partido con `status = 'PENDING'` → `nextFixture = null` → botón bloqueado y "Pretemporada" eterna; mientras tanto `calendar.js` bloqueaba el avance si había un `SCHEDULED` vencido. Resultado: bloqueo mutuo (no se puede jugar ni avanzar). Además `matchEngine` cerraba los partidos como `FINISHED` y el calendario sólo reconocía `PLAYED`, y el botón comparaba `match_date` ISO con una fecha corta como texto.
+- **Fix**:
+  - `src/domain/fixtureStatus.js`: estados canónicos `SCHEDULED/IN_PROGRESS/PLAYED`, alias heredados aceptados en lecturas (`PENDING`, `FINISHED`) y `isFixtureDue` (compara sólo el día). Test: `node scripts/test_fixture_status.mjs` (OK).
+  - Escrituras canónicas: `matchEngine` (`PLAYED`), `season.js` (`SCHEDULED`). Lecturas tolerantes: `dashboard.js`, `Dashboard.jsx`, `calendar.js`, `season.js`, `MatchScreen.jsx`, `CalendarScreen.jsx`.
+  - Migración `unify_fixture_status`: `PENDING→SCHEDULED`, `FINISHED→PLAYED` en `fixtures`; default `SCHEDULED`.
+- **Verificación (navegador)**: el dashboard de pretemporada ahora muestra "Compromiso Oficial · Fecha 1 · vs Deportivo Sarmiento" y el botón "Partido el 2026-08-01" (deshabilitado hasta esa fecha, con motivo visible); "Avanzar Semana" habilitado. Pendiente validar el flujo completo (avanzar hasta el 01/08 y jugar) con confirmación del usuario.

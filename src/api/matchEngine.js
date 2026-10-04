@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { FIXTURE_STATUS } from '../domain/fixtureStatus'
 
 export const SHOUT_TYPES = [
   { 
@@ -377,7 +378,7 @@ export const matchEngineApi = {
         await supabase
           .from('fixtures')
           .update({
-            status: 'FINISHED',
+            status: FIXTURE_STATUS.PLAYED,
             home_score: homeScore,
             away_score: awayScore,
             current_minute: 90,

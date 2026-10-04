@@ -2,6 +2,8 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { levelsApi } from './levels'
 import { eventsApi } from './events'
+import { isContractExpiringSoon, CONTRACT_ALERT_WINDOW_WEEKS } from '../domain/contracts'
+import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
 export const dashboardApi = {
   /**
@@ -24,13 +26,14 @@ export const dashboardApi = {
           .from('fixtures')
           .select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)')
           .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
-          .eq('status', 'PENDING')
+          .in('status', FIXTURE_OPEN_STATUSES)
+          .order('match_date', { ascending: true })
           .order('match_week', { ascending: true })
           .limit(1)
           .maybeSingle(),
         supabase
           .from('players')
-          .select('id, first_name, last_name, position, is_injured, is_suspended, state_fitness, state_morale, contract_wage, contract_years')
+          .select('id, first_name, last_name, position, is_injured, is_suspended, state_fitness, state_morale, contract_wage, contract_years, contract_end')
           .eq('club_id', club.id),
         supabase
           .from('standings')
@@ -55,7 +58,9 @@ export const dashboardApi = {
       const averageFitness = totalPlayers > 0 ? Math.round(totalFitness / totalPlayers) : 100
       const averageMorale = totalPlayers > 0 ? Math.round(totalMorale / totalPlayers) : 75
 
-      const expiringContracts = squad.filter(p => (Number(p.contract_years) || 1) <= 1)
+      // Por vencer = vence dentro de la ventana de alerta (6 meses) según la fecha del juego
+      const alertGameDate = club.game_date || '2026-07-01'
+      const expiringContracts = squad.filter(p => isContractExpiringSoon(p.contract_end, alertGameDate, CONTRACT_ALERT_WINDOW_WEEKS))
 
       // 3. Sistema de Alertas Críticas
       const urgentAlerts = []
@@ -88,7 +93,7 @@ export const dashboardApi = {
           id: 'ALERT_CONTRACTS',
           priority: 'LOW',
           title: 'Contratos por Vencer',
-          message: `${expiringContracts.length} futbolista(s) en su último año de contrato.`,
+          message: `${expiringContracts.length} futbolista(s) con contrato que vence en los próximos 6 meses.`,
           actionUrl: '/squad'
         })
       }

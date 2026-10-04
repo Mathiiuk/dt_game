@@ -1,0 +1,12 @@
+# Reporte de Ejecución: f3-b3-contract-expiry-alert
+- **Rama**: `fix/f3-b3-contract-expiry-alert` | **Estado**: `DONE`
+- **Problema**: la alerta "Contratos por vencer" marcaba `contract_years <= 1`; el plantel nacía con 1–3 años y `contract_years` nunca bajaba. Además el cierre de temporada consultaba una columna inexistente (`contract_expires_year`), por lo que ningún contrato expiraba, y la renovación usaba el reloj real.
+- **Decisión (el usuario pidió la opción más "real")**: vencimientos por fecha (30 de junio, como el fútbol real) con `players.contract_end` como fuente de verdad; alerta a 6 meses (26 semanas) del vencimiento, confirmada por el usuario. La tabla `contracts` (cláusulas) queda como evolución posterior.
+- **Implementación**:
+  - `src/domain/contracts.js`: funciones puras (`seasonEndDate`, `contractEndFor`, `isContractExpiringSoon`, `yearsRemaining`, `pickInitialContractYears`). Test: `node scripts/test_contracts_domain.mjs` (OK).
+  - `player.js`: plantel nuevo con 1–5 años ponderados (20/30/30/15/5 %) y `contract_end` anclado a la fecha del juego.
+  - `dashboard.js`: alerta por ventana de 26 semanas.
+  - `seasonClose.js`: expira por `contract_end` y recalcula `contract_years` del plantel que sigue.
+  - `contracts.js` (renovación): `contract_end`/`contract_years`/`contract_wage` desde la fecha del juego, no del reloj real.
+  - Migración `backfill_players_contract_end` (56 jugadores existentes con fecha) + índice.
+- **Verificación**: test de dominio OK; en el navegador, el dashboard de pretemporada (01/07/2026) ya no muestra la alerta.

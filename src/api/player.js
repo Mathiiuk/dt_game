@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
+import { contractEndFor, pickInitialContractYears } from '../domain/contracts'
 
 const FIRST_NAMES = [
   'Santiago', 'Lucas', 'Matias', 'Facundo', 'Tomas', 'Agustin', 'Nicolas',
@@ -85,7 +86,7 @@ export const playerApi = {
   /**
    * Genera el arreglo oficial de 20 jugadores respetando cuotas posicionales y Tier 5
    */
-  generatePlayersArray(clubId, reputation = 15) {
+  generatePlayersArray(clubId, reputation = 15, gameDate = '2026-07-01') {
     const usedNames = new Set()
 
     return INITIAL_SQUAD_STRUCTURE.map((slot) => {
@@ -139,6 +140,9 @@ export const playerApi = {
       // 3. Salario semanal ajustado a Tier 5 (~$100 a $220 semanal)
       const weeklyWage = Math.round(120 * Math.pow(targetOvr / 50, 1.85))
 
+      // 4. Contrato escalonado (1 a 5 años) con vencimiento real anclado al 30 de junio
+      const contractYears = pickInitialContractYears()
+
       return {
         club_id: clubId,
         first_name: firstName,
@@ -155,7 +159,8 @@ export const playerApi = {
         is_suspended: false,
         contract_wage: weeklyWage,
         contract_salary: weeklyWage,
-        contract_years: randomInt(1, 3),
+        contract_years: contractYears,
+        contract_end: contractEndFor(gameDate, contractYears),
         contract_role: slot.squadRole,
         attr_potential: Math.min(99, potential),
         market_value: targetOvr * 3500,
@@ -183,7 +188,8 @@ export const playerApi = {
     }
 
     // 2. Generar nómina de 20 jugadores
-    const playersToInsert = this.generatePlayersArray(clubId, reputation)
+    const { data: clubRow } = await supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle()
+    const playersToInsert = this.generatePlayersArray(clubId, reputation, clubRow?.game_date || '2026-07-01')
 
     const { data, error } = await supabase
       .from('players')

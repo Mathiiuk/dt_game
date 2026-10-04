@@ -18,6 +18,7 @@ import { useGameContext } from '../../context/GameContext'
 import { calendarApi, SEASON_PHASES } from '../../api/calendar'
 import { queryCache } from '../../utils/cache'
 import { toast } from 'sonner'
+import { isFixturePlayed } from '../../domain/fixtureStatus'
 
 export default function CalendarScreen() {
   const navigate = useNavigate()
@@ -254,11 +255,11 @@ export default function CalendarScreen() {
                           <span>Partido Oficial</span>
                         </div>
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          w.match.status === 'PLAYED'
+                          isFixturePlayed(w.match.status)
                             ? 'bg-zinc-800 text-zinc-300'
                             : 'bg-emerald-500/10 text-emerald-400'
                         }`}>
-                          {w.match.status === 'PLAYED' ? `${w.match.home_score} - ${w.match.away_score}` : 'Por Jugar'}
+                          {isFixturePlayed(w.match.status) ? `${w.match.home_score} - ${w.match.away_score}` : 'Por Jugar'}
                         </span>
                       </div>
                     ) : (
