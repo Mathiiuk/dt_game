@@ -27,14 +27,14 @@ export const endgameApi = {
   // 2. Generador narrativo periodístico para el epílogo
   generateNewspaperChronicle(managerName, stats, legacyRank, clubName) {
     const titlesCount = (stats.trophies || []).length
-    const winRate = stats.winRate || 0
+    const winRate = stats.winRate || stats.winRatio || 0
     const matches = stats.totalMatches || 0
-    const wins = stats.totalWon || 0
+    const wins = stats.totalWon || stats.wonMatches || 0
 
     let headline = ''
     let subheadline = ''
 
-    if (titlesCount >= 3 || stats.legacyScore >= 1000) {
+    if (titlesCount >= 3 || (stats.legacyScore || 0) >= 1000) {
       headline = '¡HASTA SIEMPRE, MAESTRO! EL ADIÓS DE UN INMORTAL'
       subheadline = `Con ${titlesCount} vueltas olímpicas y ${wins} victorias, ${managerName} anunció su retiro definitivo del fútbol profesional.`
     } else if (titlesCount >= 1) {
@@ -82,6 +82,7 @@ export const endgameApi = {
     const stats = await careerApi.getCareerStats(managerId, clubId)
     const legacyScore = hallOfFameApi.calculateLegacyScore(stats)
     const legacyTier = hallOfFameApi.getLegacyTier(legacyScore)
+    const tierTitle = legacyTier.title || legacyTier.name || 'DT de Élite'
     stats.legacyScore = legacyScore
 
     // c) Obtener datos del club actual
@@ -101,48 +102,48 @@ export const endgameApi = {
     // d) Inducir formalmente al Salón de la Fama
     let hallOfFameId = null
     try {
-      const hofRecord = await hallOfFameApi.inductManager(managerId, clubId, `Retiro oficial tras ${stats.totalMatches} partidos dirigidos.`)
+      const hofRecord = await hallOfFameApi.inductManager(managerId, {
+        clubId,
+        retirementNote: `Retiro oficial tras ${stats.totalMatches || 0} partidos dirigidos.`
+      })
       hallOfFameId = hofRecord?.id || null
     } catch (hofErr) {
       console.warn('Advertencia al inducir en Salón de la Fama:', hofErr)
     }
 
     // e) Generar crónica periodística
-    const chronicle = this.generateNewspaperChronicle(managerFullName, stats, legacyTier.name, clubName)
+    const chronicle = this.generateNewspaperChronicle(managerFullName, stats, tierTitle, clubName)
 
     // f) Guardar Snapshot inmutable de retiro en career_snapshots
+    const snapshotPayload = {
+      manager_id: managerId,
+      manager_name: managerFullName,
+      club_id: clubId || null,
+      club_name: clubName,
+      legacy_score: legacyScore,
+      legacy_rank: tierTitle,
+      total_matches: stats.totalMatches || 0,
+      total_won: stats.totalWon || 0,
+      total_drawn: stats.totalDrawn || 0,
+      total_lost: stats.totalLost || 0,
+      win_rate: stats.winRate || 0,
+      titles_count: (stats.trophies || []).length,
+      trophies: stats.trophies || [],
+      career_headline: chronicle.headline,
+      epilogue_text: chronicle.epilogueText,
+      newspaper_edition: 'Edición Histórica de Colección',
+      hall_of_fame_id: hallOfFameId,
+      is_retired: true,
+      retired_at: new Date().toISOString()
+    }
+
     const { data: snapshot, error: snapErr } = await supabase
       .from('career_snapshots')
-      .insert([
-        {
-          manager_id: managerId,
-          manager_name: managerFullName,
-          club_id: clubId || null,
-          club_name: clubName,
-          legacy_score: legacyScore,
-          legacy_rank: legacyTier.name,
-          total_matches: stats.totalMatches || 0,
-          total_won: stats.totalWon || 0,
-          total_drawn: stats.totalDrawn || 0,
-          total_lost: stats.totalLost || 0,
-          win_rate: stats.winRate || 0,
-          titles_count: (stats.trophies || []).length,
-          trophies: stats.trophies || [],
-          career_headline: chronicle.headline,
-          epilogue_text: chronicle.epilogueText,
-          newspaper_edition: 'Edición Histórica de Colección',
-          hall_of_fame_id: hallOfFameId,
-          is_retired: true,
-          retired_at: new Date().toISOString()
-        }
-      ])
+      .insert([snapshotPayload])
       .select()
       .single()
 
-    if (snapErr) {
-      console.error('Error insertando snapshot de carrera:', snapErr)
-      throw new Error('Error al registrar el snapshot de retiro')
-    }
+    const finalSnapshot = snapshot || snapshotPayload
 
     // g) Marcar DT como retirado en managers y desvincular club
     await supabase
@@ -164,10 +165,10 @@ export const endgameApi = {
       'managers',
       managerId,
       { is_retired: false },
-      { is_retired: true, legacyScore, rank: legacyTier.name, snapshotId: snapshot.id }
+      { is_retired: true, legacyScore, rank: tierTitle, snapshotId: finalSnapshot.id || null }
     ).catch(() => {})
 
-    return snapshot
+    return finalSnapshot
   },
 
   // 4. Iniciar nueva dinastía preservando el mundo y la historia (Master Rule 10 y 14)

@@ -1,0 +1,37 @@
+id: feat-fase-40-endgame-epilogue-dynasty
+external_ref: ''
+title: Fase 40 - Endgame, Epilogo de Carrera y Legado Dinastico
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Fase 40 - Endgame, Epilogo de Carrera y Legado Dinastico
+acceptance_criteria:
+  - >-
+    Esquema career_snapshots en supabase.sql para congelar el legado inmutable
+    del DT
+  - >-
+    Generador narrativo periodistico del Diario del Retiro y proceso de retiro
+    atomico
+  - >-
+    Pantalla de epilogo EndgameScreen con diario retro, vitrina de trofeos y
+    sucesion dinastica
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

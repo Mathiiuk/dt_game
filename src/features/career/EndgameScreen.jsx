@@ -12,7 +12,7 @@ import BottomNav from '../../components/BottomNav'
 
 export default function EndgameScreen() {
   const navigate = useNavigate()
-  const { user, manager, club, refreshContext } = useGameContext()
+  const { user, manager, club, refreshContext, confirmAction } = useGameContext()
 
   const [snapshot, setSnapshot] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -45,6 +45,17 @@ export default function EndgameScreen() {
 
   const handleStartDynasty = async () => {
     if (!user || !manager || startingDynasty) return
+
+    const confirmed = await confirmAction({
+      title: 'Fundar Nueva Dinastía',
+      description: '¿Deseas iniciar una nueva dinastía como Director Técnico? El mundo, los clubes, los récords y el legado de tu entrenador actual permanecerán intactos en la historia de la liga.',
+      confirmText: 'Fundar Dinastía',
+      cancelText: 'Cancelar',
+      variant: 'default'
+    })
+
+    if (!confirmed) return
+
     setStartingDynasty(true)
 
     try {

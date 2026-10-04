@@ -2124,3 +2124,37 @@ CREATE POLICY "Permitir todo manager_achievements" ON public.manager_achievement
 
 CREATE INDEX IF NOT EXISTS idx_career_achievements_manager ON public.career_achievements(manager_id, is_unlocked, is_claimed);
 CREATE INDEX IF NOT EXISTS idx_manager_achievements_manager ON public.manager_achievements(manager_id, year DESC);
+
+-- ==============================================================================
+-- FASE 40: ENDGAME, EPÍLOGO DE CARRERA Y LEGADO DINÁSTICO
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.career_snapshots (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE CASCADE,
+  manager_name text NOT NULL,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  club_name text NOT NULL DEFAULT 'Club Profesional',
+  legacy_score integer NOT NULL DEFAULT 0,
+  legacy_rank text NOT NULL DEFAULT 'DT de Primera',
+  total_matches integer NOT NULL DEFAULT 0,
+  total_won integer NOT NULL DEFAULT 0,
+  total_drawn integer NOT NULL DEFAULT 0,
+  total_lost integer NOT NULL DEFAULT 0,
+  win_rate numeric(5,2) NOT NULL DEFAULT 0.00,
+  titles_count integer NOT NULL DEFAULT 0,
+  trophies jsonb DEFAULT '[]'::jsonb,
+  career_headline text NOT NULL,
+  epilogue_text text NOT NULL,
+  newspaper_edition text NOT NULL DEFAULT 'Edicion Historica de Coleccion',
+  hall_of_fame_id uuid REFERENCES public.hall_of_fame(id) ON DELETE SET NULL,
+  is_retired boolean NOT NULL DEFAULT true,
+  retired_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.career_snapshots ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo career_snapshots" ON public.career_snapshots FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_career_snapshots_manager ON public.career_snapshots(manager_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_career_snapshots_score ON public.career_snapshots(legacy_score DESC);

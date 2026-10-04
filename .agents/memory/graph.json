@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T04:10:41.331Z",
+  "updatedAt": "2026-10-04T04:13:47.089Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 150,
-    "totalEdges": 460,
-    "totalTasks": 53,
+    "totalNodes": 151,
+    "totalEdges": 461,
+    "totalTasks": 54,
     "totalLessons": 0
   },
   "nodes": [
@@ -203,8 +203,8 @@
       "id": "src/api/endgame.js",
       "label": "endgame.js",
       "type": "module",
-      "sizeBytes": 7814,
-      "lineCount": 194,
+      "sizeBytes": 7631,
+      "lineCount": 195,
       "imports": [
         "./supabase",
         "./career",
@@ -714,8 +714,8 @@
       "id": "src/features/career/EndgameScreen.jsx",
       "label": "EndgameScreen.jsx",
       "type": "module",
-      "sizeBytes": 13022,
-      "lineCount": 255,
+      "sizeBytes": 13466,
+      "lineCount": 266,
       "imports": [
         "react",
         "react-router-dom",
@@ -1653,6 +1653,13 @@
     {
       "id": "task:feat-fase-39-achievements-career-challenges",
       "label": "feat-fase-39-achievements-career-challenges: Fase 39 - Sistema de Logros y Desafios de Carrera",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-40-endgame-epilogue-dynasty",
+      "label": "feat-fase-40-endgame-epilogue-dynasty: Fase 40 - Endgame, Epilogo de Carrera y Legado Dinastico",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -3957,6 +3964,11 @@
     {
       "from": "task:feat-fase-39-achievements-career-challenges",
       "to": ".agents/workflow/tasks/feat-fase-39-achievements-career-challenges.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-40-endgame-epilogue-dynasty",
+      "to": ".agents/workflow/tasks/feat-fase-40-endgame-epilogue-dynasty.yml",
       "relation": "manifested_by"
     }
   ],
