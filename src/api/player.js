@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { queryCache } from '../utils/cache'
 
 const FIRST_NAMES = ['Juan', 'Pedro', 'Carlos', 'Diego', 'Martin', 'Lucas', 'Matias', 'Facundo', 'Tomas', 'Agustin', 'Nicolas', 'Gonzalo', 'Federico', 'Leandro']
 const LAST_NAMES = ['Garcia', 'Rodriguez', 'Gomez', 'Fernandez', 'Lopez', 'Diaz', 'Martinez', 'Perez', 'Romero', 'Sanchez', 'Alvarez', 'Ruiz', 'Alonso']
@@ -87,14 +88,18 @@ export const playerApi = {
   },
 
   async getSquad(clubId) {
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('club_id', clubId)
-      .order('shirt_number')
+    if (!clubId) return []
 
-    if (error) throw new Error(error.message)
-    return data
+    return queryCache.fetch(`squad:${clubId}`, async () => {
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('club_id', clubId)
+        .order('shirt_number')
+
+      if (error) throw new Error(error.message)
+      return data || []
+    }, 60000)
   },
 
   async updatePlayer(playerId, updates) {
@@ -106,6 +111,7 @@ export const playerApi = {
       .single()
 
     if (error) throw new Error(error.message)
+    queryCache.invalidate('squad:')
     return data
   }
 }

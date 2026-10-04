@@ -27,13 +27,17 @@ import {
 import { toast } from 'sonner'
 import { useGameContext } from '../../../context/GameContext'
 
+import { queryCache } from '../../../utils/cache'
+
 export default function ClubScreen() {
   const navigate = useNavigate()
   const { club, loading: contextLoading, confirmAction } = useGameContext()
-  const [loading, setLoading] = useState(true)
+
+  const cachedClubData = club?.id ? queryCache.get(`club:screen:${club.id}`) : null
+  const [loading, setLoading] = useState(!cachedClubData)
   const [activeTab, setActiveTab] = useState('gestion') // 'gestion' | 'historia' | 'idolos'
 
-  const [data, setData] = useState({
+  const [data, setData] = useState(cachedClubData || {
     staff: [],
     youth: [],
     candidates: [],
@@ -44,35 +48,43 @@ export default function ClubScreen() {
     salaries: 0
   })
 
-  const loadData = async () => {
+  const loadData = async (force = false) => {
     try {
       if (!club?.id) return
 
-      const [staff, youth, candidates, historyRes, idols, milestones, records, squadRes] = await Promise.all([
-        staffApi.getStaff(club.id),
-        academyApi.getYouthPlayers(club.id),
-        staffApi.getAvailableStaff(),
-        supabase.from('season_history').select('*').eq('club_id', club.id).order('season_year', { ascending: false }),
-        clubHistoryApi.getIdolsAndLegends(club.id),
-        clubHistoryApi.getClubMilestones(club.id),
-        clubHistoryApi.getClubRecords(club.id),
-        supabase.from('players').select('contract_salary').eq('club_id', club.id)
-      ])
+      if (force) {
+        queryCache.invalidate(`club:screen:${club.id}`)
+      }
 
-      const playerSalaries = squadRes.data?.reduce((sum, p) => sum + Math.round((p.contract_salary || 1000) / 52), 0) || 0
-      const staffSalaries = staff?.reduce((sum, s) => sum + Math.round((s.salary || 1000) / 4), 0) || 0
-      const totalSalaries = playerSalaries + staffSalaries
+      const clubData = await queryCache.fetch(`club:screen:${club.id}`, async () => {
+        const [staff, youth, candidates, historyRes, idols, milestones, records, squadRes] = await Promise.all([
+          staffApi.getStaff(club.id),
+          academyApi.getYouthPlayers(club.id),
+          staffApi.getAvailableStaff(),
+          supabase.from('season_history').select('*').eq('club_id', club.id).order('season_year', { ascending: false }),
+          clubHistoryApi.getIdolsAndLegends(club.id),
+          clubHistoryApi.getClubMilestones(club.id),
+          clubHistoryApi.getClubRecords(club.id),
+          supabase.from('players').select('contract_salary').eq('club_id', club.id)
+        ])
 
-      setData({
-        staff: staff || [],
-        youth: youth || [],
-        candidates: candidates || [],
-        history: historyRes.data || [],
-        idols: idols || [],
-        milestones: milestones || [],
-        records: records || [],
-        salaries: totalSalaries
-      })
+        const playerSalaries = squadRes.data?.reduce((sum, p) => sum + Math.round((p.contract_salary || 1000) / 52), 0) || 0
+        const staffSalaries = staff?.reduce((sum, s) => sum + Math.round((s.salary || 1000) / 4), 0) || 0
+        const totalSalaries = playerSalaries + staffSalaries
+
+        return {
+          staff: staff || [],
+          youth: youth || [],
+          candidates: candidates || [],
+          history: historyRes.data || [],
+          idols: idols || [],
+          milestones: milestones || [],
+          records: records || [],
+          salaries: totalSalaries
+        }
+      }, 60000)
+
+      setData(clubData)
     } catch (e) {
       console.error(e)
       toast.error('Error al cargar la información del club')
@@ -90,7 +102,7 @@ export default function ClubScreen() {
     try {
       await staffApi.hireStaff(club.id, staffMember)
       toast.success(`${staffMember.name} contratado como ${staffMember.role}`)
-      loadData()
+      loadData(true)
     } catch (e) {
       toast.error(e.message)
     }
@@ -102,7 +114,7 @@ export default function ClubScreen() {
       await clubApi.updateClub(club.id, { budget: club.budget - 5000 })
       await academyApi.generateYouthProspect(club.id, club.academy_level || 1)
       toast.success('¡Nuevo juvenil oteado en la academia!')
-      loadData()
+      loadData(true)
     } catch (e) {
       toast.error(e.message)
     }
@@ -112,7 +124,7 @@ export default function ClubScreen() {
     try {
       await academyApi.promoteToFirstTeam(youthId)
       toast.success('Jugador promovido al primer equipo')
-      loadData()
+      loadData(true)
     } catch (e) {
       toast.error(e.message)
     }

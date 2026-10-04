@@ -1,0 +1,52 @@
+id: f2-perf-optimization
+external_ref: ''
+title: Optimizacion de Rendimiento de Navegacion y Cache de Consultas
+type: fix
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar src/utils/cache.js con deduplicacion de promesas in-flight y
+    cache en memoria TTL / SWR
+  - >-
+    Optimizar GameContext.jsx para evitar doble fetch concurrente en montajes y
+    navegaciones
+  - >-
+    Sustituir dynamic imports redundantes por imports estaticos en Dashboard.jsx
+    y MarketScreen.jsx
+  - >-
+    Integrar capa de cache transparente en niveles, plantel, tacticas, club,
+    finanzas, eventos y tabla de posiciones
+  - >-
+    Invalidar selectivamente caches tras acciones mutables (avanzar semana,
+    renovacion, compra/venta, tactica)
+  - Solucionar estado en negro/vacio en StandingsScreen.jsx
+acceptance_criteria:
+  - >-
+    Navegar entre secciones del juego (Inicio, Plantel, Club, Finanzas, etc.)
+    responde de forma instantanea sin pantalla en blanco ni spinners repetidos
+  - >-
+    Se eliminan las solicitudes duplicadas a Supabase observadas en el archivo
+    localhost.har
+  - Build de produccion pasa al 100%
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

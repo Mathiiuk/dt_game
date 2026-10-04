@@ -8,6 +8,8 @@ import { useGameContext } from '../../context/GameContext'
 import { ArrowLeft, DollarSign, TrendingUp, TrendingDown, Building, ShieldPlus, ShoppingBag } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { queryCache } from '../../utils/cache'
+
 const FACILITY_NAMES = {
   stadium_level: 'Tribunas del Estadio',
   medical_level: 'Centro Médico',
@@ -17,8 +19,10 @@ const FACILITY_NAMES = {
 export default function FinancesScreen() {
   const navigate = useNavigate()
   const { club: contextClub, confirmAction } = useGameContext()
-  const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({ club: null, finances: null })
+
+  const cachedFinances = contextClub?.id ? queryCache.get(`finances:${contextClub.id}`) : null
+  const [loading, setLoading] = useState(!cachedFinances)
+  const [data, setData] = useState({ club: contextClub || null, finances: cachedFinances || null })
   
   const loadData = async () => {
     try {
@@ -41,8 +45,9 @@ export default function FinancesScreen() {
   }
 
   useEffect(() => {
+    if (!contextClub?.id) return
     loadData()
-  }, [navigate, contextClub])
+  }, [contextClub?.id])
 
   const handleUpgrade = async (facility, currentLevel, cost) => {
     const facilityName = FACILITY_NAMES[facility] || facility

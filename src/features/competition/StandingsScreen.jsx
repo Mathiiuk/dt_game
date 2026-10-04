@@ -8,12 +8,33 @@ import { ArrowLeft, Trophy, Globe } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useGameContext } from '../../context/GameContext'
+import { queryCache } from '../../utils/cache'
 
 export default function StandingsScreen() {
   const navigate = useNavigate()
   const { club, loading: contextLoading, confirmAction } = useGameContext()
-  const [loading, setLoading] = useState(true)
-  const [standings, setStandings] = useState([])
+
+  const cachedStandings = club?.id ? queryCache.get(`standings:${club.id}`) : null
+  const [loading, setLoading] = useState(!cachedStandings)
+  const [standings, setStandings] = useState(cachedStandings || [])
+
+  const loadData = async (force = false) => {
+    try {
+      if (force && club?.id) {
+        queryCache.invalidate(`standings:${club.id}`)
+      }
+      let data = await competitionApi.getStandings(club.id)
+      if (!data || data.length === 0) {
+        await competitionApi.initializeLeague(club.id, club.country)
+        data = await competitionApi.getStandings(club.id)
+      }
+      setStandings(data || [])
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (contextLoading) return
@@ -21,22 +42,8 @@ export default function StandingsScreen() {
       setLoading(false)
       return
     }
-    const load = async () => {
-      try {
-        let data = await competitionApi.getStandings(club.id)
-        if (!data || data.length === 0) {
-          await competitionApi.initializeLeague(club.id, club.country)
-          data = await competitionApi.getStandings(club.id)
-        }
-        setStandings(data || [])
-      } catch (e) {
-        toast.error(e.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
-  }, [contextLoading, club])
+    loadData()
+  }, [contextLoading, club?.id])
 
   const handleEndSeason = async () => {
     const confirmed = await confirmAction({
@@ -129,30 +136,46 @@ export default function StandingsScreen() {
               </tr>
             </thead>
             <tbody className="text-sm">
-              {standings.map((s, idx) => {
-                const isMe = s.club_id === club.id
-                const diff = s.goals_for - s.goals_against
-                
-                return (
-                  <tr key={s.id} className={`border-b border-zinc-900/50 hover:bg-zinc-800/50 ${isMe ? 'bg-emerald-950/20' : ''}`}>
-                    <td className="py-3 font-bold text-zinc-400 text-center">{idx + 1}</td>
-                    <td className="py-3 font-medium">
-                      <span className={isMe ? 'text-emerald-400 font-bold' : 'text-white'}>
-                        {s.clubs?.name}
-                      </span>
-                    </td>
-                    <td className="py-3 text-center text-zinc-400">{s.played}</td>
-                    <td className="py-3 text-center text-zinc-400">{s.won}</td>
-                    <td className="py-3 text-center text-zinc-400">{s.drawn}</td>
-                    <td className="py-3 text-center text-zinc-400">{s.lost}</td>
-                    <td className="py-3 text-center text-zinc-500">{s.goals_for}:{s.goals_against}</td>
-                    <td className={`py-3 text-center font-medium ${diff > 0 ? 'text-emerald-500' : diff < 0 ? 'text-red-500' : 'text-zinc-500'}`}>
-                      {diff > 0 ? `+${diff}` : diff}
-                    </td>
-                    <td className="py-3 font-black text-center text-emerald-400 text-base">{s.points}</td>
-                  </tr>
-                )
-              })}
+              {standings.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-zinc-500">
+                    <Trophy className="w-8 h-8 text-zinc-600 mx-auto mb-2 opacity-40" />
+                    <p className="font-bold text-zinc-400">No hay datos en la tabla de posiciones</p>
+                    <p className="text-xs text-zinc-600 mt-1">Pulsa reintentar para recargar la información de la liga.</p>
+                    <button 
+                      onClick={() => loadData(true)}
+                      className="mt-3 px-3 py-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-lg text-xs font-bold transition-colors"
+                    >
+                      Reintentar Carga
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                standings.map((s, idx) => {
+                  const isMe = s.club_id === club.id
+                  const diff = s.goals_for - s.goals_against
+                  
+                  return (
+                    <tr key={s.id} className={`border-b border-zinc-900/50 hover:bg-zinc-800/50 ${isMe ? 'bg-emerald-950/20' : ''}`}>
+                      <td className="py-3 font-bold text-zinc-400 text-center">{idx + 1}</td>
+                      <td className="py-3 font-medium">
+                        <span className={isMe ? 'text-emerald-400 font-bold' : 'text-white'}>
+                          {s.clubs?.name}
+                        </span>
+                      </td>
+                      <td className="py-3 text-center text-zinc-400">{s.played}</td>
+                      <td className="py-3 text-center text-zinc-400">{s.won}</td>
+                      <td className="py-3 text-center text-zinc-400">{s.drawn}</td>
+                      <td className="py-3 text-center text-zinc-400">{s.lost}</td>
+                      <td className="py-3 text-center text-zinc-500">{s.goals_for}:{s.goals_against}</td>
+                      <td className={`py-3 text-center font-medium ${diff > 0 ? 'text-emerald-500' : diff < 0 ? 'text-red-500' : 'text-zinc-500'}`}>
+                        {diff > 0 ? `+${diff}` : diff}
+                      </td>
+                      <td className="py-3 font-black text-center text-emerald-400 text-base">{s.points}</td>
+                    </tr>
+                  )
+                })
+              )}
             </tbody>
           </table>
         </div>

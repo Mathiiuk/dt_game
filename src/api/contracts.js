@@ -1,4 +1,6 @@
 import { supabase } from './supabase'
+import { queryCache } from '../utils/cache'
+import { auditApi } from './audit'
 
 export const contractApi = {
   async renewContract(playerId, newTerms) {
@@ -11,22 +13,27 @@ export const contractApi = {
       .single()
       
     if (error) throw new Error(error.message)
+    queryCache.invalidate('squad:')
+    queryCache.invalidate('offers:')
     return data
   },
   
   async getOffersForClub(clubId) {
-    const { data, error } = await supabase
-      .from('offers')
-      .select('*, players(*)')
-      .eq('to_club_id', clubId)
-      .eq('status', 'PENDING')
-      
-    if (error) throw new Error(error.message)
-    return data
+    if (!clubId) return []
+
+    return queryCache.fetch(`offers:${clubId}`, async () => {
+      const { data, error } = await supabase
+        .from('offers')
+        .select('*, players(*)')
+        .eq('to_club_id', clubId)
+        .eq('status', 'PENDING')
+        
+      if (error) throw new Error(error.message)
+      return data || []
+    }, 45000)
   },
   
   async resolveOffer(offerId, status, playerId, fromClubId, toClubId, offerAmount, managerId) {
-    const { auditApi } = await import('./audit')
 
     // status: 'ACCEPTED' or 'REJECTED'
     const { error } = await supabase
@@ -65,6 +72,11 @@ export const contractApi = {
         })
       }
     }
+
+    queryCache.invalidate('squad:')
+    queryCache.invalidate('offers:')
+    queryCache.invalidate('finances:')
+    queryCache.invalidate('club:')
   },
 
   async generateRandomOffersForWeek(clubId, players, isMarketOpen) {

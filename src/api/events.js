@@ -1,16 +1,21 @@
 import { supabase } from './supabase'
+import { queryCache } from '../utils/cache'
 
 export const eventsApi = {
   async getPendingEvents(clubId) {
-    const { data, error } = await supabase
-      .from('dynamic_events')
-      .select('*')
-      .eq('club_id', clubId)
-      .eq('status', 'PENDING')
-      .order('created_at', { ascending: false })
-      
-    if (error) throw new Error(error.message)
-    return data
+    if (!clubId) return []
+
+    return queryCache.fetch(`events:pending:${clubId}`, async () => {
+      const { data, error } = await supabase
+        .from('dynamic_events')
+        .select('*')
+        .eq('club_id', clubId)
+        .eq('status', 'PENDING')
+        .order('created_at', { ascending: false })
+        
+      if (error) throw new Error(error.message)
+      return data || []
+    }, 45000)
   },
 
   async resolveEvent(eventId, chosenOption) {
@@ -22,6 +27,7 @@ export const eventsApi = {
     
     // 2. Mark as resolved
     await supabase.from('dynamic_events').update({ status: 'RESOLVED' }).eq('id', eventId)
+    queryCache.invalidate('events:')
     
     // 3. Apply effects to club
     if (chosenOption.effects) {

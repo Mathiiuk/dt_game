@@ -1,19 +1,17 @@
 import { supabase } from './supabase'
-
-let levelsCache = null
+import { queryCache } from '../utils/cache'
 
 export const levelsApi = {
   async getAllLevels() {
-    if (levelsCache) return levelsCache
+    return queryCache.fetch('static:level_config', async () => {
+      const { data, error } = await supabase
+        .from('level_config')
+        .select('*')
+        .order('level', { ascending: true })
 
-    const { data, error } = await supabase
-      .from('level_config')
-      .select('*')
-      .order('level', { ascending: true })
-
-    if (error) throw new Error(error.message)
-    levelsCache = data
-    return data
+      if (error) throw new Error(error.message)
+      return data || []
+    }, 3600000) // 1 hora de caché para configuración estática de niveles
   },
 
   async getLevelInfo(xp) {

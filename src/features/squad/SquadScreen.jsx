@@ -9,12 +9,20 @@ import { ArrowLeft, Users, FileSignature, DollarSign, Bell } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useGameContext } from '../../context/GameContext'
+import { queryCache } from '../../utils/cache'
 
 export default function SquadScreen() {
   const navigate = useNavigate()
   const { user, manager, club, loading: contextLoading, confirmAction } = useGameContext()
-  const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({ players: [], offers: [] })
+
+  const cachedPlayers = club?.id ? queryCache.get(`squad:${club.id}`) : null
+  const cachedOffers = club?.id ? queryCache.get(`offers:${club.id}`) : null
+
+  const [loading, setLoading] = useState(!cachedPlayers)
+  const [data, setData] = useState({ 
+    players: cachedPlayers || [], 
+    offers: cachedOffers || [] 
+  })
   const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   const loadData = async () => {

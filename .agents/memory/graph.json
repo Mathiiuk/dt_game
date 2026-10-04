@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-03T23:27:05.803Z",
+  "updatedAt": "2026-10-04T00:13:09.465Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 67,
-    "totalEdges": 255,
-    "totalTasks": 9,
+    "totalNodes": 69,
+    "totalEdges": 274,
+    "totalTasks": 10,
     "totalLessons": 0
   },
   "nodes": [
@@ -87,20 +87,23 @@
       "id": "src/api/competition.js",
       "label": "competition.js",
       "type": "module",
-      "sizeBytes": 7330,
-      "lineCount": 213,
+      "sizeBytes": 8205,
+      "lineCount": 240,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
       "id": "src/api/contracts.js",
       "label": "contracts.js",
       "type": "module",
-      "sizeBytes": 3501,
-      "lineCount": 101,
+      "sizeBytes": 3890,
+      "lineCount": 113,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache",
+        "./audit"
       ]
     },
     {
@@ -127,7 +130,7 @@
       "id": "src/api/endgame.js",
       "label": "endgame.js",
       "type": "module",
-      "sizeBytes": 7621,
+      "sizeBytes": 7814,
       "lineCount": 194,
       "imports": [
         "./supabase",
@@ -140,20 +143,22 @@
       "id": "src/api/events.js",
       "label": "events.js",
       "type": "module",
-      "sizeBytes": 3302,
-      "lineCount": 85,
+      "sizeBytes": 3525,
+      "lineCount": 91,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
       "id": "src/api/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 2112,
-      "lineCount": 50,
+      "sizeBytes": 2409,
+      "lineCount": 58,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
@@ -203,10 +208,11 @@
       "id": "src/api/levels.js",
       "label": "levels.js",
       "type": "module",
-      "sizeBytes": 1441,
-      "lineCount": 52,
+      "sizeBytes": 1555,
+      "lineCount": 50,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
@@ -264,10 +270,11 @@
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 3444,
-      "lineCount": 112,
+      "sizeBytes": 3653,
+      "lineCount": 118,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
@@ -311,10 +318,11 @@
       "id": "src/api/tactics.js",
       "label": "tactics.js",
       "type": "module",
-      "sizeBytes": 1650,
-      "lineCount": 66,
+      "sizeBytes": 1884,
+      "lineCount": 70,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
@@ -391,14 +399,15 @@
       "id": "src/context/GameContext.jsx",
       "label": "GameContext.jsx",
       "type": "module",
-      "sizeBytes": 3553,
-      "lineCount": 109,
+      "sizeBytes": 4331,
+      "lineCount": 139,
       "imports": [
         "react",
         "react-router-dom",
         "../api/auth",
         "../api/manager",
         "../api/club",
+        "../utils/cache",
         "../components/ActionSheet"
       ]
     },
@@ -459,7 +468,7 @@
       "id": "src/features/career/EndgameScreen.jsx",
       "label": "EndgameScreen.jsx",
       "type": "module",
-      "sizeBytes": 12768,
+      "sizeBytes": 13022,
       "lineCount": 255,
       "imports": [
         "react",
@@ -491,8 +500,8 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 27483,
-      "lineCount": 554,
+      "sizeBytes": 27940,
+      "lineCount": 566,
       "imports": [
         "react",
         "react-router-dom",
@@ -502,7 +511,8 @@
         "../../../api/supabase",
         "lucide-react",
         "sonner",
-        "../../../context/GameContext"
+        "../../../context/GameContext",
+        "../../../utils/cache"
       ]
     },
     {
@@ -524,8 +534,8 @@
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 7325,
-      "lineCount": 163,
+      "sizeBytes": 8547,
+      "lineCount": 186,
       "imports": [
         "react",
         "react-router-dom",
@@ -535,15 +545,16 @@
         "../../api/competition",
         "lucide-react",
         "sonner",
-        "../../context/GameContext"
+        "../../context/GameContext",
+        "../../utils/cache"
       ]
     },
     {
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 22830,
-      "lineCount": 433,
+      "sizeBytes": 23159,
+      "lineCount": 444,
       "imports": [
         "react",
         "react-router-dom",
@@ -551,6 +562,10 @@
         "../../api/manager",
         "../../api/club",
         "../../api/gameLoop",
+        "../../api/levels",
+        "../../api/events",
+        "../../api/supabase",
+        "../../utils/cache",
         "lucide-react",
         "sonner",
         "../../context/GameContext"
@@ -560,8 +575,8 @@
       "id": "src/features/finances/FinancesScreen.jsx",
       "label": "FinancesScreen.jsx",
       "type": "module",
-      "sizeBytes": 10875,
-      "lineCount": 203,
+      "sizeBytes": 11095,
+      "lineCount": 208,
       "imports": [
         "react",
         "react-router-dom",
@@ -571,7 +586,8 @@
         "../../api/finances",
         "../../context/GameContext",
         "lucide-react",
-        "sonner"
+        "sonner",
+        "../../utils/cache"
       ]
     },
     {
@@ -690,8 +706,8 @@
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 17189,
-      "lineCount": 360,
+      "sizeBytes": 17456,
+      "lineCount": 368,
       "imports": [
         "react",
         "react-router-dom",
@@ -702,15 +718,16 @@
         "../../api/contracts",
         "lucide-react",
         "sonner",
-        "../../context/GameContext"
+        "../../context/GameContext",
+        "../../utils/cache"
       ]
     },
     {
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 8728,
-      "lineCount": 198,
+      "sizeBytes": 9167,
+      "lineCount": 208,
       "imports": [
         "react",
         "react-router-dom",
@@ -721,7 +738,8 @@
         "../../api/player",
         "lucide-react",
         "sonner",
-        "../../context/GameContext"
+        "../../context/GameContext",
+        "../../utils/cache"
       ]
     },
     {
@@ -773,6 +791,14 @@
       "imports": [
         "zustand"
       ]
+    },
+    {
+      "id": "src/utils/cache.js",
+      "label": "cache.js",
+      "type": "module",
+      "sizeBytes": 2467,
+      "lineCount": 98,
+      "imports": []
     },
     {
       "id": "task:f2-33-national-teams",
@@ -833,6 +859,13 @@
     {
       "id": "task:f2-db-deep-fixes",
       "label": "f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f2-perf-optimization",
+      "label": "f2-perf-optimization: Optimizacion de Rendimiento de Navegacion y Cache de Consultas",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -905,8 +938,23 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/competition.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/contracts.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/contracts.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/contracts.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -945,8 +993,18 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/events.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/finances.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/finances.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -990,6 +1048,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/levels.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/manager.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -1027,6 +1090,11 @@
     {
       "from": "src/api/player.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/player.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -1082,6 +1150,11 @@
     {
       "from": "src/api/tactics.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/tactics.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -1277,6 +1350,11 @@
     {
       "from": "src/context/GameContext.jsx",
       "to": "../api/club",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -1490,6 +1568,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/competition/InternationalCupScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -1565,6 +1648,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/dashboard/Dashboard.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -1592,6 +1680,26 @@
     {
       "from": "src/features/dashboard/Dashboard.jsx",
       "to": "../../api/gameLoop",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../api/levels",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../api/events",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../api/supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -1652,6 +1760,11 @@
     {
       "from": "src/features/finances/FinancesScreen.jsx",
       "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -1950,6 +2063,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/tactics/TacticsScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -1997,6 +2115,11 @@
     {
       "from": "src/features/tactics/TacticsScreen.jsx",
       "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2112,6 +2235,11 @@
     {
       "from": "task:f2-db-deep-fixes",
       "to": ".agents/workflow/tasks/f2-db-deep-fixes.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f2-perf-optimization",
+      "to": ".agents/workflow/tasks/f2-perf-optimization.yml",
       "relation": "manifested_by"
     }
   ],

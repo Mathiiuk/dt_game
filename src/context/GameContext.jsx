@@ -3,11 +3,14 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from '../api/auth'
 import { managerApi } from '../api/manager'
 import { clubApi } from '../api/club'
+import { queryCache } from '../utils/cache'
 import ActionSheet from '../components/ActionSheet'
 
 const GameContext = createContext(null)
 
 export const useGameContext = () => useContext(GameContext)
+
+let inFlightContextPromise = null
 
 export const GameProvider = ({ children }) => {
   const navigate = useNavigate()
@@ -19,39 +22,64 @@ export const GameProvider = ({ children }) => {
   const resolverRef = useRef(null)
 
   const loadData = async (force = false) => {
-    try {
-      const user = await authApi.getSession()
-      if (!user) {
-        if (location.pathname !== '/auth' && location.pathname !== '/welcome') navigate('/auth')
-        setGameState(prev => ({ ...prev, loading: false }))
-        return
-      }
-
-      // Si ya tenemos el manager y club cargados y no se fuerza recarga, reutilizar
-      if (!force && gameState.manager && gameState.club && gameState.user?.id === user.id) {
-        setGameState(prev => ({ ...prev, loading: false }))
-        return
-      }
-
-      const manager = await managerApi.getManager(user.id)
-      if (!manager) {
-        if (location.pathname !== '/create-manager') navigate('/create-manager')
-        setGameState(prev => ({ ...prev, loading: false }))
-        return
-      }
-
-      const club = await clubApi.getClubByManager(manager.id)
-      if (!club) {
-        if (location.pathname !== '/create-club') navigate('/create-club')
-        setGameState(prev => ({ ...prev, loading: false }))
-        return
-      }
-
-      setGameState({ user, manager, club, loading: false })
-    } catch (e) {
-      console.error('Error loading game context:', e)
-      setGameState(prev => ({ ...prev, loading: false }))
+    if (!force && inFlightContextPromise) {
+      return inFlightContextPromise
     }
+
+    inFlightContextPromise = (async () => {
+      try {
+        const user = await authApi.getSession()
+        if (!user) {
+          if (location.pathname !== '/auth' && location.pathname !== '/welcome') navigate('/auth')
+          setGameState(prev => ({ ...prev, loading: false }))
+          return
+        }
+
+        // Si ya tenemos el manager y club cargados y no se fuerza recarga, reutilizar
+        if (!force && gameState.manager && gameState.club && gameState.user?.id === user.id) {
+          setGameState(prev => ({ ...prev, loading: false }))
+          return
+        }
+
+        if (force) {
+          queryCache.invalidate('manager:')
+          queryCache.invalidate('club:')
+        }
+
+        const manager = await queryCache.fetch(
+          `manager:${user.id}`,
+          () => managerApi.getManager(user.id),
+          120000
+        )
+
+        if (!manager) {
+          if (location.pathname !== '/create-manager') navigate('/create-manager')
+          setGameState(prev => ({ ...prev, loading: false }))
+          return
+        }
+
+        const club = await queryCache.fetch(
+          `club:${manager.id}`,
+          () => clubApi.getClubByManager(manager.id),
+          120000
+        )
+
+        if (!club) {
+          if (location.pathname !== '/create-club') navigate('/create-club')
+          setGameState(prev => ({ ...prev, loading: false }))
+          return
+        }
+
+        setGameState({ user, manager, club, loading: false })
+      } catch (e) {
+        console.error('Error loading game context:', e)
+        setGameState(prev => ({ ...prev, loading: false }))
+      } finally {
+        inFlightContextPromise = null
+      }
+    })()
+
+    return inFlightContextPromise
   }
 
   useEffect(() => {
@@ -68,6 +96,8 @@ export const GameProvider = ({ children }) => {
   }, [location.pathname])
 
   const refreshContext = async () => {
+    queryCache.invalidate('manager:')
+    queryCache.invalidate('club:')
     await loadData(true)
   }
 

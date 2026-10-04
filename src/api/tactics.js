@@ -1,43 +1,46 @@
 import { supabase } from './supabase'
+import { queryCache } from '../utils/cache'
 
 export const tacticsApi = {
   async getTactic(clubId) {
     if (!clubId) return null
 
-    let { data, error } = await supabase
-      .from('tactics')
-      .select('*')
-      .eq('club_id', clubId)
-      .limit(1)
-      .maybeSingle()
-
-    if (error) {
-      console.warn('Error fetching tactic:', error)
-    }
-
-    if (!data) {
-      // Si no existe, crear la táctica por defecto
-      const defaultTactic = {
-        club_id: clubId,
-        formation: '4-4-2',
-        mentality: 'Equilibrada',
-        pressure: 'Media',
-        tempo: 'Normal',
-        defensive_line: 'Media',
-        build_up: 'Mixta',
-        lineup: []
-      }
-      const { data: newTactic, error: insertError } = await supabase
+    return queryCache.fetch(`tactics:${clubId}`, async () => {
+      let { data, error } = await supabase
         .from('tactics')
-        .upsert(defaultTactic, { onConflict: 'club_id' })
-        .select()
-        .single()
-        
-      if (insertError) throw new Error(insertError.message)
-      return newTactic
-    }
+        .select('*')
+        .eq('club_id', clubId)
+        .limit(1)
+        .maybeSingle()
 
-    return data
+      if (error) {
+        console.warn('Error fetching tactic:', error)
+      }
+
+      if (!data) {
+        // Si no existe, crear la táctica por defecto
+        const defaultTactic = {
+          club_id: clubId,
+          formation: '4-4-2',
+          mentality: 'Equilibrada',
+          pressure: 'Media',
+          tempo: 'Normal',
+          defensive_line: 'Media',
+          build_up: 'Mixta',
+          lineup: []
+        }
+        const { data: newTactic, error: insertError } = await supabase
+          .from('tactics')
+          .upsert(defaultTactic, { onConflict: 'club_id' })
+          .select()
+          .single()
+          
+        if (insertError) throw new Error(insertError.message)
+        return newTactic
+      }
+
+      return data
+    }, 60000)
   },
 
   async updateTactic(clubId, tacticData) {
@@ -60,6 +63,7 @@ export const tacticsApi = {
       .single()
 
     if (error) throw new Error(error.message)
+    queryCache.invalidate(`tactics:${clubId}`)
     return data
   }
 }

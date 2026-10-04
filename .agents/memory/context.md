@@ -1,20 +1,20 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-03T23:27:05.803Z | **Nodos:** 67 | **Tareas:** 9
+> **Última sincronización:** 2026-10-04T00:13:09.465Z | **Nodos:** 69 | **Tareas:** 10
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
-| `src/features/club/screens/ClubScreen.jsx` | 554 | react, react-router-dom, ../../../api/club |
+| `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
-| `src/features/dashboard/Dashboard.jsx` | 433 | react, react-router-dom, ../../api/auth |
+| `src/features/dashboard/Dashboard.jsx` | 444 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/features/market/MarketScreen.jsx` | 408 | react, react-router-dom, ../../api/market |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
+| `src/features/squad/SquadScreen.jsx` | 368 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
-| `src/features/squad/SquadScreen.jsx` | 360 | react, react-router-dom, ../../api/auth |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
 | `src/api/internationalCup.js` | 315 | ./supabase, ./clubHistory, ./manager |
 | `src/api/season.js` | 304 | ./supabase, ./competition, ./audit |
@@ -24,15 +24,15 @@
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
 | `src/features/club/CreateClubWizard.jsx` | 259 | react, react-router-dom, ../../api/auth |
 | `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
+| `src/api/competition.js` | 240 | ./supabase, ../utils/cache |
 | `src/api/gameLoop.js` | 230 | ./supabase |
-| `src/api/competition.js` | 213 | ./supabase |
 | `src/features/match/PostMatchScreen.jsx` | 210 | react, react-router-dom, ../../api/postMatch |
-| `src/features/finances/FinancesScreen.jsx` | 203 | react, react-router-dom, ../../api/auth |
-| `src/features/tactics/TacticsScreen.jsx` | 198 | react, react-router-dom, ../../api/auth |
+| `src/features/finances/FinancesScreen.jsx` | 208 | react, react-router-dom, ../../api/auth |
+| `src/features/tactics/TacticsScreen.jsx` | 208 | react, react-router-dom, ../../api/auth |
 | `src/api/endgame.js` | 194 | ./supabase, ./career, ./hallOfFame |
-| `src/api/market.js` | 177 | ./supabase, ./club |
+| `src/features/competition/StandingsScreen.jsx` | 186 | react, react-router-dom, ../../api/auth |
 
-_(+33 módulos adicionales; consultar con `memory:query`)_
+_(+34 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -45,3 +45,4 @@ _(+33 módulos adicionales; consultar con `memory:query`)_
 - **f2-audit-fixes-polish: Fixes y Mejoras de Auditoria Manual PWA y Mobile UX** `[DONE]`
 - **f2-db-audit-optimization: Optimizacion de Indices y Politicas RLS en Base de Datos** `[DONE]`
 - **f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs** `[DONE]`
+- **f2-perf-optimization: Optimizacion de Rendimiento de Navegacion y Cache de Consultas** `[DONE]`

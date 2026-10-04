@@ -4,6 +4,10 @@ import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
 import { gameLoopApi } from '../../api/gameLoop'
+import { levelsApi } from '../../api/levels'
+import { eventsApi } from '../../api/events'
+import { supabase } from '../../api/supabase'
+import { queryCache } from '../../utils/cache'
 import { Home, Users, Calendar, Settings, Activity, Shield, Trophy, FastForward, Loader2, Building2, DollarSign, Bell, Globe, ChevronRight, Award } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -19,33 +23,39 @@ export default function Dashboard() {
   useEffect(() => {
     if (contextLoading || !club) return
 
+    let isMounted = true
+
     const loadDashboard = async () => {
       try {
-        const { levelsApi } = await import('../../api/levels')
         const levelInfo = await levelsApi.getLevelInfo(manager.xp)
 
-        const { supabase } = await import('../../api/supabase')
-        const { data: fixture } = await supabase
-          .from('fixtures')
-          .select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)')
-          .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
-          .eq('status', 'PENDING')
-          .order('match_week', { ascending: true })
-          .limit(1)
-          .single()
+        const fixture = await queryCache.fetch(`fixture:pending:${club.id}`, async () => {
+          const { data } = await supabase
+            .from('fixtures')
+            .select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)')
+            .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
+            .eq('status', 'PENDING')
+            .order('match_week', { ascending: true })
+            .limit(1)
+            .maybeSingle()
+          return data || null
+        }, 45000)
 
-        const { eventsApi } = await import('../../api/events')
         const events = await eventsApi.getPendingEvents(club.id)
 
-        setData({ levelInfo, nextFixture: fixture || null, events })
+        if (isMounted) {
+          setData({ levelInfo, nextFixture: fixture || null, events })
+          setLoading(false)
+        }
       } catch (e) {
         console.error(e)
-      } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
+
     loadDashboard()
-  }, [contextLoading, club, manager])
+    return () => { isMounted = false }
+  }, [contextLoading, club?.id, manager?.id, manager?.xp])
 
   const handleAdvanceWeek = async () => {
     if (data.nextFixture && data.nextFixture.match_date <= club.game_date) {
@@ -65,6 +75,7 @@ export default function Dashboard() {
         return
       }
 
+      queryCache.clear()
       await refreshContext()
       toast.success('Semana completada. Plantel entrenado.')
     } catch (e) {

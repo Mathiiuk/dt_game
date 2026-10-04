@@ -9,32 +9,42 @@ import { ArrowLeft, Save, Loader2, LayoutGrid } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { useGameContext } from '../../context/GameContext'
+import { queryCache } from '../../utils/cache'
 
 export default function TacticsScreen() {
   const navigate = useNavigate()
   const { club, loading: contextLoading } = useGameContext()
-  const [data, setData] = useState({ tactic: null, players: [] })
-  const [loading, setLoading] = useState(true)
+
+  const cachedTactic = club?.id ? queryCache.get(`tactics:${club.id}`) : null
+  const cachedPlayers = club?.id ? queryCache.get(`squad:${club.id}`) : null
+
+  const [data, setData] = useState({ tactic: cachedTactic || null, players: cachedPlayers || [] })
+  const [loading, setLoading] = useState(!cachedTactic || !cachedPlayers)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState(null)
+  const [form, setForm] = useState(cachedTactic || null)
 
   useEffect(() => {
     if (contextLoading || !club) return
+    let isMounted = true
+
     const load = async () => {
       try {
         const tactic = await tacticsApi.getTactic(club.id)
         const players = await playerApi.getSquad(club.id)
         
-        setData({ tactic, players })
-        setForm(tactic)
+        if (isMounted) {
+          setData({ tactic, players })
+          setForm(prev => prev || tactic)
+          setLoading(false)
+        }
       } catch (e) {
         toast.error(e.message)
-      } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
     load()
-  }, [contextLoading, club])
+    return () => { isMounted = false }
+  }, [contextLoading, club?.id])
 
   const handleSave = async () => {
     setSaving(true)

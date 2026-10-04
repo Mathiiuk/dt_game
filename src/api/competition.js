@@ -1,33 +1,60 @@
 import { supabase } from './supabase'
+import { queryCache } from '../utils/cache'
 
 export const competitionApi = {
   async getStandings(clubId) {
-    const { data: myStanding, error } = await supabase
-      .from('standings')
-      .select('*, competitions(*)')
-      .eq('club_id', clubId)
-      .single()
+    if (!clubId) return []
+
+    return queryCache.fetch(`standings:${clubId}`, async () => {
+      const { data: myStanding, error } = await supabase
+        .from('standings')
+        .select('*, competitions(*)')
+        .eq('club_id', clubId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        
+      if (error && error.code !== 'PGRST116') {
+        console.warn('Error fetching myStanding:', error)
+      }
       
-    if (error && error.code !== 'PGRST116') throw new Error(error.message)
-    
-    if (myStanding) {
-       const { data: allStandings } = await supabase
-         .from('standings')
-         .select('*, clubs(name, short_name)')
-         .eq('competition_id', myStanding.competition_id)
-         .order('points', { ascending: false })
-         .order('goals_for', { ascending: false })
-         
-       return allStandings || []
-    }
-    return null
+      if (myStanding && myStanding.competition_id) {
+         const { data: allStandings, error: allErr } = await supabase
+           .from('standings')
+           .select('*, clubs(name, short_name)')
+           .eq('competition_id', myStanding.competition_id)
+           .order('points', { ascending: false })
+           .order('goals_for', { ascending: false })
+           
+         if (allErr) {
+           console.error('Error fetching allStandings:', allErr)
+           return []
+         }
+         return allStandings || []
+      }
+      return null
+    }, 60000)
   },
 
   async initializeLeague(playerClubId, country) {
+    if (!playerClubId) return null
+
+    // 0. Verificar si ya existe liga para este club (idempotencia estricta)
+    const { data: existing } = await supabase
+      .from('standings')
+      .select('competition_id')
+      .eq('club_id', playerClubId)
+      .limit(1)
+      .maybeSingle()
+
+    if (existing?.competition_id) {
+      return existing.competition_id
+    }
+
     // 1. Crear competición
     const { data: comp, error: compErr } = await supabase
       .from('competitions')
-      .insert([{ name: `Liga Amateur de ${country}`, level: 4, teams_count: 20 }])
+      .insert([{ name: `Liga Amateur de ${country || 'Argentina'}`, level: 4, teams_count: 20 }])
       .select().single()
       
     if (compErr) throw new Error(compErr.message)
