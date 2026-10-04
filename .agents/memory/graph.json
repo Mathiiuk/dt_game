@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:30:34.063Z",
+  "updatedAt": "2026-10-04T03:34:04.254Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 129,
-    "totalEdges": 402,
-    "totalTasks": 42,
+    "totalNodes": 132,
+    "totalEdges": 412,
+    "totalTasks": 43,
     "totalLessons": 0
   },
   "nodes": [
@@ -392,7 +392,7 @@
       "id": "src/api/playerEvolution.js",
       "label": "playerEvolution.js",
       "type": "module",
-      "sizeBytes": 10413,
+      "sizeBytes": 10768,
       "lineCount": 356,
       "imports": [
         "./supabase",
@@ -446,6 +446,18 @@
         "./supabase",
         "./competition",
         "./audit"
+      ]
+    },
+    {
+      "id": "src/api/seasonClose.js",
+      "label": "seasonClose.js",
+      "type": "module",
+      "sizeBytes": 8799,
+      "lineCount": 272,
+      "imports": [
+        "./supabase",
+        "../utils/cache",
+        "./playerEvolution"
       ]
     },
     {
@@ -860,8 +872,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 26286,
-      "lineCount": 547,
+      "sizeBytes": 27542,
+      "lineCount": 574,
       "imports": [
         "react",
         "react-router-dom",
@@ -870,7 +882,8 @@
         "../../utils/cache",
         "../../context/GameContext",
         "lucide-react",
-        "sonner"
+        "sonner",
+        "../season/SeasonCloseModal"
       ]
     },
     {
@@ -1003,6 +1016,20 @@
       ]
     },
     {
+      "id": "src/features/season/SeasonCloseModal.jsx",
+      "label": "SeasonCloseModal.jsx",
+      "type": "module",
+      "sizeBytes": 8369,
+      "lineCount": 184,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../api/seasonClose",
+        "../../context/GameContext",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/squad/AgentProfileCard.jsx",
       "label": "AgentProfileCard.jsx",
       "type": "module",
@@ -1045,7 +1072,7 @@
       "id": "src/features/squad/PlayerEvolutionModal.jsx",
       "label": "PlayerEvolutionModal.jsx",
       "type": "module",
-      "sizeBytes": 12708,
+      "sizeBytes": 12976,
       "lineCount": 269,
       "imports": [
         "react",
@@ -1439,6 +1466,13 @@
     {
       "id": "task:feat-fase-28-player-evolution-aging-decline",
       "label": "feat-fase-28-player-evolution-aging-decline: Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-29-season-close-annual-transition",
+      "label": "feat-fase-29-season-close-annual-transition: Fase 29 - Temporadas, Ciclos Anuales y Balance Deportivo",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -1888,6 +1922,21 @@
     {
       "from": "src/api/season.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/seasonClose.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/seasonClose.js",
+      "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/seasonClose.js",
+      "to": "./playerEvolution",
       "relation": "depends_on"
     },
     {
@@ -2716,6 +2765,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../season/SeasonCloseModal",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/finances/FinancesScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2997,6 +3051,31 @@
     },
     {
       "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "../../api/seasonClose",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
       "to": "sonner",
       "relation": "depends_on"
     },
@@ -3453,6 +3532,11 @@
     {
       "from": "task:feat-fase-28-player-evolution-aging-decline",
       "to": ".agents/workflow/tasks/feat-fase-28-player-evolution-aging-decline.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-29-season-close-annual-transition",
+      "to": ".agents/workflow/tasks/feat-fase-29-season-close-annual-transition.yml",
       "relation": "manifested_by"
     }
   ],

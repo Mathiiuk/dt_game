@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:30:34.063Z | **Nodos:** 129 | **Tareas:** 42
+> **Última sincronización:** 2026-10-04T03:34:04.254Z | **Nodos:** 132 | **Tareas:** 43
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -11,8 +11,8 @@
 | `src/features/club/screens/ClubScreen.jsx` | 735 | react, react-router-dom, ../../../api/club |
 | `src/features/match/PostMatchScreen.jsx` | 589 | react, react-router-dom, ../../api/postMatch |
 | `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
+| `src/features/dashboard/Dashboard.jsx` | 574 | react, react-router-dom, ../../api/dashboard |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
-| `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
 | `src/features/match/MatchScreen.jsx` | 525 | react, react-router-dom, ../../api/auth |
 | `src/features/club/screens/LockerRoomTab.jsx` | 480 | react, lucide-react, ../../../api/lockerRoom |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
@@ -32,7 +32,7 @@
 | `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 
-_(+62 módulos adicionales; consultar con `memory:query`)_
+_(+64 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -78,3 +78,4 @@ _(+62 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-26-player-personalities: Fase 26: Personalidades, Rasgos y Psicologia del Jugador** `[DONE]`
 - **feat-fase-27-injuries-medical-infirmary: Fase 27 - Lesiones, Recuperacion y Cuerpo Medico** `[DONE]`
 - **feat-fase-28-player-evolution-aging-decline: Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive** `[DONE]`
+- **feat-fase-29-season-close-annual-transition: Fase 29 - Temporadas, Ciclos Anuales y Balance Deportivo** `[DONE]`

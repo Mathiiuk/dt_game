@@ -27,6 +27,7 @@ import {
   Play
 } from 'lucide-react'
 import { toast } from 'sonner'
+import SeasonCloseModal from '../season/SeasonCloseModal'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showSeasonCloseModal, setShowSeasonCloseModal] = useState(false)
 
   useEffect(() => {
     if (contextLoading || !club || !manager) return
@@ -242,18 +244,28 @@ export default function Dashboard() {
               <p className="text-xs md:text-sm font-bold text-emerald-400">Torneo Regional • Tier 5</p>
             </div>
 
-            <button 
-              onClick={handleAdvanceWeek}
-              disabled={advancing || isMatchReady}
-              className={`flex items-center justify-center gap-2 px-5 py-3 text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 ${
-                isMatchReady 
-                  ? 'bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed'
-                  : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20'
-              }`}
-            >
-              {advancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <FastForward className="w-4 h-4" />}
-              <span>{isMatchReady ? 'Partido Programado Hoy' : 'Avanzar Semana'}</span>
-            </button>
+            {(club?.current_week >= 52) ? (
+              <button
+                onClick={() => setShowSeasonCloseModal(true)}
+                className="flex items-center justify-center gap-2 px-5 py-3 text-xs font-black rounded-xl transition-all shadow-lg active:scale-95 bg-gradient-to-r from-amber-400 to-amber-500 text-black hover:from-amber-300 hover:to-amber-400 shadow-amber-500/20"
+              >
+                <Trophy className="w-4 h-4 text-black" />
+                <span>Gala de Fin de Temporada</span>
+              </button>
+            ) : (
+              <button 
+                onClick={handleAdvanceWeek}
+                disabled={advancing || isMatchReady}
+                className={`flex items-center justify-center gap-2 px-5 py-3 text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 ${
+                  isMatchReady 
+                    ? 'bg-zinc-800 text-zinc-500 border border-zinc-700 cursor-not-allowed'
+                    : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20'
+                }`}
+              >
+                {advancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <FastForward className="w-4 h-4" />}
+                <span>{isMatchReady ? 'Partido Programado Hoy' : 'Avanzar Semana'}</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -541,6 +553,21 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      {/* Modal: Gala de Cierre de Temporada (Fase 29) */}
+      {showSeasonCloseModal && (
+        <SeasonCloseModal
+          club={club}
+          manager={manager}
+          careerId={club?.career_id}
+          seasonYear={club?.current_season_year || 2026}
+          onClose={() => setShowSeasonCloseModal(false)}
+          onSuccess={() => {
+            setShowSeasonCloseModal(false)
+            if (typeof refreshContext === 'function') refreshContext()
+          }}
+        />
+      )}
     </div>
   )
 }

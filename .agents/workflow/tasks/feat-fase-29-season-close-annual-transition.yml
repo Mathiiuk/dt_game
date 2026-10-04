@@ -1,0 +1,38 @@
+id: feat-fase-29-season-close-annual-transition
+external_ref: ''
+title: Fase 29 - Temporadas, Ciclos Anuales y Balance Deportivo
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - seasonClose
+    - calendar
+    - gameLoop
+    - finances
+requirements:
+  - Implementar Fase 29 - Temporadas, Ciclos Anuales y Balance Deportivo
+acceptance_criteria:
+  - Snapshot inmutable de la temporada en season_snapshots (Regla 29.1)
+  - Liquidación bancaria de premios por posición deportiva y goleador
+  - Balance financiero anual en annual_financial_statements
+  - Desvinculación automática de contratos vencidos (Regla 29.2)
+  - Cierre y avance de calendario al nuevo año (Semana 1)
+  - Registro de auditoría en season_transition_log
+  - UI interactiva de Gala de Fin de Temporada
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

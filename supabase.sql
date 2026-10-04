@@ -1576,3 +1576,62 @@ CREATE POLICY "Permitir todo player_retirements" ON public.player_retirements FO
 CREATE INDEX IF NOT EXISTS idx_player_evolution_history_player ON public.player_evolution_history(player_id);
 CREATE INDEX IF NOT EXISTS idx_player_evolution_history_club ON public.player_evolution_history(club_id, season_year);
 CREATE INDEX IF NOT EXISTS idx_player_retirements_club ON public.player_retirements(club_id);
+
+-- ==============================================================================
+-- FASE 29: TRANSICIÓN Y CIERRE ANUAL DE TEMPORADA
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.season_snapshots (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  season_year integer NOT NULL,
+  division_tier integer DEFAULT 5 NOT NULL,
+  champion_club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  runner_up_club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  promoted_club_ids uuid[] DEFAULT '{}',
+  relegated_club_ids uuid[] DEFAULT '{}',
+  top_scorer_player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  top_scorer_goals integer DEFAULT 0,
+  best_player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  final_standings_json jsonb DEFAULT '[]'::jsonb NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_career_season_tier UNIQUE (career_id, season_year, division_tier)
+);
+
+CREATE TABLE IF NOT EXISTS public.annual_financial_statements (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  season_year integer NOT NULL,
+  total_income numeric(12,2) DEFAULT 0 NOT NULL,
+  total_expenses numeric(12,2) DEFAULT 0 NOT NULL,
+  net_profit_loss numeric(12,2) DEFAULT 0 NOT NULL,
+  prize_money_received numeric(12,2) DEFAULT 0 NOT NULL,
+  approved_transfer_budget_next_year numeric(12,2) DEFAULT 0 NOT NULL,
+  approved_wage_budget_next_year numeric(10,2) DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_club_season_finances UNIQUE (club_id, season_year)
+);
+
+CREATE TABLE IF NOT EXISTS public.season_transition_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid,
+  from_year integer NOT NULL,
+  to_year integer NOT NULL,
+  players_aged_count integer DEFAULT 0,
+  contracts_expired_count integer DEFAULT 0,
+  players_retired_count integer DEFAULT 0,
+  duration_ms integer DEFAULT 0,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.season_snapshots ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo season_snapshots" ON public.season_snapshots FOR ALL USING (true);
+
+ALTER TABLE public.annual_financial_statements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo annual_financial_statements" ON public.annual_financial_statements FOR ALL USING (true);
+
+ALTER TABLE public.season_transition_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo season_transition_log" ON public.season_transition_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_season_snapshots_career ON public.season_snapshots(career_id, season_year);
+CREATE INDEX IF NOT EXISTS idx_annual_financial_club ON public.annual_financial_statements(club_id, season_year);
