@@ -213,34 +213,8 @@ export const managerApi = {
     return data || null
   },
 
-  async addXp(managerId, xpAmount) {
+  async addXp(managerId, xpAmount, sourceType = 'MATCH_WON', sourceEntityId = null) {
     const { levelsApi } = await import('./levels')
-
-    // 1. Fetch current manager
-    const { data: manager, error: fetchError } = await supabase
-      .from('managers')
-      .select('xp, level')
-      .eq('id', managerId)
-      .single()
-
-    if (fetchError) throw new Error(fetchError.message)
-
-    const newXp = (manager.xp || 0) + xpAmount
-    const levelInfo = await levelsApi.getLevelInfo(newXp)
-    const newLevel = levelInfo.currentLevel
-
-    const { data: updatedManager, error: updateError } = await supabase
-      .from('managers')
-      .update({ xp: newXp, level: newLevel })
-      .eq('id', managerId)
-      .select()
-      .single()
-
-    if (updateError) throw new Error(updateError.message)
-
-    return {
-      manager: updatedManager,
-      leveledUp: newLevel > manager.level
-    }
+    return await levelsApi.awardXp(managerId, sourceType, sourceEntityId, xpAmount)
   }
 }

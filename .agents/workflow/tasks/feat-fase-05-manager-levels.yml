@@ -1,0 +1,49 @@
+id: feat-fase-05-manager-levels
+external_ref: ''
+title: 'Fase 05: Niveles y Progresión del DT, Curva Polinómica y Ledger de XP'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/levels.js
+    - src/api/manager.js
+  environments:
+    - local
+requirements:
+  - Curva matemática polinómica de niveles 1 al 50: XP(nivel) = 150 * nivel^1.6
+  - >-
+    Ledger inmutable de auditoría de XP (`manager_xp_ledger`) con restricción de
+    unicidad anti-duplicados
+  - >-
+    Adjudicación autoritativa de XP con level-up, asignación de puntos de perk y
+    aumento de reputación
+  - >-
+    Árbol de habilidades canónico (`manager_unlocked_perks`) con desbloqueo de
+    ventajas tácticas
+acceptance_criteria:
+  - No es posible inyectar XP de forma client-side arbitraria
+  - >-
+    Reintentos con la misma fuente de XP son descartados limpiamente por
+    idempotencia
+  - >-
+    Subida de nivel calcula correctamente niveles múltiples y otorga puntos de
+    perk
+  - Build de Vite 100% verde
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

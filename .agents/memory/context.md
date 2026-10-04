@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T00:57:20.374Z | **Nodos:** 77 | **Tareas:** 18
+> **Última sincronización:** 2026-10-04T01:00:35.951Z | **Nodos:** 78 | **Tareas:** 19
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -23,14 +23,14 @@
 | `src/api/internationalCup.js` | 315 | ./supabase, ./clubHistory, ./manager |
 | `src/api/season.js` | 304 | ./supabase, ./competition, ./audit |
 | `src/api/clubHistory.js` | 302 | ./supabase |
+| `src/api/levels.js` | 292 | ./supabase, ../utils/cache, ./audit |
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
 | `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
 | `src/api/player.js` | 249 | ./supabase, ../utils/cache, ./audit |
-| `src/api/manager.js` | 247 | ./supabase, ./audit |
 | `src/api/competition.js` | 240 | ./supabase, ../utils/cache |
 | `src/api/gameLoop.js` | 230 | ./supabase |
-| `src/features/match/PostMatchScreen.jsx` | 210 | react, react-router-dom, ../../api/postMatch |
+| `src/api/manager.js` | 221 | ./supabase, ./audit |
 
 _(+34 módulos adicionales; consultar con `memory:query`)_
 
@@ -54,3 +54,4 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-02-dt-creation: Fase 02: Creación de DT, Presets de Trasfondo y Validación Suma Cero** `[DONE]`
 - **feat-fase-03-club-foundation: Fase 03: Creación y Fundación del Club, Identidad Visual y Balance Tier 5** `[DONE]`
 - **feat-fase-04-initial-squad: Fase 04: Generación Procedural del Primer Plantel, Cuotas Posicionales y Contratos** `[DONE]`
+- **feat-fase-05-manager-levels: Fase 05: Niveles y Progresión del DT, Curva Polinómica y Ledger de XP** `[DONE]`

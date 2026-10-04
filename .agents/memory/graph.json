@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:57:20.374Z",
+  "updatedAt": "2026-10-04T01:00:35.951Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 77,
-    "totalEdges": 287,
-    "totalTasks": 18,
+    "totalNodes": 78,
+    "totalEdges": 289,
+    "totalTasks": 19,
     "totalLessons": 0
   },
   "nodes": [
@@ -211,19 +211,20 @@
       "id": "src/api/levels.js",
       "label": "levels.js",
       "type": "module",
-      "sizeBytes": 1555,
-      "lineCount": 50,
+      "sizeBytes": 8837,
+      "lineCount": 292,
       "imports": [
         "./supabase",
-        "../utils/cache"
+        "../utils/cache",
+        "./audit"
       ]
     },
     {
       "id": "src/api/manager.js",
       "label": "manager.js",
       "type": "module",
-      "sizeBytes": 7375,
-      "lineCount": 247,
+      "sizeBytes": 6730,
+      "lineCount": 221,
       "imports": [
         "./supabase",
         "./audit"
@@ -274,7 +275,7 @@
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 9020,
+      "sizeBytes": 9268,
       "lineCount": 249,
       "imports": [
         "./supabase",
@@ -930,6 +931,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-05-manager-levels",
+      "label": "feat-fase-05-manager-levels: Fase 05: Niveles y Progresión del DT, Curva Polinómica y Ledger de XP",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1126,6 +1134,11 @@
     {
       "from": "src/api/levels.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/levels.js",
+      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -2366,6 +2379,11 @@
     {
       "from": "task:feat-fase-04-initial-squad",
       "to": ".agents/workflow/tasks/feat-fase-04-initial-squad.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-05-manager-levels",
+      "to": ".agents/workflow/tasks/feat-fase-05-manager-levels.yml",
       "relation": "manifested_by"
     }
   ],

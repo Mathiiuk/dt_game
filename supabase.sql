@@ -549,3 +549,31 @@ ALTER TABLE public.clubs ADD COLUMN IF NOT EXISTS badge_id text DEFAULT 'SHIELD'
 -- ============================================================================
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_club_jersey_number ON public.players(club_id, shirt_number);
+
+-- ============================================================================
+-- Fase 05: Niveles y Progresión del DT, Ledger de XP y Perks
+-- ============================================================================
+
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS unallocated_perk_points int DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS public.manager_xp_ledger (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid REFERENCES public.managers(id) NOT NULL,
+  source_type text NOT NULL,
+  source_entity_id text,
+  xp_awarded int NOT NULL,
+  level_before int NOT NULL,
+  level_after int NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_manager_xp_source ON public.manager_xp_ledger(manager_id, source_type, source_entity_id);
+
+CREATE TABLE IF NOT EXISTS public.manager_unlocked_perks (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid REFERENCES public.managers(id) NOT NULL,
+  perk_code text NOT NULL,
+  acquired_at_level int NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE (manager_id, perk_code)
+);
