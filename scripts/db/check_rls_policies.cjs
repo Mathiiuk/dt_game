@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-const client = new Client({ connectionString: 'postgresql://postgres:d1fkM5K6yjB8Ol@db.qozozdaavjfxvssvxqbx.supabase.co:5432/postgres' });
+const client = new Client({ connectionString: (process.env.DATABASE_URL || (() => { throw new Error('Falta DATABASE_URL. Ejecutar: node --env-file=.env.local <script>') })()) });
 
 async function checkPolicies() {
   await client.connect();
