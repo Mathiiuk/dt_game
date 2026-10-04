@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { playerEvolutionApi } from './playerEvolution'
 import { clubHistoryApi } from './clubHistory'
+import { yearsRemaining } from '../domain/contracts'
 
 export const SEASON_PRIZES = {
   1: { position: 1, prize: 100000, label: 'Campeón de Liga' },
@@ -178,9 +179,9 @@ export const seasonCloseApi = {
     // 7. Desvinculación de contratos expirados (Regla 29.2)
     const { data: expiredPlayers } = await supabase
       .from('players')
-      .select('id, first_name, last_name, contract_expires_year')
+      .select('id, first_name, last_name, contract_end')
       .eq('club_id', clubId)
-      .lte('contract_expires_year', seasonYear)
+      .lte('contract_end', `${seasonYear + 1}-06-30`)
 
     let expiredCount = 0
     if (expiredPlayers && expiredPlayers.length > 0) {
@@ -225,6 +226,17 @@ export const seasonCloseApi = {
       .from('clubs')
       .update({ game_date: nextGameDate })
       .eq('id', clubId)
+
+    // Recalcular los años de contrato restantes del plantel que sigue (derivados de contract_end)
+    const { data: keptPlayers } = await supabase
+      .from('players')
+      .select('id, contract_end')
+      .eq('club_id', clubId)
+    await Promise.all((keptPlayers || []).filter(p => p.contract_end).map(p =>
+      supabase.from('players')
+        .update({ contract_years: Math.max(1, yearsRemaining(p.contract_end, nextGameDate)) })
+        .eq('id', p.id)
+    ))
 
     // Actualizar career_calendar
     if (careerId) {

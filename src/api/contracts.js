@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
+import { contractEndFor } from '../domain/contracts'
 
 export const contractApi = {
   // Configuración y parámetros de balance (Reglas 14.1 - 15.4)
@@ -108,7 +109,7 @@ export const contractApi = {
     // 1. Obtener club y jugador
     const { data: club, error: clubErr } = await supabase
       .from('clubs')
-      .select('id, budget, wage_budget')
+      .select('id, budget, wage_budget, game_date')
       .eq('id', clubId)
       .single()
     if (clubErr || !club) throw new Error('Club no encontrado.')
@@ -170,9 +171,8 @@ export const contractApi = {
     // ACEPTADO si score >= 75
     if (score >= 75) {
       // 1. Guardar o actualizar en contracts
-      const now = new Date()
-      const expiryDate = new Date()
-      expiryDate.setFullYear(now.getFullYear() + yearsOffered)
+      // El vencimiento se ancla al calendario del juego (30 de junio), no al reloj real
+      const contractEnd = contractEndFor(club.game_date || '2026-07-01', yearsOffered)
 
       await supabase
         .from('contracts')
@@ -183,7 +183,7 @@ export const contractApi = {
           contract_years_total: yearsOffered,
           release_clause: releaseClause || demands.suggestedReleaseClause,
           squad_role: squadRole,
-          expires_at: expiryDate.toISOString().split('T')[0],
+          expires_at: contractEnd,
           status: 'ACTIVE',
           updated_at: new Date().toISOString()
         }, { onConflict: 'player_id' })
@@ -194,6 +194,9 @@ export const contractApi = {
         .from('players')
         .update({
           contract_salary: wageOffered,
+          contract_wage: wageOffered,
+          contract_years: yearsOffered,
+          contract_end: contractEnd,
           contract_role: squadRole,
           release_clause: releaseClause || demands.suggestedReleaseClause,
           morale: newMorale,
@@ -226,7 +229,7 @@ export const contractApi = {
           action: 'CONTRACT_RENEWED',
           previous_wage: player.contract_salary,
           new_wage: wageOffered,
-          new_expiry: expiryDate.toISOString().split('T')[0]
+          new_expiry: contractEnd
         })
       } catch {
         // Ignorar si tabla no lista
