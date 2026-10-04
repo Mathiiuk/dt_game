@@ -27,6 +27,7 @@ import {
   Play
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { isFixtureDue } from '../../domain/fixtureStatus'
 import SeasonCloseModal from '../season/SeasonCloseModal'
 
 export default function Dashboard() {
@@ -68,7 +69,7 @@ export default function Dashboard() {
       return
     }
 
-    if (dashboardData?.nextFixture && dashboardData.nextFixture.match_date <= club.game_date) {
+    if (dashboardData?.nextFixture && isFixtureDue(dashboardData.nextFixture.match_date, club.game_date)) {
       toast.error('Debes disputar tu partido pendiente antes de avanzar de semana.')
       return
     }
@@ -136,7 +137,8 @@ export default function Dashboard() {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   }).format(getSafeDate(clubSummary.gameDate))
 
-  const isMatchReady = nextFixture && nextFixture.match_date <= clubSummary.gameDate
+  const isMatchReady = !!nextFixture && isFixtureDue(nextFixture.match_date, clubSummary.gameDate)
+  const isMatchFuture = !!nextFixture && !isMatchReady
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-zinc-100">
@@ -502,16 +504,16 @@ export default function Dashboard() {
                   if (!nextFixture) return
                   navigate('/match', { state: { fixtureId: nextFixture.id } })
                 }}
-                disabled={!nextFixture || nextFixture.match_date > clubSummary.gameDate}
+                disabled={!nextFixture || isMatchFuture}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 ${
-                  !nextFixture || nextFixture.match_date > clubSummary.gameDate
+                  !nextFixture || isMatchFuture
                     ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/80 cursor-not-allowed'
                     : 'bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/20'
                 }`}
               >
                 <Play className="w-4 h-4 fill-current" />
                 <span>
-                  {nextFixture && nextFixture.match_date > clubSummary.gameDate
+                  {isMatchFuture
                     ? `Partido el ${nextFixture.match_date}`
                     : 'Disputar Partido'}
                 </span>

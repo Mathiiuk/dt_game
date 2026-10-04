@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { competitionApi } from './competition'
 import { auditApi } from './audit'
+import { FIXTURE_OPEN_STATUSES, FIXTURE_STATUS } from '../domain/fixtureStatus'
 
 export const seasonApi = {
   // Check if current season matches are all played
@@ -18,7 +19,7 @@ export const seasonApi = {
       .from('fixtures')
       .select('*', { count: 'exact', head: true })
       .eq('competition_id', myStanding.competition_id)
-      .eq('status', 'PENDING')
+      .in('status', FIXTURE_OPEN_STATUSES)
 
     if (error) return false
     return count === 0
@@ -221,7 +222,7 @@ export const seasonApi = {
           home_team_id: home,
           away_team_id: away,
           match_date: matchDate.toISOString(),
-          status: 'PENDING'
+          status: FIXTURE_STATUS.SCHEDULED
         })
 
         // Vuelta
@@ -233,7 +234,7 @@ export const seasonApi = {
           home_team_id: away,
           away_team_id: home,
           match_date: returnDate.toISOString(),
-          status: 'PENDING'
+          status: FIXTURE_STATUS.SCHEDULED
         })
       }
       teams.splice(1, 0, teams.pop())

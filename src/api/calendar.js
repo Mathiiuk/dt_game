@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
 export const WEEKS_PER_SEASON = 52
 
@@ -200,7 +201,7 @@ export const calendarApi = {
         .from('fixtures')
         .select('id, match_date, status')
         .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
-        .eq('status', 'SCHEDULED')
+        .in('status', FIXTURE_OPEN_STATUSES)
         .lte('match_date', calendar.current_date)
 
       if (pendingMatches && pendingMatches.length > 0) {

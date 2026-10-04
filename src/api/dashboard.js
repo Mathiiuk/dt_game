@@ -3,6 +3,7 @@ import { queryCache } from '../utils/cache'
 import { levelsApi } from './levels'
 import { eventsApi } from './events'
 import { isContractExpiringSoon, CONTRACT_ALERT_WINDOW_WEEKS } from '../domain/contracts'
+import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
 export const dashboardApi = {
   /**
@@ -25,7 +26,8 @@ export const dashboardApi = {
           .from('fixtures')
           .select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)')
           .or(`home_team_id.eq.${club.id},away_team_id.eq.${club.id}`)
-          .eq('status', 'PENDING')
+          .in('status', FIXTURE_OPEN_STATUSES)
+          .order('match_date', { ascending: true })
           .order('match_week', { ascending: true })
           .limit(1)
           .maybeSingle(),

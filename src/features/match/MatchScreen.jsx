@@ -22,6 +22,7 @@ import {
   Volume2
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { isFixturePlayed } from '../../domain/fixtureStatus'
 
 export default function MatchScreen() {
   const navigate = useNavigate()
@@ -83,7 +84,7 @@ export default function MatchScreen() {
           } catch (err) {
             console.error('Error restaurando estado del partido:', err)
           }
-        } else if (fixture && (fixture.status === 'IN_PROGRESS' || fixture.status === 'PLAYED')) {
+        } else if (fixture && (fixture.status === 'IN_PROGRESS' || isFixturePlayed(fixture.status))) {
           setScore({ home: fixture.home_score || 0, away: fixture.away_score || 0 })
           setMinute(90)
           setMatchState('finished')
