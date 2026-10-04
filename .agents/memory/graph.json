@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T00:13:09.465Z",
+  "updatedAt": "2026-10-04T00:20:19.883Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 69,
-    "totalEdges": 274,
-    "totalTasks": 10,
+    "totalNodes": 70,
+    "totalEdges": 275,
+    "totalTasks": 11,
     "totalLessons": 0
   },
   "nodes": [
@@ -796,9 +796,16 @@
       "id": "src/utils/cache.js",
       "label": "cache.js",
       "type": "module",
-      "sizeBytes": 2467,
+      "sizeBytes": 2564,
       "lineCount": 98,
       "imports": []
+    },
+    {
+      "id": "task:f2-1-block-a-fundamentals",
+      "label": "f2-1-block-a-fundamentals: Fase 2.1: Bloque A - Contratos de Dominio Fundamentos (Fases 01 a 10)",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:f2-33-national-teams",
@@ -2191,6 +2198,11 @@
       "from": "src/store.js",
       "to": "zustand",
       "relation": "depends_on"
+    },
+    {
+      "from": "task:f2-1-block-a-fundamentals",
+      "to": ".agents/workflow/tasks/f2-1-block-a-fundamentals.yml",
+      "relation": "manifested_by"
     },
     {
       "from": "task:f2-33-national-teams",

@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T00:13:09.465Z | **Nodos:** 69 | **Tareas:** 10
+> **Última sincronización:** 2026-10-04T00:20:19.883Z | **Nodos:** 70 | **Tareas:** 11
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -36,6 +36,7 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
+- **f2-1-block-a-fundamentals: Fase 2.1: Bloque A - Contratos de Dominio Fundamentos (Fases 01 a 10)** `[DONE]`
 - **f2-33-national-teams: Fase 33: Selecciones Nacionales y Doble Carrera** `[DONE]`
 - **f2-34-international-cups: Fase 34: Competiciones Internacionales y Copas Continentales** `[DONE]`
 - **f2-36-37-club-history-idols: Fases 36 y 37: Historia del Club, Récords e Ídolos** `[DONE]`
