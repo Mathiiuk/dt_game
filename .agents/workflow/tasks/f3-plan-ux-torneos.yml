@@ -1,0 +1,34 @@
+id: f3-plan-ux-torneos
+external_ref: ''
+title: 'Plan por fases: bugs, rediseno UI/UX, Google login y torneos'
+type: docs
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - 'Implementar Plan por fases: bugs, rediseno UI/UX, Google login y torneos'
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Plan por fases: bugs, rediseno UI/UX, Google
+    login y torneos
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd
