@@ -832,3 +832,51 @@ CREATE TABLE IF NOT EXISTS public.competition_audit_log (
 
 ALTER TABLE public.competition_audit_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir competition_audit_log" ON public.competition_audit_log FOR ALL USING (true);
+
+-- FASE 13: MERCADO DE PASES, TRANSFERENCIAS Y LISTINGS
+CREATE TABLE IF NOT EXISTS public.transfer_market_listings (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  selling_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  listing_type text DEFAULT 'TRANSFER_LISTED' NOT NULL,
+  market_value numeric(12,2) NOT NULL,
+  asking_price numeric(12,2) NOT NULL,
+  status text DEFAULT 'AVAILABLE' NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_market_listing_player UNIQUE (player_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.transfer_bids (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  buying_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  selling_club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  fee_offered numeric(12,2) NOT NULL,
+  wage_offered numeric(10,2) NOT NULL,
+  status text DEFAULT 'PENDING_RESPONSE' NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.transfer_audit_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  from_club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  to_club_id uuid REFERENCES public.clubs(id) ON DELETE SET NULL,
+  transfer_fee numeric(12,2) NOT NULL,
+  wage_weekly numeric(10,2) DEFAULT 0 NOT NULL,
+  season_year int DEFAULT 1 NOT NULL,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.transfer_market_listings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo transfer_market_listings" ON public.transfer_market_listings FOR ALL USING (true);
+
+ALTER TABLE public.transfer_bids ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo transfer_bids" ON public.transfer_bids FOR ALL USING (true);
+
+ALTER TABLE public.transfer_audit_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo transfer_audit_log" ON public.transfer_audit_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_transfer_listings_status ON public.transfer_market_listings(status);
+CREATE INDEX IF NOT EXISTS idx_transfer_bids_status ON public.transfer_bids(status);
+CREATE INDEX IF NOT EXISTS idx_transfer_audit_to_club ON public.transfer_audit_log(to_club_id);

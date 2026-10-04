@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:33:55.531Z | **Nodos:** 89 | **Tareas:** 26
+> **Última sincronización:** 2026-10-04T02:37:49.272Z | **Nodos:** 90 | **Tareas:** 27
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -26,11 +26,11 @@
 | `src/features/squad/SquadScreen.jsx` | 368 | react, react-router-dom, ../../api/auth |
 | `src/api/competition.js` | 366 | ./supabase, ../utils/cache |
 | `src/features/manager/NationalTeamScreen.jsx` | 365 | react, react-router-dom, ../../api/nationalTeam |
+| `src/api/market.js` | 321 | ./supabase, ../utils/cache |
 | `src/features/manager/HallOfFameScreen.jsx` | 321 | react, react-router-dom, ../../api/hallOfFame |
 | `src/api/tactics.js` | 317 | ./supabase, ../utils/cache |
 | `src/api/internationalCup.js` | 315 | ./supabase, ./clubHistory, ./manager |
 | `src/api/season.js` | 304 | ./supabase, ./competition, ./audit |
-| `src/api/clubHistory.js` | 302 | ./supabase |
 
 _(+38 módulos adicionales; consultar con `memory:query`)_
 
@@ -62,3 +62,4 @@ _(+38 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-10-match-engine: Fase 10: Motor de Simulacion de Partidos, Direccion en Vivo y Anti-Save Scumming** `[DONE]`
 - **feat-fase-11-post-match: Fase 11: Resumen Post-Partido, Calificaciones, Taquilla y Secciones Mobile** `[DONE]`
 - **feat-fase-12-league-standings: Fase 12: Competicion de Liga, Tabla de Posiciones y Criterios de Desempate** `[DONE]`
+- **feat-fase-13-transfer-market: Fase 13: Mercado de Pases, Transferencias y Agentes Libres** `[DONE]`

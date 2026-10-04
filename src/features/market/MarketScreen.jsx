@@ -109,8 +109,8 @@ export default function MarketScreen() {
   const handleScoutPlayer = async (p) => {
     const confirmed = await confirmAction({
       title: `Ojear a ${p.first_name} ${p.last_name}`,
-      description: `Enviar un ojeador costará $10,000 para revelar sus atributos y potencial reales. ¿Deseas continuar?`,
-      confirmText: 'Enviar Ojeador ($10k)',
+      description: `Enviar un ojeador costará $1,000 para revelar sus atributos y potencial reales. ¿Deseas continuar?`,
+      confirmText: 'Enviar Ojeador ($1k)',
       cancelText: 'Cancelar',
       variant: 'primary'
     })
@@ -270,7 +270,7 @@ export default function MarketScreen() {
                             onClick={() => handleScoutPlayer(p)}
                             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-black transition-colors rounded-xl bg-blue-500 hover:bg-blue-400 shadow-sm"
                           >
-                            <Eye className="w-3.5 h-3.5" /> Ojear ($10k)
+                            <Eye className="w-3.5 h-3.5" /> Ojear ($1k)
                           </button>
                         ) : (
                           <button 

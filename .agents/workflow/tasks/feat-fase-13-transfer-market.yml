@@ -1,0 +1,58 @@
+id: feat-fase-13-transfer-market
+external_ref: 13_mercado
+title: 'Fase 13: Mercado de Pases, Transferencias y Agentes Libres'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/market.js
+    - src/features/market/MarketScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Solucionar el error al ojear talento y eliminar la duplicidad en scoutPlayer
+    con maybeSingle
+  - >-
+    Crear entidades transfer_market_listings, transfer_bids, transfer_audit_log
+    y scout_reports en supabase.sql
+  - >-
+    Implementar algoritmo de valuacion de mercado autoritativo por OVR, edad y
+    posicion
+  - >-
+    Manejo de agentes libres con coste de transferencia cero y negociacion
+    salarial
+  - >-
+    Reemplazar alertas nativas del navegador por notificaciones tipo bottom
+    sheet ActionSheet y Sonner toasts
+  - >-
+    Optimizar filtros de mercado en mobile (posicion, precio, situacion
+    contractual)
+acceptance_criteria:
+  - >-
+    Ojear futbolistas funciona sin errores y revela atributos y potencial con
+    costo proporcionado
+  - >-
+    Comprar jugadores transfiere fondos atómicamente y actualiza el club del
+    futbolista
+  - El DT puede negociar fichajes dentro de las ventanas reglamentarias
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:33:55.531Z",
+  "updatedAt": "2026-10-04T02:37:49.272Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 89,
-    "totalEdges": 300,
-    "totalTasks": 26,
+    "totalNodes": 90,
+    "totalEdges": 301,
+    "totalTasks": 27,
     "totalLessons": 0
   },
   "nodes": [
@@ -100,7 +100,7 @@
       "id": "src/api/competition.js",
       "label": "competition.js",
       "type": "module",
-      "sizeBytes": 12739,
+      "sizeBytes": 13104,
       "lineCount": 366,
       "imports": [
         "./supabase",
@@ -258,11 +258,11 @@
       "id": "src/api/market.js",
       "label": "market.js",
       "type": "module",
-      "sizeBytes": 6627,
-      "lineCount": 177,
+      "sizeBytes": 10925,
+      "lineCount": 321,
       "imports": [
         "./supabase",
-        "./club"
+        "../utils/cache"
       ]
     },
     {
@@ -593,7 +593,7 @@
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 11544,
+      "sizeBytes": 11814,
       "lineCount": 271,
       "imports": [
         "react",
@@ -707,7 +707,7 @@
       "id": "src/features/market/MarketScreen.jsx",
       "label": "MarketScreen.jsx",
       "type": "module",
-      "sizeBytes": 19134,
+      "sizeBytes": 19131,
       "lineCount": 408,
       "imports": [
         "react",
@@ -1028,6 +1028,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-13-transfer-market",
+      "label": "feat-fase-13-transfer-market: Fase 13: Mercado de Pases, Transferencias y Agentes Libres",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1278,7 +1285,7 @@
     },
     {
       "from": "src/api/market.js",
-      "to": "./club",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2529,6 +2536,11 @@
     {
       "from": "task:feat-fase-12-league-standings",
       "to": ".agents/workflow/tasks/feat-fase-12-league-standings.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-13-transfer-market",
+      "to": ".agents/workflow/tasks/feat-fase-13-transfer-market.yml",
       "relation": "manifested_by"
     }
   ],
