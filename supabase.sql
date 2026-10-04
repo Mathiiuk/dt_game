@@ -525,3 +525,10 @@ CREATE POLICY "Permitir insertar audit seguridad" ON public.security_audit_log
   FOR INSERT WITH CHECK (true);
 CREATE POLICY "Permitir ver audit propio" ON public.security_audit_log 
   FOR SELECT USING (auth.uid() = user_id);
+
+-- ============================================================================
+-- Fase 02: Creación del DT, Presets y Restricción de Unicidad
+-- ============================================================================
+
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS background text DEFAULT 'STREET_COACH';
+CREATE UNIQUE INDEX IF NOT EXISTS uq_active_manager_per_user ON public.managers(user_id) WHERE is_retired = false;

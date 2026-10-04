@@ -1,11 +1,12 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T00:48:41.420Z | **Nodos:** 74 | **Tareas:** 15
+> **Última sincronización:** 2026-10-04T00:51:23.303Z | **Nodos:** 75 | **Tareas:** 16
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
+| `src/features/manager/CreateManagerWizard.jsx` | 585 | react, react-router-dom, ../../api/manager |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/club/screens/ClubScreen.jsx` | 566 | react, react-router-dom, ../../../api/club |
 | `src/features/match/MatchScreen.jsx` | 477 | react, react-router-dom, ../../api/auth |
@@ -21,16 +22,15 @@
 | `src/api/internationalCup.js` | 315 | ./supabase, ./clubHistory, ./manager |
 | `src/api/season.js` | 304 | ./supabase, ./competition, ./audit |
 | `src/api/clubHistory.js` | 302 | ./supabase |
-| `src/features/manager/CreateManagerWizard.jsx` | 302 | react, react-router-dom, ../../api/manager |
 | `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
 | `src/features/competition/InternationalCupScreen.jsx` | 277 | react, react-router-dom, ../../api/internationalCup |
 | `src/features/club/CreateClubWizard.jsx` | 259 | react, react-router-dom, ../../api/auth |
 | `src/features/career/EndgameScreen.jsx` | 255 | react, react-router-dom, ../../context/GameContext |
+| `src/api/manager.js` | 247 | ./supabase, ./audit |
 | `src/api/competition.js` | 240 | ./supabase, ../utils/cache |
 | `src/api/gameLoop.js` | 230 | ./supabase |
 | `src/features/match/PostMatchScreen.jsx` | 210 | react, react-router-dom, ../../api/postMatch |
 | `src/features/finances/FinancesScreen.jsx` | 208 | react, react-router-dom, ../../api/auth |
-| `src/features/tactics/TacticsScreen.jsx` | 208 | react, react-router-dom, ../../api/auth |
 
 _(+34 módulos adicionales; consultar con `memory:query`)_
 
@@ -51,3 +51,4 @@ _(+34 módulos adicionales; consultar con `memory:query`)_
 - **f2-db-deep-fixes: Correccion de FK erronea en managers e indexacion total de FKs** `[DONE]`
 - **f2-perf-optimization: Optimizacion de Rendimiento de Navegacion y Cache de Consultas** `[DONE]`
 - **feat-fase-01-auth-session: Fase 01: Inicio de Sesión, Autenticación y Aislamiento de Carreras** `[DONE]`
+- **feat-fase-02-dt-creation: Fase 02: Creación de DT, Presets de Trasfondo y Validación Suma Cero** `[DONE]`

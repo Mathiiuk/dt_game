@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { managerApi } from '../../api/manager'
+import { 
+  managerApi, 
+  MANAGER_BACKGROUND_PRESETS, 
+  FREE_POINTS_POOL, 
+  ATTRIBUTE_MAX_INITIAL_CAP 
+} from '../../api/manager'
 import { authApi } from '../../api/auth'
 import { toast } from 'sonner'
-import { Loader2, User, Activity, Brain, CheckCircle, ChevronRight, ChevronLeft } from 'lucide-react'
+import { 
+  Loader2, 
+  User, 
+  Award, 
+  Sliders, 
+  Brain, 
+  CheckCircle2, 
+  ChevronRight, 
+  ChevronLeft,
+  Shield,
+  Sparkles,
+  Check,
+  AlertCircle
+} from 'lucide-react'
 
 export default function CreateManagerWizard() {
   const navigate = useNavigate()
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(1) // 1: Identity, 2: Background, 3: Attributes, 4: Philosophy, 5: Confirmation
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState(null)
 
@@ -15,53 +33,76 @@ export default function CreateManagerWizard() {
   const [identity, setIdentity] = useState({
     firstName: '',
     lastName: '',
-    age: 35,
+    age: 38,
     nationality: 'Argentina',
     city: 'Buenos Aires',
     dominantFoot: 'Derecho'
   })
 
-  // Step 2: Profile (Distribute points)
-  // Max points: 30 to distribute, base is 10 for all. Max per attribute is 20 for now.
-  const [pointsLeft, setPointsLeft] = useState(30)
-  const [attributes, setAttributes] = useState({
-    leadership: 10,
-    tactics: 10,
-    motivation: 10,
-    management: 10,
-    youth: 10,
-    negotiation: 10,
-    lockerRoom: 10
+  // Step 2: Background Preset
+  const [selectedBackground, setSelectedBackground] = useState('STREET_COACH')
+
+  // Step 3: Distributed Points (Delta: 0 to 15 total)
+  const [distributedPoints, setDistributedPoints] = useState({
+    tactics: 3,
+    motivation: 4,
+    youth: 3,
+    management: 3,
+    negotiation: 2
   })
 
-  const handleAttributeChange = (attr, delta) => {
-    const current = attributes[attr]
-    if (delta > 0 && pointsLeft > 0 && current < 20) {
-      setAttributes({ ...attributes, [attr]: current + 1 })
-      setPointsLeft(pointsLeft - 1)
-    } else if (delta < 0 && current > 10) {
-      setAttributes({ ...attributes, [attr]: current - 1 })
-      setPointsLeft(pointsLeft + 1)
-    }
+  // Step 4: Philosophy & Specialization
+  const [philosophy, setPhilosophy] = useState('Ofensivo')
+  const [specialization, setSpecialization] = useState('TACTICO')
+
+  const philosophies = [
+    { id: 'Ofensivo', title: 'Ataque Directo', desc: 'Priorizar el arco rival y la verticalidad.' },
+    { id: 'Posesión', title: 'Tiki-Taka / Posesión', desc: 'Controlar el ritmo y desgastar al rival con el balón.' },
+    { id: 'Contragolpe', title: 'Transición Rápida', desc: 'Bloque bajo reactivo y contragolpes letales.' },
+    { id: 'Presión', title: 'Gegenpressing', desc: 'Presión asfixiante alta para provocar pérdidas rivales.' },
+    { id: 'Equilibrado', title: 'Equilibrio Táctico', desc: 'Adaptabilidad a las fases del partido según el contexto.' }
+  ]
+
+  const specializations = [
+    { id: 'JUVENILES', title: 'Forjador de Cantera', desc: 'Tus juveniles progresan más rápido y con mayor techo de potencial.' },
+    { id: 'TACTICO', title: 'Estratega del Pizarrón', desc: 'Mayor impacto y efectividad de las órdenes del DT durante los partidos.' },
+    { id: 'MOTIVADOR', title: 'Líder Anímico', desc: 'La moral y cohesión del plantel se mantienen altas en rachas negativas.' },
+    { id: 'MERCADO', title: 'Negociador Implacable', desc: 'Mejores cláusulas y menores pretensiones salariales en el mercado.' }
+  ]
+
+  // Calculated values
+  const currentPreset = MANAGER_BACKGROUND_PRESETS[selectedBackground] || MANAGER_BACKGROUND_PRESETS.STREET_COACH
+
+  const totalPointsSpent = Object.values(distributedPoints).reduce((acc, curr) => acc + (Number(curr) || 0), 0)
+  const pointsRemaining = FREE_POINTS_POOL - totalPointsSpent
+
+  const getFinalAttributeValue = (attrKey) => {
+    const base = currentPreset.baseAttributes[attrKey] || 5
+    const delta = distributedPoints[attrKey] || 0
+    return base + delta
   }
 
-  // Step 3: Philosophy & Specialization
-  const [philosophy, setPhilosophy] = useState('Equilibrado')
-  const philosophies = [
-    { id: 'Ofensivo', desc: 'Priorizar el ataque y la cantidad de llegadas. (+Ataque)' },
-    { id: 'Defensivo', desc: 'Armar el equipo de atrás hacia adelante. (+Defensa)' },
-    { id: 'Posesión', desc: 'Tener la pelota para controlar el juego. (Eficaz vs Presión Baja)' },
-    { id: 'Contragolpe', desc: 'Esperar agazapado y salir rápido. (Eficaz vs Presión Alta)' },
-    { id: 'Presión', desc: 'Asfixiar al rival en su campo. (Eficaz vs Posesión)' }
-  ]
+  const handlePointChange = (attrKey, change) => {
+    const currentDelta = distributedPoints[attrKey] || 0
+    const newDelta = currentDelta + change
+    const base = currentPreset.baseAttributes[attrKey] || 5
+    const finalVal = base + newDelta
 
-  const [specialization, setSpecialization] = useState('TACTICO')
-  const specializations = [
-    { id: 'JUVENILES', desc: 'Ganan XP más rápido y suben más atributos.' },
-    { id: 'TACTICO', desc: 'Tus cambios tácticos durante el partido tienen más impacto.' },
-    { id: 'MOTIVADOR', desc: 'La moral del equipo cae menos ante derrotas.' },
-    { id: 'MERCADO', desc: 'Mejores precios al comprar y vender jugadores.' }
-  ]
+    if (change > 0) {
+      if (pointsRemaining <= 0) return
+      if (finalVal > ATTRIBUTE_MAX_INITIAL_CAP) {
+        toast.warning(`Tope inicial alcanzado (${ATTRIBUTE_MAX_INITIAL_CAP} pts). Se desbloquean más subiendo de nivel.`)
+        return
+      }
+    } else {
+      if (newDelta < 0) return
+    }
+
+    setDistributedPoints(prev => ({
+      ...prev,
+      [attrKey]: newDelta
+    }))
+  }
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -70,156 +111,350 @@ export default function CreateManagerWizard() {
         navigate('/auth')
       } else {
         setUser(currentUser)
-        // Auto-fill names if empty
-        const names = currentUser.name.split(' ')
-        setIdentity(prev => ({
-          ...prev,
-          firstName: names[0] || '',
-          lastName: names.slice(1).join(' ') || ''
-        }))
+        if (currentUser.name) {
+          const parts = currentUser.name.trim().split(' ')
+          setIdentity(prev => ({
+            ...prev,
+            firstName: parts[0] || 'Marcelo',
+            lastName: parts.slice(1).join(' ') || 'Gallardo'
+          }))
+        }
       }
     }
     checkAuth()
   }, [navigate])
 
   const handleCreate = async () => {
+    if (pointsRemaining !== 0) {
+      toast.error(`Debes distribuir los ${FREE_POINTS_POOL} puntos disponibles antes de confirmar.`)
+      return
+    }
+
     setLoading(true)
     try {
       await managerApi.createManager(user.id, {
         identity,
-        attributes,
+        background: selectedBackground,
+        distributedPoints,
         philosophy,
         specialization
       })
-      toast.success('¡Perfil de DT creado exitosamente!')
+      toast.success('¡Credencial oficial de Director Técnico emitida con éxito!')
       navigate('/create-club')
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err.message || 'Error al crear el perfil de DT.')
     } finally {
       setLoading(false)
     }
   }
 
-  const StepIndicator = () => (
-    <div className="flex items-center justify-between mb-8">
-      {[1, 2, 3, 4].map(s => (
-        <div key={s} className="flex items-center">
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold ${step >= s ? 'bg-emerald-500 text-black' : 'bg-zinc-800 text-zinc-500'}`}>
-            {s}
+  const StepIndicator = () => {
+    const stepLabels = ['Identidad', 'Trasfondo', 'Atributos', 'Filosofía', 'Firma']
+    return (
+      <div className="flex items-center justify-between mb-8 overflow-x-auto pb-2">
+        {[1, 2, 3, 4, 5].map((s) => (
+          <div key={s} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div 
+                className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs transition-all ${
+                  step === s 
+                    ? 'bg-emerald-500 text-black ring-4 ring-emerald-500/20 shadow-md' 
+                    : step > s 
+                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40' 
+                    : 'bg-zinc-900 text-zinc-600 border border-zinc-800'
+                }`}
+              >
+                {step > s ? <Check className="w-4 h-4" /> : s}
+              </div>
+              <span className={`text-[10px] mt-1 font-medium hidden sm:block ${step >= s ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                {stepLabels[s - 1]}
+              </span>
+            </div>
+            {s < 5 && (
+              <div className={`w-6 sm:w-10 h-0.5 mx-1.5 sm:mx-2 transition-all ${step > s ? 'bg-emerald-500' : 'bg-zinc-800'}`} />
+            )}
           </div>
-          {s < 4 && (
-            <div className={`w-8 sm:w-16 h-1 mx-2 ${step > s ? 'bg-emerald-500' : 'bg-zinc-800'}`} />
-          )}
-        </div>
-      ))}
-    </div>
-  )
+        ))}
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4 py-12">
-      <div className="w-full max-w-2xl p-8 border border-zinc-800 rounded-3xl bg-zinc-900/50 backdrop-blur-md">
-        <h1 className="mb-2 text-3xl font-black text-white">Creación de DT</h1>
-        <p className="mb-8 text-zinc-400">Forja tu identidad en el banquillo.</p>
-        
-        <StepIndicator />
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-zinc-950">
+      <div className="w-full max-w-2xl p-6 sm:p-8 border border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-md shadow-2xl">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">Ficha de Director Técnico</h1>
+            <p className="text-xs sm:text-sm text-zinc-400">Paso {step} de 5 • Configuración de la carrera</p>
+          </div>
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <Shield className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="my-6">
+          <StepIndicator />
+        </div>
 
         {/* STEP 1: IDENTITY */}
         {step === 1 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <User className="w-5 h-5" /> Identidad
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+              <User className="w-5 h-5" />
+              <span>Datos Personales</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Nombre</label>
-                <input type="text" value={identity.firstName} onChange={e => setIdentity({...identity, firstName: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Nombre</label>
+                <input 
+                  type="text" 
+                  value={identity.firstName} 
+                  onChange={e => setIdentity({...identity, firstName: e.target.value})} 
+                  placeholder="Ej: Marcelo"
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                />
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Apellido</label>
-                <input type="text" value={identity.lastName} onChange={e => setIdentity({...identity, lastName: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Apellido</label>
+                <input 
+                  type="text" 
+                  value={identity.lastName} 
+                  onChange={e => setIdentity({...identity, lastName: e.target.value})} 
+                  placeholder="Ej: Gallardo"
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                />
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Edad</label>
-                <input type="number" min="25" max="80" value={identity.age} onChange={e => setIdentity({...identity, age: parseInt(e.target.value)})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <div className="flex justify-between mb-1">
+                  <label className="text-xs font-medium text-zinc-300">Edad</label>
+                  <span className="text-xs font-mono font-bold text-emerald-400">{identity.age} años</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="25" 
+                  max="70" 
+                  value={identity.age} 
+                  onChange={e => setIdentity({...identity, age: parseInt(e.target.value)})} 
+                  className="w-full accent-emerald-500 bg-zinc-800 rounded-lg cursor-pointer" 
+                />
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Pie Dominante</label>
-                <select value={identity.dominantFoot} onChange={e => setIdentity({...identity, dominantFoot: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none">
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Pie Dominante</label>
+                <select 
+                  value={identity.dominantFoot} 
+                  onChange={e => setIdentity({...identity, dominantFoot: e.target.value})} 
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none"
+                >
                   <option>Derecho</option>
                   <option>Izquierdo</option>
                   <option>Ambidiestro</option>
                 </select>
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Nacionalidad</label>
-                <input type="text" value={identity.nationality} onChange={e => setIdentity({...identity, nationality: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Nacionalidad</label>
+                <input 
+                  type="text" 
+                  value={identity.nationality} 
+                  onChange={e => setIdentity({...identity, nationality: e.target.value})} 
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+                />
               </div>
+
               <div>
-                <label className="block mb-1 text-sm text-zinc-400">Ciudad</label>
-                <input type="text" value={identity.city} onChange={e => setIdentity({...identity, city: e.target.value})} className="w-full px-4 py-2 text-white border rounded-lg bg-zinc-950 border-zinc-700 focus:border-emerald-500 focus:outline-none" />
+                <label className="block mb-1 text-xs font-medium text-zinc-300">Ciudad de Origen</label>
+                <input 
+                  type="text" 
+                  value={identity.city} 
+                  onChange={e => setIdentity({...identity, city: e.target.value})} 
+                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+                />
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 2: PROFILE */}
+        {/* STEP 2: BACKGROUND PRESETS */}
         {step === 2 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <Activity className="w-5 h-5" /> Perfil y Atributos
-            </h2>
-            <p className="mb-4 text-sm text-zinc-400">
-              Puntos disponibles: <span className="font-bold text-emerald-500">{pointsLeft}</span>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+              <Award className="w-5 h-5" />
+              <span>Trasfondo y Trayectoria Previa</span>
+            </div>
+            <p className="text-xs text-zinc-400">
+              Tu historia previa define la reputación con la que comienzas y los atributos base de tu perfil.
             </p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {Object.entries(attributes).map(([key, val]) => (
-                <div key={key} className="flex items-center justify-between p-3 border rounded-xl bg-zinc-950 border-zinc-800">
-                  <span className="text-sm font-medium text-zinc-300 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => handleAttributeChange(key, -1)} disabled={val <= 10} className="w-8 h-8 font-bold rounded-lg bg-zinc-800 text-zinc-400 disabled:opacity-50 hover:bg-zinc-700">-</button>
-                    <span className="w-6 text-center text-white">{val}</span>
-                    <button onClick={() => handleAttributeChange(key, 1)} disabled={val >= 20 || pointsLeft === 0} className="w-8 h-8 font-bold rounded-lg bg-zinc-800 text-zinc-400 disabled:opacity-50 hover:bg-zinc-700">+</button>
-                  </div>
-                </div>
-              ))}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              {Object.values(MANAGER_BACKGROUND_PRESETS).map((preset) => {
+                const isSelected = selectedBackground === preset.id
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => setSelectedBackground(preset.id)}
+                    className={`p-4 text-left border rounded-xl transition-all ${
+                      isSelected 
+                        ? 'border-emerald-500 bg-emerald-500/10 shadow-md shadow-emerald-500/10' 
+                        : 'border-zinc-800 bg-zinc-950/70 hover:border-zinc-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <h3 className={`font-bold text-sm ${isSelected ? 'text-emerald-400' : 'text-zinc-200'}`}>
+                        {preset.title}
+                      </h3>
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
+                        Reputación: {preset.reputation}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-400 mb-3">{preset.description}</p>
+                    <div className="flex flex-wrap gap-1.5 text-[10px] text-zinc-400">
+                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Tác: {preset.baseAttributes.tactics}</span>
+                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Mot: {preset.baseAttributes.motivation}</span>
+                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Juv: {preset.baseAttributes.youth}</span>
+                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Ges: {preset.baseAttributes.management}</span>
+                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Neg: {preset.baseAttributes.negotiation}</span>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
 
-        {/* STEP 3: PHILOSOPHY */}
+        {/* STEP 3: ATTRIBUTES BUDGET */}
         {step === 3 && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-base">
+                <Sliders className="w-5 h-5" />
+                <span>Distribución de Habilidades</span>
+              </div>
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold font-mono ${
+                pointsRemaining === 0 
+                  ? 'bg-emerald-950/70 text-emerald-400 border border-emerald-500/40' 
+                  : 'bg-amber-950/70 text-amber-300 border border-amber-500/40'
+              }`}>
+                {pointsRemaining === 0 ? <Check className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                <span>Puntos Libres: {pointsRemaining}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-400">
+              Distribuye los 15 puntos libres sobre los valores base de tu trasfondo (<strong className="text-white">{currentPreset.title}</strong>). Límite inicial de 14 por atributo.
+            </p>
+
+            <div className="space-y-2.5 mt-4">
+              {[
+                { key: 'tactics', label: 'Táctica y Pizarrón', desc: 'Lectura de juego e impacto de esquemas tácticos' },
+                { key: 'motivation', label: 'Motivación y Discurso', desc: 'Capacidad de levantar la moral del vestuario en la charla' },
+                { key: 'youth', label: 'Ojo para Juveniles', desc: 'Detección temprana y desarrollo acelerado de promesas' },
+                { key: 'management', label: 'Gestión de Grupo', desc: 'Manejo de egos, liderazgo y disciplina en el plantel' },
+                { key: 'negotiation', label: 'Negociación y Fichajes', desc: 'Eficacia económica en renovaciones y contratos' }
+              ].map(({ key, label, desc }) => {
+                const baseVal = currentPreset.baseAttributes[key] || 5
+                const delta = distributedPoints[key] || 0
+                const finalVal = baseVal + delta
+                const isMax = finalVal >= ATTRIBUTE_MAX_INITIAL_CAP
+
+                return (
+                  <div key={key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-xl bg-zinc-950/80 border-zinc-800 gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white">{label}</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">
+                          (Base: {baseVal} + {delta})
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400">{desc}</p>
+                    </div>
+
+                    <div className="flex items-center gap-3 self-end sm:self-center">
+                      <button
+                        type="button"
+                        onClick={() => handlePointChange(key, -1)}
+                        disabled={delta <= 0}
+                        className="w-8 h-8 flex items-center justify-center font-bold text-sm rounded-lg bg-zinc-800 text-zinc-300 disabled:opacity-40 hover:bg-zinc-700 transition-colors"
+                      >
+                        -
+                      </button>
+
+                      <div className="w-8 text-center">
+                        <span className={`text-base font-mono font-black ${isMax ? 'text-amber-400' : 'text-emerald-400'}`}>
+                          {finalVal}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handlePointChange(key, 1)}
+                        disabled={pointsRemaining <= 0 || isMax}
+                        className="w-8 h-8 flex items-center justify-center font-bold text-sm rounded-lg bg-zinc-800 text-zinc-300 disabled:opacity-40 hover:bg-zinc-700 transition-colors"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: PHILOSOPHY & SPECIALIZATION */}
+        {step === 4 && (
+          <div className="space-y-6">
             <div>
-              <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-                <Brain className="w-5 h-5" /> Filosofía de Juego
-              </h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+                <Brain className="w-5 h-5" />
+                <span>Filosofía de Juego</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {philosophies.map(p => (
                   <button
                     key={p.id}
+                    type="button"
                     onClick={() => setPhilosophy(p.id)}
-                    className={`p-4 text-left border rounded-xl transition-all ${philosophy === p.id ? 'border-emerald-500 bg-emerald-500/10' : 'border-zinc-800 bg-zinc-950 hover:border-zinc-700'}`}
+                    className={`p-3 text-left border rounded-xl transition-all ${
+                      philosophy === p.id 
+                        ? 'border-emerald-500 bg-emerald-500/10' 
+                        : 'border-zinc-800 bg-zinc-950/70 hover:border-zinc-700'
+                    }`}
                   >
-                    <h3 className={`font-bold ${philosophy === p.id ? 'text-emerald-400' : 'text-zinc-200'}`}>{p.id}</h3>
-                    <p className="mt-1 text-xs text-zinc-500">{p.desc}</p>
+                    <h4 className={`text-xs font-bold ${philosophy === p.id ? 'text-emerald-400' : 'text-zinc-200'}`}>
+                      {p.title}
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">{p.desc}</p>
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-                <Brain className="w-5 h-5" /> Especialización
-              </h2>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-2 mb-2 text-blue-400 font-bold text-base">
+                <Sparkles className="w-5 h-5" />
+                <span>Especialización del Entrenador</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {specializations.map(s => (
                   <button
                     key={s.id}
+                    type="button"
                     onClick={() => setSpecialization(s.id)}
-                    className={`p-4 text-left border rounded-xl transition-all ${specialization === s.id ? 'border-blue-500 bg-blue-500/10' : 'border-zinc-800 bg-zinc-950 hover:border-zinc-700'}`}
+                    className={`p-3 text-left border rounded-xl transition-all ${
+                      specialization === s.id 
+                        ? 'border-blue-500 bg-blue-500/10' 
+                        : 'border-zinc-800 bg-zinc-950/70 hover:border-zinc-700'
+                    }`}
                   >
-                    <h3 className={`font-bold ${specialization === s.id ? 'text-blue-400' : 'text-zinc-200'}`}>{s.id}</h3>
-                    <p className="mt-1 text-xs text-zinc-500">{s.desc}</p>
+                    <h4 className={`text-xs font-bold ${specialization === s.id ? 'text-blue-400' : 'text-zinc-200'}`}>
+                      {s.title}
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">{s.desc}</p>
                   </button>
                 ))}
               </div>
@@ -227,71 +462,119 @@ export default function CreateManagerWizard() {
           </div>
         )}
 
-        {/* STEP 4: CONFIRMATION */}
-        {step === 4 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-            <h2 className="flex items-center gap-2 mb-4 text-xl font-bold text-emerald-400">
-              <CheckCircle className="w-5 h-5" /> Confirmación
-            </h2>
-            
-            <div className="p-6 border border-emerald-900/50 bg-emerald-950/20 rounded-2xl">
-              <h3 className="mb-1 text-2xl font-black text-white">{identity.firstName} {identity.lastName}</h3>
-              <p className="text-sm text-zinc-400">{identity.age} años • {identity.nationality} • {identity.city}</p>
-              
-              <div className="my-4 border-t border-zinc-800" />
-              
-              <div className="grid grid-cols-2 gap-4 mb-2 text-sm text-zinc-300">
-                <p>
-                  <span className="text-emerald-500">Filosofía:</span><br/>{philosophy}
-                </p>
-                <p>
-                  <span className="text-blue-500">Especialización:</span><br/>{specialization}
-                </p>
+        {/* STEP 5: OFFICIAL CREDENTIAL & CONFIRMATION */}
+        {step === 5 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+              <CheckCircle2 className="w-5 h-5" />
+              <span>Credencial Oficial de Director Técnico</span>
+            </div>
+
+            <div className="p-5 border border-emerald-500/30 rounded-2xl bg-gradient-to-br from-emerald-950/30 via-zinc-950 to-zinc-900/80 shadow-lg">
+              <div className="flex items-start justify-between border-b border-zinc-800 pb-4 mb-4">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                    Licencia Pro Conmebol / UEFA
+                  </span>
+                  <h3 className="text-xl font-black text-white mt-0.5">
+                    {identity.firstName} {identity.lastName}
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    {identity.age} años • {identity.nationality} • {identity.city} • Pie {identity.dominantFoot}
+                  </p>
+                </div>
+                <div className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-right">
+                  <span className="text-[10px] text-zinc-500 block uppercase">Reputación</span>
+                  <span className="text-sm font-mono font-bold text-emerald-400">{currentPreset.reputation} pts</span>
+                </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
-                {Object.entries(attributes).map(([key, val]) => (
-                  <div key={key} className="flex justify-between p-2 rounded bg-zinc-900">
-                    <span className="text-zinc-500 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    <span className="font-bold text-emerald-400">{val}</span>
+
+              <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                  <span className="text-zinc-500 text-[10px] block">Trasfondo</span>
+                  <span className="font-bold text-white">{currentPreset.title}</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                  <span className="text-zinc-500 text-[10px] block">Filosofía</span>
+                  <span className="font-bold text-white">{philosophy}</span>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block mb-2">
+                  Atributos Oficiales Verificados:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
+                    <span className="text-zinc-400">Táctica:</span>
+                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('tactics')}</span>
                   </div>
-                ))}
+                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
+                    <span className="text-zinc-400">Motivación:</span>
+                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('motivation')}</span>
+                  </div>
+                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
+                    <span className="text-zinc-400">Cantera:</span>
+                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('youth')}</span>
+                  </div>
+                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
+                    <span className="text-zinc-400">Gestión:</span>
+                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('management')}</span>
+                  </div>
+                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
+                    <span className="text-zinc-400">Negociación:</span>
+                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('negotiation')}</span>
+                  </div>
+                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
+                    <span className="text-zinc-400">Nivel Inicial:</span>
+                    <span className="font-mono font-bold text-white">Nivel 1</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {/* NAVIGATION BUTTONS */}
-        <div className="flex justify-between mt-10">
+        <div className="flex items-center justify-between mt-8 pt-4 border-t border-zinc-800/80">
           {step > 1 ? (
             <button 
+              type="button"
               onClick={() => setStep(step - 1)}
-              className="flex items-center gap-2 px-6 py-3 font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl hover:bg-zinc-800"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl hover:bg-zinc-800"
             >
               <ChevronLeft className="w-4 h-4" /> Atrás
             </button>
           ) : <div />}
-          
-          {step < 4 ? (
+
+          {step < 5 ? (
             <button 
+              type="button"
               onClick={() => {
-                if (step === 1 && (!identity.firstName || !identity.lastName)) {
-                  toast.error('Completa tu nombre y apellido')
+                if (step === 1) {
+                  if (!identity.firstName.trim() || !identity.lastName.trim()) {
+                    toast.error('Por favor completa tu nombre y apellido.')
+                    return
+                  }
+                }
+                if (step === 3 && pointsRemaining !== 0) {
+                  toast.error(`Debes distribuir los ${pointsRemaining} punto(s) libres restantes.`)
                   return
                 }
                 setStep(step + 1)
               }}
-              className="flex items-center gap-2 px-6 py-3 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105"
+              className="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 active:scale-95"
             >
               Siguiente <ChevronRight className="w-4 h-4" />
             </button>
           ) : (
             <button 
+              type="button"
               onClick={handleCreate}
-              disabled={loading}
-              className="flex items-center gap-2 px-8 py-3 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 disabled:opacity-50"
+              disabled={loading || pointsRemaining !== 0}
+              className="flex items-center gap-2 px-8 py-3 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Firmar y Comenzar'}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Firmar Credencial y Continuar'}
             </button>
           )}
         </div>

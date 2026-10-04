@@ -1,0 +1,49 @@
+id: feat-fase-02-dt-creation
+external_ref: ''
+title: 'Fase 02: Creación de DT, Presets de Trasfondo y Validación Suma Cero'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/features/manager
+    - src/api/manager.js
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar los 4 presets canónicos de trasfondo (STREET_COACH,
+    EX_PRO_PLAYER, TACTICAL_ANALYST, ACADEMY_MENTOR)
+  - >-
+    Sistema de 15 puntos libres a repartir con validación estricta de suma cero
+    y límite inicial de 14 por atributo
+  - >-
+    Validación autoritativa en backend de atributos calculados, nivel forzado a
+    1 y XP a 0
+  - >-
+    Wizard interactivo de 4 pasos con previsualización de credencial de DT y
+    feedback de puntos
+acceptance_criteria:
+  - >-
+    No es posible avanzar con puntos sobrantes ni negativos (exactamente 15
+    puntos distribuidos)
+  - Ningún atributo supera el tope inicial de 14
+  - Reputación inicial se calcula según el trasfondo elegido (20 a 35 pts)
+  - Build de Vite 100% verde
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build
