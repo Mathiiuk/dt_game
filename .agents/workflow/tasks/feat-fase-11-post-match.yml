@@ -1,0 +1,55 @@
+id: feat-fase-11-post-match
+external_ref: 11_post_partido
+title: 'Fase 11: Resumen Post-Partido, Calificaciones, Taquilla y Secciones Mobile'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/postMatch.js
+    - src/features/match/PostMatchScreen.jsx
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades match_reports y player_match_stats en supabase.sql con
+    indice unico por fixture_id
+  - >-
+    Implementar algoritmo autoritativo de calificaciones de jugadores (1.0 a
+    10.0) y seleccion de MVP
+  - >-
+    Calcular taquilla realista basada en capacidad de estadio y ticket_price con
+    deduccion de costes operativos
+  - >-
+    Garantizar idempotencia estricta para evitar duplicaciones de recaudacion o
+    XP por recargas
+  - >-
+    Rediseñar interfaz de PostMatchScreen estructurada en 4 secciones canónicas
+    optimizadas para mobile
+acceptance_criteria:
+  - >-
+    El resumen post-partido presenta tabs/secciones ordenadas: Cronica,
+    Estadisticas, Calificaciones y Finanzas
+  - La taquilla se calcula de forma realista y se acredita exactamente una vez
+  - >-
+    Las calificaciones individuales destacan al MVP y reflejan goles,
+    asistencias y vallas invictas
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

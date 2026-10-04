@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T02:29:10.968Z",
+  "updatedAt": "2026-10-04T02:31:22.246Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 87,
-    "totalEdges": 301,
-    "totalTasks": 24,
+    "totalNodes": 88,
+    "totalEdges": 302,
+    "totalTasks": 25,
     "totalLessons": 0
   },
   "nodes": [
@@ -269,7 +269,7 @@
       "id": "src/api/matchEngine.js",
       "label": "matchEngine.js",
       "type": "module",
-      "sizeBytes": 13326,
+      "sizeBytes": 13734,
       "lineCount": 409,
       "imports": [
         "./supabase"
@@ -313,8 +313,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 4128,
-      "lineCount": 103,
+      "sizeBytes": 9022,
+      "lineCount": 258,
       "imports": [
         "./manager",
         "./supabase",
@@ -725,7 +725,7 @@
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 21478,
+      "sizeBytes": 22002,
       "lineCount": 525,
       "imports": [
         "react",
@@ -745,8 +745,8 @@
       "id": "src/features/match/PostMatchScreen.jsx",
       "label": "PostMatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 9510,
-      "lineCount": 210,
+      "sizeBytes": 21176,
+      "lineCount": 452,
       "imports": [
         "react",
         "react-router-dom",
@@ -1014,6 +1014,13 @@
     {
       "id": "task:feat-fase-10-match-engine",
       "label": "feat-fase-10-match-engine: Fase 10: Motor de Simulacion de Partidos, Direccion en Vivo y Anti-Save Scumming",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-11-post-match",
+      "label": "feat-fase-11-post-match: Fase 11: Resumen Post-Partido, Calificaciones, Taquilla y Secciones Mobile",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -2523,6 +2530,11 @@
     {
       "from": "task:feat-fase-10-match-engine",
       "to": ".agents/workflow/tasks/feat-fase-10-match-engine.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-11-post-match",
+      "to": ".agents/workflow/tasks/feat-fase-11-post-match.yml",
       "relation": "manifested_by"
     }
   ],

@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T02:29:10.968Z | **Nodos:** 87 | **Tareas:** 24
+> **Última sincronización:** 2026-10-04T02:31:22.246Z | **Nodos:** 88 | **Tareas:** 25
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -12,6 +12,7 @@
 | `src/features/dashboard/Dashboard.jsx` | 547 | react, react-router-dom, ../../api/dashboard |
 | `src/features/match/MatchScreen.jsx` | 525 | react, react-router-dom, ../../api/auth |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
+| `src/features/match/PostMatchScreen.jsx` | 452 | react, react-router-dom, ../../api/postMatch |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
 | `src/features/career/AchievementsScreen.jsx` | 430 | react, react-router-dom, ../../context/GameContext |
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
@@ -30,7 +31,6 @@
 | `src/api/season.js` | 304 | ./supabase, ./competition, ./audit |
 | `src/api/clubHistory.js` | 302 | ./supabase |
 | `src/api/levels.js` | 292 | ./supabase, ../utils/cache, ./audit |
-| `src/api/nationalTeam.js` | 291 | ./supabase, ./manager, ./audit |
 
 _(+38 módulos adicionales; consultar con `memory:query`)_
 
@@ -60,3 +60,4 @@ _(+38 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-08-training-regime: Fase 08: Entrenamiento, Preparacion Fisica y Desarrollo Individual** `[DONE]`
 - **feat-fase-09-tactics-system: Fase 09: Tacticas, Formaciones, Pizarra y Afinidad Posicional** `[DONE]`
 - **feat-fase-10-match-engine: Fase 10: Motor de Simulacion de Partidos, Direccion en Vivo y Anti-Save Scumming** `[DONE]`
+- **feat-fase-11-post-match: Fase 11: Resumen Post-Partido, Calificaciones, Taquilla y Secciones Mobile** `[DONE]`

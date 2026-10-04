@@ -759,3 +759,47 @@ CREATE POLICY "Permitir match_events" ON public.match_events FOR ALL USING (true
 
 ALTER TABLE public.match_interventions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Permitir match_interventions" ON public.match_interventions FOR ALL USING (true);
+
+-- ============================================================================
+-- Fase 11: Resumen Post-Partido, Calificaciones, Taquilla y Secciones Mobile
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.match_reports (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  fixture_id uuid REFERENCES public.fixtures(id) ON DELETE CASCADE,
+  home_club_id uuid REFERENCES public.clubs(id),
+  away_club_id uuid REFERENCES public.clubs(id),
+  final_score text NOT NULL,
+  attendance int DEFAULT 0 NOT NULL,
+  gate_receipts_gross numeric DEFAULT 0 NOT NULL,
+  match_xp_awarded int DEFAULT 0 NOT NULL,
+  mvp_player_id uuid REFERENCES public.players(id),
+  manager_press_quote text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_match_report_fixture UNIQUE (fixture_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.player_match_stats (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  fixture_id uuid REFERENCES public.fixtures(id) ON DELETE CASCADE,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  minutes_played int DEFAULT 90 NOT NULL,
+  rating numeric DEFAULT 6.0 NOT NULL,
+  goals int DEFAULT 0 NOT NULL,
+  assists int DEFAULT 0 NOT NULL,
+  yellow_cards int DEFAULT 0 NOT NULL,
+  red_cards int DEFAULT 0 NOT NULL,
+  fitness_after_match int DEFAULT 80 NOT NULL,
+  morale_delta int DEFAULT 0 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_player_match_stats_fixture ON public.player_match_stats(fixture_id);
+CREATE INDEX IF NOT EXISTS idx_player_match_stats_player ON public.player_match_stats(player_id);
+
+ALTER TABLE public.match_reports ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir match_reports" ON public.match_reports FOR ALL USING (true);
+
+ALTER TABLE public.player_match_stats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir player_match_stats" ON public.player_match_stats FOR ALL USING (true);
