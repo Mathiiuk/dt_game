@@ -243,9 +243,10 @@ export const injuriesApi = {
     let physioBonus = 0
     try {
       const { staffApi } = await import('./staff')
-      const staffList = await staffApi.getClubStaff(clubId)
-      const physio = (staffList || []).find(s => s.role === 'PHYSIOTHERAPIST' || s.role === 'DOCTOR')
-      if (physio && physio.rating >= 70) {
+      const staffList = await staffApi.getStaff(clubId)
+      // El rol real del cuerpo médico es PHYSIO; skill_rating va de 1 a 20 (14 equivale al 70%)
+      const physio = (staffList || []).find(s => s.role === 'PHYSIO')
+      if (physio && (physio.skill_rating || 0) >= 14) {
         physioBonus = 0.5 // Descuenta medio punto extra de semana
       }
     } catch (e) {

@@ -182,6 +182,31 @@ export const financesApi = {
   },
   
   /**
+   * Registra un asiento en el libro mayor SIN modificar la caja del club.
+   * Se usa cuando el llamador ya actualizó clubs.budget (obras, aportes extraordinarios...);
+   * balance_after refleja el saldo vigente del club en ese momento.
+   */
+  async recordLedgerTransaction({ clubId, careerId = null, category, amount, description, seasonYear = 1, weekNumber = 1 }) {
+    if (!clubId) return
+
+    const { data: club } = await supabase.from('clubs').select('budget').eq('id', clubId).single()
+
+    const { error } = await supabase.from('financial_transactions_ledger').insert({
+      career_id: careerId,
+      club_id: clubId,
+      season_year: seasonYear,
+      week_number: weekNumber,
+      category,
+      amount,
+      balance_after: Number(club?.budget || 0),
+      description
+    })
+    if (error) console.warn('Aviso: no se pudo registrar el asiento contable:', error.message)
+
+    queryCache.invalidate(`finances:${clubId}`)
+  },
+
+  /**
    * Mejorar nivel de instalación edilicia
    */
   async upgradeFacility(clubId, facilityType, cost, currentLevel) {

@@ -121,11 +121,12 @@ export const legendsApi = {
 
     // 5. Impacto en afición y reputación del DT
     if (managerId) {
-      await reputationApi.addReputationChange(managerId, {
-        points: 2.5,
-        action_type: 'CLUB_COMMUNITY',
-        reason: `Homenaje y retiro de dorsal #${num} de ${playerName}`,
-        context_data: { club_id: clubId, shirt_number: num }
+      await reputationApi.applyReputationDelta({
+        managerId,
+        eventType: 'CLUB_TRIBUTE',
+        sourceEntityId: `${clubId}:shirt-${num}`,
+        delta: 2.5,
+        description: `Homenaje y retiro de dorsal #${num} de ${playerName}`
       })
     }
 

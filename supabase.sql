@@ -1767,7 +1767,7 @@ CREATE TABLE IF NOT EXISTS public.manager_reputation_ledger (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
   manager_id uuid REFERENCES public.managers(id) ON DELETE CASCADE,
-  event_type text NOT NULL CHECK (event_type IN ('MATCH_RESULT', 'DERBY_VICTORY', 'TITLE_WON', 'PROMOTION', 'RELEGATION', 'DISMISSAL', 'INTERNATIONAL_TRIUMPH', 'RESIGNATION')),
+  event_type text NOT NULL CHECK (event_type IN ('MATCH_RESULT', 'DERBY_VICTORY', 'TITLE_WON', 'PROMOTION', 'RELEGATION', 'DISMISSAL', 'INTERNATIONAL_TRIUMPH', 'RESIGNATION', 'CLUB_TRIBUTE')),
   delta_amount numeric(5,2) NOT NULL,
   reputation_after integer NOT NULL,
   source_entity_id text,
