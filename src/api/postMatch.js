@@ -270,6 +270,16 @@ export const postMatchApi = {
       }
     }
 
+    // 5b. Registrar partido en el ciclo activo de carrera del DT (Fase 31)
+    if (managerId && clubId) {
+      try {
+        const { careerApi } = await import('./career')
+        await careerApi.recordMatchInStint(managerId, clubId, isWin, isDraw, !isWin && !isDraw)
+      } catch (stintErr) {
+        console.warn('Aviso: no se pudo actualizar stint de carrera del DT:', stintErr)
+      }
+    }
+
     // 6. Registrar match_reports y player_match_stats en BD
     try {
       if (fixtureId) {

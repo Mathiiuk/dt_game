@@ -1702,3 +1702,56 @@ CREATE POLICY "Permitir todo playoff_fixtures" ON public.playoff_fixtures FOR AL
 
 CREATE INDEX IF NOT EXISTS idx_prom_rel_career ON public.promotion_relegation_ledger(career_id, season_year);
 CREATE INDEX IF NOT EXISTS idx_playoff_fixtures_career ON public.playoff_fixtures(career_id, season_year, division_tier);
+
+-- ========================================================
+-- FASE 31: CARRERA DEL DIRECTOR TÉCNICO, OFERTAS Y STINTS
+-- ========================================================
+
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS employment_status text DEFAULT 'EMPLOYED' CHECK (employment_status IN ('EMPLOYED', 'UNEMPLOYED', 'RETIRED'));
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS current_contract_wage numeric(10,2) DEFAULT 500.00;
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS current_contract_expires_at date;
+ALTER TABLE public.managers ADD COLUMN IF NOT EXISTS personal_savings numeric(12,2) DEFAULT 0.00;
+
+CREATE TABLE IF NOT EXISTS public.manager_job_offers (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE CASCADE,
+  offering_club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  offering_club_name text NOT NULL,
+  offering_club_tier integer DEFAULT 5 NOT NULL,
+  wage_offered numeric(10,2) NOT NULL,
+  transfer_budget_promised numeric(12,2) NOT NULL,
+  season_objective_expected text NOT NULL CHECK (season_objective_expected IN ('AVOID_RELEGATION', 'MID_TABLE', 'TOP_HALF', 'PROMOTION', 'CHAMPION')),
+  contract_years integer DEFAULT 1 NOT NULL,
+  status text DEFAULT 'PENDING' NOT NULL CHECK (status IN ('PENDING', 'ACCEPTED', 'REJECTED', 'EXPIRED')),
+  expires_at_week integer NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.manager_career_stints (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  career_id uuid REFERENCES public.careers(id) ON DELETE CASCADE,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE CASCADE,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  club_name text NOT NULL,
+  started_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  ended_at timestamp with time zone,
+  matches_managed integer DEFAULT 0 NOT NULL,
+  matches_won integer DEFAULT 0 NOT NULL,
+  matches_drawn integer DEFAULT 0 NOT NULL,
+  matches_lost integer DEFAULT 0 NOT NULL,
+  trophies_won jsonb DEFAULT '[]'::jsonb NOT NULL,
+  departure_reason text CHECK (departure_reason IN ('RESIGNED', 'SACKED', 'RETIRED', 'MOVED_TO_ANOTHER_CLUB', 'CONTRACT_EXPIRED')),
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.manager_job_offers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo manager_job_offers" ON public.manager_job_offers FOR ALL USING (true);
+
+ALTER TABLE public.manager_career_stints ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo manager_career_stints" ON public.manager_career_stints FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_job_offers_manager_status ON public.manager_job_offers(manager_id, status);
+CREATE INDEX IF NOT EXISTS idx_job_offers_career ON public.manager_job_offers(career_id);
+CREATE INDEX IF NOT EXISTS idx_career_stints_manager ON public.manager_career_stints(manager_id);
+CREATE INDEX IF NOT EXISTS idx_career_stints_career ON public.manager_career_stints(career_id);

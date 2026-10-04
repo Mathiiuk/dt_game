@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:38:01.857Z",
+  "updatedAt": "2026-10-04T03:43:58.821Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 135,
-    "totalEdges": 420,
-    "totalTasks": 44,
+    "totalNodes": 137,
+    "totalEdges": 425,
+    "totalTasks": 45,
     "totalLessons": 0
   },
   "nodes": [
@@ -82,8 +82,8 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 15668,
-      "lineCount": 400,
+      "sizeBytes": 16122,
+      "lineCount": 410,
       "imports": [
         "./supabase"
       ]
@@ -92,11 +92,12 @@
       "id": "src/api/career.js",
       "label": "career.js",
       "type": "module",
-      "sizeBytes": 5082,
-      "lineCount": 160,
+      "sizeBytes": 25157,
+      "lineCount": 757,
       "imports": [
         "./supabase",
-        "./audit"
+        "./audit",
+        "../utils/cache"
       ]
     },
     {
@@ -146,7 +147,7 @@
       "id": "src/api/competitionTiers.js",
       "label": "competitionTiers.js",
       "type": "module",
-      "sizeBytes": 9379,
+      "sizeBytes": 9660,
       "lineCount": 282,
       "imports": [
         "./supabase",
@@ -414,8 +415,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 12298,
-      "lineCount": 337,
+      "sizeBytes": 12708,
+      "lineCount": 347,
       "imports": [
         "./manager",
         "./supabase",
@@ -601,8 +602,8 @@
       "id": "src/context/GameContext.jsx",
       "label": "GameContext.jsx",
       "type": "module",
-      "sizeBytes": 4331,
-      "lineCount": 139,
+      "sizeBytes": 4570,
+      "lineCount": 144,
       "imports": [
         "react",
         "react-router-dom",
@@ -696,6 +697,17 @@
         "lucide-react",
         "sonner",
         "../../components/BottomNav"
+      ]
+    },
+    {
+      "id": "src/features/career/JobOfferBottomSheet.jsx",
+      "label": "JobOfferBottomSheet.jsx",
+      "type": "module",
+      "sizeBytes": 6242,
+      "lineCount": 144,
+      "imports": [
+        "react",
+        "lucide-react"
       ]
     },
     {
@@ -867,7 +879,7 @@
       "id": "src/features/competition/LeaguePyramidModal.jsx",
       "label": "LeaguePyramidModal.jsx",
       "type": "module",
-      "sizeBytes": 11244,
+      "sizeBytes": 11486,
       "lineCount": 243,
       "imports": [
         "react",
@@ -961,14 +973,15 @@
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 19788,
-      "lineCount": 386,
+      "sizeBytes": 39752,
+      "lineCount": 787,
       "imports": [
         "react",
         "react-router-dom",
         "../../context/GameContext",
         "../../api/career",
         "../../api/endgame",
+        "../career/JobOfferBottomSheet",
         "lucide-react",
         "sonner",
         "../../components/BottomNav"
@@ -1508,6 +1521,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-31-manager-career-job-offers",
+      "label": "feat-fase-31-manager-career-job-offers: Fase 31 - Carrera del DT, Ofertas de Trabajo y Renuncias",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1604,6 +1624,11 @@
     {
       "from": "src/api/career.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/career.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2402,6 +2427,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/career/JobOfferBottomSheet.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/JobOfferBottomSheet.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/CreateClubWizard.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2954,6 +2989,11 @@
     {
       "from": "src/features/manager/ManagerCareerScreen.jsx",
       "to": "../../api/endgame",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../career/JobOfferBottomSheet",
       "relation": "depends_on"
     },
     {
@@ -3609,6 +3649,11 @@
     {
       "from": "task:feat-fase-30-promotion-relegation-pyramid",
       "to": ".agents/workflow/tasks/feat-fase-30-promotion-relegation-pyramid.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-31-manager-career-job-offers",
+      "to": ".agents/workflow/tasks/feat-fase-31-manager-career-job-offers.yml",
       "relation": "manifested_by"
     }
   ],

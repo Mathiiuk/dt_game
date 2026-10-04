@@ -65,6 +65,11 @@ export const GameProvider = ({ children }) => {
         )
 
         if (!club) {
+          if (manager.employment_status === 'UNEMPLOYED') {
+            if (location.pathname !== '/manager') navigate('/manager')
+            setGameState({ user, manager, club: null, loading: false })
+            return
+          }
           if (location.pathname !== '/create-club') navigate('/create-club')
           setGameState(prev => ({ ...prev, loading: false }))
           return

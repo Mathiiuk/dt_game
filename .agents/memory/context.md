@@ -1,12 +1,14 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:38:01.857Z | **Nodos:** 135 | **Tareas:** 44
+> **Última sincronización:** 2026-10-04T03:43:58.821Z | **Nodos:** 137 | **Tareas:** 45
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
 | `src/features/squad/SquadScreen.jsx` | 859 | react, react-router-dom, ../../api/player |
+| `src/features/manager/ManagerCareerScreen.jsx` | 787 | react, react-router-dom, ../../context/GameContext |
+| `src/api/career.js` | 757 | ./supabase, ./audit, ../utils/cache |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
 | `src/features/club/screens/ClubScreen.jsx` | 735 | react, react-router-dom, ../../../api/club |
 | `src/features/match/PostMatchScreen.jsx` | 589 | react, react-router-dom, ../../api/postMatch |
@@ -23,16 +25,14 @@
 | `src/features/training/TrainingScreen.jsx` | 422 | react, react-router-dom, lucide-react |
 | `src/api/injuries.js` | 420 | ./supabase, ../utils/cache |
 | `src/features/market/MarketScreen.jsx` | 411 | react, react-router-dom, ../../api/market |
+| `src/api/calendar.js` | 410 | ./supabase |
 | `src/api/matchEngine.js` | 409 | ./supabase |
 | `src/api/lockerRoom.js` | 408 | ./supabase, ../utils/cache |
-| `src/api/calendar.js` | 400 | ./supabase |
 | `src/api/press.js` | 396 | ./supabase, ../utils/cache |
 | `src/api/stadium.js` | 396 | ./supabase, ../utils/cache, ./finances |
 | `src/features/tactics/TacticsScreen.jsx` | 391 | react, react-router-dom, lucide-react |
-| `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
-| `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
 
-_(+66 módulos adicionales; consultar con `memory:query`)_
+_(+67 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -80,3 +80,4 @@ _(+66 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-28-player-evolution-aging-decline: Fase 28 - Evolucion de Jugadores, Picos de Rendimiento y Declive** `[DONE]`
 - **feat-fase-29-season-close-annual-transition: Fase 29 - Temporadas, Ciclos Anuales y Balance Deportivo** `[DONE]`
 - **feat-fase-30-promotion-relegation-pyramid: Fase 30 - Ascensos, Descensos y Estructura Piramidal de Ligas** `[DONE]`
+- **feat-fase-31-manager-career-job-offers: Fase 31 - Carrera del DT, Ofertas de Trabajo y Renuncias** `[DONE]`

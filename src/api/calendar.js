@@ -324,6 +324,16 @@ export const calendarApi = {
           console.warn('Aviso: no se pudo procesar recuperación de lesiones:', injErr)
         }
 
+        // 11e. Avance de carrera del DT: depósito de salario y expiración de ofertas (Fase 31)
+        if (managerId) {
+          try {
+            const { careerApi } = await import('./career')
+            await careerApi.processWeeklyManagerProgression(managerId, nextWeek, clubId, careerId)
+          } catch (careerErr) {
+            console.warn('Aviso: no se pudo procesar avance de carrera del DT:', careerErr)
+          }
+        }
+
         // Sincronizar fecha en clubs para compatibilidad
         await supabase
           .from('clubs')
