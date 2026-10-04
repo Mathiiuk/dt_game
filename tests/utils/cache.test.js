@@ -30,4 +30,28 @@ describe('queryCache', () => {
     await queryCache.fetch('club:1', fetcher)
     expect(fetcher).toHaveBeenCalledTimes(3)
   })
+
+  it('no cachea resultados vacíos (null/undefined) y vuelve a consultar', async () => {
+    const fetcher = vi.fn(async () => null)
+    expect(await queryCache.fetch('vacio', fetcher)).toBeNull()
+    expect(await queryCache.fetch('vacio', fetcher)).toBeNull()
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+
+  it('set/get respetan el TTL y comparten caché con fetch', async () => {
+    vi.useFakeTimers()
+    queryCache.set('manual', { a: 1 }, 1000)
+    expect(queryCache.get('manual')).toEqual({ a: 1 })
+    const fetcher = vi.fn(async () => 'nuevo')
+    expect(await queryCache.fetch('manual', fetcher)).toEqual({ a: 1 })
+    expect(fetcher).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1500)
+    expect(queryCache.get('manual')).toBeNull()
+    vi.useRealTimers()
+  })
+
+  it('propaga el error del fetcher sin dejar basura en la caché', async () => {
+    await expect(queryCache.fetch('err', async () => { throw new Error('boom') })).rejects.toThrow('boom')
+    expect(queryCache.get('err')).toBeNull()
+  })
 })

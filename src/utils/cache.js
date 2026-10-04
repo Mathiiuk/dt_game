@@ -1,96 +1,76 @@
 /**
- * High-Performance In-Memory Query Cache with In-Flight Deduplication (SWR-ready)
- * Soluciona la latencia de navegación entre secciones y las peticiones duplicadas.
+ * Adaptador de caché sobre TanStack Query (src/lib/queryClient.js).
+ *
+ * Mantiene la API histórica (get / set / fetch / invalidate / clear) para no tocar los ~140 usos existentes,
+ * pero delega en QueryClient: caché con TTL, deduplicación de peticiones en vuelo y recolección de basura.
+ * Las claves históricas ('club:123', 'squad:abc'...) se guardan como queryKey ['cache', clave].
  */
+import { queryClient } from '../lib/queryClient'
+
+const ROOT = 'cache'
+const keyOf = (key) => [ROOT, key]
 
 class MemoryQueryCache {
-  constructor() {
-    this.store = new Map() // key -> { value, expiresAt }
-    this.inFlight = new Map() // key -> Promise
-  }
-
-  /**
-   * Obtiene un valor de caché si no ha expirado
-   */
+  /** Valor vigente (no expirado) o null */
   get(key) {
-    const item = this.store.get(key)
-    if (!item) return null
-    if (Date.now() > item.expiresAt) {
-      this.store.delete(key)
+    const state = queryClient.getQueryState(keyOf(key))
+    if (!state || state.data === undefined) return null
+    // Si el TTL con el que se guardó ya venció, se descarta (compatibilidad con el comportamiento anterior)
+    const expiresAt = state.data.expiresAt
+    if (expiresAt && Date.now() > expiresAt) {
+      queryClient.removeQueries({ queryKey: keyOf(key), exact: true })
       return null
     }
-    return item.value
+    return state.data.value
   }
 
-  /**
-   * Almacena un valor en caché con TTL en milisegundos (por defecto 60 segundos)
-   */
+  /** Guarda un valor con TTL en milisegundos (por defecto 60 s) */
   set(key, value, ttlMs = 60000) {
-    this.store.set(key, {
-      value,
-      expiresAt: Date.now() + ttlMs
-    })
+    queryClient.setQueryData(keyOf(key), { value, expiresAt: Date.now() + ttlMs })
     return value
   }
 
   /**
    * Ejecuta o reutiliza una consulta asíncrona:
-   * 1. Si existe en caché válida, la devuelve inmediatamente (0 ms).
-   * 2. Si ya hay una petición idéntica en vuelo (in-flight), reutiliza esa misma Promise (evita duplicados).
-   * 3. Si no, ejecuta fetcher(), la cachea y la entrega.
+   * 1. Caché válida -> devuelve de inmediato.
+   * 2. Misma petición en vuelo -> comparte la promesa (sin duplicados).
+   * 3. Si no, ejecuta fetcher(), cachea (salvo null/undefined) y entrega el resultado.
    */
   async fetch(key, fetcher, ttlMs = 60000) {
-    // 1. Hit de caché
     const cached = this.get(key)
-    if (cached !== null) {
-      return cached
-    }
+    if (cached !== null) return cached
 
-    // 2. Reutilización de petición en vuelo (Deduplicación concurrente)
-    if (this.inFlight.has(key)) {
-      return this.inFlight.get(key)
-    }
-
-    // 3. Nueva ejecución
-    const promise = (async () => {
-      try {
-        const result = await fetcher()
-        if (result !== undefined && result !== null) {
-          this.set(key, result, ttlMs)
-        }
-        return result
-      } finally {
-        this.inFlight.delete(key)
+    const result = await queryClient.fetchQuery({
+      queryKey: keyOf(key),
+      staleTime: 0, // la vigencia la decide `get` con el TTL propio de cada valor
+      gcTime: Math.max(ttlMs, 1000),
+      queryFn: async () => {
+        const value = await fetcher()
+        return { value, expiresAt: Date.now() + ttlMs }
       }
-    })()
+    })
 
-    this.inFlight.set(key, promise)
-    return promise
+    // Los resultados vacíos nunca se cachean (comportamiento histórico)
+    if (result.value === undefined || result.value === null) {
+      queryClient.removeQueries({ queryKey: keyOf(key), exact: true })
+    }
+    return result.value
   }
 
-  /**
-   * Invalida una clave exacta o todas las claves que comiencen con el prefijo dado
-   * Ej: cache.invalidate('squad:'), cache.invalidate('fixtures:')
-   */
+  /** Invalida una clave exacta o todas las que comiencen con el prefijo */
   invalidate(keyOrPrefix) {
-    for (const key of this.store.keys()) {
-      if (key === keyOrPrefix || key.startsWith(keyOrPrefix)) {
-        this.store.delete(key)
+    queryClient.removeQueries({
+      queryKey: [ROOT],
+      predicate: (query) => {
+        const k = query.queryKey[1]
+        return typeof k === 'string' && (k === keyOrPrefix || k.startsWith(keyOrPrefix))
       }
-    }
-    for (const key of this.inFlight.keys()) {
-      if (key === keyOrPrefix || key.startsWith(keyOrPrefix)) {
-        this.inFlight.delete(key)
-      }
-    }
+    })
   }
 
-  /**
-   * Limpia toda la caché
-   */
+  /** Limpia toda la caché del adaptador */
   clear() {
-    this.store.clear()
-    this.inFlight.clear()
+    queryClient.removeQueries({ queryKey: [ROOT] })
   }
 }
 
