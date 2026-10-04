@@ -1,12 +1,12 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T03:16:30.299Z | **Nodos:** 120 | **Tareas:** 39
+> **Última sincronización:** 2026-10-04T03:21:08.703Z | **Nodos:** 123 | **Tareas:** 40
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
-| `src/features/squad/SquadScreen.jsx` | 783 | react, react-router-dom, ../../api/player |
+| `src/features/squad/SquadScreen.jsx` | 829 | react, react-router-dom, ../../api/player |
 | `src/api/contracts.js` | 735 | ./supabase, ../utils/cache, ./audit |
 | `src/features/club/screens/ClubScreen.jsx` | 716 | react, react-router-dom, ../../../api/club |
 | `src/features/match/PostMatchScreen.jsx` | 589 | react, react-router-dom, ../../api/postMatch |
@@ -26,13 +26,13 @@
 | `src/api/lockerRoom.js` | 408 | ./supabase, ../utils/cache |
 | `src/api/press.js` | 396 | ./supabase, ../utils/cache |
 | `src/api/stadium.js` | 396 | ./supabase, ../utils/cache, ./finances |
+| `src/api/calendar.js` | 392 | ./supabase |
 | `src/features/club/screens/StadiumManagementTab.jsx` | 387 | react, lucide-react, ../../../api/stadium |
 | `src/features/manager/ManagerCareerScreen.jsx` | 386 | react, react-router-dom, ../../context/GameContext |
-| `src/api/calendar.js` | 384 | ./supabase |
 | `src/features/tactics/TacticsScreen.jsx` | 376 | react, react-router-dom, lucide-react |
 | `src/api/training.js` | 372 | ./supabase |
 
-_(+56 módulos adicionales; consultar con `memory:query`)_
+_(+58 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -75,3 +75,4 @@ _(+56 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-23-board-confidence: Fase 23: Dirigencia, Confianza y Condicion de Despido** `[DONE]`
 - **feat-fase-24-press-conferences: Fase 24: Prensa Deportiva, Ruedas de Prensa y Reputacion** `[DONE]`
 - **feat-fase-25-locker-room: Fase 25: Vestuario, Cohesion y Jerarquia de Liderazgo** `[DONE]`
+- **feat-fase-26-player-personalities: Fase 26: Personalidades, Rasgos y Psicologia del Jugador** `[DONE]`

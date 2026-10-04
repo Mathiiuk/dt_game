@@ -1,0 +1,55 @@
+id: feat-fase-26-player-personalities
+external_ref: 26_personalidades
+title: 'Fase 26: Personalidades, Rasgos y Psicologia del Jugador'
+type: feat
+status: DONE
+priority: high
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules:
+    - src/api/personalities.js
+    - src/features/squad/MentorshipModal.jsx
+    - src/features/squad/SquadScreen.jsx
+    - src/api/calendar.js
+    - supabase.sql
+  environments:
+    - local
+requirements:
+  - >-
+    Crear entidades player_personalities, player_mentorships y
+    personality_events_log en supabase.sql con RLS e índices
+  - >-
+    Motor psicológico con 7 arquetipos (Líder Nato, Profesional Ejemplar,
+    Ambicioso, Temperamental, Resiliente, Indolente, Frágil)
+  - >-
+    Variables latentes en escala 1-20 (Ambición, Profesionalismo, Lealtad,
+    Presión, Temperamento, Determinación)
+  - >-
+    Sistema de tutorías y mentorías entre veteranos y juveniles con avance
+    semanal de calendario
+  - >-
+    Integración en SquadScreen con badges de arquetipo y modal de gestión de
+    mentorías
+acceptance_criteria:
+  - Los futbolistas poseen su arquetipo psicológico y variables latentes
+  - Los veteranos pueden apadrinar a juveniles para moldear su profesionalismo
+  - >-
+    El avance semanal de calendario actualiza el progreso de las tutorías
+    activas
+  - npm run build compila limpiamente sin errores
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  build: npm run build

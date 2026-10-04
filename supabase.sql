@@ -1444,3 +1444,51 @@ CREATE POLICY "Permitir todo locker_room_events_log" ON public.locker_room_event
 CREATE INDEX IF NOT EXISTS idx_locker_club ON public.club_locker_room(club_id);
 CREATE INDEX IF NOT EXISTS idx_player_social_club ON public.player_social_status(club_id);
 CREATE INDEX IF NOT EXISTS idx_locker_events_club ON public.locker_room_events_log(club_id);
+
+-- FASE 26: Personalidades, Rasgos y Psicología del Jugador
+CREATE TABLE IF NOT EXISTS public.player_personalities (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  primary_archetype text DEFAULT 'STREET_RESILIENT' NOT NULL CHECK (primary_archetype IN ('NATURAL_LEADER', 'MODEL_PROFESSIONAL', 'AMBITIOUS', 'TEMPERAMENTAL', 'STREET_RESILIENT', 'SLACKER', 'FRAGILE')),
+  ambition integer DEFAULT 10 NOT NULL CHECK (ambition BETWEEN 1 AND 20),
+  professionalism integer DEFAULT 10 NOT NULL CHECK (professionalism BETWEEN 1 AND 20),
+  loyalty integer DEFAULT 10 NOT NULL CHECK (loyalty BETWEEN 1 AND 20),
+  pressure_handling integer DEFAULT 10 NOT NULL CHECK (pressure_handling BETWEEN 1 AND 20),
+  temperament integer DEFAULT 10 NOT NULL CHECK (temperament BETWEEN 1 AND 20),
+  determination integer DEFAULT 10 NOT NULL CHECK (determination BETWEEN 1 AND 20),
+  special_traits text[] DEFAULT '{}',
+  mentor_player_id uuid REFERENCES public.players(id) ON DELETE SET NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  CONSTRAINT uq_player_personality UNIQUE (player_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.player_mentorships (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  club_id uuid REFERENCES public.clubs(id) ON DELETE CASCADE,
+  veteran_player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  youth_player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  progress_percentage integer DEFAULT 0 NOT NULL CHECK (progress_percentage BETWEEN 0 AND 100),
+  status text DEFAULT 'ACTIVE' NOT NULL CHECK (status IN ('ACTIVE', 'COMPLETED', 'INCOMPATIBLE_CANCELLED')),
+  started_at_season integer DEFAULT 1 NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.personality_events_log (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  player_id uuid REFERENCES public.players(id) ON DELETE CASCADE,
+  event_type text NOT NULL,
+  attribute_shifted text,
+  timestamp timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.player_personalities ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo player_personalities" ON public.player_personalities FOR ALL USING (true);
+
+ALTER TABLE public.player_mentorships ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo player_mentorships" ON public.player_mentorships FOR ALL USING (true);
+
+ALTER TABLE public.personality_events_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo personality_events_log" ON public.personality_events_log FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_mentorship_club ON public.player_mentorships(club_id, status);
+CREATE INDEX IF NOT EXISTS idx_personality_events_player ON public.personality_events_log(player_id);

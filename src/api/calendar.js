@@ -308,6 +308,14 @@ export const calendarApi = {
           console.warn('Aviso: no se pudo procesar avance de obras de estadio:', stErr)
         }
 
+        // 11c. Avance de programas de mentoría de futbolistas (Fase 26)
+        try {
+          const { personalitiesApi } = await import('./personalities')
+          await personalitiesApi.advanceMentorshipsWeek(clubId)
+        } catch (persErr) {
+          console.warn('Aviso: no se pudo procesar avance de mentorías:', persErr)
+        }
+
         // Sincronizar fecha en clubs para compatibilidad
         await supabase
           .from('clubs')

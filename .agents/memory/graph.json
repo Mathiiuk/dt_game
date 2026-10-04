@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T03:16:30.299Z",
+  "updatedAt": "2026-10-04T03:21:08.703Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 120,
-    "totalEdges": 376,
-    "totalTasks": 39,
+    "totalNodes": 123,
+    "totalEdges": 385,
+    "totalTasks": 40,
     "totalLessons": 0
   },
   "nodes": [
@@ -82,8 +82,8 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 14967,
-      "lineCount": 384,
+      "sizeBytes": 15321,
+      "lineCount": 392,
       "imports": [
         "./supabase"
       ]
@@ -293,7 +293,7 @@
       "id": "src/api/lockerRoom.js",
       "label": "lockerRoom.js",
       "type": "module",
-      "sizeBytes": 14908,
+      "sizeBytes": 15315,
       "lineCount": 408,
       "imports": [
         "./supabase",
@@ -352,6 +352,17 @@
         "./supabase",
         "./manager",
         "./audit"
+      ]
+    },
+    {
+      "id": "src/api/personalities.js",
+      "label": "personalities.js",
+      "type": "module",
+      "sizeBytes": 9888,
+      "lineCount": 283,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
       ]
     },
     {
@@ -714,7 +725,7 @@
       "id": "src/features/club/screens/LockerRoomTab.jsx",
       "label": "LockerRoomTab.jsx",
       "type": "module",
-      "sizeBytes": 21796,
+      "sizeBytes": 22275,
       "lineCount": 480,
       "imports": [
         "react",
@@ -981,11 +992,24 @@
       ]
     },
     {
+      "id": "src/features/squad/MentorshipModal.jsx",
+      "label": "MentorshipModal.jsx",
+      "type": "module",
+      "sizeBytes": 9131,
+      "lineCount": 213,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../api/personalities",
+        "sonner"
+      ]
+    },
+    {
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 37806,
-      "lineCount": 783,
+      "sizeBytes": 40518,
+      "lineCount": 829,
       "imports": [
         "react",
         "react-router-dom",
@@ -995,7 +1019,9 @@
         "sonner",
         "../../context/GameContext",
         "../../utils/cache",
-        "./ContractRenewalModal"
+        "./ContractRenewalModal",
+        "./MentorshipModal",
+        "../../api/personalities"
       ]
     },
     {
@@ -1344,6 +1370,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-26-player-personalities",
+      "label": "feat-fase-26-player-personalities: Fase 26: Personalidades, Rasgos y Psicologia del Jugador",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -1680,6 +1713,16 @@
     {
       "from": "src/api/nationalTeam.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/personalities.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/personalities.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2883,6 +2926,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/squad/MentorshipModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/MentorshipModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/MentorshipModal.jsx",
+      "to": "../../api/personalities",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/MentorshipModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2925,6 +2988,16 @@
     {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "./ContractRenewalModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "./MentorshipModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/personalities",
       "relation": "depends_on"
     },
     {
@@ -3225,6 +3298,11 @@
     {
       "from": "task:feat-fase-25-locker-room",
       "to": ".agents/workflow/tasks/feat-fase-25-locker-room.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-26-player-personalities",
+      "to": ".agents/workflow/tasks/feat-fase-26-player-personalities.yml",
       "relation": "manifested_by"
     }
   ],

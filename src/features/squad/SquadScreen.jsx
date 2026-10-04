@@ -14,12 +14,16 @@ import {
   TrendingUp, 
   AlertCircle,
   Tag,
-  Briefcase
+  Briefcase,
+  GraduationCap,
+  Sparkles
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
 import ContractRenewalModal from './ContractRenewalModal'
+import MentorshipModal from './MentorshipModal'
+import { personalitiesApi, PERSONALITY_ARCHETYPES } from '../../api/personalities'
 
 export default function SquadScreen() {
   const navigate = useNavigate()
@@ -34,6 +38,7 @@ export default function SquadScreen() {
     offers: cachedOffers || [] 
   })
   const [activeTab, setActiveTab] = useState('squad') // 'squad' | 'offers'
+  const [showMentorshipModal, setShowMentorshipModal] = useState(false)
 
   // Modals state
   const [renewalModalPlayer, setRenewalModalPlayer] = useState(null)
@@ -46,11 +51,17 @@ export default function SquadScreen() {
   const loadData = async () => {
     try {
       if (!club?.id) return
-      const [players, offers] = await Promise.all([
+      const [players, offers, personalitiesList] = await Promise.all([
         playerApi.getSquad(club.id),
-        contractApi.getOffersForClub(club.id)
+        contractApi.getOffersForClub(club.id),
+        personalitiesApi.syncSquadPersonalities(club.id).catch(() => [])
       ])
-      setData({ players, offers })
+      const persMap = new Map((personalitiesList || []).map(p => [p.id, p.personality]))
+      const enrichedPlayers = (players || []).map(p => ({
+        ...p,
+        personalityData: persMap.get(p.id) || null
+      }))
+      setData({ players: enrichedPlayers, offers })
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -248,12 +259,22 @@ export default function SquadScreen() {
           </div>
         </div>
 
-        {/* Presupuesto */}
-        <div className="p-3 sm:p-0 bg-zinc-900/60 sm:bg-transparent rounded-xl border border-zinc-800/80 sm:border-transparent flex justify-between items-center sm:block text-right">
-          <span className="text-xs text-zinc-400 block">Caja Disponible</span>
-          <span className="text-lg md:text-2xl font-black text-emerald-400 font-mono">
-            ${Number(club?.budget || 0).toLocaleString()}
-          </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setShowMentorshipModal(true)}
+            className="px-3.5 py-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/40 hover:bg-purple-600/30 transition-colors flex items-center gap-2 text-xs font-bold shadow-lg"
+          >
+            <GraduationCap className="w-4 h-4 text-purple-400" />
+            <span>Mentorías y Psicología</span>
+          </button>
+
+          {/* Presupuesto */}
+          <div className="p-3 sm:p-0 bg-zinc-900/60 sm:bg-transparent rounded-xl border border-zinc-800/80 sm:border-transparent flex justify-between items-center sm:block text-right">
+            <span className="text-xs text-zinc-400 block">Caja Disponible</span>
+            <span className="text-lg md:text-2xl font-black text-emerald-400 font-mono">
+              ${Number(club?.budget || 0).toLocaleString()}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -317,8 +338,16 @@ export default function SquadScreen() {
                         </span>
                       </div>
                       <p className="text-xs text-zinc-400 mt-0.5">
-                        {p.age} años • {p.contract_role || 'Rotación'} • <span className="text-zinc-500">{p.personality || 'Normal'}</span>
+                        {p.age} años • {p.contract_role || 'Rotación'}
                       </p>
+                      {p.personalityData?.primary_archetype && (
+                        <div className="mt-1">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${PERSONALITY_ARCHETYPES[p.personalityData.primary_archetype]?.badgeColor || 'text-zinc-400 bg-zinc-800 border-zinc-700'}`}>
+                            <Sparkles className="w-2.5 h-2.5" />
+                            {PERSONALITY_ARCHETYPES[p.personalityData.primary_archetype]?.name || p.personalityData.primary_archetype}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     {isListed ? (
                       <span className="px-2 py-0.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-md">
@@ -420,7 +449,14 @@ export default function SquadScreen() {
                       <td className="py-3 text-zinc-400">{p.age}</td>
                       <td className="py-3 text-zinc-300">
                         <div>{p.contract_role || 'Rotación'}</div>
-                        <div className="text-[10px] text-zinc-500">{p.personality || 'Normal'}</div>
+                        {p.personalityData?.primary_archetype ? (
+                          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold border mt-0.5 ${PERSONALITY_ARCHETYPES[p.personalityData.primary_archetype]?.badgeColor || 'text-zinc-400 bg-zinc-800 border-zinc-700'}`} title={PERSONALITY_ARCHETYPES[p.personalityData.primary_archetype]?.description}>
+                            <Sparkles className="w-2.5 h-2.5" />
+                            {PERSONALITY_ARCHETYPES[p.personalityData.primary_archetype]?.name || p.personalityData.primary_archetype}
+                          </span>
+                        ) : (
+                          <div className="text-[10px] text-zinc-500">{p.personality || 'Normal'}</div>
+                        )}
                       </td>
                       <td className="py-3">
                         <span className={`text-xs font-bold ${
@@ -775,6 +811,16 @@ export default function SquadScreen() {
             loadData()
             if (typeof refreshContext === 'function') refreshContext()
           }}
+        />
+      )}
+
+      {/* Modal: Mentorías y Psicología de Potrero (Fase 26) */}
+      {showMentorshipModal && (
+        <MentorshipModal
+          club={club}
+          players={data.players}
+          onClose={() => setShowMentorshipModal(false)}
+          onMentorshipStarted={() => loadData()}
         />
       )}
     </div>
