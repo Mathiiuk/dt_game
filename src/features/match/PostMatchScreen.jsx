@@ -27,7 +27,9 @@ import { toast } from 'sonner'
 export default function PostMatchScreen() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { results, managerId, clubId, clubName } = location.state || {}
+  const { results, managerId, clubId, clubName, fixtureId: stateFixtureId } = location.state || {}
+  // El id del fixture viaja explícito en el state (simResults no lo incluye)
+  const officialFixtureId = stateFixtureId || results?.fixtureId || null
 
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('CRONICA') // 'CRONICA' | 'STATS' | 'RATINGS' | 'FINANCES' | 'PRENSA'
@@ -66,14 +68,14 @@ export default function PostMatchScreen() {
           isHome,
           opponentName: results.opponentName || 'Equipo Rival',
           events: results.events || []
-        }, results.fixtureId || null)
+        }, officialFixtureId)
 
         setProcessedData(processed)
 
         // Inicializar Rueda de Prensa procedimental (Fase 24)
         try {
           const pressRes = await pressApi.generatePostMatchConference({
-            fixtureId: results.fixtureId || null,
+            fixtureId: officialFixtureId,
             clubId,
             managerId,
             results,

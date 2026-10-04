@@ -5,39 +5,95 @@ import { auditApi } from './audit'
 import { clubHistoryApi } from './clubHistory'
 import { achievementsApi } from './achievements'
 
+// Promesas de procesamiento en curso por fixture (deduplica montajes dobles de la pantalla)
+const postMatchInFlight = new Map()
+
 export const postMatchApi = {
   /**
+   * Devuelve el resultado ya procesado de un partido (idempotencia) o null si todavía no existe
+   */
+  async _loadProcessedReport(fixtureId) {
+    const { data: existingReport } = await supabase
+      .from('match_reports')
+      .select('*')
+      .eq('fixture_id', fixtureId)
+      .maybeSingle()
+
+    if (!existingReport) return null
+
+    const { data: existingPlayerStats } = await supabase
+      .from('player_match_stats')
+      .select('*, player:players(*)')
+      .eq('fixture_id', fixtureId)
+
+    const stats = existingPlayerStats || []
+    const mvpRow = stats.find(r => r.player_id === existingReport.mvp_player_id)
+    return {
+      idempotent: true,
+      report: existingReport,
+      playerRatings: stats.map(r => ({
+        player_id: r.player_id,
+        name: r.player ? `${r.player.first_name} ${r.player.last_name}` : 'Jugador',
+        position: r.player?.position,
+        shirt_number: r.player?.shirt_number,
+        rating: r.rating,
+        goals: r.goals,
+        assists: r.assists,
+        yellow_cards: r.yellow_cards,
+        red_cards: r.red_cards,
+        fitness_after_match: r.fitness_after_match,
+        morale_delta: r.morale_delta,
+        injured: r.fitness_after_match <= 30
+      })),
+      mvp: mvpRow ? { player_id: mvpRow.player_id, rating: mvpRow.rating } : null,
+      attendance: existingReport.attendance,
+      matchIncome: Number(existingReport.gate_receipts_gross) * 0.85,
+      grossIncome: Number(existingReport.gate_receipts_gross),
+      xpAward: existingReport.match_xp_awarded,
+      mvpPlayerId: existingReport.mvp_player_id
+    }
+  },
+
+  /**
    * Procesa de forma autoritativa e idempotente las consecuencias deportivas, físicas y financieras del partido.
+   * Garantías (Regla 2.1 #8): una sola ejecución por partido aunque la pantalla se monte dos veces
+   * (StrictMode, recarga, doble clic) gracias a (1) una promesa compartida en memoria y (2) un "reclamo"
+   * en match_reports (clave única por fixture_id) antes de aplicar lesiones, XP o dinero.
    */
   async processResult(managerId, clubId, result, fixtureId = null) {
-    // 1. Idempotencia: Verificar si este partido ya fue procesado en match_reports
+    if (!fixtureId) return this._processResult(managerId, clubId, result, fixtureId)
+
+    if (!postMatchInFlight.has(fixtureId)) {
+      const promise = this._processResult(managerId, clubId, result, fixtureId)
+        .finally(() => postMatchInFlight.delete(fixtureId))
+      postMatchInFlight.set(fixtureId, promise)
+    }
+    return postMatchInFlight.get(fixtureId)
+  },
+
+  async _processResult(managerId, clubId, result, fixtureId = null) {
+    // 1. Idempotencia: si el partido ya fue procesado, devolver el resultado consolidado
     if (fixtureId) {
       try {
-        const { data: existingReport } = await supabase
-          .from('match_reports')
-          .select('*')
-          .eq('fixture_id', fixtureId)
-          .maybeSingle()
-
-        if (existingReport) {
-          const { data: existingPlayerStats } = await supabase
-            .from('player_match_stats')
-            .select('*, player:players(*)')
-            .eq('fixture_id', fixtureId)
-
-          return {
-            idempotent: true,
-            report: existingReport,
-            playerRatings: existingPlayerStats || [],
-            attendance: existingReport.attendance,
-            matchIncome: Number(existingReport.gate_receipts_gross) * 0.85,
-            grossIncome: Number(existingReport.gate_receipts_gross),
-            xpAward: existingReport.match_xp_awarded,
-            mvpPlayerId: existingReport.mvp_player_id
-          }
-        }
+        const existing = await this._loadProcessedReport(fixtureId)
+        if (existing) return existing
       } catch (err) {
         console.warn('Aviso: error comprobando reporte existente:', err)
+      }
+
+      // Reclamo atómico del partido: sólo un proceso puede continuar (unique fixture_id)
+      const { error: claimErr } = await supabase.from('match_reports').insert({
+        fixture_id: fixtureId,
+        home_club_id: result.isHome ? clubId : null,
+        away_club_id: !result.isHome ? clubId : null,
+        final_score: `${result.homeScore} - ${result.awayScore}`
+      })
+      if (claimErr) {
+        if (claimErr.code === '23505') {
+          const existing = await this._loadProcessedReport(fixtureId)
+          if (existing) return existing
+        }
+        console.warn('Aviso: no se pudo reclamar el partido para procesarlo:', claimErr.message)
       }
     }
 
@@ -302,7 +358,7 @@ export const postMatchApi = {
     // 6. Registrar match_reports y player_match_stats en BD
     try {
       if (fixtureId) {
-        await supabase.from('match_reports').insert({
+        await supabase.from('match_reports').upsert({
           fixture_id: fixtureId,
           home_club_id: result.isHome ? clubId : null,
           away_club_id: !result.isHome ? clubId : null,
@@ -311,7 +367,7 @@ export const postMatchApi = {
           gate_receipts_gross: grossIncome,
           match_xp_awarded: xpAward,
           mvp_player_id: mvp?.player_id || null
-        })
+        }, { onConflict: 'fixture_id' })
 
         const playerStatsRows = playerRatings.map(pr => ({
           fixture_id: fixtureId,

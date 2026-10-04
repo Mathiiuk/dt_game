@@ -505,6 +505,7 @@ export default function MatchScreen() {
                   navigate('/post-match', { 
                     state: { 
                       results: simResults, 
+                      fixtureId: fixtureId || null, 
                       managerId: data.club?.manager_id, 
                       clubId: data.club?.id, 
                       clubName: data.club?.name 
