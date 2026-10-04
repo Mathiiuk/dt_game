@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { nationalTeamApi, NATIONAL_TEAMS_CONFIG } from '../../api/nationalTeam'
 import { useGameContext } from '../../context/GameContext'
+import { queryCache } from '../../utils/cache'
 import { 
   ArrowLeft, 
   Flag, 
@@ -38,25 +39,34 @@ export default function NationalTeamScreen() {
   const [playingMatchId, setPlayingMatchId] = useState(null)
   const [managingCallups, setManagingCallups] = useState(false)
 
-  const loadData = async () => {
+  // force=true se usa tras mutaciones (aceptar oferta, renunciar, jugar) para saltar la caché corta
+  const loadData = async (force = false) => {
     try {
       if (!manager?.id) return
       setLoading(true)
-      const currentTeam = await nationalTeamApi.getCurrentNationalTeam(manager.id)
-      setTeam(currentTeam)
-
-      if (currentTeam) {
+      const cacheKey = `national-screen:${manager.id}`
+      if (force) queryCache.invalidate(cacheKey)
+      // Un solo paquete cacheado (TTL corto) deduplica la doble ejecución del efecto y re-entradas rápidas
+      const bundle = await queryCache.fetch(cacheKey, async () => {
+        const currentTeam = await nationalTeamApi.getCurrentNationalTeam(manager.id)
+        if (!currentTeam) {
+          return { currentTeam: null, offers: await nationalTeamApi.getAvailableOffers(manager.id) }
+        }
         const [cList, fList, pool] = await Promise.all([
           nationalTeamApi.getCallups(currentTeam.id),
           nationalTeamApi.getFixtures(currentTeam.id),
           nationalTeamApi.getEligiblePlayersPool(currentTeam.id, currentTeam.country_code)
         ])
-        setCallups(cList || [])
-        setFixtures(fList || [])
-        setEligiblePool(pool || [])
+        return { currentTeam, cList, fList, pool }
+      }, 5000)
+
+      setTeam(bundle.currentTeam)
+      if (bundle.currentTeam) {
+        setCallups(bundle.cList || [])
+        setFixtures(bundle.fList || [])
+        setEligiblePool(bundle.pool || [])
       } else {
-        const availableOffers = await nationalTeamApi.getAvailableOffers(manager.id)
-        setOffers(availableOffers || [])
+        setOffers(bundle.offers || [])
       }
     } catch (e) {
       console.error(e)
@@ -88,7 +98,7 @@ export default function NationalTeamScreen() {
       setLoading(true)
       await nationalTeamApi.acceptOffer(manager.id, offer.id)
       toast.success(`¡Felicitaciones! Has asumido como Seleccionador de ${offer.name}`)
-      await loadData()
+      await loadData(true)
     } catch (e) {
       toast.error(e.message)
       setLoading(false)
@@ -109,7 +119,7 @@ export default function NationalTeamScreen() {
       setLoading(true)
       await nationalTeamApi.resign(manager.id, team.id)
       toast.warning('Has presentado tu renuncia a la selección nacional.')
-      await loadData()
+      await loadData(true)
     } catch (e) {
       toast.error(e.message)
       setLoading(false)
@@ -127,7 +137,7 @@ export default function NationalTeamScreen() {
       } else {
         toast.error(`Derrota con la Selección: ${res.teamGoals}-${res.oppGoals}`)
       }
-      await loadData()
+      await loadData(true)
     } catch (e) {
       toast.error(e.message || 'Error al disputar el partido')
     } finally {

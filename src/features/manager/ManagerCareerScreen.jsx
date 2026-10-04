@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { queryCache } from '../../utils/cache'
 import { useNavigate } from 'react-router-dom'
 import { useGameContext } from '../../context/GameContext'
 import { careerApi, CAREER_PROGRESSION_RULES } from '../../api/career'
@@ -29,15 +30,19 @@ export default function ManagerCareerScreen() {
   const [retiring, setRetiring] = useState(false)
   const [reputationModalOpen, setReputationModalOpen] = useState(false)
 
-  const loadCareerData = async () => {
+  // force=true se usa tras mutaciones (aceptar, rechazar, renunciar) para saltar la caché corta
+  const loadCareerData = async (force = false) => {
     if (!manager) return
     try {
       setLoading(true)
-      const [statsData, jobOffers, vacancyList] = await Promise.all([
+      const cacheKey = `career-screen:${manager.id}:${club?.id || 'none'}`
+      if (force) queryCache.invalidate(cacheKey)
+      // TTL corto: deduplica la doble ejecución del efecto (StrictMode) y re-entradas rápidas a la pantalla
+      const [statsData, jobOffers, vacancyList] = await queryCache.fetch(cacheKey, () => Promise.all([
         careerApi.getCareerStats(manager.id, club?.id),
         careerApi.getAvailableJobOffers(manager.id, club?.id, manager.reputation || 10),
         careerApi.getAvailableVacancies(club?.id, manager.reputation || 10)
-      ])
+      ]), 5000)
 
       setStats(statsData)
       setOffers(jobOffers || [])
@@ -111,7 +116,7 @@ export default function ManagerCareerScreen() {
       const res = await careerApi.applyForJob(manager.id, targetClub.id, manager.reputation || 10)
       if (res.accepted) {
         toast.success(res.message)
-        await loadCareerData()
+        await loadCareerData(true)
         setActiveTab('offers')
       } else {
         toast.error(res.message)
@@ -137,7 +142,7 @@ export default function ManagerCareerScreen() {
       await careerApi.resignFromClub(manager.id, club?.id)
       toast.warning('Has presentado tu renuncia. Ahora eres Director Técnico libre.')
       await refreshContext()
-      await loadCareerData()
+      await loadCareerData(true)
     } catch (err) {
       toast.error(err.message || 'Error al procesar la renuncia')
     } finally {
