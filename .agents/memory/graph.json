@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-10-04T04:05:17.288Z",
+  "updatedAt": "2026-10-04T04:08:08.651Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 148,
-    "totalEdges": 457,
-    "totalTasks": 51,
+    "totalNodes": 149,
+    "totalEdges": 459,
+    "totalTasks": 52,
     "totalLessons": 0
   },
   "nodes": [
@@ -271,8 +271,8 @@
       "id": "src/api/hallOfFame.js",
       "label": "hallOfFame.js",
       "type": "module",
-      "sizeBytes": 5694,
-      "lineCount": 164,
+      "sizeBytes": 8352,
+      "lineCount": 271,
       "imports": [
         "./supabase"
       ]
@@ -305,7 +305,7 @@
       "id": "src/api/legends.js",
       "label": "legends.js",
       "type": "module",
-      "sizeBytes": 5404,
+      "sizeBytes": 5567,
       "lineCount": 164,
       "imports": [
         "./supabase",
@@ -838,7 +838,7 @@
       "id": "src/features/club/screens/IdolsLegendsTab.jsx",
       "label": "IdolsLegendsTab.jsx",
       "type": "module",
-      "sizeBytes": 19746,
+      "sizeBytes": 20174,
       "lineCount": 429,
       "imports": [
         "react",
@@ -1027,13 +1027,14 @@
       "id": "src/features/manager/HallOfFameScreen.jsx",
       "label": "HallOfFameScreen.jsx",
       "type": "module",
-      "sizeBytes": 15124,
-      "lineCount": 321,
+      "sizeBytes": 21580,
+      "lineCount": 459,
       "imports": [
         "react",
         "react-router-dom",
         "../../api/hallOfFame",
         "../../context/GameContext",
+        "../../components/BottomNav",
         "lucide-react",
         "sonner"
       ]
@@ -1638,6 +1639,13 @@
     {
       "id": "task:feat-fase-37-club-idols-legends",
       "label": "feat-fase-37-club-idols-legends: Fase 37 - Idolos, Leyendas y Retiro de Camisetas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:feat-fase-38-hall-of-fame-records",
+      "label": "feat-fase-38-hall-of-fame-records: Fase 38 - Salon de la Fama y Records Globales",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -3191,6 +3199,11 @@
     },
     {
       "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "../../components/BottomNav",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
       "to": "lucide-react",
       "relation": "depends_on"
     },
@@ -3927,6 +3940,11 @@
     {
       "from": "task:feat-fase-37-club-idols-legends",
       "to": ".agents/workflow/tasks/feat-fase-37-club-idols-legends.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-fase-38-hall-of-fame-records",
+      "to": ".agents/workflow/tasks/feat-fase-38-hall-of-fame-records.yml",
       "relation": "manifested_by"
     }
   ],

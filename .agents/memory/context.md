@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-04T04:05:17.288Z | **Nodos:** 148 | **Tareas:** 51
+> **Última sincronización:** 2026-10-04T04:08:08.651Z | **Nodos:** 149 | **Tareas:** 52
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -19,6 +19,7 @@
 | `src/api/nationalTeam.js` | 494 | ./supabase, ./manager, ./audit |
 | `src/features/club/screens/LockerRoomTab.jsx` | 480 | react, lucide-react, ../../../api/lockerRoom |
 | `src/features/auth/AuthScreen.jsx` | 464 | react, react-router-dom, ../../api/auth |
+| `src/features/manager/HallOfFameScreen.jsx` | 459 | react, react-router-dom, ../../api/hallOfFame |
 | `src/api/events.js` | 452 | ./supabase, ../utils/cache, ./audit |
 | `src/features/finances/FinancesScreen.jsx` | 451 | react, react-router-dom, ../../api/finances |
 | `src/features/club/CreateClubWizard.jsx` | 450 | react, react-router-dom, ../../api/auth |
@@ -30,7 +31,6 @@
 | `src/api/injuries.js` | 420 | ./supabase, ../utils/cache |
 | `src/api/clubHistory.js` | 415 | ./supabase |
 | `src/features/market/MarketScreen.jsx` | 411 | react, react-router-dom, ../../api/market |
-| `src/api/matchEngine.js` | 409 | ./supabase |
 
 _(+72 módulos adicionales; consultar con `memory:query`)_
 
@@ -87,3 +87,4 @@ _(+72 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-35-dynamic-events-dilemmas: Fase 35 - Eventos Dinamicos Narrativos y Dilemas del DT** `[DONE]`
 - **feat-fase-36-club-history-records: Fase 36 - Historia del Club, Récords y Memoria Institucional** `[DONE]`
 - **feat-fase-37-club-idols-legends: Fase 37 - Idolos, Leyendas y Retiro de Camisetas** `[DONE]`
+- **feat-fase-38-hall-of-fame-records: Fase 38 - Salon de la Fama y Records Globales** `[DONE]`

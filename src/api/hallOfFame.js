@@ -1,9 +1,102 @@
 import { supabase } from './supabase'
 
+export const HISTORIC_LEGENDS = [
+  {
+    manager_name: 'Sir Alex Ferguson',
+    nationality: 'Escocia',
+    legacy_score: 10450,
+    titles_count: 38,
+    national_titles: 28,
+    international_titles: 10,
+    matches_played: 1500,
+    matches_won: 895,
+    win_ratio: 59.7,
+    clubs_managed: ['Manchester United', 'Aberdeen'],
+    national_teams_managed: ['Escocia'],
+    era: '1986 - 2013',
+    is_human: false
+  },
+  {
+    manager_name: 'Carlos Bianchi',
+    nationality: 'Argentina',
+    legacy_score: 9850,
+    titles_count: 15,
+    national_titles: 9,
+    international_titles: 6,
+    matches_played: 720,
+    matches_won: 412,
+    win_ratio: 57.2,
+    clubs_managed: ['Boca Juniors', 'Vélez Sarsfield'],
+    national_teams_managed: [],
+    era: '1993 - 2004',
+    is_human: false
+  },
+  {
+    manager_name: 'Pep Guardiola',
+    nationality: 'España',
+    legacy_score: 9780,
+    titles_count: 37,
+    national_titles: 26,
+    international_titles: 11,
+    matches_played: 920,
+    matches_won: 660,
+    win_ratio: 71.7,
+    clubs_managed: ['Manchester City', 'FC Barcelona', 'Bayern Múnich'],
+    national_teams_managed: [],
+    era: '2008 - Actualidad',
+    is_human: false
+  },
+  {
+    manager_name: 'Marcelo Gallardo',
+    nationality: 'Argentina',
+    legacy_score: 8750,
+    titles_count: 14,
+    national_titles: 7,
+    international_titles: 7,
+    matches_played: 424,
+    matches_won: 228,
+    win_ratio: 53.8,
+    clubs_managed: ['River Plate', 'Nacional'],
+    national_teams_managed: [],
+    era: '2014 - 2022',
+    is_human: false
+  },
+  {
+    manager_name: 'César Luis Menotti',
+    nationality: 'Argentina',
+    legacy_score: 8400,
+    titles_count: 5,
+    national_titles: 2,
+    international_titles: 3,
+    matches_played: 580,
+    matches_won: 310,
+    win_ratio: 53.4,
+    clubs_managed: ['Huracán', 'FC Barcelona', 'Boca Juniors'],
+    national_teams_managed: ['Argentina (Campeón 1978)'],
+    era: '1973 - 1982',
+    is_human: false
+  },
+  {
+    manager_name: 'Carlos Bilardo',
+    nationality: 'Argentina',
+    legacy_score: 8350,
+    titles_count: 4,
+    national_titles: 2,
+    international_titles: 2,
+    matches_played: 510,
+    matches_won: 285,
+    win_ratio: 55.9,
+    clubs_managed: ['Estudiantes de La Plata', 'Sevilla'],
+    national_teams_managed: ['Argentina (Campeón 1986)'],
+    era: '1982 - 1990',
+    is_human: false
+  }
+]
+
 export const hallOfFameApi = {
   /**
    * Obtiene la lista completa de directores técnicos en el Salón de la Fama,
-   * ordenada por puntuación de legado descendente.
+   * ordenada por puntuación de legado descendente. Si está vacía, la inicializa con próceres históricos.
    */
   async getRanking() {
     const { data, error } = await supabase
@@ -11,8 +104,22 @@ export const hallOfFameApi = {
       .select('*')
       .order('legacy_score', { ascending: false })
 
-    if (error) throw new Error(error.message)
-    return data || []
+    if (error) {
+      console.error('Error fetching hall_of_fame:', error)
+      return HISTORIC_LEGENDS
+    }
+
+    if (!data || data.length === 0) {
+      try {
+        await supabase.from('hall_of_fame').insert(HISTORIC_LEGENDS)
+        return HISTORIC_LEGENDS
+      } catch (insertErr) {
+        console.warn('Could not seed hall of fame in database, returning in-memory:', insertErr)
+        return HISTORIC_LEGENDS
+      }
+    }
+
+    return data
   },
 
   /**

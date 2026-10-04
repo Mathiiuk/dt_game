@@ -1,0 +1,35 @@
+id: feat-fase-38-hall-of-fame-records
+external_ref: ''
+title: Fase 38 - Salon de la Fama y Records Globales
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: master
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Fase 38 - Salon de la Fama y Records Globales
+acceptance_criteria:
+  - >-
+    Esquema hall_of_fame con soporte para directores tecnicos historicos y
+    snapshots inmutables
+  - Formula de Legacy Score estandarizada y clasificacion por 6 tiers de mitos
+  - >-
+    Interfaz HallOfFameScreen pulida con ranking global, podio, comparador de
+    carrera y mobile-first
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: false
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  build: npm run build

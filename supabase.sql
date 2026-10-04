@@ -2047,3 +2047,35 @@ CREATE POLICY "Permitir todo retired_shirt_numbers" ON public.retired_shirt_numb
 
 CREATE INDEX IF NOT EXISTS idx_club_legends_club ON public.club_legends(club_id, status_level);
 CREATE INDEX IF NOT EXISTS idx_retired_shirt_numbers_club ON public.retired_shirt_numbers(club_id);
+
+-- ==============================================================================
+-- FASE 38: SALÓN DE LA FAMA Y RÉCORDS GLOBALES
+-- ==============================================================================
+
+CREATE TABLE IF NOT EXISTS public.hall_of_fame (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  manager_id uuid REFERENCES public.managers(id) ON DELETE SET NULL,
+  manager_name text NOT NULL,
+  nationality text NOT NULL DEFAULT 'Argentina',
+  legacy_score integer NOT NULL DEFAULT 0,
+  titles_count integer NOT NULL DEFAULT 0,
+  national_titles integer NOT NULL DEFAULT 0,
+  international_titles integer NOT NULL DEFAULT 0,
+  matches_played integer NOT NULL DEFAULT 0,
+  matches_won integer NOT NULL DEFAULT 0,
+  win_ratio numeric(5,2) NOT NULL DEFAULT 0.00,
+  clubs_managed text[] DEFAULT '{}',
+  national_teams_managed text[] DEFAULT '{}',
+  era text NOT NULL DEFAULT 'Generacion Actual',
+  is_human boolean NOT NULL DEFAULT false,
+  snapshot_data jsonb DEFAULT '{}'::jsonb,
+  inducted_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.hall_of_fame ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Permitir todo hall_of_fame" ON public.hall_of_fame FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_hall_of_fame_score ON public.hall_of_fame(legacy_score DESC);
+CREATE INDEX IF NOT EXISTS idx_hall_of_fame_manager ON public.hall_of_fame(manager_id);
