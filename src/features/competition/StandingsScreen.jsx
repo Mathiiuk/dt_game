@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { competitionApi } from '../../api/competition'
-import { 
-  ArrowLeft, 
-  Trophy, 
-  Globe, 
-  RefreshCw, 
-  Shield, 
-  TrendingUp, 
-  TrendingDown, 
-  Calendar,
-  Loader2,
-  Layers
-} from 'lucide-react'
+import { Calendar, Layers, RefreshCw, Shield, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
+import { competitionApi } from '../../api/competition'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
+import { FORM_LABELS, ZONES, formatDiff, goalDiff, parseForm, zoneOf } from '../../domain/standings'
+import { cn } from '../../lib/utils'
+import { Badge, Button, Card, EmptyState, PageHeader, Skeleton } from '../../components/ui'
 import LeaguePyramidModal from './LeaguePyramidModal'
+
+const FORM_STYLE = {
+  V: 'bg-accent-soft text-accent',
+  E: 'bg-warning-soft text-warning',
+  D: 'bg-danger-soft text-danger'
+}
 
 export default function StandingsScreen() {
   const navigate = useNavigate()
@@ -25,7 +23,7 @@ export default function StandingsScreen() {
   const [loading, setLoading] = useState(true)
   const [standings, setStandings] = useState([])
   const [refreshing, setRefreshing] = useState(false)
-  const [showPyramidModal, setShowPyramidModal] = useState(false)
+  const [showPyramid, setShowPyramid] = useState(false)
 
   const loadData = async (force = false) => {
     if (!club?.id) return
@@ -34,8 +32,7 @@ export default function StandingsScreen() {
         setRefreshing(true)
         queryCache.invalidate(`standings:${club.id}`)
       }
-      const data = await competitionApi.getStandings(club.id)
-      setStandings(data || [])
+      setStandings((await competitionApi.getStandings(club.id)) || [])
     } catch (e) {
       console.error('Error cargando tabla de posiciones:', e)
       toast.error('No se pudo sincronizar la tabla de posiciones.')
@@ -47,30 +44,27 @@ export default function StandingsScreen() {
 
   useEffect(() => {
     if (contextLoading) return
-    if (!club) {
-      setLoading(false)
-      return
-    }
+    if (!club) { setLoading(false); return }
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextLoading, club?.id])
 
   const handleEndSeason = async () => {
     const confirmed = await confirmAction({
-      title: 'Finalizar Temporada',
-      description: '¿Finalizar temporada? Se procesarán las edades de los jugadores, retiros, ascensos y descensos para el próximo año.',
-      confirmText: 'Finalizar Temporada',
+      title: 'Finalizar temporada',
+      description: '¿Finalizar la temporada? Se procesarán edades, retiros, ascensos y descensos para el próximo año.',
+      confirmText: 'Finalizar temporada',
       cancelText: 'Cancelar',
       variant: 'warning'
     })
     if (!confirmed) return
-    
     try {
       setLoading(true)
       const { gameLoopApi } = await import('../../api/gameLoop')
       await gameLoopApi.endSeason(club.id)
       toast.success('Temporada regular finalizada con éxito.')
       navigate('/dashboard')
-    } catch(e) {
+    } catch (e) {
       toast.error(e.message || 'Error al finalizar temporada.')
       setLoading(false)
     }
@@ -78,213 +72,123 @@ export default function StandingsScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-        <p className="text-zinc-400 font-medium text-sm">Cargando clasificación oficial...</p>
+      <div className="mx-auto max-w-5xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando clasificación">
+        <Skeleton className="h-12 w-64" />
+        <Skeleton className="h-10" />
+        <Skeleton className="h-96" />
       </div>
     )
   }
 
   if (!club) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-4 p-6 text-center">
-        <Shield className="w-12 h-12 text-zinc-600 mb-2" />
-        <p className="text-zinc-400 text-sm">No se encontró club activo en esta sesión.</p>
-        <button onClick={() => navigate('/dashboard')} className="px-4 py-2 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs">
-          Volver al Inicio
-        </button>
+      <div className="mx-auto max-w-5xl px-4 py-6">
+        <Card as="div"><EmptyState icon={Shield} title="Sin club activo" description="No se encontró un club activo en esta sesión." action={<Button onClick={() => navigate('/dashboard')}>Volver al inicio</Button>} /></Card>
       </div>
     )
   }
 
+  const total = standings.length
+
   return (
-    <div className="min-h-screen p-3 sm:p-6 text-zinc-100 bg-zinc-950 pb-28 md:pb-12">
-      {/* Top Header */}
-      <header className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/dashboard')} 
-            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              <Trophy className="w-6 h-6 text-emerald-400" />
-              Tabla de Posiciones
-            </h1>
-            <p className="text-xs text-zinc-400">Torneo Regional • División Tier 5 • 20 Clubes</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => loadData(true)}
-            disabled={refreshing}
-            className="p-2 text-xs font-semibold text-zinc-300 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-colors flex items-center gap-1.5"
-            title="Recargar tabla"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-emerald-400' : ''}`} />
-          </button>
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8">
+      <PageHeader
+        eyebrow="Torneo regional · División Tier 5"
+        title="Tabla de posiciones"
+        description={`${total} clubes`}
+        actions={
+          <>
+            <Button variant="outline" size="icon" onClick={() => loadData(true)} disabled={refreshing} aria-label="Recargar tabla">
+              <RefreshCw className={refreshing ? 'animate-spin' : ''} />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/calendar')}><Calendar />Calendario</Button>
+            <Button variant="outline" size="sm" onClick={() => setShowPyramid(true)}><Layers />Pirámide y reducido</Button>
+            <Button size="sm" onClick={handleEndSeason}>Cierre anual</Button>
+          </>
+        }
+      />
 
-          <button 
-            onClick={() => navigate('/calendar')}
-            className="px-3.5 py-2 text-xs font-bold text-zinc-300 bg-zinc-900 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-colors flex items-center gap-1.5"
-          >
-            <Calendar className="w-4 h-4 text-emerald-400" />
-            <span>Calendario</span>
-          </button>
+      <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-fg-muted" aria-label="Referencias de zonas">
+        {[
+          [ZONES.PROMOTION, '1º - 2º'],
+          [ZONES.PLAYOFF, '3º - 6º'],
+          [ZONES.RELEGATION, 'últimos 3']
+        ].map(([zone, range]) => (
+          <li key={zone.id} className="flex items-center gap-1.5">
+            <span className={cn('size-2.5 rounded-full', zone.dot)} aria-hidden="true" />
+            {zone.label} ({range})
+          </li>
+        ))}
+      </ul>
 
-          <button 
-            onClick={() => setShowPyramidModal(true)}
-            className="px-3.5 py-2 text-xs font-bold text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl hover:bg-amber-500/20 transition-colors flex items-center gap-1.5"
-          >
-            <Layers className="w-4 h-4 text-amber-400" />
-            <span>Pirámide & Reducido</span>
-          </button>
-
-          <button 
-            onClick={handleEndSeason}
-            className="px-3.5 py-2 text-xs font-black text-zinc-950 bg-emerald-500 rounded-xl hover:bg-emerald-400 transition-all active:scale-95 shadow-md shadow-emerald-950/40"
-          >
-            Cierre Anual
-          </button>
-        </div>
-      </header>
-
-      {/* Main Table Container */}
-      <div className="max-w-5xl mx-auto space-y-4">
-        {/* Leyenda de Zonas */}
-        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 text-[11px]">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-            <span className="text-zinc-300 font-medium">Ascenso Directo (1º - 2º)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-            <span className="text-zinc-300 font-medium">Reducido / Playoff (3º - 6º)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-            <span className="text-zinc-300 font-medium">Zona Descenso (18º - 20º)</span>
-          </div>
-        </div>
-
-        {/* Tabla */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-zinc-800 bg-zinc-950/70 text-zinc-400 font-semibold uppercase tracking-wider text-[10px]">
-                  <th className="py-3 px-3 text-center w-12">Pos</th>
-                  <th className="py-3 px-3 min-w-[160px]">Club</th>
-                  <th className="py-3 px-2 text-center w-10">PJ</th>
-                  <th className="py-3 px-2 text-center w-10">PG</th>
-                  <th className="py-3 px-2 text-center w-10">PE</th>
-                  <th className="py-3 px-2 text-center w-10">PP</th>
-                  <th className="py-3 px-2 text-center w-14">GF:GC</th>
-                  <th className="py-3 px-2 text-center w-12">DIF</th>
-                  <th className="py-3 px-2 text-center w-14">Racha</th>
-                  <th className="py-3 px-3 text-center w-14 text-emerald-400 font-black">PTS</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-zinc-800/60">
-                {standings.map((s, idx) => {
-                  const isUserClub = s.club_id === club.id
-                  const pos = idx + 1
-                  const diff = (s.goals_for || 0) - (s.goals_against || 0)
-
-                  // Borde y fondo según zona
-                  const zoneBorder = pos <= 2 
-                    ? 'border-l-4 border-l-emerald-500' 
-                    : pos <= 6 
-                    ? 'border-l-4 border-l-cyan-500' 
-                    : pos >= 18 
-                    ? 'border-l-4 border-l-red-500' 
-                    : 'border-l-4 border-l-transparent'
-
-                  const forms = (s.form || 'E').split(',').filter(Boolean).slice(0, 5)
-
-                  return (
-                    <tr 
-                      key={s.id || idx} 
-                      className={`transition-colors hover:bg-zinc-800/40 ${zoneBorder} ${
-                        isUserClub ? 'bg-emerald-950/30 font-semibold' : ''
-                      }`}
-                    >
-                      {/* Posición */}
-                      <td className="py-3 px-3 text-center font-mono font-bold text-zinc-400">
-                        {pos}
-                      </td>
-
-                      {/* Nombre Club */}
-                      <td className="py-3 px-3 min-w-[160px]">
-                        <div className="flex items-center gap-2">
-                          <span className={`truncate font-medium ${isUserClub ? 'text-emerald-400 font-black' : 'text-zinc-200'}`}>
-                            {s.clubs?.name || s.club_name || 'Club de Liga'}
+      {total === 0 ? (
+        <Card as="div"><EmptyState icon={Trophy} title="Sin clasificación" description="Todavía no hay partidos jugados en esta competencia." /></Card>
+      ) : (
+        <Card as="div" className="overflow-hidden">
+          <table className="w-full border-collapse text-left text-sm" aria-label="Tabla de posiciones">
+            <thead>
+              <tr className="border-b border-line bg-surface-2 text-fg-subtle">
+                <th scope="col" className="eyebrow w-10 py-3 pl-3 text-center sm:w-12">Pos</th>
+                <th scope="col" className="eyebrow px-2 py-3">Club</th>
+                <th scope="col" className="eyebrow w-9 px-1 py-3 text-center"><abbr title="Partidos jugados" className="no-underline">PJ</abbr></th>
+                <th scope="col" className="eyebrow hidden w-9 px-1 py-3 text-center sm:table-cell"><abbr title="Partidos ganados" className="no-underline">PG</abbr></th>
+                <th scope="col" className="eyebrow hidden w-9 px-1 py-3 text-center sm:table-cell"><abbr title="Partidos empatados" className="no-underline">PE</abbr></th>
+                <th scope="col" className="eyebrow hidden w-9 px-1 py-3 text-center sm:table-cell"><abbr title="Partidos perdidos" className="no-underline">PP</abbr></th>
+                <th scope="col" className="eyebrow hidden w-16 px-1 py-3 text-center md:table-cell"><abbr title="Goles a favor y en contra" className="no-underline">GF:GC</abbr></th>
+                <th scope="col" className="eyebrow w-11 px-1 py-3 text-center"><abbr title="Diferencia de gol" className="no-underline">DIF</abbr></th>
+                <th scope="col" className="eyebrow hidden w-28 px-1 py-3 text-center md:table-cell">Racha</th>
+                <th scope="col" className="eyebrow w-11 py-3 pr-3 text-center text-accent"><abbr title="Puntos" className="no-underline">PTS</abbr></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {standings.map((s, idx) => {
+                const mine = s.club_id === club.id
+                const pos = idx + 1
+                const zone = zoneOf(pos, total)
+                const diff = goalDiff(s)
+                return (
+                  <tr key={s.id || idx} aria-current={mine ? 'true' : undefined} className={cn('border-l-4', zone.border, mine && 'bg-accent-soft')}>
+                    <td className="num py-2.5 pl-2 text-center font-semibold text-fg-muted">
+                      {pos}
+                      {zone.label && <span className="sr-only"> · {zone.label}</span>}
+                    </td>
+                    <td className="max-w-0 px-2 py-2.5">
+                      <span className="flex items-center gap-2">
+                        <span className={cn('truncate font-medium', mine ? 'font-semibold text-accent' : 'text-fg')}>{s.clubs?.name || s.club_name || 'Club de liga'}</span>
+                        {mine && <Badge tone="accent">Vos</Badge>}
+                      </span>
+                    </td>
+                    <td className="num px-1 py-2.5 text-center text-fg-muted">{s.played || 0}</td>
+                    <td className="num hidden px-1 py-2.5 text-center text-fg sm:table-cell">{s.won || 0}</td>
+                    <td className="num hidden px-1 py-2.5 text-center text-fg-muted sm:table-cell">{s.drawn || 0}</td>
+                    <td className="num hidden px-1 py-2.5 text-center text-fg-muted sm:table-cell">{s.lost || 0}</td>
+                    <td className="num hidden px-1 py-2.5 text-center text-fg-muted md:table-cell">{s.goals_for || 0}:{s.goals_against || 0}</td>
+                    <td className={cn('num px-1 py-2.5 text-center font-semibold', diff > 0 ? 'text-accent' : diff < 0 ? 'text-danger' : 'text-fg-muted')}>{formatDiff(diff)}</td>
+                    <td className="hidden px-1 py-2.5 md:table-cell">
+                      <span className="flex items-center justify-center gap-1">
+                        {parseForm(s.form).map((f, i) => (
+                          <span key={i} title={FORM_LABELS[f] || f} className={cn('grid size-5 place-items-center rounded-full text-[10px] font-semibold', FORM_STYLE[f] || FORM_STYLE.D)}>
+                            {f}<span className="sr-only"> ({FORM_LABELS[f] || f})</span>
                           </span>
-                          {isUserClub && (
-                            <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-emerald-500 text-zinc-950">
-                              TÚ
-                            </span>
-                          )}
-                        </div>
-                      </td>
+                        ))}
+                      </span>
+                    </td>
+                    <td className="num py-2.5 pr-3 text-center font-display text-lg font-semibold text-accent">{s.points || 0}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </Card>
+      )}
 
-                      {/* Estadísticas */}
-                      <td className="py-3 px-2 text-center text-zinc-400">{s.played || 0}</td>
-                      <td className="py-3 px-2 text-center text-zinc-300 font-medium">{s.won || 0}</td>
-                      <td className="py-3 px-2 text-center text-zinc-400">{s.drawn || 0}</td>
-                      <td className="py-3 px-2 text-center text-zinc-400">{s.lost || 0}</td>
-                      <td className="py-3 px-2 text-center text-zinc-400 font-mono">
-                        {s.goals_for || 0}:{s.goals_against || 0}
-                      </td>
-                      <td className={`py-3 px-2 text-center font-mono font-semibold ${
-                        diff > 0 ? 'text-emerald-400' : diff < 0 ? 'text-red-400' : 'text-zinc-400'
-                      }`}>
-                        {diff > 0 ? `+${diff}` : diff}
-                      </td>
-
-                      {/* Racha */}
-                      <td className="py-3 px-2 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          {forms.map((f, fIdx) => (
-                            <span 
-                              key={fIdx}
-                              className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold ${
-                                f === 'V' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' :
-                                f === 'E' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' :
-                                'bg-red-500/20 text-red-400 border border-red-500/40'
-                              }`}
-                            >
-                              {f}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-
-                      {/* Puntos */}
-                      <td className="py-3 px-3 text-center font-mono font-black text-emerald-400 text-sm">
-                        {s.points || 0}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal: Pirámide de Ligas y Reducido (Fase 30) */}
-      {showPyramidModal && (
+      {showPyramid && (
         <LeaguePyramidModal
           club={club}
           currentTier={club?.league_tier || 5}
           careerId={club?.career_id}
           seasonYear={club?.current_season_year || 2026}
-          onClose={() => setShowPyramidModal(false)}
+          onClose={() => setShowPyramid(false)}
         />
       )}
     </div>
