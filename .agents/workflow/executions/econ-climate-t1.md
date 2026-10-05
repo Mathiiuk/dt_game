@@ -1,0 +1,6 @@
+# Reporte de Ejecución: econ-climate-t1
+- **Rama**: `feat/econ-climate-t1` | **Estado**: `DONE` (tanda 1a: economía; el clima unificado sigue en la tanda 1b)
+- **Problema**: ingresos fijos de 40.000/semana contra ~2.700 de sueldos; dos motores de finanzas (`economy.js` → tabla `club_finances`, `finances.js` → `financial_transactions_ledger`) con unidades distintas (sueldo anual /52 vs semanal); la taquilla no dejaba asiento contable.
+- **Cambios**: un solo modelo puro `weeklyBudget`/`gateSettlement`/`runwayWeeks` en `src/domain/finances.js` (constantes `ECONOMY`); `financesApi.processWeek` cierra la semana con un asiento por concepto en el libro mayor y una sola actualización de caja; `getFinances` proyecta con el mismo modelo (flujo esperado incluye media taquilla, `wageOverBudget`); la taquilla se liquida con `gateSettlement` (40% de costo operativo) y queda en el libro; se elimina `src/api/economy.js`.
+- **Datos**: migración `economy_cash_normalization_v1` (aplicada en `dt_database`): 5 clubes con caja > 25.000 pasan a 20.000 con asiento `RESTRUCTURING` ("La dirigencia reestructuró las finanzas…"); clubes en déficit no se tocan. Registrada en `game_data_migrations`.
+- **Tests**: `tests/domain/economy.test.js` (margen chico del plantel inicial, fichar de más hunde el flujo, patrocinio por reputación, taquilla, autonomía de caja). Suite completa verde.

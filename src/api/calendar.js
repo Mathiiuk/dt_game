@@ -360,8 +360,8 @@ export const calendarApi = {
         }
 
         // 8. Cascada de Finanzas (Salarios semanales e ingresos)
-        const { economyApi } = await import('./economy')
-        await economyApi.processWeeklyFinances(clubId, nextDate, players || [])
+        const { financesApi } = await import('./finances')
+        await financesApi.processWeek({ clubId, careerId, seasonYear: calendar.current_season_year, weekNumber: nextWeek, players: players || [] })
 
         // 9. Simulación de partidos de liga IA
         const { competitionApi } = await import('./competition')

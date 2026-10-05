@@ -7,6 +7,8 @@ import { achievementsApi } from './achievements'
 import { rollAggravations, AGGRAVATION_EXTRA_WEEKS } from '../domain/matchSquad'
 import { queryCache } from '../utils/cache'
 import { positionLine } from '../domain/positions'
+import { gateSettlement } from '../domain/finances'
+import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 
 /**
  * ¿El gol del evento lo hizo este jugador? Si el evento trae `playerId` manda ese dato; el nombre en el texto sólo
@@ -302,7 +304,7 @@ export const postMatchApi = {
     // 4. Datos del club y liquidación de taquilla (Tier 5 realista)
     const { data: clubData } = await supabase
       .from('clubs')
-      .select('budget, board_confidence, stadium_capacity, ticket_price')
+      .select('budget, board_confidence, stadium_capacity, ticket_price, game_date')
       .eq('id', clubId)
       .single()
 
@@ -330,15 +332,26 @@ export const postMatchApi = {
       }
 
       attendance = computed?.attendance || Math.round(capacity * 0.75)
-      grossIncome = Math.round(attendance * ticketPrice)
-      operatingCost = Math.round(grossIncome * 0.15) // 15% seguridad y logística
-      netIncome = grossIncome - operatingCost
+      const gate = gateSettlement(attendance, ticketPrice)
+      grossIncome = gate.gross
+      operatingCost = gate.operating // seguridad, árbitros y logística
+      netIncome = gate.net
 
       if (clubData && netIncome > 0) {
         await supabase
           .from('clubs')
           .update({ budget: Number(clubData.budget || 0) + netIncome })
           .eq('id', clubId)
+
+        try {
+          const { financesApi } = await import('./finances')
+          await financesApi.recordLedgerTransaction({
+            clubId, category: 'MATCH_DAY', amount: netIncome, seasonYear: clubData.game_date ? seasonYearOf(clubData.game_date) : 1, weekNumber: clubData.game_date ? weekOfDate(clubData.game_date) : 1,
+            description: `Taquilla: ${attendance} espectadores a $${ticketPrice} (neto de seguridad y logística)`
+          })
+        } catch (ledgerErr) {
+          console.warn('Aviso: no se pudo registrar la taquilla en el libro mayor:', ledgerErr)
+        }
 
         await auditApi.logAction({
           whoId: managerId,
