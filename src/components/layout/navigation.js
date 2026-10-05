@@ -66,5 +66,5 @@ export const titleForPath = (pathname) => {
     const hit = group.items.find(i => isActivePath(pathname, i.to))
     if (hit) return hit.label
   }
-  return pathname.startsWith('/more') ? 'Más' : 'El Pizarrón'
+  return pathname.startsWith('/more') ? 'Más' : 'Vestuario'
 }

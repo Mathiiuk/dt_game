@@ -1,93 +1,37 @@
-import React, { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { Toaster } from 'sonner'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClient } from './lib/queryClient'
-import { initDB } from './api/db'
-import AuthScreen from './features/auth/AuthScreen'
-import CreateManagerWizard from './features/manager/CreateManagerWizard'
-import CreateClubWizard from './features/club/CreateClubWizard'
-import Dashboard from './features/dashboard/Dashboard'
-import WelcomeScreen from './features/auth/WelcomeScreen'
-import CalendarScreen from './features/calendar/CalendarScreen'
-import TacticsScreen from './features/tactics/TacticsScreen'
-import MatchScreen from './features/match/MatchScreen'
-import PostMatchScreen from './features/match/PostMatchScreen'
-import StandingsScreen from './features/competition/StandingsScreen'
-import MarketScreen from './features/market/MarketScreen'
-import SquadScreen from './features/squad/SquadScreen'
-import ClubScreen from './features/club/screens/ClubScreen'
-import FinancesScreen from './features/finances/FinancesScreen'
-import TrainingScreen from './features/training/TrainingScreen'
-import ManagerCareerScreen from './features/manager/ManagerCareerScreen'
-import NationalTeamScreen from './features/manager/NationalTeamScreen'
-import InternationalCupScreen from './features/competition/InternationalCupScreen'
-import HallOfFameScreen from './features/manager/HallOfFameScreen'
-import AchievementsScreen from './features/career/AchievementsScreen'
-import EndgameScreen from './features/career/EndgameScreen'
-import ReloadPrompt from './components/ReloadPrompt'
-import { GameProvider } from './context/GameContext'
-import AppShell from './components/layout/AppShell'
-import MoreScreen from './features/more/MoreScreen'
-import RequireCareer from './components/RequireCareer'
-import DesignSystemScreen from './features/design/DesignSystemScreen'
+import React, { Suspense, lazy } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Loader2 } from 'lucide-react'
+import HomeLanding from './features/home/HomeLanding'
+import InfoPage from './features/home/InfoPage'
+import { PUBLIC_PAGES } from './data/publicPages'
 
-function App() {
-  useEffect(() => {
-    initDB()
-  }, [])
+// El juego entero (base de datos, pantallas, PWA) se descarga sólo cuando se sale de la parte pública:
+// la portada queda liviana y carga rápido para quien llega desde un buscador.
+const GameApp = lazy(() => import('./GameApp'))
 
+function GameLoading() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <div role="status" aria-label="Cargando" className="grid min-h-dvh place-items-center bg-bg text-accent">
+      <Loader2 className="size-8 animate-spin" aria-hidden="true" />
+    </div>
+  )
+}
+
+/**
+ * Dos aplicaciones en una: la parte pública (portada y páginas del sitio, indexables)
+ * y el juego (todo lo demás, privado y sin indexar).
+ */
+function App() {
+  return (
     <BrowserRouter>
-      <div className="min-h-screen text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
-        <GameProvider>
-          <Routes>
-            <Route path="/auth" element={<AuthScreen />} />
-            <Route path="/welcome" element={<WelcomeScreen />} />
-            <Route path="/create-manager" element={<CreateManagerWizard />} />
-            <Route path="/create-club" element={<CreateClubWizard />} />
-            <Route path="/design" element={<DesignSystemScreen />} />
-
-            {/* Partido en vivo y resumen: pantalla inmersiva, sin menú */}
-            <Route path="/match" element={<RequireCareer><MatchScreen /></RequireCareer>} />
-            <Route path="/post-match" element={<RequireCareer><PostMatchScreen /></RequireCareer>} />
-
-            {/* Epílogo del DT retirado: sin menú (no hay a dónde volver) */}
-            <Route path="/endgame" element={<EndgameScreen />} />
-
-            {/* Pantallas de juego dentro del AppShell (menú lateral en escritorio, barra inferior en móvil) */}
-            <Route element={<RequireCareer><AppShell /></RequireCareer>}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/calendar" element={<CalendarScreen />} />
-              <Route path="/tactics" element={<TacticsScreen />} />
-              <Route path="/standings" element={<StandingsScreen />} />
-              <Route path="/market" element={<MarketScreen />} />
-              <Route path="/squad" element={<SquadScreen />} />
-              <Route path="/club" element={<ClubScreen />} />
-              <Route path="/finances" element={<FinancesScreen />} />
-              <Route path="/training" element={<TrainingScreen />} />
-              <Route path="/manager" element={<ManagerCareerScreen />} />
-              <Route path="/national-team" element={<NationalTeamScreen />} />
-              <Route path="/international-cup" element={<InternationalCupScreen />} />
-              <Route path="/achievements" element={<AchievementsScreen />} />
-              <Route path="/more" element={<MoreScreen />} />
-            </Route>
-
-            {/* El Salón de la Fama es accesible incluso con el DT retirado */}
-            <Route element={<AppShell />}>
-              <Route path="/hall-of-fame" element={<HallOfFameScreen />} />
-            </Route>
-
-            <Route path="/game" element={<Navigate to="/welcome" replace />} />
-            <Route path="*" element={<Navigate to="/auth" replace />} />
-          </Routes>
-          <Toaster theme="dark" position="top-center" />
-          <ReloadPrompt />
-        </GameProvider>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomeLanding />} />
+        {PUBLIC_PAGES.map(page => (
+          <Route key={page.path} path={page.path} element={<InfoPage path={page.path} />} />
+        ))}
+        <Route path="*" element={<Suspense fallback={<GameLoading />}><GameApp /></Suspense>} />
+      </Routes>
     </BrowserRouter>
-    </QueryClientProvider>
   )
 }
 

@@ -68,7 +68,7 @@ function MobileTopBar({ club, title }) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-bg/92 px-4 py-3 backdrop-blur lg:hidden pt-safe">
       <div className="min-w-0">
-        <p className="eyebrow truncate">{club?.name || 'El Pizarrón'}</p>
+        <p className="eyebrow truncate">{club?.name || 'Vestuario'}</p>
         <h1 className="truncate font-display text-2xl font-semibold leading-none text-fg">{title}</h1>
       </div>
       {club?.game_date && <p className="num shrink-0 text-xs capitalize text-fg-muted">{formatGameDate(club.game_date)}</p>}

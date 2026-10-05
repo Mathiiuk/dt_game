@@ -1,0 +1,20 @@
+# Reporte de Ejecución: home-landing
+- **Rama**: `feat/home-landing` (copia de trabajo aparte, desde `master`) | **Estado**: `DONE`
+- **Fuente**: `docs/home_landing/` (README + especificación maestra, fases 0 a 45).
+- **Qué se hizo**:
+  - Portada pública en `/` (`src/features/home/`): encabezado, flash de frases de DT, único H1 "Vos sos el DT.", bajada, contexto visible, "Crear mi carrera" y "Conocer el juego", pie compacto. Fondo con CSS y SVG en línea (sin imágenes).
+  - Frases en `src/data/managerQuotes.js`: 3 históricas verificadas con fuente periodística (Bielsa, Scaloni, Sabella), 4 propias sin autor y 2 pendientes que no se publican (Menotti, Cruyff). La frase del ejemplo de la especificación ("Un equipo es un estado de ánimo") se atribuye a Valdano, no a Menotti: no se usó.
+  - 11 páginas públicas (`src/data/publicPages.js` + `InfoPage.jsx`) enlazadas desde el pie; preguntas frecuentes con datos estructurados.
+  - SEO: `index.html` con title, description, canonical, `lang="es-AR"`, Open Graph, JSON-LD y la portada prerenderizada; `robots.txt`, `sitemap.xml` e imagen social `vestuario-og-home.webp` (20 KB).
+  - Rutas `/login` y `/registro`; el juego se descarga aparte de la portada (`src/GameApp.jsx` con `lazy`) y lleva `noindex`.
+  - Marca Vestuario en portada, metadatos, app instalable, acceso y menú.
+- **Quality gates**: `npm test` 509/509 (63 archivos) y `agt task:verify home-landing` en verde. Compilación de prueba local correcta con una config sin SWC (el build real corre en CI).
+- **Verificación en navegador**: sin scroll ni desborde horizontal en 375×812, 390×844, 412×915, 768×1024, 1024×768, 1280×720, 1366×768, 1440×900 y 1920×1080. En 320×568 hay scroll vertical (se prefirió a achicar la letra). `/juego`, `/login`, `/registro` y `/dashboard` (redirige al acceso) funcionan; consola sin errores.
+- **Bloques generados**: portada 328 KB sin comprimir; juego 925 KB en un bloque aparte que la portada no descarga.
+- **Para regenerar el prerender** tras cambiar la portada: `HOME_PRERENDER=write npx vitest run tests/static/homeSeo.test.jsx` (si no, el test estático falla).
+- **Pendientes del usuario**:
+  - Definir el canal de contacto (`SITE.contactEmail` en `src/data/site.js`); hoy Contacto y Soporte avisan que todavía no está publicado.
+  - Revisión legal de Privacidad y Términos (texto base).
+  - Apuntar `vestuario.com.ar` al proyecto de Vercel y agregarlo en Supabase > Auth > URL Configuration.
+  - Medir Core Web Vitals y validar el JSON-LD en Rich Results Test con el sitio publicado.
+  - `index.html` conserva `user-scalable=no` (viene de la app): impide el zoom con los dedos también en las páginas públicas.

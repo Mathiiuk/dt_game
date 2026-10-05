@@ -34,7 +34,7 @@ export const GameProvider = ({ children }) => {
       try {
         const user = await authApi.getSession()
         if (!user) {
-          if (location.pathname !== '/auth' && location.pathname !== '/welcome') navigate('/auth')
+          if (!['/auth', '/login', '/registro', '/welcome'].includes(location.pathname)) navigate('/auth')
           setGameState(prev => ({ ...prev, loading: false }))
           return
         }
@@ -105,7 +105,7 @@ export const GameProvider = ({ children }) => {
 
   useEffect(() => {
     // Only load if we are on a game route
-    const publicRoutes = ['/auth', '/welcome', '/create-manager', '/create-club']
+    const publicRoutes = ['/auth', '/login', '/registro', '/welcome', '/create-manager', '/create-club']
     if (!publicRoutes.includes(location.pathname)) {
       if (!gameState.user) {
         setGameState(prev => ({ ...prev, loading: true }))

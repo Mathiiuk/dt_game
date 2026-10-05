@@ -1,0 +1,49 @@
+id: home-landing
+external_ref: ''
+title: 'Home publica de Vestuario: portada, frases de DT, SEO y rutas de acceso'
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game-home
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Portada publica en / segun docs/home_landing (una pantalla, sin scroll en
+    los tamanos de referencia)
+  - Flash de frases de DT desde un dataset con verificacion y aprobacion
+  - >-
+    SEO de la portada en HTML estatico (prerender), JSON-LD, Open Graph,
+    robots.txt y sitemap.xml
+  - >-
+    Rutas /login y /registro y 11 paginas publicas secundarias enlazadas desde
+    el pie
+  - Marca Vestuario en la parte publica, la app instalable y el acceso
+acceptance_criteria:
+  - Vos sos el DT. es el unico H1 y el contexto de futbol es texto visible
+  - >-
+    Solo se muestran frases con verified y approvedForProduction; las propias no
+    llevan autor
+  - >-
+    Crear mi carrera lleva a /registro, Iniciar sesion a /login y Conocer el
+    juego a /juego
+  - Ningun enlace del pie esta roto y el juego queda fuera de buscadores
+  - index.html coincide con src/seo y con el componente (test estatico)
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: npm install
+  unit_tests: npm test
