@@ -1,0 +1,31 @@
+# Vestuario: la parte pública se rastrea; el juego (área privada) no.
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /login
+Disallow: /registro
+Disallow: /welcome
+Disallow: /game
+Disallow: /create-manager
+Disallow: /create-club
+Disallow: /design
+Disallow: /dashboard
+Disallow: /calendar
+Disallow: /tactics
+Disallow: /standings
+Disallow: /market
+Disallow: /squad
+Disallow: /club
+Disallow: /finances
+Disallow: /training
+Disallow: /manager
+Disallow: /national-team
+Disallow: /international-cup
+Disallow: /achievements
+Disallow: /hall-of-fame
+Disallow: /more
+Disallow: /match
+Disallow: /post-match
+Disallow: /endgame
+
+Sitemap: https://vestuario.com.ar/sitemap.xml

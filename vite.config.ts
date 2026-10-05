@@ -12,9 +12,12 @@ export default defineConfig({
       registerType: 'prompt', // Mostramos prompt cuando haya actualización
       includeAssets: ['pwa-icon.svg'],
       manifest: {
-        name: 'El Pizarrón: DT Game',
-        short_name: 'El Pizarrón',
-        description: 'Simulador de Director Técnico de Fútbol',
+        name: 'Vestuario',
+        short_name: 'Vestuario',
+        description: 'Juego de Director Técnico de fútbol. Vos sos el DT.',
+        lang: 'es-AR',
+        // La app instalada abre directo en el juego; la portada pública queda para la web
+        start_url: '/dashboard',
         theme_color: '#09090b', // bg-zinc-950
         background_color: '#09090b',
         display: 'standalone',
@@ -31,6 +34,8 @@ export default defineConfig({
       workbox: {
         // Precargar recursos estáticos
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // Archivos para buscadores: siempre desde la red, nunca la app en su lugar
+        navigateFallbackDenylist: [/^\/robots\.txt$/, /^\/sitemap\.xml$/],
         // Omitimos source maps del cacheo
         sourcemap: false
       }

@@ -41,8 +41,8 @@ function PasswordInput({ show, onToggle, ...props }) {
   )
 }
 
-export default function AuthScreen() {
-  const [mode, setMode] = useState('splash') // splash | login | register | forgot_password
+export default function AuthScreen({ initialMode = 'splash' }) {
+  const [mode, setMode] = useState(initialMode) // splash | login | register | forgot_password
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
@@ -119,9 +119,9 @@ export default function AuthScreen() {
       <main className="grid min-h-dvh place-items-center bg-bg px-4 py-8">
         <div className="flex w-full max-w-md flex-col items-center text-center">
           <span className="mb-6 grid size-16 place-items-center rounded-lg border border-line bg-surface text-accent"><Shield className="size-8" aria-hidden="true" /></span>
-          <p className="eyebrow mb-2">Simulador de carrera para directores técnicos</p>
-          <h1 className="font-display text-5xl font-semibold leading-none text-fg sm:text-6xl">Del Potrero</h1>
-          <p className="font-display text-3xl font-semibold leading-tight text-accent sm:text-4xl">al Ídolo</p>
+          <p className="eyebrow mb-2">Juego de director técnico de fútbol</p>
+          <h1 className="font-display text-5xl font-semibold leading-none text-fg sm:text-6xl">Vestuario</h1>
+          <p className="font-display text-3xl font-semibold leading-tight text-accent sm:text-4xl">Vos sos el DT.</p>
           <p className="mb-8 mt-4 max-w-xs text-sm text-fg-muted">Del barro barrial a la gloria continental. Armá tu plantel, bancá tus decisiones y escribí tu dinastía.</p>
           <div className="flex w-full flex-col gap-3">
             <Button size="lg" onClick={() => go('register')}><Sparkles />Nueva carrera</Button>

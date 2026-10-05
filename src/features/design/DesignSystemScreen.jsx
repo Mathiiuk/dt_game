@@ -20,7 +20,7 @@ export default function DesignSystemScreen() {
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
       <PageHeader
         eyebrow="Sistema de diseño"
-        title="El Pizarrón"
+        title="Vestuario"
         description="Tokens, tipografía y componentes base. Un solo acento (verde cancha); el resto del color comunica estado."
         actions={<Button variant="outline" size="sm" asChild><a href="/dashboard">Volver al juego</a></Button>}
       />

@@ -29,9 +29,17 @@ describe('pantalla de acceso', () => {
 
   it('la bienvenida lleva a registrarse o a continuar la carrera', async () => {
     renderScreen()
-    expect(screen.getByRole('heading', { level: 1, name: 'Del Potrero' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Vestuario' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /Continuar carrera/ }))
     expect(screen.getByRole('heading', { name: 'Iniciar sesión' })).toBeInTheDocument()
+  })
+
+  it('/login abre directo el inicio de sesión y /registro el alta', () => {
+    const { unmount } = render(<MemoryRouter><AuthScreen initialMode="login" /></MemoryRouter>)
+    expect(screen.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeInTheDocument()
+    unmount()
+    render(<MemoryRouter><AuthScreen initialMode="register" /></MemoryRouter>)
+    expect(screen.getByRole('heading', { level: 1, name: 'Nueva cuenta de DT' })).toBeInTheDocument()
   })
 
   it('iniciar sesión valida con la API y navega al juego', async () => {
