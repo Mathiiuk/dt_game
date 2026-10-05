@@ -1,7 +1,9 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { moraleApi } from './morale'
-import { DIFFICULTY, clamp, matchConsequences, ticketPriceMood, financialSatisfaction } from '../domain/consequences'
+import { DIFFICULTY, clamp, matchConsequences, ticketPriceMood, financialSatisfaction, pressureIndex, climateState } from '../domain/consequences'
+import { BARRA_STAGES, BARRA_LABELS, shiftBarra, nextBarraStage, barraWeeklyEffect, auditChance, scandalOutcome } from '../domain/barra'
+import { BARRA_EVENTS, EMERGENCY_MEETING, BOARD_FAVOR_DUE } from '../domain/climateEvents'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 import { wageInequities } from '../domain/squadConsequences'
 
@@ -171,6 +173,165 @@ export const climateApi = {
     await playerApi.batchUpdate(aggrieved.map(id => ({ id, state_morale: clamp((byId.get(id).state_morale ?? 70) - 2, 10) })))
     await this.log(clubId, gameDate, 'WAGES', `${aggrieved.length} jugador(es) se quejan de cobrar bastante menos que compañeros de su nivel (moral -2).`, {})
     return aggrieved.length
+  },
+
+  /** Estado del clima del club (valores por defecto si todavía no hay fila) */
+  async getState(clubId) {
+    const { data } = await supabase.from('club_climate').select('*').eq('club_id', clubId).maybeSingle()
+    return data || { club_id: clubId, pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0 }
+  },
+
+  async saveState(clubId, patch) {
+    const { error } = await supabase.from('club_climate').upsert({ club_id: clubId, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'club_id' })
+    if (error) console.warn('Aviso: no se pudo guardar el clima del club:', error.message)
+  },
+
+  /**
+   * Cierre semanal del clima: calcula la presión, mueve la barra, cobra sus efectos en el vestuario, sortea la auditoría
+   * si hay favores aceptados y dispara los eventos que corresponden (pedido de la barra, reunión de emergencia, favor de la dirigencia).
+   */
+  async advanceWeek({ clubId, managerId = null, careerId = null, week = 1, gameDate = null }) {
+    const state = await this.getState(clubId)
+    const { data: club } = await supabase.from('clubs').select('fans_confidence, budget').eq('id', clubId).single()
+    if (!club) return null
+    const { data: board } = await supabase.from('club_board_confidence').select('sports_satisfaction, confidence_score').eq('club_id', clubId).maybeSingle()
+    const streaks = await moraleApi.getStreaks(clubId)
+
+    const objectiveGap = clamp((65 - (board?.sports_satisfaction ?? 70)) / 65, 0, 1)
+    const pressure = pressureIndex({
+      lossStreak: streaks.loss,
+      winlessStreak: streaks.winless,
+      objectiveGap,
+      fans: club.fans_confidence ?? 65,
+      balance: Number(club.budget || 0),
+      openScandals: state.scandals
+    })
+    const climate = climateState(pressure).key
+
+    const previousStage = state.barra_stage
+    const stage = nextBarraStage({ stage: previousStage, climate, recentWin: streaks.win >= 1 }, this.difficulty)
+
+    const patch = { pressure, climate, barra_stage: stage }
+
+    const weekly = barraWeeklyEffect(stage, this.difficulty)
+    if (weekly.locker) {
+      await this.applySquadConsequence({ clubId, source: 'BARRA', gameDate, effects: { locker: weekly.locker, notes: [`La barra está en "${BARRA_LABELS[stage].toLowerCase()}" y el vestuario lo siente.`] } })
+    }
+
+    // Auditoría: cuantos más favores aceptaste, más cerca está de aparecer
+    let dismissed = false
+    if (state.favors > 0 && Math.random() < auditChance(state.favors)) {
+      const scandals = (state.scandals || 0) + 1
+      const outcome = scandalOutcome(scandals)
+      patch.scandals = scandals
+      patch.suspended_matches = (state.suspended_matches || 0) + outcome.suspendMatches
+      if (outcome.fine) {
+        await supabase.from('clubs').update({ budget: Number(club.budget || 0) - outcome.fine }).eq('id', clubId)
+        const { financesApi } = await import('./finances')
+        await financesApi.recordLedgerTransaction({ clubId, careerId, category: 'FINE', amount: -outcome.fine, description: 'Multa por irregularidades detectadas en una auditoría', seasonYear: gameDate ? seasonYearOf(gameDate) : 2026, weekNumber: week })
+      }
+      await this.applySquadConsequence({ clubId, source: 'AUDIT', gameDate, effects: { board: outcome.board, notes: [outcome.note] } })
+      if (managerId && outcome.reputation) {
+        try {
+          const { reputationApi } = await import('./reputation')
+          await reputationApi.applyReputationDelta({ managerId, eventType: 'MATCH_RESULT', sourceEntityId: `audit_${clubId}_${scandals}`, delta: outcome.reputation, description: 'Auditoría con irregularidades' })
+        } catch (e) {
+          console.warn('Aviso: no se pudo aplicar la reputación del escándalo:', e)
+        }
+      }
+      if (outcome.dismissal) {
+        const { boardApi } = await import('./board')
+        await boardApi.executeManagerDismissal(clubId, managerId, 'CORRUPTION_SCANDAL', board?.confidence_score ?? 15)
+        dismissed = true
+      }
+    }
+
+    await this.saveState(clubId, patch)
+
+    // Eventos del clima: solo si el DT sigue en el cargo
+    const created = []
+    if (!dismissed) {
+      const { eventsApi } = await import('./events')
+      const ctx = { clubId, managerId, careerId, week }
+      if (BARRA_STAGES.indexOf(stage) > BARRA_STAGES.indexOf(previousStage) && stage !== 'CALM') {
+        created.push(await eventsApi.createFromTemplate(BARRA_EVENTS[stage], ctx))
+      }
+      if (stage === 'INVASION' && (board?.confidence_score ?? 70) < 40) {
+        created.push(await eventsApi.createFromTemplate(EMERGENCY_MEETING, ctx))
+      }
+      if (state.board_owed > 0 && climate !== 'FLOWS' && Math.random() < 0.5) {
+        created.push(await eventsApi.createFromTemplate(BOARD_FAVOR_DUE, ctx))
+      }
+    }
+
+    queryCache.invalidate(`climate:${clubId}`)
+    return { pressure, climate, stage, scandals: patch.scandals ?? state.scandals, dismissed, events: created.filter(Boolean).length }
+  },
+
+  /**
+   * Aplica los efectos de la opción elegida en un evento: medidores, barra, favores, deuda con la dirigencia y
+   * acciones especiales (denuncia, renuncia, apuesta de despido). Devuelve un texto con lo que pasó, si corresponde.
+   */
+  async applyEventEffects({ clubId, managerId = null, effects = {}, title = 'Evento', gameDate = null }) {
+    await this.applySquadConsequence({
+      clubId,
+      source: 'EVENT',
+      gameDate,
+      effects: { fans: effects.fans || 0, board: effects.board || 0, locker: effects.locker ?? effects.locker_room ?? 0, notes: [`${title}.`] }
+    })
+
+    const state = await this.getState(clubId)
+    const patch = {}
+    if (effects.barra) patch.barra_stage = shiftBarra(state.barra_stage, effects.barra)
+    if (effects.favors) patch.favors = Math.max(0, (state.favors || 0) + effects.favors)
+    if (effects.board_owed) patch.board_owed = Math.max(0, (state.board_owed || 0) + effects.board_owed)
+    if (Object.keys(patch).length) await this.saveState(clubId, patch)
+
+    if (effects.board_set != null) {
+      const { data: row } = await supabase.from('club_board_confidence').select('financial_satisfaction, squad_satisfaction').eq('club_id', clubId).maybeSingle()
+      if (row) {
+        let financial = row.financial_satisfaction ?? 70
+        let squad = row.squad_satisfaction ?? 70
+        let sports = Math.round((effects.board_set - financial * 0.3 - squad * 0.2) / 0.5)
+        if (sports < 0) {
+          // Con la satisfacción deportiva en cero no alcanza para bajar tanto: también cae la financiera y la de plantel
+          sports = 0
+          financial = squad = clamp(effects.board_set * 2)
+        }
+        sports = clamp(sports)
+        const global = Math.round(sports * 0.5 + financial * 0.3 + squad * 0.2)
+        await supabase.from('club_board_confidence').update({
+          sports_satisfaction: sports,
+          financial_satisfaction: financial,
+          squad_satisfaction: squad,
+          confidence_score: global,
+          updated_at: new Date().toISOString()
+        }).eq('club_id', clubId)
+      }
+    }
+
+    if (effects.action === 'RESIGN' && managerId) {
+      const { careerApi } = await import('./career')
+      await careerApi.resignFromClub(managerId, clubId)
+      return 'Renunciaste al cargo. El club sigue sin vos.'
+    }
+    if (effects.action === 'GAMBLE_DISMISSAL') {
+      if (Math.random() < 0.5) {
+        const { boardApi } = await import('./board')
+        await boardApi.executeManagerDismissal(clubId, managerId, 'BARRA_PRESSURE', 15)
+        return 'La dirigencia decidió que te vas. La reunión terminó sin saludos.'
+      }
+      await supabase.from('club_board_confidence').update({
+        is_under_ultimatum: true,
+        ultimatum_points_required: 4,
+        ultimatum_matches_remaining: 3,
+        ultimatum_points_gathered: 0,
+        updated_at: new Date().toISOString()
+      }).eq('club_id', clubId)
+      return 'La dirigencia te bancó, pero con plazo: 4 puntos en los próximos 3 partidos.'
+    }
+    queryCache.invalidate(`climate:${clubId}`)
+    return null
   },
 
   /** Últimas consecuencias registradas del club */

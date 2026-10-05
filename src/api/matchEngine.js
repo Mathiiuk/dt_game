@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { FIXTURE_STATUS } from '../domain/fixtureStatus'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { homeAdvantage } from '../domain/consequences'
+import { SUSPENSION_POWER_FACTOR } from '../domain/barra'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -86,7 +87,7 @@ export function createRNG(seedValue) {
 /**
  * Simulación autoritativa minuto a minuto con semilla reproducible.
  */
-export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08 } = {}) => {
+export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08, homePowerFactor = 1, awayPowerFactor = 1 } = {}) => {
   const rng = createRNG(seed)
 
   // 1. Calcular poder base de cada equipo
@@ -176,6 +177,14 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
   const homeTeam = applyTactics(homeBase, homeTactic, awayTactic, true)
   const awayTeam = applyTactics(awayBase, awayTactic, homeTactic, false)
+  // Con el DT suspendido dirige el ayudante y el equipo rinde menos
+  for (const [team, factor] of [[homeTeam, homePowerFactor], [awayTeam, awayPowerFactor]]) {
+    if (factor !== 1) {
+      team.attack *= factor
+      team.defense *= factor
+      team.midfield *= factor
+    }
+  }
 
   const events = []
   let homeScore = 0
@@ -387,6 +396,8 @@ export const matchEngineApi = {
     const finalSeed = seed || `seed_${Date.now()}_${Math.random()}`
     // La caldera pesa: la ventaja de local sale del humor de la hinchada local (1,02 hostil a 1,10 caldera)
     let homeAdvantageFactor = 1.08
+    let homePowerFactor = 1
+    let awayPowerFactor = 1
     if (fixtureId) {
       try {
         const { data: fx } = await supabase.from('fixtures').select('home_club_id').eq('id', fixtureId).maybeSingle()
@@ -394,11 +405,19 @@ export const matchEngineApi = {
           const { data: fans } = await supabase.from('club_fanbase').select('fan_support_score').eq('club_id', fx.home_club_id).maybeSingle()
           if (fans?.fan_support_score != null) homeAdvantageFactor = homeAdvantage(fans.fan_support_score)
         }
+
+        // Suspensión del DT por un escándalo: este partido lo dirige el ayudante
+        const { data: climate } = await supabase.from('club_climate').select('suspended_matches').eq('club_id', userClubId).maybeSingle()
+        if ((climate?.suspended_matches || 0) > 0) {
+          if (fx?.home_club_id === userClubId) homePowerFactor = SUSPENSION_POWER_FACTOR
+          else awayPowerFactor = SUSPENSION_POWER_FACTOR
+          await supabase.from('club_climate').update({ suspended_matches: climate.suspended_matches - 1 }).eq('club_id', userClubId)
+        }
       } catch {
-        // Sin dato de hinchada se mantiene la ventaja base
+        // Sin dato de hinchada ni de suspensión se mantiene la ventaja base
       }
     }
-    const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, { homeAdvantage: homeAdvantageFactor })
+    const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, { homeAdvantage: homeAdvantageFactor, homePowerFactor, awayPowerFactor })
 
     if (fixtureId) {
       try {

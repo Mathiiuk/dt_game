@@ -421,6 +421,8 @@ export const calendarApi = {
 
         // 11f. Disparo de eventos dinámicos narrativos y dilemas del DT (Fase 35)
         try {
+          const { climateApi } = await import('./climate')
+          await climateApi.advanceWeek({ clubId, managerId, careerId, week: nextWeek, gameDate: nextDate })
           const { eventsApi } = await import('./events')
           await eventsApi.generateWeeklyEvents(clubId, managerId, nextWeek, careerId)
         } catch (evtErr) {

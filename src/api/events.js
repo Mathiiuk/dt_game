@@ -1,6 +1,8 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
+import { CLIMATE_EVENTS } from '../domain/climateEvents'
+import { eventProbability, pickEvent } from '../domain/barra'
 
 export const DYNAMIC_EVENTS_CATALOG = [
   {
@@ -237,6 +239,21 @@ export const DYNAMIC_EVENTS_CATALOG = [
   }
 ]
 
+// Los dilemas de siempre también dependen del clima: no tiene sentido un soborno cuando todo va bien
+const LEGACY_CLIMATES = {
+  EVT_NIGHTCLUB_OUTING: ['TENSION', 'CRISIS', 'CHAOS'],
+  EVT_BOILER_BROKEN: ['FLOWS', 'TENSION', 'CRISIS', 'CHAOS'],
+  EVT_PRESIDENT_NEPOTISM: ['TENSION', 'CRISIS'],
+  EVT_POTRERO_DONATION: ['FLOWS', 'TENSION'],
+  EVT_BRIBERY_ATTEMPT: ['CRISIS', 'CHAOS'],
+  EVT_LOCKER_ROOM_FIGHT: ['TENSION', 'CRISIS', 'CHAOS']
+}
+
+export const FULL_EVENTS_CATALOG = [
+  ...DYNAMIC_EVENTS_CATALOG.map(t => ({ ...t, climates: LEGACY_CLIMATES[t.template_code] })),
+  ...CLIMATE_EVENTS
+]
+
 export const eventsApi = {
   /**
    * Obtiene eventos pendientes para un club
@@ -297,6 +314,14 @@ export const eventsApi = {
     const cost = Number(optionDef.cost || 0)
     const effects = optionDef.effects || {}
 
+    // Algunas opciones piden una confianza mínima de la dirigencia (por ejemplo, denunciar a la barra)
+    if (optionDef.requires?.board) {
+      const { data: gate } = await supabase.from('clubs').select('board_confidence').eq('id', event.club_id).single()
+      if ((gate?.board_confidence ?? 0) < optionDef.requires.board) {
+        throw new Error('La dirigencia no te respalda lo suficiente para hacer eso todavía.')
+      }
+    }
+
     // 2. Verificar fondos en tesorería si la opción tiene costo monetario
     const { data: club, error: clubErr } = await supabase
       .from('clubs')
@@ -316,14 +341,23 @@ export const eventsApi = {
       const budgetDelta = (effects.budget || 0) - cost
       moneyDelta = budgetDelta
       const newBudget = Number(club.budget || 0) + budgetDelta
-      const newBoard = Math.min(100, Math.max(0, (club.board_confidence || 80) + (effects.board || 0)))
-      const newFans = Math.min(100, Math.max(0, (club.fans_confidence || 80) + (effects.fans || 0)))
 
-      await supabase.from('clubs').update({
-        budget: newBudget,
-        board_confidence: newBoard,
-        fans_confidence: newFans
-      }).eq('id', event.club_id)
+      await supabase.from('clubs').update({ budget: newBudget }).eq('id', event.club_id)
+    }
+
+    // Hinchada, dirigencia, vestuario, barra, favores y acciones especiales pasan por el clima del club,
+    // para que las consecuencias de un dilema no se pisen con el recálculo semanal de la dirigencia
+    let outcomeNote = null
+    try {
+      const { climateApi } = await import('./climate')
+      outcomeNote = await climateApi.applyEventEffects({
+        clubId: event.club_id,
+        managerId: managerId || event.manager_id,
+        effects,
+        title: event.title
+      })
+    } catch (climateErr) {
+      console.warn('Aviso aplicando consecuencias del evento al clima:', climateErr)
     }
 
     // 4. Aplicar impacto en moral de jugadores si aplica
@@ -395,45 +429,34 @@ export const eventsApi = {
     return {
       success: true,
       resolvedOptionId: optionId,
-      effects
+      effects,
+      outcomeNote
     }
   },
 
   /**
-   * Generación contextual y procedural de eventos dinámicos
-   * 25% de probabilidad semanal (Regla 35)
+   * Inserta un evento a partir de una plantilla, salvo que ya haya uno igual pendiente.
+   * Devuelve true si lo creó.
    */
-  async generateWeeklyEvents(clubId, managerId, currentWeek = 1, careerId = null) {
-    if (!clubId) return
-
-    // 25% chance per week
-    if (Math.random() > 0.25) return
-
-    // Máximo 3 eventos pendientes simultáneos (Regla 35)
+  async createFromTemplate(template, { clubId, managerId = null, careerId = null, week = 1 }) {
     const pending = await this.getPendingEvents(clubId)
-    if (pending.length >= 3) return
-
-    // Filtrar templates que no estén ya pendientes
-    const pendingTemplates = new Set(pending.map(p => p.template_code))
-    const available = DYNAMIC_EVENTS_CATALOG.filter(t => !pendingTemplates.has(t.template_code))
-    if (available.length === 0) return
-
-    const selected = available[Math.floor(Math.random() * available.length)]
+    if (pending.some(p => p.template_code === template.template_code)) return false
 
     try {
-      await supabase.from('dynamic_events').insert({
+      const { error } = await supabase.from('dynamic_events').insert({
         career_id: careerId,
         club_id: clubId,
         manager_id: managerId,
-        template_code: selected.template_code,
-        title: selected.title,
-        description: selected.description,
-        category: selected.category,
-        severity: selected.severity,
-        options: selected.options,
+        template_code: template.template_code,
+        title: template.title,
+        description: template.description,
+        category: template.category,
+        severity: template.severity,
+        options: template.options,
         status: 'PENDING',
-        created_at_week: currentWeek
+        created_at_week: week
       })
+      if (error) throw new Error(error.message)
 
       queryCache.invalidate('events:')
       queryCache.invalidate('dashboard:')
@@ -442,10 +465,38 @@ export const eventsApi = {
         whoId: managerId || clubId,
         action: 'DYNAMIC_EVENT_TRIGGERED',
         entityType: 'dynamic_events',
-        stateAfter: { template: selected.template_code, title: selected.title, severity: selected.severity }
+        stateAfter: { template: template.template_code, title: template.title, severity: template.severity }
       })
+      return true
     } catch (e) {
       console.warn('Aviso insertando dynamic_event:', e)
+      return false
     }
+  },
+
+  /**
+   * Generación contextual de eventos: la probabilidad y el tipo dependen del clima del club
+   * (con todo bien pasan cosas buenas; con presión llegan los aprietes y las ofertas turbias).
+   */
+  async generateWeeklyEvents(clubId, managerId, currentWeek = 1, careerId = null) {
+    if (!clubId) return
+
+    const { climateApi } = await import('./climate')
+    const state = await climateApi.getState(clubId)
+
+    if (Math.random() > eventProbability(state.climate, climateApi.difficulty)) return
+
+    // Máximo 3 eventos pendientes simultáneos (Regla 35)
+    const pending = await this.getPendingEvents(clubId)
+    if (pending.length >= 3) return
+
+    const selected = pickEvent(FULL_EVENTS_CATALOG, {
+      climate: state.climate,
+      state: { favors: state.favors, scandals: state.scandals, barra: state.barra_stage },
+      pendingCodes: new Set(pending.map(p => p.template_code))
+    })
+    if (!selected) return
+
+    await this.createFromTemplate(selected, { clubId, managerId, careerId, week: currentWeek })
   }
 }

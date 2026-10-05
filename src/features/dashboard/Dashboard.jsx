@@ -84,7 +84,7 @@ function AlertList({ alerts }) {
 }
 
 /** Dilema del DT (evento dinámico) con sus opciones */
-function EventCard({ event, budget, onResolve }) {
+function EventCard({ event, budget, boardConfidence, onResolve }) {
   const critical = event.severity === 'CRITICAL'
   const category = EVENT_CATEGORY[event.category] || { label: event.category, tone: 'neutral' }
   const options = Array.isArray(event.options) ? event.options : []
@@ -107,10 +107,13 @@ function EventCard({ event, budget, onResolve }) {
           {options.map(opt => {
             const cost = Number(opt.cost || 0)
             const canAfford = cost === 0 || budget >= cost
+            const needsBoard = Number(opt.requires?.board || 0)
+            const hasBackup = !needsBoard || boardConfidence >= needsBoard
             return (
-              <Button key={opt.id} variant="outline" disabled={!canAfford} onClick={() => onResolve(event, opt)} className="justify-between">
+              <Button key={opt.id} variant="outline" disabled={!canAfford || !hasBackup} onClick={() => onResolve(event, opt)} className="justify-between" title={opt.description}>
                 <span>{opt.label}</span>
                 {cost > 0 && <Badge tone={canAfford ? 'warning' : 'danger'} className="num">-{formatMoney(cost)}</Badge>}
+                {!hasBackup && <Badge tone="danger">Sin respaldo de la dirigencia</Badge>}
               </Button>
             )
           })}
@@ -177,9 +180,9 @@ export default function Dashboard() {
 
   const handleResolveEvent = async (event, option) => {
     try {
-      await eventsApi.resolveEvent(event.id, option, manager?.id)
+      const outcome = await eventsApi.resolveEvent(event.id, option, manager?.id)
       await refreshContext()
-      toast.success('Decisión ejecutada.')
+      toast.success(outcome?.outcomeNote || 'Decisión ejecutada.')
     } catch (err) {
       toast.error(friendlyError(err, 'Error al procesar la decisión.'))
     }
@@ -227,7 +230,7 @@ export default function Dashboard() {
         {pendingEvents?.length > 0 && (
           <section aria-label="Decisiones pendientes" className="space-y-3">
             {pendingEvents.map(ev => (
-              <EventCard key={ev.id} event={ev} budget={Number(club?.budget || 0)} onResolve={handleResolveEvent} />
+              <EventCard key={ev.id} event={ev} budget={Number(club?.budget || 0)} boardConfidence={Number(club?.board_confidence ?? 100)} onResolve={handleResolveEvent} />
             ))}
           </section>
         )}
