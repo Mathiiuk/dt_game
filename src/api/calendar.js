@@ -32,7 +32,67 @@ export const isTransferWindowOpen = (week) => {
          (week >= CALENDAR_CONFIG.winter_transfer_window.start && week <= CALENDAR_CONFIG.winter_transfer_window.end)
 }
 
+
+const MS_PER_DAY = 86400000
+const toDay = (d) => String(d).slice(0, 10)
+
+/** Año de la temporada que contiene la fecha (empieza el 1 de julio) */
+export const seasonYearOf = (dateString) => {
+  const d = new Date(`${toDay(dateString)}T00:00:00Z`)
+  return d.getUTCMonth() >= 6 ? d.getUTCFullYear() : d.getUTCFullYear() - 1
+}
+
+/** Semana (1-52) de la temporada que corresponde a una fecha; el 1 de julio es la semana 1 */
+export const weekOfDate = (dateString) => {
+  const d = new Date(`${toDay(dateString)}T00:00:00Z`)
+  const start = new Date(Date.UTC(seasonYearOf(dateString), 6, 1))
+  const week = Math.floor((d - start) / MS_PER_DAY / 7) + 1
+  return Math.min(WEEKS_PER_SEASON, Math.max(1, week))
+}
+
 export const calendarApi = {
+  /** Id de la carrera activa del DT (sesión más reciente); null si no hay */
+  async resolveCareerId(managerId) {
+    if (!managerId) return null
+    try {
+      const { data: manager } = await supabase.from('managers').select('user_id').eq('id', managerId).single()
+      if (!manager?.user_id) return null
+      const { data: session } = await supabase
+        .from('user_sessions')
+        .select('active_career_id')
+        .eq('user_id', manager.user_id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      return session?.active_career_id || null
+    } catch {
+      return null
+    }
+  },
+
+  /**
+   * La fecha del club (clubs.game_date) es la fuente de verdad del tiempo de juego: el calendario de la carrera
+   * puede quedar desfasado (club restablecido, calendario virtual). Alinea semana/fecha/año con el club y lo persiste.
+   */
+  async reconcileWithClub(calendar, clubId) {
+    if (!clubId) return calendar
+    const { data: club } = await supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle()
+    const clubDate = club?.game_date ? toDay(club.game_date) : null
+    if (!clubDate || clubDate === toDay(calendar.current_date)) return calendar
+
+    const patch = {
+      current_date: clubDate,
+      current_week: weekOfDate(clubDate),
+      current_season_year: seasonYearOf(clubDate),
+      season_phase: getSeasonPhase(weekOfDate(clubDate)).id,
+      transfer_window_open: isTransferWindowOpen(weekOfDate(clubDate))
+    }
+    if (calendar.id && !['virtual-calendar', 'temp-calendar', 'fallback-calendar'].includes(calendar.id)) {
+      await supabase.from('career_calendar').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', calendar.id)
+    }
+    return { ...calendar, ...patch }
+  },
+
   /**
    * Obtiene o inicializa la línea de tiempo autoritativa para la carrera dada.
    */
@@ -102,7 +162,8 @@ export const calendarApi = {
    * Obtiene la estructura anual de 52 semanas con partidos y eventos clave.
    */
   async getSeasonCalendar(careerId, clubId, seasonYear = 2026) {
-    let calendarState = await this.getOrCreateCalendar(careerId)
+    const calendarState = await this.reconcileWithClub(await this.getOrCreateCalendar(careerId), clubId)
+    seasonYear = calendarState.current_season_year || seasonYear
 
     // Obtener partidos programados para el club
     let clubFixtures = []
@@ -179,7 +240,7 @@ export const calendarApi = {
     const startTime = Date.now()
 
     // 1. Obtener estado actual
-    const calendar = await this.getOrCreateCalendar(careerId)
+    const calendar = await this.reconcileWithClub(await this.getOrCreateCalendar(careerId), clubId)
 
     // 2. Control de concurrencia y Mutex
     if (calendar.is_advancing) {

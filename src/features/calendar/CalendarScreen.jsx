@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useGameContext } from '../../context/GameContext'
 import { calendarApi, SEASON_PHASES } from '../../api/calendar'
+import { gameLoopApi } from '../../api/gameLoop'
 import { queryCache } from '../../utils/cache'
 import { toast } from 'sonner'
 import { isFixturePlayed } from '../../domain/fixtureStatus'
@@ -36,7 +37,8 @@ export default function CalendarScreen() {
   const loadCalendar = async () => {
     try {
       setLoading(true)
-      const data = await calendarApi.getSeasonCalendar(null, club?.id, 2026)
+      const careerId = await calendarApi.resolveCareerId(manager?.id)
+      const data = await calendarApi.getSeasonCalendar(careerId, club?.id, 2026)
       setCalendarData(data)
     } catch (e) {
       console.error('Error cargando calendario:', e)
@@ -50,19 +52,23 @@ export default function CalendarScreen() {
     if (!calendarData?.currentState) return
     setAdvancing(true)
     try {
-      const res = await calendarApi.advanceWeek({
+      // Mismo motor que el Inicio: avance autoritativo, evaluación de la dirigencia y auditoría
+      const res = await gameLoopApi.advanceWeek(club.id, manager?.id, {
         careerId: calendarData.currentState.career_id,
-        clubId: club.id,
-        managerId: manager?.id,
         expectedCurrentWeek: calendarData.currentState.current_week
       })
 
       queryCache.clear()
       await refreshContext()
       await loadCalendar()
+      if (res.fired) {
+        toast.error('La dirigencia te destituyó por los resultados deportivos.')
+        navigate('/manager')
+        return
+      }
       toast.success(`Semana ${res.week} completada. El plantel recuperó condición física.`)
     } catch (e) {
-      toast.error(e.message || 'Error al avanzar de semana.')
+      toast.error(e.code === 'ERR_MATCH_MUST_BE_PLAYED_FIRST' ? 'Debes disputar tu partido pendiente antes de avanzar de semana.' : (e.message || 'Error al avanzar de semana.'))
     } finally {
       setAdvancing(false)
     }

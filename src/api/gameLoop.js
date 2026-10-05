@@ -9,32 +9,7 @@ export const gameLoopApi = {
     const { auditApi } = await import('./audit')
 
     // 1. Resolver career_id si está disponible
-    let careerId = options.careerId || null
-    if (!careerId && managerId) {
-      try {
-        const { data: manager } = await supabase
-          .from('managers')
-          .select('user_id')
-          .eq('id', managerId)
-          .single()
-
-        if (manager?.user_id) {
-          const { data: session } = await supabase
-            .from('user_sessions')
-            .select('active_career_id')
-            .eq('user_id', manager.user_id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle()
-
-          if (session?.active_career_id) {
-            careerId = session.active_career_id
-          }
-        }
-      } catch (e) {
-        // Fallback sin career_id específico
-      }
-    }
+    const careerId = options.careerId || (await calendarApi.resolveCareerId(managerId))
 
     // 2. Ejecutar avance autoritativo con mutex e idempotencia
     const advanceResult = await calendarApi.advanceWeek({
