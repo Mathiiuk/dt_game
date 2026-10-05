@@ -1,25 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { 
-  Calendar as CalendarIcon, 
-  ArrowLeft, 
-  ChevronRight, 
-  Clock, 
-  Trophy, 
-  ArrowRightLeft, 
-  Sparkles, 
-  AlertCircle, 
-  CheckCircle2, 
-  Shield, 
-  Loader2,
-  FastForward
-} from 'lucide-react'
+import { ArrowRightLeft, FastForward, Sparkles, Trophy } from 'lucide-react'
+import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
 import { calendarApi, SEASON_PHASES } from '../../api/calendar'
 import { gameLoopApi } from '../../api/gameLoop'
 import { queryCache } from '../../utils/cache'
-import { toast } from 'sonner'
 import { isFixturePlayed } from '../../domain/fixtureStatus'
+import { CALENDAR_FILTERS, filterWeeks, findDueMatch } from '../../domain/calendarView'
+import { formatGameDate } from '../../lib/format'
+import { cn } from '../../lib/utils'
+import { Badge, Button, Card, CardBody, ChoiceChips, EmptyState, PageHeader, Skeleton, Stat } from '../../components/ui'
 
 export default function CalendarScreen() {
   const navigate = useNavigate()
@@ -27,19 +18,13 @@ export default function CalendarScreen() {
   const [calendarData, setCalendarData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
-  const [filterPhase, setFilterPhase] = useState('ALL')
-
-  useEffect(() => {
-    if (contextLoading || !club) return
-    loadCalendar()
-  }, [contextLoading, club?.id, club?.game_date])
+  const [filter, setFilter] = useState('ALL')
+  const currentRef = useRef(null)
 
   const loadCalendar = async () => {
     try {
-      setLoading(true)
       const careerId = await calendarApi.resolveCareerId(manager?.id)
-      const data = await calendarApi.getSeasonCalendar(careerId, club?.id, 2026)
-      setCalendarData(data)
+      setCalendarData(await calendarApi.getSeasonCalendar(careerId, club?.id, 2026))
     } catch (e) {
       console.error('Error cargando calendario:', e)
       toast.error('No se pudo cargar el calendario de la temporada.')
@@ -47,6 +32,22 @@ export default function CalendarScreen() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (contextLoading || !club) return
+    loadCalendar()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contextLoading, club?.id, club?.game_date])
+
+  // Al terminar de cargar, deja a la vista la semana en curso
+  useEffect(() => {
+    if (!loading) currentRef.current?.scrollIntoView?.({ block: 'center' })
+  }, [loading])
+
+  const state = calendarData?.currentState || { current_week: 1, current_season_year: 2026, season_phase: 'PRE_SEASON' }
+  const weeks = useMemo(() => calendarData?.weeks || [], [calendarData])
+  const visible = useMemo(() => filterWeeks(weeks, filter), [weeks, filter])
+  const dueMatch = useMemo(() => findDueMatch(weeks, state.current_date), [weeks, state.current_date])
 
   const handleAdvance = async () => {
     if (!calendarData?.currentState) return
@@ -76,210 +77,105 @@ export default function CalendarScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-        <p className="text-zinc-400 font-medium text-sm">Cargando calendario oficial...</p>
+      <div className="mx-auto max-w-4xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando calendario">
+        <Skeleton className="h-12 w-64" />
+        <Skeleton className="h-28" />
+        {[0, 1, 2, 3].map(i => <Skeleton key={i} className="h-20" />)}
       </div>
     )
   }
 
-  const currentState = calendarData?.currentState || { current_week: 1, current_season_year: 2026, season_phase: 'PRE_SEASON' }
-  const weeks = calendarData?.weeks || []
-
-  const filteredWeeks = weeks.filter(w => {
-    if (filterPhase === 'ALL') return true
-    if (filterPhase === 'APERTURA') return w.phase === 'REGULAR_SEASON_APERTURA'
-    if (filterPhase === 'CLAUSURA') return w.phase === 'REGULAR_SEASON_CLAUSURA'
-    if (filterPhase === 'TRANSFERS') return w.transferWindowOpen
-    return true
-  })
+  const phaseLabel = SEASON_PHASES[state.season_phase]?.label || state.season_phase
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 pb-20">
-      {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className="p-2 -ml-2 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="w-4 h-4 text-emerald-400" />
-                <h1 className="text-base font-bold text-white">Calendario Oficial</h1>
-              </div>
-              <p className="text-xs text-zinc-400">Temporada {currentState.current_season_year} • 52 Semanas</p>
-            </div>
-          </div>
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:py-8">
+      <PageHeader
+        eyebrow={`Temporada ${state.current_season_year} · 52 semanas`}
+        title="Calendario"
+        actions={
+          dueMatch ? (
+            <Button onClick={() => navigate('/dashboard')}><Trophy />Jugar el partido pendiente</Button>
+          ) : (
+            <Button loading={advancing} onClick={handleAdvance}>{!advancing && <FastForward />}Avanzar semana</Button>
+          )
+        }
+      />
 
-          <button
-            onClick={handleAdvance}
-            disabled={advancing}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 disabled:opacity-50 text-white font-semibold text-xs transition-all shadow-lg shadow-emerald-950/50"
-          >
-            {advancing ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <FastForward className="w-3.5 h-3.5" />
-            )}
-            <span>Avanzar Semana</span>
-          </button>
-        </div>
-      </header>
+      <Card className="mb-6">
+        <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+          <Stat label="Semana" value={`${state.current_week} / 52`} valueClassName="text-accent" />
+          <Stat label="Fase" value={phaseLabel} valueClassName="text-xl sm:text-2xl" />
+          <Stat label="Fecha" value={state.current_date ? formatGameDate(state.current_date) : '—'} valueClassName="text-xl sm:text-2xl" />
+          <Stat label="Mercado" value={state.transfer_window_open ? 'Abierto' : 'Cerrado'} hint={state.transfer_window_open ? 'Fichajes y cesiones' : 'Sin fichajes'} valueClassName="text-xl sm:text-2xl" />
+        </CardBody>
+      </Card>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        {/* Status Hero Card */}
-        <section className="p-4 rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-900/80 to-zinc-950 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-              Cronología de Competición
-            </span>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white">
-                Semana {currentState.current_week} de 52
-              </h2>
-              <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                {SEASON_PHASES[currentState.season_phase]?.label || currentState.season_phase}
-              </span>
-            </div>
-            <p className="text-xs text-zinc-400">
-              {currentState.transfer_window_open ? 'Mercado de traspasos abierto: fichajes y cesiones habilitados.' : 'Mercado de traspasos cerrado.'}
-            </p>
-          </div>
+      {dueMatch && (
+        <p role="status" className="mb-6 rounded-lg border border-warning/40 bg-warning-soft p-3 text-sm text-warning">
+          Tenés un partido pendiente. Para avanzar de semana primero hay que disputarlo.
+        </p>
+      )}
 
-          {/* Quick Stats */}
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-zinc-800/60 border border-zinc-700/50 text-center min-w-[80px]">
-              <span className="block text-[10px] text-zinc-400 uppercase font-semibold">Semana</span>
-              <span className="text-lg font-black text-emerald-400">{currentState.current_week}</span>
-            </div>
-            <div className="p-2.5 rounded-lg bg-zinc-800/60 border border-zinc-700/50 text-center min-w-[80px]">
-              <span className="block text-[10px] text-zinc-400 uppercase font-semibold">Año</span>
-              <span className="text-lg font-black text-white">{currentState.current_season_year}</span>
-            </div>
-          </div>
-        </section>
+      <ChoiceChips label="Filtrar semanas" value={filter} onChange={setFilter} options={CALENDAR_FILTERS} className="mb-5" />
 
-        {/* Filters */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          {[
-            { id: 'ALL', label: 'Todas las semanas' },
-            { id: 'APERTURA', label: 'Torneo Apertura' },
-            { id: 'CLAUSURA', label: 'Torneo Clausura' },
-            { id: 'TRANSFERS', label: 'Ventana de Fichajes' }
-          ].map(f => (
-            <button
-              key={f.id}
-              onClick={() => setFilterPhase(f.id)}
-              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
-                filterPhase === f.id
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Weeks List */}
-        <div className="space-y-2.5">
-          {filteredWeeks.map((w) => {
-            const isCurrent = w.isCurrent
-            const isPast = w.isPast
-
+      {visible.length === 0 ? (
+        <Card as="div"><EmptyState title="Sin semanas" description="Ninguna semana coincide con el filtro." action={<Button variant="outline" size="sm" onClick={() => setFilter('ALL')}>Ver todas</Button>} /></Card>
+      ) : (
+        <ol className="space-y-2.5" aria-label="Semanas de la temporada">
+          {visible.map(w => {
+            const played = w.match && isFixturePlayed(w.match.status)
             return (
-              <div
+              <li
                 key={w.weekNumber}
-                className={`p-3.5 rounded-xl border transition-all ${
-                  isCurrent
-                    ? 'border-emerald-500/80 bg-emerald-950/20 shadow-md shadow-emerald-950/40 ring-1 ring-emerald-500/50'
-                    : isPast
-                    ? 'border-zinc-800/60 bg-zinc-900/40 opacity-75'
-                    : 'border-zinc-800/80 bg-zinc-900/80 hover:border-zinc-700'
-                }`}
+                ref={w.isCurrent ? currentRef : undefined}
+                aria-current={w.isCurrent ? 'date' : undefined}
+                className={cn(
+                  'rounded-lg border p-3.5',
+                  w.isCurrent ? 'border-accent bg-accent-soft' : 'border-line bg-surface',
+                  w.isPast && 'opacity-70'
+                )}
               >
                 <div className="flex items-start justify-between gap-3">
-                  {/* Left: Week badge and phase */}
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center font-bold shrink-0 ${
-                      isCurrent
-                        ? 'bg-emerald-500 text-zinc-950 font-black'
-                        : isPast
-                        ? 'bg-zinc-800 text-zinc-400'
-                        : 'bg-zinc-800/80 text-zinc-300'
-                    }`}>
-                      <span className="text-[10px] uppercase tracking-tighter leading-none">SEM</span>
-                      <span className="text-sm leading-none">{w.weekNumber}</span>
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className={cn('grid size-11 shrink-0 place-items-center rounded-md text-center leading-none', w.isCurrent ? 'bg-accent text-accent-fg' : 'bg-surface-3 text-fg-muted')}>
+                      <span>
+                        <span className="block text-[10px] font-semibold uppercase">Sem</span>
+                        <span className="num font-display text-lg font-semibold">{w.weekNumber}</span>
+                      </span>
                     </div>
-
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white">
-                          {new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short' }).format(new Date(w.date + 'T00:00:00'))}
-                        </span>
-                        <span className="text-[10px] text-zinc-400">
-                          • {w.phaseLabel}
-                        </span>
-                        {isCurrent && (
-                          <span className="px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded bg-emerald-500 text-zinc-950">
-                            En curso
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Events chips */}
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                        {w.transferWindowOpen && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                            <ArrowRightLeft className="w-2.5 h-2.5" />
-                            Mercado
-                          </span>
-                        )}
-                        {w.events.map((ev, idx) => (
-                          <span 
-                            key={idx}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                          >
-                            <Sparkles className="w-2.5 h-2.5" />
-                            {ev.label}
-                          </span>
-                        ))}
-                      </div>
+                    <div className="min-w-0">
+                      <p className="flex flex-wrap items-center gap-x-2 text-sm font-semibold text-fg">
+                        {formatGameDate(w.date)}
+                        <span className="text-xs font-normal text-fg-muted">{w.phaseLabel}</span>
+                        {w.isCurrent && <Badge tone="accent">En curso</Badge>}
+                      </p>
+                      {(w.transferWindowOpen || w.events.length > 0) && (
+                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                          {w.transferWindowOpen && <Badge><ArrowRightLeft className="size-3" aria-hidden="true" />Mercado</Badge>}
+                          {w.events.map((ev, i) => <Badge key={i} tone="gold"><Sparkles className="size-3" aria-hidden="true" />{ev.label}</Badge>)}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Right: Match or Status */}
-                  <div className="text-right shrink-0">
+                  <div className="shrink-0 text-right">
                     {w.match ? (
-                      <div className="space-y-0.5">
-                        <div className="flex items-center justify-end gap-1.5 text-xs font-semibold text-white">
-                          <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Partido Oficial</span>
-                        </div>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          isFixturePlayed(w.match.status)
-                            ? 'bg-zinc-800 text-zinc-300'
-                            : 'bg-emerald-500/10 text-emerald-400'
-                        }`}>
-                          {isFixturePlayed(w.match.status) ? `${w.match.home_score} - ${w.match.away_score}` : 'Por Jugar'}
-                        </span>
-                      </div>
+                      <>
+                        <p className="flex items-center justify-end gap-1.5 text-sm font-semibold text-fg"><Trophy className="size-3.5 text-gold" aria-hidden="true" />{w.match.home_club_id === club?.id ? 'Local' : 'Visitante'}</p>
+                        <p className={cn('num mt-0.5 text-xs font-semibold', played ? 'text-fg-muted' : 'text-accent')}>
+                          {played ? `${w.match.home_score} - ${w.match.away_score}` : 'Por jugar'}
+                        </p>
+                      </>
                     ) : (
-                      <span className="text-[11px] text-zinc-500 font-medium">
-                        Sin partido
-                      </span>
+                      <span className="text-xs text-fg-subtle">Sin partido</span>
                     )}
                   </div>
                 </div>
-              </div>
+              </li>
             )
           })}
-        </div>
-      </main>
+        </ol>
+      )}
     </div>
   )
 }
