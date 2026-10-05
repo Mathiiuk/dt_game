@@ -3,13 +3,15 @@ import { Calendar, CheckCircle2, Flame, Globe, Play, Shield, Trophy } from 'luci
 import { toast } from 'sonner'
 import { internationalCupApi } from '../../api/internationalCup'
 import { useGameContext } from '../../context/GameContext'
-import { formatMoney } from '../../lib/format'
+import { formatMoney, formatLongDate } from '../../lib/format'
+import { friendlyError } from '../../lib/errors'
+import { isDue } from '../../domain/cupTournament'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, EmptyState, PageHeader, Skeleton, Stat } from '../../components/ui'
 
 const STAGE_LABEL = { quarter_finals: 'Cuartos', semi_finals: 'Semifinal', final: 'Gran final' }
 
-function FixtureCard({ fixture, userClubId, onPlay, playing, highlight = false }) {
+function FixtureCard({ fixture, userClubId, gameDate, onPlay, playing, highlight = false }) {
   const mine = fixture.home_club_id === userClubId || fixture.away_club_id === userClubId
   const sides = [
     [fixture.home_club?.name || 'Equipo 1', fixture.home_club_id === userClubId, fixture.home_score],
@@ -24,7 +26,7 @@ function FixtureCard({ fixture, userClubId, onPlay, playing, highlight = false }
           {fixture.played ? (
             <Badge tone="accent"><CheckCircle2 className="size-3" aria-hidden="true" />Finalizado</Badge>
           ) : (
-            <span className="flex items-center gap-1 text-fg-muted"><Calendar className="size-3" aria-hidden="true" />{fixture.match_date || 'Entre semana'}</span>
+            <span className="flex items-center gap-1 text-fg-muted"><Calendar className="size-3" aria-hidden="true" />{fixture.match_date ? formatLongDate(fixture.match_date) : 'Fecha a confirmar'}</span>
           )}
         </div>
         <ul className="space-y-2">
@@ -36,9 +38,13 @@ function FixtureCard({ fixture, userClubId, onPlay, playing, highlight = false }
           ))}
         </ul>
         {mine && !fixture.played && (
-          <Button className="w-full" loading={playing === fixture.id} onClick={() => onPlay(fixture)}>
-            {playing !== fixture.id && <Play />}Jugar partido continental
-          </Button>
+          isDue(fixture, gameDate) ? (
+            <Button className="w-full" loading={playing === fixture.id} onClick={() => onPlay(fixture)}>
+              {playing !== fixture.id && <Play />}Jugar partido continental
+            </Button>
+          ) : (
+            <p className="rounded-md bg-surface-2 py-2 text-center text-xs font-medium text-fg-muted">Se juega el {formatLongDate(fixture.match_date)}. Avanzá las semanas hasta esa fecha.</p>
+          )
         )}
       </CardBody>
     </Card>
@@ -94,7 +100,7 @@ export default function InternationalCupScreen() {
       else toast.error(`Derrota en la copa: ${homeScore}-${awayScore}`)
       await loadCupData()
     } catch (e) {
-      toast.error(e.message || 'Error al disputar el partido')
+      toast.error(friendlyError(e, 'No pudimos disputar el partido. Probá de nuevo.'))
     } finally {
       setPlayingMatchId(null)
     }
@@ -116,17 +122,26 @@ export default function InternationalCupScreen() {
   const finals = byStage('final')
 
   if (!tournament) {
+    const schedule = cupData?.schedule
     return (
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
         <PageHeader backTo="/standings" eyebrow="Torneo de clubes de América" title="Copa continental" />
-        <Card as="div"><EmptyState icon={Globe} title="Sin torneo activo" description="Tu club todavía no clasificó a un certamen continental esta temporada." /></Card>
+        <Card as="div">
+          <EmptyState
+            icon={Globe}
+            title={cupData?.notStarted ? 'La copa todavía no arrancó' : 'Sin torneo activo'}
+            description={cupData?.notStarted && schedule
+              ? `Clasifican los 8 mejores de la liga al ${formatLongDate(schedule.seedDate)}. Los cuartos de final se juegan el ${formatLongDate(schedule.quarter_finals)}, las semifinales el ${formatLongDate(schedule.semi_finals)} y la final el ${formatLongDate(schedule.final)}.`
+              : 'No hay un certamen continental en juego para tu liga.'}
+          />
+        </Card>
       </div>
     )
   }
 
   const renderGrid = (list, props = {}, className = 'md:grid-cols-2') => (
     <ul className={cn('grid grid-cols-1 gap-3', className)}>
-      {list.map(f => <li key={f.id}><FixtureCard fixture={f} userClubId={club?.id} onPlay={handlePlayUserMatch} playing={playingMatchId} {...props} /></li>)}
+      {list.map(f => <li key={f.id}><FixtureCard fixture={f} userClubId={club?.id} gameDate={cupData?.gameDate} onPlay={handlePlayUserMatch} playing={playingMatchId} {...props} /></li>)}
     </ul>
   )
 
@@ -138,6 +153,12 @@ export default function InternationalCupScreen() {
         title={tournament.name || 'Copa Gloria Continental'}
         actions={<Stat label="Bolsa de premios" value={formatMoney(tournament.prize_pool || 1500000)} valueClassName="text-2xl text-accent" className="text-right" />}
       />
+
+      {!cupData?.qualified && (
+        <p role="status" className="mb-6 rounded-lg border border-line bg-surface-2 p-3 text-sm text-fg-muted">
+          Tu club no clasificó: pasan los 8 mejores de la liga al {formatLongDate(cupData?.schedule?.seedDate)}. Seguís la copa desde afuera.
+        </p>
+      )}
 
       {tournament.status === 'finished' && (
         <div role="status" className="mb-6 flex items-center gap-4 rounded-lg border border-gold/40 bg-gold-soft p-4 sm:p-5">
@@ -151,13 +172,13 @@ export default function InternationalCupScreen() {
       )}
 
       <div className="space-y-8">
-        <Stage icon={Shield} title="Cuartos de final" hint="Ida y vuelta / eliminación" fixtures={quarters} emptyText="Los cuartos de final todavía no están definidos.">
+        <Stage icon={Shield} title="Cuartos de final" hint={cupData?.schedule ? formatLongDate(cupData.schedule.quarter_finals) : 'Eliminación directa'} fixtures={quarters} emptyText="Los cuartos de final todavía no están definidos.">
           {renderGrid(quarters)}
         </Stage>
-        <Stage icon={Flame} title="Semifinales" hint="Los 4 mejores del continente" fixtures={semis} emptyText="Se definirán al concluir los cuartos de final.">
+        <Stage icon={Flame} title="Semifinales" hint={cupData?.schedule ? formatLongDate(cupData.schedule.semi_finals) : 'Los 4 mejores'} fixtures={semis} emptyText="Se definirán al concluir los cuartos de final.">
           {renderGrid(semis)}
         </Stage>
-        <Stage icon={Trophy} title="Gran final continental" hint="Premio mayor: $1.000.000" fixtures={finals} emptyText="La final se disputará tras las semifinales.">
+        <Stage icon={Trophy} title="Gran final continental" hint={cupData?.schedule ? formatLongDate(cupData.schedule.final) : 'Premio mayor'} fixtures={finals} emptyText="La final se disputará tras las semifinales.">
           <div className="mx-auto max-w-2xl">{renderGrid(finals, { highlight: true }, '')}</div>
         </Stage>
       </div>

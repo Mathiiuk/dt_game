@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { dashboardApi } from '../../api/dashboard'
 import { eventsApi } from '../../api/events'
 import { queryCache } from '../../utils/cache'
+import { friendlyError } from '../../lib/errors'
 import { useGameContext } from '../../context/GameContext'
 import { isFixtureDue } from '../../domain/fixtureStatus'
 import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
@@ -168,7 +169,7 @@ export default function Dashboard() {
       }
       toast.success('Semana completada. Plan de trabajo ejecutado.')
     } catch (e) {
-      toast.error(e.message || 'Error al avanzar de semana.')
+      toast.error(friendlyError(e, 'No pudimos avanzar la semana. Probá de nuevo.'))
     } finally {
       setAdvancing(false)
     }

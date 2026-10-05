@@ -68,6 +68,15 @@ describe('pantalla Selección Nacional', () => {
   })
 })
 
+// El mock del contexto devuelve un club nuevo en cada render, así que la pantalla vuelve a pedir la copa:
+// para variar la respuesta hay que cambiar la implementación (no sólo la primera llamada) y restaurarla después.
+const withCup = async (value, run) => {
+  const { internationalCupApi } = await import('../../src/api/internationalCup')
+  const original = internationalCupApi.getActiveTournament.getMockImplementation()
+  internationalCupApi.getActiveTournament.mockImplementation(async () => value)
+  try { await run() } finally { internationalCupApi.getActiveTournament.mockImplementation(original) }
+}
+
 describe('pantalla Copa Continental', () => {
   it('muestra las llaves y permite jugar sólo el partido propio pendiente', async () => {
     playUserMatch.mockClear()
@@ -78,5 +87,30 @@ describe('pantalla Copa Continental', () => {
     expect(buttons).toHaveLength(1)
     await userEvent.click(buttons[0])
     await waitFor(() => expect(playUserMatch).toHaveBeenCalledWith('q1', 'c1', 'm1'))
+  })
+
+  it('antes del sorteo explica cuándo arranca y no ofrece jugar nada', async () => {
+    await withCup({
+      tournament: null, fixtures: [], notStarted: true, qualified: false, gameDate: '2026-08-05',
+      schedule: { seedDate: '2026-09-01', quarter_finals: '2026-09-16', semi_finals: '2026-10-21', final: '2026-11-21' }
+    }, async () => {
+      render(<MemoryRouter><InternationalCupScreen /></MemoryRouter>)
+      expect(await screen.findByText('La copa todavía no arrancó')).toBeInTheDocument()
+      expect(screen.getByText(/Clasifican los 8 mejores de la liga/)).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Jugar partido continental/ })).not.toBeInTheDocument()
+    })
+  })
+
+  it('si el partido todavía no llegó a su fecha no se puede jugar y dice cuándo es', async () => {
+    await withCup({
+      tournament: { name: 'Copa Gloria', season_year: 2026, status: 'in_progress', prize_pool: 1 },
+      fixtures: [{ id: 'q1', stage: 'quarter_finals', played: false, match_date: '2026-09-16', home_club_id: 'c1', away_club_id: 'x', home_club: { name: 'Mi Club' }, away_club: { name: 'Rival' } }],
+      qualified: true, gameDate: '2026-09-09',
+      schedule: { seedDate: '2026-09-01', quarter_finals: '2026-09-16', semi_finals: '2026-10-21', final: '2026-11-21' }
+    }, async () => {
+      render(<MemoryRouter><InternationalCupScreen /></MemoryRouter>)
+      expect(await screen.findByText(/Avanzá las semanas hasta esa fecha/)).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Jugar partido continental/ })).not.toBeInTheDocument()
+    })
   })
 })

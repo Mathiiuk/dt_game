@@ -9,6 +9,7 @@ import { queryCache } from '../../utils/cache'
 import { isFixturePlayed } from '../../domain/fixtureStatus'
 import { CALENDAR_FILTERS, filterWeeks, findDueMatch } from '../../domain/calendarView'
 import { formatGameDate } from '../../lib/format'
+import { friendlyError } from '../../lib/errors'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, ChoiceChips, EmptyState, PageHeader, Skeleton, Stat } from '../../components/ui'
 
@@ -69,7 +70,7 @@ export default function CalendarScreen() {
       }
       toast.success(`Semana ${res.week} completada. El plantel recuperó condición física.`)
     } catch (e) {
-      toast.error(e.code === 'ERR_MATCH_MUST_BE_PLAYED_FIRST' ? 'Debes disputar tu partido pendiente antes de avanzar de semana.' : (e.message || 'Error al avanzar de semana.'))
+      toast.error(friendlyError(e, 'No pudimos avanzar la semana. Probá de nuevo.'))
     } finally {
       setAdvancing(false)
     }

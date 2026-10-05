@@ -259,6 +259,19 @@ export const calendarApi = {
         throw err
       }
 
+      // 4a. La copa continental también se juega en su fecha: un partido propio vencido frena el avance
+      try {
+        const { internationalCupApi } = await import('./internationalCup')
+        if (await internationalCupApi.hasDueUserMatch(clubId, calendar.current_date)) {
+          const err = new Error('ERR_MATCH_MUST_BE_PLAYED_FIRST: Tenés un partido de la copa continental pendiente. Jugalo antes de avanzar de semana.')
+          err.code = 'ERR_MATCH_MUST_BE_PLAYED_FIRST'
+          throw err
+        }
+      } catch (cupErr) {
+        if (cupErr.code === 'ERR_MATCH_MUST_BE_PLAYED_FIRST') throw cupErr
+        console.warn('Aviso: no se pudo comprobar la copa continental:', cupErr)
+      }
+
       // 4b. Regla 35.1: Comprobar eventos críticos no resueltos
       try {
         const { eventsApi } = await import('./events')
