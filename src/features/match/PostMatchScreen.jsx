@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { postMatchApi } from '../../api/postMatch'
 import { pressApi } from '../../api/press'
+import { useGameContext } from '../../context/GameContext'
+import { outcomeOf, pressFine } from '../../domain/press'
+import { formatMoney } from '../../lib/format'
 import { 
   ArrowRight, 
   Trophy, 
@@ -43,6 +46,8 @@ export default function PostMatchScreen() {
   const [currentQIndex, setCurrentQIndex] = useState(0)
   const [isPressFinished, setIsPressFinished] = useState(false)
   const [isPressDelegated, setIsPressDelegated] = useState(false)
+  const [skipResult, setSkipResult] = useState(null)
+  const { confirmAction } = useGameContext()
 
   useEffect(() => {
     if (!results) {
@@ -118,7 +123,8 @@ export default function PostMatchScreen() {
         answerText: option.text,
         moraleImpact: option.moraleDelta,
         clubId,
-        managerId
+        managerId,
+        outcome: outcomeOf(results)
       })
       toast.success(`Declaración emitida (${option.tone}) • Moral (${option.moraleDelta >= 0 ? '+' : ''}${option.moraleDelta})`)
       
@@ -132,6 +138,40 @@ export default function PostMatchScreen() {
     } catch (err) {
       toast.error(friendlyError(err, 'Error al emitir respuesta'))
     }
+  }
+
+  // La conferencia es obligatoria: se puede omitir, pero cuesta una multa y la prensa puede hablar de más
+  const handleSkipPress = async () => {
+    if (!pressConference) return
+    const mine = results.isHome ? results.homeScore : results.awayScore
+    const theirs = results.isHome ? results.awayScore : results.homeScore
+    const { fine } = pressFine({ outcome: outcomeOf(results), goalDiff: mine - theirs })
+    const confirmed = await confirmAction({
+      title: 'No presentarte a la conferencia',
+      description: `La federación te va a multar ${formatMoney(fine)} y la prensa puede hablar de más. ¿Seguís igual?`,
+      confirmText: 'No presentarme',
+      cancelText: 'Volver',
+      variant: 'danger'
+    })
+    if (!confirmed) return false
+    try {
+      const res = await pressApi.skipConference({ conferenceId: pressConference.id, clubId, managerId, results, gameDate: processedData?.gameDate || null })
+      setSkipResult(res)
+      setIsPressFinished(true)
+      return true
+    } catch (err) {
+      toast.error(friendlyError(err, 'No pudimos cerrar la conferencia. Probá de nuevo.'))
+      return false
+    }
+  }
+
+  // Salir de la pantalla con la conferencia sin resolver cuenta como no presentarse
+  const leaveTo = async (path) => {
+    if (pressConference && !isPressFinished && !isPressDelegated) {
+      const done = await handleSkipPress()
+      if (!done) return
+    }
+    navigate(path)
   }
 
   const handleDelegatePress = async () => {
@@ -463,6 +503,14 @@ export default function PostMatchScreen() {
 
                 {!isPressFinished && (
                   <AsyncButton
+                    onClick={handleSkipPress}
+                    className="px-3 py-1.5 rounded-xl border border-line bg-bg hover:bg-surface-3 text-xs text-danger font-semibold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+                  >
+                    <span>No presentarme</span>
+                  </AsyncButton>
+                )}
+                {!isPressFinished && (
+                  <AsyncButton
                     onClick={handleDelegatePress}
                     className="px-3 py-1.5 rounded-xl border border-line bg-bg hover:bg-surface-3 text-xs text-fg font-semibold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
                   >
@@ -472,7 +520,18 @@ export default function PostMatchScreen() {
                 )}
               </div>
 
-              {isPressDelegated ? (
+              {skipResult && !skipResult.alreadyClosed ? (
+                <div className="p-6 rounded-xl bg-bg/80 border border-line text-center space-y-2">
+                  <Mic className="w-8 h-8 text-fg-subtle mx-auto" />
+                  <p className="text-sm font-bold text-fg">No diste conferencia</p>
+                  <p className="text-xs text-fg-muted">{skipResult.message}</p>
+                  <p className="text-xs text-fg-subtle">
+                    Multa: {formatMoney(skipResult.fine)}
+                    {skipResult.fans ? ` • Hinchada ${skipResult.fans > 0 ? '+' : ''}${skipResult.fans}` : ''}
+                    {skipResult.board ? ` • Dirigencia ${skipResult.board > 0 ? '+' : ''}${skipResult.board}` : ''}
+                  </p>
+                </div>
+              ) : isPressDelegated ? (
                 <div className="p-6 rounded-xl bg-bg/80 border border-line text-center space-y-2">
                   <UserCheck className="w-8 h-8 text-accent mx-auto" />
                   <p className="text-sm font-bold text-fg">Conferencia atendida por el Ayudante de Campo</p>
@@ -572,14 +631,14 @@ export default function PostMatchScreen() {
         {/* Bottom Actions */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3">
           <button
-            onClick={() => navigate('/standings')}
+            onClick={() => leaveTo('/standings')}
             className="w-full sm:w-auto px-5 py-3 rounded-xl border border-line bg-surface hover:bg-surface-3 text-xs font-bold text-fg transition-colors"
           >
             Ver tabla de posiciones
           </button>
 
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => leaveTo('/dashboard')}
             className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
           >
             <Home className="w-4 h-4" />

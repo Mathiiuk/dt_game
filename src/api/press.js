@@ -1,4 +1,7 @@
 import { supabase } from './supabase'
+import { answerConsequences, outcomeOf, skipPress } from '../domain/press'
+import { climateApi } from './climate'
+import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 import { queryCache } from '../utils/cache'
 
 export const MEDIA_OUTLETS = [
@@ -281,7 +284,7 @@ export const pressApi = {
   /**
    * Responde a una pregunta de la rueda de prensa
    */
-  async submitAnswer({ conferenceId, questionId, chosenTone, answerText, moraleImpact = 0, clubId, managerId }) {
+  async submitAnswer({ conferenceId, questionId, chosenTone, answerText, moraleImpact = 0, clubId, managerId, outcome = null, gameDate = null }) {
     if (!questionId) throw new Error('Pregunta no especificada')
 
     // 1. Guardar respuesta en BD
@@ -294,19 +297,28 @@ export const pressApi = {
       })
       .eq('id', questionId)
 
-    // 2. Aplicar impacto en moral a nivel plantel
+    // 2. Aplicar impacto en moral a nivel plantel (una sola llamada) y en hinchada y dirigencia según el tono
     if (clubId && moraleImpact !== 0) {
       const { data: players } = await supabase
         .from('players')
-        .select('id, morale')
+        .select('id, state_morale')
         .eq('club_id', clubId)
 
       if (players && players.length > 0) {
-        // Ajustar moral en lote suavemente
-        for (const p of players) {
-          const newMorale = Math.min(100, Math.max(10, (p.morale || 70) + moraleImpact))
-          await supabase.from('players').update({ morale: newMorale }).eq('id', p.id)
-        }
+        const { playerApi } = await import('./player')
+        await playerApi.batchUpdate(players.map(p => ({ id: p.id, state_morale: Math.min(100, Math.max(10, (p.state_morale ?? 70) + moraleImpact)) })))
+      }
+    }
+
+    if (clubId && outcome) {
+      const effects = answerConsequences({ tone: chosenTone, outcome }, climateApi.difficulty)
+      if (effects.fans || effects.board) {
+        await climateApi.applySquadConsequence({
+          clubId,
+          source: 'PRESS',
+          gameDate,
+          effects: { ...effects, notes: ['Tu respuesta en la conferencia de prensa.'] }
+        })
       }
     }
 
@@ -376,16 +388,59 @@ export const pressApi = {
 
     // Bono atenuado suave
     if (clubId) {
-      const { data: players } = await supabase.from('players').select('id, morale').eq('club_id', clubId)
-      if (players) {
-        for (const p of players) {
-          const newMorale = Math.min(100, (p.morale || 70) + 1)
-          await supabase.from('players').update({ morale: newMorale }).eq('id', p.id)
-        }
+      const { data: players } = await supabase.from('players').select('id, state_morale').eq('club_id', clubId)
+      if (players?.length) {
+        const { playerApi } = await import('./player')
+        await playerApi.batchUpdate(players.map(p => ({ id: p.id, state_morale: Math.min(100, (p.state_morale ?? 70) + 1) })))
       }
     }
 
     return { success: true }
+  },
+
+  /**
+   * El DT no se presenta a la conferencia: multa y un evento aleatorio que depende del resultado.
+   * Es idempotente: si la conferencia ya se cerró, no cobra dos veces.
+   */
+  async skipConference({ conferenceId, clubId, managerId = null, results, gameDate = null, rng = Math.random }) {
+    if (!conferenceId || !clubId) return null
+
+    const { data: conference } = await supabase.from('press_conferences').select('status').eq('id', conferenceId).maybeSingle()
+    if (conference && conference.status !== 'IN_PROGRESS') return { alreadyClosed: true }
+
+    const outcome = outcomeOf(results)
+    const mine = results.isHome ? results.homeScore : results.awayScore
+    const theirs = results.isHome ? results.awayScore : results.homeScore
+    const { data: club } = await supabase.from('clubs').select('budget, board_confidence').eq('id', clubId).single()
+
+    const skip = skipPress({ outcome, goalDiff: mine - theirs, boardConfidence: club?.board_confidence ?? 50 }, climateApi.difficulty, rng)
+
+    await supabase
+      .from('press_conferences')
+      .update({ status: 'SKIPPED', completed_at: new Date().toISOString(), delegated_to_assistant: false })
+      .eq('id', conferenceId)
+
+    if (skip.fine > 0 && club) {
+      await supabase.from('clubs').update({ budget: Number(club.budget || 0) - skip.fine }).eq('id', clubId)
+      const { financesApi } = await import('./finances')
+      await financesApi.recordLedgerTransaction({
+        clubId,
+        category: 'FINE',
+        amount: -skip.fine,
+        description: 'Multa por no presentarte a la conferencia de prensa',
+        seasonYear: gameDate ? seasonYearOf(gameDate) : 2026,
+        weekNumber: gameDate ? weekOfDate(gameDate) : 1
+      })
+    }
+
+    await climateApi.applySquadConsequence({
+      clubId,
+      source: 'PRESS',
+      gameDate,
+      effects: { fans: skip.fans, board: skip.board, notes: [skip.message] }
+    })
+
+    return { ...skip, outcome }
   },
 
   /**
