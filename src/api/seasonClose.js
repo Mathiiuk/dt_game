@@ -46,10 +46,12 @@ export const seasonCloseApi = {
       }
     }
 
-    // 2. Obtener tabla de posiciones definitiva
-    const { data: standingsRaw } = await supabase
+    // 2. Obtener la tabla de posiciones definitiva de ESTA liga (antes se leían todas las ligas y el campeón salía de cualquiera)
+    const { data: mine } = await supabase.from('standings').select('competition_id').eq('club_id', clubId).limit(1).maybeSingle()
+    const { data: standingsRaw } = !mine?.competition_id ? { data: [] } : await supabase
       .from('standings')
       .select('*, club:clubs(id, name, short_name, logo_url)')
+      .eq('competition_id', mine.competition_id)
       .order('points', { ascending: false })
       .order('goal_difference', { ascending: false })
       .order('goals_for', { ascending: false })
