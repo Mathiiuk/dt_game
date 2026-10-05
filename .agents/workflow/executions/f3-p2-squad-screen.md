@@ -1,0 +1,8 @@
+# Reporte de Ejecución: f3-p2-squad-screen
+- **Rama**: `feat/f3-p2-squad-screen` | **Estado**: `DONE`
+- **Plantel rediseñado** (`SquadScreen.jsx`): cabecera con resumen (jugadores/lesionados, nivel medio, masa salarial, caja); filtro por línea (arqueros/defensas/volantes/delanteros), búsqueda sin tildes y orden (nivel, edad, salario, moral, nombre). Escritorio: tabla semántica (`caption`, `scope`) con moral en barra y acciones con icono, nombre accesible y tooltip; panel lateral con ofertas entrantes y vestuario. Móvil: tarjetas con nivel destacado, físico/moral/salario y acciones con texto; pestañas Jugadores / Ofertas / Vestuario que alternan de verdad (antes se superponían).
+- **Paneles internos convertidos en componentes con `ResponsiveOverlay`**: `SellPlayerModal` (precio y lista de transferibles) y `CounterOfferModal` (la validación del monto mayor se muestra junto al campo en vez de un toast). Se eliminan los dos `fixed inset-0` de la pantalla.
+- **Dominio puro** (`src/domain/squad.js`): grupos de posición (específicas y genéricas), filtros, orden estable sin mutar, tonos de salud/moral, resumen del plantel.
+- **Tests** (+14, total ~120): dominio (7) y pantalla (7: resumen y tabla accesible, filtros, orden, ofertas, venta con precios sugeridos, validación de contraoferta, versión móvil con pestañas).
+- **Verificación en navegador (375 px)**: 20 tarjetas, sin desborde horizontal, cabecera y controles correctos.
+- **Observación**: la carga inicial tarda ~3 s porque `syncSquadPersonalities` inserta personalidades en cada visita; se optimizará con el resto de las consultas.
