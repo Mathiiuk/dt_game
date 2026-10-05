@@ -322,6 +322,8 @@ export const nationalTeamApi = {
       .single()
 
     if (!fixture) throw new Error('Partido no encontrado')
+    // Idempotencia: una fecha ya jugada no vuelve a pagar XP, honorarios ni fatiga
+    if (fixture.played) throw new Error('Esta fecha FIFA ya fue disputada.')
 
     // Generar resultado internacional
     const teamGoals = Math.floor(Math.random() * 4) + 1
@@ -381,27 +383,27 @@ export const nationalTeamApi = {
       }
     }
 
-    // 4. Actualizar caps (presencias internacionales) y fatiga de viaje (Regla 33.4)
+    // 4. Caps y fatiga de viaje (Regla 33.4): en paralelo y con la fatiga en UNA llamada
+    //    (antes eran ~70 consultas una detrás de otra: la fecha FIFA tardaba ~30 s)
     const { data: callups } = await supabase
       .from('national_team_callups')
       .select('id, player_id, caps')
       .eq('national_team_id', nationalTeamId)
 
-    if (callups) {
-      for (const c of callups) {
-        await supabase.from('national_team_callups').update({ caps: (c.caps || 0) + 1 }).eq('id', c.id)
+    if (callups && callups.length > 0) {
+      const playerIds = callups.map(c => c.player_id).filter(Boolean)
+      const { data: callupPlayers } = playerIds.length > 0
+        ? await supabase.from('players').select('id, state_fitness').in('id', playerIds)
+        : { data: [] }
 
-        // Regla 33.4: Desgaste de viaje (-15 fitness)
-        if (c.player_id) {
-          try {
-            const { data: p } = await supabase.from('players').select('state_fitness').eq('id', c.player_id).single()
-            if (p) {
-              const newFit = Math.max(30, (p.state_fitness || 85) + NATIONAL_TEAMS_CONFIG.travel_fatigue_penalty)
-              await supabase.from('players').update({ state_fitness: newFit }).eq('id', c.player_id)
-            }
-          } catch (fitErr) {}
-        }
-      }
+      const { playerApi } = await import('./player')
+      await Promise.all([
+        ...callups.map(c => supabase.from('national_team_callups').update({ caps: (c.caps || 0) + 1 }).eq('id', c.id)),
+        playerApi.batchUpdate((callupPlayers || []).map(p => ({
+          id: p.id,
+          state_fitness: Math.max(30, (p.state_fitness || 85) + NATIONAL_TEAMS_CONFIG.travel_fatigue_penalty)
+        })))
+      ])
     }
 
     return { teamGoals, oppGoals, won, drawn, xpBonus }

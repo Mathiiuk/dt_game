@@ -261,33 +261,19 @@ export const lockerRoomApi = {
       }
     }
 
-    // Aplicar a jugadores
-    const { data: players } = await supabase.from('players').select('id, morale').eq('club_id', clubId)
-    if (players) {
-      for (const p of players) {
-        const updatedMorale = Math.min(100, Math.max(15, (p.morale || 70) + moraleDelta))
-        await supabase.from('players').update({ morale: updatedMorale }).eq('id', p.id)
-      }
-    }
-
-    // Actualizar cohesión y fecha de reunión
+    // Moral de todo el plantel en UNA llamada (antes un UPDATE por jugador), y cohesión + bitácora en paralelo
+    const { data: players } = await supabase.from('players').select('id, state_morale').eq('club_id', clubId)
     const newCohesion = Math.min(100, Math.max(10, (currentLocker.team_cohesion_score || 65) + cohesionDelta))
-    await supabase
-      .from('club_locker_room')
-      .update({
-        team_cohesion_score: newCohesion,
-        last_team_meeting_week: currentWeek,
-        updated_at: new Date().toISOString()
-      })
-      .eq('club_id', clubId)
+    const { playerApi } = await import('./player')
 
-    // Auditoría
-    await supabase.from('locker_room_events_log').insert({
-      club_id: clubId,
-      event_type: 'TEAM_MEETING_HELD',
-      cohesion_delta: cohesionDelta,
-      details
-    })
+    await Promise.all([
+      playerApi.batchUpdate((players || []).map(p => ({ id: p.id, state_morale: Math.min(100, Math.max(15, (p.state_morale ?? 70) + moraleDelta)) }))),
+      supabase
+        .from('club_locker_room')
+        .update({ team_cohesion_score: newCohesion, last_team_meeting_week: currentWeek, updated_at: new Date().toISOString() })
+        .eq('club_id', clubId),
+      supabase.from('locker_room_events_log').insert({ club_id: clubId, event_type: 'TEAM_MEETING_HELD', cohesion_delta: cohesionDelta, details })
+    ])
 
     queryCache.invalidate(`locker:${clubId}`)
     return {
@@ -325,23 +311,24 @@ export const lockerRoomApi = {
 
     const { data: player } = await supabase.from('players').select('morale, name').eq('id', playerId).single()
     const newMorale = Math.min(100, Math.max(10, (player?.morale || 70) + moraleDelta))
-    await supabase.from('players').update({ morale: newMorale }).eq('id', playerId)
 
-    await supabase
-      .from('player_social_status')
-      .update({
-        is_demanding_talk: false,
-        satisfaction_playing_time: Math.min(100, Math.max(10, 60 + satisfactionDelta)),
-        updated_at: new Date().toISOString()
+    await Promise.all([
+      supabase.from('players').update({ morale: newMorale }).eq('id', playerId),
+      supabase
+        .from('player_social_status')
+        .update({
+          is_demanding_talk: false,
+          satisfaction_playing_time: Math.min(100, Math.max(10, 60 + satisfactionDelta)),
+          updated_at: new Date().toISOString()
+        })
+        .eq('player_id', playerId),
+      supabase.from('locker_room_events_log').insert({
+        club_id: clubId,
+        event_type: 'PLAYER_REVOLT_DEFUSED',
+        cohesion_delta: moraleDelta > 0 ? 2 : -2,
+        details: `Reunión privada con ${player?.name || 'jugador'}: ${details}`
       })
-      .eq('player_id', playerId)
-
-    await supabase.from('locker_room_events_log').insert({
-      club_id: clubId,
-      event_type: 'PLAYER_REVOLT_DEFUSED',
-      cohesion_delta: moraleDelta > 0 ? 2 : -2,
-      details: `Reunión privada con ${player?.name || 'jugador'}: ${details}`
-    })
+    ])
 
     queryCache.invalidate(`locker:${clubId}`)
     return { success: true, message: `Reunión concluida con ${player?.name || 'el jugador'}` }

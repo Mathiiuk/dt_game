@@ -18,6 +18,8 @@ import { lockerRoomApi, HIERARCHY_TIERS, SOCIAL_GROUPS } from '../../../api/lock
 import { toast } from 'sonner'
 import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
 import { AsyncButton } from '../../../components/ui'
+import { absoluteWeek } from '../../../domain/gameWeek'
+import { friendlyError } from '../../../lib/errors'
 
 export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   const [lockerRoom, setLockerRoom] = useState(null)
@@ -29,10 +31,10 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   const [selectedCaptain, setSelectedCaptain] = useState('')
   const [selectedViceCaptain, setSelectedViceCaptain] = useState('')
 
-  const loadLockerData = async () => {
+  const loadLockerData = async ({ silent = false } = {}) => {
     if (!club?.id) return
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const [lockerRes, profilesRes, eventsRes] = await Promise.all([
         lockerRoomApi.getLockerRoomState(club.id),
         lockerRoomApi.getSquadSocialProfiles(club.id),
@@ -73,12 +75,11 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
 
     try {
       setActionLoading(true)
-      const res = await lockerRoomApi.holdTeamMeeting(club.id, tone, 1)
+      const res = await lockerRoomApi.holdTeamMeeting(club.id, tone, absoluteWeek(club.game_date || '2026-07-01'))
       toast.success(res.details || 'Reunión de equipo celebrada con éxito')
-      if (onUpdateClub) onUpdateClub()
-      await loadLockerData()
+      await loadLockerData({ silent: true })
     } catch (e) {
-      toast.error(e.message || 'Error al convocar la reunión')
+      toast.error(friendlyError(e, 'No pudimos convocar la reunión. Probá de nuevo.'))
     } finally {
       setActionLoading(false)
     }
@@ -116,10 +117,9 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       setActionLoading(true)
       const res = await lockerRoomApi.resolvePlayerDemand(playerId, choiceKey, club.id)
       toast.success(res.message || 'Reunión individual concluida')
-      if (onUpdateClub) onUpdateClub()
-      await loadLockerData()
+      await loadLockerData({ silent: true })
     } catch (e) {
-      toast.error(e.message || 'Error en la conversación')
+      toast.error(friendlyError(e, 'No pudimos concretar la charla. Probá de nuevo.'))
     } finally {
       setActionLoading(false)
     }

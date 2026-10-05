@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { nationalTeamApi } from '../../api/nationalTeam'
 import { useGameContext } from '../../context/GameContext'
 import { formatMoney } from '../../lib/format'
+import { friendlyError } from '../../lib/errors'
 import { cn } from '../../lib/utils'
 import {
   Badge, Button, Card, CardBody, EmptyState, PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
@@ -105,7 +106,7 @@ export default function NationalTeamScreen() {
       else toast.error(`Derrota con la Selección: ${res.teamGoals}-${res.oppGoals}`)
       await loadData()
     } catch (e) {
-      toast.error(e.message || 'Error al disputar el partido')
+      toast.error(friendlyError(e, 'No pudimos disputar el partido. Probá de nuevo.'))
     } finally {
       setPlayingMatchId(null)
     }

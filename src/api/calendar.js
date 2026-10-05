@@ -1,5 +1,8 @@
 import { supabase } from './supabase'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
+import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
+
+export { seasonYearOf, weekOfDate }
 
 export const WEEKS_PER_SEASON = 52
 
@@ -33,22 +36,7 @@ export const isTransferWindowOpen = (week) => {
 }
 
 
-const MS_PER_DAY = 86400000
 const toDay = (d) => String(d).slice(0, 10)
-
-/** Año de la temporada que contiene la fecha (empieza el 1 de julio) */
-export const seasonYearOf = (dateString) => {
-  const d = new Date(`${toDay(dateString)}T00:00:00Z`)
-  return d.getUTCMonth() >= 6 ? d.getUTCFullYear() : d.getUTCFullYear() - 1
-}
-
-/** Semana (1-52) de la temporada que corresponde a una fecha; el 1 de julio es la semana 1 */
-export const weekOfDate = (dateString) => {
-  const d = new Date(`${toDay(dateString)}T00:00:00Z`)
-  const start = new Date(Date.UTC(seasonYearOf(dateString), 6, 1))
-  const week = Math.floor((d - start) / MS_PER_DAY / 7) + 1
-  return Math.min(WEEKS_PER_SEASON, Math.max(1, week))
-}
 
 export const calendarApi = {
   /** Id de la carrera activa del DT (sesión más reciente); null si no hay */
