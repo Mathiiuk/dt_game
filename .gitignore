@@ -23,3 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 .tmp/
+
+# Capturas de red y archivos con secretos: nunca al repositorio
+*.har
+docs/client_secret*.json
+docs/recaptcha*.md
+docs/resend*.md
+.claude/
