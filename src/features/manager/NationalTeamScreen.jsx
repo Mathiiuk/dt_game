@@ -1,42 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { nationalTeamApi, NATIONAL_TEAMS_CONFIG } from '../../api/nationalTeam'
-import { useGameContext } from '../../context/GameContext'
-import { 
-  ArrowLeft, 
-  Flag, 
-  Users, 
-  Calendar, 
-  Shield, 
-  Star, 
-  Award, 
-  Play, 
-  CheckCircle2, 
-  LogOut, 
-  Sparkles,
-  ChevronRight,
-  TrendingUp,
-  UserCheck,
-  AlertCircle,
-  Plus,
-  Trash2,
-  DollarSign
-} from 'lucide-react'
+import { Calendar, CheckCircle2, ChevronRight, Flag, LogOut, Play, Users } from 'lucide-react'
 import { toast } from 'sonner'
-import BottomNav from '../../components/BottomNav'
+import { nationalTeamApi } from '../../api/nationalTeam'
+import { useGameContext } from '../../context/GameContext'
+import { formatMoney } from '../../lib/format'
+import { cn } from '../../lib/utils'
+import {
+  Badge, Button, Card, CardBody, EmptyState, PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
+} from '../../components/ui'
+
+const SQUAD_SIZE = 23
+const MIN_GOALKEEPERS = 3
+const isKeeper = (c) => c.player?.position === 'POR' || c.player?.position === 'GK'
 
 export default function NationalTeamScreen() {
-  const navigate = useNavigate()
   const { manager, loading: contextLoading, confirmAction } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [team, setTeam] = useState(null)
   const [offers, setOffers] = useState([])
   const [callups, setCallups] = useState([])
   const [fixtures, setFixtures] = useState([])
-  const [eligiblePool, setEligiblePool] = useState([])
-  const [activeTab, setActiveTab] = useState('convocatoria') // 'convocatoria' | 'partidos' | 'info'
   const [playingMatchId, setPlayingMatchId] = useState(null)
-  const [managingCallups, setManagingCallups] = useState(false)
 
   const loadData = async () => {
     try {
@@ -46,17 +30,14 @@ export default function NationalTeamScreen() {
       setTeam(currentTeam)
 
       if (currentTeam) {
-        const [cList, fList, pool] = await Promise.all([
+        const [cList, fList] = await Promise.all([
           nationalTeamApi.getCallups(currentTeam.id),
-          nationalTeamApi.getFixtures(currentTeam.id),
-          nationalTeamApi.getEligiblePlayersPool(currentTeam.id, currentTeam.country_code)
+          nationalTeamApi.getFixtures(currentTeam.id)
         ])
         setCallups(cList || [])
         setFixtures(fList || [])
-        setEligiblePool(pool || [])
       } else {
-        const availableOffers = await nationalTeamApi.getAvailableOffers(manager.id)
-        setOffers(availableOffers || [])
+        setOffers((await nationalTeamApi.getAvailableOffers(manager.id)) || [])
       }
     } catch (e) {
       console.error(e)
@@ -69,25 +50,25 @@ export default function NationalTeamScreen() {
   useEffect(() => {
     if (contextLoading || !manager) return
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextLoading, manager?.id])
 
   const handleAcceptOffer = async (offer) => {
     try {
       if (!offer.is_eligible) {
-        return toast.error(`Necesitas al menos ${offer.required_reputation} de reputación para esta selección.`)
+        return toast.error(`Necesitás al menos ${offer.required_reputation} de reputación para esta selección.`)
       }
       const confirmed = await confirmAction({
         title: `Asumir en ${offer.name}`,
-        description: `¿Aceptar la propuesta para dirigir a ${offer.name}? Iniciarás la Modalidad de Doble Carrera (Club + Selección) percibiendo $${offer.weekly_wage}/semana adicionales.`,
-        confirmText: 'Aceptar Cargo Patriótico',
+        description: `¿Aceptar dirigir a ${offer.name}? Iniciarás la doble carrera (club + selección) cobrando ${formatMoney(offer.weekly_wage)}/semana adicionales.`,
+        confirmText: 'Aceptar el cargo',
         cancelText: 'Rechazar',
         variant: 'emerald'
       })
       if (!confirmed) return
-
       setLoading(true)
       await nationalTeamApi.acceptOffer(manager.id, offer.id)
-      toast.success(`¡Felicitaciones! Has asumido como Seleccionador de ${offer.name}`)
+      toast.success(`¡Felicitaciones! Asumiste como seleccionador de ${offer.name}`)
       await loadData()
     } catch (e) {
       toast.error(e.message)
@@ -97,18 +78,17 @@ export default function NationalTeamScreen() {
 
   const handleResign = async () => {
     const confirmed = await confirmAction({
-      title: 'Renunciar a la Selección Nacional',
-      description: '¿Seguro que deseas renunciar a tu cargo de Seleccionador? Continuarás al mando de tu club normalmente sin penalización de liga.',
-      confirmText: 'Presentar Renuncia',
+      title: 'Renunciar a la selección nacional',
+      description: '¿Renunciar al cargo de seleccionador? Seguirás al mando de tu club normalmente, sin penalización de liga.',
+      confirmText: 'Presentar renuncia',
       cancelText: 'Cancelar',
       variant: 'red'
     })
     if (!confirmed) return
-
     try {
       setLoading(true)
       await nationalTeamApi.resign(manager.id, team.id)
-      toast.warning('Has presentado tu renuncia a la selección nacional.')
+      toast.warning('Presentaste tu renuncia a la selección nacional.')
       await loadData()
     } catch (e) {
       toast.error(e.message)
@@ -120,13 +100,9 @@ export default function NationalTeamScreen() {
     try {
       setPlayingMatchId(fixture.id)
       const res = await nationalTeamApi.playMatch(fixture.id, team.id, manager.id)
-      if (res.won) {
-        toast.success(`¡Victoria con la Selección! ${res.teamGoals}-${res.oppGoals}. (+${res.xpBonus} XP, +Prestigio)`)
-      } else if (res.drawn) {
-        toast.info(`Empate internacional: ${res.teamGoals}-${res.oppGoals}`)
-      } else {
-        toast.error(`Derrota con la Selección: ${res.teamGoals}-${res.oppGoals}`)
-      }
+      if (res.won) toast.success(`¡Victoria con la Selección! ${res.teamGoals}-${res.oppGoals}. (+${res.xpBonus} XP, +prestigio)`)
+      else if (res.drawn) toast.info(`Empate internacional: ${res.teamGoals}-${res.oppGoals}`)
+      else toast.error(`Derrota con la Selección: ${res.teamGoals}-${res.oppGoals}`)
       await loadData()
     } catch (e) {
       toast.error(e.message || 'Error al disputar el partido')
@@ -137,266 +113,139 @@ export default function NationalTeamScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-sky-400 bg-zinc-950">
-        <div className="flex items-center gap-3">
-          <Flag className="w-6 h-6 animate-pulse" />
-          <span className="font-semibold text-sm">Cargando gestión de Selección Nacional...</span>
-        </div>
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando selección nacional">
+        <Skeleton className="h-12 w-72" />
+        <Skeleton className="h-24" />
+        <div className="grid gap-4 md:grid-cols-3"><Skeleton className="h-48" /><Skeleton className="h-48" /><Skeleton className="h-48" /></div>
       </div>
     )
   }
 
-  // VISTA 1: OFERTAS DE SELECCIÓN (Si el DT no tiene una selección activa)
+  // Sin selección activa: bolsa de selecciones
   if (!team) {
     return (
-      <div className="min-h-screen p-3 md:p-6 text-zinc-100 bg-zinc-950 pb-28 max-w-7xl mx-auto">
-        <header className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-800/80 gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <button 
-              onClick={() => navigate('/manager')} 
-              className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 shrink-0"
-              title="Volver a carrera"
-            >
-              <ArrowLeft className="w-5 h-5 text-zinc-400 hover:text-white" />
-            </button>
-            <div>
-              <h1 className="text-lg md:text-2xl font-black flex items-center gap-2 text-sky-400 leading-tight">
-                <Flag className="w-5 h-5 md:w-6 md:h-6 shrink-0" />
-                <span>Bolsa de Selecciones Nacionales</span>
-              </h1>
-              <p className="text-xs text-zinc-400">
-                Tu reputación actual: <span className="text-white font-bold">{manager?.reputation || 20} pts</span> • Modalidad Doble Carrera
-              </p>
-            </div>
-          </div>
-        </header>
-
-        <div className="p-4 md:p-6 border border-sky-500/20 rounded-2xl bg-sky-500/5 mb-6">
-          <h3 className="font-bold text-sm md:text-base text-sky-300 flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            <span>El Honor de Dirigir a tu País</span>
-          </h3>
-          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-            Asumir una selección nacional no afecta tu contrato ni el día a día con tu club. Dirigirás en las ventanas de Fechas FIFA, convocarás a los 23 mejores talentos del país con 3 arqueros obligatorios y disputarás la gloria internacional.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {offers.map(offer => (
-            <div 
-              key={offer.id} 
-              className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
-                offer.is_eligible 
-                  ? 'border-sky-500/40 bg-zinc-900/50 hover:border-sky-400' 
-                  : 'border-zinc-800/80 bg-zinc-900/20 opacity-70'
-              }`}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-800 text-sky-300 border border-zinc-700">
-                    {offer.category_label}
-                  </span>
-                  <span className="text-xs text-zinc-500 font-semibold font-mono">
-                    Rep. Req: {offer.required_reputation} pts
-                  </span>
-                </div>
-
-                <h3 className="text-lg font-black text-white mb-1 flex items-center gap-2">
-                  <span>{offer.name}</span>
-                </h3>
-                <p className="text-xs text-zinc-400 mb-3">{offer.objective}</p>
-
-                <div className="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 flex items-center justify-between mb-4">
-                  <span className="flex items-center gap-1 text-zinc-400">
-                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" /> Sueldo federativo:
-                  </span>
-                  <span className="font-bold text-emerald-400 font-mono">${offer.weekly_wage}/sem</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleAcceptOffer(offer)}
-                disabled={!offer.is_eligible}
-                className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${
-                  offer.is_eligible
-                    ? 'bg-sky-500 text-zinc-950 hover:bg-sky-400 shadow-md shadow-sky-500/10'
-                    : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                }`}
-              >
-                <span>{offer.is_eligible ? 'Aceptar Cargo de Seleccionador' : 'Reputación Insuficiente'}</span>
-                {offer.is_eligible && <ChevronRight className="w-4 h-4" />}
-              </button>
-            </div>
-          ))}
-        </div>
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+        <PageHeader
+          backTo="/manager"
+          eyebrow={`Tu reputación: ${manager?.reputation || 20} pts · doble carrera`}
+          title="Selecciones nacionales"
+          description="Dirigir a tu país no afecta tu contrato ni el día a día del club. Dirigís en las fechas FIFA con 23 convocados y 3 arqueros como mínimo."
+        />
+        {offers.length === 0 ? (
+          <Card as="div"><EmptyState icon={Flag} title="Sin ofertas" description="Ninguna federación está buscando seleccionador por ahora." /></Card>
+        ) : (
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {offers.map(offer => (
+              <li key={offer.id}>
+                <Card as="article" className={cn('h-full', !offer.is_eligible && 'opacity-70')}>
+                  <CardBody className="flex h-full flex-col gap-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge>{offer.category_label}</Badge>
+                      <span className="num text-xs text-fg-subtle">Rep. requerida: {offer.required_reputation}</span>
+                    </div>
+                    <div>
+                      <h2 className="font-display text-xl font-semibold text-fg">{offer.name}</h2>
+                      <p className="mt-1 text-sm text-fg-muted">{offer.objective}</p>
+                    </div>
+                    <Stat label="Sueldo federativo" value={`${formatMoney(offer.weekly_wage)}/sem`} valueClassName="text-xl text-accent" />
+                    <Button className="mt-auto" disabled={!offer.is_eligible} onClick={() => handleAcceptOffer(offer)}>
+                      {offer.is_eligible ? <>Aceptar el cargo<ChevronRight /></> : 'Reputación insuficiente'}
+                    </Button>
+                  </CardBody>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     )
   }
 
-  // VISTA 2: SELECCIÓN NACIONAL ACTIVA
-  const totalMatches = team.matches_played || 0
-  const winRate = totalMatches > 0 ? Math.round(((team.matches_won || 0) / totalMatches) * 100) : 0
-  const goalkeepersCount = callups.filter(c => c.player?.position === 'POR' || c.player?.position === 'GK').length
+  // Selección activa
+  const played = team.matches_played || 0
+  const winRate = played > 0 ? Math.round(((team.matches_won || 0) / played) * 100) : 0
+  const keepers = callups.filter(isKeeper).length
 
   return (
-    <div className="min-h-screen p-3 md:p-6 text-zinc-100 bg-zinc-950 pb-28 max-w-7xl mx-auto">
-      {/* Header del seleccionador */}
-      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 pb-4 border-b border-zinc-800/80 gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <button 
-            onClick={() => navigate('/manager')} 
-            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 shrink-0"
-            title="Volver a carrera"
-          >
-            <ArrowLeft className="w-5 h-5 text-zinc-400 hover:text-white" />
-          </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg md:text-2xl font-black flex items-center gap-2 text-sky-400 leading-tight">
-                <Flag className="w-5 h-5 md:w-6 md:h-6 shrink-0" />
-                <span>{team.name}</span>
-              </h1>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                Puesto FIFA #{team.world_ranking || 1}
-              </span>
-            </div>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Récord: <strong className="text-emerald-400">{team.matches_won || 0}V</strong> - <strong className="text-yellow-400">{team.matches_drawn || 0}E</strong> - <strong className="text-red-400">{team.matches_lost || 0}D</strong> ({winRate}% efectividad)
-            </p>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+      <PageHeader
+        backTo="/manager"
+        eyebrow={`Puesto FIFA #${team.world_ranking || 1}`}
+        title={team.name}
+        actions={<Button variant="outline" size="sm" onClick={handleResign}><LogOut />Renunciar a la selección</Button>}
+      />
+
+      <Card className="mb-6">
+        <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+          <Stat label="Victorias" value={team.matches_won || 0} valueClassName="text-accent" />
+          <Stat label="Empates" value={team.matches_drawn || 0} valueClassName="text-warning" />
+          <Stat label="Derrotas" value={team.matches_lost || 0} valueClassName="text-danger" />
+          <Stat label="Efectividad" value={`${winRate}%`} hint={`${played} partidos`} />
+        </CardBody>
+      </Card>
+
+      <Tabs defaultValue="convocatoria">
+        <TabsList aria-label="Secciones de la selección">
+          <TabsTrigger value="convocatoria">Convocatoria ({callups.length}/{SQUAD_SIZE})</TabsTrigger>
+          <TabsTrigger value="partidos">Fechas FIFA ({fixtures.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="convocatoria" className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <p className="flex items-center gap-2 text-fg-muted"><Users className="size-4" aria-hidden="true" />Nómina reglamentaria: <strong className="num text-fg">{callups.length} / {SQUAD_SIZE}</strong></p>
+            <Badge tone={keepers >= MIN_GOALKEEPERS ? 'accent' : 'danger'} dot>Arqueros: {keepers} / {MIN_GOALKEEPERS} mínimo</Badge>
           </div>
-        </div>
-
-        <button
-          onClick={handleResign}
-          className="px-3.5 py-2 border border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Renunciar a la Selección</span>
-        </button>
-      </header>
-
-      {/* Tabs */}
-      <nav className="flex rounded-xl bg-zinc-900/80 p-1 mb-6 border border-zinc-800 text-xs md:text-sm font-semibold">
-        <button
-          onClick={() => setActiveTab('convocatoria')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
-            activeTab === 'convocatoria'
-              ? 'bg-sky-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Users className="w-4 h-4 shrink-0" />
-          <span>Nómina Convocada ({callups.length}/23)</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('partidos')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
-            activeTab === 'partidos'
-              ? 'bg-sky-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Calendar className="w-4 h-4 shrink-0" />
-          <span>Fechas FIFA ({fixtures.length})</span>
-        </button>
-      </nav>
-
-      {/* TAB 1: CONVOCATORIA */}
-      {activeTab === 'convocatoria' && (
-        <section className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3.5 bg-zinc-900/60 rounded-2xl border border-zinc-800 text-xs">
-            <div className="flex items-center gap-2">
-              <UserCheck className="w-4 h-4 text-sky-400" />
-              <span>Nómina reglamentaria para el ciclo internacional:</span>
-              <strong className="text-white font-mono">{callups.length} / 23 futbolistas</strong>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                goalkeepersCount >= 3 
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
-              }`}>
-                Arqueros: {goalkeepersCount} / 3 min
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {callups.map(c => (
-              <div key={c.id} className="p-3.5 border border-zinc-800/80 rounded-2xl bg-zinc-900/40 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-sm text-white">{c.player?.first_name} {c.player?.last_name}</span>
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-zinc-800 text-sky-400 border border-zinc-700">
-                      {c.player?.position}
-                    </span>
+          {callups.length === 0 ? (
+            <Card as="div"><EmptyState icon={Users} title="Sin convocados" description="La nómina se arma con los mejores talentos elegibles del país." /></Card>
+          ) : (
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {callups.map(c => (
+                <li key={c.id} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface p-3.5">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 text-sm font-semibold text-fg"><span className="truncate">{c.player?.first_name} {c.player?.last_name}</span><Badge>{c.player?.position}</Badge></p>
+                    <p className="text-xs text-fg-muted">{c.player?.clubs?.short_name || 'Club'} · {c.player?.age || 22} años · Moral {c.player?.state_morale || 70}</p>
                   </div>
-                  <p className="text-[11px] text-zinc-400">
-                    {c.player?.clubs?.short_name || 'Club'} • {c.player?.age || 22} años • Moral: {c.player?.state_morale || 70}
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-xs font-bold text-zinc-200 font-mono">{c.caps || 0} Caps</p>
-                  <p className="text-[10px] text-zinc-500">{c.international_goals || 0} Goles</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* TAB 2: PARTIDOS FIFA */}
-      {activeTab === 'partidos' && (
-        <section className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fixtures.map(f => (
-              <div 
-                key={f.id} 
-                className="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-2">
-                    <span className="font-semibold text-sky-400 uppercase tracking-wider">{f.tournament_name}</span>
-                    {f.played ? (
-                      <span className="flex items-center gap-1 text-emerald-400 font-bold">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Finalizado
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 text-zinc-400">
-                        <Calendar className="w-3 h-3" /> {f.match_date}
-                      </span>
-                    )}
+                  <div className="shrink-0 text-right">
+                    <p className="num text-sm font-semibold text-fg">{c.caps || 0} caps</p>
+                    <p className="num text-xs text-fg-subtle">{c.international_goals || 0} goles</p>
                   </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
 
-                  <div className="flex items-center justify-between py-3 text-sm font-bold text-white">
-                    <span>{f.is_home ? team.name : f.opponent_name}</span>
-                    <span className="text-base font-black px-3 py-1 rounded-xl bg-zinc-950 border border-zinc-800 font-mono">
-                      {f.played ? `${f.home_score} - ${f.away_score}` : 'vs'}
-                    </span>
-                    <span>{f.is_home ? f.opponent_name : team.name}</span>
-                  </div>
-                </div>
-
-                {!f.played && (
-                  <button
-                    disabled={playingMatchId === f.id}
-                    onClick={() => handlePlayMatch(f)}
-                    className="mt-3 w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-sky-500/10 disabled:opacity-50"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>{playingMatchId === f.id ? 'Jugando Fecha FIFA...' : 'Disputar Partido de Selección'}</span>
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <BottomNav />
+        <TabsContent value="partidos">
+          {fixtures.length === 0 ? (
+            <Card as="div"><EmptyState icon={Calendar} title="Sin fechas FIFA" description="Todavía no hay partidos programados para la selección." /></Card>
+          ) : (
+            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {fixtures.map(f => (
+                <li key={f.id}>
+                  <Card as="article" className="h-full">
+                    <CardBody className="flex h-full flex-col gap-3">
+                      <div className="flex items-center justify-between gap-2 text-xs">
+                        <span className="eyebrow">{f.tournament_name}</span>
+                        {f.played ? <Badge tone="accent"><CheckCircle2 className="size-3" aria-hidden="true" />Finalizado</Badge> : <span className="flex items-center gap-1 text-fg-muted"><Calendar className="size-3" aria-hidden="true" />{f.match_date}</span>}
+                      </div>
+                      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-2 text-sm font-semibold text-fg">
+                        <span className="truncate text-right">{f.is_home ? team.name : f.opponent_name}</span>
+                        <span className="num rounded-md bg-surface-2 px-3 py-1 font-display text-lg">{f.played ? `${f.home_score} - ${f.away_score}` : 'vs'}</span>
+                        <span className="truncate">{f.is_home ? f.opponent_name : team.name}</span>
+                      </div>
+                      {!f.played && (
+                        <Button className="mt-auto" loading={playingMatchId === f.id} onClick={() => handlePlayMatch(f)}>
+                          {playingMatchId !== f.id && <Play />}Disputar partido de selección
+                        </Button>
+                      )}
+                    </CardBody>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

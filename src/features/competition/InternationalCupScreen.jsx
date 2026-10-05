@@ -1,25 +1,66 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Calendar, CheckCircle2, Flame, Globe, Play, Shield, Trophy } from 'lucide-react'
+import { toast } from 'sonner'
 import { internationalCupApi } from '../../api/internationalCup'
 import { useGameContext } from '../../context/GameContext'
-import { 
-  ArrowLeft, 
-  Globe, 
-  Trophy, 
-  Shield, 
-  Calendar, 
-  DollarSign, 
-  Award, 
-  Play, 
-  CheckCircle2, 
-  Sparkles,
-  Flame
-} from 'lucide-react'
-import { toast } from 'sonner'
-import BottomNav from '../../components/BottomNav'
+import { formatMoney } from '../../lib/format'
+import { cn } from '../../lib/utils'
+import { Badge, Button, Card, CardBody, EmptyState, PageHeader, Skeleton, Stat } from '../../components/ui'
+
+const STAGE_LABEL = { quarter_finals: 'Cuartos', semi_finals: 'Semifinal', final: 'Gran final' }
+
+function FixtureCard({ fixture, userClubId, onPlay, playing, highlight = false }) {
+  const mine = fixture.home_club_id === userClubId || fixture.away_club_id === userClubId
+  const sides = [
+    [fixture.home_club?.name || 'Equipo 1', fixture.home_club_id === userClubId, fixture.home_score],
+    [fixture.away_club?.name || 'Equipo 2', fixture.away_club_id === userClubId, fixture.away_score]
+  ]
+
+  return (
+    <Card as="article" className={cn(mine && 'border-gold/50', highlight && 'ring-1 ring-gold/30')}>
+      <CardBody className="space-y-3">
+        <div className="flex items-center justify-between gap-2 text-xs">
+          <span className="eyebrow">{STAGE_LABEL[fixture.stage] || fixture.stage}</span>
+          {fixture.played ? (
+            <Badge tone="accent"><CheckCircle2 className="size-3" aria-hidden="true" />Finalizado</Badge>
+          ) : (
+            <span className="flex items-center gap-1 text-fg-muted"><Calendar className="size-3" aria-hidden="true" />{fixture.match_date || 'Entre semana'}</span>
+          )}
+        </div>
+        <ul className="space-y-2">
+          {sides.map(([name, isMine, score]) => (
+            <li key={name + isMine} className="flex items-center justify-between gap-3">
+              <span className={cn('truncate text-sm font-semibold', isMine ? 'text-gold' : 'text-fg')}>{name}{isMine && ' (vos)'}</span>
+              <span className="num min-w-9 rounded-md bg-surface-2 px-2 py-0.5 text-center font-display text-lg font-semibold">{fixture.played ? score : '-'}</span>
+            </li>
+          ))}
+        </ul>
+        {mine && !fixture.played && (
+          <Button className="w-full" loading={playing === fixture.id} onClick={() => onPlay(fixture)}>
+            {playing !== fixture.id && <Play />}Jugar partido continental
+          </Button>
+        )}
+      </CardBody>
+    </Card>
+  )
+}
+
+function Stage({ icon: Icon, title, hint, fixtures, emptyText, children }) {
+  return (
+    <section className="space-y-3" aria-label={title}>
+      <div className="flex items-center gap-2">
+        <Icon className="size-4 text-fg-muted" aria-hidden="true" />
+        <h2 className="font-display text-xl font-semibold text-fg">{title}</h2>
+        <span className="ml-auto text-xs text-fg-subtle">{hint}</span>
+      </div>
+      {fixtures.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-line p-5 text-center text-sm text-fg-subtle">{emptyText}</p>
+      ) : children}
+    </section>
+  )
+}
 
 export default function InternationalCupScreen() {
-  const navigate = useNavigate()
   const { club, manager, loading: contextLoading } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [cupData, setCupData] = useState(null)
@@ -28,8 +69,7 @@ export default function InternationalCupScreen() {
   const loadCupData = async () => {
     try {
       if (!club?.id) return
-      const res = await internationalCupApi.getActiveTournament(club.id)
-      setCupData(res)
+      setCupData(await internationalCupApi.getActiveTournament(club.id))
     } catch (e) {
       console.error(e)
       toast.error('Error al cargar la Copa Continental')
@@ -41,38 +81,24 @@ export default function InternationalCupScreen() {
   useEffect(() => {
     if (contextLoading || !club) return
     loadCupData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextLoading, club])
 
   const handlePlayUserMatch = async (fixture) => {
     try {
       setPlayingMatchId(fixture.id)
-      // Generar resultado con ventaja para el equipo mejor preparado
       const userIsHome = fixture.home_club_id === club.id
       const userGoals = Math.floor(Math.random() * 3) + 1
       let oppGoals = Math.floor(Math.random() * 2)
-
-      // Evitar empates en partidos de eliminación directa
-      if (userGoals === oppGoals) {
-        oppGoals = Math.max(0, userGoals - 1)
-      }
+      // Sin empates en partidos de eliminación directa
+      if (userGoals === oppGoals) oppGoals = Math.max(0, userGoals - 1)
 
       const homeScore = userIsHome ? userGoals : oppGoals
       const awayScore = userIsHome ? oppGoals : userGoals
+      const res = await internationalCupApi.processUserMatchResult(fixture.id, club.id, manager?.id, homeScore, awayScore)
 
-      const res = await internationalCupApi.processUserMatchResult(
-        fixture.id,
-        club.id,
-        manager?.id,
-        homeScore,
-        awayScore
-      )
-
-      if (res.userWon) {
-        toast.success(`¡Victoria continental! ${homeScore}-${awayScore}. Premio: +$${res.matchBonus.toLocaleString()}`)
-      } else {
-        toast.error(`Derrota en la copa: ${homeScore}-${awayScore}`)
-      }
-
+      if (res.userWon) toast.success(`¡Victoria continental! ${homeScore}-${awayScore}. Premio: +${formatMoney(res.matchBonus)}`)
+      else toast.error(`Derrota en la copa: ${homeScore}-${awayScore}`)
       await loadCupData()
     } catch (e) {
       toast.error(e.message || 'Error al disputar el partido')
@@ -83,196 +109,65 @@ export default function InternationalCupScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-amber-400 bg-zinc-950">
-        <div className="flex items-center gap-3">
-          <Globe className="w-6 h-6 animate-pulse" />
-          <span className="font-semibold text-sm">Cargando certamen continental...</span>
-        </div>
+      <div className="mx-auto max-w-5xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando certamen continental">
+        <Skeleton className="h-12 w-72" />
+        <div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-32" /><Skeleton className="h-32" /></div>
       </div>
     )
   }
 
   const { tournament, fixtures } = cupData || {}
-  const quarterFixtures = fixtures?.filter(f => f.stage === 'quarter_finals') || []
-  const semiFixtures = fixtures?.filter(f => f.stage === 'semi_finals') || []
-  const finalFixtures = fixtures?.filter(f => f.stage === 'final') || []
+  const byStage = (stage) => fixtures?.filter(f => f.stage === stage) || []
+  const quarters = byStage('quarter_finals')
+  const semis = byStage('semi_finals')
+  const finals = byStage('final')
 
-  return (
-    <div className="min-h-screen p-3 md:p-6 text-zinc-100 bg-zinc-950 pb-28 md:pb-12 max-w-7xl mx-auto">
-      {/* Header del torneo */}
-      <header className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-800/80 gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <button 
-            onClick={() => navigate('/standings')} 
-            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 shrink-0"
-            title="Volver a competiciones"
-          >
-            <ArrowLeft className="w-5 h-5 text-zinc-400 hover:text-white" />
-          </button>
-          <div className="truncate">
-            <h1 className="text-lg md:text-2xl font-black flex items-center gap-2 text-amber-400 truncate leading-tight">
-              <Globe className="w-5 h-5 md:w-6 md:h-6 shrink-0" />
-              <span>{tournament?.name || 'Copa Gloria Continental'}</span>
-            </h1>
-            <p className="text-xs text-zinc-400 truncate">
-              Temporada {tournament?.season_year || 2026} • Torneo de Clubes de América
-            </p>
-          </div>
-        </div>
-
-        <div className="text-right shrink-0">
-          <p className="text-[11px] text-zinc-400 font-medium">Bolsa de Premios</p>
-          <p className="text-base md:text-xl font-black text-emerald-400">
-            ${Number(tournament?.prize_pool || 1500000).toLocaleString()}
-          </p>
-        </div>
-      </header>
-
-      {/* Banner de Campeón si el torneo concluyó */}
-      {tournament?.status === 'finished' && (
-        <div className="mb-6 p-4 md:p-6 border border-amber-500/40 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center gap-4">
-          <div className="p-3 bg-amber-500 text-zinc-950 rounded-xl font-bold shadow-lg shadow-amber-500/20">
-            <Trophy className="w-8 h-8" />
-          </div>
-          <div>
-            <span className="text-xs uppercase tracking-wider font-bold text-amber-400">Campeón Continental</span>
-            <h2 className="text-xl md:text-2xl font-black text-white">
-              {tournament?.champion?.name || 'Campeón de América'}
-            </h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Gloria eterna y clasificación asegurada a la próxima edición internacional.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Estructura de Llaves / Fases de la Copa */}
-      <div className="space-y-8">
-        
-        {/* Cuartos de Final */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <h3 className="font-bold text-sm md:text-base text-zinc-200">Cuartos de Final</h3>
-            <span className="text-[11px] text-zinc-500 ml-auto">Partidos de Ida y Vuelta / Eliminación</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {quarterFixtures.map(f => renderFixtureCard(f, club?.id, handlePlayUserMatch, playingMatchId))}
-          </div>
-        </section>
-
-        {/* Semifinales */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Flame className="w-4 h-4 text-amber-400" />
-            <h3 className="font-bold text-sm md:text-base text-zinc-200">Semifinales</h3>
-            <span className="text-[11px] text-zinc-500 ml-auto">Los 4 mejores del continente</span>
-          </div>
-
-          {semiFixtures.length === 0 ? (
-            <div className="p-6 text-center border border-dashed border-zinc-800 rounded-xl bg-zinc-900/20">
-              <p className="text-xs text-zinc-500">Se definirán al concluir la fase de Cuartos de Final.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {semiFixtures.map(f => renderFixtureCard(f, club?.id, handlePlayUserMatch, playingMatchId))}
-            </div>
-          )}
-        </section>
-
-        {/* Gran Final */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <h3 className="font-bold text-sm md:text-base text-amber-300">Gran Final Continental</h3>
-            <span className="text-[11px] text-amber-400/80 ml-auto font-semibold">Premio Mayor: $1,000,000</span>
-          </div>
-
-          {finalFixtures.length === 0 ? (
-            <div className="p-6 text-center border border-dashed border-zinc-800 rounded-xl bg-zinc-900/20">
-              <p className="text-xs text-zinc-500">La Final se disputará tras concluir las Semifinales.</p>
-            </div>
-          ) : (
-            <div className="max-w-2xl mx-auto">
-              {finalFixtures.map(f => renderFixtureCard(f, club?.id, handlePlayUserMatch, playingMatchId, true))}
-            </div>
-          )}
-        </section>
-
+  if (!tournament) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+        <PageHeader backTo="/standings" eyebrow="Torneo de clubes de América" title="Copa continental" />
+        <Card as="div"><EmptyState icon={Globe} title="Sin torneo activo" description="Tu club todavía no clasificó a un certamen continental esta temporada." /></Card>
       </div>
-      <BottomNav />
-    </div>
+    )
+  }
+
+  const renderGrid = (list, props = {}, className = 'md:grid-cols-2') => (
+    <ul className={cn('grid grid-cols-1 gap-3', className)}>
+      {list.map(f => <li key={f.id}><FixtureCard fixture={f} userClubId={club?.id} onPlay={handlePlayUserMatch} playing={playingMatchId} {...props} /></li>)}
+    </ul>
   )
-}
-
-function renderFixtureCard(fixture, userClubId, onPlay, isPlaying, isFinal = false) {
-  const isUserMatch = fixture.home_club_id === userClubId || fixture.away_club_id === userClubId
-  const homeName = fixture.home_club?.name || 'Equipo 1'
-  const awayName = fixture.away_club?.name || 'Equipo 2'
-  const isPlayed = fixture.played
 
   return (
-    <div 
-      key={fixture.id} 
-      className={`p-4 rounded-xl border transition-all ${
-        isUserMatch 
-          ? 'border-amber-500/50 bg-amber-500/5 shadow-sm' 
-          : 'border-zinc-800/80 bg-zinc-900/40'
-      } ${isFinal ? 'ring-1 ring-amber-500/30' : ''}`}
-    >
-      <div className="flex items-center justify-between text-[11px] text-zinc-500 mb-2">
-        <span className="font-semibold uppercase tracking-wider text-zinc-400">
-          {fixture.stage === 'quarter_finals' ? 'Cuartos' : fixture.stage === 'semi_finals' ? 'Semifinal' : 'Gran Final'}
-        </span>
-        {isPlayed ? (
-          <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Finalizado
-          </span>
-        ) : (
-          <span className="text-zinc-400 flex items-center gap-1">
-            <Calendar className="w-3 h-3" /> {fixture.match_date || 'Entre semana'}
-          </span>
-        )}
-      </div>
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8">
+      <PageHeader
+        backTo="/standings"
+        eyebrow={`Temporada ${tournament.season_year || 2026} · Torneo de clubes de América`}
+        title={tournament.name || 'Copa Gloria Continental'}
+        actions={<Stat label="Bolsa de premios" value={formatMoney(tournament.prize_pool || 1500000)} valueClassName="text-2xl text-accent" className="text-right" />}
+      />
 
-      <div className="space-y-2 mb-3">
-        {/* Local */}
-        <div className="flex items-center justify-between">
-          <span className={`text-xs md:text-sm font-bold truncate ${
-            fixture.home_club_id === userClubId ? 'text-amber-400' : 'text-zinc-200'
-          }`}>
-            {homeName} {fixture.home_club_id === userClubId && '(Tú)'}
-          </span>
-          <span className="text-sm font-black text-white px-2 py-0.5 rounded bg-zinc-950/80 border border-zinc-800">
-            {isPlayed ? fixture.home_score : '-'}
-          </span>
+      {tournament.status === 'finished' && (
+        <div role="status" className="mb-6 flex items-center gap-4 rounded-lg border border-gold/40 bg-gold-soft p-4 sm:p-5">
+          <span className="grid size-12 shrink-0 place-items-center rounded-md bg-gold text-accent-fg"><Trophy className="size-7" aria-hidden="true" /></span>
+          <div>
+            <p className="eyebrow text-gold">Campeón continental</p>
+            <p className="font-display text-2xl font-semibold text-fg">{tournament.champion?.name || 'Campeón de América'}</p>
+            <p className="text-xs text-fg-muted">Gloria eterna y clasificación asegurada a la próxima edición.</p>
+          </div>
         </div>
-
-        {/* Visitante */}
-        <div className="flex items-center justify-between">
-          <span className={`text-xs md:text-sm font-bold truncate ${
-            fixture.away_club_id === userClubId ? 'text-amber-400' : 'text-zinc-200'
-          }`}>
-            {awayName} {fixture.away_club_id === userClubId && '(Tú)'}
-          </span>
-          <span className="text-sm font-black text-white px-2 py-0.5 rounded bg-zinc-950/80 border border-zinc-800">
-            {isPlayed ? fixture.away_score : '-'}
-          </span>
-        </div>
-      </div>
-
-      {/* Botón de jugar si es partido pendiente del usuario */}
-      {isUserMatch && !isPlayed && (
-        <button
-          disabled={isPlaying === fixture.id}
-          onClick={() => onPlay(fixture)}
-          className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/10"
-        >
-          <Play className="w-3.5 h-3.5 fill-current" />
-          <span>{isPlaying === fixture.id ? 'Disputando...' : 'Jugar Partido Continental'}</span>
-        </button>
       )}
+
+      <div className="space-y-8">
+        <Stage icon={Shield} title="Cuartos de final" hint="Ida y vuelta / eliminación" fixtures={quarters} emptyText="Los cuartos de final todavía no están definidos.">
+          {renderGrid(quarters)}
+        </Stage>
+        <Stage icon={Flame} title="Semifinales" hint="Los 4 mejores del continente" fixtures={semis} emptyText="Se definirán al concluir los cuartos de final.">
+          {renderGrid(semis)}
+        </Stage>
+        <Stage icon={Trophy} title="Gran final continental" hint="Premio mayor: $1.000.000" fixtures={finals} emptyText="La final se disputará tras las semifinales.">
+          <div className="mx-auto max-w-2xl">{renderGrid(finals, { highlight: true }, '')}</div>
+        </Stage>
+      </div>
     </div>
   )
 }
