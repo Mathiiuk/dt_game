@@ -1,7 +1,7 @@
 import React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { cva } from 'class-variance-authority'
-import { X } from 'lucide-react'
+import { X, ArrowLeft } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 /**
@@ -29,7 +29,9 @@ const contentVariants = cva(
     variants: {
       placement: {
         center: 'left-1/2 top-1/2 w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl data-[state=open]:animate-rise-in',
-        right: 'inset-y-0 right-0 max-h-none w-full rounded-l-xl border-r-0 data-[state=open]:animate-fade-in'
+        right: 'inset-y-0 right-0 max-h-none w-full rounded-l-xl border-r-0 data-[state=open]:animate-fade-in',
+        // Página completa (móvil): ocupa toda la pantalla, sin bordes redondeados, respetando notch y barra de gestos
+        page: 'inset-0 h-dvh max-h-none w-full rounded-none border-0 pt-safe pb-safe data-[state=open]:animate-rise-in'
       },
       size: {
         sm: '',
@@ -43,7 +45,8 @@ const contentVariants = cva(
       { placement: 'center', size: 'lg', class: 'max-w-4xl' },
       { placement: 'right', size: 'sm', class: 'max-w-sm' },
       { placement: 'right', size: 'md', class: 'max-w-lg' },
-      { placement: 'right', size: 'lg', class: 'max-w-2xl' }
+      { placement: 'right', size: 'lg', class: 'max-w-2xl' },
+      { placement: 'page', class: 'max-w-none' }
     ],
     defaultVariants: { placement: 'center', size: 'md' }
   }
@@ -55,15 +58,24 @@ export const DialogContent = React.forwardRef(function DialogContent(
 ) {
   return (
     <DialogPrimitive.Portal>
-      <Overlay />
+      {placement !== 'page' && <Overlay />}
       <DialogPrimitive.Content
         ref={ref}
         className={cn(contentVariants({ placement, size }), className)}
         {...props}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
-          <div className="min-w-0">
-            <DialogPrimitive.Title className="font-display text-2xl font-semibold leading-tight text-fg">
+        <header className={cn('flex items-start gap-3 border-b border-line px-5 py-4', placement === 'page' ? 'px-3' : 'justify-between gap-4')}>
+          {/* En página completa el botón de cerrar es una flecha "volver" a la izquierda (patrón móvil) */}
+          {!hideClose && placement === 'page' && (
+            <DialogPrimitive.Close
+              className="-my-1 grid size-11 shrink-0 place-items-center rounded-md text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+              aria-label="Volver"
+            >
+              <ArrowLeft className="size-5" aria-hidden="true" />
+            </DialogPrimitive.Close>
+          )}
+          <div className="min-w-0 flex-1">
+            <DialogPrimitive.Title className={cn('font-display font-semibold leading-tight text-fg', placement === 'page' ? 'text-xl' : 'text-2xl')}>
               {title}
             </DialogPrimitive.Title>
             {description ? (
@@ -72,7 +84,7 @@ export const DialogContent = React.forwardRef(function DialogContent(
               <DialogPrimitive.Description className="sr-only">{title}</DialogPrimitive.Description>
             )}
           </div>
-          {!hideClose && (
+          {!hideClose && placement !== 'page' && (
             <DialogPrimitive.Close
               className="-mr-2 -mt-1 grid size-11 shrink-0 place-items-center rounded-md text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg"
               aria-label="Cerrar"

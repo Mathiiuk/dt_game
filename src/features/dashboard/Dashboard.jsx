@@ -397,10 +397,8 @@ export default function Dashboard() {
           careerId={club?.career_id}
           seasonYear={club?.current_season_year || 2026}
           onClose={() => setShowSeasonCloseModal(false)}
-          onSuccess={() => {
-            setShowSeasonCloseModal(false)
-            if (typeof refreshContext === 'function') refreshContext()
-          }}
+          // El modal queda abierto para mostrar el resumen de la transición; se cierra con "Comenzar pretemporada"
+          onSuccess={() => { queryCache.clear() }}
         />
       )}
     </div>

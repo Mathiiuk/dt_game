@@ -79,7 +79,16 @@ export default function TacticsScreen() {
         const slots = (FORMATIONS[form] || FORMATIONS['4-4-2']).slots
         let map = {}
         if (Array.isArray(tactic?.lineup) && tactic.lineup.length > 0) {
-          slots.forEach((slot, idx) => { if (tactic.lineup[idx]) map[slot] = tactic.lineup[idx] })
+          const squadIds = new Set((players || []).map(p => p.id))
+          const used = new Set()
+          // Alineaciones guardadas con jugadores repetidos o que ya no están en el plantel se depuran
+          slots.forEach((slot, idx) => {
+            const id = tactic.lineup[idx]
+            if (id && squadIds.has(id) && !used.has(id)) { map[slot] = id; used.add(id) }
+          })
+          if (Object.keys(map).length < slots.length) {
+            map = reassignLineup(slots, players || [], Object.values(map))
+          }
         } else {
           map = reassignLineup(slots, players || [], [])
         }

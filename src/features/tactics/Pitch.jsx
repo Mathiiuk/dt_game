@@ -93,6 +93,7 @@ export default function Pitch({ formation, lineup, players, selectedSlot, onSele
   const reduceMotion = useReducedMotion()
   const byId = new Map(players.map(p => [p.id, p]))
   const layout = getLayout(formation)
+  const seen = new Set()
 
   return (
     <div
@@ -105,9 +106,12 @@ export default function Pitch({ formation, lineup, players, selectedSlot, onSele
           con un resorte hacia su nuevo puesto en vez de "teletransportarse". Los puestos vacíos usan clave propia. */}
       {layout.map(({ slot, x, y }) => {
         const player = byId.get(lineup[slot])
+        // Defensa ante datos viejos: si un mismo jugador figura en dos puestos, la segunda ficha usa clave propia
+        const duplicated = player && seen.has(player.id)
+        if (player) seen.add(player.id)
         return (
           <Token
-            key={player ? `p-${player.id}` : `empty-${slot}`}
+            key={player ? (duplicated ? `p-${player.id}-${slot}` : `p-${player.id}`) : `empty-${slot}`}
             slot={slot}
             x={x}
             y={y}
