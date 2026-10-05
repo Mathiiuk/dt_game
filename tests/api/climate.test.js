@@ -20,6 +20,7 @@ vi.mock('../../src/api/supabase', () => {
     const q = {}
     q.select = () => q
     q.eq = () => q
+    q.in = () => q
     q.update = (row) => { op = 'update'; writes.push({ table, op, row }); return q }
     q.insert = (row) => { writes.push({ table, op: 'insert', row }); return Promise.resolve({ error: null }) }
     const read = () => {
@@ -27,7 +28,7 @@ vi.mock('../../src/api/supabase', () => {
       if (table === 'club_board_confidence') return state.board
       return null
     }
-    const readList = () => (table === 'players' ? state.players : null)
+    const readList = () => (table === 'players' ? state.players : table === 'player_match_stats' ? state.stats : null)
     q.single = async () => ({ data: read(), error: null })
     q.maybeSingle = async () => ({ data: read(), error: null })
     q.then = (resolve) => resolve({ data: readList(), error: null })
@@ -118,5 +119,26 @@ describe('clima del club', () => {
     expect(n).toBe(1)
     expect(state.batched).toEqual([{ id: 'a', state_morale: 68 }])
     expect(logs()[0].row.source).toBe('WAGES')
+  })
+
+  it('los suplentes sin minutos en los últimos cuatro partidos reclaman y pierden moral', async () => {
+    const players = [
+      { id: 'a', attr_overall: 70, state_morale: 70 },
+      { id: 'b', attr_overall: 60, state_morale: 70 },
+      { id: 'c', attr_overall: 65, state_morale: 70, is_injured: true }
+    ]
+    state.stats = [{ player_id: 'b' }]
+    state.batched = null
+    const n = await climateApi.applyBenchComplaints({ clubId: 'c1', players, fixtureIds: ['f1', 'f2', 'f3', 'f4', 'f5'] })
+    expect(n).toBe(1)
+    expect(state.batched).toEqual([{ id: 'a', state_morale: 67 }])
+    expect(logs()[0].row.source).toBe('BENCH_MINUTES')
+  })
+
+  it('con menos de cuatro partidos jugados nadie reclama', async () => {
+    state.stats = []
+    const n = await climateApi.applyBenchComplaints({ clubId: 'c1', players: [{ id: 'a', attr_overall: 70 }], fixtureIds: ['f1', 'f2'] })
+    expect(n).toBe(0)
+    expect(writes).toHaveLength(0)
   })
 })

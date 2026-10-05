@@ -6,7 +6,7 @@ import { BARRA_STAGES, BARRA_LABELS, shiftBarra, nextBarraStage, barraWeeklyEffe
 import { BARRA_EVENTS, EMERGENCY_MEETING, BOARD_FAVOR_DUE } from '../domain/climateEvents'
 import { shouldReactivateWarnings } from '../domain/warnings'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
-import { wageInequities } from '../domain/squadConsequences'
+import { wageInequities, benchComplainers } from '../domain/squadConsequences'
 
 const sign = (n) => (n > 0 ? `+${n}` : String(n))
 
@@ -142,7 +142,7 @@ export const climateApi = {
       moraleApi.getStreaks(clubId),
       financesApi.getFinances(clubId),
       supabase.from('club_board_confidence').select('sports_satisfaction').eq('club_id', clubId).maybeSingle(),
-      supabase.from('players').select('id, attr_overall, contract_salary, state_morale').eq('club_id', clubId).eq('is_retired', false)
+      supabase.from('players').select('id, attr_overall, contract_salary, state_morale, is_injured').eq('club_id', clubId).eq('is_retired', false)
     ])
     const club = clubRes.data
     if (!club) return null
@@ -176,6 +176,9 @@ export const climateApi = {
       })(),
       this.applyWageInequity({ clubId, gameDate, players: playersRes.data || [] }).catch((e) => {
         console.warn('Aviso: no se pudo evaluar la inequidad salarial:', e)
+      }),
+      this.applyBenchComplaints({ clubId, gameDate, players: playersRes.data || [], fixtureIds: streaks.fixtureIds || [] }).catch((e) => {
+        console.warn('Aviso: no se pudieron evaluar los reclamos de suplentes:', e)
       })
     ])
     return { mood, financial, squad }
@@ -210,6 +213,22 @@ export const climateApi = {
       this.log(clubId, gameDate, 'WAGES', `${aggrieved.length} jugador(es) se quejan de cobrar bastante menos que compañeros de su nivel (moral -2).`, {})
     ])
     return aggrieved.length
+  },
+
+  /** Suplentes sin minutos en los últimos partidos: reclaman y pierden moral (-3) */
+  async applyBenchComplaints({ clubId, gameDate = null, players = [], fixtureIds = [] }) {
+    const recent = fixtureIds.slice(-4)
+    if (recent.length < 4 || !players.length) return 0
+    const { data: stats } = await supabase.from('player_match_stats').select('player_id').eq('club_id', clubId).in('fixture_id', recent)
+    const complaining = benchComplainers({ players, playedIds: (stats || []).map(s => s.player_id), games: recent.length })
+    if (!complaining.length) return 0
+    const byId = new Map(players.map(p => [p.id, p]))
+    const { playerApi } = await import('./player')
+    await Promise.all([
+      playerApi.batchUpdate(complaining.map(id => ({ id, state_morale: clamp((byId.get(id).state_morale ?? 70) - 3, 10) }))),
+      this.log(clubId, gameDate, 'BENCH_MINUTES', `${complaining.length} suplente(s) reclaman minutos: hace cuatro partidos que no juegan (moral -3).`, {})
+    ])
+    return complaining.length
   },
 
   /** ¿Es el jugador el ídolo del club o su capitán? (para avisar antes de venderlo) */

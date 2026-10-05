@@ -98,6 +98,25 @@ export function benchConsequences({ captainBenched = false, idolBenched = false 
   return { locker: scaleEffect(locker, difficulty), fans: scaleEffect(fans, difficulty), notes }
 }
 
+/** Cuántos partidos seguidos sin jugar hacen que un suplente reclame minutos */
+export const BENCH_COMPLAINT_GAMES = 4
+/** Máximo de reclamos por semana: no todo el banco a la vez */
+export const MAX_BENCH_COMPLAINTS = 3
+
+/**
+ * Suplentes que no jugaron ni un minuto en los últimos partidos y reclaman minutos. `playedIds` son los jugadores que
+ * tuvieron minutos en esos partidos. Se quejan primero los de mejor nivel (los que más se sienten postergados).
+ */
+export function benchComplainers({ players = [], playedIds = [], games = 0 }) {
+  if (games < BENCH_COMPLAINT_GAMES) return []
+  const played = new Set(playedIds)
+  return players
+    .filter(p => !p.is_injured && !p.is_retired && !played.has(p.id))
+    .sort((a, b) => Number(b.attr_overall ?? b.overall ?? 0) - Number(a.attr_overall ?? a.overall ?? 0))
+    .slice(0, MAX_BENCH_COMPLAINTS)
+    .map(p => p.id)
+}
+
 /**
  * Inequidad salarial: un jugador cobra al menos 25% menos que un compañero de nivel parecido (±3 de media).
  * Devuelve los ids de los perjudicados.

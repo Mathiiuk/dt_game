@@ -1,5 +1,5 @@
 import {
-  trainingLoad, trainingLoadConsequence, trainingRisk, saleConsequences, purchaseConsequences, benchConsequences, wageInequities
+  trainingLoad, trainingLoadConsequence, trainingRisk, saleConsequences, purchaseConsequences, benchConsequences, wageInequities, benchComplainers
 } from '../../src/domain/squadConsequences'
 
 describe('carga de entrenamiento', () => {
@@ -67,5 +67,26 @@ describe('inequidad salarial', () => {
   it('no hay reclamo si la diferencia es menor o el nivel es muy distinto', () => {
     expect(wageInequities([P('a', 60, 100), P('b', 60, 120)])).toEqual([])
     expect(wageInequities([P('a', 55, 100), P('b', 70, 300)])).toEqual([])
+  })
+})
+
+describe('suplentes que reclaman minutos', () => {
+  const P = (id, level, extra = {}) => ({ id, attr_overall: level, ...extra })
+
+  it('se quejan los que no jugaron ni un minuto en cuatro partidos, empezando por los mejores', () => {
+    const squad = [P('a', 55), P('b', 70), P('c', 62), P('d', 58), P('e', 66)]
+    expect(benchComplainers({ players: squad, playedIds: ['e'], games: 4 })).toEqual(['b', 'c', 'd'])
+  })
+
+  it('no reclaman los lesionados, los retirados ni quienes jugaron', () => {
+    const squad = [P('a', 70, { is_injured: true }), P('b', 68, { is_retired: true }), P('c', 60)]
+    expect(benchComplainers({ players: squad, playedIds: [], games: 5 })).toEqual(['c'])
+    expect(benchComplainers({ players: squad, playedIds: ['c'], games: 5 })).toEqual([])
+  })
+
+  it('con menos de cuatro partidos no hay reclamos y nunca más de tres por semana', () => {
+    expect(benchComplainers({ players: [P('a', 60)], playedIds: [], games: 3 })).toEqual([])
+    const many = Array.from({ length: 8 }, (_, i) => P(`p${i}`, 50 + i))
+    expect(benchComplainers({ players: many, playedIds: [], games: 6 })).toHaveLength(3)
   })
 })
