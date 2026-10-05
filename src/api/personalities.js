@@ -246,7 +246,8 @@ export const personalitiesApi = {
 
     if (!activeMentorships || activeMentorships.length === 0) return
 
-    for (const m of activeMentorships) {
+    // Cada mentoría toca sus propias filas: se procesan juntas (antes, una atrás de otra)
+    await Promise.all(activeMentorships.map(async (m) => {
       const nextProgress = Math.min(100, m.progress_percentage + 5)
 
       if (nextProgress >= 100) {
@@ -296,8 +297,9 @@ export const personalitiesApi = {
           .update({ progress_percentage: nextProgress })
           .eq('id', m.id)
       }
-    }
+    }))
 
     queryCache.invalidate(`mentorships:${clubId}`)
+    queryCache.invalidate(`personalities:${clubId}`)
   }
 }

@@ -482,12 +482,12 @@ export const eventsApi = {
     if (!clubId) return
 
     const { climateApi } = await import('./climate')
-    const state = await climateApi.getState(clubId)
+    // El estado del clima y los eventos pendientes se leen juntos
+    const [state, pending] = await Promise.all([climateApi.getState(clubId), this.getPendingEvents(clubId)])
 
     if (Math.random() > eventProbability(state.climate, climateApi.difficulty)) return
 
     // Máximo 3 eventos pendientes simultáneos (Regla 35)
-    const pending = await this.getPendingEvents(clubId)
     if (pending.length >= 3) return
 
     const selected = pickEvent(FULL_EVENTS_CATALOG, {

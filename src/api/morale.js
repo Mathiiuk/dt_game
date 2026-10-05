@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { queryCache } from '../utils/cache'
 import { FIXTURE_PLAYED_STATUSES } from '../domain/fixtureStatus'
 import { resultFor, streaksFromResults, weeklyMoraleDelta } from '../domain/streaks'
 
@@ -98,30 +99,31 @@ export const moraleApi = {
 
   /** Rachas reales del club a partir de sus últimos partidos jugados */
   async getStreaks(clubId, limit = 8) {
-    const { data } = await supabase
-      .from('fixtures')
-      .select('id, home_club_id, away_club_id, home_score, away_score, match_date')
-      .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
-      .in('status', FIXTURE_PLAYED_STATUSES)
-      .order('match_date', { ascending: false })
-      .limit(limit)
-    const played = (data || []).map(f => ({ id: f.id, r: resultFor(f, clubId) })).filter(x => x.r).reverse()
-    const results = played.map(x => x.r)
-    return { results, fixtureIds: played.map(x => x.id), ...streaksFromResults(results) }
+    // El avance semanal pide las rachas desde tres pasos distintos: una sola consulta por semana (10 s de caché;
+    // al consolidar un partido se descarta toda la caché, así que nunca se ve una racha vieja)
+    return queryCache.fetch(`streaks:${clubId}:${limit}`, async () => {
+      const { data } = await supabase
+        .from('fixtures')
+        .select('id, home_club_id, away_club_id, home_score, away_score, match_date')
+        .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+        .in('status', FIXTURE_PLAYED_STATUSES)
+        .order('match_date', { ascending: false })
+        .limit(limit)
+      const played = (data || []).map(f => ({ id: f.id, r: resultFor(f, clubId) })).filter(x => x.r).reverse()
+      const results = played.map(x => x.r)
+      return { results, fixtureIds: played.map(x => x.id), ...streaksFromResults(results) }
+    }, 10000)
   },
 
   // Cambio semanal de moral: vuelve hacia 60 y las rachas reales empujan a favor o en contra
   async processWeeklyMorale(clubId, winStreak, lossStreak) {
-    if (winStreak == null || lossStreak == null) {
-      const streaks = await this.getStreaks(clubId)
-      winStreak = streaks.win
-      lossStreak = streaks.loss
-    }
-    const { data: club } = await supabase
-      .from('clubs')
-      .select('squad_morale, squad_cohesion')
-      .eq('id', clubId)
-      .single()
+    // Las rachas y el club se leen juntos
+    const [streaks, { data: club }] = await Promise.all([
+      winStreak == null || lossStreak == null ? this.getStreaks(clubId) : Promise.resolve({ win: winStreak, loss: lossStreak }),
+      supabase.from('clubs').select('squad_morale, squad_cohesion').eq('id', clubId).single()
+    ])
+    winStreak = streaks.win
+    lossStreak = streaks.loss
 
     if (!club) return
 

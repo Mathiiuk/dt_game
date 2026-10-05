@@ -102,9 +102,11 @@ export const financesApi = {
    * Un asiento por concepto en el libro mayor (financial_transactions_ledger) y una sola actualización de la caja.
    */
   async processWeek({ clubId, careerId = null, seasonYear = 1, weekNumber = 1, players = [] }) {
-    const { data: club } = await supabase.from('clubs').select('*').eq('id', clubId).single()
+    const [{ data: club }, { data: staff }] = await Promise.all([
+      supabase.from('clubs').select('*').eq('id', clubId).single(),
+      supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId)
+    ])
     if (!club) return null
-    const { data: staff } = await supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId)
     const week = weeklyBudget({ club, players, staff: staff || [] })
 
     const lines = [

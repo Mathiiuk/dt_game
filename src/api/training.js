@@ -214,42 +214,33 @@ export const trainingApi = {
   async processWeeklyTraining(clubId, weekNumber = 1, careerId = null) {
     if (!clubId) return null
 
-    // 1. Idempotencia: Verificar si ya se procesó esta semana para este club
-    try {
-      const { data: existingLog } = await supabase
-        .from('training_execution_logs')
-        .select('*')
-        .eq('club_id', clubId)
-        .eq('week_number', weekNumber)
-        .maybeSingle()
+    // 1 y 2. Todo lo que hace falta leer es independiente: una sola ronda de consultas en paralelo
+    // (idempotencia, plan, focos individuales, plantel y carga de las últimas semanas)
+    const [existingLogRes, plan, assignments, playersRes, recentRes] = await Promise.all([
+      supabase.from('training_execution_logs').select('*').eq('club_id', clubId).eq('week_number', weekNumber).maybeSingle().then(r => r, () => ({ data: null })),
+      this.getClubTrainingPlan(clubId),
+      this.getPlayerAssignments(clubId),
+      supabase.from('players').select('*').eq('club_id', clubId).eq('is_retired', false),
+      supabase.from('training_execution_logs').select('intensity_applied').eq('club_id', clubId).order('timestamp', { ascending: false }).limit(5).then(r => r, () => ({ data: [] }))
+    ])
 
-      if (existingLog) {
-        return {
-          idempotent: true,
-          focus: existingLog.focus_applied,
-          intensity: existingLog.intensity_applied,
-          injuriesSustained: existingLog.injuries_sustained,
-          attributesImproved: existingLog.attributes_improved_count
-        }
+    // Idempotencia: si ya se procesó esta semana para este club, se devuelve lo que se hizo
+    const existingLog = existingLogRes?.data
+    if (existingLog) {
+      return {
+        idempotent: true,
+        focus: existingLog.focus_applied,
+        intensity: existingLog.intensity_applied,
+        injuriesSustained: existingLog.injuries_sustained,
+        attributesImproved: existingLog.attributes_improved_count
       }
-    } catch (e) {
-      // Ignorar fallo de lectura de log
     }
 
-    // 2. Obtener plan y jugadores
-    const plan = await this.getClubTrainingPlan(clubId)
-    const assignments = await this.getPlayerAssignments(clubId)
     const assignmentMap = new Map(assignments.map(a => [a.player_id, a.focus_attribute]))
-
     const intensityConf = INTENSITY_CONFIG[plan.intensity_level] || INTENSITY_CONFIG.MEDIUM
     const isRecovery = plan.general_focus === 'RECOVERY_REST'
 
-    const { data: players } = await supabase
-      .from('players')
-      .select('*')
-      .eq('club_id', clubId)
-      .eq('is_retired', false)
-
+    const players = playersRes.data
     if (!players || players.length === 0) return null
 
     let injuriesCount = 0
@@ -257,18 +248,7 @@ export const trainingApi = {
     let totalFitnessCost = 0
 
     // Carga acumulada: las semanas seguidas a intensidad alta suben el riesgo de lesión y desgastan al plantel
-    let recentIntensities = []
-    try {
-      const { data: recentLogs } = await supabase
-        .from('training_execution_logs')
-        .select('intensity_applied')
-        .eq('club_id', clubId)
-        .order('timestamp', { ascending: false })
-        .limit(5)
-      recentIntensities = (recentLogs || []).map(l => l.intensity_applied)
-    } catch (e) {
-      // Sin historial se asume sin carga previa
-    }
+    const recentIntensities = (recentRes?.data || []).map(l => l.intensity_applied)
     const clubLoad = trainingLoad({ recent: recentIntensities, current: isRecovery ? 'LOW' : plan.intensity_level })
 
     // 3. Iterar futbolistas
@@ -375,37 +355,42 @@ export const trainingApi = {
       })
     }
 
-    // Un solo UPDATE masivo para todo el plantel (antes: uno por jugador)
+    // Un solo UPDATE masivo para todo el plantel (antes: uno por jugador). El desgaste del vestuario y el registro
+    // de la semana no dependen de ese UPDATE: las tres escrituras van juntas
     const { playerApi } = await import('./player')
-    await playerApi.batchUpdate(trainingUpdates)
-
-    // 3b. Consecuencia en el vestuario de la carga acumulada
-    try {
-      const load = trainingLoadConsequence(clubLoad.consecutiveHigh)
-      if (load.locker) {
-        const { climateApi } = await import('./climate')
-        await climateApi.applySquadConsequence({ clubId, source: 'TRAINING', effects: { locker: load.locker, notes: [load.note] } })
-      }
-    } catch (loadErr) {
-      console.warn('Aviso: no se pudo aplicar el desgaste del entrenamiento:', loadErr)
-    }
-
-    // 4. Registrar auditoría en training_execution_logs
-    try {
-      await supabase.from('training_execution_logs').insert({
-        career_id: careerId,
-        club_id: clubId,
-        week_number: weekNumber,
-        focus_applied: plan.general_focus,
-        intensity_applied: plan.intensity_level,
-        average_stamina_cost: players.length > 0 ? totalFitnessCost / players.length : 0,
-        injuries_sustained: injuriesCount,
-        attributes_improved_count: improvementsCount,
-        timestamp: new Date().toISOString()
-      })
-    } catch (logErr) {
-      console.warn('Aviso: no se pudo guardar training_execution_logs:', logErr)
-    }
+    await Promise.all([
+      playerApi.batchUpdate(trainingUpdates),
+      (async () => {
+        // 3b. Consecuencia en el vestuario de la carga acumulada
+        try {
+          const load = trainingLoadConsequence(clubLoad.consecutiveHigh)
+          if (load.locker) {
+            const { climateApi } = await import('./climate')
+            await climateApi.applySquadConsequence({ clubId, source: 'TRAINING', effects: { locker: load.locker, notes: [load.note] } })
+          }
+        } catch (loadErr) {
+          console.warn('Aviso: no se pudo aplicar el desgaste del entrenamiento:', loadErr)
+        }
+      })(),
+      (async () => {
+        // 4. Registrar auditoría en training_execution_logs
+        try {
+          await supabase.from('training_execution_logs').insert({
+            career_id: careerId,
+            club_id: clubId,
+            week_number: weekNumber,
+            focus_applied: plan.general_focus,
+            intensity_applied: plan.intensity_level,
+            average_stamina_cost: players.length > 0 ? totalFitnessCost / players.length : 0,
+            injuries_sustained: injuriesCount,
+            attributes_improved_count: improvementsCount,
+            timestamp: new Date().toISOString()
+          })
+        } catch (logErr) {
+          console.warn('Aviso: no se pudo guardar training_execution_logs:', logErr)
+        }
+      })()
+    ])
 
     return {
       focus: plan.general_focus,

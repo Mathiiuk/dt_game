@@ -83,3 +83,35 @@ describe('personalidades del plantel', () => {
     expect(await personalitiesApi.syncSquadPersonalities('c9', [])).toEqual([])
   })
 })
+
+describe('mentorías de la semana', () => {
+  it('avanza todas las mentorías activas y completa las que llegan al 100%', async () => {
+    const updates = []
+    vi.resetModules()
+    vi.doMock('../../src/api/supabase', () => {
+      const chain = (table) => {
+        let op = 'select'
+        const q = {}
+        q.select = () => q
+        q.eq = () => q
+        q.single = async () => ({ data: table === 'player_personalities' ? { professionalism: 10, determination: 10, primary_archetype: 'SLACKER' } : null })
+        q.update = (row) => { op = 'update'; updates.push({ table, row }); return q }
+        q.insert = async () => ({ error: null })
+        q.then = (resolve) => resolve(op === 'update'
+          ? { error: null }
+          : { data: table === 'player_mentorships'
+            ? [{ id: 'm1', progress_percentage: 50, youth_player_id: 'y1', veteran_player_id: 'v1' }, { id: 'm2', progress_percentage: 97, youth_player_id: 'y2', veteran_player_id: 'v2' }]
+            : [], error: null })
+        return q
+      }
+      return { supabase: { from: chain } }
+    })
+    const { personalitiesApi: api } = await import('../../src/api/personalities')
+    await api.advanceMentorshipsWeek('c1')
+    expect(updates.find(u => u.table === 'player_mentorships' && u.row.progress_percentage === 55)).toBeTruthy()
+    expect(updates.find(u => u.table === 'player_mentorships' && u.row.status === 'COMPLETED')).toBeTruthy()
+    const shaped = updates.find(u => u.table === 'player_personalities')
+    expect(shaped.row).toMatchObject({ professionalism: 14, determination: 13, primary_archetype: 'STREET_RESILIENT' })
+    vi.doUnmock('../../src/api/supabase')
+  })
+})

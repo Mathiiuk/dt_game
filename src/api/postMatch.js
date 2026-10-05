@@ -164,26 +164,32 @@ export const postMatchApi = {
     const goalsConceded = result.isHome ? result.awayScore : result.homeScore
     const goalsScored = result.isHome ? result.homeScore : result.awayScore
 
-    // 2. XP del Director Técnico (Fase 05)
-    const winXp = await gameConfigApi.getNumber('xp_per_win', 50)
-    const drawXp = await gameConfigApi.getNumber('xp_per_draw', 20)
-    const lossXp = await gameConfigApi.getNumber('xp_per_loss', 5)
+    // 2. XP del Director Técnico (Fase 05). El plantel se pide a la vez que la configuración de XP, y la XP se
+    // acredita en segundo plano mientras se procesa el resto (se espera antes de devolver el resultado)
+    // (las consultas de supabase arrancan al esperarlas: Promise.resolve las dispara ya)
+    const playersRequest = Promise.resolve(supabase
+      .from('players')
+      .select('*')
+      .eq('club_id', clubId)
+      .eq('is_retired', false))
+    const [winXp, drawXp, lossXp] = await Promise.all([
+      gameConfigApi.getNumber('xp_per_win', 50),
+      gameConfigApi.getNumber('xp_per_draw', 20),
+      gameConfigApi.getNumber('xp_per_loss', 5)
+    ])
     const xpAward = isWin ? winXp : isDraw ? drawXp : lossXp
 
-    if (managerId) {
+    const xpWrite = (async () => {
+      if (!managerId) return
       try {
         await managerApi.addXp(managerId, xpAward, 'MATCH_RESULT', fixtureId || `match_${Date.now()}`)
       } catch (e) {
         console.warn('Error acreditando XP:', e)
       }
-    }
+    })()
 
     // 3. Obtener jugadores del club y calcular calificaciones individuales
-    const { data: players } = await supabase
-      .from('players')
-      .select('*')
-      .eq('club_id', clubId)
-      .eq('is_retired', false)
+    const { data: players } = await playersRequest
 
     const playerRatings = []
     const matchEvents = result.events || []
@@ -292,8 +298,11 @@ export const postMatchApi = {
       // Una sola llamada para el estado de todo el plantel y otra para los minutos oficiales (Fase 28)
       try {
         const { playerApi } = await import('./player')
-        await playerApi.batchUpdate(postMatchUpdates)
-        await supabase.rpc('increment_players_minutes', { player_ids: playedIds, mins: 90 })
+        // El estado de los jugadores y los minutos jugados son escrituras independientes: van juntas
+        await Promise.all([
+          playerApi.batchUpdate(postMatchUpdates),
+          supabase.rpc('increment_players_minutes', { player_ids: playedIds, mins: 90 })
+        ])
       } catch (batchErr) {
         console.warn('Aviso: error persistiendo estado físico/minutos del plantel:', batchErr)
       }
@@ -541,6 +550,8 @@ export const postMatchApi = {
     try {
       achievementsApi.evaluateAchievements(managerId, clubId).catch(() => {})
     } catch (e) {}
+
+    await xpWrite
 
     return {
       xpAward,

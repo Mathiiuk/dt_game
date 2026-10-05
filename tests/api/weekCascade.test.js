@@ -100,11 +100,20 @@ describe('cascada del avance semanal', () => {
     await running
   })
 
-  it('el entrenamiento va después de guardar a los jugadores, y las lesiones y mentorías después del entrenamiento', async () => {
+  it('el entrenamiento va después de guardar a los jugadores, y las lesiones después del entrenamiento', async () => {
     await advance()
     expect(index('end:jugadores.guardar')).toBeLessThan(index('start:entrenamiento'))
     expect(index('end:entrenamiento')).toBeLessThan(index('start:lesiones'))
-    expect(index('end:lesiones')).toBeLessThan(index('start:mentorias'))
+  })
+
+  it('las mentorías no esperan a la cadena de jugadores: solo tocan mentorías y personalidades', async () => {
+    gates['jugadores.guardar'] = deferred()
+    const running = advance()
+    await vi.waitFor(() => expect(log).toContain('start:jugadores.guardar'))
+    await vi.waitFor(() => expect(log).toContain('end:mentorias'))
+    expect(log).not.toContain('start:entrenamiento')
+    gates['jugadores.guardar'].resolve()
+    await running
   })
 
   it('finanzas, ofertas y moral esperan a toda la cadena de jugadores y corren juntas', async () => {
@@ -113,7 +122,7 @@ describe('cascada del avance semanal', () => {
     await vi.waitFor(() => expect(log).toContain('start:finanzas'))
     // Finanzas está trabada pero moral y ofertas ya corrieron: no se esperan entre sí
     await vi.waitFor(() => expect(log).toEqual(expect.arrayContaining(['end:moral', 'end:ofertas'])))
-    expect(index('end:mentorias')).toBeLessThan(index('start:finanzas'))
+    expect(index('end:lesiones')).toBeLessThan(index('start:finanzas'))
     expect(log).not.toContain('start:clima')
     gates.finanzas.resolve()
     await running

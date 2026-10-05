@@ -134,44 +134,49 @@ export const climateApi = {
    * de la dirigencia (que hasta ahora quedaban clavadas en 70).
    */
   async processWeek({ clubId, gameDate = null }) {
-    const { data: club } = await supabase
-      .from('clubs')
-      .select('budget, ticket_price, wage_budget, squad_morale')
-      .eq('id', clubId)
-      .single()
+    const { financesApi } = await import('./finances')
+
+    // Todo lo que se lee es independiente: una sola ronda de consultas
+    const [clubRes, streaks, finances, boardRes] = await Promise.all([
+      supabase.from('clubs').select('budget, ticket_price, wage_budget, squad_morale').eq('id', clubId).single(),
+      moraleApi.getStreaks(clubId),
+      financesApi.getFinances(clubId),
+      supabase.from('club_board_confidence').select('sports_satisfaction').eq('club_id', clubId).maybeSingle()
+    ])
+    const club = clubRes.data
     if (!club) return null
 
-    const streaks = await moraleApi.getStreaks(clubId)
     const mood = ticketPriceMood({ price: Number(club.ticket_price || 10), streaks }, this.difficulty)
-    if (mood.fans) {
-      await this.applyDeltas(clubId, { fans: mood.fans })
-      await this.log(clubId, gameDate, 'TICKET_PRICE', `${mood.note} (hinchada ${sign(mood.fans)})`, { fans: mood.fans })
-    }
-
-    const { financesApi } = await import('./finances')
-    const finances = await financesApi.getFinances(clubId)
     const financial = financialSatisfaction({
       balance: finances.balance,
       expectedWeeklyFlow: finances.expectedWeeklyFlow,
       wageOverBudget: finances.wageOverBudget
     })
     const squad = clamp(Math.round(club.squad_morale ?? 60))
-    const { data: row } = await supabase.from('club_board_confidence').select('sports_satisfaction').eq('club_id', clubId).maybeSingle()
-    if (row) {
-      const global = Math.round((row.sports_satisfaction ?? 70) * 0.5 + financial * 0.3 + squad * 0.2)
-      await supabase.from('club_board_confidence').update({
-        financial_satisfaction: financial,
-        squad_satisfaction: squad,
-        confidence_score: global,
-        updated_at: new Date().toISOString()
-      }).eq('club_id', clubId)
-      queryCache.invalidate(`board:${clubId}`)
-    }
-    try {
-      await this.applyWageInequity({ clubId, gameDate })
-    } catch (e) {
-      console.warn('Aviso: no se pudo evaluar la inequidad salarial:', e)
-    }
+    const row = boardRes.data
+
+    // Las escrituras tocan filas distintas (hinchada del club, satisfacción de la dirigencia, moral de los jugadores): van juntas
+    await Promise.all([
+      (async () => {
+        if (!mood.fans) return
+        await this.applyDeltas(clubId, { fans: mood.fans })
+        await this.log(clubId, gameDate, 'TICKET_PRICE', `${mood.note} (hinchada ${sign(mood.fans)})`, { fans: mood.fans })
+      })(),
+      (async () => {
+        if (!row) return
+        const global = Math.round((row.sports_satisfaction ?? 70) * 0.5 + financial * 0.3 + squad * 0.2)
+        await supabase.from('club_board_confidence').update({
+          financial_satisfaction: financial,
+          squad_satisfaction: squad,
+          confidence_score: global,
+          updated_at: new Date().toISOString()
+        }).eq('club_id', clubId)
+        queryCache.invalidate(`board:${clubId}`)
+      })(),
+      this.applyWageInequity({ clubId, gameDate }).catch((e) => {
+        console.warn('Aviso: no se pudo evaluar la inequidad salarial:', e)
+      })
+    ])
     return { mood, financial, squad }
   },
 
@@ -228,12 +233,17 @@ export const climateApi = {
    * si hay favores aceptados y dispara los eventos que corresponden (pedido de la barra, reunión de emergencia, favor de la dirigencia).
    */
   async advanceWeek({ clubId, managerId = null, careerId = null, week = 1, gameDate = null }) {
-    const state = await this.getState(clubId)
+    // Cuatro lecturas independientes: una sola ronda de consultas
+    const [state, clubRes, boardRes, streaks] = await Promise.all([
+      this.getState(clubId),
+      supabase.from('clubs').select('fans_confidence, budget').eq('id', clubId).single(),
+      supabase.from('club_board_confidence').select('sports_satisfaction, confidence_score').eq('club_id', clubId).maybeSingle(),
+      moraleApi.getStreaks(clubId)
+    ])
     this.setDifficulty(state.difficulty)
-    const { data: club } = await supabase.from('clubs').select('fans_confidence, budget').eq('id', clubId).single()
+    const club = clubRes.data
     if (!club) return null
-    const { data: board } = await supabase.from('club_board_confidence').select('sports_satisfaction, confidence_score').eq('club_id', clubId).maybeSingle()
-    const streaks = await moraleApi.getStreaks(clubId)
+    const board = boardRes.data
 
     const objectiveGap = clamp((65 - (board?.sports_satisfaction ?? 70)) / 65, 0, 1)
     const pressure = pressureIndex({
@@ -251,10 +261,12 @@ export const climateApi = {
 
     const patch = { pressure, climate, barra_stage: stage }
 
+    // El efecto de la barra sobre el vestuario no depende de la auditoría: arranca ya y se espera al final
     const weekly = barraWeeklyEffect(stage, this.difficulty)
-    if (weekly.locker) {
-      await this.applySquadConsequence({ clubId, source: 'BARRA', gameDate, effects: { locker: weekly.locker, notes: [`La barra está en "${BARRA_LABELS[stage].toLowerCase()}" y el vestuario lo siente.`] } })
-    }
+    const weeklyEffect = weekly.locker
+      ? this.applySquadConsequence({ clubId, source: 'BARRA', gameDate, effects: { locker: weekly.locker, notes: [`La barra está en "${BARRA_LABELS[stage].toLowerCase()}" y el vestuario lo siente.`] } })
+      : Promise.resolve()
+    weeklyEffect.catch(() => {}) // si algo falla antes de esperarlo, no queda un rechazo sin atender
 
     // Auditoría: cuantos más favores aceptaste, más cerca está de aparecer
     let dismissed = false
@@ -289,23 +301,21 @@ export const climateApi = {
       patch.muted_warnings = {}
     }
 
-    await this.saveState(clubId, patch)
-
-    // Eventos del clima: solo si el DT sigue en el cargo
-    const created = []
+    // Guardar el estado, el efecto de la barra y la creación de eventos no dependen entre sí
+    const eventTemplates = []
     if (!dismissed) {
-      const { eventsApi } = await import('./events')
-      const ctx = { clubId, managerId, careerId, week }
-      if (BARRA_STAGES.indexOf(stage) > BARRA_STAGES.indexOf(previousStage) && stage !== 'CALM') {
-        created.push(await eventsApi.createFromTemplate(BARRA_EVENTS[stage], ctx))
-      }
-      if (stage === 'INVASION' && (board?.confidence_score ?? 70) < 40) {
-        created.push(await eventsApi.createFromTemplate(EMERGENCY_MEETING, ctx))
-      }
-      if (state.board_owed > 0 && climate !== 'FLOWS' && Math.random() < 0.5) {
-        created.push(await eventsApi.createFromTemplate(BOARD_FAVOR_DUE, ctx))
-      }
+      if (BARRA_STAGES.indexOf(stage) > BARRA_STAGES.indexOf(previousStage) && stage !== 'CALM') eventTemplates.push(BARRA_EVENTS[stage])
+      if (stage === 'INVASION' && (board?.confidence_score ?? 70) < 40) eventTemplates.push(EMERGENCY_MEETING)
+      if (state.board_owed > 0 && climate !== 'FLOWS' && Math.random() < 0.5) eventTemplates.push(BOARD_FAVOR_DUE)
     }
+    const { eventsApi } = eventTemplates.length ? await import('./events') : { eventsApi: null }
+    const ctx = { clubId, managerId, careerId, week }
+    const [, , ...createdFlags] = await Promise.all([
+      this.saveState(clubId, patch),
+      weeklyEffect,
+      ...eventTemplates.map(t => eventsApi.createFromTemplate(t, ctx))
+    ])
+    const created = createdFlags
 
     queryCache.invalidate(`climate:${clubId}`)
     return { pressure, climate, stage, scandals: patch.scandals ?? state.scandals, dismissed, events: created.filter(Boolean).length }

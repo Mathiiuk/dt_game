@@ -63,10 +63,13 @@ export const calendarApi = {
    * La fecha del club (clubs.game_date) es la fuente de verdad del tiempo de juego: el calendario de la carrera
    * puede quedar desfasado (club restablecido, calendario virtual). Alinea semana/fecha/año con el club y lo persiste.
    */
-  async reconcileWithClub(calendar, clubId) {
+  async reconcileWithClub(calendar, clubId, knownClubDate) {
     if (!clubId) return calendar
-    const { data: club } = await supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle()
-    const clubDate = club?.game_date ? toDay(club.game_date) : null
+    // Si quien llama ya leyó la fecha del club (en paralelo con el calendario), se evita una consulta más
+    const clubDay = knownClubDate !== undefined
+      ? knownClubDate
+      : (await supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle()).data?.game_date
+    const clubDate = clubDay ? toDay(clubDay) : null
     if (!clubDate || clubDate === toDay(calendar.current_date)) return calendar
 
     const patch = {
@@ -230,7 +233,12 @@ export const calendarApi = {
     const timings = {}
 
     // 1. Obtener estado actual
-    const calendar = await this.reconcileWithClub(await this.getOrCreateCalendar(careerId), clubId)
+    // El calendario de la carrera y la fecha del club se leen juntos
+    const [rawCalendar, clubDateRes] = await Promise.all([
+      this.getOrCreateCalendar(careerId),
+      clubId ? supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle() : Promise.resolve({ data: null })
+    ])
+    const calendar = await this.reconcileWithClub(rawCalendar, clubId, clubDateRes?.data?.game_date ?? null)
 
     // 2. Control de concurrencia y Mutex
     if (calendar.is_advancing) {
@@ -372,14 +380,6 @@ export const calendarApi = {
             warn('la recuperación de lesiones')(injErr)
           }
 
-          // 11c. Mentorías de futbolistas (Fase 26): también tocan a los jugadores, por eso van en esta cadena
-          try {
-            const { personalitiesApi } = await import('./personalities')
-            await timed('semana.mentorias', () => personalitiesApi.advanceMentorshipsWeek(clubId), timings)
-          } catch (persErr) {
-            warn('las mentorías')(persErr)
-          }
-
           return players || []
         }
 
@@ -388,6 +388,8 @@ export const calendarApi = {
           // 9. La fecha del juego avanza de a 7 días: se juegan todos los partidos de IA vencidos (excepto el del club del usuario)
           import('./competition').then(({ competitionApi }) => timed('semana.liga-ia', () => competitionApi.simulateMatchDay(nextDate, clubId), timings)),
           // 11b. Avance de obras de infraestructura del estadio (Fase 21)
+          // 11c. Mentorías de futbolistas (Fase 26): solo tocan mentorías y personalidades, no a la cadena de jugadores
+          import('./personalities').then(({ personalitiesApi }) => timed('semana.mentorias', () => personalitiesApi.advanceMentorshipsWeek(clubId), timings)).catch(warn('las mentorías')),
           import('./stadium').then(({ stadiumApi }) => timed('semana.estadio', () => stadiumApi.advanceConstructionWeek(clubId, nextWeek, calendar.current_season_year), timings)).catch(warn('las obras del estadio'))
         ]
         // 11e. Avance de carrera del DT: depósito de salario y expiración de ofertas (Fase 31)
@@ -438,38 +440,44 @@ export const calendarApi = {
         await gameLoopApi.endSeason(clubId)
       }
 
-      // 13. Actualizar estado del calendario autoritativo
-      if (calendar.id && calendar.id !== 'virtual-calendar' && calendar.id !== 'temp-calendar') {
-        await supabase
-          .from('career_calendar')
-          .update({
-            current_week: nextWeek > WEEKS_PER_SEASON ? 1 : nextWeek,
-            current_season_year: nextWeek > WEEKS_PER_SEASON ? calendar.current_season_year + 1 : calendar.current_season_year,
-            current_date: nextDate,
-            season_phase: nextPhase.id,
-            transfer_window_open: nextTransferWindow,
-            is_advancing: false,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', calendar.id)
-      }
-
-      // 14. Registrar auditoría en time_advance_log
+      // 13 y 14. El estado del calendario y la auditoría del avance son independientes: se guardan juntos
       const durationMs = Date.now() - startTime
-      try {
-        await supabase.from('time_advance_log').insert({
-          career_id: careerId || null,
-          club_id: clubId || null,
-          week_advanced_from: calendar.current_week,
-          week_advanced_to: nextWeek,
-          financials_processed: true,
-          fixtures_simulated_count: 9,
-          injuries_updated_count: injuriesRecoveredCount,
-          duration_ms: durationMs
-        })
-      } catch (logErr) {
-        console.warn('Aviso: no se pudo persistir time_advance_log:', logErr)
-      }
+      await Promise.all([
+        (async () => {
+          // 13. Actualizar estado del calendario autoritativo
+          if (calendar.id && calendar.id !== 'virtual-calendar' && calendar.id !== 'temp-calendar') {
+            await supabase
+              .from('career_calendar')
+              .update({
+                current_week: nextWeek > WEEKS_PER_SEASON ? 1 : nextWeek,
+                current_season_year: nextWeek > WEEKS_PER_SEASON ? calendar.current_season_year + 1 : calendar.current_season_year,
+                current_date: nextDate,
+                season_phase: nextPhase.id,
+                transfer_window_open: nextTransferWindow,
+                is_advancing: false,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', calendar.id)
+          }
+        })(),
+        (async () => {
+          // 14. Registrar auditoría en time_advance_log
+          try {
+            await supabase.from('time_advance_log').insert({
+              career_id: careerId || null,
+              club_id: clubId || null,
+              week_advanced_from: calendar.current_week,
+              week_advanced_to: nextWeek,
+              financials_processed: true,
+              fixtures_simulated_count: 9,
+              injuries_updated_count: injuriesRecoveredCount,
+              duration_ms: durationMs
+            })
+          } catch (logErr) {
+            console.warn('Aviso: no se pudo persistir time_advance_log:', logErr)
+          }
+        })()
+      ])
 
       return {
         success: true,
