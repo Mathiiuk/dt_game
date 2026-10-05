@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { FIXTURE_STATUS } from '../domain/fixtureStatus'
 import { positionLine, normalizePosition } from '../domain/positions'
+import { homeAdvantage } from '../domain/consequences'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -85,7 +86,7 @@ export function createRNG(seedValue) {
 /**
  * Simulación autoritativa minuto a minuto con semilla reproducible.
  */
-export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed') => {
+export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08 } = {}) => {
   const rng = createRNG(seed)
 
   // 1. Calcular poder base de cada equipo
@@ -149,9 +150,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     }
 
     if (isHome) {
-      attack *= 1.08
-      defense *= 1.08
-      midfield *= 1.08
+      attack *= homeAdvantage
+      defense *= homeAdvantage
+      midfield *= homeAdvantage
     }
 
     let fitnessDrain = 0.35
@@ -384,7 +385,20 @@ export const matchEngineApi = {
    */
   async startMatch(fixtureId, userClubId, homeTactic, homePlayers, awayTactic, awayPlayers, seed = null) {
     const finalSeed = seed || `seed_${Date.now()}_${Math.random()}`
-    const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed)
+    // La caldera pesa: la ventaja de local sale del humor de la hinchada local (1,02 hostil a 1,10 caldera)
+    let homeAdvantageFactor = 1.08
+    if (fixtureId) {
+      try {
+        const { data: fx } = await supabase.from('fixtures').select('home_club_id').eq('id', fixtureId).maybeSingle()
+        if (fx?.home_club_id) {
+          const { data: fans } = await supabase.from('club_fanbase').select('fan_support_score').eq('club_id', fx.home_club_id).maybeSingle()
+          if (fans?.fan_support_score != null) homeAdvantageFactor = homeAdvantage(fans.fan_support_score)
+        }
+      } catch {
+        // Sin dato de hinchada se mantiene la ventaja base
+      }
+    }
+    const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, { homeAdvantage: homeAdvantageFactor })
 
     if (fixtureId) {
       try {

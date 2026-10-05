@@ -100,13 +100,14 @@ export const moraleApi = {
   async getStreaks(clubId, limit = 8) {
     const { data } = await supabase
       .from('fixtures')
-      .select('home_club_id, away_club_id, home_score, away_score, match_date')
+      .select('id, home_club_id, away_club_id, home_score, away_score, match_date')
       .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
       .in('status', FIXTURE_PLAYED_STATUSES)
       .order('match_date', { ascending: false })
       .limit(limit)
-    const results = (data || []).map(f => resultFor(f, clubId)).filter(Boolean).reverse()
-    return { results, ...streaksFromResults(results) }
+    const played = (data || []).map(f => ({ id: f.id, r: resultFor(f, clubId) })).filter(x => x.r).reverse()
+    const results = played.map(x => x.r)
+    return { results, fixtureIds: played.map(x => x.id), ...streaksFromResults(results) }
   },
 
   // Cambio semanal de moral: vuelve hacia 60 y las rachas reales empujan a favor o en contra

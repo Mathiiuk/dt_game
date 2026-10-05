@@ -1,0 +1,7 @@
+# Reporte de Ejecución: consequences-results-t2
+- **Rama**: `feat/consequences-results` | **Estado**: `DONE`
+- **Problema**: un resultado solo movía la dirigencia (±) y la hinchada local; las rachas no tenían efecto, el precio de la entrada no enojaba a nadie, la satisfacción financiera y de plantel de la dirigencia estaba clavada en 70 y la ventaja de local era un +8% fijo.
+- **Cambios**: `src/domain/consequences.js` (reglas puras: efectos de partido con rachas, goleada, clásico y visitante; humor por precio de entrada; satisfacción financiera; ventaja de local 1,02–1,10 según la hinchada; índice de presión y estados de clima; dificultad asimétrica); `src/api/climate.js` (aplica deltas a hinchada, vestuario y dirigencia —la dirigencia vía satisfacción deportiva, que pesa 50%— y registra en `consequence_log`); `postMatch` aplica las consecuencias del partido; el cierre semanal (`calendar`) aplica humor por precio y recalcula la satisfacción de la dirigencia con la caja real y la moral; `matchEngine.simulateMatch` acepta `homeAdvantage` y `startMatch` lo calcula desde la hinchada local.
+- **Datos**: migración `consequence_log` (aplicada; RLS abierto como el resto hasta la Fase 5).
+- **Tests**: `consequences.test.js` (14) y `climate.test.js` (5); suite completa verde (461).
+- **Pendiente**: el feed "Esto pasó por tu decisión" y la tarjeta de clima en Inicio son de T6; la dificultad es fija en Normal hasta que exista el selector.

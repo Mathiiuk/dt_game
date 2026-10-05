@@ -416,6 +416,14 @@ export const postMatchApi = {
       }
     }
 
+    // 5a. Consecuencias del resultado: rachas, goleadas, clásico y hinchada de visitante (clima del club)
+    try {
+      const { climateApi } = await import('./climate')
+      await climateApi.applyMatchConsequences({ clubId, fixtureId, result, gameDate: clubData?.game_date || null })
+    } catch (climateErr) {
+      console.warn('Aviso: no se pudieron aplicar las consecuencias del partido:', climateErr)
+    }
+
     // 5b. Registrar partido en el ciclo activo de carrera del DT (Fase 31)
     if (managerId && clubId) {
       try {

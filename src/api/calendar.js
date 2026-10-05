@@ -377,6 +377,14 @@ export const calendarApi = {
         const { moraleApi } = await import('./morale')
         await moraleApi.processWeeklyMorale(clubId)
 
+        // 11a. Clima del club: humor por el precio de la entrada y satisfacción financiera de la dirigencia
+        try {
+          const { climateApi } = await import('./climate')
+          await climateApi.processWeek({ clubId, gameDate: nextDate })
+        } catch (climateErr) {
+          console.warn('Aviso: no se pudo procesar el clima semanal:', climateErr)
+        }
+
         // 11b. Avance de obras de infraestructura del estadio (Fase 21)
         try {
           const { stadiumApi } = await import('./stadium')
