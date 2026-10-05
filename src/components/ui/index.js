@@ -1,0 +1,12 @@
+// Barril del sistema de diseño: un único punto de importación para las pantallas
+export { Button, buttonVariants } from './button'
+export { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from './card'
+export { Badge } from './badge'
+export { Stat } from './stat'
+export { Progress } from './progress'
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs'
+export { Dialog, DialogTrigger, DialogClose, DialogContent, DialogBody, DialogFooter } from './dialog'
+export { Input, Select, Textarea, Field } from './field'
+export { Segmented } from './segmented'
+export { Switch, Tooltip, Skeleton, EmptyState } from './misc'
+export { PageHeader, SectionTitle } from './page-header'

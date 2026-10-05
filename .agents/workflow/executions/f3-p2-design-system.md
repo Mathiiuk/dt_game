@@ -1,0 +1,9 @@
+# Reporte de Ejecución: f3-p2-design-system
+- **Rama**: `feat/f3-p2-design-system` | **Estado**: `DONE` (Fase 2.1)
+- **Concepto**: "pizarrón de DT": superficies oscuras con un dejo verde, tiza como texto, **un solo acento** (verde cancha); aviso/peligro/oro sólo comunican estado. Titulares y cifras en Barlow Condensed, texto en Inter; cifras tabulares.
+- **Tokens** (`src/index.css`, Tailwind v4 `@theme`, OKLCH): superficies (bg/surface/2/3), bordes, texto (fg/muted/subtle con contraste AA), acento, estados, 4 radios, elevación sobria, movimiento con `prefers-reduced-motion`, utilidades `.num`, `.eyebrow`, `.pt-safe/.pb-safe`. Se quita el `user-select: none` global (sólo en controles).
+- **Componentes** (`src/components/ui`, Radix + cva): Button (44/48 px, loading), Card, Badge, Stat, Progress (auto por valor), Tabs (scroll horizontal en móvil), Dialog/Sheet (cabecera fija + cuerpo con scroll + pie), Field/Input/Select/Textarea (ARIA de ayuda/error), Segmented (radiogroup con flechas), Switch, Tooltip, Skeleton, EmptyState, PageHeader, SectionTitle.
+- **Catálogo vivo**: ruta `/design` (`DesignSystemScreen`), verificada en el navegador en viewport móvil: sin desbordes, fuentes y tokens aplicados.
+- **Tests (12 nuevos, total 52)**: botón con carga/asChild, Stat con texto accesible, Progress acotado, asociación ARIA de Field, teclado de Segmented, Switch, Tabs, EmptyState, Dialog (título/descr. accesibles, Esc, foco de vuelta), PageHeader. Detectaron dos defectos reales que se corrigieron: `aria-describedby` pisado en Dialog y foco asincrónico en Segmented.
+- **Dependencias**: class-variance-authority, @radix-ui (dialog, tabs, tooltip, switch, progress), motion, vaul, @fontsource (Inter, Barlow Condensed, JetBrains Mono).
+- **Siguiente (2.2)**: AppShell (sidebar en desktop, barra inferior en móvil) y `ResponsiveOverlay` (modal en desktop, página completa en móvil).

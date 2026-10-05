@@ -29,6 +29,7 @@ import ReloadPrompt from './components/ReloadPrompt'
 import { GameProvider } from './context/GameContext'
 import BottomNav from './components/BottomNav'
 import RequireCareer from './components/RequireCareer'
+import DesignSystemScreen from './features/design/DesignSystemScreen'
 
 function App() {
   useEffect(() => {
@@ -62,6 +63,7 @@ function App() {
             <Route path="/hall-of-fame" element={<HallOfFameScreen />} />
             <Route path="/achievements" element={<RequireCareer><AchievementsScreen /></RequireCareer>} />
             <Route path="/endgame" element={<EndgameScreen />} />
+            <Route path="/design" element={<DesignSystemScreen />} />
             <Route path="/game" element={<Navigate to="/welcome" replace />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
           </Routes>
