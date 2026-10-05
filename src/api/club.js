@@ -123,6 +123,15 @@ export const clubApi = {
       console.warn('Auditoría de fundación de club no registrada:', e)
     }
 
+    // 5b. Hito de fundación: se crea una sola vez, acá (leer la historia ya no lo crea)
+    try {
+      const { clubHistoryApi, foundationMilestone } = await import('./clubHistory')
+      const { club_id: _ignored, ...milestone } = foundationMilestone(club.id, club)
+      await clubHistoryApi.addMilestone(club.id, milestone)
+    } catch (e) {
+      console.warn('No se pudo registrar el hito de fundación:', e)
+    }
+
     // 6. Generar el primer plantel automáticamente (Fase 04)
     try {
       await playerApi.generateInitialSquad(club.id, club.reputation)
