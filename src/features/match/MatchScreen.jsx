@@ -183,7 +183,9 @@ export default function MatchScreen() {
       isHome,
       opponentName: oppName,
       // Lesionados que jugaron: el post-partido evalúa si agravan la lesión
-      injuredPlayingIds: matchSquad.injuredPlayingIds
+      injuredPlayingIds: matchSquad.injuredPlayingIds,
+      // Ids de quienes salieron a la cancha (los juveniles de reemplazo no están en la base y no figuran)
+      starterIds: matchSquad.starters.map(p => p.id)
     }
 
     setSimResults(matchData)

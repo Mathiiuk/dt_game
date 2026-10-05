@@ -6,6 +6,26 @@ import { clubHistoryApi } from './clubHistory'
 import { achievementsApi } from './achievements'
 import { rollAggravations, AGGRAVATION_EXTRA_WEEKS } from '../domain/matchSquad'
 
+/**
+ * ¿El gol del evento lo hizo este jugador? Si el evento trae `playerId` manda ese dato; el nombre en el texto sólo
+ * se usa en eventos viejos sin id (el texto también nombra al asistidor, que no debe sumar el gol).
+ */
+export const isGoalBy = (event, player) => {
+  if (event.type !== 'GOAL') return false
+  if (event.playerId) return event.playerId === player.id
+  return !!event.text?.includes(`Golazo de ${player.first_name} ${player.last_name}`)
+}
+
+/** Jugadores que participaron: los titulares indicados o, sin dato, todo el plantel */
+export const selectParticipants = (players = [], starterIds) => {
+  if (!starterIds || starterIds.length === 0) return players
+  const set = new Set(starterIds)
+  return players.filter(p => set.has(p.id))
+}
+
+/** [{player_id, goals}] -> ['p1','p1','p2'] (un id por gol), formato que espera el historial de jugadores */
+export const scorersFromRatings = (ratings = []) => ratings.flatMap(r => Array(r.goals || 0).fill(r.player_id))
+
 // Señal interna para saltear la tirada de lesión nueva de un jugador que ya jugó lesionado
 class SkipInjuryRoll extends Error {}
 
@@ -162,13 +182,17 @@ export const postMatchApi = {
     const playedIds = []
     const injuredPlayingSet = new Set(result.injuredPlayingIds || [])
 
-    if (players && players.length > 0) {
-      for (const p of players) {
+    // Sólo los que saltaron a la cancha juegan, se cansan, suman minutos y reciben calificación.
+    // (Sin `starterIds`, por compatibilidad con resultados viejos, se toma todo el plantel.)
+    const participants = selectParticipants(players, result.starterIds)
+
+    if (participants.length > 0) {
+      for (const p of participants) {
         // Calificación de rendimiento (1.0 a 10.0)
         let rating = 6.0
 
         // Goles y asistencias anotadas por este jugador
-        const playerGoals = matchEvents.filter(e => e.type === 'GOAL' && (e.playerId === p.id || e.text?.includes(`${p.first_name} ${p.last_name}`))).length
+        const playerGoals = matchEvents.filter(e => isGoalBy(e, p)).length
         const playerAssists = matchEvents.filter(e => e.assistId === p.id).length
         const playerYellows = matchEvents.filter(e => e.type === 'CARD_YELLOW' && e.playerId === p.id).length
         const playerReds = matchEvents.filter(e => e.type === 'CARD_RED' && e.playerId === p.id).length
@@ -242,6 +266,14 @@ export const postMatchApi = {
           postMatchUpdates.push({ id: p.id, state_fitness: newFitness, state_morale: newMorale })
         }
         playedIds.push(p.id)
+      }
+
+      // El resto del plantel no juega ni se cansa, pero igual vive el resultado: la mitad del impacto en la moral
+      const participantIds = new Set(participants.map(p => p.id))
+      const benchDelta = isWin ? 4 : (isDraw ? 0 : (goalsConceded - goalsScored >= 3 ? -7 : -4))
+      for (const p of players || []) {
+        if (participantIds.has(p.id)) continue
+        postMatchUpdates.push({ id: p.id, state_morale: Math.max(10, Math.min(100, (p.morale || p.state_morale || 70) + benchDelta)) })
       }
 
       // Lesionados que jugaron: 35% de agravar la lesión (+2 semanas)
@@ -429,9 +461,9 @@ export const postMatchApi = {
 
     // 7. Historia y Progresión de Ídolos / Récords
     try {
-      const playerIds = players ? players.map(p => p.id) : []
       await clubHistoryApi.processPostMatchPlayerStats(clubId, {
-        playedPlayerIds: playerIds,
+        playedPlayerIds: participants.map(p => p.id),
+        scorers: scorersFromRatings(playerRatings),
         homeScore: result.homeScore || 0,
         awayScore: result.awayScore || 0,
         opponentName: result.opponentName || 'Rival',
