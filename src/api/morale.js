@@ -1,4 +1,6 @@
 import { supabase } from './supabase'
+import { FIXTURE_PLAYED_STATUSES } from '../domain/fixtureStatus'
+import { resultFor, streaksFromResults, weeklyMoraleDelta } from '../domain/streaks'
 
 // Press conference question catalog
 const PRESS_CATALOG = [
@@ -94,25 +96,35 @@ export const moraleApi = {
     return { effects, newMorale, newFans, newBoard }
   },
 
-  // Apply weekly morale decay/recovery based on results
-  async processWeeklyMorale(clubId, winStreak = 0, lossStreak = 0) {
+  /** Rachas reales del club a partir de sus últimos partidos jugados */
+  async getStreaks(clubId, limit = 8) {
+    const { data } = await supabase
+      .from('fixtures')
+      .select('home_club_id, away_club_id, home_score, away_score, match_date')
+      .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+      .in('status', FIXTURE_PLAYED_STATUSES)
+      .order('match_date', { ascending: false })
+      .limit(limit)
+    const results = (data || []).map(f => resultFor(f, clubId)).filter(Boolean).reverse()
+    return { results, ...streaksFromResults(results) }
+  },
+
+  // Cambio semanal de moral: vuelve hacia 60 y las rachas reales empujan a favor o en contra
+  async processWeeklyMorale(clubId, winStreak, lossStreak) {
+    if (winStreak == null || lossStreak == null) {
+      const streaks = await this.getStreaks(clubId)
+      winStreak = streaks.win
+      lossStreak = streaks.loss
+    }
     const { data: club } = await supabase
       .from('clubs')
       .select('squad_morale, squad_cohesion')
       .eq('id', clubId)
       .single()
-    
+
     if (!club) return
 
-    let moraleDelta = 0
-    // Natural decay (-2 per week neutral)
-    moraleDelta -= 2
-    // Win streak bonus
-    if (winStreak >= 3) moraleDelta += 5
-    else if (winStreak >= 1) moraleDelta += 2
-    // Loss streak penalty
-    if (lossStreak >= 3) moraleDelta -= 8
-    else if (lossStreak >= 1) moraleDelta -= 3
+    const moraleDelta = weeklyMoraleDelta(club.squad_morale ?? 70, { win: winStreak, loss: lossStreak })
 
     const newMorale = Math.min(100, Math.max(0, (club.squad_morale || 70) + moraleDelta))
     

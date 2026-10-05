@@ -1,4 +1,5 @@
 import { managerApi } from './manager'
+import { moraleApi } from './morale'
 import { supabase } from './supabase'
 import { gameConfigApi } from './gameConfig'
 import { auditApi } from './audit'
@@ -325,7 +326,7 @@ export const postMatchApi = {
           stadiumCapacity: capacity,
           ticketPrice,
           isDerby: Boolean(result.isDerby),
-          recentWins: isWin ? 3 : 1
+          recentWins: (await moraleApi.getStreaks(clubId, 5)).results.filter(r => r === 'W').length
         })
       } catch (err) {
         console.warn('Fallback attendance computation:', err)

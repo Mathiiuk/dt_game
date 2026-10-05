@@ -31,12 +31,13 @@ export const fanbaseApi = {
 
     if (fanbase) return fanbase
 
-    // Si no existe, inicializar autoritativamente
+    // Si no existe, inicializar autoritativamente con el humor actual de la hinchada del club
+    const { data: clubRow } = await supabase.from('clubs').select('fans_confidence').eq('id', clubId).maybeSingle()
     const initialFanbase = {
       club_id: clubId,
       loyal_members_count: 350,
       casual_fanbase_potential: 2500,
-      fan_support_score: 65,
+      fan_support_score: clubRow?.fans_confidence ?? 65,
       stadium_atmosphere_status: 'PASSIONATE',
       chants: [
         '¡Vamos vamos los pibes!',
