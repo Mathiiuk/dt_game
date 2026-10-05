@@ -2,7 +2,7 @@ id: feat-async-button-feedback
 external_ref: ''
 title: Botones con bloqueo y spinner automaticos en acciones asincronas
 type: feat
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

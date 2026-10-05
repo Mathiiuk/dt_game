@@ -2,7 +2,7 @@ id: f3-p2-responsive-overlay
 external_ref: ''
 title: 'ResponsiveOverlay: modal en escritorio, pagina completa en movil'
 type: feat
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

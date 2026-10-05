@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-10-04T19:56:46.382Z",
+  "updatedAt": "2026-10-05T16:49:47.541Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 155,
-    "totalEdges": 465,
-    "totalTasks": 58,
-    "totalLessons": 0
+    "totalNodes": 299,
+    "totalEdges": 886,
+    "totalTasks": 101,
+    "totalLessons": 9
   },
   "nodes": [
     {
@@ -70,10 +70,11 @@
       "id": "src/api/board.js",
       "label": "board.js",
       "type": "module",
-      "sizeBytes": 11856,
-      "lineCount": 330,
+      "sizeBytes": 13144,
+      "lineCount": 357,
       "imports": [
         "./supabase",
+        "../utils/ensureRow",
         "../utils/cache",
         "./finances"
       ]
@@ -82,10 +83,12 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 17088,
-      "lineCount": 431,
+      "sizeBytes": 20288,
+      "lineCount": 495,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../domain/fixtureStatus",
+        "../domain/gameWeek"
       ]
     },
     {
@@ -104,8 +107,8 @@
       "id": "src/api/club.js",
       "label": "club.js",
       "type": "module",
-      "sizeBytes": 5237,
-      "lineCount": 167,
+      "sizeBytes": 5701,
+      "lineCount": 176,
       "imports": [
         "./supabase",
         "./player",
@@ -116,18 +119,19 @@
       "id": "src/api/clubFeatures.js",
       "label": "clubFeatures.js",
       "type": "module",
-      "sizeBytes": 2991,
-      "lineCount": 77,
+      "sizeBytes": 2598,
+      "lineCount": 66,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "./player"
       ]
     },
     {
       "id": "src/api/clubHistory.js",
       "label": "clubHistory.js",
       "type": "module",
-      "sizeBytes": 15501,
-      "lineCount": 415,
+      "sizeBytes": 15758,
+      "lineCount": 423,
       "imports": [
         "./supabase"
       ]
@@ -136,11 +140,12 @@
       "id": "src/api/competition.js",
       "label": "competition.js",
       "type": "module",
-      "sizeBytes": 13104,
-      "lineCount": 366,
+      "sizeBytes": 16498,
+      "lineCount": 427,
       "imports": [
         "./supabase",
-        "../utils/cache"
+        "../utils/cache",
+        "../domain/fixtureStatus"
       ]
     },
     {
@@ -158,25 +163,28 @@
       "id": "src/api/contracts.js",
       "label": "contracts.js",
       "type": "module",
-      "sizeBytes": 24580,
-      "lineCount": 735,
+      "sizeBytes": 24770,
+      "lineCount": 738,
       "imports": [
         "./supabase",
         "../utils/cache",
-        "./audit"
+        "./audit",
+        "../domain/contracts"
       ]
     },
     {
       "id": "src/api/dashboard.js",
       "label": "dashboard.js",
       "type": "module",
-      "sizeBytes": 5666,
-      "lineCount": 158,
+      "sizeBytes": 6221,
+      "lineCount": 163,
       "imports": [
         "./supabase",
         "../utils/cache",
         "./levels",
-        "./events"
+        "./events",
+        "../domain/contracts",
+        "../domain/fixtureStatus"
       ]
     },
     {
@@ -203,8 +211,8 @@
       "id": "src/api/endgame.js",
       "label": "endgame.js",
       "type": "module",
-      "sizeBytes": 7825,
-      "lineCount": 195,
+      "sizeBytes": 8400,
+      "lineCount": 208,
       "imports": [
         "./supabase",
         "./career",
@@ -228,10 +236,11 @@
       "id": "src/api/fanbase.js",
       "label": "fanbase.js",
       "type": "module",
-      "sizeBytes": 9782,
-      "lineCount": 307,
+      "sizeBytes": 9790,
+      "lineCount": 304,
       "imports": [
         "./supabase",
+        "../utils/ensureRow",
         "../utils/cache"
       ]
     },
@@ -239,8 +248,8 @@
       "id": "src/api/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 6869,
-      "lineCount": 201,
+      "sizeBytes": 7845,
+      "lineCount": 226,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -260,8 +269,8 @@
       "id": "src/api/gameLoop.js",
       "label": "gameLoop.js",
       "type": "module",
-      "sizeBytes": 4471,
-      "lineCount": 144,
+      "sizeBytes": 3786,
+      "lineCount": 119,
       "imports": [
         "./supabase",
         "./calendar"
@@ -281,8 +290,8 @@
       "id": "src/api/injuries.js",
       "label": "injuries.js",
       "type": "module",
-      "sizeBytes": 12907,
-      "lineCount": 420,
+      "sizeBytes": 12823,
+      "lineCount": 399,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -292,10 +301,12 @@
       "id": "src/api/internationalCup.js",
       "label": "internationalCup.js",
       "type": "module",
-      "sizeBytes": 12973,
-      "lineCount": 378,
+      "sizeBytes": 15569,
+      "lineCount": 364,
       "imports": [
         "./supabase",
+        "../domain/cupMatch",
+        "../domain/cupTournament",
         "./clubHistory",
         "./manager",
         "./audit"
@@ -305,8 +316,8 @@
       "id": "src/api/legends.js",
       "label": "legends.js",
       "type": "module",
-      "sizeBytes": 5567,
-      "lineCount": 164,
+      "sizeBytes": 5565,
+      "lineCount": 165,
       "imports": [
         "./supabase",
         "./clubHistory",
@@ -329,8 +340,8 @@
       "id": "src/api/lockerRoom.js",
       "label": "lockerRoom.js",
       "type": "module",
-      "sizeBytes": 15315,
-      "lineCount": 408,
+      "sizeBytes": 15303,
+      "lineCount": 395,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -340,8 +351,8 @@
       "id": "src/api/manager.js",
       "label": "manager.js",
       "type": "module",
-      "sizeBytes": 6730,
-      "lineCount": 221,
+      "sizeBytes": 7351,
+      "lineCount": 239,
       "imports": [
         "./supabase",
         "./audit"
@@ -351,8 +362,8 @@
       "id": "src/api/market.js",
       "label": "market.js",
       "type": "module",
-      "sizeBytes": 11245,
-      "lineCount": 321,
+      "sizeBytes": 12026,
+      "lineCount": 332,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -362,10 +373,11 @@
       "id": "src/api/matchEngine.js",
       "label": "matchEngine.js",
       "type": "module",
-      "sizeBytes": 13734,
-      "lineCount": 409,
+      "sizeBytes": 14086,
+      "lineCount": 414,
       "imports": [
-        "./supabase"
+        "./supabase",
+        "../domain/fixtureStatus"
       ]
     },
     {
@@ -382,8 +394,8 @@
       "id": "src/api/nationalTeam.js",
       "label": "nationalTeam.js",
       "type": "module",
-      "sizeBytes": 16327,
-      "lineCount": 494,
+      "sizeBytes": 16607,
+      "lineCount": 496,
       "imports": [
         "./supabase",
         "./manager",
@@ -406,19 +418,20 @@
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 9268,
-      "lineCount": 249,
+      "sizeBytes": 11766,
+      "lineCount": 311,
       "imports": [
         "./supabase",
         "../utils/cache",
-        "./audit"
+        "./audit",
+        "../domain/contracts"
       ]
     },
     {
       "id": "src/api/playerEvolution.js",
       "label": "playerEvolution.js",
       "type": "module",
-      "sizeBytes": 10768,
+      "sizeBytes": 10809,
       "lineCount": 356,
       "imports": [
         "./supabase",
@@ -429,23 +442,25 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 13507,
-      "lineCount": 366,
+      "sizeBytes": 19915,
+      "lineCount": 497,
       "imports": [
         "./manager",
         "./supabase",
         "./gameConfig",
         "./audit",
         "./clubHistory",
-        "./achievements"
+        "./achievements",
+        "../domain/matchSquad",
+        "../utils/cache"
       ]
     },
     {
       "id": "src/api/press.js",
       "label": "press.js",
       "type": "module",
-      "sizeBytes": 14231,
-      "lineCount": 396,
+      "sizeBytes": 14824,
+      "lineCount": 411,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -467,8 +482,8 @@
       "id": "src/api/scouting.js",
       "label": "scouting.js",
       "type": "module",
-      "sizeBytes": 8180,
-      "lineCount": 252,
+      "sizeBytes": 8329,
+      "lineCount": 253,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -478,35 +493,38 @@
       "id": "src/api/season.js",
       "label": "season.js",
       "type": "module",
-      "sizeBytes": 10805,
-      "lineCount": 304,
+      "sizeBytes": 11092,
+      "lineCount": 308,
       "imports": [
         "./supabase",
         "./competition",
-        "./audit"
+        "./audit",
+        "../domain/fixtureStatus"
       ]
     },
     {
       "id": "src/api/seasonClose.js",
       "label": "seasonClose.js",
       "type": "module",
-      "sizeBytes": 10686,
-      "lineCount": 306,
+      "sizeBytes": 11220,
+      "lineCount": 318,
       "imports": [
         "./supabase",
         "../utils/cache",
         "./playerEvolution",
-        "./clubHistory"
+        "./clubHistory",
+        "../domain/contracts"
       ]
     },
     {
       "id": "src/api/stadium.js",
       "label": "stadium.js",
       "type": "module",
-      "sizeBytes": 12633,
-      "lineCount": 396,
+      "sizeBytes": 12641,
+      "lineCount": 393,
       "imports": [
         "./supabase",
+        "../utils/ensureRow",
         "../utils/cache",
         "./finances"
       ]
@@ -548,8 +566,8 @@
       "id": "src/api/training.js",
       "label": "training.js",
       "type": "module",
-      "sizeBytes": 13306,
-      "lineCount": 377,
+      "sizeBytes": 13833,
+      "lineCount": 380,
       "imports": [
         "./supabase"
       ]
@@ -558,12 +576,14 @@
       "id": "src/App.jsx",
       "label": "App.jsx",
       "type": "module",
-      "sizeBytes": 3798,
-      "lineCount": 74,
+      "sizeBytes": 4899,
+      "lineCount": 95,
       "imports": [
         "react",
         "react-router-dom",
         "sonner",
+        "@tanstack/react-query",
+        "./lib/queryClient",
         "./api/db",
         "./features/auth/AuthScreen",
         "./features/manager/CreateManagerWizard",
@@ -588,29 +608,49 @@
         "./features/career/EndgameScreen",
         "./components/ReloadPrompt",
         "./context/GameContext",
-        "./components/BottomNav"
+        "./components/layout/AppShell",
+        "./features/more/MoreScreen",
+        "./components/RequireCareer",
+        "./features/design/DesignSystemScreen"
       ]
     },
     {
       "id": "src/components/ActionSheet.jsx",
       "label": "ActionSheet.jsx",
       "type": "module",
-      "sizeBytes": 4055,
-      "lineCount": 113,
+      "sizeBytes": 3322,
+      "lineCount": 70,
       "imports": [
         "react",
-        "lucide-react"
+        "@radix-ui/react-dialog",
+        "lucide-react",
+        "./ui/button",
+        "../lib/utils"
       ]
     },
     {
-      "id": "src/components/BottomNav.jsx",
-      "label": "BottomNav.jsx",
+      "id": "src/components/layout/AppShell.jsx",
+      "label": "AppShell.jsx",
       "type": "module",
-      "sizeBytes": 1662,
-      "lineCount": 43,
+      "sizeBytes": 5641,
+      "lineCount": 132,
       "imports": [
         "react",
         "react-router-dom",
+        "lucide-react",
+        "../../context/GameContext",
+        "../../lib/utils",
+        "../../lib/format",
+        "./navigation"
+      ]
+    },
+    {
+      "id": "src/components/layout/navigation.js",
+      "label": "navigation.js",
+      "type": "module",
+      "sizeBytes": 3206,
+      "lineCount": 71,
+      "imports": [
         "lucide-react"
       ]
     },
@@ -618,7 +658,7 @@
       "id": "src/components/ReloadPrompt.jsx",
       "label": "ReloadPrompt.jsx",
       "type": "module",
-      "sizeBytes": 1572,
+      "sizeBytes": 1555,
       "lineCount": 51,
       "imports": [
         "react",
@@ -626,16 +666,211 @@
       ]
     },
     {
+      "id": "src/components/RequireCareer.jsx",
+      "label": "RequireCareer.jsx",
+      "type": "module",
+      "sizeBytes": 917,
+      "lineCount": 28,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "../context/GameContext"
+      ]
+    },
+    {
+      "id": "src/components/ui/badge.jsx",
+      "label": "badge.jsx",
+      "type": "module",
+      "sizeBytes": 963,
+      "lineCount": 30,
+      "imports": [
+        "react",
+        "class-variance-authority",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/button.jsx",
+      "label": "button.jsx",
+      "type": "module",
+      "sizeBytes": 3274,
+      "lineCount": 84,
+      "imports": [
+        "react",
+        "@radix-ui/react-slot",
+        "class-variance-authority",
+        "lucide-react",
+        "../../lib/utils",
+        "../../hooks/useAsyncClick"
+      ]
+    },
+    {
+      "id": "src/components/ui/card.jsx",
+      "label": "card.jsx",
+      "type": "module",
+      "sizeBytes": 1264,
+      "lineCount": 34,
+      "imports": [
+        "react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/choice-chips.jsx",
+      "label": "choice-chips.jsx",
+      "type": "module",
+      "sizeBytes": 1844,
+      "lineCount": 49,
+      "imports": [
+        "react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/dialog.jsx",
+      "label": "dialog.jsx",
+      "type": "module",
+      "sizeBytes": 4956,
+      "lineCount": 116,
+      "imports": [
+        "react",
+        "@radix-ui/react-dialog",
+        "class-variance-authority",
+        "lucide-react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/field.jsx",
+      "label": "field.jsx",
+      "type": "module",
+      "sizeBytes": 2069,
+      "lineCount": 47,
+      "imports": [
+        "react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/index.js",
+      "label": "index.js",
+      "type": "module",
+      "sizeBytes": 899,
+      "lineCount": 16,
+      "imports": []
+    },
+    {
+      "id": "src/components/ui/misc.jsx",
+      "label": "misc.jsx",
+      "type": "module",
+      "sizeBytes": 2743,
+      "lineCount": 66,
+      "imports": [
+        "react",
+        "@radix-ui/react-switch",
+        "@radix-ui/react-tooltip",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/page-header.jsx",
+      "label": "page-header.jsx",
+      "type": "module",
+      "sizeBytes": 1905,
+      "lineCount": 46,
+      "imports": [
+        "react",
+        "lucide-react",
+        "react-router-dom",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/progress.jsx",
+      "label": "progress.jsx",
+      "type": "module",
+      "sizeBytes": 1190,
+      "lineCount": 36,
+      "imports": [
+        "react",
+        "@radix-ui/react-progress",
+        "class-variance-authority",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/responsive-overlay.jsx",
+      "label": "responsive-overlay.jsx",
+      "type": "module",
+      "sizeBytes": 2890,
+      "lineCount": 78,
+      "imports": [
+        "react",
+        "./dialog",
+        "../../hooks/useMediaQuery"
+      ]
+    },
+    {
+      "id": "src/components/ui/segmented.jsx",
+      "label": "segmented.jsx",
+      "type": "module",
+      "sizeBytes": 1906,
+      "lineCount": 52,
+      "imports": [
+        "react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/stat.jsx",
+      "label": "stat.jsx",
+      "type": "module",
+      "sizeBytes": 1373,
+      "lineCount": 32,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/tabs.jsx",
+      "label": "tabs.jsx",
+      "type": "module",
+      "sizeBytes": 1460,
+      "lineCount": 43,
+      "imports": [
+        "react",
+        "@radix-ui/react-tabs",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/wizard.jsx",
+      "label": "wizard.jsx",
+      "type": "module",
+      "sizeBytes": 5386,
+      "lineCount": 114,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/utils",
+        "./button"
+      ]
+    },
+    {
       "id": "src/context/GameContext.jsx",
       "label": "GameContext.jsx",
       "type": "module",
-      "sizeBytes": 4570,
-      "lineCount": 144,
+      "sizeBytes": 5686,
+      "lineCount": 160,
       "imports": [
         "react",
         "react-router-dom",
         "../api/auth",
         "../api/manager",
+        "../api/supabase",
         "../api/club",
         "../utils/cache",
         "../components/ActionSheet"
@@ -650,24 +885,171 @@
       "imports": []
     },
     {
+      "id": "src/domain/achievements.js",
+      "label": "achievements.js",
+      "type": "module",
+      "sizeBytes": 2018,
+      "lineCount": 55,
+      "imports": []
+    },
+    {
+      "id": "src/domain/calendarView.js",
+      "label": "calendarView.js",
+      "type": "module",
+      "sizeBytes": 1270,
+      "lineCount": 31,
+      "imports": [
+        "./fixtureStatus"
+      ]
+    },
+    {
+      "id": "src/domain/clubIdentity.js",
+      "label": "clubIdentity.js",
+      "type": "module",
+      "sizeBytes": 1841,
+      "lineCount": 38,
+      "imports": []
+    },
+    {
+      "id": "src/domain/contracts.js",
+      "label": "contracts.js",
+      "type": "module",
+      "sizeBytes": 3125,
+      "lineCount": 72,
+      "imports": []
+    },
+    {
+      "id": "src/domain/cupMatch.js",
+      "label": "cupMatch.js",
+      "type": "module",
+      "sizeBytes": 2138,
+      "lineCount": 53,
+      "imports": []
+    },
+    {
+      "id": "src/domain/cupTournament.js",
+      "label": "cupTournament.js",
+      "type": "module",
+      "sizeBytes": 4631,
+      "lineCount": 98,
+      "imports": [
+        "./fixtureStatus"
+      ]
+    },
+    {
+      "id": "src/domain/finances.js",
+      "label": "finances.js",
+      "type": "module",
+      "sizeBytes": 1647,
+      "lineCount": 47,
+      "imports": []
+    },
+    {
+      "id": "src/domain/fixtureStatus.js",
+      "label": "fixtureStatus.js",
+      "type": "module",
+      "sizeBytes": 1192,
+      "lineCount": 26,
+      "imports": []
+    },
+    {
+      "id": "src/domain/formations.js",
+      "label": "formations.js",
+      "type": "module",
+      "sizeBytes": 4227,
+      "lineCount": 93,
+      "imports": [
+        "../api/tactics"
+      ]
+    },
+    {
+      "id": "src/domain/gameWeek.js",
+      "label": "gameWeek.js",
+      "type": "module",
+      "sizeBytes": 1246,
+      "lineCount": 29,
+      "imports": []
+    },
+    {
+      "id": "src/domain/hallOfFame.js",
+      "label": "hallOfFame.js",
+      "type": "module",
+      "sizeBytes": 841,
+      "lineCount": 27,
+      "imports": []
+    },
+    {
+      "id": "src/domain/managerBuild.js",
+      "label": "managerBuild.js",
+      "type": "module",
+      "sizeBytes": 3034,
+      "lineCount": 48,
+      "imports": []
+    },
+    {
+      "id": "src/domain/market.js",
+      "label": "market.js",
+      "type": "module",
+      "sizeBytes": 3251,
+      "lineCount": 78,
+      "imports": [
+        "./squad"
+      ]
+    },
+    {
+      "id": "src/domain/matchSquad.js",
+      "label": "matchSquad.js",
+      "type": "module",
+      "sizeBytes": 4675,
+      "lineCount": 114,
+      "imports": []
+    },
+    {
+      "id": "src/domain/squad.js",
+      "label": "squad.js",
+      "type": "module",
+      "sizeBytes": 3355,
+      "lineCount": 82,
+      "imports": []
+    },
+    {
+      "id": "src/domain/standings.js",
+      "label": "standings.js",
+      "type": "module",
+      "sizeBytes": 1253,
+      "lineCount": 28,
+      "imports": []
+    },
+    {
+      "id": "src/domain/training.js",
+      "label": "training.js",
+      "type": "module",
+      "sizeBytes": 931,
+      "lineCount": 22,
+      "imports": []
+    },
+    {
       "id": "src/features/auth/AuthScreen.jsx",
       "label": "AuthScreen.jsx",
       "type": "module",
-      "sizeBytes": 19453,
-      "lineCount": 464,
+      "sizeBytes": 12439,
+      "lineCount": 246,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/auth",
         "sonner",
-        "lucide-react"
+        "lucide-react",
+        "../../api/auth",
+        "../../components/ui",
+        "../../lib/utils",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/auth/WelcomeScreen.jsx",
       "label": "WelcomeScreen.jsx",
       "type": "module",
-      "sizeBytes": 2822,
+      "sizeBytes": 2761,
       "lineCount": 79,
       "imports": [
         "react",
@@ -682,40 +1064,48 @@
       "id": "src/features/calendar/CalendarScreen.jsx",
       "label": "CalendarScreen.jsx",
       "type": "module",
-      "sizeBytes": 12299,
-      "lineCount": 279,
+      "sizeBytes": 8777,
+      "lineCount": 183,
       "imports": [
         "react",
         "react-router-dom",
         "lucide-react",
+        "sonner",
         "../../context/GameContext",
         "../../api/calendar",
+        "../../api/gameLoop",
         "../../utils/cache",
-        "sonner"
+        "../../domain/fixtureStatus",
+        "../../domain/calendarView",
+        "../../lib/format",
+        "../../lib/errors",
+        "../../lib/utils",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/career/AchievementsScreen.jsx",
       "label": "AchievementsScreen.jsx",
       "type": "module",
-      "sizeBytes": 19304,
-      "lineCount": 430,
+      "sizeBytes": 8975,
+      "lineCount": 183,
       "imports": [
         "react",
-        "react-router-dom",
-        "../../context/GameContext",
-        "../../api/achievements",
         "lucide-react",
         "sonner",
-        "../../components/BottomNav"
+        "../../context/GameContext",
+        "../../api/achievements",
+        "../../domain/achievements",
+        "../../lib/utils",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/career/EndgameScreen.jsx",
       "label": "EndgameScreen.jsx",
       "type": "module",
-      "sizeBytes": 13466,
-      "lineCount": 266,
+      "sizeBytes": 13792,
+      "lineCount": 275,
       "imports": [
         "react",
         "react-router-dom",
@@ -723,66 +1113,79 @@
         "../../api/endgame",
         "lucide-react",
         "sonner",
-        "../../components/BottomNav"
+        "../../components/ui",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/career/JobOfferBottomSheet.jsx",
       "label": "JobOfferBottomSheet.jsx",
       "type": "module",
-      "sizeBytes": 6385,
-      "lineCount": 144,
+      "sizeBytes": 2879,
+      "lineCount": 59,
       "imports": [
         "react",
-        "lucide-react"
+        "lucide-react",
+        "../../lib/format",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/career/ReputationHistoryModal.jsx",
       "label": "ReputationHistoryModal.jsx",
       "type": "module",
-      "sizeBytes": 9850,
-      "lineCount": 204,
+      "sizeBytes": 6295,
+      "lineCount": 122,
       "imports": [
         "react",
+        "lucide-react",
         "../../api/reputation",
-        "lucide-react"
+        "../../components/ui",
+        "../../lib/utils"
       ]
     },
     {
       "id": "src/features/club/CreateClubWizard.jsx",
       "label": "CreateClubWizard.jsx",
       "type": "module",
-      "sizeBytes": 21384,
-      "lineCount": 450,
+      "sizeBytes": 12294,
+      "lineCount": 210,
       "imports": [
         "react",
         "react-router-dom",
+        "sonner",
+        "lucide-react",
         "../../api/auth",
         "../../api/manager",
         "../../api/club",
-        "sonner",
-        "lucide-react"
+        "../../context/GameContext",
+        "../../domain/clubIdentity",
+        "../../lib/format",
+        "../../components/ui",
+        "../../lib/utils",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/BoardManagementTab.jsx",
       "label": "BoardManagementTab.jsx",
       "type": "module",
-      "sizeBytes": 15857,
-      "lineCount": 335,
+      "sizeBytes": 15739,
+      "lineCount": 337,
       "imports": [
         "react",
         "lucide-react",
         "../../../api/board",
-        "sonner"
+        "sonner",
+        "../../../components/ui",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/ClubHistoryTab.jsx",
       "label": "ClubHistoryTab.jsx",
       "type": "module",
-      "sizeBytes": 15949,
+      "sizeBytes": 15640,
       "lineCount": 343,
       "imports": [
         "react",
@@ -796,19 +1199,20 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 23073,
-      "lineCount": 550,
+      "sizeBytes": 12916,
+      "lineCount": 274,
       "imports": [
         "react",
-        "react-router-dom",
+        "lucide-react",
+        "sonner",
         "../../../api/club",
         "../../../api/clubFeatures",
         "../../../api/clubHistory",
         "../../../api/supabase",
-        "lucide-react",
-        "sonner",
         "../../../context/GameContext",
         "../../../utils/cache",
+        "../../../lib/format",
+        "../../../components/ui",
         "./YouthAcademyModal",
         "./StaffManagementModal",
         "./StadiumManagementTab",
@@ -818,14 +1222,15 @@
         "./PressRoomModal",
         "./InfirmaryTab",
         "./ClubHistoryTab",
-        "./IdolsLegendsTab"
+        "./IdolsLegendsTab",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/FanbaseManagementTab.jsx",
       "label": "FanbaseManagementTab.jsx",
       "type": "module",
-      "sizeBytes": 12848,
+      "sizeBytes": 12624,
       "lineCount": 295,
       "imports": [
         "react",
@@ -838,264 +1243,343 @@
       "id": "src/features/club/screens/IdolsLegendsTab.jsx",
       "label": "IdolsLegendsTab.jsx",
       "type": "module",
-      "sizeBytes": 20174,
-      "lineCount": 429,
+      "sizeBytes": 16959,
+      "lineCount": 366,
       "imports": [
         "react",
         "lucide-react",
         "../../../api/legends",
-        "sonner"
+        "sonner",
+        "../../../components/ui",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/InfirmaryTab.jsx",
       "label": "InfirmaryTab.jsx",
       "type": "module",
-      "sizeBytes": 16719,
-      "lineCount": 336,
+      "sizeBytes": 15486,
+      "lineCount": 312,
       "imports": [
         "react",
         "lucide-react",
         "../../../api/injuries",
         "../../../context/GameContext",
-        "sonner"
+        "sonner",
+        "../../../components/ui",
+        "../../../components/ui",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/LockerRoomTab.jsx",
       "label": "LockerRoomTab.jsx",
       "type": "module",
-      "sizeBytes": 22275,
-      "lineCount": 480,
+      "sizeBytes": 21181,
+      "lineCount": 460,
       "imports": [
         "react",
         "lucide-react",
         "../../../api/lockerRoom",
-        "sonner"
+        "sonner",
+        "../../../components/ui",
+        "../../../components/ui",
+        "../../../domain/gameWeek",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/PressRoomModal.jsx",
       "label": "PressRoomModal.jsx",
       "type": "module",
-      "sizeBytes": 4873,
-      "lineCount": 112,
+      "sizeBytes": 3599,
+      "lineCount": 84,
       "imports": [
         "react",
         "lucide-react",
+        "sonner",
         "../../../api/press",
-        "sonner"
+        "../../../components/ui"
       ]
     },
     {
       "id": "src/features/club/screens/StadiumManagementTab.jsx",
       "label": "StadiumManagementTab.jsx",
       "type": "module",
-      "sizeBytes": 17399,
-      "lineCount": 387,
+      "sizeBytes": 17303,
+      "lineCount": 389,
       "imports": [
         "react",
         "lucide-react",
         "../../../api/stadium",
-        "sonner"
+        "sonner",
+        "../../../components/ui",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/StaffManagementModal.jsx",
       "label": "StaffManagementModal.jsx",
       "type": "module",
-      "sizeBytes": 12724,
-      "lineCount": 282,
+      "sizeBytes": 10395,
+      "lineCount": 226,
       "imports": [
         "react",
         "lucide-react",
-        "../../../api/staff",
         "sonner",
-        "../../../context/GameContext"
+        "../../../api/staff",
+        "../../../context/GameContext",
+        "../../../lib/format",
+        "../../../components/ui",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/club/screens/YouthAcademyModal.jsx",
       "label": "YouthAcademyModal.jsx",
       "type": "module",
-      "sizeBytes": 13164,
-      "lineCount": 309,
+      "sizeBytes": 9073,
+      "lineCount": 206,
       "imports": [
         "react",
         "lucide-react",
-        "../../../api/academy",
         "sonner",
-        "../../../context/GameContext"
+        "../../../api/academy",
+        "../../../context/GameContext",
+        "../../../lib/format",
+        "../../../components/ui",
+        "../../../lib/utils",
+        "../../../lib/errors"
       ]
     },
     {
       "id": "src/features/competition/InternationalCupScreen.jsx",
       "label": "InternationalCupScreen.jsx",
       "type": "module",
-      "sizeBytes": 11491,
-      "lineCount": 279,
+      "sizeBytes": 9288,
+      "lineCount": 188,
       "imports": [
         "react",
-        "react-router-dom",
-        "../../api/internationalCup",
-        "../../context/GameContext",
         "lucide-react",
         "sonner",
-        "../../components/BottomNav"
+        "../../api/internationalCup",
+        "../../context/GameContext",
+        "../../lib/format",
+        "../../lib/errors",
+        "../../domain/cupTournament",
+        "../../lib/utils",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/competition/LeaguePyramidModal.jsx",
       "label": "LeaguePyramidModal.jsx",
       "type": "module",
-      "sizeBytes": 11486,
-      "lineCount": 243,
+      "sizeBytes": 7704,
+      "lineCount": 135,
       "imports": [
         "react",
         "lucide-react",
+        "sonner",
         "../../api/competitionTiers",
-        "sonner"
+        "../../lib/format",
+        "../../components/ui",
+        "../../lib/utils"
       ]
     },
     {
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 12720,
-      "lineCount": 293,
+      "sizeBytes": 9794,
+      "lineCount": 198,
       "imports": [
         "react",
         "react-router-dom",
-        "../../api/competition",
         "lucide-react",
         "sonner",
+        "../../api/competition",
         "../../context/GameContext",
         "../../utils/cache",
-        "./LeaguePyramidModal"
+        "../../domain/standings",
+        "../../lib/utils",
+        "../../components/ui",
+        "./LeaguePyramidModal",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 30411,
-      "lineCount": 628,
+      "sizeBytes": 19403,
+      "lineCount": 408,
       "imports": [
         "react",
         "react-router-dom",
+        "lucide-react",
+        "sonner",
         "../../api/dashboard",
         "../../api/events",
         "../../utils/cache",
+        "../../lib/errors",
         "../../context/GameContext",
-        "lucide-react",
-        "sonner",
+        "../../domain/fixtureStatus",
+        "../../lib/format",
+        "../../lib/utils",
+        "../../components/ui",
         "../season/SeasonCloseModal"
+      ]
+    },
+    {
+      "id": "src/features/design/DesignSystemScreen.jsx",
+      "label": "DesignSystemScreen.jsx",
+      "type": "module",
+      "sizeBytes": 9623,
+      "lineCount": 167,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/finances/FinancesScreen.jsx",
       "label": "FinancesScreen.jsx",
       "type": "module",
-      "sizeBytes": 22591,
-      "lineCount": 451,
+      "sizeBytes": 14627,
+      "lineCount": 318,
       "imports": [
         "react",
-        "react-router-dom",
-        "../../api/finances",
-        "../../context/GameContext",
         "lucide-react",
         "sonner",
-        "../../utils/cache"
+        "../../api/finances",
+        "../../context/GameContext",
+        "../../utils/cache",
+        "../../lib/format",
+        "../../domain/finances",
+        "../../components/ui",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/manager/CreateManagerWizard.jsx",
       "label": "CreateManagerWizard.jsx",
       "type": "module",
-      "sizeBytes": 27653,
-      "lineCount": 585,
+      "sizeBytes": 11802,
+      "lineCount": 212,
       "imports": [
         "react",
         "react-router-dom",
+        "sonner",
+        "lucide-react",
         "../../api/manager",
         "../../api/auth",
-        "sonner",
-        "lucide-react"
+        "../../domain/managerBuild",
+        "../../components/ui",
+        "../../lib/utils",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/manager/HallOfFameScreen.jsx",
       "label": "HallOfFameScreen.jsx",
       "type": "module",
-      "sizeBytes": 22038,
-      "lineCount": 459,
+      "sizeBytes": 12680,
+      "lineCount": 223,
       "imports": [
         "react",
-        "react-router-dom",
+        "lucide-react",
+        "sonner",
         "../../api/hallOfFame",
         "../../context/GameContext",
-        "../../components/BottomNav",
-        "lucide-react",
-        "sonner"
+        "../../domain/hallOfFame",
+        "../../lib/utils",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 41564,
-      "lineCount": 809,
+      "sizeBytes": 24493,
+      "lineCount": 436,
       "imports": [
         "react",
         "react-router-dom",
+        "lucide-react",
+        "sonner",
         "../../context/GameContext",
         "../../api/career",
         "../../api/endgame",
+        "../../lib/format",
+        "../../lib/utils",
+        "../../components/ui",
         "../career/JobOfferBottomSheet",
         "../career/ReputationHistoryModal",
-        "lucide-react",
-        "sonner",
-        "../../components/BottomNav"
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/manager/NationalTeamScreen.jsx",
       "label": "NationalTeamScreen.jsx",
       "type": "module",
-      "sizeBytes": 17870,
-      "lineCount": 403,
+      "sizeBytes": 12162,
+      "lineCount": 253,
       "imports": [
         "react",
-        "react-router-dom",
-        "../../api/nationalTeam",
-        "../../context/GameContext",
         "lucide-react",
         "sonner",
-        "../../components/BottomNav"
+        "../../api/nationalTeam",
+        "../../context/GameContext",
+        "../../lib/format",
+        "../../lib/errors",
+        "../../lib/utils",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/market/MarketScreen.jsx",
       "label": "MarketScreen.jsx",
       "type": "module",
-      "sizeBytes": 19356,
-      "lineCount": 411,
+      "sizeBytes": 10682,
+      "lineCount": 225,
       "imports": [
         "react",
-        "react-router-dom",
-        "../../api/market",
-        "../../api/scouting",
         "lucide-react",
         "sonner",
-        "../../context/GameContext"
+        "../../api/market",
+        "../../api/scouting",
+        "../../api/supabase",
+        "../../context/GameContext",
+        "../../lib/format",
+        "../../domain/squad",
+        "../../domain/market",
+        "../../components/ui",
+        "./OfferModal",
+        "../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/features/market/OfferModal.jsx",
+      "label": "OfferModal.jsx",
+      "type": "module",
+      "sizeBytes": 2358,
+      "lineCount": 55,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/format",
+        "../../domain/market",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 22002,
-      "lineCount": 525,
+      "sizeBytes": 23700,
+      "lineCount": 556,
       "imports": [
         "react",
         "react-router-dom",
@@ -1107,36 +1591,57 @@
         "../../api/matchEngine",
         "../../api/supabase",
         "lucide-react",
-        "sonner"
+        "sonner",
+        "../../domain/fixtureStatus",
+        "../../domain/matchSquad"
       ]
     },
     {
       "id": "src/features/match/PostMatchScreen.jsx",
       "label": "PostMatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 28714,
-      "lineCount": 589,
+      "sizeBytes": 28434,
+      "lineCount": 593,
       "imports": [
         "react",
         "react-router-dom",
         "../../api/postMatch",
         "../../api/press",
         "lucide-react",
-        "sonner"
+        "sonner",
+        "../../components/ui",
+        "../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/features/more/MoreScreen.jsx",
+      "label": "MoreScreen.jsx",
+      "type": "module",
+      "sizeBytes": 1918,
+      "lineCount": 40,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "../../components/ui",
+        "../../components/layout/navigation"
       ]
     },
     {
       "id": "src/features/season/SeasonCloseModal.jsx",
       "label": "SeasonCloseModal.jsx",
       "type": "module",
-      "sizeBytes": 8552,
-      "lineCount": 184,
+      "sizeBytes": 5221,
+      "lineCount": 105,
       "imports": [
         "react",
         "lucide-react",
+        "sonner",
         "../../api/seasonClose",
         "../../context/GameContext",
-        "sonner"
+        "../../lib/format",
+        "../../components/ui",
+        "../../lib/errors"
       ]
     },
     {
@@ -1154,94 +1659,199 @@
       "id": "src/features/squad/ContractRenewalModal.jsx",
       "label": "ContractRenewalModal.jsx",
       "type": "module",
-      "sizeBytes": 14840,
-      "lineCount": 346,
+      "sizeBytes": 8938,
+      "lineCount": 199,
       "imports": [
         "react",
         "lucide-react",
+        "sonner",
         "../../api/contracts",
         "../../api/agents",
+        "../../lib/format",
+        "../../components/ui",
         "./AgentProfileCard",
-        "sonner"
+        "../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/features/squad/CounterOfferModal.jsx",
+      "label": "CounterOfferModal.jsx",
+      "type": "module",
+      "sizeBytes": 2482,
+      "lineCount": 62,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/format",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/squad/MentorshipModal.jsx",
       "label": "MentorshipModal.jsx",
       "type": "module",
-      "sizeBytes": 9343,
-      "lineCount": 213,
+      "sizeBytes": 6541,
+      "lineCount": 149,
       "imports": [
         "react",
         "lucide-react",
+        "sonner",
         "../../api/personalities",
-        "sonner"
+        "../../components/ui",
+        "lucide-react",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/squad/PlayerEvolutionModal.jsx",
       "label": "PlayerEvolutionModal.jsx",
       "type": "module",
-      "sizeBytes": 12976,
-      "lineCount": 269,
+      "sizeBytes": 8222,
+      "lineCount": 160,
       "imports": [
         "react",
         "lucide-react",
+        "sonner",
         "../../api/playerEvolution",
-        "sonner"
+        "../../components/ui"
+      ]
+    },
+    {
+      "id": "src/features/squad/SellPlayerModal.jsx",
+      "label": "SellPlayerModal.jsx",
+      "type": "module",
+      "sizeBytes": 2303,
+      "lineCount": 53,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/format",
+        "../../components/ui"
       ]
     },
     {
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 42012,
-      "lineCount": 859,
+      "sizeBytes": 22816,
+      "lineCount": 437,
       "imports": [
         "react",
-        "react-router-dom",
-        "../../api/player",
-        "../../api/contracts",
         "lucide-react",
         "sonner",
+        "../../api/player",
+        "../../api/contracts",
+        "../../api/personalities",
         "../../context/GameContext",
         "../../utils/cache",
+        "../../lib/format",
+        "../../domain/squad",
+        "../../components/ui",
         "./ContractRenewalModal",
         "./MentorshipModal",
         "./PlayerEvolutionModal",
-        "../../api/personalities"
+        "./SellPlayerModal",
+        "./CounterOfferModal",
+        "../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/features/tactics/Pitch.jsx",
+      "label": "Pitch.jsx",
+      "type": "module",
+      "sizeBytes": 5886,
+      "lineCount": 128,
+      "imports": [
+        "react",
+        "motion/react",
+        "../../lib/utils",
+        "../../domain/formations",
+        "../../api/tactics"
       ]
     },
     {
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 16083,
-      "lineCount": 391,
+      "sizeBytes": 17332,
+      "lineCount": 360,
       "imports": [
         "react",
-        "react-router-dom",
         "lucide-react",
         "sonner",
         "../../context/GameContext",
         "../../api/tactics",
-        "../../api/player"
+        "../../api/player",
+        "../../domain/formations",
+        "../../components/ui",
+        "../../lib/utils",
+        "./Pitch",
+        "../../lib/errors"
       ]
     },
     {
       "id": "src/features/training/TrainingScreen.jsx",
       "label": "TrainingScreen.jsx",
       "type": "module",
-      "sizeBytes": 19662,
-      "lineCount": 422,
+      "sizeBytes": 13167,
+      "lineCount": 256,
       "imports": [
         "react",
-        "react-router-dom",
         "lucide-react",
         "sonner",
         "../../context/GameContext",
         "../../api/training",
-        "../../api/supabase"
+        "../../api/supabase",
+        "../../domain/training",
+        "../../components/ui",
+        "../../lib/utils",
+        "../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/hooks/useAsyncClick.js",
+      "label": "useAsyncClick.js",
+      "type": "module",
+      "sizeBytes": 1313,
+      "lineCount": 40,
+      "imports": [
+        "react"
+      ]
+    },
+    {
+      "id": "src/hooks/useMediaQuery.js",
+      "label": "useMediaQuery.js",
+      "type": "module",
+      "sizeBytes": 903,
+      "lineCount": 22,
+      "imports": [
+        "react"
+      ]
+    },
+    {
+      "id": "src/lib/errors.js",
+      "label": "errors.js",
+      "type": "module",
+      "sizeBytes": 1922,
+      "lineCount": 35,
+      "imports": []
+    },
+    {
+      "id": "src/lib/format.js",
+      "label": "format.js",
+      "type": "module",
+      "sizeBytes": 1231,
+      "lineCount": 32,
+      "imports": []
+    },
+    {
+      "id": "src/lib/queryClient.js",
+      "label": "queryClient.js",
+      "type": "module",
+      "sizeBytes": 730,
+      "lineCount": 19,
+      "imports": [
+        "@tanstack/react-query"
       ]
     },
     {
@@ -1282,9 +1892,677 @@
       "id": "src/utils/cache.js",
       "label": "cache.js",
       "type": "module",
-      "sizeBytes": 2564,
-      "lineCount": 98,
+      "sizeBytes": 2788,
+      "lineCount": 78,
+      "imports": [
+        "../lib/queryClient"
+      ]
+    },
+    {
+      "id": "src/utils/ensureRow.js",
+      "label": "ensureRow.js",
+      "type": "module",
+      "sizeBytes": 684,
+      "lineCount": 19,
       "imports": []
+    },
+    {
+      "id": "tests/api/calendarReconcile.test.js",
+      "label": "calendarReconcile.test.js",
+      "type": "test",
+      "sizeBytes": 2189,
+      "lineCount": 52,
+      "imports": [
+        "../../src/api/calendar"
+      ]
+    },
+    {
+      "id": "tests/api/competition-sim.test.js",
+      "label": "competition-sim.test.js",
+      "type": "test",
+      "sizeBytes": 2871,
+      "lineCount": 54,
+      "imports": [
+        "../../src/api/competition"
+      ]
+    },
+    {
+      "id": "tests/api/leagueIsolation.test.js",
+      "label": "leagueIsolation.test.js",
+      "type": "test",
+      "sizeBytes": 2991,
+      "lineCount": 64,
+      "imports": [
+        "../../src/api/competition",
+        "../../src/api/market"
+      ]
+    },
+    {
+      "id": "tests/api/levels-competition.test.js",
+      "label": "levels-competition.test.js",
+      "type": "test",
+      "sizeBytes": 1246,
+      "lineCount": 34,
+      "imports": [
+        "../../src/api/levels",
+        "../../src/api/competition"
+      ]
+    },
+    {
+      "id": "tests/api/lockerRoomMeeting.test.js",
+      "label": "lockerRoomMeeting.test.js",
+      "type": "test",
+      "sizeBytes": 2817,
+      "lineCount": 52,
+      "imports": [
+        "../../src/api/lockerRoom",
+        "../../src/domain/gameWeek"
+      ]
+    },
+    {
+      "id": "tests/api/matchEngine.test.js",
+      "label": "matchEngine.test.js",
+      "type": "test",
+      "sizeBytes": 2075,
+      "lineCount": 45,
+      "imports": [
+        "../../src/api/matchEngine"
+      ]
+    },
+    {
+      "id": "tests/api/milestones.test.js",
+      "label": "milestones.test.js",
+      "type": "test",
+      "sizeBytes": 2295,
+      "lineCount": 49,
+      "imports": [
+        "../../src/api/clubHistory"
+      ]
+    },
+    {
+      "id": "tests/api/nationalMatchPerformance.test.js",
+      "label": "nationalMatchPerformance.test.js",
+      "type": "test",
+      "sizeBytes": 2379,
+      "lineCount": 42,
+      "imports": [
+        "../../src/api/nationalTeam"
+      ]
+    },
+    {
+      "id": "tests/api/postMatch-aggravation.test.js",
+      "label": "postMatch-aggravation.test.js",
+      "type": "test",
+      "sizeBytes": 1816,
+      "lineCount": 47,
+      "imports": [
+        "../../src/api/postMatch"
+      ]
+    },
+    {
+      "id": "tests/api/postMatch.test.js",
+      "label": "postMatch.test.js",
+      "type": "test",
+      "sizeBytes": 3332,
+      "lineCount": 68,
+      "imports": [
+        "../../src/api/postMatch"
+      ]
+    },
+    {
+      "id": "tests/api/postMatchCache.test.js",
+      "label": "postMatchCache.test.js",
+      "type": "test",
+      "sizeBytes": 1695,
+      "lineCount": 37,
+      "imports": [
+        "../../src/api/postMatch",
+        "../../src/utils/cache"
+      ]
+    },
+    {
+      "id": "tests/api/postMatchParticipants.test.js",
+      "label": "postMatchParticipants.test.js",
+      "type": "test",
+      "sizeBytes": 2402,
+      "lineCount": 51,
+      "imports": [
+        "../../src/api/postMatch",
+        "../../src/api/postMatch"
+      ]
+    },
+    {
+      "id": "tests/api/scouting.test.js",
+      "label": "scouting.test.js",
+      "type": "test",
+      "sizeBytes": 2530,
+      "lineCount": 53,
+      "imports": [
+        "../../src/api/scouting"
+      ]
+    },
+    {
+      "id": "tests/api/youthProspect.test.js",
+      "label": "youthProspect.test.js",
+      "type": "test",
+      "sizeBytes": 2058,
+      "lineCount": 32,
+      "imports": [
+        "../../src/api/player"
+      ]
+    },
+    {
+      "id": "tests/domain/calendarView.test.js",
+      "label": "calendarView.test.js",
+      "type": "test",
+      "sizeBytes": 1515,
+      "lineCount": 29,
+      "imports": [
+        "../../src/domain/calendarView"
+      ]
+    },
+    {
+      "id": "tests/domain/clubIdentity.test.js",
+      "label": "clubIdentity.test.js",
+      "type": "test",
+      "sizeBytes": 1079,
+      "lineCount": 20,
+      "imports": [
+        "../../src/domain/clubIdentity"
+      ]
+    },
+    {
+      "id": "tests/domain/contracts.test.js",
+      "label": "contracts.test.js",
+      "type": "test",
+      "sizeBytes": 2067,
+      "lineCount": 46,
+      "imports": [
+        "../../src/domain/contracts"
+      ]
+    },
+    {
+      "id": "tests/domain/cupMatch.test.js",
+      "label": "cupMatch.test.js",
+      "type": "test",
+      "sizeBytes": 1347,
+      "lineCount": 33,
+      "imports": [
+        "../../src/domain/cupMatch"
+      ]
+    },
+    {
+      "id": "tests/domain/cupTournament.test.js",
+      "label": "cupTournament.test.js",
+      "type": "test",
+      "sizeBytes": 5241,
+      "lineCount": 82,
+      "imports": [
+        "../../src/domain/cupTournament"
+      ]
+    },
+    {
+      "id": "tests/domain/errors.test.js",
+      "label": "errors.test.js",
+      "type": "test",
+      "sizeBytes": 1816,
+      "lineCount": 27,
+      "imports": [
+        "../../src/lib/errors"
+      ]
+    },
+    {
+      "id": "tests/domain/fixtureStatus.test.js",
+      "label": "fixtureStatus.test.js",
+      "type": "test",
+      "sizeBytes": 1168,
+      "lineCount": 26,
+      "imports": [
+        "../../src/domain/fixtureStatus"
+      ]
+    },
+    {
+      "id": "tests/domain/formations.test.js",
+      "label": "formations.test.js",
+      "type": "test",
+      "sizeBytes": 4396,
+      "lineCount": 89,
+      "imports": [
+        "../../src/api/tactics",
+        "../../src/domain/formations"
+      ]
+    },
+    {
+      "id": "tests/domain/managerBuild.test.js",
+      "label": "managerBuild.test.js",
+      "type": "test",
+      "sizeBytes": 1417,
+      "lineCount": 28,
+      "imports": [
+        "../../src/domain/managerBuild"
+      ]
+    },
+    {
+      "id": "tests/domain/market.test.js",
+      "label": "market.test.js",
+      "type": "test",
+      "sizeBytes": 2806,
+      "lineCount": 49,
+      "imports": [
+        "../../src/domain/market"
+      ]
+    },
+    {
+      "id": "tests/domain/matchSquad.test.js",
+      "label": "matchSquad.test.js",
+      "type": "test",
+      "sizeBytes": 3538,
+      "lineCount": 78,
+      "imports": [
+        "../../src/domain/matchSquad"
+      ]
+    },
+    {
+      "id": "tests/domain/squad.test.js",
+      "label": "squad.test.js",
+      "type": "test",
+      "sizeBytes": 3417,
+      "lineCount": 71,
+      "imports": [
+        "../../src/domain/squad"
+      ]
+    },
+    {
+      "id": "tests/setup.js",
+      "label": "setup.js",
+      "type": "test",
+      "sizeBytes": 471,
+      "lineCount": 16,
+      "imports": [
+        "@testing-library/jest-dom/vitest"
+      ]
+    },
+    {
+      "id": "tests/static/api-calls.test.js",
+      "label": "api-calls.test.js",
+      "type": "test",
+      "sizeBytes": 1073,
+      "lineCount": 25,
+      "imports": [
+        "node:fs",
+        "node:path"
+      ]
+    },
+    {
+      "id": "tests/static/copy.test.js",
+      "label": "copy.test.js",
+      "type": "test",
+      "sizeBytes": 2078,
+      "lineCount": 44,
+      "imports": [
+        "node:fs",
+        "node:path",
+        "../../scripts/copy-rules.cjs"
+      ]
+    },
+    {
+      "id": "tests/static/duplicate-methods.test.js",
+      "label": "duplicate-methods.test.js",
+      "type": "test",
+      "sizeBytes": 1057,
+      "lineCount": 24,
+      "imports": [
+        "node:fs",
+        "node:path"
+      ]
+    },
+    {
+      "id": "tests/static/infirmary-columns.test.js",
+      "label": "infirmary-columns.test.js",
+      "type": "test",
+      "sizeBytes": 652,
+      "lineCount": 17,
+      "imports": [
+        "node:fs"
+      ]
+    },
+    {
+      "id": "tests/static/syntax.test.js",
+      "label": "syntax.test.js",
+      "type": "test",
+      "sizeBytes": 858,
+      "lineCount": 21,
+      "imports": [
+        "node:fs",
+        "node:path",
+        "vite"
+      ]
+    },
+    {
+      "id": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "label": "achievementsAndHallOfFame.test.jsx",
+      "type": "test",
+      "sizeBytes": 5633,
+      "lineCount": 96,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/domain/achievements",
+        "../../src/domain/hallOfFame",
+        "../../src/features/career/AchievementsScreen",
+        "../../src/features/manager/HallOfFameScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/actionSheet.test.jsx",
+      "label": "actionSheet.test.jsx",
+      "type": "test",
+      "sizeBytes": 2148,
+      "lineCount": 41,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "../../src/components/ActionSheet"
+      ]
+    },
+    {
+      "id": "tests/ui/appShell.test.jsx",
+      "label": "appShell.test.jsx",
+      "type": "test",
+      "sizeBytes": 3654,
+      "lineCount": 80,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "react-router-dom",
+        "../../src/components/layout/AppShell",
+        "../../src/features/more/MoreScreen",
+        "../../src/components/layout/navigation"
+      ]
+    },
+    {
+      "id": "tests/ui/asyncButton.test.jsx",
+      "label": "asyncButton.test.jsx",
+      "type": "test",
+      "sizeBytes": 3053,
+      "lineCount": 71,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "../../src/components/ui"
+      ]
+    },
+    {
+      "id": "tests/ui/authScreen.test.jsx",
+      "label": "authScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 4317,
+      "lineCount": 80,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/auth/AuthScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/calendarScreen.test.jsx",
+      "label": "calendarScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 3389,
+      "lineCount": 66,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/calendar/CalendarScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/clubScreen.test.jsx",
+      "label": "clubScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 4577,
+      "lineCount": 81,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/club/screens/ClubScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/financesScreen.test.jsx",
+      "label": "financesScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 3361,
+      "lineCount": 66,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/finances/FinancesScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/managerCareerScreen.test.jsx",
+      "label": "managerCareerScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 4454,
+      "lineCount": 80,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/manager/ManagerCareerScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/marketScreen.test.jsx",
+      "label": "marketScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 4777,
+      "lineCount": 92,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/market/MarketScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/modals-squad.test.jsx",
+      "label": "modals-squad.test.jsx",
+      "type": "test",
+      "sizeBytes": 4271,
+      "lineCount": 79,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "../../src/features/squad/ContractRenewalModal",
+        "../../src/features/squad/PlayerEvolutionModal"
+      ]
+    },
+    {
+      "id": "tests/ui/modals.test.jsx",
+      "label": "modals.test.jsx",
+      "type": "test",
+      "sizeBytes": 8169,
+      "lineCount": 142,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "../../src/features/career/JobOfferBottomSheet",
+        "../../src/features/career/ReputationHistoryModal",
+        "../../src/features/squad/MentorshipModal",
+        "../../src/features/competition/LeaguePyramidModal",
+        "../../src/features/club/screens/StaffManagementModal",
+        "../../src/features/club/screens/YouthAcademyModal",
+        "../../src/features/club/screens/PressRoomModal"
+      ]
+    },
+    {
+      "id": "tests/ui/nationalAndCupScreens.test.jsx",
+      "label": "nationalAndCupScreens.test.jsx",
+      "type": "test",
+      "sizeBytes": 7069,
+      "lineCount": 117,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/manager/NationalTeamScreen",
+        "../../src/features/competition/InternationalCupScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/pitch.test.jsx",
+      "label": "pitch.test.jsx",
+      "type": "test",
+      "sizeBytes": 2894,
+      "lineCount": 48,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "../../src/features/tactics/Pitch",
+        "../../src/api/tactics"
+      ]
+    },
+    {
+      "id": "tests/ui/responsiveOverlay.test.jsx",
+      "label": "responsiveOverlay.test.jsx",
+      "type": "test",
+      "sizeBytes": 4106,
+      "lineCount": 102,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "../../src/components/ui"
+      ]
+    },
+    {
+      "id": "tests/ui/squadScreen.test.jsx",
+      "label": "squadScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 7398,
+      "lineCount": 133,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/squad/SquadScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/standingsScreen.test.jsx",
+      "label": "standingsScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 2875,
+      "lineCount": 55,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/domain/standings",
+        "../../src/features/competition/StandingsScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/trainingScreen.test.jsx",
+      "label": "trainingScreen.test.jsx",
+      "type": "test",
+      "sizeBytes": 3350,
+      "lineCount": 66,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/training/TrainingScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/ui.test.jsx",
+      "label": "ui.test.jsx",
+      "type": "test",
+      "sizeBytes": 6123,
+      "lineCount": 136,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/components/ui"
+      ]
+    },
+    {
+      "id": "tests/ui/wizards.test.jsx",
+      "label": "wizards.test.jsx",
+      "type": "test",
+      "sizeBytes": 6073,
+      "lineCount": 96,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "react-router-dom",
+        "../../src/features/manager/CreateManagerWizard",
+        "../../src/features/club/CreateClubWizard"
+      ]
+    },
+    {
+      "id": "tests/utils/cache.test.js",
+      "label": "cache.test.js",
+      "type": "test",
+      "sizeBytes": 2330,
+      "lineCount": 58,
+      "imports": [
+        "../../src/utils/cache"
+      ]
+    },
+    {
+      "id": "tests/utils/ensureRow.test.js",
+      "label": "ensureRow.test.js",
+      "type": "test",
+      "sizeBytes": 1529,
+      "lineCount": 41,
+      "imports": [
+        "../../src/utils/ensureRow"
+      ]
+    },
+    {
+      "id": "tests/utils/format.test.js",
+      "label": "format.test.js",
+      "type": "test",
+      "sizeBytes": 1240,
+      "lineCount": 32,
+      "imports": [
+        "../../src/lib/format"
+      ]
+    },
+    {
+      "id": "task:ci-auto-merge-retry",
+      "label": "ci-auto-merge-retry: Auto-merge resistente a pushes concurrentes",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:f2-1-block-a-fundamentals",
@@ -1411,6 +2689,216 @@
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
+    },
+    {
+      "id": "task:f3-b1-retirement-dynasty-guard",
+      "label": "f3-b1-retirement-dynasty-guard: Guard de retiro: obligar a iniciar nueva dinastia y bloquear volver atras",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f3-b2-fixture-status-unification",
+      "label": "f3-b2-fixture-status-unification: Unificar estados de fixture y habilitar el boton de jugar partido",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f3-b3-contract-expiry-alert",
+      "label": "f3-b3-contract-expiry-alert: Alerta de contratos por vencer calculada por fecha, no por anos restantes",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f3-b4-weekly-events-call",
+      "label": "f3-b4-weekly-events-call: Corregir llamada a eventsApi inexistente al avanzar semana",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f3-b5-schema-drift-round2",
+      "label": "f3-b5-schema-drift-round2: Ronda 2 de deriva codigo-esquema: columnas faltantes, uuid de rivales, upserts de inicializacion",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f3-p1-match-squad-rule",
+      "label": "f3-p1-match-squad-rule: Jugar con plantel incompleto: juveniles y lesionados con penalizacion",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p1-postmatch-idempotency",
+      "label": "f3-p1-postmatch-idempotency: Post-partido idempotente: reclamo por fixture, sin lesiones duplicadas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f3-p1-query-client",
+      "label": "f3-p1-query-client: TanStack Query como motor de cache (adaptador sobre queryCache)",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p1-test-infra",
+      "label": "f3-p1-test-infra: Infraestructura de tests: Vitest, Testing Library y gate en CI",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p1-weekly-cascade",
+      "label": "f3-p1-weekly-cascade: Ciclo semanal: simular fechas de IA y reemplazar N+1 por RPC en lote",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:f3-p2-achievements-hof-screens",
+      "label": "f3-p2-achievements-hof-screens: Pantallas Logros y Salón de la Fama rediseñadas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-app-shell",
+      "label": "f3-p2-app-shell: AppShell: sidebar en desktop, barra inferior y pagina Mas en movil",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-auth-wizards",
+      "label": "f3-p2-auth-wizards: Auth y asistentes de creación rediseñados",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-calendar-screen",
+      "label": "f3-p2-calendar-screen: Pantalla Calendario rediseñada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-club-screen",
+      "label": "f3-p2-club-screen: Pantalla Club rediseñada y paneles internos sobre ResponsiveOverlay",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-creation-wizards",
+      "label": "f3-p2-creation-wizards: Asistentes de creacion de DT y club rediseñados",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-design-system",
+      "label": "f3-p2-design-system: Sistema de diseno: tokens, tipografia y componentes base",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-finances-screen",
+      "label": "f3-p2-finances-screen: Pantalla Finanzas rediseñada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-manager-career-screen",
+      "label": "f3-p2-manager-career-screen: Pantalla Carrera del DT rediseñada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-market-screen",
+      "label": "f3-p2-market-screen: Pantalla Mercado rediseñada con oferta en ResponsiveOverlay",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-modals-squad",
+      "label": "f3-p2-modals-squad: Modales del plantel a ResponsiveOverlay (contrato, mentoria, evolucion)",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-national-cup-screens",
+      "label": "f3-p2-national-cup-screens: Pantallas Selección Nacional y Copa Internacional rediseñadas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-remaining-legacy",
+      "label": "f3-p2-remaining-legacy: Cierre de Fase 2: Endgame, Partido, Post-partido y retiro de BottomNav",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-responsive-overlay",
+      "label": "f3-p2-responsive-overlay: ResponsiveOverlay: modal en escritorio, pagina completa en movil",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-squad-screen",
+      "label": "f3-p2-squad-screen: Pantalla Plantel rediseñada con paneles a ResponsiveOverlay",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-standings-screen",
+      "label": "f3-p2-standings-screen: Pantalla Tabla rediseñada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-tactics-pitch",
+      "label": "f3-p2-tactics-pitch: Pizarra tactica: cancha de 11 con animacion de formaciones",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-p2-training-screen",
+      "label": "f3-p2-training-screen: Pantalla Entrenamiento rediseñada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:f3-players-column-aliases",
+      "label": "f3-players-column-aliases: Corregir columnas inexistentes number y potential_rating en evolucion y retiros",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:feat-async-button-feedback",
+      "label": "feat-async-button-feedback: Botones con bloqueo y spinner automaticos en acciones asincronas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     },
     {
       "id": "task:feat-fase-01-auth-session",
@@ -1691,6 +3179,90 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:fix-cup-match-dates",
+      "label": "fix-cup-match-dates: Copa Internacional: llaves en fechas fijas del calendario",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-dashboard-stale-fixture",
+      "label": "fix-dashboard-stale-fixture: Inicio: no mostrar el partido ya jugado tras volver del post-partido",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-goals-scored",
+      "label": "fix-goals-scored: Sumar los goles de cada jugador al consolidar el partido",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-league-isolation",
+      "label": "fix-league-isolation: Aislar la liga por carrera: league_id en clubs, initializeLeague idempotente, Mercado y Tabla acotados",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-locker-room-performance",
+      "label": "fix-locker-room-performance: Reuniones y charlas del vestuario: rapidas y con feedback",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-manager-employment-state",
+      "label": "fix-manager-employment-state: Carrera del DT: no mostrar desempleado si el DT dirige un club",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-milestones-duplicates",
+      "label": "fix-milestones-duplicates: Hitos del club: sin duplicados al abrir la historia ni al apretar rapido",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-repo-hygiene",
+      "label": "fix-repo-hygiene: Higiene del repo: sacar el HAR de 18 MB y proteger archivos con secretos",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-scouting-column",
+      "label": "fix-scouting-column: Ojear: no escribir columnas inexistentes en scout_reports",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-ui-copy-and-errors",
+      "label": "fix-ui-copy-and-errors: Textos en castellano coloquial y errores amigables en toda la app",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:fix-youth-prospect-generator",
+      "label": "fix-youth-prospect-generator: Otear en la Academia: juvenil completo con todos los campos obligatorios",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:vercel-spa-rewrites",
+      "label": "vercel-spa-rewrites: Rewrites SPA en Vercel (404 en rutas profundas)",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     }
   ],
   "edges": [
@@ -1766,6 +3338,11 @@
     },
     {
       "from": "src/api/board.js",
+      "to": "../utils/ensureRow",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/board.js",
       "to": "../utils/cache",
       "relation": "depends_on"
     },
@@ -1777,6 +3354,16 @@
     {
       "from": "src/api/calendar.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/calendar.js",
+      "to": "../domain/fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/calendar.js",
+      "to": "../domain/gameWeek",
       "relation": "depends_on"
     },
     {
@@ -1815,6 +3402,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/clubFeatures.js",
+      "to": "./player",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/clubHistory.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -1827,6 +3419,11 @@
     {
       "from": "src/api/competition.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/competition.js",
+      "to": "../domain/fixtureStatus",
       "relation": "depends_on"
     },
     {
@@ -1855,6 +3452,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/contracts.js",
+      "to": "../domain/contracts",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/dashboard.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -1872,6 +3474,16 @@
     {
       "from": "src/api/dashboard.js",
       "to": "./events",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/dashboard.js",
+      "to": "../domain/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/dashboard.js",
+      "to": "../domain/fixtureStatus",
       "relation": "depends_on"
     },
     {
@@ -1926,6 +3538,11 @@
     },
     {
       "from": "src/api/fanbase.js",
+      "to": "../utils/ensureRow",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/fanbase.js",
       "to": "../utils/cache",
       "relation": "depends_on"
     },
@@ -1972,6 +3589,16 @@
     {
       "from": "src/api/internationalCup.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/internationalCup.js",
+      "to": "../domain/cupMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/internationalCup.js",
+      "to": "../domain/cupTournament",
       "relation": "depends_on"
     },
     {
@@ -2055,6 +3682,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/matchEngine.js",
+      "to": "../domain/fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/morale.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -2105,6 +3737,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/player.js",
+      "to": "../domain/contracts",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/playerEvolution.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -2142,6 +3779,16 @@
     {
       "from": "src/api/postMatch.js",
       "to": "./achievements",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "../domain/matchSquad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -2195,6 +3842,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/season.js",
+      "to": "../domain/fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/seasonClose.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -2215,8 +3867,18 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/seasonClose.js",
+      "to": "../domain/contracts",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/stadium.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/stadium.js",
+      "to": "../utils/ensureRow",
       "relation": "depends_on"
     },
     {
@@ -2277,6 +3939,16 @@
     {
       "from": "src/App.jsx",
       "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "@tanstack/react-query",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./lib/queryClient",
       "relation": "depends_on"
     },
     {
@@ -2401,12 +4073,32 @@
     },
     {
       "from": "src/App.jsx",
-      "to": "./components/BottomNav",
+      "to": "./components/layout/AppShell",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/more/MoreScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./components/RequireCareer",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/App.jsx",
+      "to": "./features/design/DesignSystemScreen",
       "relation": "depends_on"
     },
     {
       "from": "src/components/ActionSheet.jsx",
       "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ActionSheet.jsx",
+      "to": "@radix-ui/react-dialog",
       "relation": "depends_on"
     },
     {
@@ -2415,17 +4107,52 @@
       "relation": "depends_on"
     },
     {
-      "from": "src/components/BottomNav.jsx",
+      "from": "src/components/ActionSheet.jsx",
+      "to": "./ui/button",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ActionSheet.jsx",
+      "to": "../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/AppShell.jsx",
       "to": "react",
       "relation": "depends_on"
     },
     {
-      "from": "src/components/BottomNav.jsx",
+      "from": "src/components/layout/AppShell.jsx",
       "to": "react-router-dom",
       "relation": "depends_on"
     },
     {
-      "from": "src/components/BottomNav.jsx",
+      "from": "src/components/layout/AppShell.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/AppShell.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/AppShell.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/AppShell.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/AppShell.jsx",
+      "to": "./navigation",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/navigation.js",
       "to": "lucide-react",
       "relation": "depends_on"
     },
@@ -2437,6 +4164,261 @@
     {
       "from": "src/components/ReloadPrompt.jsx",
       "to": "virtual:pwa-register/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/RequireCareer.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/RequireCareer.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/RequireCareer.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/RequireCareer.jsx",
+      "to": "../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/badge.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/badge.jsx",
+      "to": "class-variance-authority",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/badge.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/button.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/button.jsx",
+      "to": "@radix-ui/react-slot",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/button.jsx",
+      "to": "class-variance-authority",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/button.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/button.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/button.jsx",
+      "to": "../../hooks/useAsyncClick",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/card.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/card.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/choice-chips.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/choice-chips.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/dialog.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/dialog.jsx",
+      "to": "@radix-ui/react-dialog",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/dialog.jsx",
+      "to": "class-variance-authority",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/dialog.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/dialog.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/field.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/field.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/misc.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/misc.jsx",
+      "to": "@radix-ui/react-switch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/misc.jsx",
+      "to": "@radix-ui/react-tooltip",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/misc.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/page-header.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/page-header.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/page-header.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/page-header.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/progress.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/progress.jsx",
+      "to": "@radix-ui/react-progress",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/progress.jsx",
+      "to": "class-variance-authority",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/progress.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/responsive-overlay.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/responsive-overlay.jsx",
+      "to": "./dialog",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/responsive-overlay.jsx",
+      "to": "../../hooks/useMediaQuery",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/segmented.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/segmented.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/stat.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/stat.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/stat.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/tabs.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/tabs.jsx",
+      "to": "@radix-ui/react-tabs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/tabs.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/wizard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/wizard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/wizard.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/wizard.jsx",
+      "to": "./button",
       "relation": "depends_on"
     },
     {
@@ -2461,6 +4443,11 @@
     },
     {
       "from": "src/context/GameContext.jsx",
+      "to": "../api/supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/context/GameContext.jsx",
       "to": "../api/club",
       "relation": "depends_on"
     },
@@ -2475,6 +4462,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/domain/calendarView.js",
+      "to": "./fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/cupTournament.js",
+      "to": "./fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/formations.js",
+      "to": "../api/tactics",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/market.js",
+      "to": "./squad",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/auth/AuthScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2486,17 +4493,32 @@
     },
     {
       "from": "src/features/auth/AuthScreen.jsx",
-      "to": "../../api/auth",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/auth/AuthScreen.jsx",
       "to": "sonner",
       "relation": "depends_on"
     },
     {
       "from": "src/features/auth/AuthScreen.jsx",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/auth/AuthScreen.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -2546,6 +4568,11 @@
     },
     {
       "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
       "to": "../../context/GameContext",
       "relation": "depends_on"
     },
@@ -2556,32 +4583,47 @@
     },
     {
       "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../api/gameLoop",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
       "to": "../../utils/cache",
       "relation": "depends_on"
     },
     {
       "from": "src/features/calendar/CalendarScreen.jsx",
-      "to": "sonner",
+      "to": "../../domain/fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../domain/calendarView",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/calendar/CalendarScreen.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
       "from": "src/features/career/AchievementsScreen.jsx",
       "to": "react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/career/AchievementsScreen.jsx",
-      "to": "react-router-dom",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/career/AchievementsScreen.jsx",
-      "to": "../../context/GameContext",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/career/AchievementsScreen.jsx",
-      "to": "../../api/achievements",
       "relation": "depends_on"
     },
     {
@@ -2596,7 +4638,27 @@
     },
     {
       "from": "src/features/career/AchievementsScreen.jsx",
-      "to": "../../components/BottomNav",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../api/achievements",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../domain/achievements",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/AchievementsScreen.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -2631,7 +4693,12 @@
     },
     {
       "from": "src/features/career/EndgameScreen.jsx",
-      "to": "../../components/BottomNav",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/EndgameScreen.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -2645,8 +4712,23 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/career/JobOfferBottomSheet.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/JobOfferBottomSheet.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/career/ReputationHistoryModal.jsx",
       "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/ReputationHistoryModal.jsx",
+      "to": "lucide-react",
       "relation": "depends_on"
     },
     {
@@ -2656,7 +4738,12 @@
     },
     {
       "from": "src/features/career/ReputationHistoryModal.jsx",
-      "to": "lucide-react",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/career/ReputationHistoryModal.jsx",
+      "to": "../../lib/utils",
       "relation": "depends_on"
     },
     {
@@ -2667,6 +4754,16 @@
     {
       "from": "src/features/club/CreateClubWizard.jsx",
       "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "lucide-react",
       "relation": "depends_on"
     },
     {
@@ -2686,12 +4783,32 @@
     },
     {
       "from": "src/features/club/CreateClubWizard.jsx",
-      "to": "sonner",
+      "to": "../../context/GameContext",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/CreateClubWizard.jsx",
-      "to": "lucide-react",
+      "to": "../../domain/clubIdentity",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -2712,6 +4829,16 @@
     {
       "from": "src/features/club/screens/BoardManagementTab.jsx",
       "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/BoardManagementTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/BoardManagementTab.jsx",
+      "to": "../../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -2746,7 +4873,12 @@
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "react-router-dom",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -2771,22 +4903,22 @@
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "lucide-react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "sonner",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "../../../context/GameContext",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "../../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -2840,6 +4972,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/FanbaseManagementTab.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2880,6 +5017,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/IdolsLegendsTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/IdolsLegendsTab.jsx",
+      "to": "../../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/InfirmaryTab.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2905,6 +5052,21 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/InfirmaryTab.jsx",
+      "to": "../../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/LockerRoomTab.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2925,6 +5087,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/LockerRoomTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/LockerRoomTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/LockerRoomTab.jsx",
+      "to": "../../../domain/gameWeek",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/LockerRoomTab.jsx",
+      "to": "../../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/PressRoomModal.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2936,12 +5118,17 @@
     },
     {
       "from": "src/features/club/screens/PressRoomModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/PressRoomModal.jsx",
       "to": "../../../api/press",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/PressRoomModal.jsx",
-      "to": "sonner",
+      "to": "../../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -2965,6 +5152,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/StadiumManagementTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StadiumManagementTab.jsx",
+      "to": "../../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/StaffManagementModal.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -2972,6 +5169,11 @@
     {
       "from": "src/features/club/screens/StaffManagementModal.jsx",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -2981,12 +5183,22 @@
     },
     {
       "from": "src/features/club/screens/StaffManagementModal.jsx",
-      "to": "sonner",
+      "to": "../../../context/GameContext",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/StaffManagementModal.jsx",
-      "to": "../../../context/GameContext",
+      "to": "../../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/StaffManagementModal.jsx",
+      "to": "../../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -3001,17 +5213,37 @@
     },
     {
       "from": "src/features/club/screens/YouthAcademyModal.jsx",
-      "to": "../../../api/academy",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/club/screens/YouthAcademyModal.jsx",
       "to": "sonner",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "../../../api/academy",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
       "to": "../../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "../../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "../../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/YouthAcademyModal.jsx",
+      "to": "../../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -3021,7 +5253,12 @@
     },
     {
       "from": "src/features/competition/InternationalCupScreen.jsx",
-      "to": "react-router-dom",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3036,17 +5273,27 @@
     },
     {
       "from": "src/features/competition/InternationalCupScreen.jsx",
-      "to": "lucide-react",
+      "to": "../../lib/format",
       "relation": "depends_on"
     },
     {
       "from": "src/features/competition/InternationalCupScreen.jsx",
-      "to": "sonner",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
       "from": "src/features/competition/InternationalCupScreen.jsx",
-      "to": "../../components/BottomNav",
+      "to": "../../domain/cupTournament",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/InternationalCupScreen.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3061,12 +5308,27 @@
     },
     {
       "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
       "to": "../../api/competitionTiers",
       "relation": "depends_on"
     },
     {
       "from": "src/features/competition/LeaguePyramidModal.jsx",
-      "to": "sonner",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "../../lib/utils",
       "relation": "depends_on"
     },
     {
@@ -3081,17 +5343,17 @@
     },
     {
       "from": "src/features/competition/StandingsScreen.jsx",
-      "to": "../../api/competition",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/competition/StandingsScreen.jsx",
       "to": "lucide-react",
       "relation": "depends_on"
     },
     {
       "from": "src/features/competition/StandingsScreen.jsx",
       "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../api/competition",
       "relation": "depends_on"
     },
     {
@@ -3106,7 +5368,27 @@
     },
     {
       "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../domain/standings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
       "to": "./LeaguePyramidModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -3117,6 +5399,16 @@
     {
       "from": "src/features/dashboard/Dashboard.jsx",
       "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3136,22 +5428,52 @@
     },
     {
       "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
       "to": "../../context/GameContext",
       "relation": "depends_on"
     },
     {
       "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "lucide-react",
+      "to": "../../domain/fixtureStatus",
       "relation": "depends_on"
     },
     {
       "from": "src/features/dashboard/Dashboard.jsx",
-      "to": "sonner",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
       "from": "src/features/dashboard/Dashboard.jsx",
       "to": "../season/SeasonCloseModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/design/DesignSystemScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/design/DesignSystemScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/design/DesignSystemScreen.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3161,7 +5483,12 @@
     },
     {
       "from": "src/features/finances/FinancesScreen.jsx",
-      "to": "react-router-dom",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3176,17 +5503,27 @@
     },
     {
       "from": "src/features/finances/FinancesScreen.jsx",
-      "to": "lucide-react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/finances/FinancesScreen.jsx",
-      "to": "sonner",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/finances/FinancesScreen.jsx",
       "to": "../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../domain/finances",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -3197,6 +5534,16 @@
     {
       "from": "src/features/manager/CreateManagerWizard.jsx",
       "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "lucide-react",
       "relation": "depends_on"
     },
     {
@@ -3211,12 +5558,22 @@
     },
     {
       "from": "src/features/manager/CreateManagerWizard.jsx",
-      "to": "sonner",
+      "to": "../../domain/managerBuild",
       "relation": "depends_on"
     },
     {
       "from": "src/features/manager/CreateManagerWizard.jsx",
-      "to": "lucide-react",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/CreateManagerWizard.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -3226,7 +5583,12 @@
     },
     {
       "from": "src/features/manager/HallOfFameScreen.jsx",
-      "to": "react-router-dom",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/HallOfFameScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3241,17 +5603,17 @@
     },
     {
       "from": "src/features/manager/HallOfFameScreen.jsx",
-      "to": "../../components/BottomNav",
+      "to": "../../domain/hallOfFame",
       "relation": "depends_on"
     },
     {
       "from": "src/features/manager/HallOfFameScreen.jsx",
-      "to": "lucide-react",
+      "to": "../../lib/utils",
       "relation": "depends_on"
     },
     {
       "from": "src/features/manager/HallOfFameScreen.jsx",
-      "to": "sonner",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3262,6 +5624,16 @@
     {
       "from": "src/features/manager/ManagerCareerScreen.jsx",
       "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3281,6 +5653,21 @@
     },
     {
       "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/ManagerCareerScreen.jsx",
       "to": "../career/JobOfferBottomSheet",
       "relation": "depends_on"
     },
@@ -3291,17 +5678,7 @@
     },
     {
       "from": "src/features/manager/ManagerCareerScreen.jsx",
-      "to": "lucide-react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/manager/ManagerCareerScreen.jsx",
-      "to": "sonner",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/manager/ManagerCareerScreen.jsx",
-      "to": "../../components/BottomNav",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -3311,7 +5688,12 @@
     },
     {
       "from": "src/features/manager/NationalTeamScreen.jsx",
-      "to": "react-router-dom",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3326,17 +5708,22 @@
     },
     {
       "from": "src/features/manager/NationalTeamScreen.jsx",
-      "to": "lucide-react",
+      "to": "../../lib/format",
       "relation": "depends_on"
     },
     {
       "from": "src/features/manager/NationalTeamScreen.jsx",
-      "to": "sonner",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
       "from": "src/features/manager/NationalTeamScreen.jsx",
-      "to": "../../components/BottomNav",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3346,7 +5733,12 @@
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
-      "to": "react-router-dom",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3361,17 +5753,67 @@
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
-      "to": "lucide-react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/market/MarketScreen.jsx",
-      "to": "sonner",
+      "to": "../../api/supabase",
       "relation": "depends_on"
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
       "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../domain/squad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../domain/market",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "./OfferModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/OfferModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/OfferModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/OfferModal.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/OfferModal.jsx",
+      "to": "../../domain/market",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/OfferModal.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3430,6 +5872,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../domain/fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../domain/matchSquad",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/match/PostMatchScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -3460,6 +5912,41 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "../../components/layout/navigation",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/season/SeasonCloseModal.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -3467,6 +5954,11 @@
     {
       "from": "src/features/season/SeasonCloseModal.jsx",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3481,27 +5973,42 @@
     },
     {
       "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/AgentProfileCard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/AgentProfileCard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
       "to": "sonner",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/AgentProfileCard.jsx",
-      "to": "react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/AgentProfileCard.jsx",
-      "to": "lucide-react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/ContractRenewalModal.jsx",
-      "to": "react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/ContractRenewalModal.jsx",
-      "to": "lucide-react",
       "relation": "depends_on"
     },
     {
@@ -3516,12 +6023,42 @@
     },
     {
       "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/ContractRenewalModal.jsx",
       "to": "./AgentProfileCard",
       "relation": "depends_on"
     },
     {
       "from": "src/features/squad/ContractRenewalModal.jsx",
-      "to": "sonner",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/CounterOfferModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/CounterOfferModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/CounterOfferModal.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/CounterOfferModal.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3532,6 +6069,11 @@
     {
       "from": "src/features/squad/MentorshipModal.jsx",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/MentorshipModal.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3541,7 +6083,17 @@
     },
     {
       "from": "src/features/squad/MentorshipModal.jsx",
-      "to": "sonner",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/MentorshipModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/MentorshipModal.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -3556,12 +6108,37 @@
     },
     {
       "from": "src/features/squad/PlayerEvolutionModal.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/PlayerEvolutionModal.jsx",
       "to": "../../api/playerEvolution",
       "relation": "depends_on"
     },
     {
       "from": "src/features/squad/PlayerEvolutionModal.jsx",
-      "to": "sonner",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SellPlayerModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SellPlayerModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SellPlayerModal.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SellPlayerModal.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3571,7 +6148,12 @@
     },
     {
       "from": "src/features/squad/SquadScreen.jsx",
-      "to": "react-router-dom",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "sonner",
       "relation": "depends_on"
     },
     {
@@ -3586,12 +6168,7 @@
     },
     {
       "from": "src/features/squad/SquadScreen.jsx",
-      "to": "lucide-react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/squad/SquadScreen.jsx",
-      "to": "sonner",
+      "to": "../../api/personalities",
       "relation": "depends_on"
     },
     {
@@ -3602,6 +6179,21 @@
     {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "../../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../domain/squad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -3621,17 +6213,47 @@
     },
     {
       "from": "src/features/squad/SquadScreen.jsx",
-      "to": "../../api/personalities",
+      "to": "./SellPlayerModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "./CounterOfferModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/Pitch.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/Pitch.jsx",
+      "to": "motion/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/Pitch.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/Pitch.jsx",
+      "to": "../../domain/formations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/Pitch.jsx",
+      "to": "../../api/tactics",
       "relation": "depends_on"
     },
     {
       "from": "src/features/tactics/TacticsScreen.jsx",
       "to": "react",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/tactics/TacticsScreen.jsx",
-      "to": "react-router-dom",
       "relation": "depends_on"
     },
     {
@@ -3660,13 +6282,33 @@
       "relation": "depends_on"
     },
     {
-      "from": "src/features/training/TrainingScreen.jsx",
-      "to": "react",
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../domain/formations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "./Pitch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
       "from": "src/features/training/TrainingScreen.jsx",
-      "to": "react-router-dom",
+      "to": "react",
       "relation": "depends_on"
     },
     {
@@ -3692,6 +6334,41 @@
     {
       "from": "src/features/training/TrainingScreen.jsx",
       "to": "../../api/supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "../../domain/training",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/training/TrainingScreen.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/hooks/useAsyncClick.js",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/hooks/useMediaQuery.js",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/lib/queryClient.js",
+      "to": "@tanstack/react-query",
       "relation": "depends_on"
     },
     {
@@ -3728,6 +6405,796 @@
       "from": "src/store.js",
       "to": "zustand",
       "relation": "depends_on"
+    },
+    {
+      "from": "src/utils/cache.js",
+      "to": "../lib/queryClient",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/calendarReconcile.test.js",
+      "to": "../../src/api/calendar",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/competition-sim.test.js",
+      "to": "../../src/api/competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/leagueIsolation.test.js",
+      "to": "../../src/api/competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/leagueIsolation.test.js",
+      "to": "../../src/api/market",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/levels-competition.test.js",
+      "to": "../../src/api/levels",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/levels-competition.test.js",
+      "to": "../../src/api/competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/lockerRoomMeeting.test.js",
+      "to": "../../src/api/lockerRoom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/lockerRoomMeeting.test.js",
+      "to": "../../src/domain/gameWeek",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/matchEngine.test.js",
+      "to": "../../src/api/matchEngine",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/milestones.test.js",
+      "to": "../../src/api/clubHistory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/nationalMatchPerformance.test.js",
+      "to": "../../src/api/nationalTeam",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/postMatch-aggravation.test.js",
+      "to": "../../src/api/postMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/postMatch.test.js",
+      "to": "../../src/api/postMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/postMatchCache.test.js",
+      "to": "../../src/api/postMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/postMatchCache.test.js",
+      "to": "../../src/utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/postMatchParticipants.test.js",
+      "to": "../../src/api/postMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/postMatchParticipants.test.js",
+      "to": "../../src/api/postMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/scouting.test.js",
+      "to": "../../src/api/scouting",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/youthProspect.test.js",
+      "to": "../../src/api/player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/calendarView.test.js",
+      "to": "../../src/domain/calendarView",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/clubIdentity.test.js",
+      "to": "../../src/domain/clubIdentity",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/contracts.test.js",
+      "to": "../../src/domain/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/cupMatch.test.js",
+      "to": "../../src/domain/cupMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/cupTournament.test.js",
+      "to": "../../src/domain/cupTournament",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/errors.test.js",
+      "to": "../../src/lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/fixtureStatus.test.js",
+      "to": "../../src/domain/fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/formations.test.js",
+      "to": "../../src/api/tactics",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/formations.test.js",
+      "to": "../../src/domain/formations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/managerBuild.test.js",
+      "to": "../../src/domain/managerBuild",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/market.test.js",
+      "to": "../../src/domain/market",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/matchSquad.test.js",
+      "to": "../../src/domain/matchSquad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/squad.test.js",
+      "to": "../../src/domain/squad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/setup.js",
+      "to": "@testing-library/jest-dom/vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/api-calls.test.js",
+      "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/api-calls.test.js",
+      "to": "node:path",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/copy.test.js",
+      "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/copy.test.js",
+      "to": "node:path",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/copy.test.js",
+      "to": "../../scripts/copy-rules.cjs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/duplicate-methods.test.js",
+      "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/duplicate-methods.test.js",
+      "to": "node:path",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/infirmary-columns.test.js",
+      "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/syntax.test.js",
+      "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/syntax.test.js",
+      "to": "node:path",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/syntax.test.js",
+      "to": "vite",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "../../src/domain/achievements",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "../../src/domain/hallOfFame",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "../../src/features/career/AchievementsScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/achievementsAndHallOfFame.test.jsx",
+      "to": "../../src/features/manager/HallOfFameScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/actionSheet.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/actionSheet.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/actionSheet.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/actionSheet.test.jsx",
+      "to": "../../src/components/ActionSheet",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/appShell.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/appShell.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/appShell.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/appShell.test.jsx",
+      "to": "../../src/components/layout/AppShell",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/appShell.test.jsx",
+      "to": "../../src/features/more/MoreScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/appShell.test.jsx",
+      "to": "../../src/components/layout/navigation",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/asyncButton.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/asyncButton.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/asyncButton.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/asyncButton.test.jsx",
+      "to": "../../src/components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authScreen.test.jsx",
+      "to": "../../src/features/auth/AuthScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/calendarScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/calendarScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/calendarScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/calendarScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/calendarScreen.test.jsx",
+      "to": "../../src/features/calendar/CalendarScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/clubScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/clubScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/clubScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/clubScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/clubScreen.test.jsx",
+      "to": "../../src/features/club/screens/ClubScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/financesScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/financesScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/financesScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/financesScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/financesScreen.test.jsx",
+      "to": "../../src/features/finances/FinancesScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/managerCareerScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/managerCareerScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/managerCareerScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/managerCareerScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/managerCareerScreen.test.jsx",
+      "to": "../../src/features/manager/ManagerCareerScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/marketScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/marketScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/marketScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/marketScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/marketScreen.test.jsx",
+      "to": "../../src/features/market/MarketScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals-squad.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals-squad.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals-squad.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals-squad.test.jsx",
+      "to": "../../src/features/squad/ContractRenewalModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals-squad.test.jsx",
+      "to": "../../src/features/squad/PlayerEvolutionModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "../../src/features/career/JobOfferBottomSheet",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "../../src/features/career/ReputationHistoryModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "../../src/features/squad/MentorshipModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "../../src/features/competition/LeaguePyramidModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "../../src/features/club/screens/StaffManagementModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "../../src/features/club/screens/YouthAcademyModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/modals.test.jsx",
+      "to": "../../src/features/club/screens/PressRoomModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/nationalAndCupScreens.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/nationalAndCupScreens.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/nationalAndCupScreens.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/nationalAndCupScreens.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/nationalAndCupScreens.test.jsx",
+      "to": "../../src/features/manager/NationalTeamScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/nationalAndCupScreens.test.jsx",
+      "to": "../../src/features/competition/InternationalCupScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pitch.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pitch.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pitch.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pitch.test.jsx",
+      "to": "../../src/features/tactics/Pitch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pitch.test.jsx",
+      "to": "../../src/api/tactics",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/responsiveOverlay.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/responsiveOverlay.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/responsiveOverlay.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/responsiveOverlay.test.jsx",
+      "to": "../../src/components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/squadScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/squadScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/squadScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/squadScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/squadScreen.test.jsx",
+      "to": "../../src/features/squad/SquadScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/standingsScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/standingsScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/standingsScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/standingsScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/standingsScreen.test.jsx",
+      "to": "../../src/domain/standings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/standingsScreen.test.jsx",
+      "to": "../../src/features/competition/StandingsScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/trainingScreen.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/trainingScreen.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/trainingScreen.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/trainingScreen.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/trainingScreen.test.jsx",
+      "to": "../../src/features/training/TrainingScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/ui.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/ui.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/ui.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/ui.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/ui.test.jsx",
+      "to": "../../src/components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/wizards.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/wizards.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/wizards.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/wizards.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/wizards.test.jsx",
+      "to": "../../src/features/manager/CreateManagerWizard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/wizards.test.jsx",
+      "to": "../../src/features/club/CreateClubWizard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/utils/cache.test.js",
+      "to": "../../src/utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/utils/ensureRow.test.js",
+      "to": "../../src/utils/ensureRow",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/utils/format.test.js",
+      "to": "../../src/lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "task:ci-auto-merge-retry",
+      "to": ".agents/workflow/tasks/ci-auto-merge-retry.yml",
+      "relation": "manifested_by"
     },
     {
       "from": "task:f2-1-block-a-fundamentals",
@@ -3817,6 +7284,156 @@
     {
       "from": "task:f2-scripts-env-credentials",
       "to": ".agents/workflow/tasks/f2-scripts-env-credentials.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-b1-retirement-dynasty-guard",
+      "to": ".agents/workflow/tasks/f3-b1-retirement-dynasty-guard.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-b2-fixture-status-unification",
+      "to": ".agents/workflow/tasks/f3-b2-fixture-status-unification.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-b3-contract-expiry-alert",
+      "to": ".agents/workflow/tasks/f3-b3-contract-expiry-alert.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-b4-weekly-events-call",
+      "to": ".agents/workflow/tasks/f3-b4-weekly-events-call.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-b5-schema-drift-round2",
+      "to": ".agents/workflow/tasks/f3-b5-schema-drift-round2.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p1-match-squad-rule",
+      "to": ".agents/workflow/tasks/f3-p1-match-squad-rule.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p1-postmatch-idempotency",
+      "to": ".agents/workflow/tasks/f3-p1-postmatch-idempotency.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p1-query-client",
+      "to": ".agents/workflow/tasks/f3-p1-query-client.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p1-test-infra",
+      "to": ".agents/workflow/tasks/f3-p1-test-infra.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p1-weekly-cascade",
+      "to": ".agents/workflow/tasks/f3-p1-weekly-cascade.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-achievements-hof-screens",
+      "to": ".agents/workflow/tasks/f3-p2-achievements-hof-screens.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-app-shell",
+      "to": ".agents/workflow/tasks/f3-p2-app-shell.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-auth-wizards",
+      "to": ".agents/workflow/tasks/f3-p2-auth-wizards.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-calendar-screen",
+      "to": ".agents/workflow/tasks/f3-p2-calendar-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-club-screen",
+      "to": ".agents/workflow/tasks/f3-p2-club-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-creation-wizards",
+      "to": ".agents/workflow/tasks/f3-p2-creation-wizards.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-design-system",
+      "to": ".agents/workflow/tasks/f3-p2-design-system.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-finances-screen",
+      "to": ".agents/workflow/tasks/f3-p2-finances-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-manager-career-screen",
+      "to": ".agents/workflow/tasks/f3-p2-manager-career-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-market-screen",
+      "to": ".agents/workflow/tasks/f3-p2-market-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-modals-squad",
+      "to": ".agents/workflow/tasks/f3-p2-modals-squad.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-national-cup-screens",
+      "to": ".agents/workflow/tasks/f3-p2-national-cup-screens.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-remaining-legacy",
+      "to": ".agents/workflow/tasks/f3-p2-remaining-legacy.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-responsive-overlay",
+      "to": ".agents/workflow/tasks/f3-p2-responsive-overlay.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-squad-screen",
+      "to": ".agents/workflow/tasks/f3-p2-squad-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-standings-screen",
+      "to": ".agents/workflow/tasks/f3-p2-standings-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-tactics-pitch",
+      "to": ".agents/workflow/tasks/f3-p2-tactics-pitch.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-p2-training-screen",
+      "to": ".agents/workflow/tasks/f3-p2-training-screen.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:f3-players-column-aliases",
+      "to": ".agents/workflow/tasks/f3-players-column-aliases.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:feat-async-button-feedback",
+      "to": ".agents/workflow/tasks/feat-async-button-feedback.yml",
       "relation": "manifested_by"
     },
     {
@@ -4018,7 +7635,131 @@
       "from": "task:feat-fase-40-endgame-epilogue-dynasty",
       "to": ".agents/workflow/tasks/feat-fase-40-endgame-epilogue-dynasty.yml",
       "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-cup-match-dates",
+      "to": ".agents/workflow/tasks/fix-cup-match-dates.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-dashboard-stale-fixture",
+      "to": ".agents/workflow/tasks/fix-dashboard-stale-fixture.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-goals-scored",
+      "to": ".agents/workflow/tasks/fix-goals-scored.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-league-isolation",
+      "to": ".agents/workflow/tasks/fix-league-isolation.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-locker-room-performance",
+      "to": ".agents/workflow/tasks/fix-locker-room-performance.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-manager-employment-state",
+      "to": ".agents/workflow/tasks/fix-manager-employment-state.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-milestones-duplicates",
+      "to": ".agents/workflow/tasks/fix-milestones-duplicates.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-repo-hygiene",
+      "to": ".agents/workflow/tasks/fix-repo-hygiene.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-scouting-column",
+      "to": ".agents/workflow/tasks/fix-scouting-column.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-ui-copy-and-errors",
+      "to": ".agents/workflow/tasks/fix-ui-copy-and-errors.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:fix-youth-prospect-generator",
+      "to": ".agents/workflow/tasks/fix-youth-prospect-generator.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:vercel-spa-rewrites",
+      "to": ".agents/workflow/tasks/vercel-spa-rewrites.yml",
+      "relation": "manifested_by"
     }
   ],
-  "lessons": []
+  "lessons": [
+    {
+      "id": "LES-2982",
+      "timestamp": "2026-10-05T16:49:22.982Z",
+      "category": "BUG_FIX",
+      "lesson": "players tenía DOS columnas de moral (morale y state_morale): las charlas del vestuario escribían una y el Inicio/partidos leían la otra, así que nada se notaba",
+      "solution": "Trigger sync_player_morale mantiene ambas iguales (migración scripts/db/migration_sync_player_morale.sql). Leer y escribir state_morale; ante columnas duplicadas en la base, unificar con trigger antes de tocar el código"
+    },
+    {
+      "id": "LES-6221",
+      "timestamp": "2026-10-05T16:49:26.221Z",
+      "category": "BUG_FIX",
+      "lesson": "Código y esquema derivan: se escribían columnas inexistentes (last_scouted_at en scout_reports) o faltaban NOT NULL (nationality en juveniles) y la pantalla fallaba con 400",
+      "solution": "Test que compara las columnas escritas con las reales de la base (tests/api/scouting.test.js, youthProspect.test.js). Consultar information_schema antes de escribir una API nueva"
+    },
+    {
+      "id": "LES-9243",
+      "timestamp": "2026-10-05T16:49:29.243Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "Leer no debe escribir: getClubMilestones insertaba el hito de fundación si la lista estaba vacía y dos pantallas a la vez lo duplicaban",
+      "solution": "Crear datos iniciales al crear la entidad (createClub) y proteger con índice único + upsert ignoreDuplicates (migration_milestones_unique.sql)"
+    },
+    {
+      "id": "LES-1676",
+      "timestamp": "2026-10-05T16:49:31.676Z",
+      "category": "ARCHITECTURE",
+      "lesson": "Acciones asíncronas sin protección: dobles clics repetían acciones y no había señal de carga",
+      "solution": "useAsyncClick + Button/AsyncButton bloquean y muestran spinner solos cuando onClick devuelve una promesa. Nuevo botón con acción async: usar Button o AsyncButton, nunca un <button> suelto"
+    },
+    {
+      "id": "LES-4161",
+      "timestamp": "2026-10-05T16:49:34.161Z",
+      "category": "ARCHITECTURE",
+      "lesson": "La copa continental era global y jugable en cualquier momento; el avance dependía de que el usuario jugara",
+      "solution": "src/domain/cupTournament.js (puro): fechas fijas, clasificación por liga y planTournamentStep; internationalCupApi.syncTournament es idempotente. Cualquier competencia con fechas debe usar isDue y frenar el avance de semana si hay partido propio vencido"
+    },
+    {
+      "id": "LES-6811",
+      "timestamp": "2026-10-05T16:49:36.811Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "El calendario de la carrera podía desfasarse de clubs.game_date (club restablecido): ERR_MATCH_MUST_BE_PLAYED_FIRST falso y avance que no cambiaba nada",
+      "solution": "La fecha del club es la fuente de verdad: calendarApi.reconcileWithClub alinea semana y fecha; usar semana ABSOLUTA (domain/gameWeek.js) para enfriamientos que cruzan temporadas"
+    },
+    {
+      "id": "LES-9410",
+      "timestamp": "2026-10-05T16:49:39.410Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "Los textos de la interfaz derivaban a Title Case, '&', inglés y errores crudos de la base",
+      "solution": "friendlyError (src/lib/errors.js) en todo toast.error y tests/static/copy.test.js que lo impide; scripts/fix-copy.cjs para barridos"
+    },
+    {
+      "id": "LES-1986",
+      "timestamp": "2026-10-05T16:49:41.986Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "Errores de proceso: git add -A coló archivos locales (.claude, docs con secretos) y una rama creada antes de que otra se mergeara falló en CI por falta de un archivo",
+      "solution": "Agregar archivos por nombre (git add -u + rutas), excluir en .git/info/exclude, y crear cada rama desde master actualizado tras mergear la anterior (o mergear origin/master en la rama)"
+    },
+    {
+      "id": "LES-4472",
+      "timestamp": "2026-10-05T16:49:44.472Z",
+      "category": "SECURITY",
+      "lesson": "RLS abierto a anon, resultados de copa y fechas FIFA calculados en el navegador, secreto de Google pegado en el chat, contraseña de BD histórica sin rotar",
+      "solution": "Fase 5: cerrar RLS y mover cálculos a RPC; resetear secretos expuestos antes de la Fase 3 (login con Google)"
+    }
+  ]
 }

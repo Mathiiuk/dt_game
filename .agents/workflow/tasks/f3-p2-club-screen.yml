@@ -2,7 +2,7 @@ id: f3-p2-club-screen
 external_ref: ''
 title: Pantalla Club rediseñada y paneles internos sobre ResponsiveOverlay
 type: feat
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

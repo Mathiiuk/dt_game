@@ -2,7 +2,7 @@ id: fix-ui-copy-and-errors
 external_ref: ''
 title: Textos en castellano coloquial y errores amigables en toda la app
 type: fix
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

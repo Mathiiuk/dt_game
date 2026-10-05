@@ -2,7 +2,7 @@ id: vercel-spa-rewrites
 external_ref: ''
 title: Rewrites SPA en Vercel (404 en rutas profundas)
 type: fix
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

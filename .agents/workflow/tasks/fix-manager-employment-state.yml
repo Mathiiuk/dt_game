@@ -2,7 +2,7 @@ id: fix-manager-employment-state
 external_ref: ''
 title: 'Carrera del DT: no mostrar desempleado si el DT dirige un club'
 type: fix
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

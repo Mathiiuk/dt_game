@@ -2,7 +2,7 @@ id: f3-p2-national-cup-screens
 external_ref: ''
 title: Pantallas Selección Nacional y Copa Internacional rediseñadas
 type: feat
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

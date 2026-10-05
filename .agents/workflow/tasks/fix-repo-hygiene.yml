@@ -2,7 +2,7 @@ id: fix-repo-hygiene
 external_ref: ''
 title: 'Higiene del repo: sacar el HAR de 18 MB y proteger archivos con secretos'
 type: fix
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

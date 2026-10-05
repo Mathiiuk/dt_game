@@ -2,7 +2,7 @@ id: fix-goals-scored
 external_ref: ''
 title: Sumar los goles de cada jugador al consolidar el partido
 type: fix
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

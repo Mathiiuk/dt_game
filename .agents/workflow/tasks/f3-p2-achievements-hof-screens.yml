@@ -2,7 +2,7 @@ id: f3-p2-achievements-hof-screens
 external_ref: ''
 title: Pantallas Logros y Salón de la Fama rediseñadas
 type: feat
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main
