@@ -49,7 +49,7 @@ const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + mi
 /**
  * Genera atributos técnicos, físicos y mentales adaptados al OVR objetivo del jugador
  */
-const generateAttributes = (targetOvr, position) => {
+export const generateAttributes = (targetOvr, position) => {
   const isGK = position === 'GK'
   const isDef = ['CB', 'LB', 'RB'].includes(position)
   const isMid = ['DM', 'CM', 'AM', 'LM', 'RM'].includes(position)
@@ -79,6 +79,51 @@ const generateAttributes = (targetOvr, position) => {
     attr_leadership: genVal(randomInt(-5, 8)),
     attr_aggression: genVal(randomInt(-3, 6)),
     attr_professionalism: genVal(randomInt(0, 8))
+  }
+}
+
+const PROSPECT_POSITIONS = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LM', 'RM', 'ST', 'RW', 'LW']
+const pick = (list) => list[randomInt(0, list.length - 1)]
+
+/** Primer dorsal libre a partir del 21 (los 1-20 son del plantel inicial) */
+export const nextFreeShirtNumber = (taken = []) => {
+  const used = new Set(taken)
+  for (let n = 21; n <= 99; n++) if (!used.has(n)) return n
+  return 99
+}
+
+/**
+ * Arma la fila COMPLETA de un juvenil de cantera: todos los campos obligatorios de `players`
+ * (nacionalidad, dorsal, atributos, contrato, valor, rol) y nada de columnas inexistentes.
+ */
+export const buildYouthProspect = ({ clubId, academyLevel = 1, shirtNumber, nationality = 'Argentina', gameDate = '2026-07-01' }) => {
+  const position = pick(PROSPECT_POSITIONS)
+  const targetOvr = randomInt(38, 46) + Math.min(6, academyLevel * 2)
+  const potential = Math.min(99, 60 + academyLevel * 5 + randomInt(0, 14))
+  const wage = Math.round(80 * Math.pow(targetOvr / 50, 1.85))
+  const years = 3
+
+  return {
+    club_id: clubId,
+    first_name: pick(FIRST_NAMES),
+    last_name: pick(LAST_NAMES),
+    age: randomInt(16, 17),
+    nationality,
+    shirt_number: shirtNumber,
+    position,
+    ...generateAttributes(targetOvr, position),
+    attr_potential: potential,
+    state_fitness: 100,
+    state_morale: 80,
+    state_form: 6,
+    contract_wage: wage,
+    contract_salary: wage,
+    contract_years: years,
+    contract_end: contractEndFor(gameDate, years),
+    contract_role: 'Juvenil',
+    squad_role: 'Juvenil',
+    market_value: targetOvr * 2500,
+    is_youth: true
   }
 }
 

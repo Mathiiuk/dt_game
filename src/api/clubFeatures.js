@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { buildYouthProspect, nextFreeShirtNumber } from './player'
 
 export const staffApi = {
   async getStaff(clubId) {
@@ -45,31 +46,19 @@ export const academyApi = {
   },
   
   async generateYouthProspect(clubId, academyLevel) {
-    const positions = ['GK', 'DF', 'MD', 'FW']
-    const names = ['Thiago', 'Mateo', 'Enzo', 'Bautista']
-    const lasts = ['Fernández', 'García', 'Díaz', 'Alvarez']
-    
-    // Potencial aumenta con el nivel de academia
-    const basePotential = 60 + (academyLevel * 5)
-    
-    const prospect = {
-      club_id: clubId,
-      first_name: names[Math.floor(Math.random()*names.length)],
-      last_name: lasts[Math.floor(Math.random()*lasts.length)],
-      position: positions[Math.floor(Math.random()*positions.length)],
-      age: 16,
-      attr_pace: Math.floor(Math.random() * 40) + 20,
-      attr_shooting: Math.floor(Math.random() * 40) + 20,
-      attr_passing: Math.floor(Math.random() * 40) + 20,
-      attr_tackling: Math.floor(Math.random() * 40) + 20,
-      attr_strength: Math.floor(Math.random() * 40) + 20,
-      attr_stamina: Math.floor(Math.random() * 40) + 20,
-      attr_potential: basePotential + Math.floor(Math.random() * 10),
-      state_fitness: 100,
-      state_morale: 100,
-      is_youth: true
-    }
-    
+    // Dorsal libre y datos del club (nacionalidad y fecha de juego para el contrato)
+    const [{ data: squad }, { data: club }] = await Promise.all([
+      supabase.from('players').select('shirt_number').eq('club_id', clubId),
+      supabase.from('clubs').select('country, game_date').eq('id', clubId).maybeSingle()
+    ])
+    const prospect = buildYouthProspect({
+      clubId,
+      academyLevel,
+      shirtNumber: nextFreeShirtNumber((squad || []).map(p => p.shirt_number)),
+      nationality: club?.country || 'Argentina',
+      gameDate: club?.game_date || '2026-07-01'
+    })
+
     const { error } = await supabase.from('players').insert([prospect])
     if (error) throw new Error(error.message)
   }
