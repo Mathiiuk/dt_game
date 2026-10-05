@@ -97,7 +97,7 @@ export const clubApi = {
     try {
       await supabase
         .from('managers')
-        .update({ club_id: club.id })
+        .update({ club_id: club.id, employment_status: 'EMPLOYED' })
         .eq('id', managerId)
     } catch (e) {
       console.warn('No se pudo vincular club_id en manager:', e)

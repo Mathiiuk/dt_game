@@ -171,7 +171,9 @@ export default function ManagerCareerScreen() {
   }
 
   const stars = careerApi.calculateReputationStars(manager.reputation || 10)
-  const isEmployed = (stats?.employmentStatus || 'EMPLOYED') === 'EMPLOYED' && !!club
+  // Dirige un club = está empleado. El estado guardado en el DT puede quedar desfasado (por ejemplo tras fundar un club),
+  // así que manda el club real del contexto; el estado sólo sirve para distinguir al retirado.
+  const isEmployed = !!club && !manager.is_retired
   const rank = stars >= 4 ? 'DT de élite internacional' : stars >= 3 ? 'Consolidado en Primera' : 'Entrenador emergente'
 
   return (
