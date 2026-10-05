@@ -271,9 +271,9 @@ export default function MatchScreen() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
-        <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-zinc-400 font-medium text-sm">Preparando partido oficial...</p>
+      <div className="flex flex-col items-center justify-center min-h-dvh bg-bg text-fg gap-3 p-4">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+        <p className="text-fg-muted font-medium text-sm">Preparando partido oficial...</p>
       </div>
     )
   }
@@ -284,22 +284,22 @@ export default function MatchScreen() {
     : 'Equipo Rival'
 
   return (
-    <div className="min-h-screen p-3 sm:p-6 text-zinc-100 bg-zinc-950 pb-20">
+    <div className="min-h-dvh p-3 sm:p-6 text-fg bg-bg pb-20">
       {/* Header */}
       <header className="max-w-5xl mx-auto flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate('/dashboard')} 
-            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300"
+            className="p-2 transition-colors border rounded-xl border-line bg-surface hover:bg-surface-3 text-fg"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-              <Shield className="w-4 h-4 text-emerald-400" />
+            <h1 className="text-base sm:text-lg font-bold text-fg flex items-center gap-2">
+              <Shield className="w-4 h-4 text-accent" />
               {data.fixture ? 'Fecha Oficial de Torneo' : 'Partido Amistoso'}
             </h1>
-            <p className="text-xs text-zinc-400">Dirección técnica en vivo minuto a minuto</p>
+            <p className="text-xs text-fg-muted">Dirección técnica en vivo minuto a minuto</p>
           </div>
         </div>
 
@@ -310,10 +310,10 @@ export default function MatchScreen() {
               <button
                 key={s}
                 onClick={() => setSpeed(s)}
-                className={`px-2.5 py-1 text-xs font-black rounded-lg transition-all ${
+                className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                   speed === s 
-                    ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-950/40' 
-                    : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white'
+                    ? 'bg-accent text-accent-fg shadow-md shadow-emerald-950/40' 
+                    : 'bg-surface text-fg-muted border border-line hover:text-fg'
                 }`}
               >
                 x{s}
@@ -322,7 +322,7 @@ export default function MatchScreen() {
 
             <button
               onClick={handleSimulateToEnd}
-              className="flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition-colors ml-1"
+              className="flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg bg-surface-3 hover:bg-surface-3 text-fg border border-line transition-colors ml-1"
             >
               <FastForward className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Final</span>
@@ -332,12 +332,12 @@ export default function MatchScreen() {
       </header>
 
       {/* Scoreboard Hero */}
-      <div className="max-w-5xl mx-auto mb-4 p-4 sm:p-6 rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 via-zinc-900/90 to-zinc-950 shadow-md">
+      <div className="max-w-5xl mx-auto mb-4 p-4 sm:p-6 rounded-lg border border-line bg-gradient-to-b from-surface via-surface/90 to-bg shadow-md">
         <div className="flex items-center justify-between text-center">
           {/* Local */}
           <div className="flex-1 text-left sm:text-center">
-            <span className="text-[10px] sm:text-xs uppercase font-bold text-zinc-400 tracking-wider">Local</span>
-            <h2 className="text-sm sm:text-xl font-black text-white truncate">
+            <span className="text-[10px] sm:text-xs uppercase font-bold text-fg-muted tracking-wider">Local</span>
+            <h2 className="text-sm sm:text-xl font-semibold text-fg truncate">
               {isHome ? data.club?.name : oppDisplayName}
             </h2>
           </div>
@@ -345,25 +345,25 @@ export default function MatchScreen() {
           {/* Marcador Central y Minuto */}
           <div className="flex flex-col items-center px-4">
             <div className="flex items-center gap-3">
-              <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter">
+              <span className="text-3xl sm:text-5xl font-semibold text-accent tracking-tighter">
                 {score.home}
               </span>
-              <span className="text-zinc-600 font-light text-2xl">-</span>
-              <span className="text-3xl sm:text-5xl font-black text-emerald-400 tracking-tighter">
+              <span className="text-fg-subtle font-light text-2xl">-</span>
+              <span className="text-3xl sm:text-5xl font-semibold text-accent tracking-tighter">
                 {score.away}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 mt-1 px-2.5 py-0.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-xs font-mono font-bold text-zinc-300">
-              <Timer className="w-3 h-3 text-emerald-400" />
+            <div className="flex items-center gap-1.5 mt-1 px-2.5 py-0.5 rounded-full bg-surface-3/80 border border-line text-xs font-mono font-bold text-fg">
+              <Timer className="w-3 h-3 text-accent" />
               <span>{matchState === 'pre-match' ? "00:00" : `${minute}'`}</span>
             </div>
           </div>
 
           {/* Visita */}
           <div className="flex-1 text-right sm:text-center">
-            <span className="text-[10px] sm:text-xs uppercase font-bold text-zinc-400 tracking-wider">Visita</span>
-            <h2 className="text-sm sm:text-xl font-black text-white truncate">
+            <span className="text-[10px] sm:text-xs uppercase font-bold text-fg-muted tracking-wider">Visita</span>
+            <h2 className="text-sm sm:text-xl font-semibold text-fg truncate">
               {isHome ? oppDisplayName : data.club?.name}
             </h2>
           </div>
@@ -371,7 +371,7 @@ export default function MatchScreen() {
 
         {/* Active DT Shout Banner */}
         {activeOrder && (
-          <div className="mt-3 pt-3 border-t border-zinc-800/80 flex items-center justify-center gap-2 text-xs text-emerald-400">
+          <div className="mt-3 pt-3 border-t border-line/80 flex items-center justify-center gap-2 text-xs text-accent">
             <Volume2 className="w-3.5 h-3.5" />
             <span className="font-semibold">Orden táctica activa:</span>
             <span>{SHOUT_TYPES.find(o => o.id === activeOrder)?.label || activeOrder}</span>
@@ -381,17 +381,17 @@ export default function MatchScreen() {
 
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Relato Minuto a Minuto */}
-        <div className="lg:col-span-2 p-4 sm:p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-3">
+        <div className="lg:col-span-2 p-4 sm:p-5 rounded-lg border border-line bg-surface/60 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5 text-emerald-400" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5 text-accent" />
               Relato Radial en Directo
             </h3>
 
             {simResults?.stats && (
               <button
                 onClick={() => setShowStats(!showStats)}
-                className="text-xs text-zinc-400 hover:text-emerald-400 flex items-center gap-1"
+                className="text-xs text-fg-muted hover:text-accent flex items-center gap-1"
               >
                 <BarChart3 className="w-3.5 h-3.5" />
                 <span>{showStats ? 'Ver relato' : 'Ver estadísticas'}</span>
@@ -400,33 +400,33 @@ export default function MatchScreen() {
           </div>
 
           {showStats && simResults?.stats ? (
-            <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-3 text-xs">
+            <div className="p-3 rounded-xl bg-bg/80 border border-line space-y-3 text-xs">
               <div>
-                <div className="flex justify-between text-zinc-400 mb-1">
+                <div className="flex justify-between text-fg-muted mb-1">
                   <span>Posesión de Balón</span>
                   <span>{simResults.stats.possession.home}% - {simResults.stats.possession.away}%</span>
                 </div>
-                <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden flex">
-                  <div className="bg-emerald-500 h-full" style={{ width: `${simResults.stats.possession.home}%` }} />
-                  <div className="bg-cyan-500 h-full" style={{ width: `${simResults.stats.possession.away}%` }} />
+                <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden flex">
+                  <div className="bg-accent h-full" style={{ width: `${simResults.stats.possession.home}%` }} />
+                  <div className="bg-accent h-full" style={{ width: `${simResults.stats.possession.away}%` }} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-zinc-300">
-                <div className="p-2 rounded bg-zinc-900 border border-zinc-800">
-                  <span className="block text-zinc-500 text-[10px]">Tiros Totales</span>
+              <div className="grid grid-cols-2 gap-2 text-fg">
+                <div className="p-2 rounded bg-surface border border-line">
+                  <span className="block text-fg-subtle text-[10px]">Tiros Totales</span>
                   <span className="font-bold">{simResults.stats.shots.home} vs {simResults.stats.shots.away}</span>
                 </div>
-                <div className="p-2 rounded bg-zinc-900 border border-zinc-800">
-                  <span className="block text-zinc-500 text-[10px]">Tiros al Arco</span>
+                <div className="p-2 rounded bg-surface border border-line">
+                  <span className="block text-fg-subtle text-[10px]">Tiros al Arco</span>
                   <span className="font-bold">{simResults.stats.shotsOnTarget.home} vs {simResults.stats.shotsOnTarget.away}</span>
                 </div>
-                <div className="p-2 rounded bg-zinc-900 border border-zinc-800">
-                  <span className="block text-zinc-500 text-[10px]">Faltas</span>
+                <div className="p-2 rounded bg-surface border border-line">
+                  <span className="block text-fg-subtle text-[10px]">Faltas</span>
                   <span className="font-bold">{simResults.stats.fouls.home} vs {simResults.stats.fouls.away}</span>
                 </div>
-                <div className="p-2 rounded bg-zinc-900 border border-zinc-800">
-                  <span className="block text-zinc-500 text-[10px]">Córners</span>
+                <div className="p-2 rounded bg-surface border border-line">
+                  <span className="block text-fg-subtle text-[10px]">Córners</span>
                   <span className="font-bold">{simResults.stats.corners.home} vs {simResults.stats.corners.away}</span>
                 </div>
               </div>
@@ -443,28 +443,28 @@ export default function MatchScreen() {
                     key={idx}
                     className={`p-2.5 rounded-xl border flex items-start gap-2.5 transition-all ${
                       isGoal 
-                        ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300 font-bold'
+                        ? 'bg-accent-soft border-accent/50 text-accent font-bold'
                         : isCard
-                        ? 'bg-amber-950/30 border-amber-500/40 text-amber-300'
+                        ? 'bg-gold-soft border-gold/40 text-gold'
                         : isShout
                         ? 'bg-indigo-950/30 border-indigo-500/30 text-indigo-300 italic'
-                        : 'bg-zinc-950/60 border-zinc-800 text-zinc-300'
+                        : 'bg-bg/60 border-line text-fg'
                     }`}
                   >
-                    <span className="text-zinc-500 font-mono font-bold shrink-0">{e.minute}'</span>
+                    <span className="text-fg-subtle font-mono font-bold shrink-0">{e.minute}'</span>
                     <span className="leading-relaxed">{e.text}</span>
                   </div>
                 )
               })}
 
               {events.length === 0 && matchState !== 'pre-match' && (
-                <div className="h-full flex items-center justify-center text-center text-zinc-500 text-xs italic">
+                <div className="h-full flex items-center justify-center text-center text-fg-subtle text-xs italic">
                   Balón en disputa, equipos midiendo fuerzas en el campo...
                 </div>
               )}
 
               {events.length === 0 && matchState === 'pre-match' && (
-                <div className="h-full flex items-center justify-center text-center text-zinc-500 text-xs italic">
+                <div className="h-full flex items-center justify-center text-center text-fg-subtle text-xs italic">
                   Equipos en vestuarios finalizando la charla táctica.
                 </div>
               )}
@@ -474,14 +474,14 @@ export default function MatchScreen() {
 
         {/* Panel Lateral: Órdenes del DT */}
         <div className="space-y-4">
-          <div className="p-4 sm:p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+          <div className="p-4 sm:p-5 rounded-lg border border-line bg-surface/60 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">
               Dirección Técnica
             </h3>
 
             {matchState === 'pre-match' && squadNotes.length > 0 && (
-              <div className="p-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-[11px] text-amber-200 space-y-1.5" role="status">
-                <p className="font-bold uppercase tracking-wider text-amber-400">Plantel incompleto</p>
+              <div className="p-3 rounded-xl border border-gold/40 bg-gold/10 text-[11px] text-gold space-y-1.5" role="status">
+                <p className="font-bold uppercase tracking-wider text-gold">Plantel incompleto</p>
                 {youthNotes.length > 0 && (
                   <p>Se convocan {youthNotes.length} juvenil(es) de la cantera para completar el once (rendimiento bajo).</p>
                 )}
@@ -497,14 +497,14 @@ export default function MatchScreen() {
             {matchState === 'pre-match' ? (
               <button 
                 onClick={handleStartMatch}
-                className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-zinc-950 transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4 fill-zinc-950" />
                 <span>Comenzar Partido</span>
               </button>
             ) : matchState === 'playing' ? (
               <div className="space-y-2">
-                <span className="text-[11px] text-zinc-400 block mb-1">Gritos y arengas desde el banco:</span>
+                <span className="text-[11px] text-fg-muted block mb-1">Gritos y arengas desde el banco:</span>
                 {SHOUT_TYPES.map(order => {
                   const isSelected = activeOrder === order.id
                   return (
@@ -513,12 +513,12 @@ export default function MatchScreen() {
                       onClick={() => handleApplyOrder(order)}
                       className={`w-full p-2.5 text-left rounded-xl border text-xs transition-all ${
                         isSelected 
-                          ? 'border-emerald-500 bg-emerald-950/40 text-emerald-400 font-bold'
-                          : 'border-zinc-800 bg-zinc-950/60 text-zinc-300 hover:border-zinc-700'
+                          ? 'border-accent bg-accent-soft text-accent font-bold'
+                          : 'border-line bg-bg/60 text-fg hover:border-line'
                       }`}
                     >
                       <span className="block font-bold">{order.label}</span>
-                      <span className="text-[10px] text-zinc-500">{order.desc}</span>
+                      <span className="text-[10px] text-fg-subtle">{order.desc}</span>
                     </button>
                   )
                 })}
@@ -539,7 +539,7 @@ export default function MatchScreen() {
                     } 
                   })
                 }}
-                className="w-full py-3.5 rounded-xl font-black text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-zinc-950 transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>Continuar al Resumen</span>

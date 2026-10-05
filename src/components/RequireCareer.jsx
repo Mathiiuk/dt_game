@@ -14,7 +14,7 @@ export default function RequireCareer({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-emerald-500">
+      <div className="min-h-screen bg-bg flex items-center justify-center text-accent">
         <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     )

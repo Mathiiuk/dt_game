@@ -23,8 +23,8 @@ export default function ReloadPrompt() {
   if (!offlineReady && !needRefresh) return null
 
   return (
-    <div className="fixed bottom-0 right-0 z-50 p-4 m-4 border shadow-2xl bg-zinc-900 border-zinc-700 rounded-xl max-w-sm">
-      <div className="mb-4 text-sm font-medium text-white">
+    <div className="fixed bottom-0 right-0 z-50 p-4 m-4 border shadow-2xl bg-surface border-line rounded-xl max-w-sm">
+      <div className="mb-4 text-sm font-medium text-fg">
         {offlineReady
           ? <span>El juego está listo para usarse offline.</span>
           : <span>Hay una nueva actualización disponible.</span>}
@@ -33,14 +33,14 @@ export default function ReloadPrompt() {
         {needRefresh && (
           <button
             onClick={() => updateServiceWorker(true)}
-            className="px-4 py-2 text-sm font-bold text-black transition-colors bg-emerald-500 rounded hover:bg-emerald-400"
+            className="px-4 py-2 text-sm font-bold text-black transition-colors bg-accent rounded hover:bg-accent-strong"
           >
             Actualizar Juego
           </button>
         )}
         <button
           onClick={() => close()}
-          className="px-4 py-2 text-sm font-bold text-white transition-colors border rounded border-zinc-700 hover:bg-zinc-800"
+          className="px-4 py-2 text-sm font-bold text-fg transition-colors border rounded border-line hover:bg-surface-3"
         >
           Cerrar
         </button>
