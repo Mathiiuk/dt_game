@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef } from 'r
 import { useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from '../api/auth'
 import { managerApi } from '../api/manager'
+import { supabase } from '../api/supabase'
 import { clubApi } from '../api/club'
 import { queryCache } from '../utils/cache'
 import ActionSheet from '../components/ActionSheet'
@@ -82,6 +83,12 @@ export const GameProvider = ({ children }) => {
           if (location.pathname !== '/create-club') navigate('/create-club')
           setGameState(prev => ({ ...prev, loading: false }))
           return
+        }
+
+        // Si dirige un club, su estado laboral tiene que decir EMPLOYED (puede quedar desfasado); se corrige en silencio
+        if (manager.employment_status !== 'EMPLOYED') {
+          supabase.from('managers').update({ employment_status: 'EMPLOYED' }).eq('id', manager.id).then(() => {}, () => {})
+          manager.employment_status = 'EMPLOYED'
         }
 
         setGameState({ user, manager, club, retiredManager: null, loading: false })

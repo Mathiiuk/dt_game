@@ -51,6 +51,15 @@ describe('pantalla Carrera del DT', () => {
     expect(screen.getByRole('heading', { level: 3, name: /Club Atlético Potrero/ })).toBeInTheDocument()
   })
 
+  it('si dirige un club no dice desempleado aunque el estado guardado del DT esté desfasado', async () => {
+    const { careerApi } = await import('../../src/api/career')
+    careerApi.getCareerStats.mockResolvedValueOnce({ employmentStatus: 'UNEMPLOYED', personalSavings: 0, currentContractWage: 0, totalMatches: 0, totalWon: 0, totalDrawn: 0, totalLost: 0, winRate: 0, stints: [], trophies: [] })
+    renderScreen()
+    await screen.findByRole('heading', { level: 1, name: 'Carrera del DT' })
+    expect(screen.queryByText('Actualmente desempleado')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Presentar renuncia' })).toBeInTheDocument()
+  })
+
   it('renunciar pide confirmación y llama a la API', async () => {
     renderScreen()
     await userEvent.click(await screen.findByRole('button', { name: 'Presentar renuncia' }))
