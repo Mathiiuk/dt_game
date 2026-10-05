@@ -183,10 +183,10 @@ export const injuriesApi = {
           last_name,
           age,
           position,
-          number,
+          shirt_number,
           overall,
-          state_fitness,
-          photo_url
+          attr_overall,
+          state_fitness
         )
       `)
       .eq('club_id', clubId)
