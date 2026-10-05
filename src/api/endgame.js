@@ -137,7 +137,7 @@ export const endgameApi = {
       retired_at: new Date().toISOString()
     }
 
-    const { data: snapshot, error: snapErr } = await supabase
+    const { data: snapshot } = await supabase
       .from('career_snapshots')
       .insert([snapshotPayload])
       .select()
@@ -159,14 +159,15 @@ export const endgameApi = {
     }
 
     // h) Registrar auditoría
-    await auditApi.logAction(
-      managerId,
-      'ENDGAME_MANAGER_RETIRED',
-      'managers',
-      managerId,
-      { is_retired: false },
-      { is_retired: true, legacyScore, rank: tierTitle, snapshotId: finalSnapshot.id || null }
-    ).catch(() => {})
+    // (antes se llamaba con argumentos sueltos y la auditoría del retiro nunca se registraba)
+    await auditApi.logAction({
+      whoId: managerId,
+      action: 'ENDGAME_MANAGER_RETIRED',
+      entityType: 'managers',
+      entityId: managerId,
+      stateBefore: { is_retired: false },
+      stateAfter: { is_retired: true, legacyScore, rank: tierTitle, snapshotId: finalSnapshot.id || null }
+    }).catch(() => {})
 
     return finalSnapshot
   },
