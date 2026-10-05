@@ -4,6 +4,20 @@ import { supabase } from './supabase'
  * Servicio de Historia del Club, Récords, Hemeroteca e Ídolos
  * Cumple con las especificaciones de Fase 36 (Historia del Club y Récords) y Fase 37 (Ídolos).
  */
+/** Hito de fundación de un club (dato puro, sin tocar la base) */
+export const foundationMilestone = (clubId, club) => {
+  const year = club.founded_year || new Date(club.created_at || Date.now()).getFullYear()
+  return {
+    club_id: clubId,
+    year,
+    game_date: `${year}-08-01`,
+    title: 'Fundación Oficial del Club',
+    description: `Nace el Club ${club.name} en ${club.city || 'su localidad'}, dando inicio al sueño institucional con trabajo, potrero y pasión comunitaria.`,
+    category: 'foundation',
+    importance: 5
+  }
+}
+
 export const clubHistoryApi = {
   /**
    * Obtiene la línea de tiempo completa del club (hitos históricos)
@@ -29,23 +43,11 @@ export const clubHistoryApi = {
       return []
     }
 
-    // Si no tiene hitos aún, inicializamos con el de fundación
+    // Sin hitos todavía: se muestra el de fundación SIN guardarlo (leer nunca escribe; el hito real se crea al fundar el club).
+    // Antes se insertaba acá y dos pantallas que consultaban a la vez lo duplicaban.
     if (!milestones || milestones.length === 0) {
       const { data: club } = await supabase.from('clubs').select('name, founded_year, city, created_at').eq('id', clubId).single()
-      if (club) {
-        const year = club.founded_year || new Date(club.created_at || Date.now()).getFullYear()
-        const defaultMilestone = {
-          club_id: clubId,
-          year,
-          game_date: `${year}-08-01`,
-          title: 'Fundación Oficial del Club',
-          description: `Nace el Club ${club.name} en ${club.city || 'su localidad'}, dando inicio al sueño institucional con trabajo, potrero y pasión comunitaria.`,
-          category: 'foundation',
-          importance: 5
-        }
-        const { data: created } = await supabase.from('club_milestones').insert(defaultMilestone).select().single()
-        return created ? [created] : [defaultMilestone]
-      }
+      return club ? [{ id: `foundation-${clubId}`, ...foundationMilestone(clubId, club) }] : []
     }
 
     return milestones
@@ -56,7 +58,7 @@ export const clubHistoryApi = {
    */
   async addMilestone(clubId, { year, game_date, title, description, category = 'milestone', importance = 1 }) {
     if (!clubId || !title) return null
-    const { data, error } = await supabase.from('club_milestones').insert({
+    const { data, error } = await supabase.from('club_milestones').upsert({
       club_id: clubId,
       year: year || 2026,
       game_date: game_date || new Date().toISOString().split('T')[0],
@@ -64,7 +66,7 @@ export const clubHistoryApi = {
       description,
       category,
       importance
-    }).select().single()
+    }, { onConflict: 'club_id,year,title', ignoreDuplicates: true }).select().maybeSingle()
 
     if (error) {
       console.error('Error adding club milestone:', error)

@@ -3,6 +3,9 @@ import { competitionApi } from './competition'
 import { auditApi } from './audit'
 import { FIXTURE_OPEN_STATUSES, FIXTURE_STATUS } from '../domain/fixtureStatus'
 
+// Un hito (club, año, título) existe una sola vez: si ya está registrado, no se duplica
+const recordMilestone = (row) => supabase.from('club_milestones').upsert(row, { onConflict: 'club_id,year,title', ignoreDuplicates: true })
+
 export const seasonApi = {
   // Check if current season matches are all played
   async isSeasonComplete(clubId) {
@@ -85,7 +88,7 @@ export const seasonApi = {
         year: currentYear,
         type: 'CHAMPION'
       })
-      await supabase.from('club_milestones').insert({
+      await recordMilestone({
         club_id: clubId,
         year: currentYear,
         game_date: club.game_date,
@@ -102,7 +105,7 @@ export const seasonApi = {
         year: currentYear,
         type: 'PROMOTION'
       })
-      await supabase.from('club_milestones').insert({
+      await recordMilestone({
         club_id: clubId,
         year: currentYear,
         game_date: club.game_date,
@@ -112,7 +115,7 @@ export const seasonApi = {
         importance: 4
       })
     } else if (isRelegated) {
-      await supabase.from('club_milestones').insert({
+      await recordMilestone({
         club_id: clubId,
         year: currentYear,
         game_date: club.game_date,
