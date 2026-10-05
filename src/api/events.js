@@ -461,12 +461,13 @@ export const eventsApi = {
       queryCache.invalidate('events:')
       queryCache.invalidate('dashboard:')
 
-      await auditApi.logAction({
+      // La auditoría no condiciona nada: se registra sin hacer esperar al avance
+      Promise.resolve(auditApi.logAction({
         whoId: managerId || clubId,
         action: 'DYNAMIC_EVENT_TRIGGERED',
         entityType: 'dynamic_events',
         stateAfter: { template: template.template_code, title: template.title, severity: template.severity }
-      })
+      })).catch((auditErr) => console.warn('Aviso: no se pudo auditar el evento:', auditErr))
       return true
     } catch (e) {
       console.warn('Aviso insertando dynamic_event:', e)

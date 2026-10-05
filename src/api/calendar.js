@@ -325,6 +325,15 @@ export const calendarApi = {
 
         // Cadena de jugadores: salud y fatiga, y después el entrenamiento (que lee lo que dejó el paso anterior)
         const playersChain = async () => {
+          // Las lecturas del entrenamiento no dependen de los jugadores: se piden junto con ellos
+          const { trainingApi } = await import('./training')
+          const trainingInputs = trainingApi.prefetchWeekInputs(clubId, calendar.current_week)
+          trainingInputs.catch(() => {}) // si el entrenamiento ya no se necesita, que no quede un rechazo sin atender
+          // 11d. La recuperación médica (Fase 27) lee y escribe sus propias tablas: arranca ya y devuelve los cambios de los
+          // jugadores para guardarlos en la misma escritura que lo semanal y el entrenamiento
+          const injuriesRequest = import('./injuries')
+            .then(({ injuriesApi }) => timed('semana.lesiones', () => injuriesApi.processWeeklyInjuriesRecovery(clubId, { deferPlayerWrite: true }), timings))
+            .catch((injErr) => { warn('la recuperación de lesiones')(injErr); return null })
           const { data: players } = await timed('semana.jugadores.leer', () => supabase.from('players').select('*').eq('club_id', clubId), timings)
 
           if (players && players.length > 0) {
@@ -361,23 +370,35 @@ export const calendarApi = {
               })
             }
             const { playerApi } = await import('./player')
-            await timed('semana.jugadores.guardar', () => playerApi.batchUpdate(weeklyUpdates), timings)
 
-            // 7.1. Cascada de Entrenamiento y Desarrollo Individual (Fase 08)
+            // 7.1. Cascada de Entrenamiento y Desarrollo Individual (Fase 08). Trabaja sobre el plantel con los cambios
+            // semanales ya aplicados en memoria y devuelve lo suyo: todo se guarda en UNA sola escritura de jugadores
+            let finalUpdates = weeklyUpdates
             try {
-              const { trainingApi } = await import('./training')
-              await timed('semana.entrenamiento', () => trainingApi.processWeeklyTraining(clubId, calendar.current_week, careerId), timings)
+              const weeklyById = new Map(weeklyUpdates.map(u => [u.id, u]))
+              const updatedPlayers = players.filter(p => !p.is_retired).map(p => ({ ...p, ...weeklyById.get(p.id) }))
+              const training = await timed('semana.entrenamiento', async () => trainingApi.processWeeklyTraining(
+                clubId, calendar.current_week, careerId,
+                { inputs: await trainingInputs, players: updatedPlayers, deferPlayerWrite: true }
+              ), timings)
+              if (training?.playerUpdates?.length) {
+                const merged = new Map(weeklyById)
+                for (const u of training.playerUpdates) merged.set(u.id, { ...merged.get(u.id), ...u })
+                finalUpdates = [...merged.values()]
+              }
             } catch (tErr) {
               warn('el entrenamiento semanal')(tErr)
             }
-          }
-
-          // 11d. Recuperación médica de lesionados (Fase 27): después del entrenamiento, que puede lesionar
-          try {
-            const { injuriesApi } = await import('./injuries')
-            await timed('semana.lesiones', () => injuriesApi.processWeeklyInjuriesRecovery(clubId), timings)
-          } catch (injErr) {
-            warn('la recuperación de lesiones')(injErr)
+            // Las altas y avances de lesiones se aplican al final: mandan sobre lo semanal y lo del entrenamiento
+            const injuries = await injuriesRequest
+            if (injuries?.playerUpdates?.length) {
+              const merged = new Map(finalUpdates.map(u => [u.id, u]))
+              for (const u of injuries.playerUpdates) merged.set(u.id, { ...merged.get(u.id), ...u })
+              finalUpdates = [...merged.values()]
+            }
+            await timed('semana.jugadores.guardar', () => playerApi.batchUpdate(finalUpdates), timings)
+          } else {
+            await injuriesRequest
           }
 
           return players || []

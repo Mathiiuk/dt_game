@@ -38,9 +38,15 @@ vi.mock('../../src/api/supabase', () => {
 })
 
 vi.mock('../../src/api/internationalCup', () => ({ internationalCupApi: { hasDueUserMatch: async () => blocks.cup } }))
-vi.mock('../../src/api/player', () => ({ playerApi: { batchUpdate: (...a) => step('jugadores.guardar')() } }))
-vi.mock('../../src/api/training', () => ({ trainingApi: { processWeeklyTraining: (...a) => step('entrenamiento')() } }))
-vi.mock('../../src/api/injuries', () => ({ injuriesApi: { processWeeklyInjuriesRecovery: (...a) => step('lesiones')() } }))
+const saved = []
+vi.mock('../../src/api/player', () => ({ playerApi: { batchUpdate: async (rows) => { saved.push(rows); await step('jugadores.guardar')() } } }))
+vi.mock('../../src/api/training', () => ({
+  trainingApi: {
+    prefetchWeekInputs: async () => [],
+    processWeeklyTraining: async () => { await step('entrenamiento')(); return { playerUpdates: [{ id: 'p1', attr_pace: 61 }] } }
+  }
+}))
+vi.mock('../../src/api/injuries', () => ({ injuriesApi: { processWeeklyInjuriesRecovery: async () => { await step('lesiones')(); return { playerUpdates: [{ id: 'p1', injury_days: 14 }] } } } }))
 vi.mock('../../src/api/personalities', () => ({ personalitiesApi: { advanceMentorshipsWeek: (...a) => step('mentorias')() } }))
 vi.mock('../../src/api/competition', () => ({ competitionApi: { simulateMatchDay: (...a) => step('liga-ia')() } }))
 vi.mock('../../src/api/stadium', () => ({ stadiumApi: { advanceConstructionWeek: (...a) => step('estadio')() } }))
@@ -89,30 +95,44 @@ describe('cascada del avance semanal', () => {
   })
 
   it('la liga de la IA, el estadio y la carrera no esperan a la cadena de jugadores', async () => {
-    gates['jugadores.guardar'] = deferred()
+    gates.entrenamiento = deferred()
     const running = advance()
-    await vi.waitFor(() => expect(log).toContain('start:jugadores.guardar'))
+    await vi.waitFor(() => expect(log).toContain('start:entrenamiento'))
     // Mientras la cadena de jugadores sigue trabada, los independientes ya arrancaron y terminaron
     await vi.waitFor(() => expect(log).toEqual(expect.arrayContaining(['end:liga-ia', 'end:estadio', 'end:carrera'])))
-    expect(log).not.toContain('start:entrenamiento')
+    expect(log).not.toContain('start:jugadores.guardar')
     expect(log).not.toContain('start:finanzas')
-    gates['jugadores.guardar'].resolve()
+    gates.entrenamiento.resolve()
     await running
   })
 
-  it('el entrenamiento va después de guardar a los jugadores, y las lesiones después del entrenamiento', async () => {
+  it('lo semanal, el entrenamiento y las lesiones se guardan en UNA sola escritura de jugadores', async () => {
+    saved.length = 0
     await advance()
-    expect(index('end:jugadores.guardar')).toBeLessThan(index('start:entrenamiento'))
-    expect(index('end:entrenamiento')).toBeLessThan(index('start:lesiones'))
+    expect(index('end:entrenamiento')).toBeLessThan(index('start:jugadores.guardar'))
+    expect(index('end:lesiones')).toBeLessThan(index('start:jugadores.guardar'))
+    expect(saved).toHaveLength(1)
+    // El mismo jugador lleva la recuperación semanal, el cambio del entrenamiento y la lesión (que manda sobre lo semanal)
+    expect(saved[0]).toEqual([expect.objectContaining({ id: 'p1', state_fitness: expect.any(Number), attr_pace: 61, injury_days: 14 })])
+  })
+
+  it('la recuperación de lesiones no espera al entrenamiento: sus tablas son otras', async () => {
+    gates.entrenamiento = deferred()
+    const running = advance()
+    await vi.waitFor(() => expect(log).toContain('start:entrenamiento'))
+    await vi.waitFor(() => expect(log).toContain('end:lesiones'))
+    expect(log).not.toContain('start:jugadores.guardar')
+    gates.entrenamiento.resolve()
+    await running
   })
 
   it('las mentorías no esperan a la cadena de jugadores: solo tocan mentorías y personalidades', async () => {
-    gates['jugadores.guardar'] = deferred()
+    gates.entrenamiento = deferred()
     const running = advance()
-    await vi.waitFor(() => expect(log).toContain('start:jugadores.guardar'))
+    await vi.waitFor(() => expect(log).toContain('start:entrenamiento'))
     await vi.waitFor(() => expect(log).toContain('end:mentorias'))
-    expect(log).not.toContain('start:entrenamiento')
-    gates['jugadores.guardar'].resolve()
+    expect(log).not.toContain('start:jugadores.guardar')
+    gates.entrenamiento.resolve()
     await running
   })
 

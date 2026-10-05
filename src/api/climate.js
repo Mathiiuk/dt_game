@@ -137,11 +137,12 @@ export const climateApi = {
     const { financesApi } = await import('./finances')
 
     // Todo lo que se lee es independiente: una sola ronda de consultas
-    const [clubRes, streaks, finances, boardRes] = await Promise.all([
+    const [clubRes, streaks, finances, boardRes, playersRes] = await Promise.all([
       supabase.from('clubs').select('budget, ticket_price, wage_budget, squad_morale').eq('id', clubId).single(),
       moraleApi.getStreaks(clubId),
       financesApi.getFinances(clubId),
-      supabase.from('club_board_confidence').select('sports_satisfaction').eq('club_id', clubId).maybeSingle()
+      supabase.from('club_board_confidence').select('sports_satisfaction').eq('club_id', clubId).maybeSingle(),
+      supabase.from('players').select('id, attr_overall, contract_salary, state_morale').eq('club_id', clubId).eq('is_retired', false)
     ])
     const club = clubRes.data
     if (!club) return null
@@ -173,7 +174,7 @@ export const climateApi = {
         }).eq('club_id', clubId)
         queryCache.invalidate(`board:${clubId}`)
       })(),
-      this.applyWageInequity({ clubId, gameDate }).catch((e) => {
+      this.applyWageInequity({ clubId, gameDate, players: playersRes.data || [] }).catch((e) => {
         console.warn('Aviso: no se pudo evaluar la inequidad salarial:', e)
       })
     ])
@@ -193,18 +194,21 @@ export const climateApi = {
   },
 
   /** Reclamo por sueldos desparejos: los que cobran 25% menos que un par de su nivel se enojan (-2 de moral) */
-  async applyWageInequity({ clubId, gameDate = null }) {
-    const { data: players } = await supabase
+  async applyWageInequity({ clubId, gameDate = null, players: knownPlayers = null }) {
+    // Si quien llama ya leyó los jugadores (en la misma ronda que el resto), no se piden otra vez
+    const players = knownPlayers || (await supabase
       .from('players')
       .select('id, attr_overall, contract_salary, state_morale')
       .eq('club_id', clubId)
-      .eq('is_retired', false)
+      .eq('is_retired', false)).data
     const aggrieved = wageInequities(players || [])
     if (!aggrieved.length) return 0
     const byId = new Map(players.map(p => [p.id, p]))
     const { playerApi } = await import('./player')
-    await playerApi.batchUpdate(aggrieved.map(id => ({ id, state_morale: clamp((byId.get(id).state_morale ?? 70) - 2, 10) })))
-    await this.log(clubId, gameDate, 'WAGES', `${aggrieved.length} jugador(es) se quejan de cobrar bastante menos que compañeros de su nivel (moral -2).`, {})
+    await Promise.all([
+      playerApi.batchUpdate(aggrieved.map(id => ({ id, state_morale: clamp((byId.get(id).state_morale ?? 70) - 2, 10) }))),
+      this.log(clubId, gameDate, 'WAGES', `${aggrieved.length} jugador(es) se quejan de cobrar bastante menos que compañeros de su nivel (moral -2).`, {})
+    ])
     return aggrieved.length
   },
 

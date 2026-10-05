@@ -6,3 +6,11 @@
 - **Decisión sobre RPC**: llegar a 5 s exige mover el clima, el entrenamiento y las finanzas a funciones en la base (una sola ida y vuelta por bloque). Eso duplicaría en SQL reglas que hoy viven como funciones puras con tests (economía, consecuencias, rachas) y abre riesgo de divergencia. Queda como decisión del dueño antes de hacerlo.
 - **Tests**: `weekCascade.test.js` (11), `streaksCache.test.js` (3), `personalitiesSync.test.js` (7, incluye mentorías), `postMatchOrder.test.js` (4); suite completa verde (704).
 - **Cómo medir**: avanzar una semana en desarrollo y mirar `window.__perf` o `res.timings` (tiempo por paso).
+
+## Cierre de M2: mediciones reales y tercera tanda (autorizado por el dueño: las cuentas son de prueba)
+- **Medición real** (avance semanal sobre un club de prueba, 12 corridas, red con 170-570 ms por consulta): al empezar la tanda 4,8 a 5,9 s; con la tercera tanda **3,3 a 4,8 s** (típico ~3,8 s). **Post-partido real: 3,3 s** (meta < 4 s). Plantel: 2 rondas de consultas (~0,5 s estimado; meta < 1 s).
+- **Cambios de la tercera tanda**: la copa pasa de 4 consultas en fila a 1 (`hasDueUserMatch`, era lo más lento de las condiciones previas: de ~0,9 a ~0,4 s); finanzas escribe libro y caja juntos; el clima lee los jugadores en la misma ronda que el resto; auditoría de eventos sin esperar; entrenamiento con lecturas anticipadas (`prefetchWeekInputs`) y escritura diferida; la recuperación de lesiones arranca en paralelo; lo semanal, el entrenamiento y las lesiones se guardan en **una sola** escritura de jugadores (las lesiones mandan sobre lo semanal, como antes).
+- **Bug encontrado al medir**: `processWeeklyInjuriesRecovery` terminaba con `return injuryRecord`, una variable inexistente en esa función: lanzaba un error después de escribir y el avance lo ocultaba con un aviso. Corregido (devuelve el resumen) y con test.
+- **RPC en la base**: no hizo falta. Con las lecturas y escrituras en paralelo se cumplen las metas sin duplicar reglas en SQL.
+- **Datos**: el club de prueba `Club Atlético Potrero` (1cf1fbb3…) avanzó 12 semanas y se procesó un partido durante las mediciones. No se borró ninguna cuenta.
+- **Tests**: `trainingWeek.test.js` (6), `injuriesWeek.test.js` (3), `weekCascade.test.js` (13); suite completa verde.

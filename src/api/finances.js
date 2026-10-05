@@ -124,10 +124,12 @@ export const financesApi = {
       balance += amount
       return { career_id: careerId, club_id: clubId, season_year: seasonYear, week_number: weekNumber, category, amount, balance_after: balance, description }
     })
-    const { error: ledgerErr } = await supabase.from('financial_transactions_ledger').insert(rows)
+    // El libro mayor y la caja se escriben juntos: el saldo ya está calculado
+    const [{ error: ledgerErr }, { error }] = await Promise.all([
+      supabase.from('financial_transactions_ledger').insert(rows),
+      supabase.from('clubs').update({ budget: balance }).eq('id', clubId)
+    ])
     if (ledgerErr) console.warn('Aviso: no se pudo registrar el cierre semanal en el libro mayor:', ledgerErr.message)
-
-    const { error } = await supabase.from('clubs').update({ budget: balance }).eq('id', clubId)
     if (error) throw new Error(error.message)
     queryCache.invalidate(`finances:${clubId}`)
     queryCache.invalidate(`club:${clubId}`)

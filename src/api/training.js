@@ -211,17 +211,34 @@ export const trainingApi = {
   /**
    * Ejecuta el cálculo semanal autoritativo de entrenamiento durante la cascada de avance.
    */
-  async processWeeklyTraining(clubId, weekNumber = 1, careerId = null) {
+  /**
+   * Lecturas del entrenamiento que no dependen de los jugadores (idempotencia, plan, focos individuales y carga de las
+   * últimas semanas). Se pueden pedir antes, en paralelo con otras cosas, y pasarlas a `processWeeklyTraining`.
+   */
+  prefetchWeekInputs(clubId, weekNumber = 1) {
+    return Promise.all([
+      supabase.from('training_execution_logs').select('*').eq('club_id', clubId).eq('week_number', weekNumber).maybeSingle().then(r => r, () => ({ data: null })),
+      this.getClubTrainingPlan(clubId),
+      this.getPlayerAssignments(clubId),
+      supabase.from('training_execution_logs').select('intensity_applied').eq('club_id', clubId).order('timestamp', { ascending: false }).limit(5).then(r => r, () => ({ data: [] }))
+    ])
+  },
+
+  /**
+   * `options.inputs` (de `prefetchWeekInputs`) y `options.players` (el plantel ya leído, con los cambios semanales aplicados)
+   * evitan consultas. Con `options.deferPlayerWrite` no escribe a los jugadores: devuelve `playerUpdates` para que quien llama
+   * los junte con los suyos en una sola escritura.
+   */
+  async processWeeklyTraining(clubId, weekNumber = 1, careerId = null, options = {}) {
     if (!clubId) return null
 
     // 1 y 2. Todo lo que hace falta leer es independiente: una sola ronda de consultas en paralelo
     // (idempotencia, plan, focos individuales, plantel y carga de las últimas semanas)
-    const [existingLogRes, plan, assignments, playersRes, recentRes] = await Promise.all([
-      supabase.from('training_execution_logs').select('*').eq('club_id', clubId).eq('week_number', weekNumber).maybeSingle().then(r => r, () => ({ data: null })),
-      this.getClubTrainingPlan(clubId),
-      this.getPlayerAssignments(clubId),
-      supabase.from('players').select('*').eq('club_id', clubId).eq('is_retired', false),
-      supabase.from('training_execution_logs').select('intensity_applied').eq('club_id', clubId).order('timestamp', { ascending: false }).limit(5).then(r => r, () => ({ data: [] }))
+    const [[existingLogRes, plan, assignments, recentRes], playersRes] = await Promise.all([
+      options.inputs || this.prefetchWeekInputs(clubId, weekNumber),
+      options.players
+        ? Promise.resolve({ data: options.players })
+        : supabase.from('players').select('*').eq('club_id', clubId).eq('is_retired', false)
     ])
 
     // Idempotencia: si ya se procesó esta semana para este club, se devuelve lo que se hizo
@@ -359,7 +376,7 @@ export const trainingApi = {
     // de la semana no dependen de ese UPDATE: las tres escrituras van juntas
     const { playerApi } = await import('./player')
     await Promise.all([
-      playerApi.batchUpdate(trainingUpdates),
+      options.deferPlayerWrite ? Promise.resolve() : playerApi.batchUpdate(trainingUpdates),
       (async () => {
         // 3b. Consecuencia en el vestuario de la carga acumulada
         try {
@@ -397,7 +414,8 @@ export const trainingApi = {
       intensity: plan.intensity_level,
       injuriesSustained: injuriesCount,
       attributesImproved: improvementsCount,
-      playersProcessed: players.length
+      playersProcessed: players.length,
+      ...(options.deferPlayerWrite ? { playerUpdates: trainingUpdates } : {})
     }
   }
 }

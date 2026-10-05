@@ -181,10 +181,17 @@ export const internationalCupApi = {
   /** ¿Hay un partido propio de copa que ya llegó a su fecha y no se jugó? (frena el avance de semana) */
   async hasDueUserMatch(clubId, gameDate) {
     if (!clubId) return false
-    const tournament = await this.findTournament(clubId, cupSeasonYear(gameDate))
-    if (!tournament || tournament.status === 'finished') return false
-    const fixtures = await this.loadFixtures(tournament.id)
-    return !!dueUserFixture(fixtures, gameDate, clubId)
+    // Una sola consulta: partidos propios de la copa de esta temporada sin jugar que ya llegaron a su fecha
+    // (antes: tabla de la liga, búsqueda del torneo, refresco y carga de todos los partidos, una detrás de otra)
+    const { data } = await supabase
+      .from('international_fixtures')
+      .select('id, match_date, played, international_tournaments!inner(season_year)')
+      .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+      .eq('played', false)
+      .eq('international_tournaments.season_year', cupSeasonYear(gameDate))
+      .lte('match_date', String(gameDate).slice(0, 10))
+      .limit(1)
+    return Boolean(data && data.length > 0)
   },
 
   /**

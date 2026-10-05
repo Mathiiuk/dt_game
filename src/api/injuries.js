@@ -225,7 +225,11 @@ export const injuriesApi = {
   /**
    * Procesa la recuperación semanal de lesionados con bonificación de cuerpo médico
    */
-  async processWeeklyInjuriesRecovery(clubId) {
+  /**
+   * Con `options.deferPlayerWrite` no escribe a los jugadores: devuelve `playerUpdates` para que quien llama los junte
+   * con los suyos en una sola escritura (la tabla de lesiones sí se actualiza).
+   */
+  async processWeeklyInjuriesRecovery(clubId, options = {}) {
     if (!clubId) return { recovered: 0, ongoing: 0 }
 
     // Obtener lesionados activos
@@ -282,14 +286,18 @@ export const injuriesApi = {
       }
     }
 
-    await supabase.rpc('batch_update_injuries', { rows: injuryRows })
     const { playerApi } = await import('./player')
-    await playerApi.batchUpdate(playerRows)
+    await Promise.all([
+      supabase.rpc('batch_update_injuries', { rows: injuryRows }),
+      options.deferPlayerWrite ? Promise.resolve() : playerApi.batchUpdate(playerRows)
+    ])
 
     queryCache.invalidate(`infirmary:${clubId}`)
     queryCache.invalidate(`squad:${clubId}`)
 
-    return injuryRecord
+    const summary = { recovered: recoveredCount, ongoing: ongoingCount }
+    // (antes terminaba con `return injuryRecord`, una variable que no existe en esta función: lanzaba un error al final)
+    return options.deferPlayerWrite ? { ...summary, playerUpdates: playerRows } : summary
   },
 
   /**
