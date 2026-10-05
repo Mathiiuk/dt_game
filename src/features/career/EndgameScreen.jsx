@@ -8,6 +8,7 @@ import {
   Flame, Star, Loader2, ArrowLeft, Building2, Globe
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { AsyncButton } from '../../components/ui'
 
 export default function EndgameScreen() {
   const navigate = useNavigate()
@@ -248,7 +249,7 @@ export default function EndgameScreen() {
             <ChevronRight className="w-5 h-5 text-gold group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <button
+          <AsyncButton
             onClick={handleStartDynasty}
             disabled={startingDynasty}
             className="p-5 rounded-xl border border-accent/40 bg-gradient-to-r from-accent/40 via-surface to-surface hover:border-accent flex items-center justify-between transition-all group"
@@ -263,7 +264,7 @@ export default function EndgameScreen() {
               </div>
             </div>
             <ArrowRight className="w-5 h-5 text-accent group-hover:translate-x-1 transition-transform" />
-          </button>
+          </AsyncButton>
         </div>
       </div>
 

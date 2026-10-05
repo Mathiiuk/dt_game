@@ -18,6 +18,7 @@ import { injuriesApi, INJURY_SEVERITY } from '../../../api/injuries'
 import { useGameContext } from '../../../context/GameContext'
 import { toast } from 'sonner'
 import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
+import { AsyncButton } from '../../../components/ui'
 
 export default function InfirmaryTab({ club }) {
   const { confirmAction } = useGameContext()
@@ -134,14 +135,14 @@ export default function InfirmaryTab({ club }) {
               </h3>
             </div>
           </div>
-          <button 
+          <AsyncButton 
             onClick={loadInfirmary}
             disabled={loading}
             className="p-2 rounded-xl bg-surface-3 hover:bg-surface-3 text-fg transition-colors"
             title="Actualizar parte médico"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
+          </AsyncButton>
         </div>
       </div>
 
@@ -247,7 +248,7 @@ export default function InfirmaryTab({ club }) {
                           : 'Infiltración prohibida: daño estructural de grado alto.'}
                     </div>
 
-                    <button
+                    <AsyncButton
                       disabled={!canInfiltrate || processingInfiltration === injury.id}
                       onClick={() => handleInfiltrate(injury)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
@@ -259,7 +260,7 @@ export default function InfirmaryTab({ club }) {
                     >
                       <Zap className="w-3.5 h-3.5" />
                       {processingInfiltration === injury.id ? 'Infiltrando...' : 'Infiltrar (50% Riesgo)'}
-                    </button>
+                    </AsyncButton>
                   </div>
                 </div>
               )

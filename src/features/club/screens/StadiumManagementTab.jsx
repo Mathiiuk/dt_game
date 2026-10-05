@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { stadiumApi, STADIUM_CATALOG } from '../../../api/stadium'
 import { toast } from 'sonner'
+import { AsyncButton } from '../../../components/ui'
 
 export default function StadiumManagementTab({ club, confirmAction, onUpdateClub }) {
   const [stadium, setStadium] = useState(null)
@@ -298,7 +299,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
                     )}
                   </div>
 
-                  <button
+                  <AsyncButton
                     disabled={Boolean(activeProject) || !isAffordable || isAlreadyMaxed || actionLoading}
                     onClick={() => handleStartProject(proj.key)}
                     className={`w-full py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors ${
@@ -332,7 +333,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
                         <span>Iniciar Proyecto</span>
                       </>
                     )}
-                  </button>
+                  </AsyncButton>
                 </div>
               </div>
             )

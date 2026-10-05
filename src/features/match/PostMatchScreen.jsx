@@ -23,6 +23,7 @@ import {
   UserCheck
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { AsyncButton } from '../../components/ui'
 
 export default function PostMatchScreen() {
   const navigate = useNavigate()
@@ -460,13 +461,13 @@ export default function PostMatchScreen() {
                 </div>
 
                 {!isPressFinished && (
-                  <button
+                  <AsyncButton
                     onClick={handleDelegatePress}
                     className="px-3 py-1.5 rounded-xl border border-line bg-bg hover:bg-surface-3 text-xs text-fg font-semibold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
                   >
                     <UserCheck className="w-3.5 h-3.5 text-fg-muted" />
                     <span>Delegar en 2º Entrenador</span>
-                  </button>
+                  </AsyncButton>
                 )}
               </div>
 
@@ -537,7 +538,7 @@ export default function PostMatchScreen() {
                       }
 
                       return (
-                        <button
+                        <AsyncButton
                           key={optIdx}
                           onClick={() => handleSelectPressOption(pressQuestions[currentQIndex].id, opt)}
                           className="w-full p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-accent/60 hover:bg-surface transition-all text-xs group"
@@ -553,7 +554,7 @@ export default function PostMatchScreen() {
                           <p className="text-fg group-hover:text-fg leading-snug">
                             "{opt.text}"
                           </p>
-                        </button>
+                        </AsyncButton>
                       )
                     })}
                   </div>

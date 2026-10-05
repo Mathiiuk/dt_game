@@ -3,6 +3,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { cva } from 'class-variance-authority'
 import { Loader2 } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { useAsyncClick } from '../../hooks/useAsyncClick'
 
 /**
  * Botón base. Áreas táctiles de al menos 44 px de alto en móvil (48 px en `lg`),
@@ -36,25 +37,47 @@ export const buttonVariants = cva(
   }
 )
 
+/**
+ * Botón del sistema de diseño. Si `onClick` devuelve una promesa el botón se bloquea solo y muestra el spinner
+ * hasta que termina (sin que la pantalla maneje el estado) y un doble clic ejecuta la acción una sola vez.
+ * `loading` sigue sirviendo para estados de carga que controla la pantalla.
+ */
 export const Button = React.forwardRef(function Button(
-  { className, variant, size, asChild = false, loading = false, disabled, children, ...props },
+  { className, variant, size, asChild = false, loading = false, disabled, children, onClick, ...props },
   ref
 ) {
   const Comp = asChild ? Slot : 'button'
+  const [handleClick, pending] = useAsyncClick(onClick)
+  const busy = loading || pending
   return (
     <Comp
       ref={ref}
       className={cn(buttonVariants({ variant, size }), className)}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
+      disabled={disabled || busy}
+      aria-busy={busy || undefined}
+      onClick={handleClick}
       {...props}
     >
       {asChild ? children : (
         <>
-          {loading && <Loader2 className="animate-spin" aria-hidden="true" />}
+          {busy && <Loader2 className="animate-spin" aria-hidden="true" />}
           {children}
         </>
       )}
     </Comp>
+  )
+})
+
+/**
+ * Botón sin estilos propios (conserva las clases que se le pasen) con el mismo bloqueo y spinner que `Button`.
+ * Sirve para reemplazar `<button>` sueltos que disparan acciones asíncronas sin tocar su diseño.
+ */
+export const AsyncButton = React.forwardRef(function AsyncButton({ children, onClick, disabled, type = 'button', ...props }, ref) {
+  const [handleClick, pending] = useAsyncClick(onClick)
+  return (
+    <button ref={ref} type={type} disabled={disabled || pending} aria-busy={pending || undefined} onClick={handleClick} {...props}>
+      {pending && <Loader2 className="mr-1.5 inline size-4 animate-spin align-[-0.15em]" aria-hidden="true" />}
+      {children}
+    </button>
   )
 })

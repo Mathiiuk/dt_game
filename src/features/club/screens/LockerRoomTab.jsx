@@ -17,6 +17,7 @@ import {
 import { lockerRoomApi, HIERARCHY_TIERS, SOCIAL_GROUPS } from '../../../api/lockerRoom'
 import { toast } from 'sonner'
 import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
+import { AsyncButton } from '../../../components/ui'
 
 export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   const [lockerRoom, setLockerRoom] = useState(null)
@@ -174,27 +175,27 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 pt-1">
-                  <button
+                  <AsyncButton
                     disabled={actionLoading}
                     onClick={() => handleResolveConflict(p.player_id, 'PROMISE_MINUTES')}
                     className="px-2.5 py-1 bg-accent/20 hover:bg-accent/30 text-accent font-semibold rounded text-[11px] transition-colors"
                   >
                     Prometer Minutos (+12 moral)
-                  </button>
-                  <button
+                  </AsyncButton>
+                  <AsyncButton
                     disabled={actionLoading}
                     onClick={() => handleResolveConflict(p.player_id, 'HONEST_CRITIQUE')}
                     className="px-2.5 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 font-semibold rounded text-[11px] transition-colors"
                   >
                     Diálogo Franco (+2 moral)
-                  </button>
-                  <button
+                  </AsyncButton>
+                  <AsyncButton
                     disabled={actionLoading}
                     onClick={() => handleResolveConflict(p.player_id, 'DISCIPLINE')}
                     className="px-2.5 py-1 bg-danger/20 hover:bg-danger/30 text-danger font-semibold rounded text-[11px] transition-colors"
                   >
                     Reprender (-15 moral)
-                  </button>
+                  </AsyncButton>
                 </div>
               </div>
             ))}
@@ -299,7 +300,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-          <button
+          <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('PRAISE')}
             className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-accent/60 hover:bg-emerald-950/10 transition-all text-xs group"
@@ -308,9 +309,9 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             <p className="text-fg-muted group-hover:text-fg leading-snug">
               Felicita al grupo por el compromiso y refuerza la unión colectiva (+8 moral, +5 cohesión).
             </p>
-          </button>
+          </AsyncButton>
 
-          <button
+          <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('CALM')}
             className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-blue-500/60 hover:bg-blue-950/10 transition-all text-xs group"
@@ -319,9 +320,9 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             <p className="text-fg-muted group-hover:text-fg leading-snug">
               Descomprime presiones y pide templanza ante los próximos partidos (+5 moral, +3 cohesión).
             </p>
-          </button>
+          </AsyncButton>
 
-          <button
+          <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('DEMAND_EXCELLENCE')}
             className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-gold/60 hover:bg-amber-950/10 transition-all text-xs group"
@@ -330,7 +331,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             <p className="text-fg-muted group-hover:text-fg leading-snug">
               Eleva la vara y reta al plantel a dar un salto de jerarquía competitiva.
             </p>
-          </button>
+          </AsyncButton>
         </div>
       </div>
 

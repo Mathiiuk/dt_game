@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { boardApi } from '../../../api/board'
 import { toast } from 'sonner'
+import { AsyncButton } from '../../../components/ui'
 
 export default function BoardManagementTab({ club, manager, confirmAction, onUpdateClub }) {
   const [board, setBoard] = useState(null)
@@ -274,14 +275,14 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
             </div>
           </div>
 
-          <button
+          <AsyncButton
             onClick={handleRequestFunding}
             disabled={actionLoading || score < 55}
             className="w-full py-2.5 px-4 bg-accent hover:bg-accent-strong disabled:opacity-50 text-accent-fg font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
           >
             <Sparkles className="w-4 h-4" />
             <span>Petición Extraordinaria de $15,000</span>
-          </button>
+          </AsyncButton>
         </div>
       </div>
 
