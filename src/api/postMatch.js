@@ -5,6 +5,7 @@ import { auditApi } from './audit'
 import { clubHistoryApi } from './clubHistory'
 import { achievementsApi } from './achievements'
 import { rollAggravations, AGGRAVATION_EXTRA_WEEKS } from '../domain/matchSquad'
+import { queryCache } from '../utils/cache'
 
 // Señal interna para saltear la tirada de lesión nueva de un jugador que ya jugó lesionado
 class SkipInjuryRoll extends Error {}
@@ -65,11 +66,15 @@ export const postMatchApi = {
    * en match_reports (clave única por fixture_id) antes de aplicar lesiones, XP o dinero.
    */
   async processResult(managerId, clubId, result, fixtureId = null) {
-    if (!fixtureId) return this._processResult(managerId, clubId, result, fixtureId)
+    // Un partido cambia tabla, plantel, caja, próximo partido y más: se descarta TODA la caché al terminar,
+    // para que Inicio y el resto de las pantallas no sigan mostrando el partido que ya se jugó.
+    const run = () => this._processResult(managerId, clubId, result, fixtureId)
+      .then((res) => { queryCache.clear(); return res })
+
+    if (!fixtureId) return run()
 
     if (!postMatchInFlight.has(fixtureId)) {
-      const promise = this._processResult(managerId, clubId, result, fixtureId)
-        .finally(() => postMatchInFlight.delete(fixtureId))
+      const promise = run().finally(() => postMatchInFlight.delete(fixtureId))
       postMatchInFlight.set(fixtureId, promise)
     }
     return postMatchInFlight.get(fixtureId)
