@@ -1,3 +1,4 @@
+import { emailApi } from '../../api/email'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -67,6 +68,7 @@ export default function CreateManagerWizard() {
     try {
       await managerApi.createManager(user.id, { identity, background, distributedPoints: distributed, philosophy, specialization })
       toast.success('¡Credencial oficial de Director Técnico emitida con éxito!')
+      emailApi.sendWelcome() // correo de bienvenida, sin esperar ni frenar el flujo
       navigate('/create-club')
     } catch (err) {
       toast.error(friendlyError(err, 'Error al crear el perfil de DT.'))

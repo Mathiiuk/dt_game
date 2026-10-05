@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
+import { getRecaptchaToken, isRecaptchaEnabled } from '../lib/recaptcha'
 
 const RATE_LIMIT_STORAGE_KEY = 'dt_auth_rate_limit'
 const MAX_FAILED_ATTEMPTS = 5
@@ -154,7 +155,83 @@ async function logSecurityAudit(userId, eventType, payload = {}) {
   }
 }
 
+/**
+ * Alta, ingreso y recuperar clave pasan por la función `auth-gate` cuando hay reCAPTCHA configurado: el servidor verifica
+ * el token con la clave secreta antes de tocar la cuenta. Sin clave del sitio (desarrollo) se usa el camino directo.
+ * Devuelve el mismo formato { data, error } que supabase.auth.
+ */
+async function callGate(action, payload) {
+  const captchaToken = await getRecaptchaToken(action)
+  const { data, error } = await supabase.functions.invoke('auth-gate', { body: { action, ...payload, captchaToken } })
+
+  if (error) {
+    let message = 'No pudimos completar la operación. Probá de nuevo.'
+    try {
+      const body = await error.context?.json?.()
+      if (body?.message) message = body.message
+    } catch {
+      // Sin cuerpo legible: se deja el mensaje genérico
+    }
+    return { data: null, error: { message } }
+  }
+  if (!data?.ok) return { data: null, error: { message: data?.message || 'No pudimos completar la operación.' } }
+
+  // El servidor devuelve la sesión: se instala en el cliente para que las consultas siguientes vayan autenticadas
+  if (data.session?.access_token) {
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token
+    })
+    if (sessionError) return { data: null, error: { message: sessionError.message } }
+  }
+  return { data: { user: data.user, session: data.session, needsConfirmation: data.needsConfirmation }, error: null }
+}
+
+const signUpSecure = (payload) => (isRecaptchaEnabled()
+  ? callGate('signup', payload)
+  : supabase.auth.signUp({ email: payload.email, password: payload.password, options: { data: { display_name: payload.name } } }))
+
+const signInSecure = (payload) => (isRecaptchaEnabled()
+  ? callGate('login', payload)
+  : supabase.auth.signInWithPassword({ email: payload.email, password: payload.password }))
+
+const resetSecure = async (email) => {
+  if (isRecaptchaEnabled()) return callGate('reset', { email })
+  return supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/auth` })
+}
+
+/** Carrera activa del usuario; si no tiene (primer ingreso, por ejemplo con Google) se crea una */
+async function ensureActiveCareer(userId) {
+  const { data: active } = await supabase
+    .from('careers')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('status', 'ACTIVE')
+    .order('last_accessed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (active) return active
+  const { data: created } = await supabase
+    .from('careers')
+    .insert({ user_id: userId, status: 'ACTIVE', ruleset_version: '3.0.0', balance_version: '1.0.0' })
+    .select()
+    .single()
+  return created || null
+}
+
 export const authApi = {
+  /**
+   * Ingreso con Google. Redirige a Google y vuelve a /game con la sesión puesta; la carrera inicial se crea al
+   * leer la sesión por primera vez (ver getSession).
+   */
+  async loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/game` }
+    })
+    if (error) throw new Error(error.message)
+  },
+
   /**
    * Registro seguro de nuevo usuario con validación de robustez de contraseña
    */
@@ -166,15 +243,7 @@ export const authApi = {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    const { data, error } = await supabase.auth.signUp({
-      email: normalizedEmail,
-      password,
-      options: {
-        data: {
-          display_name: name
-        }
-      }
-    })
+    const { data, error } = await signUpSecure({ email: normalizedEmail, password, name })
 
     if (error) {
       await logSecurityAudit(null, 'LOGIN_FAILED', { email: normalizedEmail, reason: error.message })
@@ -244,10 +313,7 @@ export const authApi = {
     }
 
     // 2. Intento de autenticación en Supabase
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password
-    })
+    const { data, error } = await signInSecure({ email: normalizedEmail, password })
 
     if (error) {
       const updated = recordFailedAttempt(normalizedEmail)
@@ -351,22 +417,14 @@ export const authApi = {
 
     let careerId = null
     try {
-      const { data: career } = await supabase
-        .from('careers')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('status', 'ACTIVE')
-        .order('last_accessed_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      careerId = career?.id || null
+      careerId = (await ensureActiveCareer(user.id))?.id || null
     } catch {
       // Ignorar si la tabla no está creada
     }
 
     return {
       id: user.id,
-      name: user.user_metadata?.display_name || 'Director Técnico',
+      name: user.user_metadata?.display_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Director Técnico',
       email: user.email,
       careerId,
       expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null
@@ -411,9 +469,7 @@ export const authApi = {
     await logSecurityAudit(null, 'PASSWORD_RESET_REQ', { email: normalizedEmail })
 
     try {
-      await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-        redirectTo: `${window.location.origin}/auth`
-      })
+      await resetSecure(normalizedEmail)
     } catch (e) {
       console.warn('Error en supabase resetPasswordForEmail:', e)
     }

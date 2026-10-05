@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowLeft, Check, Eye, EyeOff, KeyRound, Play, Shield, S
 import { authApi, checkRateLimit, validatePasswordStrength } from '../../api/auth'
 import { Button, Field, Input } from '../../components/ui'
 import { cn } from '../../lib/utils'
+import { isRecaptchaEnabled, loadRecaptcha } from '../../lib/recaptcha'
 import { friendlyError } from '../../lib/errors'
 
 /** Marco común de las pantallas de acceso: tarjeta centrada sobre el fondo de la app */
@@ -41,6 +42,18 @@ function PasswordInput({ show, onToggle, ...props }) {
   )
 }
 
+/** Marca de Google (los iconos de lucide no incluyen marcas) */
+function GoogleMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <path fill="#4285F4" d="M23.5 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.45a5.51 5.51 0 0 1-2.39 3.62v3h3.87c2.27-2.09 3.57-5.17 3.57-8.81z" />
+      <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.87-3c-1.07.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.1A12 12 0 0 0 12 24z" />
+      <path fill="#FBBC05" d="M5.27 14.28a7.2 7.2 0 0 1 0-4.56v-3.1H1.27a12 12 0 0 0 0 10.76l4-3.1z" />
+      <path fill="#EA4335" d="M12 4.76c1.76 0 3.34.61 4.59 1.8l3.43-3.43C17.95 1.19 15.23 0 12 0A12 12 0 0 0 1.27 6.62l4 3.1C6.22 6.87 8.87 4.76 12 4.76z" />
+    </svg>
+  )
+}
+
 export default function AuthScreen({ initialMode = 'splash' }) {
   const [mode, setMode] = useState(initialMode) // splash | login | register | forgot_password
   const [loading, setLoading] = useState(false)
@@ -71,7 +84,13 @@ export default function AuthScreen({ initialMode = 'splash' }) {
     if (!passwordStats.valid) return toast.error(passwordStats.errors[0])
     setLoading(true)
     try {
-      const { user } = await authApi.register({ name, email, password })
+      const { user, token } = await authApi.register({ name, email, password })
+      if (!token) {
+        // La cuenta pide confirmar el correo antes de entrar
+        toast.success('Te mandamos un correo para confirmar tu cuenta. Después iniciá sesión.')
+        setMode('login')
+        return
+      }
       toast.success(`¡Bienvenido al fútbol profesional, ${user.name}!`)
       navigate('/create-manager')
     } catch (err) {
@@ -97,6 +116,21 @@ export default function AuthScreen({ initialMode = 'splash' }) {
       setLoading(false)
     }
   }
+
+  const handleGoogle = async () => {
+    setLoading(true)
+    try {
+      await authApi.loginWithGoogle()
+    } catch (err) {
+      toast.error(friendlyError(err, 'No pudimos iniciar sesión con Google. Probá de nuevo.'))
+      setLoading(false)
+    }
+  }
+
+  // El script de reCAPTCHA se carga apenas se ve el formulario, para que el token salga rápido al enviar
+  useEffect(() => {
+    if (isRecaptchaEnabled() && mode !== 'splash') loadRecaptcha().catch(() => {})
+  }, [mode])
 
   const handleForgotPassword = async (e) => {
     e.preventDefault()
@@ -231,6 +265,21 @@ export default function AuthScreen({ initialMode = 'splash' }) {
           {isLogin ? 'Ingresar al banquillo' : 'Registrar y comenzar carrera'}
         </Button>
       </form>
+
+      <div className="my-5 flex items-center gap-3 text-xs text-fg-subtle" aria-hidden="true">
+        <span className="h-px flex-1 bg-line" />o<span className="h-px flex-1 bg-line" />
+      </div>
+      <Button type="button" variant="outline" size="lg" className="w-full" onClick={handleGoogle} disabled={loading}>
+        <GoogleMark />Continuar con Google
+      </Button>
+
+      {isRecaptchaEnabled() && (
+        <p className="mt-4 text-center text-[0.6875rem] leading-relaxed text-fg-subtle">
+          Este sitio está protegido por reCAPTCHA. Rigen la{' '}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" className="underline">Política de privacidad</a> y los{' '}
+          <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer" className="underline">Términos del servicio</a> de Google.
+        </p>
+      )}
 
       <div className={cn('mt-6 space-y-1 border-t border-line pt-4 text-center')}>
         <Button variant="link" type="button" onClick={() => { setMode(isLogin ? 'register' : 'login'); setPassword(''); setConfirmPassword('') }}>
