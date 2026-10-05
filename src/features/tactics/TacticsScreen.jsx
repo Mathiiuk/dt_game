@@ -7,7 +7,8 @@ import {
   TACTICAL_MENTALITIES, PASSING_STYLES, PRESSING_LEVELS, TEMPO_LEVELS
 } from '../../api/tactics'
 import { playerApi } from '../../api/player'
-import { reassignLineup, resolveLineup } from '../../domain/formations'
+import { reassignLineup, resolveLineup, getLayout } from '../../domain/formations'
+import { FREE_FORMATION, moveToPoint, normalizeLayout, shapeOf, slotsOfLayout } from '../../domain/freeLayout'
 import { fitLabel, positionName, slotBase } from '../../domain/positions'
 import { ratingAtSlot, playerOverall } from '../../domain/ratings'
 import {
@@ -61,12 +62,13 @@ export default function TacticsScreen() {
   const [pressing, setPressing] = useState('BALANCED')
   const [tempo, setTempo] = useState('NORMAL')
   const [lineup, setLineup] = useState({}) // { [puesto]: idJugador }
+  const [customLayout, setCustomLayout] = useState(null) // alineación libre: [{ slot, x, y }] o null con formación fija
   const [tacticId, setTacticId] = useState(null)
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [tab, setTab] = useState('instructions')
   const [savedSnapshot, setSavedSnapshot] = useState('')
 
-  const snapshot = JSON.stringify({ formation, mentality, passingStyle, pressing, tempo, lineup })
+  const snapshot = JSON.stringify({ formation, mentality, passingStyle, pressing, tempo, lineup, customLayout })
   const dirty = !loading && snapshot !== savedSnapshot
 
   useEffect(() => {
@@ -78,8 +80,10 @@ export default function TacticsScreen() {
         const [tactic, players] = await Promise.all([tacticsApi.getTactic(club.id), playerApi.getSquad(club.id)])
         setSquad(players || [])
 
-        const form = tactic?.formation || '4-4-2'
-        const slots = (FORMATIONS[form] || FORMATIONS['4-4-2']).slots
+        // Con alineación libre la formación guardada es 'LIBRE' y las posiciones salen del layout personalizado
+        const custom = tactic?.formation === FREE_FORMATION ? normalizeLayout(tactic?.custom_layout) : null
+        const form = custom ? FREE_FORMATION : (FORMATIONS[tactic?.formation] ? tactic.formation : '4-4-2')
+        const slots = custom ? slotsOfLayout(custom) : FORMATIONS[form].slots
         // Alineaciones guardadas con jugadores repetidos, retirados o desordenados se depuran y reubican solas
         const map = resolveLineup(slots, players || [], Array.isArray(tactic?.lineup) ? tactic.lineup : [])
 
@@ -89,11 +93,12 @@ export default function TacticsScreen() {
           passingStyle: tactic?.passing_style || 'MIXED',
           pressing: tactic?.pressing_intensity || 'BALANCED',
           tempo: tactic?.tempo || 'NORMAL',
-          lineup: map
+          lineup: map,
+          customLayout: custom
         }
         setTacticId(tactic?.id || null)
         setFormation(next.formation); setMentality(next.mentality); setPassingStyle(next.passingStyle)
-        setPressing(next.pressing); setTempo(next.tempo); setLineup(next.lineup)
+        setPressing(next.pressing); setTempo(next.tempo); setLineup(next.lineup); setCustomLayout(next.customLayout)
         setSavedSnapshot(JSON.stringify(next))
       } catch (e) {
         console.error('Error cargando táctica:', e)
@@ -107,7 +112,8 @@ export default function TacticsScreen() {
   }, [contextLoading, club?.id])
 
   const playerMap = useMemo(() => new Map(squad.map(p => [p.id, p])), [squad])
-  const slots = (FORMATIONS[formation] || FORMATIONS['4-4-2']).slots
+  const layout = customLayout || getLayout(formation)
+  const slots = customLayout ? slotsOfLayout(customLayout) : (FORMATIONS[formation] || FORMATIONS['4-4-2']).slots
   const starterIds = slots.map(s => lineup[s]).filter(Boolean)
   const starterSlotById = Object.fromEntries(Object.entries(lineup).map(([slot, id]) => [id, slot]))
 
@@ -122,12 +128,22 @@ export default function TacticsScreen() {
   }, [starterIds.join('|'), playerMap]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFormationChange = (next) => {
-    if (next === formation) return
+    if (next === formation || next === FREE_FORMATION) return
     const nextSlots = (FORMATIONS[next] || FORMATIONS['4-4-2']).slots
     // Los titulares conservan su lugar siempre que sea posible; se mueven a su nuevo puesto con animación
     setLineup(reassignLineup(nextSlots, squad, starterIds))
     setFormation(next)
+    setCustomLayout(null)
     setSelectedSlot(null)
+  }
+
+  /** Mueve una ficha a cualquier punto de la cancha: pasa a alineación libre y el jugador viaja con la ficha */
+  const handleMove = (slot, x, y, { keepSelection = false } = {}) => {
+    const moved = moveToPoint(layout, lineup, slot, x, y)
+    setCustomLayout(moved.layout)
+    setLineup(moved.lineup)
+    setFormation(FREE_FORMATION)
+    setSelectedSlot(keepSelection ? moved.slot : null)
   }
 
   const handleAutoAssign = () => {
@@ -177,7 +193,7 @@ export default function TacticsScreen() {
       const saved = await tacticsApi.updateTactic(club.id, {
         id: tacticId, club_id: club.id, formation, mentality,
         passing_style: passingStyle, pressing_intensity: pressing, tempo,
-        lineup: lineupArray, lineupDetails
+        customLayout, lineup: lineupArray, lineupDetails
       })
       if (saved?.id) setTacticId(saved.id)
       setSavedSnapshot(snapshot)
@@ -227,14 +243,14 @@ export default function TacticsScreen() {
       <PageHeader
         eyebrow="Pizarra"
         title="Táctica y once titular"
-        description="Toca una ficha para elegir el puesto; toca otra para intercambiarlas. Al cambiar de formación, tus jugadores se reubican solos."
+        description="Arrastrá una ficha para ponerla donde quieras. En el celular, tocá una ficha y después el lugar de la cancha; tocar otra ficha las intercambia."
         actions={<span className="hidden lg:contents">{saveButton}</span>}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
         {/* Cancha y resumen */}
         <div className="min-w-0 space-y-4">
-          <Pitch formation={formation} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} />
+          <Pitch formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={handleMove} />
 
           <Card>
             <CardBody className="grid grid-cols-3 gap-4">
@@ -262,8 +278,8 @@ export default function TacticsScreen() {
           </TabsList>
 
           <TabsContent value="instructions" className="space-y-4">
-            <InstructionGroup title="Estructura" description={(FORMATIONS[formation] || FORMATIONS['4-4-2']).description}>
-              <ChoiceChips label="Formación" value={formation} onChange={handleFormationChange} options={FORMATION_OPTIONS} />
+            <InstructionGroup title="Estructura" description={customLayout ? `Alineación libre con esquema ${shapeOf(customLayout)}. Elegí una formación para volver a una fija.` : (FORMATIONS[formation] || FORMATIONS['4-4-2']).description}>
+              <ChoiceChips label="Formación" value={formation} onChange={handleFormationChange} options={customLayout ? [...FORMATION_OPTIONS, { value: FREE_FORMATION, label: `Libre ${shapeOf(customLayout)}` }] : FORMATION_OPTIONS} />
               <Button variant="outline" size="sm" onClick={handleAutoAssign}><Wand2 />Auto-alinear el mejor once</Button>
             </InstructionGroup>
 

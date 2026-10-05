@@ -25,9 +25,13 @@ import { toast } from 'sonner'
 import { isFixturePlayed } from '../../domain/fixtureStatus'
 import { buildMatchSquad, buildRivalLineup } from '../../domain/matchSquad'
 import { resolveLineup } from '../../domain/formations'
+import { FREE_FORMATION, normalizeLayout, slotsOfLayout } from '../../domain/freeLayout'
 
 // Puestos de la formación activa (en el orden en que se guarda la alineación)
-const slotsOf = (tactic) => (FORMATIONS[tactic?.formation] || FORMATIONS['4-4-2']).slots
+const slotsOf = (tactic) => {
+  const custom = tactic?.formation === FREE_FORMATION ? normalizeLayout(tactic?.custom_layout) : null
+  return custom ? slotsOfLayout(custom) : (FORMATIONS[tactic?.formation] || FORMATIONS['4-4-2']).slots
+}
 
 // Ids de la alineación en el orden de los puestos, con la misma corrección que usa la pizarra (alineaciones desordenadas)
 const lineupIdsOf = (tactic, players) => {

@@ -1,0 +1,6 @@
+# Reporte de Ejecución: free-lineup-m4
+- **Rama**: `feat/pizarra-2` | **Estado**: `DONE` (tanda 1 de M4: alineación libre; el nivel por puesto ya estaba en M3; sigue la química)
+- **Problema**: solo había 7 formaciones fijas y los jugadores no se podían ubicar libremente en la cancha.
+- **Cambios**: `src/domain/freeLayout.js` (puesto según la zona, límites de la cancha con un único arquero, armado del layout con puestos numerados, mover una ficha con el jugador a cuestas, esquema "4-3-3", validación y normalización de lo guardado). `Pitch`: arrastre con puntero (umbral de 6 px para distinguir un toque), tocar un lugar vacío mueve la ficha seleccionada (celular), flechas del teclado mueven la seleccionada, sin resorte mientras se arrastra. `TacticsScreen`: pasa a alineación libre al mover una ficha, muestra el esquema, volver a una formación fija resetea; guarda `formation = LIBRE` y `custom_layout`. `MatchScreen` usa los puestos del layout libre. Migración `tactics_custom_layout` (columna jsonb; aplicada).
+- **Tests**: `freeLayout.test.js` (12), ampliación de `pitch.test.jsx` (arrastre, toque, lugar vacío, teclado), `tacticsScreen.test.jsx` (5); suite completa verde (647).
+- **Sin verificar en navegador**: el arrastre real con el dedo o el mouse no se probó en pantalla (jsdom no mide la cancha).

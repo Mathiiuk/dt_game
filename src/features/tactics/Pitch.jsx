@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { cn } from '../../lib/utils'
 import { getLayout } from '../../domain/formations'
+import { clampPoint } from '../../domain/freeLayout'
 import { fitLabel, slotBase } from '../../domain/positions'
 import { ratingAtSlot } from '../../domain/ratings'
 
@@ -11,6 +12,10 @@ const RING = {
   ADAPTED: 'border-[oklch(75%_0.16_55)] text-[oklch(75%_0.16_55)]',
   OUT_OF_POSITION: 'border-danger text-danger'
 }
+
+const DRAG_THRESHOLD = 6
+const KEY_STEP = 2
+const ARROWS = { ArrowLeft: [-KEY_STEP, 0], ArrowRight: [KEY_STEP, 0], ArrowUp: [0, -KEY_STEP], ArrowDown: [0, KEY_STEP] }
 
 /** Trazado de la cancha (líneas de tiza sobre césped oscuro). Proporción vertical 68:100 */
 function PitchLines() {
@@ -40,8 +45,11 @@ function PitchLines() {
   )
 }
 
-/** Ficha de jugador: número, apellido y anillo de afinidad posicional */
-function Token({ slot, player, x, y, selected, onSelect, reduceMotion }) {
+/**
+ * Ficha de jugador: número, apellido y anillo de afinidad posicional.
+ * Con `draggable` se arrastra; seleccionada, también se mueve con las flechas del teclado.
+ */
+function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, onPointerDown, onPointerMove, onPointerUp, onNudge, reduceMotion }) {
   const base = slotBase(slot)
   const affinity = player ? fitLabel(player.position, slot) : null
   const rating = player ? ratingAtSlot(player, slot) : null
@@ -50,27 +58,41 @@ function Token({ slot, player, x, y, selected, onSelect, reduceMotion }) {
     ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${player.is_injured ? ', lesionado' : ''}${selected ? ', seleccionado' : ''}`
     : `${base}: puesto vacío${selected ? ', seleccionado' : ''}`
 
+  const handleKeyDown = (e) => {
+    const step = ARROWS[e.key]
+    if (!step || !selected || !onNudge) return
+    e.preventDefault()
+    onNudge(slot, x + step[0], y + step[1])
+  }
+
   return (
     <motion.div
       // La posición anima con un resorte al cambiar de formación. Con "reducir movimiento" activo en el sistema se usa un
-      // desplazamiento corto y lineal, sin rebote: el movimiento es parte esencial de la función (ver a dónde va cada jugador)
+      // desplazamiento corto y lineal, sin rebote: el movimiento es parte esencial de la función (ver a dónde va cada jugador).
+      // Mientras se arrastra, la ficha sigue al dedo sin resorte.
       initial={false}
       animate={{ left: `${x}%`, top: `${y}%` }}
-      transition={reduceMotion ? { duration: 0.35, ease: 'easeOut' } : { type: 'spring', stiffness: 170, damping: 20, mass: 0.9 }}
-      className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+      transition={dragging ? { duration: 0 } : reduceMotion ? { duration: 0.35, ease: 'easeOut' } : { type: 'spring', stiffness: 170, damping: 20, mass: 0.9 }}
+      className={cn('absolute -translate-x-1/2 -translate-y-1/2', dragging ? 'z-20' : 'z-10')}
     >
       <button
         type="button"
         onClick={() => onSelect(slot)}
+        onPointerDown={draggable ? (e) => onPointerDown(e, slot) : undefined}
+        onPointerMove={draggable ? onPointerMove : undefined}
+        onPointerUp={draggable ? onPointerUp : undefined}
+        onPointerCancel={draggable ? onPointerUp : undefined}
+        onKeyDown={handleKeyDown}
         aria-label={label}
         aria-pressed={selected}
-        className="group flex w-16 flex-col items-center gap-1 focus-visible:outline-none sm:w-20"
+        className={cn('group flex w-16 flex-col items-center gap-1 focus-visible:outline-none sm:w-20', draggable && 'touch-none cursor-grab active:cursor-grabbing')}
       >
         <span
           className={cn(
             'grid size-10 place-items-center rounded-full border-2 bg-bg font-display text-lg font-semibold shadow-raised transition-transform sm:size-11',
             player ? RING[affinity.code] : 'border-dashed border-fg-subtle text-fg-subtle',
             selected && 'scale-110 ring-2 ring-fg ring-offset-2 ring-offset-transparent',
+            dragging && 'scale-110 shadow-overlay',
             'group-focus-visible:ring-2 group-focus-visible:ring-accent group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-bg'
           )}
         >
@@ -93,18 +115,75 @@ function Token({ slot, player, x, y, selected, onSelect, reduceMotion }) {
 
 /**
  * Cancha con los 11 titulares. `lineup` es { [slot]: playerId }; `players` el plantel completo.
- * Cada ficha está identificada por el puesto de la formación; al cambiar de formación se reposicionan con animación.
+ * El layout sale de `layout` (alineación libre) o de la formación fija. Cada ficha está identificada por el jugador:
+ * al cambiar de formación se reposicionan con animación.
+ *
+ * Con `onMove(slot, x, y, { keepSelection })` las fichas se arrastran a cualquier lugar. En el celular también se puede tocar
+ * una ficha y después tocar el lugar de la cancha, o mover la seleccionada con las flechas del teclado.
  */
-export default function Pitch({ formation, lineup, players, selectedSlot, onSelectSlot, className }) {
+export default function Pitch({ formation, layout: layoutProp, lineup, players, selectedSlot, onSelectSlot, onMove, className }) {
   const reduceMotion = useReducedMotion()
+  const boxRef = useRef(null)
+  const dragRef = useRef(null)
+  const suppressClick = useRef(false)
+  const [drag, setDrag] = useState(null) // { slot, x, y } mientras se arrastra
+
   const byId = new Map(players.map(p => [p.id, p]))
-  const layout = getLayout(formation)
+  const layout = layoutProp || getLayout(formation)
   const seen = new Set()
+
+  /** Punto de la cancha (en %) bajo el puntero */
+  const pointFromEvent = (e) => {
+    const rect = boxRef.current?.getBoundingClientRect()
+    if (!rect || !rect.width || !rect.height) return null
+    return { x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 }
+  }
+
+  const handlePointerDown = (e, slot) => {
+    if (e.button !== undefined && e.button !== 0) return
+    dragRef.current = { slot, startX: e.clientX, startY: e.clientY, moved: false }
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+  }
+
+  const handlePointerMove = (e) => {
+    const d = dragRef.current
+    if (!d) return
+    if (!d.moved && Math.hypot(e.clientX - d.startX, e.clientY - d.startY) < DRAG_THRESHOLD) return
+    d.moved = true
+    const point = pointFromEvent(e)
+    if (point) setDrag({ slot: d.slot, ...clampPoint(point.x, point.y, d.slot === 'PO') })
+  }
+
+  const handlePointerUp = (e) => {
+    const d = dragRef.current
+    dragRef.current = null
+    if (!d?.moved) return
+    // El click que sigue a un arrastre no debe seleccionar la ficha
+    suppressClick.current = true
+    setTimeout(() => { suppressClick.current = false }, 0)
+    const point = pointFromEvent(e)
+    setDrag(null)
+    if (point) onMove(d.slot, point.x, point.y, { keepSelection: false })
+  }
+
+  const handleSelect = (slot) => {
+    if (suppressClick.current) return
+    onSelectSlot(slot)
+  }
+
+  // Tocar un lugar vacío de la cancha mueve ahí la ficha seleccionada
+  const handleBackgroundClick = (e) => {
+    if (!onMove || !selectedSlot || e.target.closest('button')) return
+    const point = pointFromEvent(e)
+    if (point) onMove(selectedSlot, point.x, point.y, { keepSelection: false })
+  }
 
   return (
     <div
+      ref={boxRef}
       role="group"
       aria-label={`Cancha: formación ${formation}`}
+      onClick={handleBackgroundClick}
       className={cn('relative mx-auto aspect-[68/100] w-full max-w-[28rem] overflow-hidden rounded-lg border border-line', className)}
     >
       <PitchLines />
@@ -115,15 +194,22 @@ export default function Pitch({ formation, lineup, players, selectedSlot, onSele
         // Defensa ante datos viejos: si un mismo jugador figura en dos puestos, la segunda ficha usa clave propia
         const duplicated = player && seen.has(player.id)
         if (player) seen.add(player.id)
+        const dragging = drag?.slot === slot
         return (
           <Token
             key={player ? (duplicated ? `p-${player.id}-${slot}` : `p-${player.id}`) : `empty-${slot}`}
             slot={slot}
-            x={x}
-            y={y}
+            x={dragging ? drag.x : x}
+            y={dragging ? drag.y : y}
             player={player}
             selected={selectedSlot === slot}
-            onSelect={onSelectSlot}
+            onSelect={handleSelect}
+            draggable={Boolean(onMove)}
+            dragging={dragging}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onNudge={onMove ? (s, nx, ny) => onMove(s, nx, ny, { keepSelection: true }) : undefined}
             reduceMotion={reduceMotion}
           />
         )

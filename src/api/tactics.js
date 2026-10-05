@@ -193,6 +193,8 @@ export const tacticsApi = {
       width: tacticData.width || 'BALANCED',
       pressing_intensity: tacticData.pressing_intensity || 'BALANCED',
       lineup: Array.isArray(tacticData.lineup) ? tacticData.lineup : [],
+      // Alineación libre: posiciones de los 11 sobre la cancha (null con una formación fija)
+      custom_layout: Array.isArray(tacticData.customLayout) ? tacticData.customLayout : null,
       updated_at: new Date().toISOString()
     }
 
