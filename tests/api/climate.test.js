@@ -6,6 +6,10 @@ vi.mock('../../src/api/morale', () => ({
   moraleApi: { getStreaks: vi.fn(async () => state.streaks) }
 }))
 
+vi.mock('../../src/api/player', () => ({
+  playerApi: { batchUpdate: vi.fn(async (rows) => { state.batched = rows }) }
+}))
+
 vi.mock('../../src/api/finances', () => ({
   financesApi: { getFinances: vi.fn(async () => state.finances) }
 }))
@@ -23,9 +27,10 @@ vi.mock('../../src/api/supabase', () => {
       if (table === 'club_board_confidence') return state.board
       return null
     }
+    const readList = () => (table === 'players' ? state.players : null)
     q.single = async () => ({ data: read(), error: null })
     q.maybeSingle = async () => ({ data: read(), error: null })
-    q.then = (resolve) => resolve({ data: null, error: null })
+    q.then = (resolve) => resolve({ data: readList(), error: null })
     return q
   }
   return { supabase: { from: chain } }
@@ -89,5 +94,29 @@ describe('clima del club', () => {
     expect(board.financial_satisfaction).toBeLessThan(15)
     expect(board.squad_satisfaction).toBe(50)
     expect(board.confidence_score).toBeLessThan(60)
+  })
+
+  it('vender al ídolo registra el costo en hinchada y vestuario', async () => {
+    const { saleConsequences } = await import('../../src/domain/squadConsequences')
+    await climateApi.applySquadConsequence({ clubId: 'c1', source: 'SALE', effects: saleConsequences({ isIdol: true }) })
+    expect(clubWrite()).toMatchObject({ fans_confidence: 52, squad_morale: 44 })
+    expect(logs()[0].row.source).toBe('SALE')
+  })
+
+  it('un efecto vacío no escribe nada', async () => {
+    await climateApi.applySquadConsequence({ clubId: 'c1', source: 'BENCH', effects: { fans: 0, board: 0, locker: 0, notes: [] } })
+    expect(writes).toHaveLength(0)
+  })
+
+  it('los que cobran 25% menos que un par de su nivel pierden 2 de moral', async () => {
+    state.players = [
+      { id: 'a', attr_overall: 60, contract_salary: 100, state_morale: 70 },
+      { id: 'b', attr_overall: 61, contract_salary: 150, state_morale: 70 }
+    ]
+    state.batched = null
+    const n = await climateApi.applyWageInequity({ clubId: 'c1' })
+    expect(n).toBe(1)
+    expect(state.batched).toEqual([{ id: 'a', state_morale: 68 }])
+    expect(logs()[0].row.source).toBe('WAGES')
   })
 })

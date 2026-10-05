@@ -9,6 +9,7 @@ import { rollAggravations, AGGRAVATION_EXTRA_WEEKS } from '../domain/matchSquad'
 import { queryCache } from '../utils/cache'
 import { positionLine } from '../domain/positions'
 import { gateSettlement } from '../domain/finances'
+import { benchConsequences } from '../domain/squadConsequences'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 
 /**
@@ -420,6 +421,18 @@ export const postMatchApi = {
     try {
       const { climateApi } = await import('./climate')
       await climateApi.applyMatchConsequences({ clubId, fixtureId, result, gameDate: clubData?.game_date || null })
+
+      // Referentes en el banco: el capitán y el ídolo que no juegan se notan en el vestuario y en la tribuna
+      if (result.starterIds?.length && players?.length) {
+        const { data: locker } = await supabase.from('club_locker_room').select('captain_player_id').eq('club_id', clubId).maybeSingle()
+        const played = new Set(selectParticipants(players, result.starterIds).map(x => x.id))
+        const captainBenched = Boolean(locker?.captain_player_id) && !played.has(locker.captain_player_id)
+        const idolBenched = players.some(x => x.is_idol && !x.is_injured && !played.has(x.id))
+        await climateApi.applySquadConsequence({
+          clubId, source: 'BENCH', gameDate: clubData?.game_date || null,
+          effects: benchConsequences({ captainBenched, idolBenched }, climateApi.difficulty)
+        })
+      }
     } catch (climateErr) {
       console.warn('Aviso: no se pudieron aplicar las consecuencias del partido:', climateErr)
     }

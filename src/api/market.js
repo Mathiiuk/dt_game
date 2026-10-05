@@ -296,6 +296,22 @@ export const marketApi = {
       }
     }
 
+    // Consecuencias del fichaje: pagar de más o dejar la caja sin aire molesta a la dirigencia
+    try {
+      const { financesApi } = await import('./finances')
+      const { climateApi } = await import('./climate')
+      const { purchaseConsequences } = await import('../domain/squadConsequences')
+      const finances = await financesApi.getFinances(buyerClubId)
+      await climateApi.applySquadConsequence({
+        clubId: buyerClubId,
+        source: 'PURCHASE',
+        gameDate: buyer.game_date,
+        effects: purchaseConsequences({ fee: offerAmount, marketValue, balance: buyer.budget, weeklyExpenses: finances?.expenses?.total || 0 }, climateApi.difficulty)
+      })
+    } catch (climateErr) {
+      console.warn('Aviso: no se pudieron aplicar las consecuencias del fichaje:', climateErr)
+    }
+
     // 7. Registro de auditoría
     try {
       await supabase.from('transfer_audit_log').insert({

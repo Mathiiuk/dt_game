@@ -3,6 +3,7 @@ import { queryCache } from '../utils/cache'
 import { moraleApi } from './morale'
 import { DIFFICULTY, clamp, matchConsequences, ticketPriceMood, financialSatisfaction } from '../domain/consequences'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
+import { wageInequities } from '../domain/squadConsequences'
 
 const sign = (n) => (n > 0 ? `+${n}` : String(n))
 
@@ -136,7 +137,40 @@ export const climateApi = {
       }).eq('club_id', clubId)
       queryCache.invalidate(`board:${clubId}`)
     }
+    try {
+      await this.applyWageInequity({ clubId, gameDate })
+    } catch (e) {
+      console.warn('Aviso: no se pudo evaluar la inequidad salarial:', e)
+    }
     return { mood, financial, squad }
+  },
+
+  /** Aplica y registra el efecto de una decisión sobre el plantel (`effects`: { fans, board, locker, notes }) */
+  async applySquadConsequence({ clubId, source, gameDate = null, effects }) {
+    if (!effects || (!effects.fans && !effects.board && !effects.locker)) return null
+    await this.applyDeltas(clubId, effects)
+    const parts = []
+    if (effects.fans) parts.push(`hinchada ${sign(effects.fans)}`)
+    if (effects.board) parts.push(`dirigencia ${sign(effects.board)}`)
+    if (effects.locker) parts.push(`vestuario ${sign(effects.locker)}`)
+    await this.log(clubId, gameDate, source, `${(effects.notes || []).join(' ')} (${parts.join(', ')})`.trim(), effects)
+    return effects
+  },
+
+  /** Reclamo por sueldos desparejos: los que cobran 25% menos que un par de su nivel se enojan (-2 de moral) */
+  async applyWageInequity({ clubId, gameDate = null }) {
+    const { data: players } = await supabase
+      .from('players')
+      .select('id, attr_overall, contract_salary, state_morale')
+      .eq('club_id', clubId)
+      .eq('is_retired', false)
+    const aggrieved = wageInequities(players || [])
+    if (!aggrieved.length) return 0
+    const byId = new Map(players.map(p => [p.id, p]))
+    const { playerApi } = await import('./player')
+    await playerApi.batchUpdate(aggrieved.map(id => ({ id, state_morale: clamp((byId.get(id).state_morale ?? 70) - 2, 10) })))
+    await this.log(clubId, gameDate, 'WAGES', `${aggrieved.length} jugador(es) se quejan de cobrar bastante menos que compañeros de su nivel (moral -2).`, {})
+    return aggrieved.length
   },
 
   /** Últimas consecuencias registradas del club */

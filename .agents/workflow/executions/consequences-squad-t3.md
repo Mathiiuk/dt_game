@@ -1,0 +1,6 @@
+# Reporte de Ejecución: consequences-squad-t3
+- **Rama**: `feat/consequences-squad` (parte de `feat/consequences-results`) | **Estado**: `DONE`
+- **Problema**: entrenar a intensidad alta todas las semanas no tenía costo acumulado; vender al ídolo o al capitán, fichar pagando de más, dejar al capitán en el banco o pagar sueldos desparejos no generaban ninguna reacción.
+- **Cambios**: `src/domain/squadConsequences.js` (carga de entrenamiento con riesgo +20% por semana intensa seguida y +30% para veteranos/juveniles; efecto en vestuario desde la 2ª semana; riesgo para avisar; venta de ídolo/capitán; fichaje por encima de 120% del valor o que deja menos de 6 semanas de gastos; capitán/ídolo en el banco; inequidad salarial ±3 de media y 25% menos de sueldo). Integración: `training.processWeeklyTraining` (historial de intensidades y multiplicador por jugador), `contracts.executeSaleTransfer`, `market.buyPlayer`, `postMatch` (banca), `climate.applyWageInequity` en el cierre semanal. Todo queda en `consequence_log`.
+- **Tests**: `squadConsequences.test.js` (10) y ampliación de `climate.test.js`; suite completa verde (475).
+- **Pendiente**: reclamo de suplentes por minutos (requiere contador de partidos sin jugar), aviso previo en pantalla (T6).

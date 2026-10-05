@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { trainingLoad, trainingLoadConsequence } from '../domain/squadConsequences'
 
 export const FOCUS_OPTIONS = [
   { 
@@ -244,6 +245,21 @@ export const trainingApi = {
     let improvementsCount = 0
     let totalFitnessCost = 0
 
+    // Carga acumulada: las semanas seguidas a intensidad alta suben el riesgo de lesión y desgastan al plantel
+    let recentIntensities = []
+    try {
+      const { data: recentLogs } = await supabase
+        .from('training_execution_logs')
+        .select('intensity_applied')
+        .eq('club_id', clubId)
+        .order('timestamp', { ascending: false })
+        .limit(5)
+      recentIntensities = (recentLogs || []).map(l => l.intensity_applied)
+    } catch (e) {
+      // Sin historial se asume sin carga previa
+    }
+    const clubLoad = trainingLoad({ recent: recentIntensities, current: isRecovery ? 'LOW' : plan.intensity_level })
+
     // 3. Iterar futbolistas
     const trainingUpdates = []
     for (const p of players) {
@@ -274,7 +290,8 @@ export const trainingApi = {
         // Tirada de lesión en entrenamiento:
         // Aumenta si el fitness es bajo (< 60) y por la intensidad
         const fitnessRiskFactor = fitness < 60 ? 3.0 : 1.0
-        const injuryChance = intensityConf.injuryBaseProb * fitnessRiskFactor
+        const loadFactor = trainingLoad({ recent: recentIntensities, current: plan.intensity_level, age }).injuryMultiplier
+        const injuryChance = intensityConf.injuryBaseProb * fitnessRiskFactor * loadFactor
 
         if (Math.random() < injuryChance) {
           injuryDays = Math.floor(Math.random() * 14) + 7
@@ -350,6 +367,17 @@ export const trainingApi = {
     // Un solo UPDATE masivo para todo el plantel (antes: uno por jugador)
     const { playerApi } = await import('./player')
     await playerApi.batchUpdate(trainingUpdates)
+
+    // 3b. Consecuencia en el vestuario de la carga acumulada
+    try {
+      const load = trainingLoadConsequence(clubLoad.consecutiveHigh)
+      if (load.locker) {
+        const { climateApi } = await import('./climate')
+        await climateApi.applySquadConsequence({ clubId, source: 'TRAINING', effects: { locker: load.locker, notes: [load.note] } })
+      }
+    } catch (loadErr) {
+      console.warn('Aviso: no se pudo aplicar el desgaste del entrenamiento:', loadErr)
+    }
 
     // 4. Registrar auditoría en training_execution_logs
     try {

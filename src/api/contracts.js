@@ -629,6 +629,23 @@ export const contractApi = {
     const newBudget = (toClub?.budget || 0) + reinvestment
 
     await supabase.from('clubs').update({ budget: newBudget }).eq('id', toClubId)
+
+    // Vender al ídolo o al capitán tiene costo en la tribuna y en el vestuario
+    try {
+      const [{ data: sold }, { data: locker }] = await Promise.all([
+        supabase.from('players').select('is_idol').eq('id', playerId).maybeSingle(),
+        supabase.from('club_locker_room').select('captain_player_id').eq('club_id', toClubId).maybeSingle()
+      ])
+      const { climateApi } = await import('./climate')
+      const { saleConsequences } = await import('../domain/squadConsequences')
+      await climateApi.applySquadConsequence({
+        clubId: toClubId,
+        source: 'SALE',
+        effects: saleConsequences({ isIdol: Boolean(sold?.is_idol), isCaptain: locker?.captain_player_id === playerId }, climateApi.difficulty)
+      })
+    } catch (climateErr) {
+      console.warn('Aviso: no se pudieron aplicar las consecuencias de la venta:', climateErr)
+    }
     
     if (fromClubId) {
       const { data: fromClub } = await supabase.from('clubs').select('budget').eq('id', fromClubId).maybeSingle()
