@@ -121,20 +121,20 @@ export default function CreateClubWizard() {
               <div 
                 className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs transition-all ${
                   step === s 
-                    ? 'bg-emerald-500 text-black ring-4 ring-emerald-500/20 shadow-md' 
+                    ? 'bg-accent text-accent-fg ring-4 ring-accent/20 shadow-md' 
                     : step > s 
-                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40' 
-                    : 'bg-zinc-900 text-zinc-600 border border-zinc-800'
+                    ? 'bg-accent-soft text-accent border border-accent/40' 
+                    : 'bg-surface text-fg-subtle border border-line'
                 }`}
               >
                 {step > s ? <Check className="w-4 h-4" /> : s}
               </div>
-              <span className={`text-[10px] mt-1 font-medium hidden sm:block ${step >= s ? 'text-zinc-300' : 'text-zinc-600'}`}>
+              <span className={`text-[10px] mt-1 font-medium hidden sm:block ${step >= s ? 'text-fg' : 'text-fg-subtle'}`}>
                 {labels[s - 1]}
               </span>
             </div>
             {s < 4 && (
-              <div className={`w-8 sm:w-16 h-0.5 mx-2 transition-all ${step > s ? 'bg-emerald-500' : 'bg-zinc-800'}`} />
+              <div className={`w-8 sm:w-16 h-0.5 mx-2 transition-all ${step > s ? 'bg-accent' : 'bg-surface-3'}`} />
             )}
           </div>
         )
@@ -143,14 +143,14 @@ export default function CreateClubWizard() {
   )
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-zinc-950">
-      <div className="w-full max-w-2xl p-6 sm:p-8 border border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-md shadow-2xl">
+    <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-8 bg-bg">
+      <div className="w-full max-w-2xl p-6 sm:p-8 border border-line/80 rounded-lg bg-surface/60 backdrop-blur-md shadow-2xl">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">Fundación de la Institución</h1>
-            <p className="text-xs sm:text-sm text-zinc-400">Paso {step} de 4 • Origen en el Torneo Regional</p>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-fg">Fundación de la Institución</h1>
+            <p className="text-xs sm:text-sm text-fg-muted">Paso {step} de 4 • Origen en el Torneo Regional</p>
           </div>
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="p-2.5 rounded-xl bg-accent/10 border border-accent/20 text-accent">
             <Shield className="w-6 h-6" />
           </div>
         </div>
@@ -162,64 +162,64 @@ export default function CreateClubWizard() {
         {/* STEP 1: IDENTITY */}
         {step === 1 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+            <div className="flex items-center gap-2 mb-2 text-accent font-bold text-base">
               <MapPin className="w-5 h-5" />
               <span>Identidad Institucional</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Nombre Oficial del Club</label>
-                <input 
+                <label htmlFor="f-nombre-oficial-del-club-1" className="block mb-1 text-xs font-medium text-fg">Nombre Oficial del Club</label>
+                <input id="f-nombre-oficial-del-club-1" 
                   type="text" 
                   value={identity.name} 
                   onChange={e => setIdentity({...identity, name: e.target.value})} 
                   placeholder="Ej: Club Atlético Potrero"
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none placeholder:text-fg-subtle" 
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Siglas / Nombre Corto (3-4 letras)</label>
-                <input 
+                <label htmlFor="f-siglas-nombre-corto-3-4-letras-2" className="block mb-1 text-xs font-medium text-fg">Siglas / Nombre Corto (3-4 letras)</label>
+                <input id="f-siglas-nombre-corto-3-4-letras-2" 
                   type="text" 
                   maxLength={4}
                   value={identity.shortName} 
                   onChange={e => setIdentity({...identity, shortName: e.target.value.toUpperCase()})} 
                   placeholder="CAP"
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600 uppercase font-mono" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none placeholder:text-fg-subtle uppercase font-mono" 
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Apodo del Equipo</label>
-                <input 
+                <label htmlFor="f-apodo-del-equipo-3" className="block mb-1 text-xs font-medium text-fg">Apodo del Equipo</label>
+                <input id="f-apodo-del-equipo-3" 
                   type="text" 
                   value={identity.nickname} 
                   onChange={e => setIdentity({...identity, nickname: e.target.value})} 
                   placeholder="Los Guerreros del Barro"
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none placeholder:text-fg-subtle" 
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Ciudad de Origen</label>
-                <input 
+                <label htmlFor="f-ciudad-de-origen-4" className="block mb-1 text-xs font-medium text-fg">Ciudad de Origen</label>
+                <input id="f-ciudad-de-origen-4" 
                   type="text" 
                   value={identity.city} 
                   onChange={e => setIdentity({...identity, city: e.target.value})} 
                   placeholder="Buenos Aires"
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none placeholder:text-fg-subtle" 
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">País</label>
-                <input 
+                <label htmlFor="f-pais-5" className="block mb-1 text-xs font-medium text-fg">País</label>
+                <input id="f-pais-5" 
                   type="text" 
                   value={identity.country} 
                   onChange={e => setIdentity({...identity, country: e.target.value})} 
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none" 
                 />
               </div>
             </div>
@@ -229,13 +229,13 @@ export default function CreateClubWizard() {
         {/* STEP 2: COLORS & BADGE */}
         {step === 2 && (
           <div className="space-y-6">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold text-base">
+            <div className="flex items-center gap-2 text-accent font-bold text-base">
               <Palette className="w-5 h-5" />
               <span>Colores y Blasón Oficial</span>
             </div>
 
             {/* Live Jersey Preview */}
-            <div className="flex flex-col sm:flex-row items-center justify-center p-6 border rounded-2xl bg-zinc-950/80 border-zinc-800 gap-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center p-6 border rounded-lg bg-bg/80 border-line gap-6">
               <div className="flex flex-col items-center">
                 {/* SVG Jersey */}
                 <div className="relative w-28 h-32 flex items-center justify-center filter drop-shadow-md">
@@ -248,11 +248,11 @@ export default function CreateClubWizard() {
                     <path d="M35,25 C37,33 63,33 65,25" fill="none" stroke={colors.secondary} strokeWidth="3" />
                   </svg>
                 </div>
-                <span className="text-[11px] font-mono text-zinc-400 mt-2">Camiseta Titular</span>
+                <span className="text-[11px] font-mono text-fg-muted mt-2">Camiseta Titular</span>
               </div>
 
               <div className="flex-1 w-full space-y-3">
-                <p className="text-xs font-semibold text-zinc-300">Paletas Tradicionales:</p>
+                <p className="text-xs font-semibold text-fg">Paletas Tradicionales:</p>
                 <div className="grid grid-cols-2 gap-2">
                   {COLOR_PRESETS.map((p, idx) => (
                     <button
@@ -261,36 +261,36 @@ export default function CreateClubWizard() {
                       onClick={() => setColors({ primary: p.primary, secondary: p.secondary })}
                       className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all ${
                         colors.primary === p.primary && colors.secondary === p.secondary
-                          ? 'border-emerald-500 bg-emerald-500/10'
-                          : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700'
+                          ? 'border-accent bg-accent/10'
+                          : 'border-line bg-surface/60 hover:border-line'
                       }`}
                     >
                       <div className="flex items-center gap-1 shrink-0">
                         <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: p.primary }} />
                         <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: p.secondary }} />
                       </div>
-                      <span className="text-xs text-zinc-200 truncate">{p.name}</span>
+                      <span className="text-xs text-fg truncate">{p.name}</span>
                     </button>
                   ))}
                 </div>
 
                 <div className="flex items-center gap-4 pt-2">
                   <div>
-                    <label className="block mb-1 text-[11px] text-zinc-400">Color Primario</label>
-                    <input 
+                    <label htmlFor="f-color-primario-6" className="block mb-1 text-[11px] text-fg-muted">Color Primario</label>
+                    <input id="f-color-primario-6" 
                       type="color" 
                       value={colors.primary} 
                       onChange={e => setColors({...colors, primary: e.target.value})} 
-                      className="w-10 h-8 rounded-lg bg-zinc-800 border border-zinc-700 cursor-pointer"
+                      className="w-10 h-8 rounded-lg bg-surface-3 border border-line cursor-pointer"
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-[11px] text-zinc-400">Color Secundario</label>
-                    <input 
+                    <label htmlFor="f-color-secundario-7" className="block mb-1 text-[11px] text-fg-muted">Color Secundario</label>
+                    <input id="f-color-secundario-7" 
                       type="color" 
                       value={colors.secondary} 
                       onChange={e => setColors({...colors, secondary: e.target.value})} 
-                      className="w-10 h-8 rounded-lg bg-zinc-800 border border-zinc-700 cursor-pointer"
+                      className="w-10 h-8 rounded-lg bg-surface-3 border border-line cursor-pointer"
                     />
                   </div>
                 </div>
@@ -298,7 +298,7 @@ export default function CreateClubWizard() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-zinc-300 mb-2">Modelo de Escudo:</p>
+              <p className="text-xs font-semibold text-fg mb-2">Modelo de Escudo:</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {BADGES.map(b => (
                   <button
@@ -307,8 +307,8 @@ export default function CreateClubWizard() {
                     onClick={() => setBadgeId(b.id)}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
                       badgeId === b.id 
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' 
-                        : 'border-zinc-800 bg-zinc-950/70 text-zinc-400 hover:border-zinc-700'
+                        ? 'border-accent bg-accent/10 text-accent' 
+                        : 'border-line bg-bg/70 text-fg-muted hover:border-line'
                     }`}
                   >
                     <b.icon className="w-6 h-6 mb-1" />
@@ -323,38 +323,38 @@ export default function CreateClubWizard() {
         {/* STEP 3: STADIUM & INFRASTRUCTURE */}
         {step === 3 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+            <div className="flex items-center gap-2 mb-2 text-accent font-bold text-base">
               <Building2 className="w-5 h-5" />
               <span>Estadio e Infraestructura Inicial</span>
             </div>
 
             <div>
-              <label className="block mb-1 text-xs font-medium text-zinc-300">Nombre del Estadio</label>
-              <input 
+              <label htmlFor="f-nombre-del-estadio-8" className="block mb-1 text-xs font-medium text-fg">Nombre del Estadio</label>
+              <input id="f-nombre-del-estadio-8" 
                 type="text" 
                 value={stadium.name} 
                 onChange={e => setStadium({...stadium, name: e.target.value})} 
-                className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+                className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none" 
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <div className="p-3 border rounded-xl bg-zinc-950/70 border-zinc-800">
-                <span className="text-[10px] text-zinc-500 uppercase block">Aforo Oficial</span>
-                <span className="text-lg font-black text-white font-mono">1,500</span>
-                <span className="text-[11px] text-zinc-400 block mt-0.5">Capacidad autorizada Tier 5</span>
+              <div className="p-3 border rounded-xl bg-bg/70 border-line">
+                <span className="text-[10px] text-fg-subtle uppercase block">Aforo Oficial</span>
+                <span className="text-lg font-semibold text-fg font-mono">1,500</span>
+                <span className="text-[11px] text-fg-muted block mt-0.5">Capacidad autorizada Tier 5</span>
               </div>
 
-              <div className="p-3 border rounded-xl bg-zinc-950/70 border-zinc-800">
-                <span className="text-[10px] text-zinc-500 uppercase block">Calidad del Césped</span>
-                <span className="text-lg font-black text-amber-400 font-mono">60 / 100</span>
-                <span className="text-[11px] text-zinc-400 block mt-0.5">Potrero con sectores de tierra</span>
+              <div className="p-3 border rounded-xl bg-bg/70 border-line">
+                <span className="text-[10px] text-fg-subtle uppercase block">Calidad del Césped</span>
+                <span className="text-lg font-semibold text-gold font-mono">60 / 100</span>
+                <span className="text-[11px] text-fg-muted block mt-0.5">Potrero con sectores de tierra</span>
               </div>
 
-              <div className="p-3 border rounded-xl bg-zinc-950/70 border-zinc-800">
-                <span className="text-[10px] text-zinc-500 uppercase block">Entrada General</span>
-                <span className="text-lg font-black text-emerald-400 font-mono">$10.00</span>
-                <span className="text-[11px] text-zinc-400 block mt-0.5">Precio regulado de taquilla</span>
+              <div className="p-3 border rounded-xl bg-bg/70 border-line">
+                <span className="text-[10px] text-fg-subtle uppercase block">Entrada General</span>
+                <span className="text-lg font-semibold text-accent font-mono">$10.00</span>
+                <span className="text-[11px] text-fg-muted block mt-0.5">Precio regulado de taquilla</span>
               </div>
             </div>
           </div>
@@ -363,47 +363,47 @@ export default function CreateClubWizard() {
         {/* STEP 4: CONFIRMATION & CHARTER */}
         {step === 4 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+            <div className="flex items-center gap-2 mb-2 text-accent font-bold text-base">
               <CheckCircle className="w-5 h-5" />
               <span>Acta de Fundación Oficial</span>
             </div>
 
-            <div className="p-5 border border-emerald-500/30 rounded-2xl bg-gradient-to-br from-emerald-950/30 via-zinc-950 to-zinc-900/80 shadow-lg">
-              <div className="flex items-start justify-between border-b border-zinc-800 pb-4 mb-4">
+            <div className="p-5 border border-accent/30 rounded-lg bg-gradient-to-br from-accent/30 via-bg to-surface/80 shadow-lg">
+              <div className="flex items-start justify-between border-b border-line pb-4 mb-4">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                  <span className="text-[10px] uppercase tracking-wider text-accent font-bold">
                     Club Afiliado a la Liga Regional (Tier 5)
                   </span>
-                  <h3 className="text-2xl font-black text-white mt-0.5">
+                  <h3 className="text-2xl font-semibold text-fg mt-0.5">
                     {identity.name} ({identity.shortName})
                   </h3>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-fg-muted">
                     "{identity.nickname}" • Fundado en {identity.foundedYear} • {identity.city}, {identity.country}
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-zinc-900 border border-zinc-800">
+                <div className="flex items-center gap-1.5 p-2 rounded-xl bg-surface border border-line">
                   <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: colors.primary }} />
                   <span className="w-4 h-4 rounded-full border border-black/40" style={{ backgroundColor: colors.secondary }} />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 text-xs">
-                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
-                  <span className="text-zinc-500 text-[10px] block">Director Técnico</span>
-                  <span className="font-bold text-white">{manager ? `${manager.first_name} ${manager.last_name}` : 'Asignado'}</span>
+                <div className="p-2.5 rounded-lg bg-surface/80 border border-line">
+                  <span className="text-fg-subtle text-[10px] block">Director Técnico</span>
+                  <span className="font-bold text-fg">{manager ? `${manager.first_name} ${manager.last_name}` : 'Asignado'}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
-                  <span className="text-zinc-500 text-[10px] block">Caja Inicial Oficial</span>
-                  <span className="font-bold text-emerald-400 font-mono">$25,000 USD</span>
+                <div className="p-2.5 rounded-lg bg-surface/80 border border-line">
+                  <span className="text-fg-subtle text-[10px] block">Caja Inicial Oficial</span>
+                  <span className="font-bold text-accent font-mono">$25,000 USD</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
-                  <span className="text-zinc-500 text-[10px] block">Tope Salarial Semanal</span>
+                <div className="p-2.5 rounded-lg bg-surface/80 border border-line">
+                  <span className="text-fg-subtle text-[10px] block">Tope Salarial Semanal</span>
                   <span className="font-bold text-blue-400 font-mono">$3,500 USD</span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-zinc-900/50 border border-zinc-800 text-xs text-zinc-400">
-                <span className="text-zinc-300 font-semibold">Cancha Oficial: </span>
+              <div className="p-3 rounded-lg bg-surface/50 border border-line text-xs text-fg-muted">
+                <span className="text-fg font-semibold">Cancha Oficial: </span>
                 {stadium.name} (Capacidad: 1,500 espectadores • Césped: 60/100)
               </div>
             </div>
@@ -411,12 +411,12 @@ export default function CreateClubWizard() {
         )}
 
         {/* NAVIGATION BUTTONS */}
-        <div className="flex items-center justify-between mt-8 pt-4 border-t border-zinc-800/80">
+        <div className="flex items-center justify-between mt-8 pt-4 border-t border-line/80">
           {step > 1 ? (
             <button 
               type="button"
               onClick={() => setStep(step - 1)}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl hover:bg-zinc-800"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors border text-fg border-line rounded-xl hover:bg-surface-3"
             >
               <ChevronLeft className="w-4 h-4" /> Atrás
             </button>
@@ -432,7 +432,7 @@ export default function CreateClubWizard() {
                 }
                 setStep(step + 1)
               }}
-              className="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 active:scale-95"
+              className="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-accent-fg transition-transform bg-accent rounded-xl hover:bg-accent-strong  shadow-raised active:scale-95"
             >
               Siguiente <ChevronRight className="w-4 h-4" />
             </button>
@@ -441,7 +441,7 @@ export default function CreateClubWizard() {
               type="button"
               onClick={handleCreate}
               disabled={loading}
-              className="flex items-center gap-2 px-8 py-3 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              className="flex items-center gap-2 px-8 py-3 text-xs font-bold text-accent-fg transition-transform bg-accent rounded-xl hover:bg-accent-strong  shadow-raised disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fundar Club y Comenzar Temporada'}
             </button>

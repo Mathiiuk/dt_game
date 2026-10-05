@@ -1,66 +1,73 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { authApi, checkRateLimit, validatePasswordStrength } from '../../api/auth'
 import { toast } from 'sonner'
-import { 
-  Shield, 
-  Play, 
-  User, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Check, 
-  X, 
-  AlertTriangle, 
-  KeyRound, 
-  ArrowLeft, 
-  Loader2,
-  Sparkles
-} from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Check, Eye, EyeOff, KeyRound, Play, Shield, Sparkles, X } from 'lucide-react'
+import { authApi, checkRateLimit, validatePasswordStrength } from '../../api/auth'
+import { Button, Field, Input } from '../../components/ui'
+import { cn } from '../../lib/utils'
+
+/** Marco común de las pantallas de acceso: tarjeta centrada sobre el fondo de la app */
+function AuthShell({ children }) {
+  return (
+    <main className="grid min-h-dvh place-items-center bg-bg px-4 py-8">
+      <div className="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-raised sm:p-8">{children}</div>
+    </main>
+  )
+}
+
+function Requirement({ ok, children }) {
+  return (
+    <li className="flex items-center gap-2">
+      {ok ? <Check className="size-3.5 text-accent" aria-hidden="true" /> : <X className="size-3.5 text-fg-subtle" aria-hidden="true" />}
+      <span className={ok ? 'text-fg' : 'text-fg-subtle'}>{children}<span className="sr-only">{ok ? ' (cumplido)' : ' (pendiente)'}</span></span>
+    </li>
+  )
+}
+
+function PasswordInput({ show, onToggle, ...props }) {
+  return (
+    <div className="relative">
+      <Input type={show ? 'text' : 'password'} className="pr-12" {...props} />
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={show ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-md text-fg-subtle hover:text-fg"
+      >
+        {show ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+      </button>
+    </div>
+  )
+}
 
 export default function AuthScreen() {
-  const [mode, setMode] = useState('splash') // splash, login, register, forgot_password
+  const [mode, setMode] = useState('splash') // splash | login | register | forgot_password
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
 
-  // Form State
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-
-  // Forgot Password State
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotSent, setForgotSent] = useState(false)
-
-  // Rate Limiting Status
   const [rateLimitInfo, setRateLimitInfo] = useState({ locked: false, remainingAttempts: 5 })
 
   useEffect(() => {
-    if (email) {
-      setRateLimitInfo(checkRateLimit(email))
-    }
+    if (email) setRateLimitInfo(checkRateLimit(email))
   }, [email, mode])
 
-  // Password analysis
   const passwordStats = validatePasswordStrength(password)
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
+  const mismatch = confirmPassword.length > 0 && !passwordsMatch
+
+  const go = (next) => { setMode(next); setEmail(''); setPassword(''); setConfirmPassword('') }
 
   const handleRegister = async (e) => {
     e.preventDefault()
-
-    if (!passwordsMatch) {
-      toast.error('Las contraseñas no coinciden.')
-      return
-    }
-
-    if (!passwordStats.valid) {
-      toast.error(passwordStats.errors[0])
-      return
-    }
-
+    if (!passwordsMatch) return toast.error('Las contraseñas no coinciden.')
+    if (!passwordStats.valid) return toast.error(passwordStats.errors[0])
     setLoading(true)
     try {
       const { user } = await authApi.register({ name, email, password })
@@ -75,13 +82,8 @@ export default function AuthScreen() {
 
   const handleLogin = async (e) => {
     e.preventDefault()
-
-    const currentRate = checkRateLimit(email)
-    if (currentRate.locked) {
-      toast.error(`Acceso bloqueado por ${currentRate.minutesRemaining} min debido a múltiples intentos fallidos.`)
-      return
-    }
-
+    const current = checkRateLimit(email)
+    if (current.locked) return toast.error(`Acceso bloqueado por ${current.minutesRemaining} min debido a múltiples intentos fallidos.`)
     setLoading(true)
     try {
       const { user } = await authApi.login({ email, password })
@@ -97,11 +99,7 @@ export default function AuthScreen() {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault()
-    if (!forgotEmail) {
-      toast.error('Por favor ingresa tu correo electrónico.')
-      return
-    }
-
+    if (!forgotEmail) return toast.error('Ingresá tu correo electrónico.')
     setLoading(true)
     try {
       const res = await authApi.requestPasswordReset(forgotEmail)
@@ -114,350 +112,133 @@ export default function AuthScreen() {
     }
   }
 
-  // Vista 1: Pantalla de Bienvenida / Splash
+  // Bienvenida
   if (mode === 'splash') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-zinc-950">
-        <div className="flex flex-col items-center max-w-md w-full text-center">
-          <div className="flex items-center justify-center w-20 h-20 mb-6 border rounded-3xl bg-zinc-900/80 border-emerald-500/30 shadow-lg shadow-emerald-500/10">
-            <Shield className="w-10 h-10 text-emerald-500" />
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-emerald-500 mb-1">
-            DEL POTRERO
-          </h1>
-          <h2 className="text-2xl sm:text-3xl font-black text-white mb-3">
-            AL ÍDOLO
-          </h2>
-          <p className="text-sm sm:text-base text-zinc-400 mb-8 max-w-xs">
-            Simulador estratégico de carrera para Directores Técnicos. Del barro barrial a la gloria continental.
-          </p>
-
-          <div className="flex flex-col w-full gap-3 sm:gap-4">
-            <button
-              onClick={() => {
-                setMode('register')
-                setEmail('')
-                setPassword('')
-              }}
-              className="flex items-center justify-center gap-2 w-full py-4 px-6 font-bold text-black transition-all rounded-xl bg-emerald-500 hover:bg-emerald-400 hover:scale-[1.02] shadow-md shadow-emerald-500/20 active:scale-95"
-            >
-              <Sparkles className="w-5 h-5" />
-              Nueva Carrera
-            </button>
-            <button
-              onClick={() => {
-                setMode('login')
-                setEmail('')
-                setPassword('')
-              }}
-              className="flex items-center justify-center gap-2 w-full py-4 px-6 font-bold transition-all border text-zinc-200 border-zinc-700/80 rounded-xl bg-zinc-900/70 hover:bg-zinc-800 hover:border-zinc-600 active:scale-95"
-            >
-              <Play className="w-5 h-5 text-emerald-400" />
-              Continuar Carrera
-            </button>
-          </div>
-
-          <div className="mt-8 text-xs text-zinc-600 flex items-center gap-1.5">
-            <Shield className="w-3.5 h-3.5 text-zinc-500" />
-            <span>Versión 3.0 • Sistema de Gestión Autoritativa</span>
+      <main className="grid min-h-dvh place-items-center bg-bg px-4 py-8">
+        <div className="flex w-full max-w-md flex-col items-center text-center">
+          <span className="mb-6 grid size-16 place-items-center rounded-lg border border-line bg-surface text-accent"><Shield className="size-8" aria-hidden="true" /></span>
+          <p className="eyebrow mb-2">Simulador de carrera para directores técnicos</p>
+          <h1 className="font-display text-5xl font-semibold leading-none text-fg sm:text-6xl">Del Potrero</h1>
+          <p className="font-display text-3xl font-semibold leading-tight text-accent sm:text-4xl">al Ídolo</p>
+          <p className="mb-8 mt-4 max-w-xs text-sm text-fg-muted">Del barro barrial a la gloria continental. Armá tu plantel, bancá tus decisiones y escribí tu dinastía.</p>
+          <div className="flex w-full flex-col gap-3">
+            <Button size="lg" onClick={() => go('register')}><Sparkles />Nueva carrera</Button>
+            <Button size="lg" variant="outline" onClick={() => go('login')}><Play />Continuar carrera</Button>
           </div>
         </div>
-      </div>
+      </main>
     )
   }
 
-  // Vista 2: Recuperación de Contraseña
+  // Recuperar contraseña
   if (mode === 'forgot_password') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-zinc-950">
-        <div className="w-full max-w-md p-6 sm:p-8 border border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-md shadow-xl">
-          <button
-            type="button"
-            onClick={() => {
-              setMode('login')
-              setForgotSent(false)
-            }}
-            className="flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-emerald-400 mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver a Iniciar Sesión
-          </button>
-
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-              <KeyRound className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">Recuperar Acceso</h2>
-              <p className="text-xs text-zinc-400">Restablece tu contraseña de DT</p>
-            </div>
+      <AuthShell>
+        <button type="button" onClick={() => { setMode('login'); setForgotSent(false) }} className="-ml-2 mb-4 flex min-h-11 items-center gap-2 rounded-md px-2 text-sm font-medium text-fg-muted hover:text-fg">
+          <ArrowLeft className="size-4" aria-hidden="true" />Volver a iniciar sesión
+        </button>
+        <div className="mb-5 flex items-center gap-3">
+          <span className="grid size-11 place-items-center rounded-md bg-accent-soft text-accent"><KeyRound className="size-5" aria-hidden="true" /></span>
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-fg">Recuperar acceso</h1>
+            <p className="text-xs text-fg-muted">Restablecé tu contraseña de DT</p>
           </div>
-
-          {forgotSent ? (
-            <div className="p-4 my-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 text-sm">
-              <p className="font-semibold mb-1">Solicitud procesada con éxito</p>
-              <p className="text-xs text-emerald-300/80">
-                Si el correo <strong className="text-white">{forgotEmail}</strong> existe en el sistema, recibirás las instrucciones en breve. Revisa tu casilla de spam.
-              </p>
-              <button
-                type="button"
-                onClick={() => setMode('login')}
-                className="mt-4 w-full py-2.5 px-4 text-xs font-bold text-black bg-emerald-500 rounded-lg hover:bg-emerald-400 transition-colors"
-              >
-                Ir a Iniciar Sesión
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <p className="text-xs text-zinc-400">
-                Ingresa el correo electrónico asociado a tu cuenta para enviarte un enlace de recuperación seguro.
-              </p>
-
-              <div>
-                <label className="block mb-1.5 text-xs font-medium text-zinc-300">Correo Electrónico</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-                  <input
-                    required
-                    type="email"
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="ejemplo@club.com"
-                    className="w-full pl-10 pr-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex items-center justify-center gap-2 w-full py-3 mt-4 text-sm font-bold text-black rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 transition-all shadow-md shadow-emerald-500/20"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enviar Enlace de Recuperación'}
-              </button>
-            </form>
-          )}
         </div>
-      </div>
+        {forgotSent ? (
+          <div role="status" className="space-y-4 rounded-lg border border-accent/30 bg-accent-soft p-4 text-sm">
+            <p className="font-semibold text-accent">Solicitud procesada</p>
+            <p className="text-fg-muted">Si el correo <strong className="text-fg">{forgotEmail}</strong> existe en el sistema, recibirás las instrucciones en breve. Revisá la casilla de spam.</p>
+            <Button className="w-full" onClick={() => setMode('login')}>Ir a iniciar sesión</Button>
+          </div>
+        ) : (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <p className="text-sm text-fg-muted">Ingresá el correo asociado a tu cuenta y te enviamos un enlace de recuperación seguro.</p>
+            <Field label="Correo electrónico">
+              {(p) => <Input {...p} required type="email" autoComplete="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="ejemplo@club.com" />}
+            </Field>
+            <Button type="submit" size="lg" className="w-full" loading={loading}>Enviar enlace de recuperación</Button>
+          </form>
+        )}
+      </AuthShell>
     )
   }
 
-  // Vista 3: Login y Registro
+  // Iniciar sesión / registrarse
+  const isLogin = mode === 'login'
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-zinc-950">
-      <div className="w-full max-w-md p-6 sm:p-8 border border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-md shadow-xl">
-        {/* Cabecera del formulario */}
-        <div className="flex items-center justify-between mb-6">
+    <AuthShell>
+      <div className="mb-6">
+        <h1 className="font-display text-3xl font-semibold text-fg">{isLogin ? 'Iniciar sesión' : 'Nueva cuenta de DT'}</h1>
+        <p className="mt-1 text-sm text-fg-muted">{isLogin ? 'Accedé a tu banquillo técnico y continuá tu carrera.' : 'Registrate para empezar a forjar tu dinastía.'}</p>
+      </div>
+
+      {isLogin && rateLimitInfo.locked && (
+        <div role="alert" className="mb-4 flex items-start gap-2.5 rounded-lg border border-danger/40 bg-danger-soft p-3 text-sm">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-danger" aria-hidden="true" />
           <div>
-            <h2 className="text-2xl font-black text-white">
-              {mode === 'login' ? 'Iniciar Sesión' : 'Nueva Cuenta de DT'}
-            </h2>
-            <p className="text-xs text-zinc-400">
-              {mode === 'login' 
-                ? 'Accede a tu banquillo técnico y continúa tu carrera' 
-                : 'Regístrate para comenzar a forjar tu dinastía'}
-            </p>
-          </div>
-          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-            <Shield className="w-6 h-6" />
+            <p className="font-semibold text-danger">Acceso bloqueado por seguridad</p>
+            <p className="text-fg-muted">Demasiados intentos fallidos. Podrás intentar de nuevo en {rateLimitInfo.minutesRemaining} minuto(s).</p>
           </div>
         </div>
+      )}
+      {isLogin && !rateLimitInfo.locked && rateLimitInfo.remainingAttempts < 5 && (
+        <p role="status" className="mb-4 flex items-center gap-2 rounded-lg border border-warning/40 bg-warning-soft p-3 text-sm text-warning">
+          <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />Te quedan {rateLimitInfo.remainingAttempts} intento(s) antes del bloqueo temporal.
+        </p>
+      )}
 
-        {/* Banner de Rate Limit si hay fallos previos */}
-        {mode === 'login' && rateLimitInfo.locked && (
-          <div className="flex items-start gap-2.5 p-3 mb-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-200 text-xs">
-            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold">Acceso bloqueado por seguridad</p>
-              <p className="text-rose-300/80">
-                Demasiados intentos fallidos. Podrás intentar de nuevo en {rateLimitInfo.minutesRemaining} minuto(s).
-              </p>
-            </div>
-          </div>
+      <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4">
+        {!isLogin && (
+          <Field label="Nombre de entrenador">
+            {(p) => <Input {...p} required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Marcelo Gallardo" />}
+          </Field>
         )}
 
-        {mode === 'login' && !rateLimitInfo.locked && rateLimitInfo.remainingAttempts < 5 && (
-          <div className="flex items-center gap-2 p-2.5 mb-4 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs">
-            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Te quedan {rateLimitInfo.remainingAttempts} intento(s) antes del bloqueo temporal.</span>
-          </div>
-        )}
+        <Field label="Correo electrónico">
+          {(p) => <Input {...p} required type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="dt@potrero.com" />}
+        </Field>
 
-        <form onSubmit={mode === 'login' ? handleLogin : handleRegister} className="space-y-4">
-          {mode === 'register' && (
-            <div>
-              <label className="block mb-1.5 text-xs font-medium text-zinc-300">Nombre de Entrenador</label>
-              <div className="relative">
-                <User className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-                <input
-                  required
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej: Marcelo Gallardo"
-                  className="w-full pl-10 pr-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600 transition-colors"
-                />
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="block mb-1.5 text-xs font-medium text-zinc-300">Correo Electrónico</label>
-            <div className="relative">
-              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-              <input
-                required
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="dt@potrero.com"
-                className="w-full pl-10 pr-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600 transition-colors"
-              />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium text-zinc-300">Contraseña</label>
-              {mode === 'login' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForgotEmail(email)
-                    setMode('forgot_password')
-                  }}
-                  className="text-xs text-emerald-400 hover:underline transition-colors"
-                >
-                  ¿Olvidaste tu contraseña?
-                </button>
-              )}
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-              <input
-                required
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-10 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600 transition-colors"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-zinc-500 hover:text-zinc-300 transition-colors"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Indicadores de requisitos de contraseña para Registro */}
-          {mode === 'register' && (
-            <div className="p-3 border rounded-xl bg-zinc-950/60 border-zinc-800 space-y-1.5 text-xs">
-              <p className="font-semibold text-zinc-400 mb-1">Requisitos de seguridad:</p>
-              <div className="flex items-center gap-2">
-                {passwordStats.hasLength ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <X className="w-3.5 h-3.5 text-zinc-600" />
-                )}
-                <span className={passwordStats.hasLength ? 'text-zinc-200' : 'text-zinc-500'}>
-                  Mínimo 8 caracteres
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {passwordStats.hasNumber ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <X className="w-3.5 h-3.5 text-zinc-600" />
-                )}
-                <span className={passwordStats.hasNumber ? 'text-zinc-200' : 'text-zinc-500'}>
-                  Al menos un número (0-9)
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {passwordStats.hasUpperOrSymbol ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <X className="w-3.5 h-3.5 text-zinc-600" />
-                )}
-                <span className={passwordStats.hasUpperOrSymbol ? 'text-zinc-200' : 'text-zinc-500'}>
-                  Al menos una mayúscula o símbolo
-                </span>
-              </div>
-            </div>
-          )}
-
-          {mode === 'register' && (
-            <div>
-              <label className="block mb-1.5 text-xs font-medium text-zinc-300">Confirmar Contraseña</label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
-                <input
-                  required
-                  type={showPassword ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600 transition-colors"
-                />
-                {confirmPassword && (
-                  <div className="absolute right-3 top-3">
-                    {passwordsMatch ? (
-                      <Check className="w-4 h-4 text-emerald-400" />
-                    ) : (
-                      <X className="w-4 h-4 text-rose-500" />
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          <button
-            disabled={loading || (mode === 'login' && rateLimitInfo.locked)}
-            type="submit"
-            className="flex items-center justify-center gap-2 w-full py-3.5 mt-6 text-sm font-bold text-black rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md shadow-emerald-500/20 active:scale-95"
-          >
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : mode === 'login' ? (
-              'Ingresar al Banquillo'
-            ) : (
-              'Registrar y Comenzar Carrera'
-            )}
-          </button>
-        </form>
-
-        {/* Alternar modo */}
-        <div className="mt-6 pt-4 border-t border-zinc-800/80 text-center space-y-2">
-          <button
-            type="button"
-            onClick={() => {
-              setMode(mode === 'login' ? 'register' : 'login')
-              setPassword('')
-              setConfirmPassword('')
-            }}
-            className="text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
-          >
-            {mode === 'login' 
-              ? '¿No tienes carrera creada? Regístrate aquí' 
-              : '¿Ya tienes una cuenta de DT? Inicia Sesión'}
-          </button>
-
-          <div>
-            <button
-              type="button"
-              onClick={() => setMode('splash')}
-              className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
-            >
-              Volver al inicio
+        <div>
+          <Field label="Contraseña">
+            {(p) => <PasswordInput {...p} required autoComplete={isLogin ? 'current-password' : 'new-password'} show={showPassword} onToggle={() => setShowPassword(s => !s)} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />}
+          </Field>
+          {isLogin && (
+            <button type="button" onClick={() => { setForgotEmail(email); setMode('forgot_password') }} className="mt-1.5 min-h-8 text-xs font-medium text-accent hover:underline">
+              ¿Olvidaste tu contraseña?
             </button>
-          </div>
+          )}
+        </div>
+
+        {!isLogin && (
+          <>
+            <div className="rounded-lg border border-line bg-surface-2 p-3 text-xs">
+              <p className="mb-1.5 font-semibold text-fg-muted">Requisitos de seguridad</p>
+              <ul className="space-y-1">
+                <Requirement ok={passwordStats.hasLength}>Mínimo 8 caracteres</Requirement>
+                <Requirement ok={passwordStats.hasNumber}>Al menos un número (0-9)</Requirement>
+                <Requirement ok={passwordStats.hasUpperOrSymbol}>Al menos una mayúscula o símbolo</Requirement>
+              </ul>
+            </div>
+            <Field label="Confirmar contraseña" error={mismatch ? 'Las contraseñas no coinciden.' : undefined}>
+              {(p) => <PasswordInput {...p} required autoComplete="new-password" show={showPassword} onToggle={() => setShowPassword(s => !s)} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />}
+            </Field>
+          </>
+        )}
+
+        <Button type="submit" size="lg" className="w-full" loading={loading} disabled={isLogin && rateLimitInfo.locked}>
+          {isLogin ? 'Ingresar al banquillo' : 'Registrar y comenzar carrera'}
+        </Button>
+      </form>
+
+      <div className={cn('mt-6 space-y-1 border-t border-line pt-4 text-center')}>
+        <Button variant="link" type="button" onClick={() => { setMode(isLogin ? 'register' : 'login'); setPassword(''); setConfirmPassword('') }}>
+          {isLogin ? '¿No tenés carrera? Registrate acá' : '¿Ya tenés cuenta de DT? Iniciá sesión'}
+        </Button>
+        <div>
+          <button type="button" onClick={() => setMode('splash')} className="min-h-9 text-xs text-fg-subtle hover:text-fg">Volver al inicio</button>
         </div>
       </div>
-    </div>
+    </AuthShell>
   )
 }

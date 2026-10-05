@@ -45,7 +45,7 @@ export default function WelcomeScreen() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-emerald-500 bg-zinc-950">
+      <div className="flex flex-col items-center justify-center min-h-dvh text-accent bg-bg">
         <Loader2 className="w-12 h-12 mb-4 animate-spin" />
         <p className="font-bold">Cargando estado de la carrera...</p>
       </div>
@@ -53,22 +53,22 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-white bg-zinc-950">
-      <div className="w-full max-w-lg p-8 text-center border border-zinc-800 rounded-3xl bg-zinc-900/50">
-        <Shield className="w-20 h-20 mx-auto mb-6 text-emerald-500" />
+    <div className="flex flex-col items-center justify-center min-h-dvh p-4 text-fg bg-bg">
+      <div className="w-full max-w-lg p-8 text-center border border-line rounded-xl bg-surface/50">
+        <Shield className="w-20 h-20 mx-auto mb-6 text-accent" />
         
-        <h1 className="mb-2 text-4xl font-black text-white">¡BIENVENIDO DE VUELTA!</h1>
-        <h2 className="mb-8 text-xl font-bold text-emerald-400">DT {data.manager?.first_name} {data.manager?.last_name}</h2>
+        <h1 className="mb-2 text-4xl font-semibold text-fg">¡BIENVENIDO DE VUELTA!</h1>
+        <h2 className="mb-8 text-xl font-bold text-accent">DT {data.manager?.first_name} {data.manager?.last_name}</h2>
 
-        <div className="p-6 mb-8 border border-zinc-800 bg-zinc-950 rounded-2xl">
-          <p className="mb-4 text-sm text-zinc-400">Club Actual</p>
-          <p className="text-2xl font-black text-white">{data.club?.name}</p>
-          <p className="text-emerald-500 font-mono mt-2">{data.club?.game_date || '2026-07-01'}</p>
+        <div className="p-6 mb-8 border border-line bg-bg rounded-lg">
+          <p className="mb-4 text-sm text-fg-muted">Club Actual</p>
+          <p className="text-2xl font-semibold text-fg">{data.club?.name}</p>
+          <p className="text-accent font-mono mt-2">{data.club?.game_date || '2026-07-01'}</p>
         </div>
 
         <button 
           onClick={() => navigate('/dashboard')}
-          className="flex items-center justify-center w-full gap-2 py-4 font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105"
+          className="flex items-center justify-center w-full gap-2 py-4 font-bold text-black transition-transform bg-accent rounded-xl hover:bg-accent-strong hover:scale-105"
         >
           <Play className="w-5 h-5" /> Retomar Carrera
         </button>

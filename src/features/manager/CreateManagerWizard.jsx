@@ -158,20 +158,20 @@ export default function CreateManagerWizard() {
               <div 
                 className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs transition-all ${
                   step === s 
-                    ? 'bg-emerald-500 text-black ring-4 ring-emerald-500/20 shadow-md' 
+                    ? 'bg-accent text-accent-fg ring-4 ring-accent/20 shadow-md' 
                     : step > s 
-                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40' 
-                    : 'bg-zinc-900 text-zinc-600 border border-zinc-800'
+                    ? 'bg-accent-soft text-accent border border-accent/40' 
+                    : 'bg-surface text-fg-subtle border border-line'
                 }`}
               >
                 {step > s ? <Check className="w-4 h-4" /> : s}
               </div>
-              <span className={`text-[10px] mt-1 font-medium hidden sm:block ${step >= s ? 'text-zinc-300' : 'text-zinc-600'}`}>
+              <span className={`text-[10px] mt-1 font-medium hidden sm:block ${step >= s ? 'text-fg' : 'text-fg-subtle'}`}>
                 {stepLabels[s - 1]}
               </span>
             </div>
             {s < 5 && (
-              <div className={`w-6 sm:w-10 h-0.5 mx-1.5 sm:mx-2 transition-all ${step > s ? 'bg-emerald-500' : 'bg-zinc-800'}`} />
+              <div className={`w-6 sm:w-10 h-0.5 mx-1.5 sm:mx-2 transition-all ${step > s ? 'bg-accent' : 'bg-surface-3'}`} />
             )}
           </div>
         ))}
@@ -180,14 +180,14 @@ export default function CreateManagerWizard() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-zinc-950">
-      <div className="w-full max-w-2xl p-6 sm:p-8 border border-zinc-800/80 rounded-2xl bg-zinc-900/60 backdrop-blur-md shadow-2xl">
+    <div className="flex flex-col items-center justify-center min-h-dvh px-4 py-8 bg-bg">
+      <div className="w-full max-w-2xl p-6 sm:p-8 border border-line/80 rounded-lg bg-surface/60 backdrop-blur-md shadow-2xl">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">Ficha de Director Técnico</h1>
-            <p className="text-xs sm:text-sm text-zinc-400">Paso {step} de 5 • Configuración de la carrera</p>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-fg">Ficha de Director Técnico</h1>
+            <p className="text-xs sm:text-sm text-fg-muted">Paso {step} de 5 • Configuración de la carrera</p>
           </div>
-          <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="p-2.5 rounded-xl bg-accent/10 border border-accent/20 text-accent">
             <Shield className="w-6 h-6" />
           </div>
         </div>
@@ -199,55 +199,56 @@ export default function CreateManagerWizard() {
         {/* STEP 1: IDENTITY */}
         {step === 1 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+            <div className="flex items-center gap-2 mb-2 text-accent font-bold text-base">
               <User className="w-5 h-5" />
               <span>Datos Personales</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Nombre</label>
-                <input 
+                <label htmlFor="f-nombre-1" className="block mb-1 text-xs font-medium text-fg">Nombre</label>
+                <input id="f-nombre-1" 
                   type="text" 
                   value={identity.firstName} 
                   onChange={e => setIdentity({...identity, firstName: e.target.value})} 
                   placeholder="Ej: Marcelo"
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none placeholder:text-fg-subtle" 
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Apellido</label>
-                <input 
+                <label htmlFor="f-apellido-2" className="block mb-1 text-xs font-medium text-fg">Apellido</label>
+                <input id="f-apellido-2" 
                   type="text" 
                   value={identity.lastName} 
                   onChange={e => setIdentity({...identity, lastName: e.target.value})} 
                   placeholder="Ej: Gallardo"
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none placeholder:text-zinc-600" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none placeholder:text-fg-subtle" 
                 />
               </div>
 
               <div>
                 <div className="flex justify-between mb-1">
-                  <label className="text-xs font-medium text-zinc-300">Edad</label>
-                  <span className="text-xs font-mono font-bold text-emerald-400">{identity.age} años</span>
+                  <label htmlFor="f-edad" className="text-xs font-medium text-fg">Edad</label>
+                  <span className="text-xs font-mono font-bold text-accent">{identity.age} años</span>
                 </div>
                 <input 
+                  id="f-edad"
                   type="range" 
                   min="25" 
                   max="70" 
                   value={identity.age} 
                   onChange={e => setIdentity({...identity, age: parseInt(e.target.value)})} 
-                  className="w-full accent-emerald-500 bg-zinc-800 rounded-lg cursor-pointer" 
+                  className="w-full accent-accent bg-surface-3 rounded-lg cursor-pointer" 
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Pie Dominante</label>
-                <select 
+                <label htmlFor="f-pie-dominante-3" className="block mb-1 text-xs font-medium text-fg">Pie Dominante</label>
+                <select id="f-pie-dominante-3" 
                   value={identity.dominantFoot} 
                   onChange={e => setIdentity({...identity, dominantFoot: e.target.value})} 
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none"
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none"
                 >
                   <option>Derecho</option>
                   <option>Izquierdo</option>
@@ -256,22 +257,22 @@ export default function CreateManagerWizard() {
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Nacionalidad</label>
-                <input 
+                <label htmlFor="f-nacionalidad-4" className="block mb-1 text-xs font-medium text-fg">Nacionalidad</label>
+                <input id="f-nacionalidad-4" 
                   type="text" 
                   value={identity.nationality} 
                   onChange={e => setIdentity({...identity, nationality: e.target.value})} 
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none" 
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-zinc-300">Ciudad de Origen</label>
-                <input 
+                <label htmlFor="f-ciudad-de-origen-5" className="block mb-1 text-xs font-medium text-fg">Ciudad de Origen</label>
+                <input id="f-ciudad-de-origen-5" 
                   type="text" 
                   value={identity.city} 
                   onChange={e => setIdentity({...identity, city: e.target.value})} 
-                  className="w-full px-4 py-2.5 text-sm text-white border rounded-xl bg-zinc-950/80 border-zinc-700/80 focus:border-emerald-500 focus:outline-none" 
+                  className="w-full px-4 py-2.5 text-sm text-fg border rounded-xl bg-bg/80 border-line/80 focus:border-accent focus:outline-none" 
                 />
               </div>
             </div>
@@ -281,11 +282,11 @@ export default function CreateManagerWizard() {
         {/* STEP 2: BACKGROUND PRESETS */}
         {step === 2 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+            <div className="flex items-center gap-2 mb-2 text-accent font-bold text-base">
               <Award className="w-5 h-5" />
               <span>Trasfondo y Trayectoria Previa</span>
             </div>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-fg-muted">
               Tu historia previa define la reputación con la que comienzas y los atributos base de tu perfil.
             </p>
 
@@ -299,25 +300,25 @@ export default function CreateManagerWizard() {
                     onClick={() => setSelectedBackground(preset.id)}
                     className={`p-4 text-left border rounded-xl transition-all ${
                       isSelected 
-                        ? 'border-emerald-500 bg-emerald-500/10 shadow-md shadow-emerald-500/10' 
-                        : 'border-zinc-800 bg-zinc-950/70 hover:border-zinc-700'
+                        ? 'border-accent bg-accent/10 shadow-raised' 
+                        : 'border-line bg-bg/70 hover:border-line'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <h3 className={`font-bold text-sm ${isSelected ? 'text-emerald-400' : 'text-zinc-200'}`}>
+                      <h3 className={`font-bold text-sm ${isSelected ? 'text-accent' : 'text-fg'}`}>
                         {preset.title}
                       </h3>
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300">
+                      <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-surface-3 text-fg">
                         Reputación: {preset.reputation}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-400 mb-3">{preset.description}</p>
-                    <div className="flex flex-wrap gap-1.5 text-[10px] text-zinc-400">
-                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Tác: {preset.baseAttributes.tactics}</span>
-                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Mot: {preset.baseAttributes.motivation}</span>
-                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Juv: {preset.baseAttributes.youth}</span>
-                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Ges: {preset.baseAttributes.management}</span>
-                      <span className="px-1.5 py-0.5 bg-zinc-900 rounded">Neg: {preset.baseAttributes.negotiation}</span>
+                    <p className="text-xs text-fg-muted mb-3">{preset.description}</p>
+                    <div className="flex flex-wrap gap-1.5 text-[10px] text-fg-muted">
+                      <span className="px-1.5 py-0.5 bg-surface rounded">Tác: {preset.baseAttributes.tactics}</span>
+                      <span className="px-1.5 py-0.5 bg-surface rounded">Mot: {preset.baseAttributes.motivation}</span>
+                      <span className="px-1.5 py-0.5 bg-surface rounded">Juv: {preset.baseAttributes.youth}</span>
+                      <span className="px-1.5 py-0.5 bg-surface rounded">Ges: {preset.baseAttributes.management}</span>
+                      <span className="px-1.5 py-0.5 bg-surface rounded">Neg: {preset.baseAttributes.negotiation}</span>
                     </div>
                   </button>
                 )
@@ -330,22 +331,22 @@ export default function CreateManagerWizard() {
         {step === 3 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold text-base">
+              <div className="flex items-center gap-2 text-accent font-bold text-base">
                 <Sliders className="w-5 h-5" />
                 <span>Distribución de Habilidades</span>
               </div>
               <div className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold font-mono ${
                 pointsRemaining === 0 
-                  ? 'bg-emerald-950/70 text-emerald-400 border border-emerald-500/40' 
-                  : 'bg-amber-950/70 text-amber-300 border border-amber-500/40'
+                  ? 'bg-accent-soft text-accent border border-accent/40' 
+                  : 'bg-gold-soft text-gold border border-gold/40'
               }`}>
                 {pointsRemaining === 0 ? <Check className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
                 <span>Puntos Libres: {pointsRemaining}</span>
               </div>
             </div>
 
-            <p className="text-xs text-zinc-400">
-              Distribuye los 15 puntos libres sobre los valores base de tu trasfondo (<strong className="text-white">{currentPreset.title}</strong>). Límite inicial de 14 por atributo.
+            <p className="text-xs text-fg-muted">
+              Distribuye los 15 puntos libres sobre los valores base de tu trasfondo (<strong className="text-fg">{currentPreset.title}</strong>). Límite inicial de 14 por atributo.
             </p>
 
             <div className="space-y-2.5 mt-4">
@@ -362,15 +363,15 @@ export default function CreateManagerWizard() {
                 const isMax = finalVal >= ATTRIBUTE_MAX_INITIAL_CAP
 
                 return (
-                  <div key={key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-xl bg-zinc-950/80 border-zinc-800 gap-2">
+                  <div key={key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-xl bg-bg/80 border-line gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white">{label}</span>
-                        <span className="text-[10px] text-zinc-500 font-mono">
+                        <span className="text-xs font-bold text-fg">{label}</span>
+                        <span className="text-[10px] text-fg-subtle font-mono">
                           (Base: {baseVal} + {delta})
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-400">{desc}</p>
+                      <p className="text-[11px] text-fg-muted">{desc}</p>
                     </div>
 
                     <div className="flex items-center gap-3 self-end sm:self-center">
@@ -378,13 +379,13 @@ export default function CreateManagerWizard() {
                         type="button"
                         onClick={() => handlePointChange(key, -1)}
                         disabled={delta <= 0}
-                        className="w-8 h-8 flex items-center justify-center font-bold text-sm rounded-lg bg-zinc-800 text-zinc-300 disabled:opacity-40 hover:bg-zinc-700 transition-colors"
+                        className="w-8 h-8 flex items-center justify-center font-bold text-sm rounded-lg bg-surface-3 text-fg disabled:opacity-40 hover:bg-surface-3 transition-colors"
                       >
                         -
                       </button>
 
                       <div className="w-8 text-center">
-                        <span className={`text-base font-mono font-black ${isMax ? 'text-amber-400' : 'text-emerald-400'}`}>
+                        <span className={`text-base font-mono font-semibold ${isMax ? 'text-gold' : 'text-accent'}`}>
                           {finalVal}
                         </span>
                       </div>
@@ -393,7 +394,7 @@ export default function CreateManagerWizard() {
                         type="button"
                         onClick={() => handlePointChange(key, 1)}
                         disabled={pointsRemaining <= 0 || isMax}
-                        className="w-8 h-8 flex items-center justify-center font-bold text-sm rounded-lg bg-zinc-800 text-zinc-300 disabled:opacity-40 hover:bg-zinc-700 transition-colors"
+                        className="w-8 h-8 flex items-center justify-center font-bold text-sm rounded-lg bg-surface-3 text-fg disabled:opacity-40 hover:bg-surface-3 transition-colors"
                       >
                         +
                       </button>
@@ -409,7 +410,7 @@ export default function CreateManagerWizard() {
         {step === 4 && (
           <div className="space-y-6">
             <div>
-              <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+              <div className="flex items-center gap-2 mb-2 text-accent font-bold text-base">
                 <Brain className="w-5 h-5" />
                 <span>Filosofía de Juego</span>
               </div>
@@ -421,14 +422,14 @@ export default function CreateManagerWizard() {
                     onClick={() => setPhilosophy(p.id)}
                     className={`p-3 text-left border rounded-xl transition-all ${
                       philosophy === p.id 
-                        ? 'border-emerald-500 bg-emerald-500/10' 
-                        : 'border-zinc-800 bg-zinc-950/70 hover:border-zinc-700'
+                        ? 'border-accent bg-accent/10' 
+                        : 'border-line bg-bg/70 hover:border-line'
                     }`}
                   >
-                    <h4 className={`text-xs font-bold ${philosophy === p.id ? 'text-emerald-400' : 'text-zinc-200'}`}>
+                    <h4 className={`text-xs font-bold ${philosophy === p.id ? 'text-accent' : 'text-fg'}`}>
                       {p.title}
                     </h4>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">{p.desc}</p>
+                    <p className="text-[11px] text-fg-muted mt-0.5">{p.desc}</p>
                   </button>
                 ))}
               </div>
@@ -448,13 +449,13 @@ export default function CreateManagerWizard() {
                     className={`p-3 text-left border rounded-xl transition-all ${
                       specialization === s.id 
                         ? 'border-blue-500 bg-blue-500/10' 
-                        : 'border-zinc-800 bg-zinc-950/70 hover:border-zinc-700'
+                        : 'border-line bg-bg/70 hover:border-line'
                     }`}
                   >
-                    <h4 className={`text-xs font-bold ${specialization === s.id ? 'text-blue-400' : 'text-zinc-200'}`}>
+                    <h4 className={`text-xs font-bold ${specialization === s.id ? 'text-blue-400' : 'text-fg'}`}>
                       {s.title}
                     </h4>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">{s.desc}</p>
+                    <p className="text-[11px] text-fg-muted mt-0.5">{s.desc}</p>
                   </button>
                 ))}
               </div>
@@ -465,69 +466,69 @@ export default function CreateManagerWizard() {
         {/* STEP 5: OFFICIAL CREDENTIAL & CONFIRMATION */}
         {step === 5 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold text-base">
+            <div className="flex items-center gap-2 mb-2 text-accent font-bold text-base">
               <CheckCircle2 className="w-5 h-5" />
               <span>Credencial Oficial de Director Técnico</span>
             </div>
 
-            <div className="p-5 border border-emerald-500/30 rounded-2xl bg-gradient-to-br from-emerald-950/30 via-zinc-950 to-zinc-900/80 shadow-lg">
-              <div className="flex items-start justify-between border-b border-zinc-800 pb-4 mb-4">
+            <div className="p-5 border border-accent/30 rounded-lg bg-gradient-to-br from-accent/30 via-bg to-surface/80 shadow-lg">
+              <div className="flex items-start justify-between border-b border-line pb-4 mb-4">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                  <span className="text-[10px] uppercase tracking-wider text-accent font-bold">
                     Licencia Pro Conmebol / UEFA
                   </span>
-                  <h3 className="text-xl font-black text-white mt-0.5">
+                  <h3 className="text-xl font-semibold text-fg mt-0.5">
                     {identity.firstName} {identity.lastName}
                   </h3>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-fg-muted">
                     {identity.age} años • {identity.nationality} • {identity.city} • Pie {identity.dominantFoot}
                   </p>
                 </div>
-                <div className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-right">
-                  <span className="text-[10px] text-zinc-500 block uppercase">Reputación</span>
-                  <span className="text-sm font-mono font-bold text-emerald-400">{currentPreset.reputation} pts</span>
+                <div className="px-3 py-1.5 rounded-xl bg-surface border border-line text-right">
+                  <span className="text-[10px] text-fg-subtle block uppercase">Reputación</span>
+                  <span className="text-sm font-mono font-bold text-accent">{currentPreset.reputation} pts</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
-                  <span className="text-zinc-500 text-[10px] block">Trasfondo</span>
-                  <span className="font-bold text-white">{currentPreset.title}</span>
+                <div className="p-2.5 rounded-lg bg-surface/80 border border-line">
+                  <span className="text-fg-subtle text-[10px] block">Trasfondo</span>
+                  <span className="font-bold text-fg">{currentPreset.title}</span>
                 </div>
-                <div className="p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800">
-                  <span className="text-zinc-500 text-[10px] block">Filosofía</span>
-                  <span className="font-bold text-white">{philosophy}</span>
+                <div className="p-2.5 rounded-lg bg-surface/80 border border-line">
+                  <span className="text-fg-subtle text-[10px] block">Filosofía</span>
+                  <span className="font-bold text-fg">{philosophy}</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold block mb-2">
+                <span className="text-[10px] text-fg-muted uppercase tracking-wider font-semibold block mb-2">
                   Atributos Oficiales Verificados:
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="text-zinc-400">Táctica:</span>
-                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('tactics')}</span>
+                  <div className="flex justify-between p-2 rounded-lg bg-surface border border-line">
+                    <span className="text-fg-muted">Táctica:</span>
+                    <span className="font-mono font-bold text-accent">{getFinalAttributeValue('tactics')}</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="text-zinc-400">Motivación:</span>
-                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('motivation')}</span>
+                  <div className="flex justify-between p-2 rounded-lg bg-surface border border-line">
+                    <span className="text-fg-muted">Motivación:</span>
+                    <span className="font-mono font-bold text-accent">{getFinalAttributeValue('motivation')}</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="text-zinc-400">Cantera:</span>
-                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('youth')}</span>
+                  <div className="flex justify-between p-2 rounded-lg bg-surface border border-line">
+                    <span className="text-fg-muted">Cantera:</span>
+                    <span className="font-mono font-bold text-accent">{getFinalAttributeValue('youth')}</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="text-zinc-400">Gestión:</span>
-                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('management')}</span>
+                  <div className="flex justify-between p-2 rounded-lg bg-surface border border-line">
+                    <span className="text-fg-muted">Gestión:</span>
+                    <span className="font-mono font-bold text-accent">{getFinalAttributeValue('management')}</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="text-zinc-400">Negociación:</span>
-                    <span className="font-mono font-bold text-emerald-400">{getFinalAttributeValue('negotiation')}</span>
+                  <div className="flex justify-between p-2 rounded-lg bg-surface border border-line">
+                    <span className="text-fg-muted">Negociación:</span>
+                    <span className="font-mono font-bold text-accent">{getFinalAttributeValue('negotiation')}</span>
                   </div>
-                  <div className="flex justify-between p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <span className="text-zinc-400">Nivel Inicial:</span>
-                    <span className="font-mono font-bold text-white">Nivel 1</span>
+                  <div className="flex justify-between p-2 rounded-lg bg-surface border border-line">
+                    <span className="text-fg-muted">Nivel Inicial:</span>
+                    <span className="font-mono font-bold text-fg">Nivel 1</span>
                   </div>
                 </div>
               </div>
@@ -536,12 +537,12 @@ export default function CreateManagerWizard() {
         )}
 
         {/* NAVIGATION BUTTONS */}
-        <div className="flex items-center justify-between mt-8 pt-4 border-t border-zinc-800/80">
+        <div className="flex items-center justify-between mt-8 pt-4 border-t border-line/80">
           {step > 1 ? (
             <button 
               type="button"
               onClick={() => setStep(step - 1)}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors border text-zinc-300 border-zinc-700 rounded-xl hover:bg-zinc-800"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-colors border text-fg border-line rounded-xl hover:bg-surface-3"
             >
               <ChevronLeft className="w-4 h-4" /> Atrás
             </button>
@@ -563,7 +564,7 @@ export default function CreateManagerWizard() {
                 }
                 setStep(step + 1)
               }}
-              className="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 active:scale-95"
+              className="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-accent-fg transition-transform bg-accent rounded-xl hover:bg-accent-strong  shadow-raised active:scale-95"
             >
               Siguiente <ChevronRight className="w-4 h-4" />
             </button>
@@ -572,7 +573,7 @@ export default function CreateManagerWizard() {
               type="button"
               onClick={handleCreate}
               disabled={loading || pointsRemaining !== 0}
-              className="flex items-center gap-2 px-8 py-3 text-xs font-bold text-black transition-transform bg-emerald-500 rounded-xl hover:bg-emerald-400 hover:scale-105 shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              className="flex items-center gap-2 px-8 py-3 text-xs font-bold text-accent-fg transition-transform bg-accent rounded-xl hover:bg-accent-strong  shadow-raised disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Firmar Credencial y Continuar'}
             </button>
