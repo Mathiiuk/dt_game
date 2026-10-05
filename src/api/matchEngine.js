@@ -392,7 +392,7 @@ export const matchEngineApi = {
   /**
    * Marca el inicio del partido autoritativamente en la base de datos para impedir reinicios a 0'.
    */
-  async startMatch(fixtureId, userClubId, homeTactic, homePlayers, awayTactic, awayPlayers, seed = null) {
+  async startMatch(fixtureId, userClubId, homeTactic, homePlayers, awayTactic, awayPlayers, seed = null, { userPowerFactor = 1, userIsHome = null } = {}) {
     const finalSeed = seed || `seed_${Date.now()}_${Math.random()}`
     // La caldera pesa: la ventaja de local sale del humor de la hinchada local (1,02 hostil a 1,10 caldera)
     let homeAdvantageFactor = 1.08
@@ -416,6 +416,11 @@ export const matchEngineApi = {
       } catch {
         // Sin dato de hinchada ni de suspensión se mantiene la ventaja base
       }
+    }
+    // Química del once del DT (de -3% a +3%): mejora o empeora el rendimiento de su lado
+    if (userPowerFactor !== 1 && userIsHome !== null) {
+      if (userIsHome) homePowerFactor *= userPowerFactor
+      else awayPowerFactor *= userPowerFactor
     }
     const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, { homeAdvantage: homeAdvantageFactor, homePowerFactor, awayPowerFactor })
 

@@ -24,7 +24,9 @@ import {
 import { toast } from 'sonner'
 import { isFixturePlayed } from '../../domain/fixtureStatus'
 import { buildMatchSquad, buildRivalLineup } from '../../domain/matchSquad'
-import { resolveLineup } from '../../domain/formations'
+import { resolveLineup, getLayout } from '../../domain/formations'
+import { chemistryApi } from '../../api/chemistry'
+import { teamChemistry } from '../../domain/chemistry'
 import { FREE_FORMATION, normalizeLayout, slotsOfLayout } from '../../domain/freeLayout'
 
 // Puestos de la formación activa (en el orden en que se guarda la alineación)
@@ -178,9 +180,22 @@ export default function MatchScreen() {
     // Once real que sale a la cancha: alineación del DT + reemplazos (juveniles y lesionados con penalización si faltan aptos)
     const matchSquad = buildMatchSquad(data.players, lineupIdsOf(data.tactic, data.players), 11, slotsOf(data.tactic))
     
-    const results = isHome 
-      ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, matchSquad.starters, awayTactic, awayPlayers)
-      : await matchEngineApi.startMatch(fixtureId, data.club.id, awayTactic, awayPlayers, data.tactic, matchSquad.starters)
+    // Química del once: compañeros de siempre, mentorías y jugar en el puesto natural rinden más que un equipo armado a las apuradas
+    let userPowerFactor = 1
+    try {
+      const custom = data.tactic?.formation === FREE_FORMATION ? normalizeLayout(data.tactic?.custom_layout) : null
+      const layout = custom || getLayout(data.tactic?.formation)
+      const lineupBySlot = Object.fromEntries(matchSquad.starters.map(p => [p.slot, p.id]))
+      const context = await chemistryApi.getContext(data.club.id, data.players)
+      userPowerFactor = teamChemistry(layout, lineupBySlot, chemistryApi.withArchetypes(matchSquad.starters, context), context).factor
+    } catch (chemErr) {
+      console.warn('Aviso: no se pudo calcular la química del equipo:', chemErr)
+    }
+    const options = { userPowerFactor, userIsHome: isHome }
+
+    const results = isHome
+      ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, matchSquad.starters, awayTactic, awayPlayers, null, options)
+      : await matchEngineApi.startMatch(fixtureId, data.club.id, awayTactic, awayPlayers, data.tactic, matchSquad.starters, null, options)
       
     const matchData = {
       ...results,

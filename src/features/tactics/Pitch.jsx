@@ -13,6 +13,32 @@ const RING = {
   OUT_OF_POSITION: 'border-danger text-danger'
 }
 
+const LINK_COLOR = { GOOD: 'oklch(72% 0.17 150)', OK: 'oklch(82% 0.15 90)', BAD: 'oklch(62% 0.2 25)' }
+
+/** Enlaces de química entre fichas vecinas: líneas verdes (buena), amarillas (regular) y rojas (mala) */
+function ChemistryLinks({ links, positions }) {
+  return (
+    <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 z-[5] size-full" preserveAspectRatio="none" aria-hidden="true">
+      {links.map(l => {
+        const a = positions[l.a]
+        const b = positions[l.b]
+        if (!a || !b) return null
+        return (
+          <line
+            key={`${l.a}-${l.b}`}
+            x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+            stroke={LINK_COLOR[l.tone]}
+            strokeWidth={l.tone === 'GOOD' ? 2.2 : 1.6}
+            strokeLinecap="round"
+            strokeOpacity="0.85"
+            vectorEffect="non-scaling-stroke"
+          />
+        )
+      })}
+    </svg>
+  )
+}
+
 const DRAG_THRESHOLD = 6
 const KEY_STEP = 2
 const ARROWS = { ArrowLeft: [-KEY_STEP, 0], ArrowRight: [KEY_STEP, 0], ArrowUp: [0, -KEY_STEP], ArrowDown: [0, KEY_STEP] }
@@ -121,7 +147,7 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
  * Con `onMove(slot, x, y, { keepSelection })` las fichas se arrastran a cualquier lugar. En el celular también se puede tocar
  * una ficha y después tocar el lugar de la cancha, o mover la seleccionada con las flechas del teclado.
  */
-export default function Pitch({ formation, layout: layoutProp, lineup, players, selectedSlot, onSelectSlot, onMove, className }) {
+export default function Pitch({ formation, layout: layoutProp, lineup, players, selectedSlot, onSelectSlot, onMove, links, className }) {
   const reduceMotion = useReducedMotion()
   const boxRef = useRef(null)
   const dragRef = useRef(null)
@@ -187,6 +213,12 @@ export default function Pitch({ formation, layout: layoutProp, lineup, players, 
       className={cn('relative mx-auto aspect-[68/100] w-full max-w-[28rem] overflow-hidden rounded-lg border border-line', className)}
     >
       <PitchLines />
+      {links?.length > 0 && (
+        <ChemistryLinks
+          links={links}
+          positions={Object.fromEntries(layout.map(p => [p.slot, drag?.slot === p.slot ? { x: drag.x, y: drag.y } : { x: p.x, y: p.y }]))}
+        />
+      )}
       {/* La ficha se identifica por el JUGADOR (no por el puesto): al cambiar de formación cada jugador se desplaza
           con un resorte hacia su nuevo puesto en vez de "teletransportarse". Los puestos vacíos usan clave propia. */}
       {layout.map(({ slot, x, y }) => {

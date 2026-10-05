@@ -7,6 +7,8 @@ import {
   TACTICAL_MENTALITIES, PASSING_STYLES, PRESSING_LEVELS, TEMPO_LEVELS
 } from '../../api/tactics'
 import { playerApi } from '../../api/player'
+import { chemistryApi } from '../../api/chemistry'
+import { teamChemistry, weakestLinks } from '../../domain/chemistry'
 import { reassignLineup, resolveLineup, getLayout } from '../../domain/formations'
 import { FREE_FORMATION, moveToPoint, normalizeLayout, shapeOf, slotsOfLayout } from '../../domain/freeLayout'
 import { fitLabel, positionName, slotBase } from '../../domain/positions'
@@ -62,6 +64,7 @@ export default function TacticsScreen() {
   const [pressing, setPressing] = useState('BALANCED')
   const [tempo, setTempo] = useState('NORMAL')
   const [lineup, setLineup] = useState({}) // { [puesto]: idJugador }
+  const [chemistryContext, setChemistryContext] = useState({ mentorPairs: new Set(), archetypes: new Map() })
   const [customLayout, setCustomLayout] = useState(null) // alineación libre: [{ slot, x, y }] o null con formación fija
   const [tacticId, setTacticId] = useState(null)
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -79,6 +82,8 @@ export default function TacticsScreen() {
         setLoading(true)
         const [tactic, players] = await Promise.all([tacticsApi.getTactic(club.id), playerApi.getSquad(club.id)])
         setSquad(players || [])
+        // La química usa mentorías y personalidades; si no se pueden leer, se calcula sin ellas
+        chemistryApi.getContext(club.id, players || []).then(setChemistryContext).catch(() => {})
 
         // Con alineación libre la formación guardada es 'LIBRE' y las posiciones salen del layout personalizado
         const custom = tactic?.formation === FREE_FORMATION ? normalizeLayout(tactic?.custom_layout) : null
@@ -126,6 +131,13 @@ export default function TacticsScreen() {
     const hurt = starters.filter(p => p.is_injured).length
     return { avg, out, hurt, count: starters.length }
   }, [starterIds.join('|'), playerMap]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Química del once: enlaces entre vecinos, valor total y los vínculos más flojos
+  const chemistry = useMemo(
+    () => teamChemistry(layout, lineup, chemistryApi.withArchetypes(squad, chemistryContext), chemistryContext),
+    [layout, lineup, squad, chemistryContext]
+  )
+  const weak = weakestLinks(chemistry.links.filter(l => l.tone !== 'GOOD'), 2)
 
   const handleFormationChange = (next) => {
     if (next === formation || next === FREE_FORMATION) return
@@ -250,11 +262,12 @@ export default function TacticsScreen() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
         {/* Cancha y resumen */}
         <div className="min-w-0 space-y-4">
-          <Pitch formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={handleMove} />
+          <Pitch formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={handleMove} links={chemistry.links} />
 
           <Card>
-            <CardBody className="grid grid-cols-3 gap-4">
+            <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <Stat label="Nivel del once" value={summary.avg} />
+              <Stat label="Química" value={`${chemistry.score}%`} valueClassName={chemistry.score >= 70 ? 'text-accent' : chemistry.score < 40 ? 'text-danger' : 'text-warning'} />
               <Stat label="Fuera de puesto" value={summary.out} valueClassName={summary.out > 0 ? 'text-warning' : undefined} />
               <Stat label="Lesionados" value={summary.hurt} valueClassName={summary.hurt > 0 ? 'text-danger' : undefined} />
             </CardBody>
@@ -266,6 +279,20 @@ export default function TacticsScreen() {
             <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-[oklch(75%_0.16_55)]" />Adaptado</li>
             <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-danger" />Fuera de puesto</li>
           </ul>
+          <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de química">
+            <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(72%_0.17_150)]" />Química buena</li>
+            <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(82%_0.15_90)]" />Regular</li>
+            <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(62%_0.2_25)]" />Mala</li>
+          </ul>
+          {weak.length > 0 && (
+            <ul className="space-y-1 px-1 text-xs text-fg-muted" aria-label="Vínculos para mejorar">
+              {weak.map(l => (
+                <li key={`${l.a}-${l.b}`}>
+                  <span className="font-semibold text-fg">{slotBase(l.a)} y {slotBase(l.b)}:</span> {l.reasons.join(', ') || 'se conocen poco'}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Instrucciones y selección de jugadores */}
