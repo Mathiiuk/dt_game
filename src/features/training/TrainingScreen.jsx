@@ -33,16 +33,17 @@ export default function TrainingScreen() {
     const load = async () => {
       try {
         setLoading(true)
-        const plan = await trainingApi.getClubTrainingPlan(club.id)
+        // El plan, el plantel y los focos individuales no dependen entre sí: se piden juntos
+        const [plan, squadRes, assigned] = await Promise.all([
+          trainingApi.getClubTrainingPlan(club.id),
+          supabase.from('players').select('*').eq('club_id', club.id).eq('is_retired', false).order('position', { ascending: true }),
+          trainingApi.getPlayerAssignments(club.id)
+        ])
         if (plan) {
           setFocus(plan.general_focus || 'BALANCED')
           setIntensity(plan.intensity_level || 'MEDIUM')
         }
-        const { data: squad } = await supabase
-          .from('players').select('*').eq('club_id', club.id).eq('is_retired', false).order('position', { ascending: true })
-        if (squad) setPlayers(squad)
-
-        const assigned = await trainingApi.getPlayerAssignments(club.id)
+        if (squadRes.data) setPlayers(squadRes.data)
         setAssignments(Object.fromEntries(assigned.map(a => [a.player_id, a.focus_attribute])))
       } catch (e) {
         console.error('Error cargando plan de entrenamiento:', e)

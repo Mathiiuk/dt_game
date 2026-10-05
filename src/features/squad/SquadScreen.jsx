@@ -117,11 +117,12 @@ export default function SquadScreen() {
   const loadData = async () => {
     try {
       if (!club?.id) return
-      const [players, offers, personalitiesList] = await Promise.all([
+      const [players, offers] = await Promise.all([
         playerApi.getSquad(club.id),
-        contractApi.getOffersForClub(club.id),
-        personalitiesApi.syncSquadPersonalities(club.id).catch(() => [])
+        contractApi.getOffersForClub(club.id)
       ])
+      // Las personalidades se leen con el plantel ya cargado (sin pedirlo otra vez)
+      const personalitiesList = await personalitiesApi.syncSquadPersonalities(club.id, players || []).catch(() => [])
       const persMap = new Map((personalitiesList || []).map(p => [p.id, p.personality]))
       setData({ players: (players || []).map(p => ({ ...p, personalityData: persMap.get(p.id) || null })), offers })
     } catch (e) {

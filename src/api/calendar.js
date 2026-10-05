@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
+import { timed } from '../lib/perf'
 
 export { seasonYearOf, weekOfDate }
 
@@ -226,6 +227,7 @@ export const calendarApi = {
    */
   async advanceWeek({ careerId, clubId, managerId, expectedCurrentWeek }) {
     const startTime = Date.now()
+    const timings = {}
 
     // 1. Obtener estado actual
     const calendar = await this.reconcileWithClub(await this.getOrCreateCalendar(careerId), clubId)
@@ -244,14 +246,27 @@ export const calendarApi = {
       throw err
     }
 
-    // 4. Comprobar que no haya un partido pendiente hoy que deba jugarse obligatoriamente
+    // 4. Condiciones que frenan el avance. Las tres consultas son independientes: se piden juntas y se evalúan
+    // en el mismo orden de siempre (partido de liga, copa continental, dilema crítico)
     if (clubId) {
-      const { data: pendingMatches } = await supabase
-        .from('fixtures')
-        .select('id, match_date, status')
-        .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
-        .in('status', FIXTURE_OPEN_STATUSES)
-        .lte('match_date', calendar.current_date)
+      const checks = await timed('semana.condiciones', () => Promise.all([
+        supabase
+          .from('fixtures')
+          .select('id, match_date, status')
+          .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+          .in('status', FIXTURE_OPEN_STATUSES)
+          .lte('match_date', calendar.current_date),
+        import('./internationalCup')
+          .then(({ internationalCupApi }) => internationalCupApi.hasDueUserMatch(clubId, calendar.current_date))
+          .catch((cupErr) => {
+            console.warn('Aviso: no se pudo comprobar la copa continental:', cupErr)
+            return false
+          }),
+        import('./events')
+          .then(({ eventsApi }) => eventsApi.hasCriticalPendingEvent(clubId))
+          .catch(() => false)
+      ]), timings)
+      const [{ data: pendingMatches }, cupDue, hasCritical] = checks
 
       if (pendingMatches && pendingMatches.length > 0) {
         const err = new Error('ERR_MATCH_MUST_BE_PLAYED_FIRST: No puedes avanzar de semana sin disputar el partido oficial programado.')
@@ -260,29 +275,17 @@ export const calendarApi = {
       }
 
       // 4a. La copa continental también se juega en su fecha: un partido propio vencido frena el avance
-      try {
-        const { internationalCupApi } = await import('./internationalCup')
-        if (await internationalCupApi.hasDueUserMatch(clubId, calendar.current_date)) {
-          const err = new Error('ERR_MATCH_MUST_BE_PLAYED_FIRST: Tenés un partido de la copa continental pendiente. Jugalo antes de avanzar de semana.')
-          err.code = 'ERR_MATCH_MUST_BE_PLAYED_FIRST'
-          throw err
-        }
-      } catch (cupErr) {
-        if (cupErr.code === 'ERR_MATCH_MUST_BE_PLAYED_FIRST') throw cupErr
-        console.warn('Aviso: no se pudo comprobar la copa continental:', cupErr)
+      if (cupDue) {
+        const err = new Error('ERR_MATCH_MUST_BE_PLAYED_FIRST: Tenés un partido de la copa continental pendiente. Jugalo antes de avanzar de semana.')
+        err.code = 'ERR_MATCH_MUST_BE_PLAYED_FIRST'
+        throw err
       }
 
       // 4b. Regla 35.1: Comprobar eventos críticos no resueltos
-      try {
-        const { eventsApi } = await import('./events')
-        const hasCritical = await eventsApi.hasCriticalPendingEvent(clubId)
-        if (hasCritical) {
-          const err = new Error('ERR_CRITICAL_EVENT_PENDING: Hay un dilema institucional crítico que requiere tu decisión antes de avanzar la semana.')
-          err.code = 'ERR_CRITICAL_EVENT_PENDING'
-          throw err
-        }
-      } catch (evtErr) {
-        if (evtErr.code === 'ERR_CRITICAL_EVENT_PENDING') throw evtErr
+      if (hasCritical) {
+        const err = new Error('ERR_CRITICAL_EVENT_PENDING: Hay un dilema institucional crítico que requiere tu decisión antes de avanzar la semana.')
+        err.code = 'ERR_CRITICAL_EVENT_PENDING'
+        throw err
       }
     }
 
@@ -307,126 +310,117 @@ export const calendarApi = {
       let staminaRecoveredCount = 0
       let playersProcessedCount = 0
 
-      // 7. Cascada Semanal: Jugadores (Salud, Fitness, Lesiones)
+      // 7. Cascada semanal. Los pasos que no comparten datos corren en paralelo; los que se leen entre sí,
+      // en orden. Cada uno se mide en `timings` (visible en window.__perf en desarrollo).
       if (clubId) {
-        const { data: players } = await supabase
-          .from('players')
-          .select('*')
-          .eq('club_id', clubId)
+        const warn = (label) => (e) => console.warn(`Aviso: no se pudo procesar ${label}:`, e)
 
-        if (players && players.length > 0) {
-          playersProcessedCount = players.length
-          // Se acumulan los cambios y se aplican en una sola llamada (antes: un UPDATE por jugador)
-          const weeklyUpdates = []
-          for (const p of players) {
-            let updatedFitness = p.state_fitness || 70
-            let updatedInjuryDays = p.injury_days || 0
-            let updatedInjuryType = p.injury_type || null
-            let isInjured = p.is_injured
+        // Cadena de jugadores: salud y fatiga, y después el entrenamiento (que lee lo que dejó el paso anterior)
+        const playersChain = async () => {
+          const { data: players } = await timed('semana.jugadores.leer', () => supabase.from('players').select('*').eq('club_id', clubId), timings)
 
-            if (updatedInjuryDays > 0) {
-              updatedInjuryDays = Math.max(0, updatedInjuryDays - 7)
-              if (updatedInjuryDays === 0) {
-                updatedInjuryType = null
-                isInjured = false
-                updatedFitness = Math.max(60, updatedFitness)
-                injuriesRecoveredCount++
+          if (players && players.length > 0) {
+            playersProcessedCount = players.length
+            // Se acumulan los cambios y se aplican en una sola llamada (antes: un UPDATE por jugador)
+            const weeklyUpdates = []
+            for (const p of players) {
+              let updatedFitness = p.state_fitness || 70
+              let updatedInjuryDays = p.injury_days || 0
+              let updatedInjuryType = p.injury_type || null
+              let isInjured = p.is_injured
+
+              if (updatedInjuryDays > 0) {
+                updatedInjuryDays = Math.max(0, updatedInjuryDays - 7)
+                if (updatedInjuryDays === 0) {
+                  updatedInjuryType = null
+                  isInjured = false
+                  updatedFitness = Math.max(60, updatedFitness)
+                  injuriesRecoveredCount++
+                }
+              } else {
+                // Recuperación de fatiga (+15 a +25 stamina semanal, capped en 100)
+                const recovery = CALENDAR_CONFIG.weekly_base_stamina_recovery
+                updatedFitness = Math.min(100, updatedFitness + recovery)
+                staminaRecoveredCount++
               }
-            } else {
-              // Recuperación de fatiga (+15 a +25 stamina semanal, capped en 100)
-              const recovery = CALENDAR_CONFIG.weekly_base_stamina_recovery
-              updatedFitness = Math.min(100, updatedFitness + recovery)
-              staminaRecoveredCount++
+
+              weeklyUpdates.push({
+                id: p.id,
+                state_fitness: updatedFitness,
+                injury_days: updatedInjuryDays,
+                injury_type: updatedInjuryType,
+                is_injured: isInjured
+              })
             }
+            const { playerApi } = await import('./player')
+            await timed('semana.jugadores.guardar', () => playerApi.batchUpdate(weeklyUpdates), timings)
 
-            weeklyUpdates.push({
-              id: p.id,
-              state_fitness: updatedFitness,
-              injury_days: updatedInjuryDays,
-              injury_type: updatedInjuryType,
-              is_injured: isInjured
-            })
+            // 7.1. Cascada de Entrenamiento y Desarrollo Individual (Fase 08)
+            try {
+              const { trainingApi } = await import('./training')
+              await timed('semana.entrenamiento', () => trainingApi.processWeeklyTraining(clubId, calendar.current_week, careerId), timings)
+            } catch (tErr) {
+              warn('el entrenamiento semanal')(tErr)
+            }
           }
-          const { playerApi } = await import('./player')
-          await playerApi.batchUpdate(weeklyUpdates)
 
-          // 7.1. Cascada de Entrenamiento y Desarrollo Individual (Fase 08)
+          // 11d. Recuperación médica de lesionados (Fase 27): después del entrenamiento, que puede lesionar
           try {
-            const { trainingApi } = await import('./training')
-            await trainingApi.processWeeklyTraining(clubId, calendar.current_week, careerId)
-          } catch (tErr) {
-            console.warn('Aviso: error en cálculo de entrenamiento semanal:', tErr)
+            const { injuriesApi } = await import('./injuries')
+            await timed('semana.lesiones', () => injuriesApi.processWeeklyInjuriesRecovery(clubId), timings)
+          } catch (injErr) {
+            warn('la recuperación de lesiones')(injErr)
           }
+
+          // 11c. Mentorías de futbolistas (Fase 26): también tocan a los jugadores, por eso van en esta cadena
+          try {
+            const { personalitiesApi } = await import('./personalities')
+            await timed('semana.mentorias', () => personalitiesApi.advanceMentorshipsWeek(clubId), timings)
+          } catch (persErr) {
+            warn('las mentorías')(persErr)
+          }
+
+          return players || []
         }
 
-        // 8. Cascada de Finanzas (Salarios semanales e ingresos)
-        const { financesApi } = await import('./finances')
-        await financesApi.processWeek({ clubId, careerId, seasonYear: calendar.current_season_year, weekNumber: nextWeek, players: players || [] })
-
-        // 9. Simulación de partidos de liga IA
-        const { competitionApi } = await import('./competition')
-        // La fecha del juego avanza de a 7 días: se juegan todos los partidos de IA vencidos (excepto el del club del usuario)
-        await competitionApi.simulateMatchDay(nextDate, clubId)
-
-        // 10. Mercado de fichajes y ofertas aleatorias
-        const { marketApi } = await import('./market')
-        const { contractApi } = await import('./contracts')
-        await contractApi.generateRandomOffersForWeek(clubId, players || [], nextTransferWindow)
-
-        // 11. Moral semanal (los eventos dinámicos se generan en el paso 11f con eventsApi.generateWeeklyEvents)
-        const { moraleApi } = await import('./morale')
-        await moraleApi.processWeeklyMorale(clubId)
-
-        // 11a. Clima del club: humor por el precio de la entrada y satisfacción financiera de la dirigencia
-        try {
-          const { climateApi } = await import('./climate')
-          await climateApi.processWeek({ clubId, gameDate: nextDate })
-        } catch (climateErr) {
-          console.warn('Aviso: no se pudo procesar el clima semanal:', climateErr)
-        }
-
-        // 11b. Avance de obras de infraestructura del estadio (Fase 21)
-        try {
-          const { stadiumApi } = await import('./stadium')
-          await stadiumApi.advanceConstructionWeek(clubId, nextWeek, calendar.current_season_year)
-        } catch (stErr) {
-          console.warn('Aviso: no se pudo procesar avance de obras de estadio:', stErr)
-        }
-
-        // 11c. Avance de programas de mentoría de futbolistas (Fase 26)
-        try {
-          const { personalitiesApi } = await import('./personalities')
-          await personalitiesApi.advanceMentorshipsWeek(clubId)
-        } catch (persErr) {
-          console.warn('Aviso: no se pudo procesar avance de mentorías:', persErr)
-        }
-
-        // 11d. Avance de recuperación médica de lesionados (Fase 27)
-        try {
-          const { injuriesApi } = await import('./injuries')
-          await injuriesApi.processWeeklyInjuriesRecovery(clubId)
-        } catch (injErr) {
-          console.warn('Aviso: no se pudo procesar recuperación de lesiones:', injErr)
-        }
-
+        // Pasos independientes de los jugadores del club: liga de la IA, obras del estadio y carrera del DT
+        const independent = [
+          // 9. La fecha del juego avanza de a 7 días: se juegan todos los partidos de IA vencidos (excepto el del club del usuario)
+          import('./competition').then(({ competitionApi }) => timed('semana.liga-ia', () => competitionApi.simulateMatchDay(nextDate, clubId), timings)),
+          // 11b. Avance de obras de infraestructura del estadio (Fase 21)
+          import('./stadium').then(({ stadiumApi }) => timed('semana.estadio', () => stadiumApi.advanceConstructionWeek(clubId, nextWeek, calendar.current_season_year), timings)).catch(warn('las obras del estadio'))
+        ]
         // 11e. Avance de carrera del DT: depósito de salario y expiración de ofertas (Fase 31)
         if (managerId) {
-          try {
-            const { careerApi } = await import('./career')
-            await careerApi.processWeeklyManagerProgression(managerId, nextWeek, clubId, careerId)
-          } catch (careerErr) {
-            console.warn('Aviso: no se pudo procesar avance de carrera del DT:', careerErr)
-          }
+          independent.push(
+            import('./career').then(({ careerApi }) => timed('semana.carrera', () => careerApi.processWeeklyManagerProgression(managerId, nextWeek, clubId, careerId), timings)).catch(warn('la carrera del DT'))
+          )
         }
 
-        // 11f. Disparo de eventos dinámicos narrativos y dilemas del DT (Fase 35)
+        const [players] = await Promise.all([timed('semana.cadena-jugadores', playersChain, timings), ...independent])
+
+        // 8, 10 y 11 usan a los jugadores ya procesados y escriben en columnas distintas del club: van juntos
+        const { financesApi } = await import('./finances')
+        const { contractApi } = await import('./contracts')
+        const { moraleApi } = await import('./morale')
+        await Promise.all([
+          // 8. Finanzas (salarios semanales e ingresos)
+          timed('semana.finanzas', () => financesApi.processWeek({ clubId, careerId, seasonYear: calendar.current_season_year, weekNumber: nextWeek, players }), timings),
+          // 10. Ofertas aleatorias del mercado
+          timed('semana.ofertas', () => contractApi.generateRandomOffersForWeek(clubId, players, nextTransferWindow), timings),
+          // 11. Moral semanal con las rachas reales
+          timed('semana.moral', () => moraleApi.processWeeklyMorale(clubId), timings)
+        ])
+
+        // 11a y 11f leen la caja y la moral que dejaron los pasos anteriores: van después y en orden
         try {
           const { climateApi } = await import('./climate')
-          await climateApi.advanceWeek({ clubId, managerId, careerId, week: nextWeek, gameDate: nextDate })
+          await timed('semana.clima', () => climateApi.processWeek({ clubId, gameDate: nextDate }), timings)
+          await timed('semana.clima-barra', () => climateApi.advanceWeek({ clubId, managerId, careerId, week: nextWeek, gameDate: nextDate }), timings)
           const { eventsApi } = await import('./events')
-          await eventsApi.generateWeeklyEvents(clubId, managerId, nextWeek, careerId)
+          await timed('semana.eventos', () => eventsApi.generateWeeklyEvents(clubId, managerId, nextWeek, careerId), timings)
         } catch (evtErr) {
-          console.warn('Aviso: no se pudo procesar eventos dinámicos semanales:', evtErr)
+          warn('el clima y los eventos semanales')(evtErr)
         }
 
         // Sincronizar fecha en clubs para compatibilidad
@@ -479,6 +473,7 @@ export const calendarApi = {
 
       return {
         success: true,
+        timings: { total: durationMs, ...timings },
         week: nextWeek,
         date: nextDate,
         phase: nextPhase,

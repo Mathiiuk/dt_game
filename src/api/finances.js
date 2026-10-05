@@ -21,17 +21,16 @@ export const financesApi = {
     if (!clubId) return null
 
     return queryCache.fetch(`finances:${clubId}`, async () => {
-      // 1. Obtener club
-      const { data: club, error: cErr } = await supabase
-        .from('clubs')
-        .select('*')
-        .eq('id', clubId)
-        .single()
-      if (cErr) throw new Error(cErr.message)
-
-      // 2. Jugadores y staff (sueldos semanales)
-      const { data: players } = await supabase.from('players').select('contract_salary').eq('club_id', clubId)
-      const { data: staff } = await supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId)
+      // Club, jugadores y staff son independientes: se piden juntos (antes eran tres idas y vueltas en fila)
+      const [clubRes, playersRes, staffRes] = await Promise.all([
+        supabase.from('clubs').select('*').eq('id', clubId).single(),
+        supabase.from('players').select('contract_salary').eq('club_id', clubId),
+        supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId)
+      ])
+      if (clubRes.error) throw new Error(clubRes.error.message)
+      const club = clubRes.data
+      const players = playersRes.data
+      const staff = staffRes.data
       const week = weeklyBudget({ club, players: players || [], staff: staff || [] })
       const { playerWages, staffWages, stadiumMaint, academyMaint } = week.expenses
       const totalExpenses = week.totalExpenses

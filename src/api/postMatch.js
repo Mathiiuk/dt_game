@@ -345,174 +345,197 @@ export const postMatchApi = {
           .update({ budget: Number(clubData.budget || 0) + netIncome })
           .eq('id', clubId)
 
+        // El libro mayor, la auditoría, la atmósfera de la tribuna y el desgaste del césped no dependen entre sí
+        await Promise.all([
+          (async () => {
+            try {
+              const { financesApi } = await import('./finances')
+              await financesApi.recordLedgerTransaction({
+                clubId, category: 'MATCH_DAY', amount: netIncome, seasonYear: clubData.game_date ? seasonYearOf(clubData.game_date) : 1, weekNumber: clubData.game_date ? weekOfDate(clubData.game_date) : 1,
+                description: `Taquilla: ${attendance} espectadores a $${ticketPrice} (neto de seguridad y logística)`
+              })
+            } catch (ledgerErr) {
+              console.warn('Aviso: no se pudo registrar la taquilla en el libro mayor:', ledgerErr)
+            }
+          })(),
+          Promise.resolve(auditApi.logAction({
+            whoId: managerId,
+            action: 'MATCH_GATE_RECEIPTS',
+            entityType: 'club',
+            entityId: clubId,
+            stateBefore: { budget: clubData.budget },
+            stateAfter: { budget: Number(clubData.budget || 0) + netIncome, netIncome, attendance }
+          })).catch((auditErr) => console.warn('Aviso: no se pudo auditar la taquilla:', auditErr)),
+          (async () => {
+            // Registrar informe de atmósfera de afición (Fase 22)
+            try {
+              const { fanbaseApi } = await import('./fanbase')
+              await fanbaseApi.recordMatchAtmosphere({
+                fixtureId: result.fixtureId || null,
+                homeClubId: clubId,
+                attendance,
+                capacityFillPercentage: computed?.capacityFillPercentage || 75,
+                homeAdvantageBonus: computed?.homeAdvantageBonus || 1.02,
+                ticketPriceApplied: ticketPrice,
+                isWin,
+                isDraw,
+                isDerby: Boolean(result.isDerby)
+              })
+            } catch (fbErr) {
+              console.warn('Aviso: no se pudo persistir match atmosphere:', fbErr)
+            }
+          })(),
+          (async () => {
+            // Regla 21.2: Desgaste gradual del césped (-3 pts)
+            try {
+              const { stadiumApi } = await import('./stadium')
+              await stadiumApi.degradePitchHomeMatch(clubId)
+            } catch (stErr) {
+              console.warn('Aviso: no se pudo actualizar desgaste de césped:', stErr)
+            }
+          })()
+        ])
+      }
+    }
+
+    // 5 y 5a. La confianza de la directiva y las consecuencias del resultado tocan las mismas filas del club: van en orden
+    const clubChain = async () => {
+      // 5. Ajustar confianza de la directiva (Fase 23)
+      if (clubData) {
         try {
-          const { financesApi } = await import('./finances')
-          await financesApi.recordLedgerTransaction({
-            clubId, category: 'MATCH_DAY', amount: netIncome, seasonYear: clubData.game_date ? seasonYearOf(clubData.game_date) : 1, weekNumber: clubData.game_date ? weekOfDate(clubData.game_date) : 1,
-            description: `Taquilla: ${attendance} espectadores a $${ticketPrice} (neto de seguridad y logística)`
-          })
-        } catch (ledgerErr) {
-          console.warn('Aviso: no se pudo registrar la taquilla en el libro mayor:', ledgerErr)
-        }
-
-        await auditApi.logAction({
-          whoId: managerId,
-          action: 'MATCH_GATE_RECEIPTS',
-          entityType: 'club',
-          entityId: clubId,
-          stateBefore: { budget: clubData.budget },
-          stateAfter: { budget: Number(clubData.budget || 0) + netIncome, netIncome, attendance }
-        })
-
-        // Registrar informe de atmósfera de afición (Fase 22)
-        try {
-          const { fanbaseApi } = await import('./fanbase')
-          await fanbaseApi.recordMatchAtmosphere({
-            fixtureId: result.fixtureId || null,
-            homeClubId: clubId,
-            attendance,
-            capacityFillPercentage: computed?.capacityFillPercentage || 75,
-            homeAdvantageBonus: computed?.homeAdvantageBonus || 1.02,
-            ticketPriceApplied: ticketPrice,
-            isWin,
-            isDraw,
-            isDerby: Boolean(result.isDerby)
-          })
-        } catch (fbErr) {
-          console.warn('Aviso: no se pudo persistir match atmosphere:', fbErr)
-        }
-
-        // Regla 21.2: Desgaste gradual del césped (-3 pts)
-        try {
-          const { stadiumApi } = await import('./stadium')
-          await stadiumApi.degradePitchHomeMatch(clubId)
-        } catch (stErr) {
-          console.warn('Aviso: no se pudo actualizar desgaste de césped:', stErr)
-        }
-      }
-    }
-
-    // 5. Ajustar confianza de la directiva (Fase 23)
-    if (clubData) {
-      try {
-        const { boardApi } = await import('./board')
-        await boardApi.updateConfidenceAfterMatch({
-          clubId,
-          managerId,
-          isWin,
-          isDraw
-        })
-      } catch (boardErr) {
-        console.warn('Fallback board confidence update:', boardErr)
-        let currentConfidence = clubData.board_confidence ?? 80
-        if (isWin) currentConfidence += 4
-        else if (isDraw) currentConfidence -= 1
-        else currentConfidence -= 6
-        currentConfidence = Math.max(0, Math.min(100, currentConfidence))
-
-        await supabase
-          .from('clubs')
-          .update({ board_confidence: currentConfidence })
-          .eq('id', clubId)
-      }
-    }
-
-    // 5a. Consecuencias del resultado: rachas, goleadas, clásico y hinchada de visitante (clima del club)
-    try {
-      const { climateApi } = await import('./climate')
-      await climateApi.applyMatchConsequences({ clubId, fixtureId, result, gameDate: clubData?.game_date || null })
-
-      // Referentes en el banco: el capitán y el ídolo que no juegan se notan en el vestuario y en la tribuna
-      if (result.starterIds?.length && players?.length) {
-        const { data: locker } = await supabase.from('club_locker_room').select('captain_player_id').eq('club_id', clubId).maybeSingle()
-        const played = new Set(selectParticipants(players, result.starterIds).map(x => x.id))
-        const captainBenched = Boolean(locker?.captain_player_id) && !played.has(locker.captain_player_id)
-        const idolBenched = players.some(x => x.is_idol && !x.is_injured && !played.has(x.id))
-        await climateApi.applySquadConsequence({
-          clubId, source: 'BENCH', gameDate: clubData?.game_date || null,
-          effects: benchConsequences({ captainBenched, idolBenched }, climateApi.difficulty)
-        })
-      }
-    } catch (climateErr) {
-      console.warn('Aviso: no se pudieron aplicar las consecuencias del partido:', climateErr)
-    }
-
-    // 5b. Registrar partido en el ciclo activo de carrera del DT (Fase 31)
-    if (managerId && clubId) {
-      try {
-        const { careerApi } = await import('./career')
-        await careerApi.recordMatchInStint(managerId, clubId, isWin, isDraw, !isWin && !isDraw)
-      } catch (stintErr) {
-        console.warn('Aviso: no se pudo actualizar stint de carrera del DT:', stintErr)
-      }
-    }
-
-    // 5c. Actualizar reputación y prestigio del DT con ledger (Fase 32)
-    if (managerId) {
-      try {
-        const { reputationApi, REPUTATION_DELTAS } = await import('./reputation')
-        const delta = isWin ? REPUTATION_DELTAS.regular_win : (!isWin && !isDraw ? REPUTATION_DELTAS.regular_loss : 0)
-        if (delta !== 0) {
-          await reputationApi.applyReputationDelta({
+          const { boardApi } = await import('./board')
+          await boardApi.updateConfidenceAfterMatch({
+            clubId,
             managerId,
-            eventType: 'MATCH_RESULT',
-            sourceEntityId: fixtureId || `match_${Date.now()}`,
-            delta,
-            description: isWin ? 'Victoria en partido oficial' : 'Derrota en partido oficial'
+            isWin,
+            isDraw
+          })
+        } catch (boardErr) {
+          console.warn('Fallback board confidence update:', boardErr)
+          let currentConfidence = clubData.board_confidence ?? 80
+          if (isWin) currentConfidence += 4
+          else if (isDraw) currentConfidence -= 1
+          else currentConfidence -= 6
+          currentConfidence = Math.max(0, Math.min(100, currentConfidence))
+
+          await supabase
+            .from('clubs')
+            .update({ board_confidence: currentConfidence })
+            .eq('id', clubId)
+        }
+      }
+
+      // 5a. Consecuencias del resultado: rachas, goleadas, clásico y hinchada de visitante (clima del club)
+      try {
+        const { climateApi } = await import('./climate')
+        await climateApi.applyMatchConsequences({ clubId, fixtureId, result, gameDate: clubData?.game_date || null })
+
+        // Referentes en el banco: el capitán y el ídolo que no juegan se notan en el vestuario y en la tribuna
+        if (result.starterIds?.length && players?.length) {
+          const { data: locker } = await supabase.from('club_locker_room').select('captain_player_id').eq('club_id', clubId).maybeSingle()
+          const played = new Set(selectParticipants(players, result.starterIds).map(x => x.id))
+          const captainBenched = Boolean(locker?.captain_player_id) && !played.has(locker.captain_player_id)
+          const idolBenched = players.some(x => x.is_idol && !x.is_injured && !played.has(x.id))
+          await climateApi.applySquadConsequence({
+            clubId, source: 'BENCH', gameDate: clubData?.game_date || null,
+            effects: benchConsequences({ captainBenched, idolBenched }, climateApi.difficulty)
           })
         }
-      } catch (repErr) {
-        console.warn('Aviso: no se pudo actualizar reputación tras el partido:', repErr)
+      } catch (climateErr) {
+        console.warn('Aviso: no se pudieron aplicar las consecuencias del partido:', climateErr)
       }
     }
 
-    // 6. Registrar match_reports y player_match_stats en BD
-    try {
-      if (fixtureId) {
-        await supabase.from('match_reports').upsert({
-          fixture_id: fixtureId,
-          home_club_id: result.isHome ? clubId : null,
-          away_club_id: !result.isHome ? clubId : null,
-          final_score: `${result.homeScore} - ${result.awayScore}`,
-          attendance,
-          gate_receipts_gross: grossIncome,
-          match_xp_awarded: xpAward,
-          mvp_player_id: mvp?.player_id || null
-        }, { onConflict: 'fixture_id' })
+    // 5b, 5c, 6 y 7 escriben en tablas distintas (carrera, reputación, informe del partido, historia): corren juntos
+    const sideTasks = [
+      (async () => {
+        // 5b. Registrar partido en el ciclo activo de carrera del DT (Fase 31)
+        if (managerId && clubId) {
+          try {
+            const { careerApi } = await import('./career')
+            await careerApi.recordMatchInStint(managerId, clubId, isWin, isDraw, !isWin && !isDraw)
+          } catch (stintErr) {
+            console.warn('Aviso: no se pudo actualizar stint de carrera del DT:', stintErr)
+          }
+        }
 
-        const playerStatsRows = playerRatings.map(pr => ({
-          fixture_id: fixtureId,
-          player_id: pr.player_id,
-          club_id: clubId,
-          minutes_played: 90,
-          rating: pr.rating,
-          goals: pr.goals,
-          assists: pr.assists,
-          yellow_cards: pr.yellow_cards,
-          red_cards: pr.red_cards,
-          fitness_after_match: pr.fitness_after_match,
-          morale_delta: pr.morale_delta
-        }))
+      })(),
+      (async () => {
+        // 5c. Actualizar reputación y prestigio del DT con ledger (Fase 32)
+        if (managerId) {
+          try {
+            const { reputationApi, REPUTATION_DELTAS } = await import('./reputation')
+            const delta = isWin ? REPUTATION_DELTAS.regular_win : (!isWin && !isDraw ? REPUTATION_DELTAS.regular_loss : 0)
+            if (delta !== 0) {
+              await reputationApi.applyReputationDelta({
+                managerId,
+                eventType: 'MATCH_RESULT',
+                sourceEntityId: fixtureId || `match_${Date.now()}`,
+                delta,
+                description: isWin ? 'Victoria en partido oficial' : 'Derrota en partido oficial'
+              })
+            }
+          } catch (repErr) {
+            console.warn('Aviso: no se pudo actualizar reputación tras el partido:', repErr)
+          }
+        }
 
-        await supabase.from('player_match_stats').insert(playerStatsRows)
-      }
-    } catch (dbErr) {
-      console.warn('Aviso: no se pudo persistir match_reports formal:', dbErr)
-    }
+      })(),
+      (async () => {
+        // 6. Registrar match_reports y player_match_stats en BD
+        try {
+          if (fixtureId) {
+            await supabase.from('match_reports').upsert({
+              fixture_id: fixtureId,
+              home_club_id: result.isHome ? clubId : null,
+              away_club_id: !result.isHome ? clubId : null,
+              final_score: `${result.homeScore} - ${result.awayScore}`,
+              attendance,
+              gate_receipts_gross: grossIncome,
+              match_xp_awarded: xpAward,
+              mvp_player_id: mvp?.player_id || null
+            }, { onConflict: 'fixture_id' })
 
-    // 7. Historia y Progresión de Ídolos / Récords
-    try {
-      await clubHistoryApi.processPostMatchPlayerStats(clubId, {
-        playedPlayerIds: participants.map(p => p.id),
-        scorers: scorersFromRatings(playerRatings),
-        homeScore: result.homeScore || 0,
-        awayScore: result.awayScore || 0,
-        opponentName: result.opponentName || 'Rival',
-        isHome: result.isHome
-      })
-    } catch (err) {
-      console.warn('Error en clubHistory:', err)
-    }
+            const playerStatsRows = playerRatings.map(pr => ({
+              fixture_id: fixtureId,
+              player_id: pr.player_id,
+              club_id: clubId,
+              minutes_played: 90,
+              rating: pr.rating,
+              goals: pr.goals,
+              assists: pr.assists,
+              yellow_cards: pr.yellow_cards,
+              red_cards: pr.red_cards,
+              fitness_after_match: pr.fitness_after_match,
+              morale_delta: pr.morale_delta
+            }))
+
+            await supabase.from('player_match_stats').insert(playerStatsRows)
+          }
+        } catch (dbErr) {
+          console.warn('Aviso: no se pudo persistir match_reports formal:', dbErr)
+        }
+
+      })(),
+      (async () => {
+        // 7. Historia y Progresión de Ídolos / Récords
+        try {
+          await clubHistoryApi.processPostMatchPlayerStats(clubId, {
+            playedPlayerIds: participants.map(p => p.id),
+            scorers: scorersFromRatings(playerRatings),
+            homeScore: result.homeScore || 0,
+            awayScore: result.awayScore || 0,
+            opponentName: result.opponentName || 'Rival',
+            isHome: result.isHome
+          })
+        } catch (err) {
+          console.warn('Error en clubHistory:', err)
+        }
+
+      })()
+    ]
+
+    await Promise.all([clubChain(), ...sideTasks])
 
     // 8. Logros de carrera
     try {

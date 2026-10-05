@@ -59,16 +59,26 @@ export const personalitiesApi = {
   /**
    * Sincroniza y obtiene la psicología de todos los futbolistas del club
    */
-  async syncSquadPersonalities(clubId) {
+  async syncSquadPersonalities(clubId, knownPlayers = null) {
     if (!clubId) return []
 
-    // 1. Obtener futbolistas del club
-    const { data: players } = await supabase
-      .from('players')
-      .select('id, name, position, overall, age, morale')
-      .eq('club_id', clubId)
+    // Si la pantalla ya tiene el plantel se evita volver a pedirlo; y el resultado se cachea un minuto
+    // (antes entrar a Plantel hacía de 3 a 4 consultas en fila cada vez)
+    // La clave incluye a quiénes forman el plantel: si entra o sale alguien, se recalcula
+    const signature = knownPlayers ? knownPlayers.map(p => p.id).sort().join(',') : 'db'
+    return queryCache.fetch(`personalities:${clubId}:${signature}`, () => this._syncSquadPersonalities(clubId, knownPlayers), 60000)
+  },
 
-    const squad = players || []
+  async _syncSquadPersonalities(clubId, knownPlayers) {
+    // 1. Obtener futbolistas del club
+    let squad = knownPlayers
+    if (!squad) {
+      const { data: players } = await supabase
+        .from('players')
+        .select('id, name, position, overall, age, morale')
+        .eq('club_id', clubId)
+      squad = players || []
+    }
     if (squad.length === 0) return []
 
     // 2. Obtener personalidades ya existentes
@@ -124,17 +134,21 @@ export const personalitiesApi = {
 
     if (toInsert.length > 0) {
       // upsert idempotente: evita 409 (uq_player_personality) cuando dos cargas concurrentes generan el mismo plantel
-      await supabase
-        .from('player_personalities')
-        .upsert(toInsert, { onConflict: 'player_id', ignoreDuplicates: true })
-
+      // El mismo upsert devuelve lo que insertó: una sola consulta en vez de insertar y volver a leer
       const { data: inserted } = await supabase
         .from('player_personalities')
+        .upsert(toInsert, { onConflict: 'player_id', ignoreDuplicates: true })
         .select('*')
-        .in('player_id', toInsert.map(i => i.player_id))
 
       if (inserted) {
         inserted.forEach(item => existingMap.set(item.player_id, item))
+      }
+
+      // Si otra carga concurrente ya había insertado a alguno, el upsert no lo devuelve: se lee solo lo que falta
+      const missing = toInsert.filter(i => !existingMap.has(i.player_id)).map(i => i.player_id)
+      if (missing.length > 0) {
+        const { data: others } = await supabase.from('player_personalities').select('*').in('player_id', missing)
+        ;(others || []).forEach(item => existingMap.set(item.player_id, item))
       }
     }
 
@@ -191,6 +205,7 @@ export const personalitiesApi = {
     })
 
     queryCache.invalidate(`mentorships:${clubId}`)
+    queryCache.invalidate(`personalities:${clubId}`)
     return created
   },
 
