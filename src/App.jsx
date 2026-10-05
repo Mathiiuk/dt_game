@@ -27,7 +27,8 @@ import AchievementsScreen from './features/career/AchievementsScreen'
 import EndgameScreen from './features/career/EndgameScreen'
 import ReloadPrompt from './components/ReloadPrompt'
 import { GameProvider } from './context/GameContext'
-import BottomNav from './components/BottomNav'
+import AppShell from './components/layout/AppShell'
+import MoreScreen from './features/more/MoreScreen'
 import RequireCareer from './components/RequireCareer'
 import DesignSystemScreen from './features/design/DesignSystemScreen'
 
@@ -46,28 +47,41 @@ function App() {
             <Route path="/welcome" element={<WelcomeScreen />} />
             <Route path="/create-manager" element={<CreateManagerWizard />} />
             <Route path="/create-club" element={<CreateClubWizard />} />
-            <Route path="/dashboard" element={<RequireCareer><Dashboard /></RequireCareer>} />
-            <Route path="/calendar" element={<RequireCareer><CalendarScreen /></RequireCareer>} />
-            <Route path="/tactics" element={<RequireCareer><TacticsScreen /></RequireCareer>} />
+            <Route path="/design" element={<DesignSystemScreen />} />
+
+            {/* Partido en vivo y resumen: pantalla inmersiva, sin menú */}
             <Route path="/match" element={<RequireCareer><MatchScreen /></RequireCareer>} />
             <Route path="/post-match" element={<RequireCareer><PostMatchScreen /></RequireCareer>} />
-            <Route path="/standings" element={<RequireCareer><StandingsScreen /></RequireCareer>} />
-            <Route path="/market" element={<RequireCareer><MarketScreen /></RequireCareer>} />
-            <Route path="/squad" element={<RequireCareer><SquadScreen /></RequireCareer>} />
-            <Route path="/club" element={<RequireCareer><ClubScreen /></RequireCareer>} />
-            <Route path="/finances" element={<RequireCareer><FinancesScreen /></RequireCareer>} />
-            <Route path="/training" element={<RequireCareer><TrainingScreen /></RequireCareer>} />
-            <Route path="/manager" element={<RequireCareer><ManagerCareerScreen /></RequireCareer>} />
-            <Route path="/national-team" element={<RequireCareer><NationalTeamScreen /></RequireCareer>} />
-            <Route path="/international-cup" element={<RequireCareer><InternationalCupScreen /></RequireCareer>} />
-            <Route path="/hall-of-fame" element={<HallOfFameScreen />} />
-            <Route path="/achievements" element={<RequireCareer><AchievementsScreen /></RequireCareer>} />
+
+            {/* Epílogo del DT retirado: sin menú (no hay a dónde volver) */}
             <Route path="/endgame" element={<EndgameScreen />} />
-            <Route path="/design" element={<DesignSystemScreen />} />
+
+            {/* Pantallas de juego dentro del AppShell (menú lateral en escritorio, barra inferior en móvil) */}
+            <Route element={<RequireCareer><AppShell /></RequireCareer>}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/calendar" element={<CalendarScreen />} />
+              <Route path="/tactics" element={<TacticsScreen />} />
+              <Route path="/standings" element={<StandingsScreen />} />
+              <Route path="/market" element={<MarketScreen />} />
+              <Route path="/squad" element={<SquadScreen />} />
+              <Route path="/club" element={<ClubScreen />} />
+              <Route path="/finances" element={<FinancesScreen />} />
+              <Route path="/training" element={<TrainingScreen />} />
+              <Route path="/manager" element={<ManagerCareerScreen />} />
+              <Route path="/national-team" element={<NationalTeamScreen />} />
+              <Route path="/international-cup" element={<InternationalCupScreen />} />
+              <Route path="/achievements" element={<AchievementsScreen />} />
+              <Route path="/more" element={<MoreScreen />} />
+            </Route>
+
+            {/* El Salón de la Fama es accesible incluso con el DT retirado */}
+            <Route element={<AppShell />}>
+              <Route path="/hall-of-fame" element={<HallOfFameScreen />} />
+            </Route>
+
             <Route path="/game" element={<Navigate to="/welcome" replace />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
           </Routes>
-          <BottomNav />
           <Toaster theme="dark" position="top-center" />
           <ReloadPrompt />
         </GameProvider>
