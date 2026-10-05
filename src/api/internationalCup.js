@@ -1,5 +1,4 @@
 import { supabase } from './supabase'
-import { simulateCupScore, clubStrength } from '../domain/cupMatch'
 import { cupSchedule, cupSeasonYear, qualifiedClubIds, quarterPairs, planTournamentStep, dueUserFixture, isDue } from '../domain/cupTournament'
 import { clubHistoryApi } from './clubHistory'
 import { managerApi } from './manager'
@@ -152,7 +151,7 @@ export const internationalCupApi = {
         break
       }
 
-      if (plan.toSimulate.length > 0) await this.simulateAiMatches(plan.toSimulate)
+      if (plan.toSimulate.length > 0) await this.simulateAiMatches(plan.toSimulate, userClubId)
       if (plan.toCreate.length > 0) {
         await supabase.from('international_fixtures').insert(plan.toCreate.map(f => ({ ...f, tournament_id: tournament.id })))
       }
@@ -161,21 +160,16 @@ export const internationalCupApi = {
     return fixtures
   },
 
-  /** Resultados de los partidos entre clubes de IA: según la fuerza de cada plantel, deterministas por partido */
-  async simulateAiMatches(list) {
-    const ids = [...new Set(list.flatMap(f => [f.home_club_id, f.away_club_id]))]
-    const { data: players } = await supabase.from('players').select('club_id, attr_overall, overall').in('club_id', ids).eq('is_retired', false)
-    const byClub = new Map()
-    for (const p of players || []) byClub.set(p.club_id, [...(byClub.get(p.club_id) || []), p])
-
-    for (const f of list) {
-      const { homeScore, awayScore } = simulateCupScore({
-        fixtureId: f.id,
-        homeStrength: clubStrength(byClub.get(f.home_club_id) || []),
-        awayStrength: clubStrength(byClub.get(f.away_club_id) || [])
-      })
-      await supabase.from('international_fixtures').update({ home_score: homeScore, away_score: awayScore, played: true }).eq('id', f.id)
-    }
+  /**
+   * Resultados de los partidos entre clubes de IA: los decide la base (función `play_cup_ai_fixtures`) según la fuerza de cada
+   * plantel, deterministas por partido. El navegador ya no escribe resultados: un disparador lo impide.
+   */
+  async simulateAiMatches(list, userClubId) {
+    const ids = list.map(f => f.id).filter(Boolean)
+    if (ids.length === 0) return 0
+    const { data, error } = await supabase.rpc('play_cup_ai_fixtures', { p_user_club_id: userClubId, p_fixture_ids: ids })
+    if (error) throw new Error(error.message)
+    return data || 0
   },
 
   /** ¿Hay un partido propio de copa que ya llegó a su fecha y no se jugó? (frena el avance de semana) */
@@ -195,31 +189,15 @@ export const internationalCupApi = {
   },
 
   /**
-   * Disputa el partido del usuario: el resultado sale de la fuerza de ambos planteles y es determinista por partido.
+   * Disputa el partido del usuario. El resultado lo decide la base (función `play_cup_fixture`): valida que el partido sea
+   * del club, que no se haya jugado y que ya llegó su fecha, y no se puede volver a tirar. Después se liquidan premios y efectos.
    */
   async playUserMatch(fixtureId, userClubId, managerId) {
-    const { data: fixture } = await supabase
-      .from('international_fixtures')
-      .select('id, home_club_id, away_club_id, played, match_date')
-      .eq('id', fixtureId)
-      .single()
-    if (!fixture) throw new Error('Partido internacional no encontrado')
-    if (fixture.played) throw new Error('Este partido ya fue disputado.')
+    const { data, error } = await supabase.rpc('play_cup_fixture', { p_fixture_id: fixtureId, p_user_club_id: userClubId })
+    if (error) throw new Error(error.message)
 
-    // Como en la vida real: la copa se juega en su fecha, no cuando uno quiere
-    const { data: clubRow } = await supabase.from('clubs').select('game_date').eq('id', userClubId).maybeSingle()
-    if (!isDue(fixture, clubRow?.game_date || '2026-07-01')) {
-      throw new Error('Este partido se juega el ' + fixture.match_date + '. Avanzá las semanas hasta esa fecha.')
-    }
-
-    const squadOf = async (clubId) => (await supabase.from('players').select('attr_overall, overall').eq('club_id', clubId).eq('is_retired', false)).data || []
-    const [homePlayers, awayPlayers] = await Promise.all([squadOf(fixture.home_club_id), squadOf(fixture.away_club_id)])
-    const { homeScore, awayScore } = simulateCupScore({
-      fixtureId,
-      homeStrength: clubStrength(homePlayers),
-      awayStrength: clubStrength(awayPlayers)
-    })
-
+    const homeScore = data.home_score
+    const awayScore = data.away_score
     const result = await this.processUserMatchResult(fixtureId, userClubId, managerId, homeScore, awayScore)
     return { ...result, homeScore, awayScore }
   },
@@ -235,20 +213,12 @@ export const internationalCupApi = {
       .single()
 
     if (!fixture) throw new Error('Partido internacional no encontrado')
-    // Idempotencia: un partido ya disputado no vuelve a pagar premios ni a cambiar el resultado
-    if (fixture.played) throw new Error('Este partido ya fue disputado.')
+    // El resultado ya lo guardó la base (y no deja jugar dos veces el mismo partido): acá solo se liquida lo que sigue
 
     const isHome = fixture.home_club_id === userClubId
     const userGoals = isHome ? homeScore : awayScore
     const oppGoals = isHome ? awayScore : homeScore
     const userWon = userGoals > oppGoals
-
-    // 1. Guardar resultado
-    await supabase.from('international_fixtures').update({
-      home_score: homeScore,
-      away_score: awayScore,
-      played: true
-    }).eq('id', fixtureId)
 
     // 2. Recompensas de Copa Continental
     const { data: club } = await supabase.from('clubs').select('budget, reputation').eq('id', userClubId).single()

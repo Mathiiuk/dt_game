@@ -326,19 +326,13 @@ export const nationalTeamApi = {
     // Idempotencia: una fecha ya jugada no vuelve a pagar XP, honorarios ni fatiga
     if (fixture.played) throw new Error('Esta fecha FIFA ya fue disputada.')
 
-    // Generar resultado internacional
-    const teamGoals = Math.floor(Math.random() * 4) + 1
-    const oppGoals = Math.floor(Math.random() * 3)
+    // 1. El resultado lo decide la base (función `play_national_fixture`) y lo guarda ella: el navegador no puede escribirlo
+    const { data: played, error: playError } = await supabase.rpc('play_national_fixture', { p_fixture_id: fixtureId })
+    if (playError) throw new Error(playError.message)
+    const teamGoals = played.team_goals
+    const oppGoals = played.opp_goals
     const won = teamGoals > oppGoals
     const drawn = teamGoals === oppGoals
-
-    // 1. Guardar resultado del partido
-    await supabase.from('national_fixtures').update({
-      home_score: fixture.is_home ? teamGoals : oppGoals,
-      away_score: fixture.is_home ? oppGoals : teamGoals,
-      played: true,
-      status: 'FINISHED'
-    }).eq('id', fixtureId)
 
     // 2. Actualizar registro histórico de la selección
     const { data: team } = await supabase.from('national_teams').select('*').eq('id', nationalTeamId).single()

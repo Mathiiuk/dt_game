@@ -13,7 +13,7 @@ vi.mock('../../src/api/supabase', () => {
     q.then = (resolve) => resolve({ data: table === 'national_team_callups' ? callups : table === 'players' ? callups.map(c => ({ id: c.player_id, state_fitness: 90 })) : [], error: null })
     return q
   }
-  return { supabase: { from: chain, rpc: vi.fn(async (fn, args) => { log.push({ table: 'rpc', op: fn, payload: args }); return { data: args.rows.length, error: null } }) } }
+  return { supabase: { from: chain, rpc: vi.fn(async (fn, args) => { log.push({ table: 'rpc', op: fn, payload: args }); if (fn === 'play_national_fixture') return { data: { team_goals: 2, opp_goals: 1 }, error: null }; return { data: args.rows.length, error: null } }) } }
 })
 vi.mock('../../src/api/manager', () => ({ managerApi: { addXp: vi.fn(async () => {}) } }))
 vi.mock('../../src/api/reputation', () => ({ reputationApi: { applyReputationDelta: vi.fn(async () => {}) } }))
@@ -37,5 +37,13 @@ describe('fecha FIFA: rendimiento e idempotencia', () => {
     state.played = true
     await expect(nationalTeamApi.playMatch('f1', 't1', 'm1')).rejects.toThrow('ya fue disputada')
     expect(log).toEqual([])
+  })
+
+  it('el resultado lo decide el servidor: el navegador no escribe goles ni "jugado"', async () => {
+    const res = await nationalTeamApi.playMatch('f1', 't1', 'm1')
+    expect(log.find(l => l.op === 'play_national_fixture')).toBeTruthy()
+    expect(res).toMatchObject({ teamGoals: 2, oppGoals: 1, won: true, drawn: false })
+    const fixtureWrites = log.filter(l => l.table === 'national_fixtures' && l.op === 'update')
+    expect(fixtureWrites).toEqual([])
   })
 })
