@@ -1,26 +1,29 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  UserCheck, 
-  Clock, 
-  Sparkles, 
-  AlertTriangle, 
-  Calendar, 
-  Award, 
-  Zap, 
-  X, 
-  Users, 
-  CheckCircle2,
-  ChevronRight,
-  Flame,
-  ShieldAlert
-} from 'lucide-react'
-import { playerEvolutionApi, CAREER_PHASES } from '../../api/playerEvolution'
+import { AlertTriangle, Award, ChevronRight, Clock, Users } from 'lucide-react'
 import { toast } from 'sonner'
+import { playerEvolutionApi, CAREER_PHASES } from '../../api/playerEvolution'
+import { Badge, Button, Card, CardBody, ChoiceChips, EmptyState, Progress, ResponsiveOverlay, Skeleton } from '../../components/ui'
 
+const FILTERS = (total) => [
+  { value: 'ALL', label: `Todo el plantel (${total})` },
+  { value: 'YOUTH', label: 'Juveniles (21 o menos)' },
+  { value: 'PEAK', label: 'Plenitud (22–29)' },
+  { value: 'VETERANS', label: 'Veteranos (30+)' }
+]
+
+const ROLE_LABEL = { COACH: 'DT', SCOUT: 'Ojeador', PHYSIO: 'Fisio' }
+
+/** Minutos jugados -> etiqueta y tono (Regla 28.1) */
+const minutesInfo = (minutes) => {
+  if (minutes >= 1800) return { label: 'Titular indiscutido (+4 a +5 nivel)', tone: 'accent' }
+  if (minutes >= 900) return { label: 'Rodaje regular (+2 a +3 nivel)', tone: 'accent' }
+  if (minutes >= 300) return { label: 'Rotación esporádica (+1 nivel)', tone: 'warning' }
+  return { label: 'Sin minutos (menos de 300)', tone: 'neutral' }
+}
+
+/** Curva de vida del plantel: picos, minutos oficiales y declive. Diálogo grande en escritorio, página en móvil. */
 export default function PlayerEvolutionModal({ club, players = [], onClose, currentSeasonYear = 2026 }) {
-  const [activeFilter, setActiveFilter] = useState('ALL') // 'ALL' | 'YOUTH' | 'PEAK' | 'VETERANS'
+  const [activeFilter, setActiveFilter] = useState('ALL')
   const [retiringPlayers, setRetiringPlayers] = useState([])
   const [evolutionHistory, setEvolutionHistory] = useState([])
   const [loading, setLoading] = useState(true)
@@ -38,7 +41,7 @@ export default function PlayerEvolutionModal({ club, players = [], onClose, curr
         setEvolutionHistory(history)
       } catch (e) {
         console.error(e)
-        toast.error('Error al cargar datos de evolución')
+        toast.error('Error al cargar los datos de evolución')
       } finally {
         setLoading(false)
       }
@@ -58,211 +61,99 @@ export default function PlayerEvolutionModal({ club, players = [], onClose, curr
   const retirementMap = new Map((retiringPlayers || []).map(r => [r.player_id, r]))
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="flex justify-between items-start border-b border-zinc-800 pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2">
-                Desarrollo Biológico y Curva de Vida
-              </h2>
-              <p className="text-xs text-zinc-400">
-                Picos de rendimiento, minutos oficiales en cancha y declive natural de futbolistas
-              </p>
-            </div>
-          </div>
-          <button 
-            onClick={onClose}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg bg-zinc-800 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Anuncio de Retiros Próximos si existen */}
+    <ResponsiveOverlay
+      title="Desarrollo y curva de vida"
+      description="Picos de rendimiento, minutos oficiales y declive natural de los futbolistas"
+      onClose={onClose}
+      size="lg"
+      footer={<Button onClick={onClose}>Entendido</Button>}
+    >
+      <div className="space-y-5">
         {retiringPlayers.length > 0 && (
-          <div className="p-3.5 bg-amber-950/30 border border-amber-800/50 rounded-2xl flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-amber-300 font-semibold">
-              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>
-                {retiringPlayers.length === 1 
-                  ? '1 futbolista histórico ha confirmado su retiro al finalizar el torneo.' 
-                  : `${retiringPlayers.length} futbolistas históricos han confirmado su retiro.`}
-              </span>
-            </div>
-            <span className="text-[10px] text-amber-400/80 font-bold px-2 py-0.5 rounded bg-amber-900/40">
-              Último Baile
-            </span>
+          <div role="status" className="flex items-center justify-between gap-3 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3">
+            <p className="flex items-center gap-2 text-sm font-medium text-fg">
+              <AlertTriangle className="size-4 shrink-0 text-warning" aria-hidden="true" />
+              {retiringPlayers.length === 1
+                ? 'Un futbolista histórico confirmó su retiro al terminar el torneo.'
+                : `${retiringPlayers.length} futbolistas históricos confirmaron su retiro.`}
+            </p>
+            <Badge tone="warning" className="shrink-0">Último baile</Badge>
           </div>
         )}
 
-        {/* Selector de Filtros de Etapa Etaria */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 text-xs font-semibold">
-          <button
-            onClick={() => setActiveFilter('ALL')}
-            className={`px-3 py-1.5 rounded-xl border transition-colors shrink-0 ${
-              activeFilter === 'ALL'
-                ? 'bg-emerald-500 text-black border-emerald-400 font-bold'
-                : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white'
-            }`}
-          >
-            Todo el Plantel ({players.length})
-          </button>
-          <button
-            onClick={() => setActiveFilter('YOUTH')}
-            className={`px-3 py-1.5 rounded-xl border transition-colors shrink-0 ${
-              activeFilter === 'YOUTH'
-                ? 'bg-emerald-500 text-black border-emerald-400 font-bold'
-                : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white'
-            }`}
-          >
-            Promesas & Juveniles (≤21)
-          </button>
-          <button
-            onClick={() => setActiveFilter('PEAK')}
-            className={`px-3 py-1.5 rounded-xl border transition-colors shrink-0 ${
-              activeFilter === 'PEAK'
-                ? 'bg-emerald-500 text-black border-emerald-400 font-bold'
-                : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white'
-            }`}
-          >
-            Plenitud / Prime (22-29)
-          </button>
-          <button
-            onClick={() => setActiveFilter('VETERANS')}
-            className={`px-3 py-1.5 rounded-xl border transition-colors shrink-0 ${
-              activeFilter === 'VETERANS'
-                ? 'bg-emerald-500 text-black border-emerald-400 font-bold'
-                : 'bg-zinc-950 text-zinc-400 border-zinc-800 hover:text-white'
-            }`}
-          >
-            Veteranos (≥30)
-          </button>
-        </div>
+        <ChoiceChips label="Filtrar por etapa" value={activeFilter} onChange={setActiveFilter} options={FILTERS(players.length)} />
 
-        {/* Lista de Futbolistas y Curva de Vida */}
-        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-          {filteredPlayers.length === 0 ? (
-            <div className="p-8 text-center bg-zinc-950/60 rounded-2xl border border-zinc-800 text-zinc-500 text-xs">
-              No hay futbolistas que coincidan con el filtro seleccionado.
-            </div>
-          ) : (
-            filteredPlayers.map(p => {
-              const isRetiring = retirementMap.has(p.id)
-              const retirementInfo = retirementMap.get(p.id)
-              const phaseKey = playerEvolutionApi.determineCareerPhase(p.age || 20, isRetiring)
+        {loading ? (
+          <div className="space-y-3" aria-busy="true"><Skeleton className="h-28" /><Skeleton className="h-28" /></div>
+        ) : filteredPlayers.length === 0 ? (
+          <Card as="div"><EmptyState icon={Users} title="Sin resultados" description="No hay futbolistas en la etapa seleccionada." /></Card>
+        ) : (
+          <ul className="space-y-3">
+            {filteredPlayers.map(p => {
+              const retirement = retirementMap.get(p.id)
+              const phaseKey = playerEvolutionApi.determineCareerPhase(p.age || 20, !!retirement)
               const phase = CAREER_PHASES[phaseKey] || CAREER_PHASES.PRIME_DEVELOPMENT
               const minutes = p.minutes_played_season || 0
-              const progressMinPct = Math.min(100, Math.round((minutes / 1800) * 100))
+              const info = minutesInfo(minutes)
               const hist = historyMap.get(p.id)
-
-              let minutesBadge = 'bg-zinc-800 text-zinc-400'
-              let minutesLabel = 'Sin minutos (<300)'
-              if (minutes >= 1800) {
-                minutesBadge = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                minutesLabel = 'Titular indiscutido (+4 a +5 OVR)'
-              } else if (minutes >= 900) {
-                minutesBadge = 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                minutesLabel = 'Rodaje regular (+2 a +3 OVR)'
-              } else if (minutes >= 300) {
-                minutesBadge = 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                minutesLabel = 'Rotación esporádica (+1 OVR)'
-              }
+              const delta = hist ? hist.ovr_after - hist.ovr_before : 0
 
               return (
-                <div 
-                  key={p.id}
-                  className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700 transition-all space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center font-bold text-zinc-300 text-sm shrink-0">
-                        {p.shirt_number ? `#${p.shirt_number}` : '•'}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-white text-sm">{p.first_name} {p.last_name}</h4>
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                            {p.position}
+                <li key={p.id}>
+                  <Card as="article">
+                    <CardBody className="space-y-3">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="num grid size-11 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-lg font-semibold">
+                            {p.shirt_number ?? '·'}
                           </span>
-                          <span className="text-xs text-zinc-400">{p.age} años</span>
+                          <div className="min-w-0">
+                            <h3 className="truncate text-sm font-semibold text-fg">{p.first_name} {p.last_name}</h3>
+                            <p className="mt-0.5 text-xs text-fg-muted">
+                              {p.position} · {p.age} años · Nivel <span className="num font-semibold text-fg">{p.overall || p.attr_overall || 50}</span>
+                              {p.potential_rating && <> · Potencial <span className="num font-semibold text-accent">{p.potential_rating}</span></>}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${phase.badgeColor}`}>
-                            {phase.name}
-                          </span>
-                          <span className="text-[11px] text-zinc-500">
-                            OVR: <strong className="text-white">{p.overall || p.attr_overall || 50}</strong>
-                            {p.potential_rating && (
-                              <span className="ml-1 text-zinc-400">/ Potencial: <strong className="text-emerald-400">{p.potential_rating}</strong></span>
-                            )}
-                          </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge>{phase.name}</Badge>
+                          {retirement && (
+                            <Badge tone="warning">
+                              <Award className="size-3" aria-hidden="true" />
+                              Se retira · futuro como {ROLE_LABEL[retirement.future_role_interest] || 'otro rol'}
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                    </div>
 
-                    {isRetiring && (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-950/40 border border-amber-800/60 text-amber-300 text-[11px] font-semibold self-start sm:self-center">
-                        <Award className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Retiro programado (Interés: {retirementInfo.future_role_interest === 'COACH' ? 'DT' : retirementInfo.future_role_interest === 'SCOUT' ? 'Ojeador' : 'Fisio'})</span>
+                      <div className="space-y-1.5">
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <span className="flex items-center gap-1.5 text-fg-muted">
+                            <Clock className="size-3.5" aria-hidden="true" />Minutos oficiales: <span className="num font-semibold text-fg">{minutes}</span>
+                          </span>
+                          <Badge tone={info.tone}>{info.label}</Badge>
+                        </div>
+                        <Progress tone={info.tone === 'neutral' ? 'neutral' : info.tone} value={Math.max(3, Math.min(100, Math.round((minutes / 1800) * 100)))} label="Minutos jugados en la temporada" />
                       </div>
-                    )}
-                  </div>
 
-                  {/* Barra de Minutos Jugados en la Temporada (Regla 28.1) */}
-                  <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/60 space-y-1.5">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-zinc-400 font-medium flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-zinc-500" />
-                        Minutos Oficiales: <strong className="text-white font-mono">{minutes} min</strong>
-                      </span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${minutesBadge}`}>
-                        {minutesLabel}
-                      </span>
-                    </div>
-                    <div className="w-full h-1.5 rounded-full bg-zinc-950 overflow-hidden border border-zinc-800">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          minutes >= 1800 ? 'bg-emerald-500' : minutes >= 900 ? 'bg-blue-500' : minutes >= 300 ? 'bg-amber-500' : 'bg-zinc-700'
-                        }`}
-                        style={{ width: `${Math.max(3, progressMinPct)}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Historial de la última evolución anual si existe */}
-                  {hist && (
-                    <div className="flex items-center justify-between text-xs text-zinc-400 pt-1 border-t border-zinc-900">
-                      <span>Último balance anual:</span>
-                      <span className="flex items-center gap-1 font-bold">
-                        OVR {hist.ovr_before}
-                        <ChevronRight className="w-3 h-3 text-zinc-600" />
-                        <span className={hist.ovr_after >= hist.ovr_before ? 'text-emerald-400' : 'text-rose-400'}>
-                          OVR {hist.ovr_after} ({hist.ovr_after >= hist.ovr_before ? `+${hist.ovr_after - hist.ovr_before}` : hist.ovr_after - hist.ovr_before})
-                        </span>
-                      </span>
-                    </div>
-                  )}
-                </div>
+                      {hist && (
+                        <div className="flex items-center justify-between border-t border-line pt-2.5 text-xs text-fg-muted">
+                          <span>Último balance anual</span>
+                          <span className="num flex items-center gap-1 font-semibold">
+                            {hist.ovr_before}
+                            <ChevronRight className="size-3 text-fg-subtle" aria-hidden="true" />
+                            <span className={delta >= 0 ? 'text-accent' : 'text-danger'}>{hist.ovr_after} ({delta >= 0 ? `+${delta}` : delta})</span>
+                          </span>
+                        </div>
+                      )}
+                    </CardBody>
+                  </Card>
+                </li>
               )
-            })
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="pt-3 border-t border-zinc-800 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs transition-colors"
-          >
-            Entendido
-          </button>
-        </div>
+            })}
+          </ul>
+        )}
       </div>
-    </div>
+    </ResponsiveOverlay>
   )
 }

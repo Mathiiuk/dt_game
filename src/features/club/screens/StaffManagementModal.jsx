@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  X, 
-  Briefcase, 
-  Users, 
-  Activity, 
-  Stethoscope, 
-  Eye, 
-  ShieldCheck, 
-  UserPlus, 
-  Trash2, 
-  Check, 
-  Sparkles,
-  Award
-} from 'lucide-react'
-import { staffApi } from '../../../api/staff'
+import { Activity, Briefcase, Check, Eye, ShieldCheck, Stethoscope, Trash2, UserPlus, Users } from 'lucide-react'
 import { toast } from 'sonner'
+import { staffApi } from '../../../api/staff'
 import { useGameContext } from '../../../context/GameContext'
+import { formatMoney } from '../../../lib/format'
+import { Badge, Button, Card, CardBody, ResponsiveOverlay, SectionTitle, Skeleton, Stat } from '../../../components/ui'
 
+const ROLE_ICON = {
+  ASSISTANT_MANAGER: Users,
+  FITNESS_COACH: Activity,
+  PHYSIO: Stethoscope,
+  HEAD_SCOUT: Eye,
+  GOALKEEPER_COACH: ShieldCheck
+}
+
+/** Cuerpo técnico: contratar y despedir especialistas. Diálogo en escritorio, página completa en móvil. */
 export default function StaffManagementModal({ club, manager, onClose, onStaffUpdated }) {
   const { confirmAction, refreshContext } = useGameContext()
   const [staffList, setStaffList] = useState([])
@@ -41,47 +39,40 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
     }
   }
 
-  useEffect(() => {
-    loadData()
-  }, [club])
+  useEffect(() => { loadData() }, [club]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const bonuses = staffApi.calculateStaffBonuses(staffList)
   const staffMap = new Map(staffList.map(s => [s.role, s]))
 
-  const getRoleIcon = (roleId) => {
+  const roleBonusText = (roleId, skill) => {
+    if (!skill) return 'Sin bonificación (vacante)'
     switch (roleId) {
-      case 'ASSISTANT_MANAGER': return <Users className="w-5 h-5 text-emerald-400" />
-      case 'FITNESS_COACH': return <Activity className="w-5 h-5 text-amber-400" />
-      case 'PHYSIO': return <Stethoscope className="w-5 h-5 text-red-400" />
-      case 'HEAD_SCOUT': return <Eye className="w-5 h-5 text-blue-400" />
-      case 'GOALKEEPER_COACH': return <ShieldCheck className="w-5 h-5 text-purple-400" />
-      default: return <Briefcase className="w-5 h-5 text-zinc-400" />
+      case 'ASSISTANT_MANAGER': return `+${bonuses.cohesionBonus}% de cohesión del vestuario y consejos tácticos`
+      case 'FITNESS_COACH': return `+${bonuses.weeklyFitnessRecoveryBonus} pts de recuperación de energía por semana`
+      case 'PHYSIO': return `-${bonuses.injuryReductionPct}% de tiempo de convalecencia`
+      case 'HEAD_SCOUT': return `-${bonuses.scoutErrorReduction} pts de margen de error en informes`
+      case 'GOALKEEPER_COACH': return `+${bonuses.gkTrainingBonusPct}% de progreso técnico de arqueros`
+      default: return 'Bonificación operativa activa'
     }
   }
 
-  const getRoleBonusText = (roleId, skill) => {
-    if (!skill) return 'Sin bonificación (vacante)'
-    switch (roleId) {
-      case 'ASSISTANT_MANAGER': return `+${bonuses.cohesionBonus}% Cohesión de vestuario y consejos tácticos`
-      case 'FITNESS_COACH': return `+${bonuses.weeklyFitnessRecoveryBonus} pts de recuperación de energía semanal`
-      case 'PHYSIO': return `-${bonuses.injuryReductionPct}% Tiempo de convalecencia en lesiones`
-      case 'HEAD_SCOUT': return `-${bonuses.scoutErrorReduction} pts margen de error en informes`
-      case 'GOALKEEPER_COACH': return `+${bonuses.gkTrainingBonusPct}% Progreso técnico de arqueros`
-      default: return 'Bonificación operativa activa'
-    }
+  const afterChange = async () => {
+    onStaffUpdated?.()
+    if (typeof refreshContext === 'function') await refreshContext()
+    loadData()
   }
 
   const handleHire = async (candidate) => {
     const roleInfo = staffApi.ROLES[candidate.role]
     const existing = staffMap.get(candidate.role)
-    const severanceNotice = existing 
-      ? ` Rescindir al empleado actual costará $${Math.round((existing.wage_weekly || 100) * 8).toLocaleString()} de indemnización.` 
+    const severanceNotice = existing
+      ? ` Rescindir al empleado actual costará ${formatMoney(Math.round((existing.wage_weekly || 100) * 8))} de indemnización.`
       : ''
 
     const confirmed = await confirmAction({
       title: `Contratar ${roleInfo?.name || candidate.role}`,
-      description: `¿Contratar a ${candidate.first_name} ${candidate.last_name} con un sueldo de $${candidate.wage_demanded}/sem?${severanceNotice}`,
-      confirmText: 'Confirmar Contratación',
+      description: `¿Contratar a ${candidate.first_name} ${candidate.last_name} con un sueldo de ${formatMoney(candidate.wage_demanded)} por semana?${severanceNotice}`,
+      confirmText: 'Confirmar contratación',
       cancelText: 'Cancelar',
       variant: 'primary'
     })
@@ -90,11 +81,9 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
     try {
       setProcessingId(candidate.id)
       await staffApi.hireStaff(club.id, candidate, manager?.id)
-      toast.success(`¡${candidate.first_name} ${candidate.last_name} incorporado al cuerpo técnico!`)
+      toast.success(`${candidate.first_name} ${candidate.last_name} se incorporó al cuerpo técnico`)
       setSelectedRoleForHire(null)
-      if (typeof onStaffUpdated === 'function') onStaffUpdated()
-      if (typeof refreshContext === 'function') await refreshContext()
-      loadData()
+      await afterChange()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -108,8 +97,8 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
 
     const confirmed = await confirmAction({
       title: `Despedir a ${member.name}`,
-      description: `La rescisión laboral unilateral requiere abonar 8 semanas de sueldo ($${severance.toLocaleString()}) como indemnización legal. ¿Confirmar despido?`,
-      confirmText: `Abonar Finiquito ($${severance.toLocaleString()})`,
+      description: `La rescisión unilateral exige abonar 8 semanas de sueldo (${formatMoney(severance)}) como indemnización legal. ¿Confirmas el despido?`,
+      confirmText: `Abonar finiquito (${formatMoney(severance)})`,
       cancelText: 'Cancelar',
       variant: 'danger'
     })
@@ -118,10 +107,8 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
     try {
       setProcessingId(member.id)
       await staffApi.dismissStaff(club.id, member.id, manager?.id)
-      toast.info(`${member.name} ha sido desvinculado del cuerpo técnico.`)
-      if (typeof onStaffUpdated === 'function') onStaffUpdated()
-      if (typeof refreshContext === 'function') await refreshContext()
-      loadData()
+      toast.info(`${member.name} fue desvinculado del cuerpo técnico`)
+      await afterChange()
     } catch (e) {
       toast.error(e.message)
     } finally {
@@ -129,153 +116,109 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
     }
   }
 
+  const roleCandidates = selectedRoleForHire
+    ? candidates.filter(c => c.role === selectedRoleForHire && c.status === 'AVAILABLE')
+    : []
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full sm:max-w-2xl bg-zinc-900 border border-zinc-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto pb-28 sm:pb-6">
-        {/* Header */}
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-              <Briefcase className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
-                Staff & Especialistas
-              </span>
-              <h3 className="text-xl font-black text-white mt-1">
-                Cuerpo Técnico del Club
-              </h3>
-              <p className="text-xs text-zinc-400">
-                Estructura de apoyo: preparación física, medicina, ojeo y táctica
-              </p>
-            </div>
-          </div>
-          <button 
-            onClick={onClose}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg bg-zinc-800 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+    <ResponsiveOverlay
+      title="Cuerpo técnico"
+      description="Estructura de apoyo: preparación física, medicina, ojeo y táctica"
+      onClose={onClose}
+      size="md"
+    >
+      {loading ? (
+        <div className="space-y-3" aria-busy="true"><Skeleton className="h-20" /><Skeleton className="h-24" /><Skeleton className="h-24" /></div>
+      ) : (
+        <div className="space-y-6">
+          <Card as="div">
+            <CardBody className="grid grid-cols-3 gap-4">
+              <Stat label="Recuperación médica" value={`-${bonuses.injuryReductionPct}%`} hint="de tiempo" />
+              <Stat label="Fitness semanal" value={`+${bonuses.weeklyFitnessRecoveryBonus}`} hint="puntos" />
+              <Stat label="Precisión scouting" value={`+${bonuses.scoutErrorReduction * 10}%`} />
+            </CardBody>
+          </Card>
+
+          <section aria-labelledby="staff-roles">
+            <SectionTitle>Puestos</SectionTitle>
+            <ul className="space-y-2.5">
+              {Object.values(staffApi.ROLES).map(role => {
+                const member = staffMap.get(role.id)
+                const skill = member ? (member.skill_rating ?? member.level ?? 8) : 0
+                const wage = member ? (member.wage_weekly ?? member.salary ?? 100) : 0
+                const Icon = ROLE_ICON[role.id] || Briefcase
+
+                return (
+                  <li key={role.id}>
+                    <Card as="div">
+                      <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-start gap-3">
+                          <span className="mt-0.5 grid size-10 shrink-0 place-items-center rounded-md bg-surface-3 text-accent" aria-hidden="true">
+                            <Icon className="size-5" />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="eyebrow">{role.name}</p>
+                            <p className="mt-0.5 text-sm font-semibold text-fg">
+                              {member ? member.name : <span className="font-normal italic text-fg-subtle">Puesto vacante</span>}
+                            </p>
+                            <p className="mt-0.5 text-xs text-accent">{roleBonusText(role.id, skill)}</p>
+                            {member && (
+                              <p className="mt-0.5 text-xs text-fg-subtle">
+                                Habilidad <span className="num">{skill}/20</span> · Sueldo <span className="num">{formatMoney(wage)}</span>/sem
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        {member ? (
+                          <Button variant="outline" size="sm" disabled={processingId === member.id} onClick={() => handleDismiss(member)} className="self-start text-danger sm:self-center">
+                            <Trash2 />Despedir
+                          </Button>
+                        ) : (
+                          <Button size="sm" onClick={() => setSelectedRoleForHire(role.id)} className="self-start sm:self-center">
+                            <UserPlus />Contratar
+                          </Button>
+                        )}
+                      </CardBody>
+                    </Card>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+
+          {selectedRoleForHire && (
+            <section aria-labelledby="staff-candidates" className="border-t border-line pt-5">
+              <SectionTitle action={<Button variant="ghost" size="sm" onClick={() => setSelectedRoleForHire(null)}>Cerrar</Button>}>
+                Candidatos: {staffApi.ROLES[selectedRoleForHire]?.name}
+              </SectionTitle>
+              {roleCandidates.length === 0 ? (
+                <p className="text-sm text-fg-muted">No hay candidatos disponibles para este puesto por ahora.</p>
+              ) : (
+                <ul className="grid gap-2.5 sm:grid-cols-2">
+                  {roleCandidates.map(cand => (
+                    <li key={cand.id}>
+                      <Card as="div">
+                        <CardBody className="flex items-center justify-between gap-3 py-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-fg">{cand.first_name} {cand.last_name}</p>
+                            <p className="mt-0.5 text-xs text-fg-muted">
+                              Habilidad <Badge tone="accent" className="num">{cand.skill_rating}/20</Badge>
+                            </p>
+                            <p className="num mt-1 text-xs text-fg-subtle">{formatMoney(cand.wage_demanded)}/sem</p>
+                          </div>
+                          <Button size="sm" variant="secondary" disabled={processingId === cand.id} onClick={() => handleHire(cand)}>
+                            <Check />Fichar
+                          </Button>
+                        </CardBody>
+                      </Card>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
         </div>
-
-        {/* Resumen de Bonificaciones */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-          <div className="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl">
-            <span className="text-zinc-500 text-[10px] uppercase font-bold block">Recuperación Médica</span>
-            <span className="text-red-400 font-mono font-bold">-{bonuses.injuryReductionPct}% tiempo</span>
-          </div>
-          <div className="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl">
-            <span className="text-zinc-500 text-[10px] uppercase font-bold block">Fitness Semanal</span>
-            <span className="text-amber-400 font-mono font-bold">+{bonuses.weeklyFitnessRecoveryBonus} pts</span>
-          </div>
-          <div className="p-2.5 bg-zinc-950 border border-zinc-800 rounded-xl col-span-2 sm:col-span-1">
-            <span className="text-zinc-500 text-[10px] uppercase font-bold block">Precisión Scouting</span>
-            <span className="text-blue-400 font-mono font-bold">+{bonuses.scoutErrorReduction * 10}% precisión</span>
-          </div>
-        </div>
-
-        {/* 5 Roles Principales */}
-        <div className="space-y-3">
-          {Object.values(staffApi.ROLES).map(role => {
-            const member = staffMap.get(role.id)
-            const skill = member ? (member.skill_rating ?? member.level ?? 8) : 0
-            const wage = member ? (member.wage_weekly ?? member.salary ?? 100) : 0
-
-            return (
-              <div 
-                key={role.id}
-                className="p-3.5 bg-zinc-950 border border-zinc-800/90 rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-3"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-xl bg-zinc-900 border border-zinc-800 shrink-0 mt-0.5">
-                    {getRoleIcon(role.id)}
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      {role.name}
-                    </span>
-                    <h4 className="text-sm font-bold text-white mt-0.5">
-                      {member ? member.name : <span className="text-zinc-500 italic">Puesto Vacante</span>}
-                    </h4>
-                    <p className="text-[11px] text-emerald-400 mt-0.5 font-medium">
-                      {getRoleBonusText(role.id, skill)}
-                    </p>
-                    {member && (
-                      <p className="text-[10px] text-zinc-500 mt-0.5">
-                        Habilidad: {skill}/20 • Sueldo: ${Number(wage).toLocaleString()}/sem
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 shrink-0 self-end sm:self-center">
-                  {member ? (
-                    <button
-                      disabled={processingId === member.id}
-                      onClick={() => handleDismiss(member)}
-                      className="py-1.5 px-3 text-xs font-bold text-red-400 hover:text-white bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-colors flex items-center gap-1"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Despedir</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setSelectedRoleForHire(role.id)}
-                      className="py-1.5 px-3 text-xs font-bold text-black bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-colors flex items-center gap-1 shadow-sm"
-                    >
-                      <UserPlus className="w-3.5 h-3.5" />
-                      <span>Contratar</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Modal/Drawer de Candidatos para un Rol */}
-        {selectedRoleForHire && (
-          <div className="pt-3 border-t border-zinc-800 space-y-3">
-            <div className="flex justify-between items-center">
-              <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>Candidatos para {staffApi.ROLES[selectedRoleForHire]?.name}</span>
-              </h4>
-              <button 
-                onClick={() => setSelectedRoleForHire(null)}
-                className="text-xs text-zinc-400 hover:text-white"
-              >
-                Cerrar
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {candidates
-                .filter(c => c.role === selectedRoleForHire && c.status === 'AVAILABLE')
-                .map(cand => (
-                  <div key={cand.id} className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl flex justify-between items-center">
-                    <div>
-                      <p className="font-bold text-xs text-white">{cand.first_name} {cand.last_name}</p>
-                      <p className="text-[10px] text-zinc-400 mt-0.5">
-                        Habilidad: <span className="text-emerald-400 font-bold">{cand.skill_rating}/20</span>
-                      </p>
-                      <p className="text-[10px] text-zinc-500 font-mono">
-                        ${Number(cand.wage_demanded).toLocaleString()}/sem
-                      </p>
-                    </div>
-                    <button
-                      disabled={processingId === cand.id}
-                      onClick={() => handleHire(cand)}
-                      className="py-1 px-2.5 text-xs font-bold text-black bg-white hover:bg-zinc-200 rounded-lg transition-colors flex items-center gap-1"
-                    >
-                      <Check className="w-3 h-3" /> Fichar
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+      )}
+    </ResponsiveOverlay>
   )
 }
