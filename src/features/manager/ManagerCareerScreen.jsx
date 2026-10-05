@@ -13,6 +13,7 @@ import {
 } from '../../components/ui'
 import JobOfferBottomSheet from '../career/JobOfferBottomSheet'
 import ReputationHistoryModal from '../career/ReputationHistoryModal'
+import { friendlyError } from '../../lib/errors'
 
 const DEPARTURE = { RESIGNED: 'Renuncia', MOVED_TO_ANOTHER_CLUB: 'Traspaso', SACKED: 'Destituido' }
 const formatDate = (d) => new Date(d).toLocaleDateString('es-AR')
@@ -73,7 +74,7 @@ export default function ManagerCareerScreen() {
       await refreshContext()
       navigate('/dashboard')
     } catch (err) {
-      toast.error(err.message || 'Error al firmar el contrato')
+      toast.error(friendlyError(err, 'Error al firmar el contrato'))
     } finally {
       setActionLoading(false)
     }
@@ -112,7 +113,7 @@ export default function ManagerCareerScreen() {
         toast.error(res.message)
       }
     } catch (err) {
-      toast.error(err.message || 'Error al procesar la postulación')
+      toast.error(friendlyError(err, 'Error al procesar la postulación'))
     } finally {
       setActionLoading(false)
     }
@@ -133,7 +134,7 @@ export default function ManagerCareerScreen() {
       await refreshContext()
       await loadCareerData()
     } catch (err) {
-      toast.error(err.message || 'Error al procesar la renuncia')
+      toast.error(friendlyError(err, 'Error al procesar la renuncia'))
     } finally {
       setActionLoading(false)
     }
@@ -154,7 +155,7 @@ export default function ManagerCareerScreen() {
       if (refreshContext) await refreshContext()
       navigate('/endgame')
     } catch (err) {
-      toast.error(err.message || 'Error al procesar el retiro')
+      toast.error(friendlyError(err, 'Error al procesar el retiro'))
     } finally {
       setRetiring(false)
     }

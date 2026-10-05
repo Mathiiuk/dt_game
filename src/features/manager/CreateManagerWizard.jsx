@@ -9,6 +9,7 @@ import {
 } from '../../domain/managerBuild'
 import { Badge, Button, Field, Input, OptionCards, Select, Wizard } from '../../components/ui'
 import { cn } from '../../lib/utils'
+import { friendlyError } from '../../lib/errors'
 
 const STEPS = ['Identidad', 'Trasfondo', 'Atributos', 'Filosofía', 'Firma']
 const CAP_MESSAGE = `Tope inicial alcanzado (${ATTRIBUTE_MAX_INITIAL_CAP} pts). Se desbloquean más subiendo de nivel.`
@@ -68,7 +69,7 @@ export default function CreateManagerWizard() {
       toast.success('¡Credencial oficial de Director Técnico emitida con éxito!')
       navigate('/create-club')
     } catch (err) {
-      toast.error(err.message || 'Error al crear el perfil de DT.')
+      toast.error(friendlyError(err, 'Error al crear el perfil de DT.'))
     } finally {
       setLoading(false)
     }

@@ -20,6 +20,7 @@ import MentorshipModal from './MentorshipModal'
 import PlayerEvolutionModal from './PlayerEvolutionModal'
 import SellPlayerModal from './SellPlayerModal'
 import CounterOfferModal from './CounterOfferModal'
+import { friendlyError } from '../../lib/errors'
 
 const GROUP_LABEL = { GK: 'ARQ', DEF: 'DEF', MED: 'MED', DEL: 'DEL' }
 
@@ -121,7 +122,7 @@ export default function SquadScreen() {
       const persMap = new Map((personalitiesList || []).map(p => [p.id, p.personality]))
       setData({ players: (players || []).map(p => ({ ...p, personalityData: persMap.get(p.id) || null })), offers })
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setLoading(false)
     }
@@ -157,7 +158,7 @@ export default function SquadScreen() {
       setSellPlayer(null)
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setIsProcessing(false)
     }
@@ -186,7 +187,7 @@ export default function SquadScreen() {
       toast.success(`Contrato rescindido. Se abonaron ${formatMoney(severance)} de indemnización.`)
       await afterChange()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setIsProcessing(false)
     }
@@ -208,7 +209,7 @@ export default function SquadScreen() {
       toast.success(`Venta cerrada: ${formatMoney(offer.amount)} por el traspaso.`)
       await afterChange()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setIsProcessing(false)
     }
@@ -221,7 +222,7 @@ export default function SquadScreen() {
       toast.info('Oferta rechazada.')
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setIsProcessing(false)
     }
@@ -243,7 +244,7 @@ export default function SquadScreen() {
       setCounterOffer(null)
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setIsProcessing(false)
     }

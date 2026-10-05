@@ -110,7 +110,7 @@ export default function ClubHistoryTab({ club, confirmAction, onUpdateClub }) {
         <div className="flex items-center justify-between mb-4">
           <h2 className="flex items-center gap-2 font-bold text-base md:text-lg text-fg">
             <Trophy className="w-5 h-5 text-gold shrink-0" />
-            <span>Récords Institucionales Históricos</span>
+            <span>Récords institucionales históricos</span>
           </h2>
           <span className="text-xs text-fg-muted font-medium">Marcas vigentes</span>
         </div>
@@ -179,7 +179,7 @@ export default function ClubHistoryTab({ club, confirmAction, onUpdateClub }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <h3 className="font-bold text-base text-fg flex items-center gap-2">
               <History className="w-5 h-5 text-accent" />
-              <span>Cronología de Hitos Oficiales</span>
+              <span>Cronología de hitos oficiales</span>
             </h3>
 
             {/* Filtros de categoría */}
@@ -243,7 +243,7 @@ export default function ClubHistoryTab({ club, confirmAction, onUpdateClub }) {
           <div className="mb-4">
             <h3 className="font-bold text-base text-fg flex items-center gap-2">
               <Newspaper className="w-5 h-5 text-gold" />
-              <span>Hemeroteca: Archivos y Crónicas de Prensa</span>
+              <span>Hemeroteca: archivos y crónicas de prensa</span>
             </h3>
             <p className="text-xs text-fg-muted mt-1">
               Las portadas y artículos que registraron las hazañas del club a lo largo de los años.
@@ -273,7 +273,7 @@ export default function ClubHistoryTab({ club, confirmAction, onUpdateClub }) {
                     </p>
                   </div>
                   <div className="mt-3 pt-2 border-t border-line/60 flex items-center justify-between text-[10px] text-fg-subtle">
-                    <span className="font-medium">Edición Histórica</span>
+                    <span className="font-medium">Edición histórica</span>
                     <span className="font-bold text-fg-muted">#{art.tag || 'ARCHIVO'}</span>
                   </div>
                 </div>
@@ -289,7 +289,7 @@ export default function ClubHistoryTab({ club, confirmAction, onUpdateClub }) {
           <div className="mb-4">
             <h3 className="font-bold text-base text-fg flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-400" />
-              <span>Memoria de Temporadas Finalizadas</span>
+              <span>Memoria de temporadas finalizadas</span>
             </h3>
             <p className="text-xs text-fg-muted mt-1">
               Registro histórico del rendimiento competitivo al término de cada campeonato oficial.
@@ -300,7 +300,7 @@ export default function ClubHistoryTab({ club, confirmAction, onUpdateClub }) {
             {seasons.length === 0 ? (
               <div className="p-6 text-center border border-dashed border-line rounded-xl">
                 <BookOpen className="w-8 h-8 text-fg-subtle mx-auto mb-2" />
-                <p className="text-fg text-sm font-semibold">Temporada Inaugural en Curso</p>
+                <p className="text-fg text-sm font-semibold">Temporada inaugural en curso</p>
                 <p className="text-fg-subtle text-xs mt-1">
                   El registro se completará automáticamente al disputar la última fecha del torneo y procesar el cierre anual.
                 </p>

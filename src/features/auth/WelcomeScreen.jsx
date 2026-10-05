@@ -61,7 +61,7 @@ export default function WelcomeScreen() {
         <h2 className="mb-8 text-xl font-bold text-accent">DT {data.manager?.first_name} {data.manager?.last_name}</h2>
 
         <div className="p-6 mb-8 border border-line bg-bg rounded-lg">
-          <p className="mb-4 text-sm text-fg-muted">Club Actual</p>
+          <p className="mb-4 text-sm text-fg-muted">Club actual</p>
           <p className="text-2xl font-semibold text-fg">{data.club?.name}</p>
           <p className="text-accent font-mono mt-2">{data.club?.game_date || '2026-07-01'}</p>
         </div>

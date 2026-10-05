@@ -181,7 +181,7 @@ export default function Dashboard() {
       await refreshContext()
       toast.success('Decisión ejecutada.')
     } catch (err) {
-      toast.error(err.message || 'Error al procesar la decisión.')
+      toast.error(friendlyError(err, 'Error al procesar la decisión.'))
     }
   }
 

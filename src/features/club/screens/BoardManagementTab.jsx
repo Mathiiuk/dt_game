@@ -17,6 +17,7 @@ import {
 import { boardApi } from '../../../api/board'
 import { toast } from 'sonner'
 import { AsyncButton } from '../../../components/ui'
+import { friendlyError } from '../../../lib/errors'
 
 export default function BoardManagementTab({ club, manager, confirmAction, onUpdateClub }) {
   const [board, setBoard] = useState(null)
@@ -48,7 +49,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
 
   const handleRequestFunding = async () => {
     const confirmed = await confirmAction({
-      title: 'Solicitar Aporte Extraordinario de Fondos',
+      title: 'Solicitar aporte extraordinario de fondos',
       description: '¿Deseas solicitar a la Comisión Directiva una partida de emergencia de $15,000? Requerirá gastar capital político y aumentará la exigencia sobre tu gestión.',
       confirmText: 'Solicitar $15,000',
       cancelText: 'Cancelar'
@@ -63,7 +64,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
       if (onUpdateClub) onUpdateClub()
       await loadBoardData()
     } catch (e) {
-      toast.error(e.message || 'Petición rechazada por la directiva')
+      toast.error(friendlyError(e, 'Petición rechazada por la directiva'))
     } finally {
       setActionLoading(false)
     }
@@ -101,7 +102,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
             </div>
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-danger bg-rose-950/80 px-2 py-0.5 rounded border border-rose-800">
-                Ultimátum Dirigencial Activo
+                Ultimátum dirigencial activo
               </span>
               <h3 className="text-base font-semibold text-fg mt-1">
                 La directiva exige sumar {board.ultimatum_points_required} puntos
@@ -131,7 +132,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
                 <Briefcase className="w-5 h-5" />
               </span>
               <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-fg">Comisión Directiva & Presidencia</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-fg">Comisión directiva y presidencia</h2>
                 <p className="text-xs text-fg-muted">Evaluación permanente del proyecto deportivo e institucional</p>
               </div>
             </div>
@@ -139,14 +140,14 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <span className="text-[11px] text-fg-muted font-medium">Índice de Confianza</span>
+              <span className="text-[11px] text-fg-muted font-medium">Índice de confianza</span>
               <p className="text-2xl font-semibold text-fg font-mono flex items-center justify-end gap-1.5">
                 <Award className={`w-5 h-5 ${score >= 70 ? 'text-accent' : score >= 40 ? 'text-gold' : 'text-danger'}`} />
                 {score}<span className="text-xs font-normal text-fg-muted">/100</span>
               </p>
             </div>
             <div className="border-l border-line pl-4 text-left">
-              <span className="text-[11px] text-fg-muted font-medium">Vínculo Político</span>
+              <span className="text-[11px] text-fg-muted font-medium">Vínculo político</span>
               <div className="mt-0.5">
                 <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-lg border ${statusMeta.badgeColor}`}>
                   {statusMeta.title}
@@ -235,11 +236,11 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
               <span className="p-2 rounded-lg bg-surface-3 text-accent">
                 <Target className="w-4 h-4" />
               </span>
-              <h3 className="text-sm font-bold text-fg">Objetivo Oficial de la Temporada</h3>
+              <h3 className="text-sm font-bold text-fg">Objetivo oficial de la temporada</h3>
             </div>
             <div className="p-3.5 rounded-xl bg-bg/80 border border-line/80 mb-3">
               <span className="text-xs font-mono font-bold text-accent uppercase tracking-wide">
-                Meta Institucional
+                Meta institucional
               </span>
               <p className="text-sm font-semibold text-fg mt-1">
                 {objectiveNames[board?.season_objective || 'MID_TABLE']}
@@ -263,7 +264,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
               <span className="p-2 rounded-lg bg-surface-3 text-accent">
                 <DollarSign className="w-4 h-4" />
               </span>
-              <h3 className="text-sm font-bold text-fg">Solicitar Apoyo de Tesorería</h3>
+              <h3 className="text-sm font-bold text-fg">Solicitar apoyo de tesorería</h3>
             </div>
             <p className="text-xs text-fg-muted mb-3">
               Si el club enfrenta dificultades de liquidez para sueldos u obras, puedes solicitar formalmente una inyección extraordinaria de capital al presidente.
@@ -281,7 +282,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
             className="w-full py-2.5 px-4 bg-accent hover:bg-accent-strong disabled:opacity-50 text-accent-fg font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Petición Extraordinaria de $15,000</span>
+            <span>Petición extraordinaria de $15,000</span>
           </AsyncButton>
         </div>
       </div>
@@ -290,7 +291,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
       <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
         <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
           <MessageSquare className="w-4 h-4 text-accent" />
-          Libro de Actas y Reuniones de Comisión Directiva
+          Libro de actas y reuniones de comisión directiva
         </h3>
         {meetings.length === 0 ? (
           <p className="text-xs text-fg-subtle py-6 text-center border border-dashed border-line rounded-xl">

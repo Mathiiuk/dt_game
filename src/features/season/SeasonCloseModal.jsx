@@ -5,6 +5,7 @@ import { seasonCloseApi } from '../../api/seasonClose'
 import { useGameContext } from '../../context/GameContext'
 import { formatMoney } from '../../lib/format'
 import { Badge, Button, Card, CardBody, ResponsiveOverlay } from '../../components/ui'
+import { friendlyError } from '../../lib/errors'
 
 const CONSEQUENCES = [
   ['Tabla archivada', 'La tabla de posiciones se congela para siempre en la historia de la liga.'],
@@ -29,7 +30,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
       onSuccess?.(res)
     } catch (err) {
       console.error(err)
-      toast.error(err.message || 'Error al procesar el cierre de temporada')
+      toast.error(friendlyError(err, 'Error al procesar el cierre de temporada'))
     } finally {
       setClosing(false)
     }

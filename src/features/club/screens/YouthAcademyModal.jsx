@@ -6,6 +6,7 @@ import { useGameContext } from '../../../context/GameContext'
 import { formatMoney } from '../../../lib/format'
 import { Badge, Button, Card, CardBody, EmptyState, ResponsiveOverlay, SectionTitle, Skeleton } from '../../../components/ui'
 import { cn } from '../../../lib/utils'
+import { friendlyError } from '../../../lib/errors'
 
 const LEVEL_NAMES = {
   1: 'Potrero barrial (tierra y cal)',
@@ -44,7 +45,7 @@ export default function YouthAcademyModal({ club, manager, onClose, onCandidateP
       setAcademy(acad)
       setCandidates(cands)
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setLoading(false)
     }
@@ -62,7 +63,7 @@ export default function YouthAcademyModal({ club, manager, onClose, onCandidateP
       setCandidates(fresh)
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setGenerating(false)
     }
@@ -86,7 +87,7 @@ export default function YouthAcademyModal({ club, manager, onClose, onCandidateP
       if (typeof refreshContext === 'function') await refreshContext()
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setProcessingId(null)
     }
@@ -99,7 +100,7 @@ export default function YouthAcademyModal({ club, manager, onClose, onCandidateP
       toast.info(`${candidate.last_name} fue desvinculado de la cantera`)
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setProcessingId(null)
     }
@@ -124,7 +125,7 @@ export default function YouthAcademyModal({ club, manager, onClose, onCandidateP
       if (typeof refreshContext === 'function') await refreshContext()
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     }
   }
 

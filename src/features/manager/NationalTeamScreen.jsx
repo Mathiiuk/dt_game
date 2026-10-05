@@ -72,7 +72,7 @@ export default function NationalTeamScreen() {
       toast.success(`¡Felicitaciones! Asumiste como seleccionador de ${offer.name}`)
       await loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
       setLoading(false)
     }
   }
@@ -92,7 +92,7 @@ export default function NationalTeamScreen() {
       toast.warning('Presentaste tu renuncia a la selección nacional.')
       await loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
       setLoading(false)
     }
   }

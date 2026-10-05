@@ -18,6 +18,7 @@ import {
 import { legendsApi } from '../../../api/legends'
 import { toast } from 'sonner'
 import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
+import { friendlyError } from '../../../lib/errors'
 
 export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdateClub }) {
   const [loading, setLoading] = useState(true)
@@ -92,7 +93,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
       loadFigures()
       if (onUpdateClub) onUpdateClub()
     } catch (err) {
-      toast.error(err.message || 'No se pudo retirar la camiseta')
+      toast.error(friendlyError(err, 'No se pudo retirar la camiseta'))
     } finally {
       setSubmitting(false)
     }
@@ -138,7 +139,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
           <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
               <Users className="w-3.5 h-3.5 text-blue-400" />
-              <span>Cohesión Social</span>
+              <span>Cohesión social</span>
             </div>
             <p className="text-base font-semibold text-accent">+{data.bonuses?.cohesionBonus || 0}%</p>
           </div>
@@ -146,7 +147,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
           <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
               <Heart className="w-3.5 h-3.5 text-danger" />
-              <span>Moral Colectiva</span>
+              <span>Moral colectiva</span>
             </div>
             <p className="text-base font-semibold text-accent">+{data.bonuses?.moraleBonus || 0} pts</p>
           </div>
@@ -162,7 +163,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
           <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
               <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-              <span>Respaldo Afición</span>
+              <span>Respaldo afición</span>
             </div>
             <p className="text-base font-semibold text-accent">+{data.bonuses?.fanConfidenceSupport || 0}%</p>
           </div>
@@ -267,7 +268,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
                     className="w-full py-2 px-3 rounded-xl border border-line bg-surface-3/80 hover:bg-gold/20 hover:border-gold/40 text-fg hover:text-gold text-xs font-bold transition-all flex items-center justify-center gap-2"
                   >
                     <Shirt className="w-3.5 h-3.5" />
-                    <span>Retirar Camiseta</span>
+                    <span>Retirar camiseta</span>
                   </button>
                 </div>
               </div>
@@ -317,7 +318,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
                       "{r.reason}"
                     </p>
                     <p className="text-[10px] text-fg-subtle mt-1.5 font-medium">
-                      Inmortalizado en el Hall del Club
+                      Inmortalizado en el hall del Club
                     </p>
                   </div>
                 </div>

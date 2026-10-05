@@ -90,7 +90,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
     if (selectedCaptain === selectedViceCaptain) return toast.error('El capitán y subcapitán deben ser distintos futbolistas')
 
     const confirmed = await confirmAction({
-      title: 'Confirmar Designación de Capitanía',
+      title: 'Confirmar designación de capitanía',
       description: 'Si despojas del brazalete a un líder histórico del vestuario, su moral y la de su clan caerán sensiblemente.',
       confirmText: 'Asignar Brazaletes',
       cancelText: 'Cancelar'
@@ -106,7 +106,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       if (onUpdateClub) onUpdateClub()
       await loadLockerData()
     } catch (e) {
-      toast.error(e.message || 'Error asignando capitanes')
+      toast.error(friendlyError(e, 'Error asignando capitanes'))
     } finally {
       setActionLoading(false)
     }
@@ -155,7 +155,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
         <div className="p-4 sm:p-5 rounded-lg bg-amber-950/30 border border-amber-800/60 space-y-3">
           <div className="flex items-center gap-2 text-gold">
             <AlertTriangle className="w-5 h-5 shrink-0" />
-            <h3 className="font-bold text-sm sm:text-base">Reclamo en la Oficina del DT</h3>
+            <h3 className="font-bold text-sm sm:text-base">Reclamo en la oficina del DT</h3>
           </div>
           <p className="text-xs text-fg">
             Los siguientes futbolistas están incómodos con su rol en el equipo y exigen una respuesta inmediata:
@@ -212,7 +212,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                 <Users className="w-5 h-5" />
               </span>
               <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-fg">Química y Dinámica de Vestuario</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-fg">Química y dinámica de vestuario</h2>
                 <p className="text-xs text-fg-muted">Jerarquías, liderazgos y cohesión del grupo humano</p>
               </div>
             </div>
@@ -220,14 +220,14 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <span className="text-[11px] text-fg-muted font-medium">Cohesión de Equipo</span>
+              <span className="text-[11px] text-fg-muted font-medium">Cohesión de equipo</span>
               <p className="text-2xl font-semibold text-fg font-mono flex items-center justify-end gap-1.5">
                 <Heart className={`w-5 h-5 ${score >= 70 ? 'text-purple-400 fill-purple-400' : 'text-fg-subtle'}`} />
                 {score}<span className="text-xs font-normal text-fg-muted">/100</span>
               </p>
             </div>
             <div className="border-l border-line pl-4 text-left">
-              <span className="text-[11px] text-fg-muted font-medium">Ambiente Interno</span>
+              <span className="text-[11px] text-fg-muted font-medium">Ambiente interno</span>
               <div className="mt-0.5">
                 <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-lg border ${cohesionMeta.badgeColor}`}>
                   {cohesionMeta.title}
@@ -260,13 +260,13 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
                 <Crown className="w-4 h-4 text-gold" />
-                Capitanía Oficial
+                Capitanía oficial
               </span>
               <button
                 onClick={() => setShowCaptainsModal(true)}
                 className="text-[11px] text-gold hover:underline font-semibold"
               >
-                Cambiar Brazaletes
+                Cambiar brazaletes
               </button>
             </div>
 
@@ -290,7 +290,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <div>
             <h3 className="text-sm sm:text-base font-bold text-fg flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-accent" />
-              Charlas Técnicas & Reunión de Equipo
+              Charlas técnicas y reunión de equipo
             </h3>
             <p className="text-xs text-fg-muted">Dirige la palabra al plantel completo para ajustar el enfoque psicológico.</p>
           </div>
@@ -305,7 +305,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             onClick={() => handleHoldTeamMeeting('PRAISE')}
             className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-accent/60 hover:bg-emerald-950/10 transition-all text-xs group"
           >
-            <span className="font-bold text-accent block mb-1">Elogiar Sacrificio</span>
+            <span className="font-bold text-accent block mb-1">Elogiar sacrificio</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
               Felicita al grupo por el compromiso y refuerza la unión colectiva (+8 moral, +5 cohesión).
             </p>
@@ -316,7 +316,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             onClick={() => handleHoldTeamMeeting('CALM')}
             className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-blue-500/60 hover:bg-blue-950/10 transition-all text-xs group"
           >
-            <span className="font-bold text-blue-400 block mb-1">Llamado a la Calma</span>
+            <span className="font-bold text-blue-400 block mb-1">Llamado a la calma</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
               Descomprime presiones y pide templanza ante los próximos partidos (+5 moral, +3 cohesión).
             </p>
@@ -327,7 +327,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             onClick={() => handleHoldTeamMeeting('DEMAND_EXCELLENCE')}
             className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-gold/60 hover:bg-amber-950/10 transition-all text-xs group"
           >
-            <span className="font-bold text-gold block mb-1">Exigir Excelencia</span>
+            <span className="font-bold text-gold block mb-1">Exigir excelencia</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
               Eleva la vara y reta al plantel a dar un salto de jerarquía competitiva.
             </p>
@@ -339,7 +339,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       <div className="space-y-4">
         <h3 className="text-base font-bold text-fg flex items-center gap-2">
           <Users className="w-5 h-5 text-purple-400" />
-          Clanes y Grupos Sociales del Plantel
+          Clanes y grupos sociales del plantel
         </h3>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -396,7 +396,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
         <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
           <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
             <History className="w-4 h-4 text-accent" />
-            Libro de Actas y Acontecimientos de Vestuario
+            Libro de actas y acontecimientos de vestuario
           </h3>
           <div className="space-y-2">
             {events.map((ev) => (

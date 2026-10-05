@@ -7,7 +7,7 @@ export default function AgentProfileCard({ agentData }) {
   const { agent, relationshipScore, effectiveCommissionRate, archetypeDetails } = agentData
 
   const getAffinityLabel = (score) => {
-    if (score >= 80) return { label: 'Socio de Confianza', color: 'text-emerald-400', barColor: 'bg-emerald-500' }
+    if (score >= 80) return { label: 'Socio de confianza', color: 'text-emerald-400', barColor: 'bg-emerald-500' }
     if (score >= 60) return { label: 'Favorable', color: 'text-teal-400', barColor: 'bg-teal-500' }
     if (score >= 40) return { label: 'Neutral / Profesional', color: 'text-zinc-300', barColor: 'bg-zinc-400' }
     if (score >= 25) return { label: 'Tenso', color: 'text-amber-400', barColor: 'bg-amber-500' }
@@ -38,7 +38,7 @@ export default function AgentProfileCard({ agentData }) {
         }
       default:
         return { 
-          name: 'Negociador Razonable', 
+          name: 'Negociador razonable', 
           style: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
           icon: <UserCheck className="w-3 h-3 text-emerald-400" />
         }

@@ -9,6 +9,7 @@ import { FORM_LABELS, ZONES, formatDiff, goalDiff, parseForm, zoneOf } from '../
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, EmptyState, PageHeader, Skeleton } from '../../components/ui'
 import LeaguePyramidModal from './LeaguePyramidModal'
+import { friendlyError } from '../../lib/errors'
 
 const FORM_STYLE = {
   V: 'bg-accent-soft text-accent',
@@ -65,7 +66,7 @@ export default function StandingsScreen() {
       toast.success('Temporada regular finalizada con éxito.')
       navigate('/dashboard')
     } catch (e) {
-      toast.error(e.message || 'Error al finalizar temporada.')
+      toast.error(friendlyError(e, 'Error al finalizar temporada.'))
       setLoading(false)
     }
   }

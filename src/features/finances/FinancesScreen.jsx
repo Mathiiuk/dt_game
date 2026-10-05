@@ -10,6 +10,7 @@ import {
   Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageHeader, Skeleton, Stat,
   Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
+import { friendlyError } from '../../lib/errors'
 
 const FACILITY_ICONS = { stadium_level: Building, medical_level: ShieldPlus, store_level: ShoppingBag }
 
@@ -59,7 +60,7 @@ export default function FinancesScreen() {
       setTransactions(txs)
       setTicketPrice(fin?.ticketPrice || 10)
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setLoading(false)
     }
@@ -80,7 +81,7 @@ export default function FinancesScreen() {
       loadData()
       if (typeof refreshContext === 'function') await refreshContext()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setUpdatingTicket(false)
     }
@@ -103,7 +104,7 @@ export default function FinancesScreen() {
       if (typeof refreshContext === 'function') await refreshContext()
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     }
   }
 

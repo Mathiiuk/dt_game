@@ -6,6 +6,7 @@ import {
   Badge, Button, Card, CardBody, EmptyState, Field, Progress, ResponsiveOverlay, Select, SectionTitle, Skeleton
 } from '../../components/ui'
 import { Users } from 'lucide-react'
+import { friendlyError } from '../../lib/errors'
 
 const describe = (p) => `${p.name} (${p.position}, ${p.age} años, nivel ${p.overall})`
 
@@ -50,7 +51,7 @@ export default function MentorshipModal({ club, players = [], onClose, onMentors
       onMentorshipStarted?.()
       await loadData()
     } catch (err) {
-      toast.error(err.message || 'Error al iniciar la tutoría')
+      toast.error(friendlyError(err, 'Error al iniciar la tutoría'))
     } finally {
       setCreating(false)
     }

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { AsyncButton } from '../../components/ui'
+import { friendlyError } from '../../lib/errors'
 
 export default function EndgameScreen() {
   const navigate = useNavigate()
@@ -54,7 +55,7 @@ export default function EndgameScreen() {
     if (!user || !manager || startingDynasty) return
 
     const confirmed = await confirmAction({
-      title: 'Fundar Nueva Dinastía',
+      title: 'Fundar nueva dinastía',
       description: '¿Deseas iniciar una nueva dinastía como Director Técnico? El mundo, los clubes, los récords y el legado de tu entrenador actual permanecerán intactos en la historia de la liga.',
       confirmText: 'Fundar Dinastía',
       cancelText: 'Cancelar',
@@ -70,7 +71,7 @@ export default function EndgameScreen() {
       toast.success('¡El mundo continúa! Creando nuevo Director Técnico para la dinastía...')
       navigate('/create-manager', { replace: true })
     } catch (err) {
-      toast.error(err.message || 'Error al iniciar la nueva dinastía')
+      toast.error(friendlyError(err, 'Error al iniciar la nueva dinastía'))
       setStartingDynasty(false)
     }
   }
@@ -96,7 +97,7 @@ export default function EndgameScreen() {
           onClick={() => navigate('/manager')}
           className="px-6 py-3 bg-accent hover:bg-accent-strong text-black font-semibold rounded-xl text-sm transition-transform active:scale-95"
         >
-          Volver a Carrera del DT
+          Volver a carrera del DT
         </button>
       </div>
     )
@@ -119,7 +120,7 @@ export default function EndgameScreen() {
             </button>
           )}
           <div>
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-gold">Epílogo & Dinastía</span>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-gold">Epílogo y dinastía</span>
             <h1 className="text-lg sm:text-2xl font-semibold text-fg flex items-center gap-2">
               <Newspaper className="w-5 h-5 sm:w-6 sm:h-6 text-gold" /> DIARIO DEL DÍA DEL RETIRO
             </h1>
@@ -184,7 +185,7 @@ export default function EndgameScreen() {
               </div>
 
               <div className="w-full mt-4 pt-4 border-t border-line">
-                <span className="text-[10px] text-fg-subtle uppercase tracking-widest block font-bold">Puntos de Legado</span>
+                <span className="text-[10px] text-fg-subtle uppercase tracking-widest block font-bold">Puntos de legado</span>
                 <span className="text-3xl font-semibold text-gold">{snapshot.legacy_score}</span>
               </div>
             </div>
@@ -193,7 +194,7 @@ export default function EndgameScreen() {
           {/* Métricas Históricas Cuantitativas */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 p-4 rounded-lg bg-bg border border-line mb-6">
             <div className="text-center p-2">
-              <span className="text-xs text-fg-subtle font-bold block">Partidos Totales</span>
+              <span className="text-xs text-fg-subtle font-bold block">Partidos totales</span>
               <span className="text-2xl sm:text-3xl font-semibold text-fg">{snapshot.total_matches}</span>
             </div>
             <div className="text-center p-2">
@@ -205,7 +206,7 @@ export default function EndgameScreen() {
               <span className="text-2xl sm:text-3xl font-semibold text-accent">{snapshot.win_rate}%</span>
             </div>
             <div className="text-center p-2">
-              <span className="text-xs text-fg-subtle font-bold block">Títulos Oficiales</span>
+              <span className="text-xs text-fg-subtle font-bold block">Títulos oficiales</span>
               <span className="text-2xl sm:text-3xl font-semibold text-gold">{snapshot.titles_count}</span>
             </div>
           </div>
@@ -259,7 +260,7 @@ export default function EndgameScreen() {
                 {startingDynasty ? <Loader2 className="w-6 h-6 animate-spin" /> : <UserPlus className="w-6 h-6" />}
               </div>
               <div className="text-left">
-                <h4 className="text-sm font-semibold text-accent">Fundar Nueva Dinastía</h4>
+                <h4 className="text-sm font-semibold text-accent">Fundar nueva dinastía</h4>
                 <p className="text-xs text-fg-muted mt-0.5">Crea un nuevo DT conservando el mundo y la historia</p>
               </div>
             </div>

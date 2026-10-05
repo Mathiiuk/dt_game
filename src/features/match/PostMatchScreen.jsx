@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { AsyncButton } from '../../components/ui'
+import { friendlyError } from '../../lib/errors'
 
 export default function PostMatchScreen() {
   const navigate = useNavigate()
@@ -98,7 +99,7 @@ export default function PostMatchScreen() {
         }
       } catch (e) {
         console.error('Error procesando post-partido:', e)
-        toast.error(e.message || 'Error procesando resultado.')
+        toast.error(friendlyError(e, 'Error procesando resultado.'))
       } finally {
         setLoading(false)
       }
@@ -129,7 +130,7 @@ export default function PostMatchScreen() {
         setCurrentQIndex(prev => prev + 1)
       }
     } catch (err) {
-      toast.error(err.message || 'Error al emitir respuesta')
+      toast.error(friendlyError(err, 'Error al emitir respuesta'))
     }
   }
 
@@ -170,7 +171,7 @@ export default function PostMatchScreen() {
       <div className="max-w-4xl mx-auto space-y-4 mb-6">
         <div className="p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg">
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-fg-subtle">
-            Resumen Oficial • Pitazo Final
+            Resumen oficial • Pitazo final
           </span>
           <h1 className={`text-2xl sm:text-4xl font-semibold mt-1 ${isWin ? 'text-accent' : isDraw ? 'text-gold' : 'text-danger'}`}>
             {isWin ? '¡VICTORIA VICTORIOSA!' : isDraw ? 'EMPATE DISPUTADO' : 'DERROTA DOLOROSA'}
@@ -220,11 +221,11 @@ export default function PostMatchScreen() {
         {/* 4 Navigation Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-line text-xs">
           {[
-            { id: 'CRONICA', label: 'Crónica & Incidencias', icon: Trophy },
-            { id: 'STATS', label: 'Estadísticas de Equipo', icon: BarChart3 },
-            { id: 'RATINGS', label: 'Calificaciones Individuales', icon: Users },
+            { id: 'CRONICA', label: 'Crónica y incidencias', icon: Trophy },
+            { id: 'STATS', label: 'Estadísticas de equipo', icon: BarChart3 },
+            { id: 'RATINGS', label: 'Calificaciones individuales', icon: Users },
             { id: 'FINANCES', label: 'Boletería', icon: DollarSign },
-            { id: 'PRENSA', label: 'Rueda de Prensa', icon: Mic }
+            { id: 'PRENSA', label: 'Rueda de prensa', icon: Mic }
           ].map(tab => {
             const Icon = tab.icon
             const isSelected = activeTab === tab.id
@@ -253,7 +254,7 @@ export default function PostMatchScreen() {
             <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-accent" />
-                Hitos y Minuto a Minuto Clave
+                Hitos y minuto a minuto clave
               </h3>
 
               <div className="space-y-2">
@@ -299,7 +300,7 @@ export default function PostMatchScreen() {
             <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-accent" />
-                Comparativa de Rendimiento Colectivo
+                Comparativa de rendimiento colectivo
               </h3>
 
               <div className="space-y-3 text-xs">
@@ -318,11 +319,11 @@ export default function PostMatchScreen() {
 
                 {/* Métricas */}
                 {[
-                  { label: 'Disparos Totales', home: stats.shots?.home || 0, away: stats.shots?.away || 0 },
-                  { label: 'Tiros al Arco', home: stats.shotsOnTarget?.home || 0, away: stats.shotsOnTarget?.away || 0 },
-                  { label: 'Faltas Cometidas', home: stats.fouls?.home || 0, away: stats.fouls?.away || 0 },
-                  { label: 'Tiros de Esquina', home: stats.corners?.home || 0, away: stats.corners?.away || 0 },
-                  { label: 'Tarjetas Amarillas', home: stats.yellowCards?.home || 0, away: stats.yellowCards?.away || 0 }
+                  { label: 'Disparos totales', home: stats.shots?.home || 0, away: stats.shots?.away || 0 },
+                  { label: 'Tiros al arco', home: stats.shotsOnTarget?.home || 0, away: stats.shotsOnTarget?.away || 0 },
+                  { label: 'Faltas cometidas', home: stats.fouls?.home || 0, away: stats.fouls?.away || 0 },
+                  { label: 'Tiros de esquina', home: stats.corners?.home || 0, away: stats.corners?.away || 0 },
+                  { label: 'Tarjetas amarillas', home: stats.yellowCards?.home || 0, away: stats.yellowCards?.away || 0 }
                 ].map((row, idx) => (
                   <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-bg border border-line/80">
                     <span className="font-bold text-fg w-12 text-left">{row.home}</span>
@@ -362,7 +363,7 @@ export default function PostMatchScreen() {
             <div className="p-4 sm:p-5 rounded-lg border border-line bg-surface/60 space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted mb-3 flex items-center gap-2">
                 <Users className="w-4 h-4 text-accent" />
-                Puntajes del Plantel
+                Puntajes del plantel
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
@@ -414,13 +415,13 @@ export default function PostMatchScreen() {
             <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-accent" />
-                Liquidación de Boletería y Entradas
+                Liquidación de boletería y entradas
               </h3>
 
               {isHome ? (
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between p-2.5 rounded-xl bg-bg border border-line/80 text-fg">
-                    <span>Espectadores Presentes:</span>
+                    <span>Espectadores presentes:</span>
                     <span className="font-bold text-fg">{(processedData?.attendance || 0).toLocaleString()} personas</span>
                   </div>
                   <div className="flex justify-between p-2.5 rounded-xl bg-bg border border-line/80 text-fg">
@@ -428,11 +429,11 @@ export default function PostMatchScreen() {
                     <span className="font-bold text-fg">${(processedData?.grossIncome || 0).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between p-2.5 rounded-xl bg-bg border border-line/80 text-fg">
-                    <span>Gastos de Seguridad y Operación (15%):</span>
+                    <span>Gastos de seguridad y operación (15%):</span>
                     <span className="font-bold text-danger">-${(processedData?.operatingCost || 0).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-xl bg-accent-soft border border-accent/30 text-accent font-bold">
-                    <span>Ingreso Neto Acreditado en Tesorería:</span>
+                    <span>Ingreso neto acreditado en tesorería:</span>
                     <span>+${(processedData?.matchIncome || 0).toLocaleString()}</span>
                   </div>
                 </div>
@@ -455,7 +456,7 @@ export default function PostMatchScreen() {
                     <Mic className="w-5 h-5" />
                   </span>
                   <div>
-                    <h3 className="text-sm sm:text-base font-bold text-fg">Sala de Conferencias Oficial</h3>
+                    <h3 className="text-sm sm:text-base font-bold text-fg">Sala de conferencias oficial</h3>
                     <p className="text-xs text-fg-muted">Micrófonos abiertos ante los cronistas locales</p>
                   </div>
                 </div>
@@ -574,7 +575,7 @@ export default function PostMatchScreen() {
             onClick={() => navigate('/standings')}
             className="w-full sm:w-auto px-5 py-3 rounded-xl border border-line bg-surface hover:bg-surface-3 text-xs font-bold text-fg transition-colors"
           >
-            Ver Tabla de Posiciones
+            Ver tabla de posiciones
           </button>
 
           <button
@@ -582,7 +583,7 @@ export default function PostMatchScreen() {
             className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
           >
             <Home className="w-4 h-4" />
-            <span>Volver al Dashboard</span>
+            <span>Volver al inicio</span>
           </button>
         </div>
       </main>

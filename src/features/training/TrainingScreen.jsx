@@ -12,6 +12,7 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 import { cn } from '../../lib/utils'
+import { friendlyError } from '../../lib/errors'
 
 export default function TrainingScreen() {
   const { club, refreshContext } = useGameContext()
@@ -63,7 +64,7 @@ export default function TrainingScreen() {
       await refreshContext()
       toast.success('Plan general de entrenamiento actualizado y en vigor.')
     } catch (e) {
-      toast.error(e.message || 'Error al guardar el plan de entrenamiento.')
+      toast.error(friendlyError(e, 'Error al guardar el plan de entrenamiento.'))
     } finally {
       setSaving(false)
     }
@@ -175,7 +176,7 @@ export default function TrainingScreen() {
                   {recovery && <p className="text-xs text-fg-subtle">En semana regenerativa la intensidad no aplica.</p>}
                   <dl className="space-y-2 rounded-lg bg-surface-2 p-3.5 text-sm">
                     <div className="flex justify-between gap-3">
-                      <dt className="text-fg-muted">Desgaste de fitness</dt>
+                      <dt className="text-fg-muted">Desgaste de condición física</dt>
                       <dd className="num font-semibold text-fg">{recovery ? '+15' : `-${selectedIntensity.fitnessCost}`} pts</dd>
                     </div>
                     <div className="flex justify-between gap-3">
@@ -227,7 +228,7 @@ export default function TrainingScreen() {
                             <p className="text-xs text-fg-muted">{p.position} · {p.age} años · Nivel {p.attr_overall || 50} · Pot. {p.attr_potential || 65}</p>
                           </div>
                         </div>
-                        <Badge tone={fitnessTone(fitness)}>{fitness}% fit</Badge>
+                        <Badge tone={fitnessTone(fitness)}>{fitness}% de condición</Badge>
                       </div>
                       <Select
                         aria-label={`Foco individual de ${p.first_name} ${p.last_name}`}

@@ -21,6 +21,7 @@ import PressRoomModal from './PressRoomModal'
 import InfirmaryTab from './InfirmaryTab'
 import ClubHistoryTab from './ClubHistoryTab'
 import IdolsLegendsTab from './IdolsLegendsTab'
+import { friendlyError } from '../../../lib/errors'
 
 const TABS = [
   ['gestion', 'Gestión y staff'],
@@ -103,7 +104,7 @@ export default function ClubScreen() {
       toast.success(`${staffMember.name} contratado como ${staffMember.role}`)
       loadData(true)
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     }
   }
 
@@ -115,7 +116,7 @@ export default function ClubScreen() {
       toast.success('¡Nuevo juvenil oteado en la academia!')
       loadData(true)
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     }
   }
 
@@ -125,7 +126,7 @@ export default function ClubScreen() {
       toast.success('Jugador promovido al primer equipo')
       loadData(true)
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     }
   }
 
@@ -143,7 +144,7 @@ export default function ClubScreen() {
       toast.success('Contrato de staff rescindido')
       loadData(true)
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     }
   }
 

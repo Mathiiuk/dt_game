@@ -10,6 +10,7 @@ import { BADGES, COLOR_PRESETS, defaultStadiumName, isAutoStadiumName, sameColor
 import { formatMoney } from '../../lib/format'
 import { Field, Input, OptionCards, Wizard } from '../../components/ui'
 import { cn } from '../../lib/utils'
+import { friendlyError } from '../../lib/errors'
 
 const STEPS = ['Identidad', 'Colores y escudo', 'Estadio', 'Acta']
 const BADGE_ICONS = { SHIELD: Shield, CREST: Award, CIRCLE: Shield, DIAMOND: Shield }
@@ -77,7 +78,7 @@ export default function CreateClubWizard() {
       await refreshContext()
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      toast.error(err.message || 'Error al fundar el club.')
+      toast.error(friendlyError(err, 'Error al fundar el club.'))
     } finally {
       setLoading(false)
     }
@@ -101,7 +102,7 @@ export default function CreateClubWizard() {
         <div className="space-y-5">
           <div>
             <h2 className="font-display text-2xl font-semibold text-fg">Identidad institucional</h2>
-            <p className="mt-1 text-sm text-fg-muted">Origen en el Torneo Regional (Tier 5).</p>
+            <p className="mt-1 text-sm text-fg-muted">Origen en el Torneo Regional (división 5).</p>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Nombre oficial del club" error={errors.name} className="sm:col-span-2">
@@ -175,7 +176,7 @@ export default function CreateClubWizard() {
           <h2 className="font-display text-2xl font-semibold text-fg">Estadio e infraestructura inicial</h2>
           <Field label="Nombre del estadio">{(p) => <Input {...p} value={stadium.name} onChange={(e) => setStadium(prev => ({ ...prev, name: e.target.value }))} />}</Field>
           <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-lg bg-surface-2 p-3"><dt className="eyebrow">Aforo oficial</dt><dd className="num font-display text-2xl font-semibold text-fg">{TIER_5_STARTING_CONFIG.stadiumCapacity.toLocaleString('es-AR')}</dd><p className="text-xs text-fg-muted">Capacidad autorizada Tier 5</p></div>
+            <div className="rounded-lg bg-surface-2 p-3"><dt className="eyebrow">Aforo oficial</dt><dd className="num font-display text-2xl font-semibold text-fg">{TIER_5_STARTING_CONFIG.stadiumCapacity.toLocaleString('es-AR')}</dd><p className="text-xs text-fg-muted">Capacidad autorizada para la división 5</p></div>
             <div className="rounded-lg bg-surface-2 p-3"><dt className="eyebrow">Calidad del césped</dt><dd className="num font-display text-2xl font-semibold text-gold">{TIER_5_STARTING_CONFIG.pitchCondition} / 100</dd><p className="text-xs text-fg-muted">Potrero con sectores de tierra</p></div>
             <div className="rounded-lg bg-surface-2 p-3"><dt className="eyebrow">Entrada general</dt><dd className="num font-display text-2xl font-semibold text-accent">{formatMoney(TIER_5_STARTING_CONFIG.ticketPrice)}</dd><p className="text-xs text-fg-muted">Precio regulado de taquilla</p></div>
           </dl>
@@ -188,7 +189,7 @@ export default function CreateClubWizard() {
           <div className="rounded-lg border border-accent/40 bg-surface-2 p-5">
             <div className="flex items-start justify-between gap-3 border-b border-line pb-4">
               <div>
-                <p className="eyebrow text-accent">Club afiliado a la Liga Regional (Tier 5)</p>
+                <p className="eyebrow text-accent">Club afiliado a la Liga Regional (división 5)</p>
                 <p className="mt-1 font-display text-3xl font-semibold leading-tight text-fg">{identity.name} <span className="text-fg-muted">({identity.shortName})</span></p>
                 <p className="text-xs text-fg-muted">“{identity.nickname}” · Fundado en {identity.foundedYear} · {identity.city}, {identity.country}</p>
               </div>

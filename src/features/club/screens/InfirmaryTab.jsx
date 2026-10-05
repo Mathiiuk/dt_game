@@ -19,6 +19,7 @@ import { useGameContext } from '../../../context/GameContext'
 import { toast } from 'sonner'
 import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
 import { AsyncButton } from '../../../components/ui'
+import { friendlyError } from '../../../lib/errors'
 
 export default function InfirmaryTab({ club }) {
   const { confirmAction } = useGameContext()
@@ -82,7 +83,7 @@ export default function InfirmaryTab({ club }) {
       }
       await loadInfirmary()
     } catch (err) {
-      toast.error(err.message || 'Error en procedimiento médico')
+      toast.error(friendlyError(err, 'Error en procedimiento médico'))
     } finally {
       setProcessingInfiltration(null)
     }
@@ -98,7 +99,7 @@ export default function InfirmaryTab({ club }) {
               <Activity className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-fg-muted font-medium">Bajas Médicas Activas</p>
+              <p className="text-xs text-fg-muted font-medium">Bajas médicas activas</p>
               <h3 className="text-2xl font-semibold text-fg">{injuries.length}</h3>
             </div>
           </div>
@@ -113,7 +114,7 @@ export default function InfirmaryTab({ club }) {
               <Clock className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-fg-muted font-medium">Tiempo Medio Restante</p>
+              <p className="text-xs text-fg-muted font-medium">Tiempo medio restante</p>
               <h3 className="text-2xl font-semibold text-fg">
                 {injuries.length > 0 
                   ? (injuries.reduce((acc, curr) => acc + curr.weeks_remaining, 0) / injuries.length).toFixed(1)
@@ -129,7 +130,7 @@ export default function InfirmaryTab({ club }) {
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-fg-muted font-medium">Cuerpo Médico</p>
+              <p className="text-xs text-fg-muted font-medium">Cuerpo médico</p>
               <h3 className="text-sm font-semibold text-fg flex items-center gap-1.5 mt-1">
                 <CheckCircle2 className="w-4 h-4 text-accent" /> Kinesiología Activa
               </h3>
@@ -151,7 +152,7 @@ export default function InfirmaryTab({ club }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <HeartPulse className="w-5 h-5 text-danger" />
-            <h2 className="font-bold text-fg text-base">Parte Médico Oficial</h2>
+            <h2 className="font-bold text-fg text-base">Parte médico oficial</h2>
           </div>
           <span className="text-xs text-fg-subtle">Actualizado semanalmente por el cuerpo médico</span>
         </div>
@@ -166,7 +167,7 @@ export default function InfirmaryTab({ club }) {
             <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/20 text-accent flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <p className="text-sm font-bold text-fg">¡Enfermería Vacía!</p>
+            <p className="text-sm font-bold text-fg">¡Enfermería vacía!</p>
             <p className="text-xs text-fg-muted max-w-md mx-auto">
               Todo el plantel profesional se encuentra en condiciones médicas óptimas para disputar partidos y entrenar.
             </p>

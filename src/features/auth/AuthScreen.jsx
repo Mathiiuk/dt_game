@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowLeft, Check, Eye, EyeOff, KeyRound, Play, Shield, S
 import { authApi, checkRateLimit, validatePasswordStrength } from '../../api/auth'
 import { Button, Field, Input } from '../../components/ui'
 import { cn } from '../../lib/utils'
+import { friendlyError } from '../../lib/errors'
 
 /** Marco común de las pantallas de acceso: tarjeta centrada sobre el fondo de la app */
 function AuthShell({ children }) {
@@ -74,7 +75,7 @@ export default function AuthScreen() {
       toast.success(`¡Bienvenido al fútbol profesional, ${user.name}!`)
       navigate('/create-manager')
     } catch (err) {
-      toast.error(err.message || 'Error al crear la cuenta.')
+      toast.error(friendlyError(err, 'Error al crear la cuenta.'))
     } finally {
       setLoading(false)
     }
@@ -90,7 +91,7 @@ export default function AuthScreen() {
       toast.success(`Bienvenido de vuelta, DT ${user.name || ''}`)
       navigate('/game')
     } catch (err) {
-      toast.error(err.message || 'Error al iniciar sesión.')
+      toast.error(friendlyError(err, 'Error al iniciar sesión.'))
       setRateLimitInfo(checkRateLimit(email))
     } finally {
       setLoading(false)
@@ -106,7 +107,7 @@ export default function AuthScreen() {
       setForgotSent(true)
       toast.success(res.message)
     } catch (err) {
-      toast.error(err.message || 'Error al procesar la solicitud.')
+      toast.error(friendlyError(err, 'Error al procesar la solicitud.'))
     } finally {
       setLoading(false)
     }

@@ -14,6 +14,7 @@ import {
   Badge, Button, Card, CardBody, ChoiceChips, EmptyState, Input, PageHeader, Select, Skeleton, Stat, Switch
 } from '../../components/ui'
 import OfferModal from './OfferModal'
+import { friendlyError } from '../../lib/errors'
 
 const levelOf = (p) => p.attr_overall || p.overall || 0
 
@@ -51,7 +52,7 @@ export default function MarketScreen() {
         return { ...p, scout_level: report ? (report.knowledge_level ?? report.level ?? 1) : 0 }
       }))
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setLoading(false)
     }
@@ -87,7 +88,7 @@ export default function MarketScreen() {
       if (typeof refreshContext === 'function') await refreshContext()
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     }
   }
 
@@ -100,7 +101,7 @@ export default function MarketScreen() {
       if (typeof refreshContext === 'function') await refreshContext()
       loadData()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setSubmitting(false)
     }

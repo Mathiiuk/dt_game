@@ -14,6 +14,7 @@ import {
 } from '../../components/ui'
 import { cn } from '../../lib/utils'
 import Pitch from './Pitch'
+import { friendlyError } from '../../lib/errors'
 
 const AFFINITY_TONE = { NATURAL: 'accent', COMPATIBLE: 'warning', ADAPTED: 'warning', OUT_OF_POSITION: 'danger' }
 
@@ -192,7 +193,7 @@ export default function TacticsScreen() {
       setSavedSnapshot(snapshot)
       toast.success('Pizarra y alineación guardadas.')
     } catch (e) {
-      toast.error(e.message || 'No se pudo guardar la táctica.')
+      toast.error(friendlyError(e, 'No se pudo guardar la táctica.'))
     } finally {
       setSaving(false)
     }

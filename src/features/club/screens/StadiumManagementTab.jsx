@@ -18,6 +18,7 @@ import {
 import { stadiumApi, STADIUM_CATALOG } from '../../../api/stadium'
 import { toast } from 'sonner'
 import { AsyncButton } from '../../../components/ui'
+import { friendlyError } from '../../../lib/errors'
 
 export default function StadiumManagementTab({ club, confirmAction, onUpdateClub }) {
   const [stadium, setStadium] = useState(null)
@@ -80,7 +81,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
       if (onUpdateClub) onUpdateClub()
       await loadStadiumData()
     } catch (e) {
-      toast.error(e.message || 'Error al iniciar la obra')
+      toast.error(friendlyError(e, 'Error al iniciar la obra'))
     } finally {
       setActionLoading(false)
     }
@@ -122,7 +123,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
 
           <div className="flex items-center gap-6">
             <div>
-              <p className="text-[11px] text-fg-muted font-medium">Aforo Habilitado</p>
+              <p className="text-[11px] text-fg-muted font-medium">Aforo habilitado</p>
               <p className="text-xl sm:text-2xl font-semibold text-fg font-mono">
                 {Number(stadium?.capacity || 1500).toLocaleString()} <span className="text-xs font-normal text-fg-muted">espectadores</span>
               </p>
@@ -144,7 +145,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
                   <SunMedium className="w-4 h-4 text-accent" />
-                  Estado del Césped
+                  Estado del césped
                 </span>
                 <span className="text-xs font-mono font-bold text-fg">
                   {stadium?.pitch_quality || 60}/100
@@ -176,7 +177,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
             <div>
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5 mb-2">
                 <Zap className="w-4 h-4 text-gold" />
-                Torres de Iluminación
+                Torres de iluminación
               </span>
               <p className="text-sm font-bold text-fg mb-1">
                 {stadium?.floodlights_installed ? 'Instalación Homologada' : 'Sin Iluminación Nocturna'}
@@ -194,7 +195,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
             <div>
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5 mb-2">
                 <Award className="w-4 h-4 text-purple-400" />
-                Palcos Corporativos
+                Palcos corporativos
               </span>
               <p className="text-sm font-bold text-fg mb-1 font-mono">
                 {stadium?.vip_boxes_count || 0} palcos VIP
@@ -249,7 +250,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
           <div>
             <h3 className="text-base sm:text-lg font-bold text-fg flex items-center gap-2">
               <Hammer className="w-5 h-5 text-accent" />
-              Proyectos de Remodelación & Infraestructura
+              Proyectos de remodelación y infraestructura
             </h3>
             <p className="text-xs text-fg-muted">Inversiones de capital autorizadas para ampliar patrimonio y recaudación.</p>
           </div>
@@ -315,22 +316,22 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
                     {isAlreadyMaxed ? (
                       <>
                         <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
-                        <span>Ya Instalado</span>
+                        <span>Ya instalado</span>
                       </>
                     ) : activeProject ? (
                       <>
                         <Clock className="w-3.5 h-3.5" />
-                        <span>Obra en Curso</span>
+                        <span>Obra en curso</span>
                       </>
                     ) : !isAffordable ? (
                       <>
                         <ShieldAlert className="w-3.5 h-3.5" />
-                        <span>Fondos Insuficientes</span>
+                        <span>Fondos insuficientes</span>
                       </>
                     ) : (
                       <>
                         <Hammer className="w-3.5 h-3.5" />
-                        <span>Iniciar Proyecto</span>
+                        <span>Iniciar proyecto</span>
                       </>
                     )}
                   </AsyncButton>
@@ -346,7 +347,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
         <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
           <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
             <History className="w-4 h-4 text-accent" />
-            Libro de Obras y Mantenimiento Edilicio
+            Libro de obras y mantenimiento edilicio
           </h3>
           <div className="space-y-2">
             {history.map((h) => (

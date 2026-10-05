@@ -89,7 +89,7 @@ export default function FanbaseManagementTab({ club }) {
                 <Flame className="w-5 h-5" />
               </span>
               <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-fg">Humor Social & Hinchada</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-fg">Humor social y hinchada</h2>
                 <p className="text-xs text-fg-muted">Paciencia con el DT y fervor ambiental en las tribunas</p>
               </div>
             </div>
@@ -97,14 +97,14 @@ export default function FanbaseManagementTab({ club }) {
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <span className="text-[11px] text-fg-muted font-medium">Índice de Apoyo</span>
+              <span className="text-[11px] text-fg-muted font-medium">Índice de apoyo</span>
               <p className="text-2xl font-semibold text-fg font-mono flex items-center justify-end gap-1.5">
                 <Heart className={`w-5 h-5 ${score >= 70 ? 'text-danger fill-rose-500' : 'text-fg-subtle'}`} />
                 {score}<span className="text-xs font-normal text-fg-muted">/100</span>
               </p>
             </div>
             <div className="border-l border-line pl-4 text-left">
-              <span className="text-[11px] text-fg-muted font-medium">Clima Tribuna</span>
+              <span className="text-[11px] text-fg-muted font-medium">Clima tribuna</span>
               <div className="mt-0.5">
                 <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-lg border ${atmosphere.badgeColor}`}>
                   {atmosphere.title}
@@ -121,7 +121,7 @@ export default function FanbaseManagementTab({ club }) {
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-accent" />
-                Socios Fieles al Día
+                Socios fieles al día
               </span>
               <span className="text-xs font-mono font-bold text-fg">
                 {Number(fanbase?.loyal_members_count || 350).toLocaleString()}
@@ -137,7 +137,7 @@ export default function FanbaseManagementTab({ club }) {
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
                 <Ticket className="w-4 h-4 text-blue-400" />
-                Potencial de Hinchas
+                Potencial de hinchas
               </span>
               <span className="text-xs font-mono font-bold text-fg">
                 ~{Number(fanbase?.casual_fanbase_potential || 2500).toLocaleString()}
@@ -172,7 +172,7 @@ export default function FanbaseManagementTab({ club }) {
           <div>
             <h3 className="text-base font-bold text-fg flex items-center gap-2">
               <Music className="w-5 h-5 text-accent" />
-              Cancionero Popular & Cánticos
+              Cancionero popular y cánticos
             </h3>
             <p className="text-xs text-fg-muted">Las canciones que retumban desde la tribuna popular en cada fecha.</p>
           </div>
@@ -209,7 +209,7 @@ export default function FanbaseManagementTab({ club }) {
             className="px-4 py-2 bg-accent hover:bg-accent-strong disabled:opacity-50 text-accent-fg font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Agregar Cántico</span>
+            <span>Agregar cántico</span>
           </button>
         </form>
       </div>
@@ -219,7 +219,7 @@ export default function FanbaseManagementTab({ club }) {
         <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
           <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
             <Ticket className="w-4 h-4 text-accent" />
-            Historial de Concurrencia de Local
+            Historial de concurrencia de local
           </h3>
           {attendanceHistory.length === 0 ? (
             <p className="text-xs text-fg-subtle py-6 text-center border border-dashed border-line rounded-xl">
@@ -258,7 +258,7 @@ export default function FanbaseManagementTab({ club }) {
         <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
           <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
             <History className="w-4 h-4 text-gold" />
-            Manifestaciones & Eventos de Afición
+            Manifestaciones y eventos de afición
           </h3>
           {events.length === 0 ? (
             <p className="text-xs text-fg-subtle py-6 text-center border border-dashed border-line rounded-xl">

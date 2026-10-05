@@ -387,7 +387,7 @@ export default function MatchScreen() {
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
               <Activity className="w-3.5 h-3.5 text-accent" />
-              Relato Radial en Directo
+              Relato radial en directo
             </h3>
 
             {simResults?.stats && (
@@ -405,7 +405,7 @@ export default function MatchScreen() {
             <div className="p-3 rounded-xl bg-bg/80 border border-line space-y-3 text-xs">
               <div>
                 <div className="flex justify-between text-fg-muted mb-1">
-                  <span>Posesión de Balón</span>
+                  <span>Posesión de balón</span>
                   <span>{simResults.stats.possession.home}% - {simResults.stats.possession.away}%</span>
                 </div>
                 <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden flex">
@@ -416,11 +416,11 @@ export default function MatchScreen() {
 
               <div className="grid grid-cols-2 gap-2 text-fg">
                 <div className="p-2 rounded bg-surface border border-line">
-                  <span className="block text-fg-subtle text-[10px]">Tiros Totales</span>
+                  <span className="block text-fg-subtle text-[10px]">Tiros totales</span>
                   <span className="font-bold">{simResults.stats.shots.home} vs {simResults.stats.shots.away}</span>
                 </div>
                 <div className="p-2 rounded bg-surface border border-line">
-                  <span className="block text-fg-subtle text-[10px]">Tiros al Arco</span>
+                  <span className="block text-fg-subtle text-[10px]">Tiros al arco</span>
                   <span className="font-bold">{simResults.stats.shotsOnTarget.home} vs {simResults.stats.shotsOnTarget.away}</span>
                 </div>
                 <div className="p-2 rounded bg-surface border border-line">
@@ -478,7 +478,7 @@ export default function MatchScreen() {
         <div className="space-y-4">
           <div className="p-4 sm:p-5 rounded-lg border border-line bg-surface/60 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">
-              Dirección Técnica
+              Dirección técnica
             </h3>
 
             {matchState === 'pre-match' && squadNotes.length > 0 && (
@@ -502,7 +502,7 @@ export default function MatchScreen() {
                 className="w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
               >
                 <Play className="w-4 h-4 fill-zinc-950" />
-                <span>Comenzar Partido</span>
+                <span>Comenzar partido</span>
               </button>
             ) : matchState === 'playing' ? (
               <div className="space-y-2">
@@ -544,7 +544,7 @@ export default function MatchScreen() {
                 className="w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
               >
                 <CheckCircle className="w-4 h-4" />
-                <span>Continuar al Resumen</span>
+                <span>Continuar al resumen</span>
               </button>
             )}
           </div>

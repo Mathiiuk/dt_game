@@ -5,6 +5,7 @@ import { staffApi } from '../../../api/staff'
 import { useGameContext } from '../../../context/GameContext'
 import { formatMoney } from '../../../lib/format'
 import { Badge, Button, Card, CardBody, ResponsiveOverlay, SectionTitle, Skeleton, Stat } from '../../../components/ui'
+import { friendlyError } from '../../../lib/errors'
 
 const ROLE_ICON = {
   ASSISTANT_MANAGER: Users,
@@ -33,7 +34,7 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
       setStaffList(currentStaff)
       setCandidates(candidatePool)
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setLoading(false)
     }
@@ -85,7 +86,7 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
       setSelectedRoleForHire(null)
       await afterChange()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setProcessingId(null)
     }
@@ -110,7 +111,7 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
       toast.info(`${member.name} fue desvinculado del cuerpo técnico`)
       await afterChange()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setProcessingId(null)
     }

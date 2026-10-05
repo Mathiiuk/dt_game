@@ -6,6 +6,7 @@ import { agentsApi } from '../../api/agents'
 import { formatMoney } from '../../lib/format'
 import { Badge, Button, Card, CardBody, Field, Input, ResponsiveOverlay, Select, Skeleton, Stat } from '../../components/ui'
 import AgentProfileCard from './AgentProfileCard'
+import { friendlyError } from '../../lib/errors'
 
 const ROLES = [
   ['KEY_PLAYER', 'Jugador clave'],
@@ -52,7 +53,7 @@ export default function ContractRenewalModal({ player, club, manager, currentWee
         setRoleInput(status.demands.desiredRole)
         setReleaseClauseInput(String(status.demands.suggestedReleaseClause))
       } catch (e) {
-        toast.error(e.message)
+        toast.error(friendlyError(e))
       } finally {
         setLoading(false)
       }
@@ -101,7 +102,7 @@ export default function ContractRenewalModal({ player, club, manager, currentWee
         setRoundsCompleted(res.roundsCompleted)
       }
     } catch (e) {
-      toast.error(e.message)
+      toast.error(friendlyError(e))
     } finally {
       setSubmitting(false)
     }

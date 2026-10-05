@@ -35,7 +35,7 @@ export default function ReloadPrompt() {
             onClick={() => updateServiceWorker(true)}
             className="px-4 py-2 text-sm font-bold text-black transition-colors bg-accent rounded hover:bg-accent-strong"
           >
-            Actualizar Juego
+            Actualizar juego
           </button>
         )}
         <button
