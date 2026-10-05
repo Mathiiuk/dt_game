@@ -4,7 +4,7 @@ title: >-
   Posiciones unificadas (PO DFC LI LD MCD MC MCO MI MD EI ED DC) y medias estilo
   FIFA por posicion
 type: feat
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main

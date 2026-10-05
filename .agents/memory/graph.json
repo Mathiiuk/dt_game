@@ -1,21 +1,23 @@
 {
-  "updatedAt": "2026-10-05T16:49:47.541Z",
+  "updatedAt": "2026-10-05T17:10:03.978Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 299,
-    "totalEdges": 886,
-    "totalTasks": 101,
-    "totalLessons": 9
+    "totalNodes": 306,
+    "totalEdges": 917,
+    "totalTasks": 102,
+    "totalLessons": 12
   },
   "nodes": [
     {
       "id": "src/api/academy.js",
       "label": "academy.js",
       "type": "module",
-      "sizeBytes": 12354,
-      "lineCount": 364,
+      "sizeBytes": 12280,
+      "lineCount": 365,
       "imports": [
         "./supabase",
+        "./player",
+        "../domain/positions",
         "../utils/cache",
         "./levels"
       ]
@@ -340,7 +342,7 @@
       "id": "src/api/lockerRoom.js",
       "label": "lockerRoom.js",
       "type": "module",
-      "sizeBytes": 15303,
+      "sizeBytes": 15302,
       "lineCount": 395,
       "imports": [
         "./supabase",
@@ -362,8 +364,8 @@
       "id": "src/api/market.js",
       "label": "market.js",
       "type": "module",
-      "sizeBytes": 12026,
-      "lineCount": 332,
+      "sizeBytes": 11945,
+      "lineCount": 331,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -373,11 +375,12 @@
       "id": "src/api/matchEngine.js",
       "label": "matchEngine.js",
       "type": "module",
-      "sizeBytes": 14086,
-      "lineCount": 414,
+      "sizeBytes": 16272,
+      "lineCount": 468,
       "imports": [
         "./supabase",
-        "../domain/fixtureStatus"
+        "../domain/fixtureStatus",
+        "../domain/positions"
       ]
     },
     {
@@ -394,37 +397,41 @@
       "id": "src/api/nationalTeam.js",
       "label": "nationalTeam.js",
       "type": "module",
-      "sizeBytes": 16607,
-      "lineCount": 496,
+      "sizeBytes": 16640,
+      "lineCount": 497,
       "imports": [
         "./supabase",
         "./manager",
         "./audit",
-        "../utils/cache"
+        "../utils/cache",
+        "../domain/positions"
       ]
     },
     {
       "id": "src/api/personalities.js",
       "label": "personalities.js",
       "type": "module",
-      "sizeBytes": 10467,
-      "lineCount": 288,
+      "sizeBytes": 10561,
+      "lineCount": 289,
       "imports": [
         "./supabase",
-        "../utils/cache"
+        "../utils/cache",
+        "../domain/positions"
       ]
     },
     {
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 11766,
-      "lineCount": 311,
+      "sizeBytes": 10973,
+      "lineCount": 295,
       "imports": [
         "./supabase",
         "../utils/cache",
         "./audit",
-        "../domain/contracts"
+        "../domain/contracts",
+        "../domain/ratings",
+        "../domain/positions"
       ]
     },
     {
@@ -442,8 +449,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 19915,
-      "lineCount": 497,
+      "sizeBytes": 19950,
+      "lineCount": 498,
       "imports": [
         "./manager",
         "./supabase",
@@ -452,7 +459,8 @@
         "./clubHistory",
         "./achievements",
         "../domain/matchSquad",
-        "../utils/cache"
+        "../utils/cache",
+        "../domain/positions"
       ]
     },
     {
@@ -555,11 +563,12 @@
       "id": "src/api/tactics.js",
       "label": "tactics.js",
       "type": "module",
-      "sizeBytes": 11260,
-      "lineCount": 317,
+      "sizeBytes": 9680,
+      "lineCount": 280,
       "imports": [
         "./supabase",
-        "../utils/cache"
+        "../utils/cache",
+        "../domain/positions"
       ]
     },
     {
@@ -956,10 +965,10 @@
       "id": "src/domain/formations.js",
       "label": "formations.js",
       "type": "module",
-      "sizeBytes": 4227,
-      "lineCount": 93,
+      "sizeBytes": 5609,
+      "lineCount": 120,
       "imports": [
-        "../api/tactics"
+        "./ratings"
       ]
     },
     {
@@ -1000,17 +1009,40 @@
       "id": "src/domain/matchSquad.js",
       "label": "matchSquad.js",
       "type": "module",
-      "sizeBytes": 4675,
-      "lineCount": 114,
+      "sizeBytes": 7649,
+      "lineCount": 180,
+      "imports": [
+        "./ratings",
+        "./positions"
+      ]
+    },
+    {
+      "id": "src/domain/positions.js",
+      "label": "positions.js",
+      "type": "module",
+      "sizeBytes": 4850,
+      "lineCount": 108,
       "imports": []
+    },
+    {
+      "id": "src/domain/ratings.js",
+      "label": "ratings.js",
+      "type": "module",
+      "sizeBytes": 6416,
+      "lineCount": 111,
+      "imports": [
+        "./positions.js"
+      ]
     },
     {
       "id": "src/domain/squad.js",
       "label": "squad.js",
       "type": "module",
-      "sizeBytes": 3355,
-      "lineCount": 82,
-      "imports": []
+      "sizeBytes": 3187,
+      "lineCount": 75,
+      "imports": [
+        "./positions"
+      ]
     },
     {
       "id": "src/domain/standings.js",
@@ -1524,8 +1556,8 @@
       "id": "src/features/manager/NationalTeamScreen.jsx",
       "label": "NationalTeamScreen.jsx",
       "type": "module",
-      "sizeBytes": 12162,
-      "lineCount": 253,
+      "sizeBytes": 12190,
+      "lineCount": 254,
       "imports": [
         "react",
         "lucide-react",
@@ -1535,6 +1567,7 @@
         "../../lib/format",
         "../../lib/errors",
         "../../lib/utils",
+        "../../domain/positions",
         "../../components/ui"
       ]
     },
@@ -1578,7 +1611,7 @@
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 23700,
+      "sizeBytes": 23900,
       "lineCount": 556,
       "imports": [
         "react",
@@ -1593,7 +1626,8 @@
         "lucide-react",
         "sonner",
         "../../domain/fixtureStatus",
-        "../../domain/matchSquad"
+        "../../domain/matchSquad",
+        "../../domain/formations"
       ]
     },
     {
@@ -1759,22 +1793,23 @@
       "id": "src/features/tactics/Pitch.jsx",
       "label": "Pitch.jsx",
       "type": "module",
-      "sizeBytes": 5886,
-      "lineCount": 128,
+      "sizeBytes": 6243,
+      "lineCount": 134,
       "imports": [
         "react",
         "motion/react",
         "../../lib/utils",
         "../../domain/formations",
-        "../../api/tactics"
+        "../../domain/positions",
+        "../../domain/ratings"
       ]
     },
     {
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 17332,
-      "lineCount": 360,
+      "sizeBytes": 17157,
+      "lineCount": 350,
       "imports": [
         "react",
         "lucide-react",
@@ -1783,6 +1818,8 @@
         "../../api/tactics",
         "../../api/player",
         "../../domain/formations",
+        "../../domain/positions",
+        "../../domain/ratings",
         "../../components/ui",
         "../../lib/utils",
         "./Pitch",
@@ -1970,6 +2007,17 @@
       ]
     },
     {
+      "id": "tests/api/matchEnginePositions.test.js",
+      "label": "matchEnginePositions.test.js",
+      "type": "test",
+      "sizeBytes": 2483,
+      "lineCount": 48,
+      "imports": [
+        "../../src/api/matchEngine",
+        "../../src/domain/matchSquad"
+      ]
+    },
+    {
       "id": "tests/api/milestones.test.js",
       "label": "milestones.test.js",
       "type": "test",
@@ -2125,11 +2173,13 @@
       "id": "tests/domain/formations.test.js",
       "label": "formations.test.js",
       "type": "test",
-      "sizeBytes": 4396,
-      "lineCount": 89,
+      "sizeBytes": 6240,
+      "lineCount": 130,
       "imports": [
         "../../src/api/tactics",
-        "../../src/domain/formations"
+        "../../src/domain/formations",
+        "../../src/domain/formations",
+        "../../src/domain/ratings"
       ]
     },
     {
@@ -2156,10 +2206,34 @@
       "id": "tests/domain/matchSquad.test.js",
       "label": "matchSquad.test.js",
       "type": "test",
-      "sizeBytes": 3538,
-      "lineCount": 78,
+      "sizeBytes": 6541,
+      "lineCount": 139,
       "imports": [
-        "../../src/domain/matchSquad"
+        "../../src/domain/matchSquad",
+        "../../src/domain/matchSquad",
+        "../../src/domain/ratings"
+      ]
+    },
+    {
+      "id": "tests/domain/positions.test.js",
+      "label": "positions.test.js",
+      "type": "test",
+      "sizeBytes": 3423,
+      "lineCount": 74,
+      "imports": [
+        "../../src/domain/positions"
+      ]
+    },
+    {
+      "id": "tests/domain/ratings.test.js",
+      "label": "ratings.test.js",
+      "type": "test",
+      "sizeBytes": 4438,
+      "lineCount": 87,
+      "imports": [
+        "../../src/domain/ratings",
+        "../../src/domain/positions",
+        "../../src/domain/cupMatch"
       ]
     },
     {
@@ -2224,6 +2298,17 @@
       "lineCount": 17,
       "imports": [
         "node:fs"
+      ]
+    },
+    {
+      "id": "tests/static/rating-sql.test.js",
+      "label": "rating-sql.test.js",
+      "type": "test",
+      "sizeBytes": 459,
+      "lineCount": 10,
+      "imports": [
+        "node:fs",
+        "../../scripts/gen-rating-sql.mjs"
       ]
     },
     {
@@ -2432,7 +2517,7 @@
       "id": "tests/ui/pitch.test.jsx",
       "label": "pitch.test.jsx",
       "type": "test",
-      "sizeBytes": 2894,
+      "sizeBytes": 2945,
       "lineCount": 48,
       "imports": [
         "react",
@@ -3181,6 +3266,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:feat-positions-and-ratings",
+      "label": "feat-positions-and-ratings: Posiciones unificadas (PO DFC LI LD MCD MC MCO MI MD EI ED DC) y medias estilo FIFA por posicion",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:fix-cup-match-dates",
       "label": "fix-cup-match-dates: Copa Internacional: llaves en fechas fijas del calendario",
       "type": "task",
@@ -3269,6 +3361,16 @@
     {
       "from": "src/api/academy.js",
       "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/academy.js",
+      "to": "./player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/academy.js",
+      "to": "../domain/positions",
       "relation": "depends_on"
     },
     {
@@ -3687,6 +3789,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/matchEngine.js",
+      "to": "../domain/positions",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/morale.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -3712,6 +3819,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/api/nationalTeam.js",
+      "to": "../domain/positions",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/personalities.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -3719,6 +3831,11 @@
     {
       "from": "src/api/personalities.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/personalities.js",
+      "to": "../domain/positions",
       "relation": "depends_on"
     },
     {
@@ -3739,6 +3856,16 @@
     {
       "from": "src/api/player.js",
       "to": "../domain/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/player.js",
+      "to": "../domain/ratings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/player.js",
+      "to": "../domain/positions",
       "relation": "depends_on"
     },
     {
@@ -3789,6 +3916,11 @@
     {
       "from": "src/api/postMatch.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/postMatch.js",
+      "to": "../domain/positions",
       "relation": "depends_on"
     },
     {
@@ -3919,6 +4051,11 @@
     {
       "from": "src/api/tactics.js",
       "to": "../utils/cache",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/tactics.js",
+      "to": "../domain/positions",
       "relation": "depends_on"
     },
     {
@@ -4473,12 +4610,32 @@
     },
     {
       "from": "src/domain/formations.js",
-      "to": "../api/tactics",
+      "to": "./ratings",
       "relation": "depends_on"
     },
     {
       "from": "src/domain/market.js",
       "to": "./squad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/matchSquad.js",
+      "to": "./ratings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/matchSquad.js",
+      "to": "./positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/ratings.js",
+      "to": "./positions.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/squad.js",
+      "to": "./positions",
       "relation": "depends_on"
     },
     {
@@ -5723,6 +5880,11 @@
     },
     {
       "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "../../domain/positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
       "to": "../../components/ui",
       "relation": "depends_on"
     },
@@ -5879,6 +6041,11 @@
     {
       "from": "src/features/match/MatchScreen.jsx",
       "to": "../../domain/matchSquad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../domain/formations",
       "relation": "depends_on"
     },
     {
@@ -6248,7 +6415,12 @@
     },
     {
       "from": "src/features/tactics/Pitch.jsx",
-      "to": "../../api/tactics",
+      "to": "../../domain/positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/Pitch.jsx",
+      "to": "../../domain/ratings",
       "relation": "depends_on"
     },
     {
@@ -6284,6 +6456,16 @@
     {
       "from": "src/features/tactics/TacticsScreen.jsx",
       "to": "../../domain/formations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../domain/positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../domain/ratings",
       "relation": "depends_on"
     },
     {
@@ -6457,6 +6639,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/matchEnginePositions.test.js",
+      "to": "../../src/api/matchEngine",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/matchEnginePositions.test.js",
+      "to": "../../src/domain/matchSquad",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/milestones.test.js",
       "to": "../../src/api/clubHistory",
       "relation": "depends_on"
@@ -6552,6 +6744,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/formations.test.js",
+      "to": "../../src/domain/formations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/formations.test.js",
+      "to": "../../src/domain/ratings",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/managerBuild.test.js",
       "to": "../../src/domain/managerBuild",
       "relation": "depends_on"
@@ -6564,6 +6766,36 @@
     {
       "from": "tests/domain/matchSquad.test.js",
       "to": "../../src/domain/matchSquad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/matchSquad.test.js",
+      "to": "../../src/domain/matchSquad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/matchSquad.test.js",
+      "to": "../../src/domain/ratings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/positions.test.js",
+      "to": "../../src/domain/positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/ratings.test.js",
+      "to": "../../src/domain/ratings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/ratings.test.js",
+      "to": "../../src/domain/positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/ratings.test.js",
+      "to": "../../src/domain/cupMatch",
       "relation": "depends_on"
     },
     {
@@ -6614,6 +6846,16 @@
     {
       "from": "tests/static/infirmary-columns.test.js",
       "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/rating-sql.test.js",
+      "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/rating-sql.test.js",
+      "to": "../../scripts/gen-rating-sql.mjs",
       "relation": "depends_on"
     },
     {
@@ -7637,6 +7879,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:feat-positions-and-ratings",
+      "to": ".agents/workflow/tasks/feat-positions-and-ratings.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:fix-cup-match-dates",
       "to": ".agents/workflow/tasks/fix-cup-match-dates.yml",
       "relation": "manifested_by"
@@ -7760,6 +8007,27 @@
       "category": "SECURITY",
       "lesson": "RLS abierto a anon, resultados de copa y fechas FIFA calculados en el navegador, secreto de Google pegado en el chat, contraseña de BD histórica sin rotar",
       "solution": "Fase 5: cerrar RLS y mover cálculos a RPC; resetear secretos expuestos antes de la Fase 3 (login con Google)"
+    },
+    {
+      "id": "LES-4671",
+      "timestamp": "2026-10-05T17:09:54.671Z",
+      "category": "ARCHITECTURE",
+      "lesson": "Posiciones y medias: cada módulo usaba su propio set de códigos (GK/DF/MD/FW, DEF/MED/DEL, CB/CM/ST) y el motor de partido ignoraba el puesto en que juega cada jugador, así que poner un arquero de delantero no cambiaba nada",
+      "solution": "Fuente única src/domain/positions.js (PO DFC LI LD MCD MC MCO MI MD EI ED DC; puestos con número DFC1) y src/domain/ratings.js (pesos por posición, ratingAtSlot). buildMatchSquad asigna slot_rating y el motor pesa por puesto. Toda posición nueva pasa por normalizePosition"
+    },
+    {
+      "id": "LES-7215",
+      "timestamp": "2026-10-05T17:09:57.215Z",
+      "category": "ARCHITECTURE",
+      "lesson": "La media (attr_overall) se calculaba en varios lugares y se desfasaba; la base tenía overall generada y attr_overall sin generar",
+      "solution": "Trigger sync_player_overall en la base con pesos generados desde ratings.js por scripts/gen-rating-sql.mjs; test estático rating-sql.test.js obliga a regenerar el SQL si cambian los pesos. Nunca escribir attr_overall a mano"
+    },
+    {
+      "id": "LES-0349",
+      "timestamp": "2026-10-05T17:10:00.349Z",
+      "category": "BUG_FIX",
+      "lesson": "Alineaciones guardadas como 'mejores 11' sin respetar puestos (un delantero en el arco) y reemplazo de juveniles de academia sin nacionalidad ni dorsal válido",
+      "solution": "resolveLineup reubica alineaciones desordenadas (tolerancia 5 puntos) en pizarra y partido; buildProspectRow arma filas completas de players para juveniles y promociones"
     }
   ]
 }

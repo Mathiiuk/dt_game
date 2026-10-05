@@ -61,5 +61,26 @@
     "category": "SECURITY",
     "lesson": "RLS abierto a anon, resultados de copa y fechas FIFA calculados en el navegador, secreto de Google pegado en el chat, contraseña de BD histórica sin rotar",
     "solution": "Fase 5: cerrar RLS y mover cálculos a RPC; resetear secretos expuestos antes de la Fase 3 (login con Google)"
+  },
+  {
+    "id": "LES-4671",
+    "timestamp": "2026-10-05T17:09:54.671Z",
+    "category": "ARCHITECTURE",
+    "lesson": "Posiciones y medias: cada módulo usaba su propio set de códigos (GK/DF/MD/FW, DEF/MED/DEL, CB/CM/ST) y el motor de partido ignoraba el puesto en que juega cada jugador, así que poner un arquero de delantero no cambiaba nada",
+    "solution": "Fuente única src/domain/positions.js (PO DFC LI LD MCD MC MCO MI MD EI ED DC; puestos con número DFC1) y src/domain/ratings.js (pesos por posición, ratingAtSlot). buildMatchSquad asigna slot_rating y el motor pesa por puesto. Toda posición nueva pasa por normalizePosition"
+  },
+  {
+    "id": "LES-7215",
+    "timestamp": "2026-10-05T17:09:57.215Z",
+    "category": "ARCHITECTURE",
+    "lesson": "La media (attr_overall) se calculaba en varios lugares y se desfasaba; la base tenía overall generada y attr_overall sin generar",
+    "solution": "Trigger sync_player_overall en la base con pesos generados desde ratings.js por scripts/gen-rating-sql.mjs; test estático rating-sql.test.js obliga a regenerar el SQL si cambian los pesos. Nunca escribir attr_overall a mano"
+  },
+  {
+    "id": "LES-0349",
+    "timestamp": "2026-10-05T17:10:00.349Z",
+    "category": "BUG_FIX",
+    "lesson": "Alineaciones guardadas como 'mejores 11' sin respetar puestos (un delantero en el arco) y reemplazo de juveniles de academia sin nacionalidad ni dorsal válido",
+    "solution": "resolveLineup reubica alineaciones desordenadas (tolerancia 5 puntos) en pizarra y partido; buildProspectRow arma filas completas de players para juveniles y promociones"
   }
 ]

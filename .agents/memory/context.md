@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-05T16:49:47.541Z | **Nodos:** 299 | **Tareas:** 101
+> **Última sincronización:** 2026-10-05T17:10:03.978Z | **Nodos:** 306 | **Tareas:** 102
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -11,9 +11,10 @@
 | `src/features/match/PostMatchScreen.jsx` | 593 | react, react-router-dom, ../../api/postMatch |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
 | `src/features/match/MatchScreen.jsx` | 556 | react, react-router-dom, ../../api/auth |
-| `src/api/postMatch.js` | 497 | ./manager, ./supabase, ./gameConfig |
-| `src/api/nationalTeam.js` | 496 | ./supabase, ./manager, ./audit |
+| `src/api/postMatch.js` | 498 | ./manager, ./supabase, ./gameConfig |
+| `src/api/nationalTeam.js` | 497 | ./supabase, ./manager, ./audit |
 | `src/api/calendar.js` | 495 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
+| `src/api/matchEngine.js` | 468 | ./supabase, ../domain/fixtureStatus, ../domain/positions |
 | `src/features/club/screens/LockerRoomTab.jsx` | 460 | react, lucide-react, ../../../api/lockerRoom |
 | `src/api/events.js` | 452 | ./supabase, ../utils/cache, ./audit |
 | `src/features/squad/SquadScreen.jsx` | 437 | react, lucide-react, sonner |
@@ -21,7 +22,6 @@
 | `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
 | `src/api/competition.js` | 427 | ./supabase, ../utils/cache, ../domain/fixtureStatus |
 | `src/api/clubHistory.js` | 423 | ./supabase |
-| `src/api/matchEngine.js` | 414 | ./supabase, ../domain/fixtureStatus |
 | `src/api/press.js` | 411 | ./supabase, ../utils/cache |
 | `src/features/dashboard/Dashboard.jsx` | 408 | react, react-router-dom, lucide-react |
 | `src/api/injuries.js` | 399 | ./supabase, ../utils/cache |
@@ -30,9 +30,9 @@
 | `src/features/club/screens/StadiumManagementTab.jsx` | 389 | react, lucide-react, ../../../api/stadium |
 | `src/api/training.js` | 380 | ./supabase |
 | `src/features/club/screens/IdolsLegendsTab.jsx` | 366 | react, lucide-react, ../../../api/legends |
-| `src/api/academy.js` | 364 | ./supabase, ../utils/cache, ./levels |
+| `src/api/academy.js` | 365 | ./supabase, ./player, ../domain/positions |
 
-_(+118 módulos adicionales; consultar con `memory:query`)_
+_(+120 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -125,6 +125,7 @@ _(+118 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-38-hall-of-fame-records: Fase 38 - Salon de la Fama y Records Globales** `[DONE]`
 - **feat-fase-39-achievements-career-challenges: Fase 39 - Sistema de Logros y Desafios de Carrera** `[DONE]`
 - **feat-fase-40-endgame-epilogue-dynasty: Fase 40 - Endgame, Epilogo de Carrera y Legado Dinastico** `[DONE]`
+- **feat-positions-and-ratings: Posiciones unificadas (PO DFC LI LD MCD MC MCO MI MD EI ED DC) y medias estilo FIFA por posicion** `[DONE]`
 - **fix-cup-match-dates: Copa Internacional: llaves en fechas fijas del calendario** `[DONE]`
 - **fix-dashboard-stale-fixture: Inicio: no mostrar el partido ya jugado tras volver del post-partido** `[DONE]`
 - **fix-goals-scored: Sumar los goles de cada jugador al consolidar el partido** `[DONE]`
@@ -149,3 +150,6 @@ _(+118 módulos adicionales; consultar con `memory:query`)_
 - **[BEST_PRACTICE]** Los textos de la interfaz derivaban a Title Case, '&', inglés y errores crudos de la base *(Solución: friendlyError (src/lib/errors.js) en todo toast.error y tests/static/copy.test.js que lo impide; scripts/fix-copy.cjs para barridos)*
 - **[BEST_PRACTICE]** Errores de proceso: git add -A coló archivos locales (.claude, docs con secretos) y una rama creada antes de que otra se mergeara falló en CI por falta de un archivo *(Solución: Agregar archivos por nombre (git add -u + rutas), excluir en .git/info/exclude, y crear cada rama desde master actualizado tras mergear la anterior (o mergear origin/master en la rama))*
 - **[SECURITY]** RLS abierto a anon, resultados de copa y fechas FIFA calculados en el navegador, secreto de Google pegado en el chat, contraseña de BD histórica sin rotar *(Solución: Fase 5: cerrar RLS y mover cálculos a RPC; resetear secretos expuestos antes de la Fase 3 (login con Google))*
+- **[ARCHITECTURE]** Posiciones y medias: cada módulo usaba su propio set de códigos (GK/DF/MD/FW, DEF/MED/DEL, CB/CM/ST) y el motor de partido ignoraba el puesto en que juega cada jugador, así que poner un arquero de delantero no cambiaba nada *(Solución: Fuente única src/domain/positions.js (PO DFC LI LD MCD MC MCO MI MD EI ED DC; puestos con número DFC1) y src/domain/ratings.js (pesos por posición, ratingAtSlot). buildMatchSquad asigna slot_rating y el motor pesa por puesto. Toda posición nueva pasa por normalizePosition)*
+- **[ARCHITECTURE]** La media (attr_overall) se calculaba en varios lugares y se desfasaba; la base tenía overall generada y attr_overall sin generar *(Solución: Trigger sync_player_overall en la base con pesos generados desde ratings.js por scripts/gen-rating-sql.mjs; test estático rating-sql.test.js obliga a regenerar el SQL si cambian los pesos. Nunca escribir attr_overall a mano)*
+- **[BUG_FIX]** Alineaciones guardadas como 'mejores 11' sin respetar puestos (un delantero en el arco) y reemplazo de juveniles de academia sin nacionalidad ni dorsal válido *(Solución: resolveLineup reubica alineaciones desordenadas (tolerancia 5 puntos) en pizarra y partido; buildProspectRow arma filas completas de players para juveniles y promociones)*
