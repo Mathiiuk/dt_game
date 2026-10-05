@@ -1,33 +1,52 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { 
-  ArrowLeft, 
-  Save, 
-  Loader2, 
-  LayoutGrid, 
-  Users, 
-  Shield, 
-  Sparkles, 
-  Zap, 
-  Sliders, 
-  CheckCircle2, 
-  AlertCircle 
-} from 'lucide-react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Save, Wand2, ShieldAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
-import { 
-  tacticsApi, 
-  FORMATIONS, 
-  calculatePositionalAffinity,
-  TACTICAL_MENTALITIES,
-  PASSING_STYLES,
-  PRESSING_LEVELS,
-  TEMPO_LEVELS
+import {
+  tacticsApi, FORMATIONS, calculatePositionalAffinity,
+  TACTICAL_MENTALITIES, PASSING_STYLES, PRESSING_LEVELS, TEMPO_LEVELS
 } from '../../api/tactics'
 import { playerApi } from '../../api/player'
+import { reassignLineup } from '../../domain/formations'
+import {
+  Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ChoiceChips, EmptyState,
+  PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
+} from '../../components/ui'
+import { cn } from '../../lib/utils'
+import Pitch from './Pitch'
+
+const AFFINITY_TONE = { NATURAL: 'accent', COMPATIBLE: 'warning', ADAPTED: 'warning', OUT_OF_POSITION: 'danger' }
+
+const toOptions = (list) => list.map(i => ({ value: i.id, label: i.label }))
+const FORMATION_OPTIONS = Object.values(FORMATIONS).map(f => ({ value: f.id, label: f.id }))
+
+const ovr = (p) => p.attr_overall || p.overall || 50
+
+/** Un grupo de instrucciones con título y una línea de contexto */
+function InstructionGroup({ title, description, children }) {
+  return (
+    <Card>
+      <CardHeader>
+        <div>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </div>
+      </CardHeader>
+      <CardBody className="space-y-4">{children}</CardBody>
+    </Card>
+  )
+}
+
+function Labeled({ label, children }) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-fg">{label}</p>
+      {children}
+    </div>
+  )
+}
 
 export default function TacticsScreen() {
-  const navigate = useNavigate()
   const { club, loading: contextLoading } = useGameContext()
 
   const [loading, setLoading] = useState(true)
@@ -38,8 +57,14 @@ export default function TacticsScreen() {
   const [passingStyle, setPassingStyle] = useState('MIXED')
   const [pressing, setPressing] = useState('BALANCED')
   const [tempo, setTempo] = useState('NORMAL')
-  const [lineup, setLineup] = useState({}) // { [slot]: playerId }
+  const [lineup, setLineup] = useState({}) // { [puesto]: idJugador }
   const [tacticId, setTacticId] = useState(null)
+  const [selectedSlot, setSelectedSlot] = useState(null)
+  const [tab, setTab] = useState('instructions')
+  const [savedSnapshot, setSavedSnapshot] = useState('')
+
+  const snapshot = JSON.stringify({ formation, mentality, passingStyle, pressing, tempo, lineup })
+  const dirty = !loading && snapshot !== savedSnapshot
 
   useEffect(() => {
     if (contextLoading || !club?.id) return
@@ -47,39 +72,33 @@ export default function TacticsScreen() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const [tactic, players] = await Promise.all([
-          tacticsApi.getTactic(club.id),
-          playerApi.getSquad(club.id)
-        ])
-
+        const [tactic, players] = await Promise.all([tacticsApi.getTactic(club.id), playerApi.getSquad(club.id)])
         setSquad(players || [])
 
-        if (tactic) {
-          setTacticId(tactic.id)
-          setFormation(tactic.formation || '4-4-2')
-          setMentality(tactic.mentality || 'BALANCED')
-          setPassingStyle(tactic.passing_style || 'MIXED')
-          setPressing(tactic.pressing_intensity || 'BALANCED')
-          setTempo(tactic.tempo || 'NORMAL')
-
-          // Si ya hay un array de lineup o mapa guardado
-          if (Array.isArray(tactic.lineup) && tactic.lineup.length > 0) {
-            const formConfig = FORMATIONS[tactic.formation || '4-4-2'] || FORMATIONS['4-4-2']
-            const initialMap = {}
-            formConfig.slots.forEach((slot, idx) => {
-              if (tactic.lineup[idx]) {
-                initialMap[slot] = tactic.lineup[idx]
-              }
-            })
-            setLineup(initialMap)
-          } else {
-            // Auto-armar 11 inicial por defecto
-            autoAssignLineup(tactic.formation || '4-4-2', players || [])
-          }
+        const form = tactic?.formation || '4-4-2'
+        const slots = (FORMATIONS[form] || FORMATIONS['4-4-2']).slots
+        let map = {}
+        if (Array.isArray(tactic?.lineup) && tactic.lineup.length > 0) {
+          slots.forEach((slot, idx) => { if (tactic.lineup[idx]) map[slot] = tactic.lineup[idx] })
+        } else {
+          map = reassignLineup(slots, players || [], [])
         }
+
+        const next = {
+          formation: form,
+          mentality: tactic?.mentality || 'BALANCED',
+          passingStyle: tactic?.passing_style || 'MIXED',
+          pressing: tactic?.pressing_intensity || 'BALANCED',
+          tempo: tactic?.tempo || 'NORMAL',
+          lineup: map
+        }
+        setTacticId(tactic?.id || null)
+        setFormation(next.formation); setMentality(next.mentality); setPassingStyle(next.passingStyle)
+        setPressing(next.pressing); setTempo(next.tempo); setLineup(next.lineup)
+        setSavedSnapshot(JSON.stringify(next))
       } catch (e) {
         console.error('Error cargando táctica:', e)
-        toast.error('Error al cargar la pizarra táctica.')
+        toast.error('No se pudo cargar la pizarra táctica.')
       } finally {
         setLoading(false)
       }
@@ -88,83 +107,83 @@ export default function TacticsScreen() {
     loadData()
   }, [contextLoading, club?.id])
 
-  const autoAssignLineup = (formKey, playersList) => {
-    const formConfig = FORMATIONS[formKey] || FORMATIONS['4-4-2']
-    const newMap = {}
-    const usedIds = new Set()
+  const playerMap = useMemo(() => new Map(squad.map(p => [p.id, p])), [squad])
+  const slots = (FORMATIONS[formation] || FORMATIONS['4-4-2']).slots
+  const starterIds = slots.map(s => lineup[s]).filter(Boolean)
+  const starterSlotById = Object.fromEntries(Object.entries(lineup).map(([slot, id]) => [id, slot]))
 
-    // 1. Asignar arquero (priorizar jugadores sanos)
-    const gk = playersList.find(p => p.position === 'GK' && !p.is_injured) || playersList.find(p => p.position === 'GK')
-    if (gk) {
-      newMap['GK'] = gk.id
-      usedIds.add(gk.id)
+  // Resumen del once: nivel medio y jugadores fuera de puesto o lesionados
+  const summary = useMemo(() => {
+    const starters = starterIds.map(id => playerMap.get(id)).filter(Boolean)
+    const avg = starters.length ? Math.round(starters.reduce((s, p) => s + ovr(p), 0) / starters.length) : 0
+    const out = starters.filter(p => calculatePositionalAffinity(p.position, starterSlotById[p.id]).code === 'OUT_OF_POSITION').length
+    const hurt = starters.filter(p => p.is_injured).length
+    return { avg, out, hurt, count: starters.length }
+  }, [starterIds.join('|'), playerMap]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleFormationChange = (next) => {
+    if (next === formation) return
+    const nextSlots = (FORMATIONS[next] || FORMATIONS['4-4-2']).slots
+    // Los titulares conservan su lugar siempre que sea posible; se mueven a su nuevo puesto con animación
+    setLineup(reassignLineup(nextSlots, squad, starterIds))
+    setFormation(next)
+    setSelectedSlot(null)
+  }
+
+  const handleAutoAssign = () => {
+    setLineup(reassignLineup(slots, squad, []))
+    setSelectedSlot(null)
+    toast.success('Once armado con los mejores jugadores disponibles.')
+  }
+
+  /** Toque en una ficha de la cancha: selecciona el puesto, o intercambia si ya había otro seleccionado */
+  const handleSelectSlot = (slot) => {
+    if (selectedSlot && selectedSlot !== slot) {
+      setLineup(prev => ({ ...prev, [selectedSlot]: prev[slot], [slot]: prev[selectedSlot] }))
+      setSelectedSlot(null)
+      return
     }
+    setSelectedSlot(selectedSlot === slot ? null : slot)
+    setTab('players')
+  }
 
-    // 2. Asignar los demás puestos (priorizar sanos)
-    formConfig.slots.forEach(slot => {
-      if (slot === 'GK') return
-      // Buscar mejor coincidencia no usada ni lesionada
-      const candidate = playersList.find(p => !usedIds.has(p.id) && !p.is_injured) || playersList.find(p => !usedIds.has(p.id))
-      if (candidate) {
-        newMap[slot] = candidate.id
-        usedIds.add(candidate.id)
-      }
+  /** Asigna un jugador del plantel al puesto seleccionado (si ya era titular en otro puesto, se intercambian) */
+  const handleAssign = (playerId) => {
+    if (!selectedSlot) return
+    setLineup(prev => {
+      const next = { ...prev }
+      const previousSlot = Object.keys(next).find(s => next[s] === playerId)
+      if (previousSlot) next[previousSlot] = prev[selectedSlot]
+      next[selectedSlot] = playerId
+      return next
     })
-
-    setLineup(newMap)
-  }
-
-  const handleFormationChange = (newForm) => {
-    setFormation(newForm)
-    autoAssignLineup(newForm, squad)
-  }
-
-  const handlePlayerSlotChange = (slot, newPlayerId) => {
-    setLineup(prev => ({
-      ...prev,
-      [slot]: newPlayerId
-    }))
+    setSelectedSlot(null)
   }
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const formConfig = FORMATIONS[formation] || FORMATIONS['4-4-2']
-      const lineupArray = formConfig.slots.map(s => lineup[s]).filter(Boolean)
+      const lineupArray = slots.map(s => lineup[s]).filter(Boolean)
 
-      // Regla 27.1: No alinear futbolistas lesionados sin autorización médica
+      // Regla 27.1: un lesionado no puede ser titular desde la pizarra (si el plantel queda corto, el partido se completa solo)
       const injuredStarter = lineupArray.map(id => playerMap.get(id)).find(p => p?.is_injured)
       if (injuredStarter) {
-        toast.error(`Regla 27.1: ${injuredStarter.first_name} ${injuredStarter.last_name} está en la enfermería (${injuredStarter.injury_type || 'Baja médica'}). No puede jugar de titular sin infiltración médica autorizada.`)
-        setSaving(false)
+        toast.error(`${injuredStarter.first_name} ${injuredStarter.last_name} está en la enfermería (${injuredStarter.injury_type || 'baja médica'}). Reemplázalo para guardar.`)
         return
       }
 
-      const lineupDetails = formConfig.slots.map((s, idx) => ({
-        player_id: lineup[s],
-        pitch_position: s,
-        is_starter: true,
-        order_index: idx
-      })).filter(item => item.player_id)
+      const lineupDetails = slots.map((s, idx) => ({ player_id: lineup[s], pitch_position: s, is_starter: true, order_index: idx })).filter(i => i.player_id)
 
-      const payload = {
-        id: tacticId,
-        club_id: club.id,
-        formation,
-        mentality,
-        passing_style: passingStyle,
-        pressing_intensity: pressing,
-        tempo,
-        lineup: lineupArray,
-        lineupDetails
-      }
-
-      const saved = await tacticsApi.updateTactic(club.id, payload)
+      const saved = await tacticsApi.updateTactic(club.id, {
+        id: tacticId, club_id: club.id, formation, mentality,
+        passing_style: passingStyle, pressing_intensity: pressing, tempo,
+        lineup: lineupArray, lineupDetails
+      })
       if (saved?.id) setTacticId(saved.id)
-
-      toast.success('Pizarra táctica y alineación guardadas exitosamente.')
+      setSavedSnapshot(snapshot)
+      toast.success('Pizarra y alineación guardadas.')
     } catch (e) {
-      toast.error(e.message || 'Error al guardar la táctica.')
+      toast.error(e.message || 'No se pudo guardar la táctica.')
     } finally {
       setSaving(false)
     }
@@ -172,219 +191,159 @@ export default function TacticsScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white gap-3 p-4">
-        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-        <p className="text-zinc-400 font-medium text-sm">Cargando pizarra técnica...</p>
+      <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6" aria-busy="true" aria-label="Cargando la pizarra táctica">
+        <Skeleton className="h-12 w-1/2" />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,28rem)_1fr]">
+          <Skeleton className="aspect-[68/100] w-full" />
+          <Skeleton className="h-96" />
+        </div>
       </div>
     )
   }
 
-  const currentFormConfig = FORMATIONS[formation] || FORMATIONS['4-4-2']
-  const playerMap = new Map(squad.map(p => [p.id, p]))
+  if (squad.length === 0) {
+    return <EmptyState className="py-24" title="Todavía no hay plantel" description="Funda tu club y genera el primer plantel para armar el once." />
+  }
+
+  const selectedPlayer = selectedSlot ? playerMap.get(lineup[selectedSlot]) : null
+
+  // Candidatos para el puesto elegido: mejor afinidad primero y luego mejor nivel; los lesionados quedan al final
+  const candidates = selectedSlot
+    ? [...squad].sort((a, b) => {
+        const ra = calculatePositionalAffinity(a.position, selectedSlot).rating + (a.is_injured ? -2 : 0)
+        const rb = calculatePositionalAffinity(b.position, selectedSlot).rating + (b.is_injured ? -2 : 0)
+        return rb - ra || ovr(b) - ovr(a)
+      })
+    : []
+
+  const saveButton = (
+    <Button onClick={handleSave} loading={saving} disabled={!dirty}>
+      {!saving && <Save />}Guardar cambios
+    </Button>
+  )
 
   return (
-    <div className="min-h-screen p-4 md:p-8 text-zinc-100 bg-zinc-950 pb-24 lg:pb-8">
-      {/* Top Header */}
-      <header className="max-w-6xl mx-auto flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/dashboard')} 
-            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-xl md:text-2xl font-black text-white flex items-center gap-2">
-              <LayoutGrid className="w-6 h-6 text-emerald-400" />
-              Pizarra Táctica y Esquema
-            </h1>
-            <p className="text-xs text-zinc-400">Diseño estratégico, roles y compatibilidad posicional</p>
-          </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+      <PageHeader
+        eyebrow="Pizarra"
+        title="Táctica y once titular"
+        description="Toca una ficha para elegir el puesto; toca otra para intercambiarlas. Al cambiar de formación, tus jugadores se reubican solos."
+        actions={<span className="hidden lg:contents">{saveButton}</span>}
+      />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
+        {/* Cancha y resumen */}
+        <div className="min-w-0 space-y-4">
+          <Pitch formation={formation} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} />
+
+          <Card>
+            <CardBody className="grid grid-cols-3 gap-4">
+              <Stat label="Nivel del once" value={summary.avg} />
+              <Stat label="Fuera de puesto" value={summary.out} valueClassName={summary.out > 0 ? 'text-warning' : undefined} />
+              <Stat label="Lesionados" value={summary.hurt} valueClassName={summary.hurt > 0 ? 'text-danger' : undefined} />
+            </CardBody>
+          </Card>
+
+          <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de color">
+            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-accent" />Natural</li>
+            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-warning" />Compatible</li>
+            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-[oklch(75%_0.16_55)]" />Adaptado</li>
+            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-danger" />Fuera de puesto</li>
+          </ul>
         </div>
 
-        <button 
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 font-bold text-zinc-950 transition-all bg-emerald-500 rounded-xl hover:bg-emerald-400 active:scale-95 disabled:opacity-50 text-xs shadow-lg shadow-emerald-950/50"
-        >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Guardar Cambios
-        </button>
-      </header>
+        {/* Instrucciones y selección de jugadores */}
+        <Tabs value={tab} onValueChange={setTab} className="min-w-0">
+          <TabsList>
+            <TabsTrigger value="instructions">Instrucciones</TabsTrigger>
+            <TabsTrigger value="players">
+              Jugadores{selectedSlot ? ` · ${selectedSlot}` : ''}
+            </TabsTrigger>
+          </TabsList>
 
-      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Panel Izquierdo: Configuración e Instrucciones */}
-        <div className="space-y-4">
-          <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-4">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-emerald-400" />
-              Instrucciones de Equipo
-            </h2>
+          <TabsContent value="instructions" className="space-y-4">
+            <InstructionGroup title="Estructura" description={(FORMATIONS[formation] || FORMATIONS['4-4-2']).description}>
+              <ChoiceChips label="Formación" value={formation} onChange={handleFormationChange} options={FORMATION_OPTIONS} />
+              <Button variant="outline" size="sm" onClick={handleAutoAssign}><Wand2 />Auto-alinear el mejor once</Button>
+            </InstructionGroup>
 
-            {/* Formación Selector */}
-            <div>
-              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Esquema Táctico</label>
-              <select 
-                value={formation} 
-                onChange={e => handleFormationChange(e.target.value)}
-                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
-              >
-                {Object.keys(FORMATIONS).map(key => (
-                  <option key={key} value={key}>{FORMATIONS[key].name}</option>
-                ))}
-              </select>
-              <p className="text-[11px] text-zinc-500 mt-1">{currentFormConfig.description}</p>
-            </div>
+            <InstructionGroup title="Mentalidad" description="Cuánto riesgo asume el equipo en cada zona de la cancha.">
+              <ChoiceChips label="Mentalidad" value={mentality} onChange={setMentality} options={toOptions(TACTICAL_MENTALITIES)} />
+            </InstructionGroup>
 
-            {/* Mentalidad */}
-            <div>
-              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Mentalidad</label>
-              <select 
-                value={mentality} 
-                onChange={e => setMentality(e.target.value)}
-                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
-              >
-                {TACTICAL_MENTALITIES.map(m => (
-                  <option key={m.id} value={m.id}>{m.label}</option>
-                ))}
-              </select>
-            </div>
+            <InstructionGroup title="Con la pelota" description="Cómo construye el juego y a qué velocidad.">
+              <Labeled label="Estilo de pase"><ChoiceChips label="Estilo de pase" value={passingStyle} onChange={setPassingStyle} options={toOptions(PASSING_STYLES)} /></Labeled>
+              <Labeled label="Ritmo de juego"><ChoiceChips label="Ritmo de juego" value={tempo} onChange={setTempo} options={toOptions(TEMPO_LEVELS)} /></Labeled>
+            </InstructionGroup>
 
-            {/* Estilo de Pase */}
-            <div>
-              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Estilo de Pase</label>
-              <select 
-                value={passingStyle} 
-                onChange={e => setPassingStyle(e.target.value)}
-                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
-              >
-                {PASSING_STYLES.map(s => (
-                  <option key={s.id} value={s.id}>{s.label}</option>
-                ))}
-              </select>
-            </div>
+            <InstructionGroup title="Sin la pelota" description="Qué tan arriba se presiona y cuánto desgaste cuesta.">
+              <ChoiceChips label="Intensidad de presión" value={pressing} onChange={setPressing} options={toOptions(PRESSING_LEVELS)} />
+            </InstructionGroup>
+          </TabsContent>
 
-            {/* Presión */}
-            <div>
-              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Intensidad de Presión</label>
-              <select 
-                value={pressing} 
-                onChange={e => setPressing(e.target.value)}
-                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
-              >
-                {PRESSING_LEVELS.map(p => (
-                  <option key={p.id} value={p.id}>{p.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Ritmo */}
-            <div>
-              <label className="block mb-1.5 text-xs font-semibold text-zinc-400">Ritmo de Juego</label>
-              <select 
-                value={tempo} 
-                onChange={e => setTempo(e.target.value)}
-                className="w-full p-2.5 text-xs border rounded-xl bg-zinc-950 border-zinc-800 text-zinc-200 focus:border-emerald-500 focus:outline-none"
-              >
-                {TEMPO_LEVELS.map(t => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Panel Central / Derecho: 11 Titulares y Afinidad */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/60 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-400" />
-                  Once Inicial ({formation})
-                </h2>
-                <p className="text-[11px] text-zinc-400">Asigna a los 11 titulares verificando la química de posición</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => autoAssignLineup(formation, squad)}
-                className="px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/10 transition-colors"
-              >
-                Auto-alinear
-              </button>
-            </div>
-
-            {/* Slots List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              {currentFormConfig.slots.map(slot => {
-                const assignedPlayerId = lineup[slot]
-                const assignedPlayer = playerMap.get(assignedPlayerId)
-                const affinity = assignedPlayer ? calculatePositionalAffinity(assignedPlayer.position, slot) : null
-
-                const colorClass = affinity?.code === 'NATURAL'
-                  ? 'border-emerald-500/40 bg-emerald-950/20'
-                  : affinity?.code === 'COMPATIBLE'
-                  ? 'border-amber-500/40 bg-amber-950/20'
-                  : affinity?.code === 'ADAPTED'
-                  ? 'border-orange-500/40 bg-orange-950/20'
-                  : 'border-red-500/40 bg-red-950/20'
-
-                return (
-                  <div 
-                    key={slot}
-                    className={`p-3 rounded-xl border transition-all ${assignedPlayer ? colorClass : 'border-zinc-800 bg-zinc-950/40'}`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="w-8 h-6 rounded bg-zinc-800 text-[11px] font-black text-white flex items-center justify-center">
-                          {slot}
-                        </span>
-                        {affinity && (
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                            affinity.code === 'NATURAL' ? 'text-emerald-400 bg-emerald-500/10' :
-                            affinity.code === 'COMPATIBLE' ? 'text-amber-400 bg-amber-500/10' :
-                            affinity.code === 'ADAPTED' ? 'text-orange-400 bg-orange-500/10' :
-                            'text-red-400 bg-red-500/10'
-                          }`}>
-                            {affinity.label} ({(affinity.rating * 100).toFixed(0)}%)
-                          </span>
-                        )}
-                      </div>
-
-                      {assignedPlayer && (
-                        <div className="flex items-center gap-1.5">
-                          {assignedPlayer.is_injured && (
-                            <span className="text-[9px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1 py-0.2 rounded">
-                              Enfermería
-                            </span>
-                          )}
-                          <span className="text-[10px] text-zinc-400">
-                            {assignedPlayer.state_fitness || 75}% fit
-                          </span>
-                        </div>
-                      )}
+          <TabsContent value="players">
+            {!selectedSlot ? (
+              <EmptyState title="Elige un puesto" description="Toca una ficha de la cancha para ver quién puede ocuparlo y qué tan cómodo estaría." />
+            ) : (
+              <div className="space-y-3">
+                <Card>
+                  <CardBody className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="eyebrow">Puesto {selectedSlot}</p>
+                      <p className="mt-1 truncate font-display text-xl font-semibold text-fg">
+                        {selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'Vacío'}
+                      </p>
                     </div>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedSlot(null)}>Cancelar</Button>
+                  </CardBody>
+                </Card>
 
-                    <select
-                      value={assignedPlayerId || ''}
-                      onChange={e => handlePlayerSlotChange(slot, e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-emerald-500"
-                    >
-                      <option value="">Seleccionar futbolista...</option>
-                      {squad.map(p => (
-                        <option key={p.id} value={p.id} disabled={p.is_injured}>
-                          #{p.shirt_number} {p.first_name} {p.last_name} ({p.position} - Media: {p.attr_overall || 50}) {p.is_injured ? '⚠️ (ENFERMERÍA)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )
-              })}
-            </div>
+                <ul className="space-y-1.5" aria-label={`Candidatos para ${selectedSlot}`}>
+                  {candidates.map(p => {
+                    const aff = calculatePositionalAffinity(p.position, selectedSlot)
+                    const current = lineup[selectedSlot] === p.id
+                    const startsAt = starterSlotById[p.id]
+                    return (
+                      <li key={p.id}>
+                        <button
+                          type="button"
+                          disabled={p.is_injured}
+                          onClick={() => handleAssign(p.id)}
+                          className={cn(
+                            'flex min-h-14 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors',
+                            current ? 'border-accent bg-accent-soft' : 'border-line bg-surface hover:bg-surface-2',
+                            'disabled:cursor-not-allowed disabled:opacity-50'
+                          )}
+                        >
+                          <span className="num grid size-9 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-base font-semibold">{p.shirt_number ?? '·'}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-semibold text-fg">{p.first_name} {p.last_name}</span>
+                            <span className="block text-xs text-fg-subtle">
+                              {p.position} · Nivel <span className="num">{ovr(p)}</span> · Cond. <span className="num">{p.state_fitness ?? 75}%</span>
+                              {startsAt && !current ? ` · Titular (${startsAt})` : ''}
+                            </span>
+                          </span>
+                          {p.is_injured ? <Badge tone="danger" dot>Lesionado</Badge> : <Badge tone={AFFINITY_TONE[aff.code]}>{aff.label}</Badge>}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Barra de guardado fija en móvil, sólo si hay cambios */}
+      {dirty && (
+        <div className="fixed inset-x-0 bottom-14 z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
+            <p className="flex items-center gap-2 text-sm text-fg-muted"><ShieldAlert className="size-4 text-warning" aria-hidden="true" />Cambios sin guardar</p>
+            {saveButton}
           </div>
         </div>
-      </main>
+      )}
     </div>
   )
 }
