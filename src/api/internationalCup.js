@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { simulateCupScore, clubStrength } from '../domain/cupMatch'
+import { cupSchedule, cupSeasonYear, qualifiedClubIds, quarterPairs, planTournamentStep, dueUserFixture, isDue } from '../domain/cupTournament'
 import { clubHistoryApi } from './clubHistory'
 import { managerApi } from './manager'
 import { auditApi } from './audit'
@@ -21,55 +22,85 @@ export const INTERNATIONAL_CUPS_CONFIG = {
  * Maneja la Copa Gloria Continental (Copa continental principal estilo Libertadores)
  */
 export const internationalCupApi = {
-  /**
-   * Obtiene el torneo internacional activo y sus fases/partidos
-   */
-  async getActiveTournament(clubId) {
-    if (!clubId) return null
+  /** Tabla de la liga del club dado (incluido él) */
+  async getLeagueStandings(clubId) {
+    const { data: mine } = await supabase.from('standings').select('competition_id').eq('club_id', clubId).limit(1).maybeSingle()
+    if (!mine?.competition_id) return []
+    const { data } = await supabase.from('standings').select('club_id, points, goals_for, goals_against').eq('competition_id', mine.competition_id)
+    return data || []
+  },
 
-    // 1. Obtener datos del club y fecha actual
-    const { data: club } = await supabase.from('clubs').select('*').eq('id', clubId).maybeSingle()
-    const seasonYear = club?.game_date ? new Date(club.game_date).getFullYear() : 2026
-
-    // 2. Buscar torneo existente para la temporada
-    let { data: tournament } = await supabase
-      .from('international_tournaments')
-      .select('*, champion:clubs(name)')
-      .eq('season_year', seasonYear)
-      .order('created_at', { ascending: false })
+  /** Torneo de la temporada de ESTA liga: el que tiene partidos de algún club de la liga del usuario */
+  async findTournament(clubId, seasonYear) {
+    const standings = await this.getLeagueStandings(clubId)
+    const ids = standings.map(s => s.club_id)
+    if (ids.length === 0) return null
+    const { data: row } = await supabase
+      .from('international_fixtures')
+      .select('tournament_id, international_tournaments!inner(season_year)')
+      .in('home_club_id', ids)
+      .eq('international_tournaments.season_year', seasonYear)
       .limit(1)
       .maybeSingle()
+    if (!row?.tournament_id) return null
+    return this.refreshTournament(row.tournament_id)
+  },
 
-    // 3. Si no existe, inicializar torneo continental con 8 clubes
-    if (!tournament) {
-      tournament = await this.seedTournament(seasonYear, clubId)
-    }
+  async refreshTournament(id) {
+    const { data } = await supabase.from('international_tournaments').select('*, champion:clubs(name)').eq('id', id).maybeSingle()
+    return data
+  },
 
-    if (!tournament) return null
-
-    // 4. Obtener todos los fixtures del torneo con datos de los clubes
-    const { data: fixtures } = await supabase
+  async loadFixtures(tournamentId) {
+    const { data } = await supabase
       .from('international_fixtures')
       .select(`
         *,
         home_club:clubs!international_fixtures_home_club_id_fkey(id, name, short_name, colors),
         away_club:clubs!international_fixtures_away_club_id_fkey(id, name, short_name, colors)
       `)
-      .eq('tournament_id', tournament.id)
+      .eq('tournament_id', tournamentId)
+      .order('match_date', { ascending: true })
       .order('match_number', { ascending: true })
-
-    return {
-      tournament,
-      fixtures: fixtures || [],
-      userClubId: clubId
-    }
+    return data || []
   },
 
   /**
-   * Inicializa la Copa Gloria Continental con 8 clubes
+   * Estado de la copa para el club:
+   * - antes del sorteo (1 de septiembre) no hay torneo: se informa cuándo arranca;
+   * - el sorteo toma a los 8 mejores de la liga del usuario (puede no clasificar y mirar la copa de lejos);
+   * - cada partido tiene su fecha: los de IA se juegan solos al llegar y el del usuario espera a que lo dispute.
    */
-  async seedTournament(seasonYear, userClubId) {
-    // 1. Crear el torneo
+  async getActiveTournament(clubId) {
+    if (!clubId) return null
+
+    const { data: club } = await supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle()
+    const gameDate = club?.game_date || '2026-07-01'
+    const seasonYear = cupSeasonYear(gameDate)
+    const schedule = cupSchedule(seasonYear)
+
+    let tournament = await this.findTournament(clubId, seasonYear)
+
+    if (!tournament) {
+      if (String(gameDate).slice(0, 10) < schedule.seedDate) {
+        return { tournament: null, fixtures: [], userClubId: clubId, schedule, gameDate, qualified: false, notStarted: true }
+      }
+      tournament = await this.seedTournament(seasonYear, clubId, schedule)
+    }
+    if (!tournament) return null
+
+    const fixtures = await this.syncTournament(tournament, gameDate, clubId, schedule)
+    const qualified = fixtures.some(f => f.home_club_id === clubId || f.away_club_id === clubId)
+
+    return { tournament: (await this.refreshTournament(tournament.id)) || tournament, fixtures, userClubId: clubId, schedule, gameDate, qualified, notStarted: false }
+  },
+
+  /** Sorteo: los 8 mejores de la liga, cuartos en su fecha */
+  async seedTournament(seasonYear, userClubId, schedule = cupSchedule(seasonYear)) {
+    const standings = await this.getLeagueStandings(userClubId)
+    const qualified = qualifiedClubIds(standings)
+    if (qualified.length < 8) return null
+
     const { data: tournament, error } = await supabase
       .from('international_tournaments')
       .insert({
@@ -89,85 +120,71 @@ export const internationalCupApi = {
       return null
     }
 
-    // 2. Obtener 7 clubes rivales de la base de datos
-    const { data: otherClubs } = await supabase
-      .from('clubs')
-      .select('id, name')
-      .neq('id', userClubId)
-      .limit(7)
-
-    const participants = [userClubId]
-    if (otherClubs) {
-      otherClubs.forEach(c => participants.push(c.id))
-    }
-
-    // Si faltan clubes para completar 8, duplicar o usar los existentes
-    while (participants.length < 8 && participants.length > 0) {
-      participants.push(participants[participants.length - 1])
-    }
-
-    // 3. Generar los 4 partidos de Cuartos de Final (quarter_finals)
-    const quarterFixtures = [
-      {
-        tournament_id: tournament.id,
-        stage: 'quarter_finals',
-        match_number: 1,
-        home_club_id: participants[0],
-        away_club_id: participants[1] || participants[0],
-        match_date: `${seasonYear}-09-16`
-      },
-      {
-        tournament_id: tournament.id,
-        stage: 'quarter_finals',
-        match_number: 2,
-        home_club_id: participants[2] || participants[0],
-        away_club_id: participants[3] || participants[0],
-        match_date: `${seasonYear}-09-16`
-      },
-      {
-        tournament_id: tournament.id,
-        stage: 'quarter_finals',
-        match_number: 3,
-        home_club_id: participants[4] || participants[0],
-        away_club_id: participants[5] || participants[0],
-        match_date: `${seasonYear}-09-16`
-      },
-      {
-        tournament_id: tournament.id,
-        stage: 'quarter_finals',
-        match_number: 4,
-        home_club_id: participants[6] || participants[0],
-        away_club_id: participants[7] || participants[0],
-        match_date: `${seasonYear}-09-16`
-      }
-    ]
-
+    const quarterFixtures = quarterPairs(qualified).map(([home, away], i) => ({
+      tournament_id: tournament.id,
+      stage: 'quarter_finals',
+      match_number: i + 1,
+      home_club_id: home,
+      away_club_id: away,
+      match_date: schedule.quarter_finals
+    }))
     await supabase.from('international_fixtures').insert(quarterFixtures)
 
-    // Marcar club como participante continental
-    await supabase.from('clubs').update({ in_international_cup: true }).eq('id', userClubId)
-
+    if (qualified.includes(userClubId)) {
+      await supabase.from('clubs').update({ in_international_cup: true }).eq('id', userClubId)
+    }
     return tournament
   },
 
   /**
-   * Simula un partido internacional entre dos clubes IA
+   * Hace avanzar el torneo hasta la fecha de juego: simula los partidos de IA vencidos, crea las fases siguientes
+   * y cierra el torneo cuando se jugó la final. Es idempotente: se puede llamar las veces que haga falta.
    */
-  async simulateAiMatch(fixtureId) {
-    const homeScore = Math.floor(Math.random() * 4)
-    let awayScore = Math.floor(Math.random() * 4)
-    if (homeScore === awayScore) {
-      // Definición en penales si empatan en eliminación directa (Regla 34.2)
-      awayScore = Math.random() > 0.5 ? homeScore + 1 : Math.max(0, homeScore - 1)
+  async syncTournament(tournament, gameDate, userClubId, schedule) {
+    let fixtures = await this.loadFixtures(tournament.id)
+
+    for (let guard = 0; guard < 6; guard++) {
+      const plan = planTournamentStep({ fixtures, gameDate, userClubId, schedule })
+      if (plan.toSimulate.length === 0 && plan.toCreate.length === 0) {
+        if (plan.championId && tournament.status !== 'finished') {
+          await supabase.from('international_tournaments').update({ status: 'finished', champion_id: plan.championId }).eq('id', tournament.id)
+        }
+        break
+      }
+
+      if (plan.toSimulate.length > 0) await this.simulateAiMatches(plan.toSimulate)
+      if (plan.toCreate.length > 0) {
+        await supabase.from('international_fixtures').insert(plan.toCreate.map(f => ({ ...f, tournament_id: tournament.id })))
+      }
+      fixtures = await this.loadFixtures(tournament.id)
     }
+    return fixtures
+  },
 
-    await supabase.from('international_fixtures').update({
-      home_score: homeScore,
-      away_score: awayScore,
-      played: true
-    }).eq('id', fixtureId)
+  /** Resultados de los partidos entre clubes de IA: según la fuerza de cada plantel, deterministas por partido */
+  async simulateAiMatches(list) {
+    const ids = [...new Set(list.flatMap(f => [f.home_club_id, f.away_club_id]))]
+    const { data: players } = await supabase.from('players').select('club_id, attr_overall, overall').in('club_id', ids).eq('is_retired', false)
+    const byClub = new Map()
+    for (const p of players || []) byClub.set(p.club_id, [...(byClub.get(p.club_id) || []), p])
 
-    return { homeScore, awayScore }
+    for (const f of list) {
+      const { homeScore, awayScore } = simulateCupScore({
+        fixtureId: f.id,
+        homeStrength: clubStrength(byClub.get(f.home_club_id) || []),
+        awayStrength: clubStrength(byClub.get(f.away_club_id) || [])
+      })
+      await supabase.from('international_fixtures').update({ home_score: homeScore, away_score: awayScore, played: true }).eq('id', f.id)
+    }
+  },
+
+  /** ¿Hay un partido propio de copa que ya llegó a su fecha y no se jugó? (frena el avance de semana) */
+  async hasDueUserMatch(clubId, gameDate) {
+    if (!clubId) return false
+    const tournament = await this.findTournament(clubId, cupSeasonYear(gameDate))
+    if (!tournament || tournament.status === 'finished') return false
+    const fixtures = await this.loadFixtures(tournament.id)
+    return !!dueUserFixture(fixtures, gameDate, clubId)
   },
 
   /**
@@ -176,11 +193,17 @@ export const internationalCupApi = {
   async playUserMatch(fixtureId, userClubId, managerId) {
     const { data: fixture } = await supabase
       .from('international_fixtures')
-      .select('id, home_club_id, away_club_id, played')
+      .select('id, home_club_id, away_club_id, played, match_date')
       .eq('id', fixtureId)
       .single()
     if (!fixture) throw new Error('Partido internacional no encontrado')
     if (fixture.played) throw new Error('Este partido ya fue disputado.')
+
+    // Como en la vida real: la copa se juega en su fecha, no cuando uno quiere
+    const { data: clubRow } = await supabase.from('clubs').select('game_date').eq('id', userClubId).maybeSingle()
+    if (!isDue(fixture, clubRow?.game_date || '2026-07-01')) {
+      throw new Error('Este partido se juega el ' + fixture.match_date + '. Avanzá las semanas hasta esa fecha.')
+    }
 
     const squadOf = async (clubId) => (await supabase.from('players').select('attr_overall, overall').eq('club_id', clubId).eq('is_retired', false)).data || []
     const [homePlayers, awayPlayers] = await Promise.all([squadOf(fixture.home_club_id), squadOf(fixture.away_club_id)])
@@ -279,22 +302,6 @@ export const internationalCupApi = {
       console.warn('Aviso fatiga continental:', e)
     }
 
-    // 3. Simular los demás partidos de la misma fase que no se hayan jugado aún
-    const { data: stageFixtures } = await supabase
-      .from('international_fixtures')
-      .select('*')
-      .eq('tournament_id', fixture.tournament_id)
-      .eq('stage', fixture.stage)
-      .eq('played', false)
-
-    if (stageFixtures) {
-      for (const f of stageFixtures) {
-        if (f.id !== fixtureId) {
-          await this.simulateAiMatch(f.id)
-        }
-      }
-    }
-
     // 4. Si era la FINAL y el usuario ganó: Consagración continental suprema
     if (fixture.stage === 'final' && userWon) {
       const champPrize = INTERNATIONAL_CUPS_CONFIG.champion_prize // $2,000,000
@@ -340,65 +347,17 @@ export const internationalCupApi = {
         year: fixture.tournament?.season_year || 2026,
         type: 'CONTINENTAL_CHAMPION'
       })
-    } 
-    // 5. Avanzar llave si no era final
-    else if (fixture.stage === 'quarter_finals' || fixture.stage === 'semi_finals') {
-      await this.advanceBracket(fixture.tournament_id, fixture.stage)
+    }
+
+    // 5. Resolver lo que dependa de este resultado (la siguiente fase, los partidos de IA de la misma fecha)
+    try {
+      const { data: t } = await supabase.from('international_tournaments').select('*').eq('id', fixture.tournament_id).maybeSingle()
+      const { data: gd } = await supabase.from('clubs').select('game_date').eq('id', userClubId).maybeSingle()
+      if (t) await this.syncTournament(t, gd?.game_date || '2026-07-01', userClubId, cupSchedule(t.season_year))
+    } catch (syncErr) {
+      console.warn('Aviso: no se pudo avanzar la copa tras el partido:', syncErr)
     }
 
     return { userWon, matchBonus, xpBonus }
-  },
-
-  /**
-   * Genera los cruces de la siguiente fase (Semifinales o Final)
-   */
-  async advanceBracket(tournamentId, currentStage) {
-    const { data: fixtures } = await supabase
-      .from('international_fixtures')
-      .select('*')
-      .eq('tournament_id', tournamentId)
-      .eq('stage', currentStage)
-      .order('match_number', { ascending: true })
-
-    if (!fixtures || fixtures.length === 0) return
-
-    // Obtener los ganadores de cada cruce
-    const winners = fixtures.map(f => {
-      return (f.home_score || 0) >= (f.away_score || 0) ? f.home_club_id : f.away_club_id
-    })
-
-    if (currentStage === 'quarter_finals' && winners.length >= 4) {
-      // Crear Semifinales
-      const semiFixtures = [
-        {
-          tournament_id: tournamentId,
-          stage: 'semi_finals',
-          match_number: 1,
-          home_club_id: winners[0],
-          away_club_id: winners[1],
-          match_date: '2026-10-14'
-        },
-        {
-          tournament_id: tournamentId,
-          stage: 'semi_finals',
-          match_number: 2,
-          home_club_id: winners[2],
-          away_club_id: winners[3],
-          match_date: '2026-10-14'
-        }
-      ]
-      await supabase.from('international_fixtures').insert(semiFixtures)
-    } else if (currentStage === 'semi_finals' && winners.length >= 2) {
-      // Crear Gran Final
-      const finalFixture = {
-        tournament_id: tournamentId,
-        stage: 'final',
-        match_number: 1,
-        home_club_id: winners[0],
-        away_club_id: winners[1],
-        match_date: '2026-11-20'
-      }
-      await supabase.from('international_fixtures').insert(finalFixture)
-    }
   }
 }
