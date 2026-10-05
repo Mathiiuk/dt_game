@@ -1,0 +1,36 @@
+id: f3-p2-club-screen
+external_ref: ''
+title: Pantalla Club rediseñada y paneles internos sobre ResponsiveOverlay
+type: feat
+status: PLANNED
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar Pantalla Club rediseñada y paneles internos sobre
+    ResponsiveOverlay
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Pantalla Club rediseñada y paneles internos
+    sobre ResponsiveOverlay
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd

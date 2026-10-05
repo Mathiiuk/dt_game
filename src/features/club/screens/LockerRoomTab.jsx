@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { lockerRoomApi, HIERARCHY_TIERS, SOCIAL_GROUPS } from '../../../api/lockerRoom'
 import { toast } from 'sonner'
+import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
 
 export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   const [lockerRoom, setLockerRoom] = useState(null)
@@ -125,8 +126,8 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-zinc-400">
-        <Users className="w-8 h-8 animate-pulse text-emerald-400 mb-2" />
+      <div className="flex flex-col items-center justify-center p-12 text-fg-muted">
+        <Users className="w-8 h-8 animate-pulse text-accent mb-2" />
         <p className="text-sm font-medium">Accediendo a la intimidad del vestuario...</p>
       </div>
     )
@@ -150,24 +151,24 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
     <div className="space-y-6">
       {/* ALERTA DE JUGADORES QUE EXIGEN HABLAR */}
       {demandingPlayers.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-amber-950/30 border border-amber-800/60 space-y-3">
-          <div className="flex items-center gap-2 text-amber-400">
+        <div className="p-4 sm:p-5 rounded-lg bg-amber-950/30 border border-amber-800/60 space-y-3">
+          <div className="flex items-center gap-2 text-gold">
             <AlertTriangle className="w-5 h-5 shrink-0" />
             <h3 className="font-bold text-sm sm:text-base">Reclamo en la Oficina del DT</h3>
           </div>
-          <p className="text-xs text-zinc-300">
+          <p className="text-xs text-fg">
             Los siguientes futbolistas están incómodos con su rol en el equipo y exigen una respuesta inmediata:
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
             {demandingPlayers.map(p => (
-              <div key={p.id} className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col justify-between text-xs gap-2">
+              <div key={p.id} className="p-3 rounded-xl bg-bg border border-line flex flex-col justify-between text-xs gap-2">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="font-bold text-white block">{p.name} ({p.position}, OVR {p.overall})</span>
-                    <span className="text-[11px] text-zinc-400">Moral: {p.morale} • Satisfacción con minutos: {p.satisfaction_playing_time}%</span>
+                    <span className="font-bold text-fg block">{p.name} ({p.position}, OVR {p.overall})</span>
+                    <span className="text-[11px] text-fg-muted">Moral: {p.morale} • Satisfacción con minutos: {p.satisfaction_playing_time}%</span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-950 text-danger border border-rose-800">
                     Disconforme
                   </span>
                 </div>
@@ -176,7 +177,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                   <button
                     disabled={actionLoading}
                     onClick={() => handleResolveConflict(p.player_id, 'PROMISE_MINUTES')}
-                    className="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-semibold rounded text-[11px] transition-colors"
+                    className="px-2.5 py-1 bg-accent/20 hover:bg-accent/30 text-accent font-semibold rounded text-[11px] transition-colors"
                   >
                     Prometer Minutos (+12 moral)
                   </button>
@@ -190,7 +191,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                   <button
                     disabled={actionLoading}
                     onClick={() => handleResolveConflict(p.player_id, 'DISCIPLINE')}
-                    className="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-semibold rounded text-[11px] transition-colors"
+                    className="px-2.5 py-1 bg-danger/20 hover:bg-danger/30 text-danger font-semibold rounded text-[11px] transition-colors"
                   >
                     Reprender (-15 moral)
                   </button>
@@ -202,30 +203,30 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       )}
 
       {/* TARJETA RESUMEN DEL VESTUARIO Y COHESIÓN */}
-      <div className="p-4 sm:p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-zinc-800/80">
+      <div className="p-4 sm:p-6 rounded-lg bg-surface/60 border border-line">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-line/80">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
                 <Users className="w-5 h-5" />
               </span>
               <div>
-                <h2 className="text-lg sm:text-xl font-black text-white">Química y Dinámica de Vestuario</h2>
-                <p className="text-xs text-zinc-400">Jerarquías, liderazgos y cohesión del grupo humano</p>
+                <h2 className="text-lg sm:text-xl font-semibold text-fg">Química y Dinámica de Vestuario</h2>
+                <p className="text-xs text-fg-muted">Jerarquías, liderazgos y cohesión del grupo humano</p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <span className="text-[11px] text-zinc-400 font-medium">Cohesión de Equipo</span>
-              <p className="text-2xl font-black text-white font-mono flex items-center justify-end gap-1.5">
-                <Heart className={`w-5 h-5 ${score >= 70 ? 'text-purple-400 fill-purple-400' : 'text-zinc-500'}`} />
-                {score}<span className="text-xs font-normal text-zinc-400">/100</span>
+              <span className="text-[11px] text-fg-muted font-medium">Cohesión de Equipo</span>
+              <p className="text-2xl font-semibold text-fg font-mono flex items-center justify-end gap-1.5">
+                <Heart className={`w-5 h-5 ${score >= 70 ? 'text-purple-400 fill-purple-400' : 'text-fg-subtle'}`} />
+                {score}<span className="text-xs font-normal text-fg-muted">/100</span>
               </p>
             </div>
-            <div className="border-l border-zinc-800 pl-4 text-left">
-              <span className="text-[11px] text-zinc-400 font-medium">Ambiente Interno</span>
+            <div className="border-l border-line pl-4 text-left">
+              <span className="text-[11px] text-fg-muted font-medium">Ambiente Interno</span>
               <div className="mt-0.5">
                 <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-lg border ${cohesionMeta.badgeColor}`}>
                   {cohesionMeta.title}
@@ -238,44 +239,44 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
         {/* EFECTO TÁCTICO & CAPITANÍA */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5">
           {/* Bonificación Táctica */}
-          <div className="p-4 rounded-xl bg-zinc-950/80 border border-zinc-800/80 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div>
-              <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5 mb-1.5">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5 mb-1.5">
+                <TrendingUp className="w-4 h-4 text-accent" />
                 Efecto en el Motor de Partido (2D)
               </span>
-              <p className="text-sm font-bold text-white mb-1">
+              <p className="text-sm font-bold text-fg mb-1">
                 {cohesionMeta.tacticalBonus}
               </p>
             </div>
-            <p className="text-xs text-zinc-400 mt-2">
+            <p className="text-xs text-fg-muted mt-2">
               Un vestuario unido reduce errores forzados en balones parados y maximiza la efectividad de pases.
             </p>
           </div>
 
           {/* Capitanes Designados */}
-          <div className="p-4 rounded-xl bg-zinc-950/80 border border-zinc-800/80 flex flex-col justify-between">
+          <div className="p-4 rounded-xl bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5">
-                <Crown className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
+                <Crown className="w-4 h-4 text-gold" />
                 Capitanía Oficial
               </span>
               <button
                 onClick={() => setShowCaptainsModal(true)}
-                className="text-[11px] text-amber-400 hover:underline font-semibold"
+                className="text-[11px] text-gold hover:underline font-semibold"
               >
                 Cambiar Brazaletes
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                <span className="text-[10px] text-zinc-500 uppercase font-mono font-bold block">Capitán</span>
-                <span className="font-bold text-white truncate block">{captain?.name || 'Sin designar'}</span>
+              <div className="p-2 rounded-lg bg-surface border border-line">
+                <span className="text-[10px] text-fg-subtle uppercase font-mono font-bold block">Capitán</span>
+                <span className="font-bold text-fg truncate block">{captain?.name || 'Sin designar'}</span>
               </div>
-              <div className="p-2 rounded-lg bg-zinc-900 border border-zinc-800">
-                <span className="text-[10px] text-zinc-500 uppercase font-mono font-bold block">Subcapitán</span>
-                <span className="font-bold text-white truncate block">{viceCaptain?.name || 'Sin designar'}</span>
+              <div className="p-2 rounded-lg bg-surface border border-line">
+                <span className="text-[10px] text-fg-subtle uppercase font-mono font-bold block">Subcapitán</span>
+                <span className="font-bold text-fg truncate block">{viceCaptain?.name || 'Sin designar'}</span>
               </div>
             </div>
           </div>
@@ -283,16 +284,16 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       </div>
 
       {/* CHARLAS Y REUNIONES DE EQUIPO */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-3">
+      <div className="p-4 sm:p-5 rounded-lg bg-surface/60 border border-line space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-sm sm:text-base font-bold text-fg flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-accent" />
               Charlas Técnicas & Reunión de Equipo
             </h3>
-            <p className="text-xs text-zinc-400">Dirige la palabra al plantel completo para ajustar el enfoque psicológico.</p>
+            <p className="text-xs text-fg-muted">Dirige la palabra al plantel completo para ajustar el enfoque psicológico.</p>
           </div>
-          <span className="text-xs text-zinc-500 font-mono">
+          <span className="text-xs text-fg-subtle font-mono">
             Cooldown: 4 semanas de calendario
           </span>
         </div>
@@ -301,10 +302,10 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <button
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('PRAISE')}
-            className="p-3 text-left rounded-xl border border-zinc-800 bg-zinc-950/70 hover:border-emerald-500/60 hover:bg-emerald-950/10 transition-all text-xs group"
+            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-accent/60 hover:bg-emerald-950/10 transition-all text-xs group"
           >
-            <span className="font-bold text-emerald-400 block mb-1">Elogiar Sacrificio</span>
-            <p className="text-zinc-400 group-hover:text-zinc-200 leading-snug">
+            <span className="font-bold text-accent block mb-1">Elogiar Sacrificio</span>
+            <p className="text-fg-muted group-hover:text-fg leading-snug">
               Felicita al grupo por el compromiso y refuerza la unión colectiva (+8 moral, +5 cohesión).
             </p>
           </button>
@@ -312,10 +313,10 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <button
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('CALM')}
-            className="p-3 text-left rounded-xl border border-zinc-800 bg-zinc-950/70 hover:border-blue-500/60 hover:bg-blue-950/10 transition-all text-xs group"
+            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-blue-500/60 hover:bg-blue-950/10 transition-all text-xs group"
           >
             <span className="font-bold text-blue-400 block mb-1">Llamado a la Calma</span>
-            <p className="text-zinc-400 group-hover:text-zinc-200 leading-snug">
+            <p className="text-fg-muted group-hover:text-fg leading-snug">
               Descomprime presiones y pide templanza ante los próximos partidos (+5 moral, +3 cohesión).
             </p>
           </button>
@@ -323,10 +324,10 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <button
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('DEMAND_EXCELLENCE')}
-            className="p-3 text-left rounded-xl border border-zinc-800 bg-zinc-950/70 hover:border-amber-500/60 hover:bg-amber-950/10 transition-all text-xs group"
+            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-gold/60 hover:bg-amber-950/10 transition-all text-xs group"
           >
-            <span className="font-bold text-amber-400 block mb-1">Exigir Excelencia</span>
-            <p className="text-zinc-400 group-hover:text-zinc-200 leading-snug">
+            <span className="font-bold text-gold block mb-1">Exigir Excelencia</span>
+            <p className="text-fg-muted group-hover:text-fg leading-snug">
               Eleva la vara y reta al plantel a dar un salto de jerarquía competitiva.
             </p>
           </button>
@@ -335,7 +336,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
 
       {/* CLANES Y GRUPOS SOCIALES DEL VESTUARIO */}
       <div className="space-y-4">
-        <h3 className="text-base font-bold text-white flex items-center gap-2">
+        <h3 className="text-base font-bold text-fg flex items-center gap-2">
           <Users className="w-5 h-5 text-purple-400" />
           Clanes y Grupos Sociales del Plantel
         </h3>
@@ -346,13 +347,13 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             if (members.length === 0) return null
 
             return (
-              <div key={key} className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800/80 space-y-3">
-                <div className="flex items-center justify-between border-b border-zinc-800/60 pb-2">
+              <div key={key} className="p-4 rounded-xl bg-surface/50 border border-line/80 space-y-3">
+                <div className="flex items-center justify-between border-b border-line/60 pb-2">
                   <div>
-                    <h4 className="font-bold text-sm text-white">{def.label}</h4>
-                    <p className="text-[11px] text-zinc-400">{def.description}</p>
+                    <h4 className="font-bold text-sm text-fg">{def.label}</h4>
+                    <p className="text-[11px] text-fg-muted">{def.description}</p>
                   </div>
-                  <span className="text-xs font-mono font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono font-bold text-fg-muted bg-surface-3 px-2 py-0.5 rounded">
                     {members.length} {members.length === 1 ? 'jugador' : 'jugadores'}
                   </span>
                 </div>
@@ -364,18 +365,18 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                     const isVice = p.player_id === lockerRoom?.vice_captain_player_id
 
                     return (
-                      <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-zinc-950/70 border border-zinc-800/80 text-xs">
+                      <div key={p.id} className="flex items-center justify-between p-2 rounded-lg bg-bg/70 border border-line/80 text-xs">
                         <div className="flex items-center gap-2 min-w-0">
-                          {isCap && <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
-                          {isVice && <Crown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />}
-                          <span className="font-bold text-white truncate">{p.name}</span>
-                          <span className="text-[11px] text-zinc-500 font-mono">({p.position}, {p.age}a)</span>
+                          {isCap && <Crown className="w-3.5 h-3.5 text-gold shrink-0" />}
+                          {isVice && <Crown className="w-3.5 h-3.5 text-fg-muted shrink-0" />}
+                          <span className="font-bold text-fg truncate">{p.name}</span>
+                          <span className="text-[11px] text-fg-subtle font-mono">({p.position}, {p.age}a)</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${tierMeta.color}`}>
                             {tierMeta.label}
                           </span>
-                          <span className="text-[11px] text-zinc-400 font-mono">
+                          <span className="text-[11px] text-fg-muted font-mono">
                             {p.morale}% moral
                           </span>
                         </div>
@@ -391,88 +392,66 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
 
       {/* HISTORIAL DE EVENTOS SOCIALES */}
       {events.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800">
-          <h3 className="text-sm font-bold text-zinc-300 flex items-center gap-2 mb-3">
-            <History className="w-4 h-4 text-emerald-400" />
+        <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
+          <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
+            <History className="w-4 h-4 text-accent" />
             Libro de Actas y Acontecimientos de Vestuario
           </h3>
           <div className="space-y-2">
             {events.map((ev) => (
-              <div key={ev.id} className="p-3 rounded-xl bg-zinc-950/70 border border-zinc-800/80 text-xs space-y-1">
-                <div className="flex items-center justify-between text-[11px] text-zinc-500">
-                  <span className="font-bold text-zinc-300">{ev.event_type}</span>
+              <div key={ev.id} className="p-3 rounded-xl bg-bg/70 border border-line/80 text-xs space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-fg-subtle">
+                  <span className="font-bold text-fg">{ev.event_type}</span>
                   <span>{new Date(ev.timestamp).toLocaleDateString()}</span>
                 </div>
-                <p className="text-zinc-400">{ev.details}</p>
+                <p className="text-fg-muted">{ev.details}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* MODAL DE ASIGNACIÓN DE CAPITANÍA */}
+      {/* Designación de capitanía */}
       {showCaptainsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-md rounded-2xl bg-zinc-950 border border-zinc-800 p-6 space-y-4 shadow-2xl">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-400" />
-              Designar Capitán y Subcapitán
-            </h3>
-            <p className="text-xs text-zinc-400">
-              Elige a los referentes del plantel. Quitarle el brazalete a un líder indiscutido causará fracturas anímicas.
-            </p>
-
-            <div className="space-y-3 pt-2">
-              <div>
-                <label className="text-xs font-semibold text-zinc-300 block mb-1">Capitán Principal</label>
-                <select
-                  value={selectedCaptain}
-                  onChange={(e) => setSelectedCaptain(e.target.value)}
-                  className="w-full p-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white"
-                >
-                  <option value="">Seleccionar Capitán...</option>
-                  {profiles.map(p => (
-                    <option key={p.player_id} value={p.player_id}>
-                      {p.name} ({p.position}, OVR {p.overall}, {p.age}a) - {p.hierarchy_tier}
+        <ResponsiveOverlay
+          title="Designar capitán y subcapitán"
+          description="Quitarle el brazalete a un líder indiscutido causará fracturas anímicas."
+          onClose={() => setShowCaptainsModal(false)}
+          size="sm"
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setShowCaptainsModal(false)}>Cancelar</Button>
+              <Button loading={actionLoading} onClick={handleSaveCaptains}>Confirmar</Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <Field label="Capitán principal">
+              {(p) => (
+                <Select {...p} value={selectedCaptain} onChange={(e) => setSelectedCaptain(e.target.value)}>
+                  <option value="">Seleccionar capitán...</option>
+                  {profiles.map(pl => (
+                    <option key={pl.player_id} value={pl.player_id}>
+                      {pl.name} ({pl.position}, OVR {pl.overall}, {pl.age}a) - {pl.hierarchy_tier}
                     </option>
                   ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-zinc-300 block mb-1">Subcapitán</label>
-                <select
-                  value={selectedViceCaptain}
-                  onChange={(e) => setSelectedViceCaptain(e.target.value)}
-                  className="w-full p-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white"
-                >
-                  <option value="">Seleccionar Subcapitán...</option>
-                  {profiles.map(p => (
-                    <option key={p.player_id} value={p.player_id}>
-                      {p.name} ({p.position}, OVR {p.overall}, {p.age}a)
+                </Select>
+              )}
+            </Field>
+            <Field label="Subcapitán">
+              {(p) => (
+                <Select {...p} value={selectedViceCaptain} onChange={(e) => setSelectedViceCaptain(e.target.value)}>
+                  <option value="">Seleccionar subcapitán...</option>
+                  {profiles.map(pl => (
+                    <option key={pl.player_id} value={pl.player_id}>
+                      {pl.name} ({pl.position}, OVR {pl.overall}, {pl.age}a)
                     </option>
                   ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-3">
-              <button
-                onClick={() => setShowCaptainsModal(false)}
-                className="flex-1 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs font-bold text-zinc-300 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                disabled={actionLoading}
-                onClick={handleSaveCaptains}
-                className="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-xs font-bold text-zinc-950 transition-colors shadow-sm"
-              >
-                Confirmar
-              </button>
-            </div>
+                </Select>
+              )}
+            </Field>
           </div>
-        </div>
+        </ResponsiveOverlay>
       )}
     </div>
   )

@@ -1,36 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { GraduationCap, Mic, Sparkles, UserPlus } from 'lucide-react'
+import { toast } from 'sonner'
 import { clubApi } from '../../../api/club'
 import { staffApi, academyApi } from '../../../api/clubFeatures'
 import { clubHistoryApi } from '../../../api/clubHistory'
 import { supabase } from '../../../api/supabase'
-import { 
-  ArrowLeft, 
-  Building2, 
-  UserPlus, 
-  GraduationCap, 
-  Briefcase, 
-  DollarSign,
-  History,
-  Trophy,
-  Crown,
-  Star,
-  ShieldCheck,
-  Flame,
-  Users,
-  Award,
-  Calendar,
-  Sparkles,
-  TrendingUp,
-  UserCheck,
-  Landmark,
-  Mic,
-  HeartPulse
-} from 'lucide-react'
-import { toast } from 'sonner'
 import { useGameContext } from '../../../context/GameContext'
-
 import { queryCache } from '../../../utils/cache'
+import { formatMoney } from '../../../lib/format'
+import {
+  Badge, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, PageHeader, Skeleton, Stat, Tabs, TabsList, TabsTrigger
+} from '../../../components/ui'
 import YouthAcademyModal from './YouthAcademyModal'
 import StaffManagementModal from './StaffManagementModal'
 import StadiumManagementTab from './StadiumManagementTab'
@@ -42,35 +22,38 @@ import InfirmaryTab from './InfirmaryTab'
 import ClubHistoryTab from './ClubHistoryTab'
 import IdolsLegendsTab from './IdolsLegendsTab'
 
+const TABS = [
+  ['gestion', 'Gestión y staff'],
+  ['vestuario', 'Vestuario'],
+  ['enfermeria', 'Enfermería'],
+  ['estadio', 'Estadio y obras'],
+  ['hinchada', 'Hinchada'],
+  ['directiva', 'Directiva'],
+  ['historia', 'Historia y récords'],
+  ['idolos', 'Ídolos y leyendas']
+]
+
+const WEEKLY_INCOME = 40000
+const PROSPECT_COST = 5000
+
 export default function ClubScreen() {
-  const navigate = useNavigate()
   const { club, manager, loading: contextLoading, confirmAction } = useGameContext()
 
   const cachedClubData = club?.id ? queryCache.get(`club:screen:${club.id}`) : null
   const [loading, setLoading] = useState(!cachedClubData)
-  const [activeTab, setActiveTab] = useState('gestion') // 'gestion' | 'historia' | 'idolos'
+  const [activeTab, setActiveTab] = useState('gestion')
   const [showYouthModal, setShowYouthModal] = useState(false)
   const [showStaffModal, setShowStaffModal] = useState(false)
   const [showPressModal, setShowPressModal] = useState(false)
 
   const [data, setData] = useState(cachedClubData || {
-    staff: [],
-    youth: [],
-    candidates: [],
-    history: [],
-    idols: [],
-    milestones: [],
-    records: [],
-    salaries: 0
+    staff: [], youth: [], candidates: [], history: [], idols: [], milestones: [], records: [], salaries: 0
   })
 
   const loadData = async (force = false) => {
     try {
       if (!club?.id) return
-
-      if (force) {
-        queryCache.invalidate(`club:screen:${club.id}`)
-      }
+      if (force) queryCache.invalidate(`club:screen:${club.id}`)
 
       const clubData = await queryCache.fetch(`club:screen:${club.id}`, async () => {
         const [staff, youth, candidates, historyRes, idols, milestones, records, squadRes] = await Promise.all([
@@ -86,7 +69,6 @@ export default function ClubScreen() {
 
         const playerSalaries = squadRes.data?.reduce((sum, p) => sum + Math.round((p.contract_salary || 1000) / 52), 0) || 0
         const staffSalaries = staff?.reduce((sum, s) => sum + Math.round((s.salary || 1000) / 4), 0) || 0
-        const totalSalaries = playerSalaries + staffSalaries
 
         return {
           staff: staff || [],
@@ -96,7 +78,7 @@ export default function ClubScreen() {
           idols: idols || [],
           milestones: milestones || [],
           records: records || [],
-          salaries: totalSalaries
+          salaries: playerSalaries + staffSalaries
         }
       }, 60000)
 
@@ -112,6 +94,7 @@ export default function ClubScreen() {
   useEffect(() => {
     if (contextLoading || !club) return
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextLoading, club])
 
   const handleHireStaff = async (staffMember) => {
@@ -126,8 +109,8 @@ export default function ClubScreen() {
 
   const handleGenerateProspect = async () => {
     try {
-      if (club.budget < 5000) return toast.error('Presupuesto insuficiente ($5,000 requeridos)')
-      await clubApi.updateClub(club.id, { budget: club.budget - 5000 })
+      if (club.budget < PROSPECT_COST) return toast.error(`Presupuesto insuficiente (${formatMoney(PROSPECT_COST)} requeridos)`)
+      await clubApi.updateClub(club.id, { budget: club.budget - PROSPECT_COST })
       await academyApi.generateYouthProspect(club.id, club.academy_level || 1)
       toast.success('¡Nuevo juvenil oteado en la academia!')
       loadData(true)
@@ -146,404 +129,144 @@ export default function ClubScreen() {
     }
   }
 
+  const fireStaff = async (s) => {
+    const confirmed = await confirmAction({
+      title: 'Despedir staff',
+      description: `¿Rescindir el contrato de ${s.name}? Dejará de aportar sus bonificaciones al club.`,
+      confirmText: 'Despedir',
+      cancelText: 'Cancelar',
+      variant: 'danger'
+    })
+    if (!confirmed) return
+    try {
+      await staffApi.fireStaff(s.id)
+      toast.success('Contrato de staff rescindido')
+      loadData(true)
+    } catch (e) {
+      toast.error(e.message)
+    }
+  }
+
   if (loading || contextLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-emerald-400 bg-zinc-950">
-        <div className="flex items-center gap-3">
-          <Building2 className="w-6 h-6 animate-pulse" />
-          <span className="font-semibold text-sm">Cargando instalaciones del club...</span>
-        </div>
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando instalaciones del club">
+        <Skeleton className="h-12 w-72" />
+        <Skeleton className="h-11" />
+        <div className="grid gap-4 lg:grid-cols-2"><Skeleton className="h-96" /><Skeleton className="h-96" /></div>
       </div>
     )
   }
 
+  const margin = WEEKLY_INCOME - (data.salaries || 0)
+  const refresh = () => loadData(true)
+
   return (
-    <div className="min-h-screen p-3 md:p-6 text-zinc-100 bg-zinc-950 pb-28 md:pb-12 max-w-7xl mx-auto">
-      {/* Header institucional */}
-      <header className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-800/80 gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <button 
-            onClick={() => navigate('/dashboard')} 
-            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 shrink-0"
-            title="Volver al panel"
-          >
-            <ArrowLeft className="w-5 h-5 text-zinc-400 hover:text-white" />
-          </button>
-          <div className="truncate">
-            <h1 className="text-lg md:text-2xl font-black flex items-center gap-2 text-white truncate leading-tight">
-              <Building2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-400 shrink-0" />
-              <span>{club?.name || 'Mi Club'}</span>
-            </h1>
-            <p className="text-xs text-zinc-400 truncate">
-              Fundado en {club?.founded_year || 2026} • {club?.city || 'Ciudad'}, {club?.country || 'Nacional'}
-            </p>
-          </div>
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+      <PageHeader
+        eyebrow={`Fundado en ${club?.founded_year || 2026} · ${club?.city || 'Ciudad'}, ${club?.country || 'Nacional'}`}
+        title={club?.name || 'Mi club'}
+        actions={<Button variant="outline" size="sm" onClick={() => setShowPressModal(true)}><Mic />Prensa</Button>}
+      />
 
-        <div className="flex items-center gap-3 shrink-0">
-          <button
-            onClick={() => setShowPressModal(true)}
-            className="p-2 sm:px-3 sm:py-2 rounded-xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 flex items-center gap-1.5 transition-colors"
-            title="Sala de Prensa & Hemeroteca"
-          >
-            <Mic className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Prensa</span>
-          </button>
+      <Card className="mb-6">
+        <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+          <Stat label="Presupuesto" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl text-accent sm:text-3xl" />
+          <Stat label="Sueldos" value={formatMoney(data.salaries || 0)} hint="plantel y staff por semana" valueClassName="text-2xl sm:text-3xl" />
+          <Stat label="Margen semanal" value={`${margin >= 0 ? '+' : ''}${formatMoney(margin)}`} hint="ingresos estimados menos sueldos" valueClassName={`text-2xl sm:text-3xl ${margin >= 0 ? 'text-accent' : 'text-danger'}`} />
+          <Stat label="Academia" value={`Nv. ${club?.academy_level || 1}`} hint={`${data.youth.length} juveniles`} valueClassName="text-2xl sm:text-3xl" />
+        </CardBody>
+      </Card>
 
-          <div className="text-right">
-            <p className="text-[11px] text-zinc-400 font-medium">Presupuesto</p>
-            <p className="text-base md:text-xl font-black text-emerald-400">
-              ${Number(club?.budget || 0).toLocaleString()}
-            </p>
-          </div>
-        </div>
-      </header>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <TabsList aria-label="Secciones del club">
+          {TABS.map(([value, label]) => <TabsTrigger key={value} value={value}>{label}</TabsTrigger>)}
+        </TabsList>
+      </Tabs>
 
-      {/* Selector de pestañas */}
-      <nav className="flex overflow-x-auto no-scrollbar gap-1 rounded-xl bg-zinc-900/80 p-1 mb-6 border border-zinc-800 text-xs md:text-sm font-semibold shrink-0">
-        <button
-          onClick={() => setActiveTab('gestion')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-all shrink-0 ${
-            activeTab === 'gestion'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Briefcase className="w-4 h-4 shrink-0" />
-          <span>Gestión & Staff</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('vestuario')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-all shrink-0 ${
-            activeTab === 'vestuario'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Users className="w-4 h-4 shrink-0" />
-          <span>Vestuario</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('enfermeria')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg transition-all shrink-0 ${
-            activeTab === 'enfermeria'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <HeartPulse className="w-4 h-4 shrink-0" />
-          <span>Enfermería</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('estadio')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
-            activeTab === 'estadio'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Landmark className="w-4 h-4 shrink-0" />
-          <span>Estadio & Obras</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('hinchada')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
-            activeTab === 'hinchada'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Flame className="w-4 h-4 shrink-0" />
-          <span>Hinchada</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('directiva')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
-            activeTab === 'directiva'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Award className="w-4 h-4 shrink-0" />
-          <span>Directiva</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('historia')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
-            activeTab === 'historia'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <History className="w-4 h-4 shrink-0" />
-          <span>Historia & Récords</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('idolos')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all ${
-            activeTab === 'idolos'
-              ? 'bg-emerald-500 text-zinc-950 shadow-sm font-bold'
-              : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
-          }`}
-        >
-          <Crown className="w-4 h-4 shrink-0" />
-          <span>Ídolos & Leyendas</span>
-        </button>
-      </nav>
-
-      {/* CONTENIDO TAB 1: GESTIÓN & STAFF */}
       {activeTab === 'gestion' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Cuerpo Técnico */}
-          <div className="p-4 md:p-6 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="flex items-center gap-2 font-bold text-base md:text-lg text-white">
-                <Briefcase className="w-5 h-5 text-emerald-400 shrink-0" /> Cuerpo Técnico Actual
-              </h2>
-              <button 
-                onClick={() => setShowStaffModal(true)}
-                className="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold text-xs rounded-lg hover:bg-emerald-400 transition-colors flex items-center gap-1 shadow-sm"
-              >
-                <Briefcase className="w-3.5 h-3.5" />
-                <span>Especialistas (5 Roles)</span>
-              </button>
-            </div>
-            
-            <div className="space-y-2.5 mb-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="flex-row items-center justify-between gap-3">
+              <CardTitle>Cuerpo técnico</CardTitle>
+              <Button size="sm" onClick={() => setShowStaffModal(true)}>Especialistas</Button>
+            </CardHeader>
+            <CardBody className="space-y-5">
               {data.staff.length === 0 ? (
-                <p className="text-zinc-500 text-xs md:text-sm py-4 text-center border border-dashed border-zinc-800 rounded-xl">
-                  Sin asistentes contratados. Eres el único al mando táctico y físico.
-                </p>
+                <EmptyState title="Sin asistentes" description="Sos el único al mando táctico y físico." className="py-6" />
               ) : (
-                data.staff.map(s => (
-                  <div key={s.id} className="flex justify-between items-center p-3 border rounded-xl border-zinc-800 bg-zinc-950/70">
-                    <div>
-                      <p className="font-bold text-sm text-zinc-100">{s.name}</p>
-                      <p className="text-xs text-zinc-400">{s.role} • Nivel {s.level}</p>
-                    </div>
-                    <button 
-                      onClick={async () => {
-                        const confirmed = await confirmAction({
-                          title: 'Despedir Staff',
-                          description: `¿Estás seguro de rescindir el contrato de ${s.name}? Dejará de aportar sus bonificaciones al club.`,
-                          confirmText: 'Despedir',
-                          cancelText: 'Cancelar',
-                          variant: 'danger'
-                        })
-                        if (confirmed) {
-                          await staffApi.fireStaff(s.id)
-                          toast.success('Contrato de staff rescindido')
-                          loadData()
-                        }
-                      }} 
-                      className="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 transition-colors"
-                    >
-                      Despedir
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <h3 className="font-bold text-zinc-300 text-xs md:text-sm mb-3 flex items-center gap-1.5">
-              <UserPlus className="w-4 h-4 text-emerald-400" /> Especialistas Disponibles
-            </h3>
-            <div className="space-y-2">
-              {data.candidates.map((c, i) => (
-                <div key={i} className="flex justify-between items-center p-3 border border-zinc-800/80 rounded-xl bg-zinc-900/40">
-                  <div className="min-w-0 pr-2">
-                    <p className="font-bold text-xs md:text-sm text-zinc-200 truncate">{c.name}</p>
-                    <p className="text-[11px] text-zinc-400">{c.role} • Nv. {c.level} • ${c.salary}/mes</p>
-                  </div>
-                  <button 
-                    onClick={() => handleHireStaff(c)} 
-                    className="p-2 bg-zinc-800 hover:bg-emerald-500 hover:text-zinc-950 text-zinc-200 rounded-lg transition-colors shrink-0"
-                    title="Contratar especialista"
-                  >
-                    <UserPlus className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Divisiones Inferiores & Finanzas */}
-          <div className="space-y-6">
-            {/* Academia */}
-            <div className="p-4 md:p-6 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="flex items-center gap-2 font-bold text-base md:text-lg text-white">
-                  <GraduationCap className="w-5 h-5 text-emerald-400 shrink-0" />
-                  <span>Academia (Nv. {club?.academy_level || 1})</span>
-                </h2>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setShowYouthModal(true)} 
-                    className="px-3 py-1.5 bg-amber-400 text-zinc-950 font-bold text-xs rounded-lg hover:bg-amber-300 transition-colors flex items-center gap-1 shadow-sm"
-                  >
-                    <GraduationCap className="w-3.5 h-3.5" />
-                    <span>Cantera & Camada</span>
-                  </button>
-                  <button 
-                    onClick={handleGenerateProspect} 
-                    className="px-3 py-1.5 bg-emerald-500 text-zinc-950 font-bold text-xs rounded-lg hover:bg-emerald-400 transition-colors flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Otear (-$5k)</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-2.5">
-                {data.youth.length === 0 ? (
-                  <p className="text-zinc-500 text-xs md:text-sm py-4 text-center border border-dashed border-zinc-800 rounded-xl">
-                    La cantera está vacía. Otea talento juvenil para nutrir el semillero.
-                  </p>
-                ) : (
-                  data.youth.map(y => (
-                    <div key={y.id} className="flex justify-between items-center p-3 border rounded-xl border-zinc-800 bg-zinc-950/70">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-bold text-xs md:text-sm text-white">{y.first_name} {y.last_name}</p>
-                          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">
-                            POT {y.attr_potential}
-                          </span>
-                        </div>
-                        <p className="text-xs text-zinc-400">{y.position} • {y.age} años</p>
+                <ul className="space-y-2">
+                  {data.staff.map(s => (
+                    <li key={s.id} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 p-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-fg">{s.name}</p>
+                        <p className="text-xs text-fg-muted">{s.role} · Nivel {s.level}</p>
                       </div>
-                      <button 
-                        onClick={() => handlePromote(y.id)} 
-                        className="text-xs font-bold text-zinc-950 bg-white px-3 py-1.5 rounded-lg hover:bg-zinc-200 transition-colors shrink-0"
-                      >
-                        Promover
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+                      <Button variant="ghost" size="sm" onClick={() => fireStaff(s)} aria-label={`Despedir a ${s.name}`}>Despedir</Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-            {/* Presupuesto y Balance */}
-            <div className="p-4 md:p-6 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-              <h2 className="flex items-center gap-2 mb-4 font-bold text-base md:text-lg text-white">
-                <DollarSign className="w-5 h-5 text-emerald-400 shrink-0" /> Presupuesto & Masa Salarial
-              </h2>
-              <div className="p-3.5 border border-zinc-800 rounded-xl bg-zinc-950/80 space-y-2.5">
-                <div className="flex justify-between text-xs md:text-sm">
-                  <span className="text-zinc-400">Balance en Arcas</span>
-                  <span className="font-bold text-emerald-400">${Number(club?.budget || 0).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-xs md:text-sm">
-                  <span className="text-zinc-400">Sueldos (Plantel + Staff semanal)</span>
-                  <span className="font-bold text-red-400">-${(data.salaries || 0).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-xs md:text-sm">
-                  <span className="text-zinc-400">Ingresos Proyectados (TV & Sponsors)</span>
-                  <span className="font-bold text-emerald-400">+$40,000</span>
-                </div>
-                <div className="pt-2.5 border-t border-zinc-800 flex justify-between text-xs md:text-sm">
-                  <span className="font-bold text-zinc-200">Margen Semanal Estimado</span>
-                  <span className={`font-bold ${40000 - (data.salaries || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {40000 - (data.salaries || 0) >= 0 ? '+' : ''}${(40000 - (data.salaries || 0)).toLocaleString()}
-                  </span>
-                </div>
+              <div>
+                <h3 className="eyebrow mb-2">Especialistas disponibles</h3>
+                <ul className="space-y-2">
+                  {data.candidates.map((c, i) => (
+                    <li key={c.id ?? i} className="flex items-center justify-between gap-3 rounded-lg border border-line p-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-fg">{c.name}</p>
+                        <p className="text-xs text-fg-muted">{c.role} · Nv. {c.level} · {formatMoney(c.salary)}/mes</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => handleHireStaff(c)} aria-label={`Contratar a ${c.name}`}><UserPlus />Contratar</Button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex-row flex-wrap items-center justify-between gap-3">
+              <CardTitle>Academia · Nv. {club?.academy_level || 1}</CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowYouthModal(true)}><GraduationCap />Cantera</Button>
+                <Button size="sm" onClick={handleGenerateProspect}><Sparkles />Otear · {formatMoney(PROSPECT_COST)}</Button>
+              </div>
+            </CardHeader>
+            <CardBody>
+              {data.youth.length === 0 ? (
+                <EmptyState icon={GraduationCap} title="Cantera vacía" description="Oteá talento juvenil para nutrir el semillero." className="py-6" />
+              ) : (
+                <ul className="space-y-2">
+                  {data.youth.map(y => (
+                    <li key={y.id} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-2 p-3">
+                      <div className="min-w-0">
+                        <p className="flex items-center gap-2 text-sm font-semibold text-fg">
+                          <span className="truncate">{y.first_name} {y.last_name}</span>
+                          <Badge tone="accent">POT {y.attr_potential}</Badge>
+                        </p>
+                        <p className="text-xs text-fg-muted">{y.position} · {y.age} años</p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => handlePromote(y.id)}>Promover</Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+          </Card>
         </div>
       )}
 
-      {/* CONTENIDO TAB: VESTUARIO & DINÁMICA SOCIAL (FASE 25) */}
-      {activeTab === 'vestuario' && (
-        <LockerRoomTab 
-          club={club} 
-          confirmAction={confirmAction} 
-          onUpdateClub={() => loadData(true)} 
-        />
-      )}
+      {activeTab === 'vestuario' && <LockerRoomTab club={club} confirmAction={confirmAction} onUpdateClub={refresh} />}
+      {activeTab === 'enfermeria' && <InfirmaryTab club={club} />}
+      {activeTab === 'estadio' && <StadiumManagementTab club={club} confirmAction={confirmAction} onUpdateClub={refresh} />}
+      {activeTab === 'hinchada' && <FanbaseManagementTab club={club} />}
+      {activeTab === 'directiva' && <BoardManagementTab club={club} manager={manager} confirmAction={confirmAction} onUpdateClub={refresh} />}
+      {activeTab === 'historia' && <ClubHistoryTab club={club} confirmAction={confirmAction} onUpdateClub={refresh} />}
+      {activeTab === 'idolos' && <IdolsLegendsTab club={club} manager={manager} confirmAction={confirmAction} onUpdateClub={refresh} />}
 
-      {/* CONTENIDO TAB: ENFERMERÍA Y GESTIÓN MÉDICA (FASE 27) */}
-      {activeTab === 'enfermeria' && (
-        <InfirmaryTab club={club} />
-      )}
-
-      {/* CONTENIDO TAB: ESTADIO & INFRAESTRUCTURA (FASE 21) */}
-      {activeTab === 'estadio' && (
-        <StadiumManagementTab 
-          club={club} 
-          confirmAction={confirmAction} 
-          onUpdateClub={() => loadData(true)} 
-        />
-      )}
-
-      {/* CONTENIDO TAB: HINCHADA & AFICIÓN (FASE 22) */}
-      {activeTab === 'hinchada' && (
-        <FanbaseManagementTab club={club} />
-      )}
-
-      {/* CONTENIDO TAB: COMISIÓN DIRECTIVA (FASE 23) */}
-      {activeTab === 'directiva' && (
-        <BoardManagementTab 
-          club={club} 
-          manager={manager} 
-          confirmAction={confirmAction} 
-          onUpdateClub={() => loadData(true)} 
-        />
-      )}
-
-      {/* CONTENIDO TAB 2: HISTORIA & RÉCORDS (FASE 36) */}
-      {activeTab === 'historia' && (
-        <ClubHistoryTab 
-          club={club}
-          confirmAction={confirmAction}
-          onUpdateClub={() => loadData(true)}
-        />
-      )}
-
-      {/* CONTENIDO TAB 3: ÍDOLOS & LEYENDAS (FASE 37) */}
-      {activeTab === 'idolos' && (
-        <IdolsLegendsTab
-          club={club}
-          manager={manager}
-          confirmAction={confirmAction}
-          onUpdateClub={() => loadData(true)}
-        />
-      )}
-
-      {/* Modal: Cantera y Camada Anual (Fase 18) */}
-      {showYouthModal && (
-        <YouthAcademyModal 
-          club={club}
-          manager={manager}
-          onClose={() => setShowYouthModal(false)}
-          onCandidatePromoted={() => loadData(true)}
-        />
-      )}
-
-      {/* Modal: Especialistas y Cuerpo Técnico (Fase 19) */}
-      {showStaffModal && (
-        <StaffManagementModal
-          club={club}
-          manager={manager}
-          onClose={() => setShowStaffModal(false)}
-          onStaffUpdated={() => loadData(true)}
-        />
-      )}
-
-      {/* Modal: Sala de Prensa & Hemeroteca (Fase 24) */}
-      {showPressModal && (
-        <PressRoomModal
-          club={club}
-          onClose={() => setShowPressModal(false)}
-        />
-      )}
+      {showYouthModal && <YouthAcademyModal club={club} manager={manager} onClose={() => setShowYouthModal(false)} onCandidatePromoted={refresh} />}
+      {showStaffModal && <StaffManagementModal club={club} manager={manager} onClose={() => setShowStaffModal(false)} onStaffUpdated={refresh} />}
+      {showPressModal && <PressRoomModal club={club} onClose={() => setShowPressModal(false)} />}
     </div>
   )
 }

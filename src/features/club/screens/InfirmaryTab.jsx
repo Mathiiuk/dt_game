@@ -17,6 +17,7 @@ import {
 import { injuriesApi, INJURY_SEVERITY } from '../../../api/injuries'
 import { useGameContext } from '../../../context/GameContext'
 import { toast } from 'sonner'
+import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
 
 export default function InfirmaryTab({ club }) {
   const { confirmAction } = useGameContext()
@@ -90,53 +91,53 @@ export default function InfirmaryTab({ club }) {
     <div className="space-y-6">
       {/* Header Fisioterapeuta y Resumen */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
+        <div className="p-4 rounded-lg bg-surface border border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
+            <div className="p-2.5 rounded-xl bg-danger/10 text-danger border border-danger/20">
               <Activity className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-zinc-400 font-medium">Bajas Médicas Activas</p>
-              <h3 className="text-2xl font-black text-white">{injuries.length}</h3>
+              <p className="text-xs text-fg-muted font-medium">Bajas Médicas Activas</p>
+              <h3 className="text-2xl font-semibold text-fg">{injuries.length}</h3>
             </div>
           </div>
-          <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${injuries.length === 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+          <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${injuries.length === 0 ? 'bg-accent/10 text-accent border border-accent/20' : 'bg-danger/10 text-danger border border-danger/20'}`}>
             {injuries.length === 0 ? 'Plantel Pleno' : `${injuries.length} en camilla`}
           </span>
         </div>
 
-        <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
+        <div className="p-4 rounded-lg bg-surface border border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <div className="p-2.5 rounded-xl bg-gold/10 text-gold border border-gold/20">
               <Clock className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-zinc-400 font-medium">Tiempo Medio Restante</p>
-              <h3 className="text-2xl font-black text-white">
+              <p className="text-xs text-fg-muted font-medium">Tiempo Medio Restante</p>
+              <h3 className="text-2xl font-semibold text-fg">
                 {injuries.length > 0 
                   ? (injuries.reduce((acc, curr) => acc + curr.weeks_remaining, 0) / injuries.length).toFixed(1)
-                  : '0.0'} <span className="text-xs text-zinc-400 font-normal">sem</span>
+                  : '0.0'} <span className="text-xs text-fg-muted font-normal">sem</span>
               </h3>
             </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-between">
+        <div className="p-4 rounded-lg bg-surface border border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="p-2.5 rounded-xl bg-accent/10 text-accent border border-accent/20">
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs text-zinc-400 font-medium">Cuerpo Médico</p>
-              <h3 className="text-sm font-black text-white flex items-center gap-1.5 mt-1">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Kinesiología Activa
+              <p className="text-xs text-fg-muted font-medium">Cuerpo Médico</p>
+              <h3 className="text-sm font-semibold text-fg flex items-center gap-1.5 mt-1">
+                <CheckCircle2 className="w-4 h-4 text-accent" /> Kinesiología Activa
               </h3>
             </div>
           </div>
           <button 
             onClick={loadInfirmary}
             disabled={loading}
-            className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+            className="p-2 rounded-xl bg-surface-3 hover:bg-surface-3 text-fg transition-colors"
             title="Actualizar parte médico"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -145,27 +146,27 @@ export default function InfirmaryTab({ club }) {
       </div>
 
       {/* Lista de Convalecientes */}
-      <div className="p-5 rounded-3xl bg-zinc-900/60 border border-zinc-800 space-y-4">
+      <div className="p-5 rounded-xl bg-surface/60 border border-line space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <HeartPulse className="w-5 h-5 text-rose-500" />
-            <h2 className="font-bold text-white text-base">Parte Médico Oficial</h2>
+            <HeartPulse className="w-5 h-5 text-danger" />
+            <h2 className="font-bold text-fg text-base">Parte Médico Oficial</h2>
           </div>
-          <span className="text-xs text-zinc-500">Actualizado semanalmente por el cuerpo médico</span>
+          <span className="text-xs text-fg-subtle">Actualizado semanalmente por el cuerpo médico</span>
         </div>
 
         {loading ? (
-          <div className="py-12 flex flex-col items-center justify-center gap-2 text-zinc-400">
-            <div className="w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+          <div className="py-12 flex flex-col items-center justify-center gap-2 text-fg-muted">
+            <div className="w-6 h-6 border-2 border-danger border-t-transparent rounded-full animate-spin" />
             <span className="text-xs">Cargando fichas médicas...</span>
           </div>
         ) : injuries.length === 0 ? (
-          <div className="p-8 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 text-center space-y-2">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+          <div className="p-8 rounded-lg bg-bg/60 border border-line/80 text-center space-y-2">
+            <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/20 text-accent flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6" />
             </div>
-            <p className="text-sm font-bold text-white">¡Enfermería Vacía!</p>
-            <p className="text-xs text-zinc-400 max-w-md mx-auto">
+            <p className="text-sm font-bold text-fg">¡Enfermería Vacía!</p>
+            <p className="text-xs text-fg-muted max-w-md mx-auto">
               Todo el plantel profesional se encuentra en condiciones médicas óptimas para disputar partidos y entrenar.
             </p>
           </div>
@@ -178,20 +179,20 @@ export default function InfirmaryTab({ club }) {
               const progressPct = Math.round(((injury.weeks_total - injury.weeks_remaining) / (injury.weeks_total || 1)) * 100)
 
               return (
-                <div key={injury.id} className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-zinc-700 transition-all space-y-3">
+                <div key={injury.id} className="p-4 rounded-lg bg-bg border border-line hover:border-line transition-all space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center font-bold text-zinc-300 text-sm">
-                        {p?.number ? `#${p.number}` : <User className="w-5 h-5 text-zinc-500" />}
+                      <div className="w-10 h-10 rounded-xl bg-surface border border-line flex items-center justify-center font-bold text-fg text-sm">
+                        {p?.number ? `#${p.number}` : <User className="w-5 h-5 text-fg-subtle" />}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-white text-sm">{p?.first_name} {p?.last_name}</h4>
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                          <h4 className="font-bold text-fg text-sm">{p?.first_name} {p?.last_name}</h4>
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-surface-3 text-fg-muted">
                             {p?.position}
                           </span>
                         </div>
-                        <p className="text-xs text-rose-400 font-medium flex items-center gap-1.5 mt-0.5">
+                        <p className="text-xs text-danger font-medium flex items-center gap-1.5 mt-0.5">
                           <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> {injury.injury_type}
                         </p>
                       </div>
@@ -203,7 +204,7 @@ export default function InfirmaryTab({ club }) {
                       </span>
                       <button
                         onClick={() => handleOpenHistory(p)}
-                        className="px-2.5 py-1 text-[11px] font-semibold text-zinc-400 hover:text-white bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg flex items-center gap-1 transition-colors"
+                        className="px-2.5 py-1 text-[11px] font-semibold text-fg-muted hover:text-fg bg-surface hover:bg-surface-3 border border-line rounded-lg flex items-center gap-1 transition-colors"
                       >
                         <History className="w-3 h-3" /> Ficha
                       </button>
@@ -213,14 +214,14 @@ export default function InfirmaryTab({ club }) {
                   {/* Barra de progreso de recuperación */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-zinc-500">Recuperación estimada</span>
-                      <span className="font-bold text-white font-mono">
+                      <span className="text-fg-subtle">Recuperación estimada</span>
+                      <span className="font-bold text-fg font-mono">
                         {injury.weeks_remaining} {injury.weeks_remaining === 1 ? 'semana restante' : 'semanas restantes'} ({progressPct}%)
                       </span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-zinc-900 overflow-hidden border border-zinc-800">
+                    <div className="w-full h-2 rounded-full bg-surface overflow-hidden border border-line">
                       <div 
-                        className="h-full bg-rose-500 rounded-full transition-all duration-500" 
+                        className="h-full bg-danger rounded-full transition-all duration-500" 
                         style={{ width: `${Math.max(5, progressPct)}%` }} 
                       />
                     </div>
@@ -228,8 +229,8 @@ export default function InfirmaryTab({ club }) {
 
                   {/* Secuelas o detalles */}
                   {injury.permanent_attribute_loss && (
-                    <div className="p-2.5 rounded-xl bg-red-950/30 border border-red-900/40 text-[11px] text-red-300 flex items-center gap-2">
-                      <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
+                    <div className="p-2.5 rounded-xl bg-red-950/30 border border-red-900/40 text-[11px] text-danger flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-danger shrink-0" />
                       <span>
                         Secuela permanente documentada: {Object.entries(injury.permanent_attribute_loss).map(([attr, val]) => `${attr.toUpperCase()}: ${val}`).join(', ')}
                       </span>
@@ -237,8 +238,8 @@ export default function InfirmaryTab({ club }) {
                   )}
 
                   {/* Acción de Infiltración Médica */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-zinc-900">
-                    <div className="text-[11px] text-zinc-500">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-line">
+                    <div className="text-[11px] text-fg-subtle">
                       {canInfiltrate 
                         ? 'Apto para infiltración con 50% de probabilidad de éxito.'
                         : injury.weeks_remaining > 2 
@@ -251,8 +252,8 @@ export default function InfirmaryTab({ club }) {
                       onClick={() => handleInfiltrate(injury)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                         canInfiltrate 
-                          ? 'bg-rose-600/20 text-rose-300 border border-rose-500/40 hover:bg-rose-600/30 shadow-md' 
-                          : 'bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed'
+                          ? 'bg-danger/20 text-danger border border-danger/40 hover:bg-danger/30 shadow-md' 
+                          : 'bg-surface text-fg-subtle border border-line cursor-not-allowed'
                       }`}
                       title={canInfiltrate ? 'Infiltrar con anestesia para habilitar en el partido' : 'No apto para infiltración médica'}
                     >
@@ -267,68 +268,41 @@ export default function InfirmaryTab({ club }) {
         )}
       </div>
 
-      {/* Modal Historial Clínico */}
+      {/* Ficha médica histórica */}
       {selectedPlayerHistory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 px-2 py-0.5 rounded bg-rose-500/10 border border-rose-500/20">
-                  Ficha Médica Histórica
-                </span>
-                <h3 className="text-lg font-black text-white mt-1">
-                  {selectedPlayerHistory.first_name} {selectedPlayerHistory.last_name}
-                </h3>
-                <p className="text-xs text-zinc-400">
-                  {selectedPlayerHistory.position} • {selectedPlayerHistory.age} años
-                </p>
-              </div>
-              <button 
-                onClick={() => setSelectedPlayerHistory(null)}
-                className="p-1.5 text-zinc-400 hover:text-white rounded-lg bg-zinc-800 transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-              {loadingHistory ? (
-                <div className="py-8 text-center text-xs text-zinc-400">Cargando expediente...</div>
-              ) : historyList.length === 0 ? (
-                <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-800 text-center text-xs text-zinc-500">
-                  Sin antecedentes de lesiones registradas en la institución.
-                </div>
-              ) : (
-                historyList.map(h => {
-                  const hTier = INJURY_SEVERITY[h.severity_tier] || INJURY_SEVERITY.MINOR
-                  return (
-                    <div key={h.id} className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1 text-xs">
-                      <div className="flex justify-between items-start">
-                        <span className="font-bold text-white">{h.injury_type}</span>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${hTier.badgeColor}`}>
-                          {hTier.name}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-zinc-400 text-[11px]">
-                        <span>Contexto: {h.occurred_in_context === 'MATCH' ? 'Partido' : h.occurred_in_context === 'TRAINING' ? 'Entrenamiento' : 'Infiltración'}</span>
-                        <span>{h.weeks_total} semanas ({h.is_cleared ? 'Alta recibida' : `${h.weeks_remaining} sem pendientes`})</span>
-                      </div>
+        <ResponsiveOverlay
+          title={`${selectedPlayerHistory.first_name} ${selectedPlayerHistory.last_name}`}
+          description={`Ficha médica histórica · ${selectedPlayerHistory.position} · ${selectedPlayerHistory.age} años`}
+          onClose={() => setSelectedPlayerHistory(null)}
+          size="md"
+          footer={<Button variant="outline" onClick={() => setSelectedPlayerHistory(null)}>Cerrar expediente</Button>}
+        >
+          <div className="space-y-2">
+            {loadingHistory ? (
+              <p className="py-8 text-center text-sm text-fg-muted" role="status">Cargando expediente...</p>
+            ) : historyList.length === 0 ? (
+              <p className="rounded-lg border border-line bg-surface-2 p-6 text-center text-sm text-fg-muted">
+                Sin antecedentes de lesiones registradas en la institución.
+              </p>
+            ) : (
+              historyList.map(h => {
+                const hTier = INJURY_SEVERITY[h.severity_tier] || INJURY_SEVERITY.MINOR
+                return (
+                  <div key={h.id} className="space-y-1 rounded-lg border border-line bg-surface-2 p-3 text-sm">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-semibold text-fg">{h.injury_type}</span>
+                      <span className={`rounded border px-1.5 py-0.5 text-xs font-semibold ${hTier.badgeColor}`}>{hTier.name}</span>
                     </div>
-                  )
-                })
-              )}
-            </div>
-
-            <div className="pt-2 border-t border-zinc-800 flex justify-end">
-              <button
-                onClick={() => setSelectedPlayerHistory(null)}
-                className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs transition-colors"
-              >
-                Cerrar Expediente
-              </button>
-            </div>
+                    <div className="flex flex-wrap justify-between gap-x-3 text-xs text-fg-muted">
+                      <span>Contexto: {h.occurred_in_context === 'MATCH' ? 'Partido' : h.occurred_in_context === 'TRAINING' ? 'Entrenamiento' : 'Infiltración'}</span>
+                      <span>{h.weeks_total} semanas ({h.is_cleared ? 'Alta recibida' : `${h.weeks_remaining} sem pendientes`})</span>
+                    </div>
+                  </div>
+                )
+              })
+            )}
           </div>
-        </div>
+        </ResponsiveOverlay>
       )}
     </div>
   )
