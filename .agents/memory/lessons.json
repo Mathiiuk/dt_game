@@ -1,0 +1,65 @@
+[
+  {
+    "id": "LES-2982",
+    "timestamp": "2026-10-05T16:49:22.982Z",
+    "category": "BUG_FIX",
+    "lesson": "players tenía DOS columnas de moral (morale y state_morale): las charlas del vestuario escribían una y el Inicio/partidos leían la otra, así que nada se notaba",
+    "solution": "Trigger sync_player_morale mantiene ambas iguales (migración scripts/db/migration_sync_player_morale.sql). Leer y escribir state_morale; ante columnas duplicadas en la base, unificar con trigger antes de tocar el código"
+  },
+  {
+    "id": "LES-6221",
+    "timestamp": "2026-10-05T16:49:26.221Z",
+    "category": "BUG_FIX",
+    "lesson": "Código y esquema derivan: se escribían columnas inexistentes (last_scouted_at en scout_reports) o faltaban NOT NULL (nationality en juveniles) y la pantalla fallaba con 400",
+    "solution": "Test que compara las columnas escritas con las reales de la base (tests/api/scouting.test.js, youthProspect.test.js). Consultar information_schema antes de escribir una API nueva"
+  },
+  {
+    "id": "LES-9243",
+    "timestamp": "2026-10-05T16:49:29.243Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "Leer no debe escribir: getClubMilestones insertaba el hito de fundación si la lista estaba vacía y dos pantallas a la vez lo duplicaban",
+    "solution": "Crear datos iniciales al crear la entidad (createClub) y proteger con índice único + upsert ignoreDuplicates (migration_milestones_unique.sql)"
+  },
+  {
+    "id": "LES-1676",
+    "timestamp": "2026-10-05T16:49:31.676Z",
+    "category": "ARCHITECTURE",
+    "lesson": "Acciones asíncronas sin protección: dobles clics repetían acciones y no había señal de carga",
+    "solution": "useAsyncClick + Button/AsyncButton bloquean y muestran spinner solos cuando onClick devuelve una promesa. Nuevo botón con acción async: usar Button o AsyncButton, nunca un <button> suelto"
+  },
+  {
+    "id": "LES-4161",
+    "timestamp": "2026-10-05T16:49:34.161Z",
+    "category": "ARCHITECTURE",
+    "lesson": "La copa continental era global y jugable en cualquier momento; el avance dependía de que el usuario jugara",
+    "solution": "src/domain/cupTournament.js (puro): fechas fijas, clasificación por liga y planTournamentStep; internationalCupApi.syncTournament es idempotente. Cualquier competencia con fechas debe usar isDue y frenar el avance de semana si hay partido propio vencido"
+  },
+  {
+    "id": "LES-6811",
+    "timestamp": "2026-10-05T16:49:36.811Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "El calendario de la carrera podía desfasarse de clubs.game_date (club restablecido): ERR_MATCH_MUST_BE_PLAYED_FIRST falso y avance que no cambiaba nada",
+    "solution": "La fecha del club es la fuente de verdad: calendarApi.reconcileWithClub alinea semana y fecha; usar semana ABSOLUTA (domain/gameWeek.js) para enfriamientos que cruzan temporadas"
+  },
+  {
+    "id": "LES-9410",
+    "timestamp": "2026-10-05T16:49:39.410Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "Los textos de la interfaz derivaban a Title Case, '&', inglés y errores crudos de la base",
+    "solution": "friendlyError (src/lib/errors.js) en todo toast.error y tests/static/copy.test.js que lo impide; scripts/fix-copy.cjs para barridos"
+  },
+  {
+    "id": "LES-1986",
+    "timestamp": "2026-10-05T16:49:41.986Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "Errores de proceso: git add -A coló archivos locales (.claude, docs con secretos) y una rama creada antes de que otra se mergeara falló en CI por falta de un archivo",
+    "solution": "Agregar archivos por nombre (git add -u + rutas), excluir en .git/info/exclude, y crear cada rama desde master actualizado tras mergear la anterior (o mergear origin/master en la rama)"
+  },
+  {
+    "id": "LES-4472",
+    "timestamp": "2026-10-05T16:49:44.472Z",
+    "category": "SECURITY",
+    "lesson": "RLS abierto a anon, resultados de copa y fechas FIFA calculados en el navegador, secreto de Google pegado en el chat, contraseña de BD histórica sin rotar",
+    "solution": "Fase 5: cerrar RLS y mover cálculos a RPC; resetear secretos expuestos antes de la Fase 3 (login con Google)"
+  }
+]
