@@ -197,6 +197,17 @@ export const trainingApi = {
     }
   },
 
+  /** Intensidades de las últimas semanas (la más reciente primero), para avisar de la carga acumulada */
+  async getRecentIntensities(clubId, limit = 5) {
+    const { data } = await supabase
+      .from('training_execution_logs')
+      .select('intensity_applied')
+      .eq('club_id', clubId)
+      .order('timestamp', { ascending: false })
+      .limit(limit)
+    return (data || []).map(l => l.intensity_applied)
+  },
+
   /**
    * Ejecuta el cálculo semanal autoritativo de entrenamiento durante la cascada de avance.
    */

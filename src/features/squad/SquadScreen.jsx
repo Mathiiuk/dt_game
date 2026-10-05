@@ -3,6 +3,9 @@ import { Bell, Check, DollarSign, FileSignature, GraduationCap, Search, Sparkles
 import { toast } from 'sonner'
 import { playerApi } from '../../api/player'
 import { contractApi } from '../../api/contracts'
+import { climateApi } from '../../api/climate'
+import { saleWarning } from '../../domain/warnings'
+import { askRisk } from '../../lib/risk'
 import { personalitiesApi, PERSONALITY_ARCHETYPES } from '../../api/personalities'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
@@ -93,7 +96,7 @@ function OfferCard({ offer, busy, onAccept, onCounter, onReject }) {
 }
 
 export default function SquadScreen() {
-  const { club, manager, loading: contextLoading, refreshContext, confirmAction } = useGameContext()
+  const { club, manager, loading: contextLoading, refreshContext, confirmAction, confirmRisk } = useGameContext()
 
   const cachedPlayers = club?.id ? queryCache.get(`squad:${club.id}`) : null
   const cachedOffers = club?.id ? queryCache.get(`offers:${club.id}`) : null
@@ -202,6 +205,13 @@ export default function SquadScreen() {
       variant: 'primary'
     })
     if (!confirmed) return
+
+    // Vender al ídolo o al capitán tiene costo en la tribuna y en el vestuario
+    const proceed = await askRisk(confirmRisk, async () => {
+      const flags = await climateApi.getReferentFlags(club.id, offer.player_id)
+      return saleWarning({ ...flags, playerName: offer.players?.last_name }, climateApi.difficulty)
+    })
+    if (!proceed) return
 
     try {
       setIsProcessing(true)

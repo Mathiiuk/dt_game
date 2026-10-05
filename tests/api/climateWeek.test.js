@@ -181,3 +181,51 @@ describe('efectos de las decisiones de un dilema', () => {
     expect(writes.find(w => w.table === 'clubs' && w.op === 'update')?.row).toMatchObject({ squad_morale: 60 })
   })
 })
+
+describe('avisos silenciados y dificultad', () => {
+  beforeEach(() => {
+    writes.length = 0
+    created.length = 0
+    state.club = { fans_confidence: 90, budget: 30000 }
+    state.board = { sports_satisfaction: 85, confidence_score: 85, financial_satisfaction: 80, squad_satisfaction: 80 }
+    state.climate = { club_id: 'c1', pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0, difficulty: 'NORMAL', muted_warnings: { TICKET_PRICE: true } }
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+  })
+
+  afterEach(() => vi.restoreAllMocks())
+
+  it('silenciar un aviso lo guarda sin pisar los demás', async () => {
+    state.climate.muted_warnings = { TRAINING_HIGH: true }
+    await climateApi.muteWarning('c1', 'TICKET_PRICE')
+    expect(upsert().muted_warnings).toEqual({ TRAINING_HIGH: true, TICKET_PRICE: true })
+  })
+
+  it('al llegar a cinco victorias seguidas los avisos silenciados vuelven', async () => {
+    state.streaks = { results: ['W', 'W', 'W', 'W', 'W'], fixtureIds: [], win: 5, loss: 0, unbeaten: 5, winless: 0 }
+    await climateApi.advanceWeek({ clubId: 'c1', managerId: 'm1', week: 10 })
+    expect(upsert().muted_warnings).toEqual({})
+  })
+
+  it('con cuatro victorias siguen silenciados', async () => {
+    state.streaks = { results: ['W', 'W', 'W', 'W'], fixtureIds: [], win: 4, loss: 0, unbeaten: 4, winless: 0 }
+    await climateApi.advanceWeek({ clubId: 'c1', managerId: 'm1', week: 10 })
+    expect(upsert().muted_warnings).toBeUndefined()
+  })
+
+  it('un escándalo nuevo también los reactiva', async () => {
+    state.climate.favors = 6
+    state.streaks = { results: ['D'], fixtureIds: [], win: 0, loss: 0, unbeaten: 1, winless: 1 }
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    await climateApi.advanceWeek({ clubId: 'c1', managerId: 'm1', week: 10 })
+    expect(upsert()).toMatchObject({ scandals: 1, muted_warnings: {} })
+  })
+
+  it('la dificultad elegida se guarda y se aplica enseguida', async () => {
+    const d = await climateApi.saveDifficulty('c1', 'REALISTIC')
+    expect(d.key).toBe('REALISTIC')
+    expect(climateApi.difficulty.negative).toBe(1.3)
+    expect(upsert().difficulty).toBe('REALISTIC')
+    climateApi.setDifficulty('NORMAL')
+  })
+})
+

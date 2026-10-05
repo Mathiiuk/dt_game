@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { AlertTriangle, HelpCircle } from 'lucide-react'
 import { Button } from './ui/button'
@@ -13,6 +13,7 @@ const DANGER_VARIANTS = new Set(['red', 'danger'])
  * La API (isOpen / config / onConfirm / onCancel) no cambió.
  */
 export default function ActionSheet({ isOpen, config, onConfirm, onCancel }) {
+  const [muted, setMuted] = useState(false)
   if (!config) return null
 
   const {
@@ -21,7 +22,8 @@ export default function ActionSheet({ isOpen, config, onConfirm, onCancel }) {
     confirmText = 'Confirmar',
     cancelText = 'Cancelar',
     variant = 'primary',
-    icon: CustomIcon
+    icon: CustomIcon,
+    muteKey
   } = config
 
   const danger = DANGER_VARIANTS.has(variant)
@@ -58,9 +60,16 @@ export default function ActionSheet({ isOpen, config, onConfirm, onCancel }) {
             </div>
           </div>
 
+          {muteKey && (
+            <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-sm text-fg-muted">
+              <input type="checkbox" checked={muted} onChange={(e) => setMuted(e.target.checked)} className="size-4 accent-[var(--color-accent)]" />
+              No avisarme más de esto
+            </label>
+          )}
+
           <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
-            <Button variant="ghost" onClick={onCancel} className="sm:min-w-28">{cancelText}</Button>
-            <Button variant={danger ? 'danger' : 'primary'} onClick={onConfirm} className="sm:min-w-28">{confirmText}</Button>
+            <Button variant="ghost" onClick={() => { setMuted(false); onCancel() }} className="sm:min-w-28">{cancelText}</Button>
+            <Button variant={danger ? 'danger' : 'primary'} onClick={() => { const choice = muted; setMuted(false); onConfirm(choice) }} className="sm:min-w-28">{confirmText}</Button>
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

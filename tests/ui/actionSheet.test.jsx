@@ -37,4 +37,21 @@ describe('ActionSheet (confirmaciones)', () => {
     expect(screen.getByRole('dialog', { name: '¿Confirmar acción?' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Confirmar' })).toBeInTheDocument()
   })
+
+  it('un aviso silenciable muestra la casilla y confirma con lo elegido', async () => {
+    const onConfirm = vi.fn()
+    render(<ActionSheet isOpen config={{ title: 'Entrada cara', muteKey: 'TICKET_PRICE', confirmText: 'Dejar este precio' }} onConfirm={onConfirm} onCancel={() => {}} />)
+    await userEvent.click(screen.getByRole('checkbox', { name: 'No avisarme más de esto' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Dejar este precio' }))
+    expect(onConfirm).toHaveBeenCalledWith(true)
+  })
+
+  it('sin casilla marcada confirma sin silenciar, y las confirmaciones comunes no la muestran', async () => {
+    const onConfirm = vi.fn()
+    const { rerender } = render(<ActionSheet isOpen config={{ title: 'Entrada cara', muteKey: 'TICKET_PRICE' }} onConfirm={onConfirm} onCancel={() => {}} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    expect(onConfirm).toHaveBeenCalledWith(false)
+    rerender(<ActionSheet isOpen config={{ title: 'Otra cosa' }} onConfirm={onConfirm} onCancel={() => {}} />)
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+  })
 })

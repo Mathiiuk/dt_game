@@ -133,3 +133,11 @@ export function climateState(pressure) {
   if (pressure <= 80) return CLIMATE.CRISIS
   return CLIMATE.CHAOS
 }
+
+/**
+ * Qué medidores se muestran según la semana de la carrera (arranque gradual para no abrumar):
+ * semanas 1-4 hinchada y dirigencia; 5-8 suma caja y vestuario; desde la 9 presión, clima y barra.
+ */
+export function climateVisibility(week = 1) {
+  return { fans: true, board: true, cash: week >= 5, locker: week >= 5, pressure: week >= 9, barra: week >= 9 }
+}

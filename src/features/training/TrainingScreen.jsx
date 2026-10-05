@@ -13,9 +13,12 @@ import {
 } from '../../components/ui'
 import { cn } from '../../lib/utils'
 import { friendlyError } from '../../lib/errors'
+import { trainingLoad } from '../../domain/squadConsequences'
+import { trainingWarning } from '../../domain/warnings'
+import { askRisk } from '../../lib/risk'
 
 export default function TrainingScreen() {
-  const { club, refreshContext } = useGameContext()
+  const { club, refreshContext, confirmRisk } = useGameContext()
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -60,6 +63,13 @@ export default function TrainingScreen() {
   const savePlan = async () => {
     setSaving(true)
     try {
+      // La intensidad alta acumula riesgo semana tras semana: se avisa antes de confirmarla
+      const proceed = await askRisk(confirmRisk, async () => {
+        const recent = await trainingApi.getRecentIntensities(club.id)
+        const load = trainingLoad({ recent, current: recovery ? 'LOW' : intensity })
+        return trainingWarning({ intensity: recovery ? 'LOW' : intensity, consecutiveHigh: Math.max(0, load.consecutiveHigh - 1), avgFitness })
+      })
+      if (!proceed) return
       await trainingApi.updateClubTrainingPlan(club.id, focus, intensity)
       await refreshContext()
       toast.success('Plan general de entrenamiento actualizado y en vigor.')

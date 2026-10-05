@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { Building, Clock, Receipt, ShieldPlus, ShoppingBag, Ticket, TrendingDown, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { financesApi } from '../../api/finances'
+import { moraleApi } from '../../api/morale'
+import { climateApi } from '../../api/climate'
+import { ticketPriceWarning } from '../../domain/warnings'
+import { askRisk } from '../../lib/risk'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
 import { formatMoney } from '../../lib/format'
@@ -39,7 +43,7 @@ function Breakdown({ title, total, tone, rows, sign }) {
 }
 
 export default function FinancesScreen() {
-  const { club, confirmAction, refreshContext } = useGameContext()
+  const { club, confirmAction, confirmRisk, refreshContext } = useGameContext()
 
   const cached = club?.id ? queryCache.get(`finances:${club.id}`) : null
   const [loading, setLoading] = useState(!cached)
@@ -75,6 +79,12 @@ export default function FinancesScreen() {
   const handleTicketPrice = async (price) => {
     try {
       setUpdatingTicket(true)
+      // Cobrar caro con el equipo sin ganar enoja a la hinchada: se avisa antes de fijar el precio
+      const proceed = await askRisk(confirmRisk, async () => {
+        const streaks = await moraleApi.getStreaks(club.id)
+        return ticketPriceWarning({ price, streaks }, climateApi.difficulty)
+      })
+      if (!proceed) return
       await financesApi.updateTicketPrice(club.id, price)
       toast.success(`Precio de la entrada fijado en ${formatMoney(price)}`)
       setTicketPrice(price)

@@ -15,6 +15,10 @@ import {
 } from '../../components/ui'
 import OfferModal from './OfferModal'
 import { friendlyError } from '../../lib/errors'
+import { financesApi } from '../../api/finances'
+import { climateApi } from '../../api/climate'
+import { purchaseWarning } from '../../domain/warnings'
+import { askRisk } from '../../lib/risk'
 
 const levelOf = (p) => p.attr_overall || p.overall || 0
 
@@ -22,7 +26,7 @@ const levelOf = (p) => p.attr_overall || p.overall || 0
 const Revealed = ({ scouted, value, hidden }) => (scouted ? <>{value ?? '—'}</> : <span className="text-fg-subtle">{hidden}</span>)
 
 export default function MarketScreen() {
-  const { club, loading: contextLoading, refreshContext, confirmAction } = useGameContext()
+  const { club, loading: contextLoading, refreshContext, confirmAction, confirmRisk } = useGameContext()
   const [loading, setLoading] = useState(true)
   const [players, setPlayers] = useState([])
   const [marketStatus, setMarketStatus] = useState(null)
@@ -95,6 +99,17 @@ export default function MarketScreen() {
   const handleConfirmOffer = async (amount) => {
     try {
       setSubmitting(true)
+      // Pagar de más o dejar la caja flaca molesta a la dirigencia: se avisa antes de cerrar el fichaje
+      const proceed = await askRisk(confirmRisk, async () => {
+        const finances = await financesApi.getFinances(club.id)
+        return purchaseWarning({
+          fee: amount,
+          marketValue: offerPlayer.market_value || marketApi.calculateMarketValue(offerPlayer),
+          balance: Number(club.budget || 0),
+          weeklyExpenses: finances?.expenses?.total || 0
+        }, climateApi.difficulty)
+      })
+      if (!proceed) return
       await marketApi.buyPlayer(club.id, offerPlayer.id, amount, club.manager_id)
       toast.success(`¡Acuerdo cerrado! ${offerPlayer.last_name} es nuevo jugador del club por ${formatMoney(amount)}.`)
       setOfferPlayer(null)

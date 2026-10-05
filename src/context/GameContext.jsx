@@ -6,6 +6,8 @@ import { supabase } from '../api/supabase'
 import { clubApi } from '../api/club'
 import { queryCache } from '../utils/cache'
 import ActionSheet from '../components/ActionSheet'
+import { climateApi } from '../api/climate'
+import { isWarningMuted } from '../domain/warnings'
 
 const GameContext = createContext(null)
 
@@ -116,6 +118,11 @@ export const GameProvider = ({ children }) => {
     }
   }, [location.pathname])
 
+  // La dificultad elegida se guarda por club: se carga apenas hay club
+  useEffect(() => {
+    if (gameState.club?.id) climateApi.load(gameState.club.id).catch(() => {})
+  }, [gameState.club?.id])
+
   const refreshContext = async () => {
     queryCache.invalidate('manager:')
     queryCache.invalidate('club:')
@@ -133,7 +140,35 @@ export const GameProvider = ({ children }) => {
     })
   }
 
-  const handleSheetConfirm = () => {
+  /**
+   * Aviso previo a una acción riesgosa (ver domain/warnings). Si el jugador silenció ese tipo, sigue de largo;
+   * si no, pide confirmación con la opción de no volver a avisar. Resuelve true si hay que seguir con la acción.
+   */
+  const confirmRisk = async (warning) => {
+    if (!warning) return true
+    const clubId = gameState.club?.id
+    if (clubId) {
+      try {
+        const climate = await climateApi.load(clubId)
+        if (isWarningMuted(climate.muted_warnings, warning.key)) return true
+      } catch {
+        // Sin dato de avisos silenciados, se avisa igual
+      }
+    }
+    return confirmAction({
+      title: warning.title,
+      description: warning.description,
+      confirmText: warning.confirmText,
+      cancelText: 'Mejor no',
+      variant: warning.variant,
+      muteKey: warning.key
+    })
+  }
+
+  const handleSheetConfirm = (muted = false) => {
+    if (muted === true && sheetConfig?.muteKey && gameState.club?.id) {
+      climateApi.muteWarning(gameState.club.id, sheetConfig.muteKey).catch(() => {})
+    }
     if (resolverRef.current) resolverRef.current(true)
     setSheetConfig(null)
     resolverRef.current = null
@@ -146,7 +181,7 @@ export const GameProvider = ({ children }) => {
   }
 
   return (
-    <GameContext.Provider value={{ ...gameState, refreshContext, confirmAction }}>
+    <GameContext.Provider value={{ ...gameState, refreshContext, confirmAction, confirmRisk }}>
       {children}
       <ActionSheet
         isOpen={!!sheetConfig}

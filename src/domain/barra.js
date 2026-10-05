@@ -84,3 +84,15 @@ export function pickEvent(catalog, { climate, state = {}, pendingCodes = new Set
   }
   return candidates[candidates.length - 1]
 }
+
+/** Frase corta para la tarjeta de clima: cómo se siente el club esta semana */
+export function climateHeadline(climate, stage = 'CALM') {
+  if (stage === 'INVASION') return 'La barra entró al vestuario. La dirigencia mira en silencio.'
+  if (stage === 'SQUEEZES') return 'La barra aprieta en los entrenamientos. Los jugadores trabajan sin mirar a nadie.'
+  if (stage === 'PRESSURES') return 'Hay banderas en el alambrado y un grupo que mira las prácticas.'
+  if (stage === 'ASKS') return 'Los referentes de la barra se acercan a pedir entradas y plata.'
+  if (climate === 'CHAOS') return 'Todo se está yendo de las manos: hay que ordenar el club ya.'
+  if (climate === 'CRISIS') return 'Se nota la presión en el palco y en la tribuna.'
+  if (climate === 'TENSION') return 'Primeros murmullos: conviene sumar puntos pronto.'
+  return 'Todo fluye: la tribuna y el palco están de tu lado.'
+}

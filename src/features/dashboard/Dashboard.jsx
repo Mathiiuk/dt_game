@@ -14,6 +14,7 @@ import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
 import SeasonCloseModal from '../season/SeasonCloseModal'
+import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
 
 const EVENT_CATEGORY = {
   COMMUNITY: { label: 'Comunidad y barrio', tone: 'accent' },
@@ -234,6 +235,11 @@ export default function Dashboard() {
             ))}
           </section>
         )}
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <ClimatePanel club={club} gameDate={clubSummary.gameDate} />
+          <ConsequenceFeed clubId={club?.id} />
+        </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Próximo compromiso */}

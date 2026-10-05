@@ -4,6 +4,7 @@ import { moraleApi } from './morale'
 import { DIFFICULTY, clamp, matchConsequences, ticketPriceMood, financialSatisfaction, pressureIndex, climateState } from '../domain/consequences'
 import { BARRA_STAGES, BARRA_LABELS, shiftBarra, nextBarraStage, barraWeeklyEffect, auditChance, scandalOutcome } from '../domain/barra'
 import { BARRA_EVENTS, EMERGENCY_MEETING, BOARD_FAVOR_DUE } from '../domain/climateEvents'
+import { shouldReactivateWarnings } from '../domain/warnings'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 import { wageInequities } from '../domain/squadConsequences'
 
@@ -16,6 +17,33 @@ const sign = (n) => (n > 0 ? `+${n}` : String(n))
  */
 export const climateApi = {
   difficulty: DIFFICULTY.NORMAL,
+
+  /** Fija la dificultad en uso (se carga al entrar al juego y al cambiarla en el selector) */
+  setDifficulty(key) {
+    this.difficulty = DIFFICULTY[key] || DIFFICULTY.NORMAL
+    return this.difficulty
+  },
+
+  /** Guarda la dificultad elegida para el club y la aplica ya mismo */
+  async saveDifficulty(clubId, key) {
+    this.setDifficulty(key)
+    await this.saveState(clubId, { difficulty: this.difficulty.key })
+    queryCache.invalidate(`climate:${clubId}`)
+    return this.difficulty
+  },
+
+  /** Silencia un tipo de aviso para este club (se reactiva solo tras un escándalo o 5 victorias seguidas) */
+  async muteWarning(clubId, key) {
+    const state = await this.getState(clubId)
+    await this.saveState(clubId, { muted_warnings: { ...(state.muted_warnings || {}), [key]: true } })
+    queryCache.invalidate(`climate:${clubId}`)
+  },
+
+  /** Carga el estado del club y deja puesta su dificultad */
+  async load(clubId) {
+    const state = await queryCache.fetch(`climate:${clubId}`, () => this.getState(clubId), 30000)
+    return state
+  },
 
   /** Suma deltas a los medidores del club (con tope 0-100) y devuelve los valores nuevos */
   async applyDeltas(clubId, { fans = 0, board = 0, locker = 0 }) {
@@ -175,10 +203,19 @@ export const climateApi = {
     return aggrieved.length
   },
 
+  /** ¿Es el jugador el ídolo del club o su capitán? (para avisar antes de venderlo) */
+  async getReferentFlags(clubId, playerId) {
+    const [{ data: player }, { data: locker }] = await Promise.all([
+      supabase.from('players').select('is_idol').eq('id', playerId).maybeSingle(),
+      supabase.from('club_locker_room').select('captain_player_id').eq('club_id', clubId).maybeSingle()
+    ])
+    return { isIdol: Boolean(player?.is_idol), isCaptain: locker?.captain_player_id === playerId }
+  },
+
   /** Estado del clima del club (valores por defecto si todavía no hay fila) */
   async getState(clubId) {
     const { data } = await supabase.from('club_climate').select('*').eq('club_id', clubId).maybeSingle()
-    return data || { club_id: clubId, pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0 }
+    return data || { club_id: clubId, pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0, difficulty: 'NORMAL', muted_warnings: {} }
   },
 
   async saveState(clubId, patch) {
@@ -192,6 +229,7 @@ export const climateApi = {
    */
   async advanceWeek({ clubId, managerId = null, careerId = null, week = 1, gameDate = null }) {
     const state = await this.getState(clubId)
+    this.setDifficulty(state.difficulty)
     const { data: club } = await supabase.from('clubs').select('fans_confidence, budget').eq('id', clubId).single()
     if (!club) return null
     const { data: board } = await supabase.from('club_board_confidence').select('sports_satisfaction, confidence_score').eq('club_id', clubId).maybeSingle()
@@ -244,6 +282,11 @@ export const climateApi = {
         await boardApi.executeManagerDismissal(clubId, managerId, 'CORRUPTION_SCANDAL', board?.confidence_score ?? 15)
         dismissed = true
       }
+    }
+
+    // Los avisos silenciados vuelven tras un escándalo o una racha de 5 victorias: "hace rato que no te avisamos"
+    if (Object.keys(state.muted_warnings || {}).length && shouldReactivateWarnings({ previousScandals: state.scandals || 0, scandals: patch.scandals ?? state.scandals ?? 0, winStreak: streaks.win })) {
+      patch.muted_warnings = {}
     }
 
     await this.saveState(clubId, patch)
