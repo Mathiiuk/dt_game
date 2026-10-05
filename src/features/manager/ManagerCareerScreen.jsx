@@ -1,33 +1,36 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AlertTriangle, Award, Briefcase, Building, ChevronRight, Flag, History, Send, Shield, Star, Trophy, UserX } from 'lucide-react'
+import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
-import { careerApi, CAREER_PROGRESSION_RULES } from '../../api/career'
+import { careerApi } from '../../api/career'
 import { endgameApi } from '../../api/endgame'
+import { formatMoney } from '../../lib/format'
+import { cn } from '../../lib/utils'
+import {
+  Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, Skeleton, Stat, Tabs, TabsContent,
+  TabsList, TabsTrigger
+} from '../../components/ui'
 import JobOfferBottomSheet from '../career/JobOfferBottomSheet'
 import ReputationHistoryModal from '../career/ReputationHistoryModal'
-import { 
-  ArrowLeft, Award, Trophy, Star, Briefcase, TrendingUp, 
-  Shield, UserX, Loader2, Sparkles, AlertTriangle, CheckCircle, 
-  Flag, ChevronRight, DollarSign, Wallet, FileText, Send, Building, History
-} from 'lucide-react'
-import { toast } from 'sonner'
-import BottomNav from '../../components/BottomNav'
+
+const DEPARTURE = { RESIGNED: 'Renuncia', MOVED_TO_ANOTHER_CLUB: 'Traspaso', SACKED: 'Destituido' }
+const formatDate = (d) => new Date(d).toLocaleDateString('es-AR')
+const chanceTone = (c) => (c === 'MUY ALTA' || c === 'CANDIDATO FIRME' ? 'accent' : c === 'POCAS OPCIONES' ? 'warning' : 'danger')
 
 export default function ManagerCareerScreen() {
   const navigate = useNavigate()
   const { manager, club, refreshContext, confirmAction } = useGameContext()
-  
+
   const [stats, setStats] = useState(null)
   const [offers, setOffers] = useState([])
   const [vacancies, setVacancies] = useState([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('stints') // 'stints' | 'offers' | 'vacancies' | 'trophies'
-  
-  // Bottom Sheet state
+  const [tab, setTab] = useState('stints')
   const [selectedOffer, setSelectedOffer] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
   const [retiring, setRetiring] = useState(false)
-  const [reputationModalOpen, setReputationModalOpen] = useState(false)
+  const [reputationOpen, setReputationOpen] = useState(false)
 
   const loadCareerData = async () => {
     if (!manager) return
@@ -38,7 +41,6 @@ export default function ManagerCareerScreen() {
         careerApi.getAvailableJobOffers(manager.id, club?.id, manager.reputation || 10),
         careerApi.getAvailableVacancies(club?.id, manager.reputation || 10)
       ])
-
       setStats(statsData)
       setOffers(jobOffers || [])
       setVacancies(vacancyList || [])
@@ -52,26 +54,22 @@ export default function ManagerCareerScreen() {
 
   useEffect(() => {
     loadCareerData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [manager?.id, club?.id])
-
-  const handleOpenOfferSheet = (offer) => {
-    setSelectedOffer(offer)
-  }
 
   const handleAcceptOffer = async (offer) => {
     const ok = await confirmAction({
-      title: 'Firmar Contrato Profesional',
-      description: `¿Confirmas tu asunción en ${offer.clubName}? Dejarás tu puesto actual para asumir de forma inmediata con un salario de $${Number(offer.offeredSalary || 0).toLocaleString()}/semana.`,
-      confirmText: 'Firmar Contrato',
+      title: 'Firmar contrato profesional',
+      description: `¿Confirmás tu asunción en ${offer.clubName}? Dejarás tu puesto actual para asumir de inmediato con un salario de ${formatMoney(offer.offeredSalary)}/semana.`,
+      confirmText: 'Firmar contrato',
       variant: 'emerald'
     })
     if (!ok) return
-
     setActionLoading(true)
     try {
       await careerApi.acceptJobOffer(manager.id, offer.id || offer.clubId, club?.id)
       setSelectedOffer(null)
-      toast.success(`¡Has firmado con ${offer.clubName}! Bienvenido a tu nuevo club.`)
+      toast.success(`¡Firmaste con ${offer.clubName}! Bienvenido a tu nuevo club.`)
       await refreshContext()
       navigate('/dashboard')
     } catch (err) {
@@ -84,35 +82,32 @@ export default function ManagerCareerScreen() {
   const handleRejectOffer = async (offer) => {
     setActionLoading(true)
     try {
-      if (offer.id) {
-        await careerApi.rejectJobOffer(manager.id, offer.id)
-      }
+      if (offer.id) await careerApi.rejectJobOffer(manager.id, offer.id)
       setSelectedOffer(null)
       setOffers(prev => prev.filter(o => o.id !== offer.id && o.clubId !== offer.clubId))
-      toast.info(`Has desestimado la propuesta de ${offer.clubName}.`)
-    } catch (err) {
+      toast.info(`Desestimaste la propuesta de ${offer.clubName}.`)
+    } catch {
       toast.error('Error al rechazar oferta')
     } finally {
       setActionLoading(false)
     }
   }
 
-  const handleApplyForJob = async (targetClub) => {
+  const handleApplyForJob = async (target) => {
     const ok = await confirmAction({
-      title: `Postularse a ${targetClub.name}`,
-      description: `Enviarás tu currículum oficial a la comisión directiva de ${targetClub.name} (${targetClub.tierName}). Tu chance estimada es: ${targetClub.chance}.`,
-      confirmText: 'Enviar Postulación',
+      title: `Postularse a ${target.name}`,
+      description: `Enviarás tu currículum a la comisión directiva de ${target.name} (${target.tierName}). Tu chance estimada es: ${target.chance}.`,
+      confirmText: 'Enviar postulación',
       variant: 'blue'
     })
     if (!ok) return
-
     setActionLoading(true)
     try {
-      const res = await careerApi.applyForJob(manager.id, targetClub.id, manager.reputation || 10)
+      const res = await careerApi.applyForJob(manager.id, target.id, manager.reputation || 10)
       if (res.accepted) {
         toast.success(res.message)
         await loadCareerData()
-        setActiveTab('offers')
+        setTab('offers')
       } else {
         toast.error(res.message)
       }
@@ -125,17 +120,16 @@ export default function ManagerCareerScreen() {
 
   const handleResign = async () => {
     const ok = await confirmAction({
-      title: 'Presentar Renuncia Voluntaria',
-      description: '¿Estás seguro de renunciar a tu cargo? Quedarás en condición de DESEMPLEADO sin cobro de indemnización y tu reputación sufrirá un descuento de 5 puntos por rescisión unilateral.',
-      confirmText: 'Confirmar Renuncia',
+      title: 'Presentar renuncia voluntaria',
+      description: '¿Renunciar a tu cargo? Quedarás DESEMPLEADO sin indemnización y tu reputación bajará 5 puntos por rescisión unilateral.',
+      confirmText: 'Confirmar renuncia',
       variant: 'red'
     })
     if (!ok) return
-
     setActionLoading(true)
     try {
       await careerApi.resignFromClub(manager.id, club?.id)
-      toast.warning('Has presentado tu renuncia. Ahora eres Director Técnico libre.')
+      toast.warning('Presentaste tu renuncia. Ahora sos Director Técnico libre.')
       await refreshContext()
       await loadCareerData()
     } catch (err) {
@@ -147,13 +141,12 @@ export default function ManagerCareerScreen() {
 
   const handleRetire = async () => {
     const ok = await confirmAction({
-      title: 'Retiro del Fútbol Profesional',
-      description: '¿Estás seguro de retirarte definitivamente? Tu carrera como entrenador concluirá aquí. Se calculará tu legado histórico, ingresarás al Salón de la Fama y se emitirá la edición histórica del Diario del Retiro.',
-      confirmText: 'Colgar el Buzo de DT',
+      title: 'Retiro del fútbol profesional',
+      description: '¿Retirarte definitivamente? Tu carrera como entrenador concluirá. Se calculará tu legado, ingresarás al Salón de la Fama y se emitirá el Diario del Retiro.',
+      confirmText: 'Colgar el buzo',
       variant: 'amber'
     })
     if (!ok) return
-
     setRetiring(true)
     try {
       await endgameApi.processRetirement(manager.id, club?.id)
@@ -167,642 +160,273 @@ export default function ManagerCareerScreen() {
     }
   }
 
-  if (loading) {
+  if (loading || !manager) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-emerald-500 gap-3">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <p className="text-xs text-zinc-400 font-medium">Cargando expediente curricular del DT...</p>
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando expediente">
+        <Skeleton className="h-12 w-64" />
+        <div className="grid gap-4 md:grid-cols-3"><Skeleton className="h-56 md:col-span-2" /><Skeleton className="h-56" /></div>
+        <Skeleton className="h-24" />
       </div>
     )
   }
 
-  const reputationStars = careerApi.calculateReputationStars(manager.reputation || 10)
+  const stars = careerApi.calculateReputationStars(manager.reputation || 10)
   const isEmployed = (stats?.employmentStatus || 'EMPLOYED') === 'EMPLOYED' && !!club
+  const rank = stars >= 4 ? 'DT de élite internacional' : stars >= 3 ? 'Consolidado en Primera' : 'Entrenador emergente'
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-4 md:p-8 pb-28">
-      {/* Header */}
-      <header className="flex items-center justify-between mb-8 max-w-6xl mx-auto">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate(isEmployed ? '/dashboard' : '/manager')}
-            className="p-2 transition-colors border rounded-xl border-zinc-800 bg-zinc-900 hover:bg-zinc-800 shrink-0"
-            title="Volver"
-          >
-            <ArrowLeft className="w-5 h-5 text-zinc-300" />
-          </button>
-          <div>
-            <h1 className="text-xl md:text-3xl font-black flex items-center gap-2 text-emerald-500 truncate">
-              <Briefcase className="w-6 h-6 md:w-8 md:h-8 shrink-0" /> CARRERA DEL DT
-            </h1>
-            <p className="text-xs text-zinc-400">Trayectoria, finanzas personales, ofertas y banquillos</p>
-          </div>
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+      <PageHeader
+        eyebrow="Trayectoria, finanzas personales y ofertas"
+        title="Carrera del DT"
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={() => navigate('/achievements')}><Award />Logros</Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/hall-of-fame')}><Trophy />Salón de la Fama</Button>
+          </>
+        }
+      />
 
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => navigate('/achievements')}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 font-bold rounded-xl text-xs sm:text-sm transition-all shrink-0"
-          >
-            <Award className="w-4 h-4 text-emerald-400" />
-            <span className="hidden sm:inline">Logros</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/hall-of-fame')}
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-bold rounded-xl text-xs sm:text-sm transition-all shrink-0"
-          >
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Salón de la Fama</span>
-          </button>
-        </div>
-      </header>
-
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Banner de Estado Laboral (si está desempleado) */}
+      <div className="space-y-6">
         {!isEmployed && !manager.is_retired && (
-          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4">
+          <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-warning/40 bg-warning-soft p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-amber-500/20 text-amber-300 rounded-xl border border-amber-500/30">
-                <UserX className="w-5 h-5" />
-              </div>
+              <UserX className="size-5 shrink-0 text-warning" aria-hidden="true" />
               <div>
-                <h4 className="font-bold text-sm text-amber-300">Actualmente Desempleado</h4>
-                <p className="text-xs text-zinc-400">
-                  No diriges ningún club en este momento. Revisa tus ofertas o postúlate a las vacantes en la Bolsa de Trabajo.
-                </p>
+                <p className="text-sm font-semibold text-warning">Actualmente desempleado</p>
+                <p className="text-xs text-fg-muted">No dirigís ningún club. Revisá tus ofertas o postulate en la bolsa de trabajo.</p>
               </div>
             </div>
-            <button
-              onClick={() => setActiveTab('vacancies')}
-              className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs shrink-0"
-            >
-              Ver Vacantes
-            </button>
+            <Button size="sm" onClick={() => setTab('vacancies')}>Ver vacantes</Button>
           </div>
         )}
 
-        {/* Top Grid: Perfil DT + Economía Personal */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card Perfil DT */}
-          <div className="md:col-span-2 p-6 border border-zinc-800 rounded-3xl bg-zinc-900/60 flex flex-col justify-between">
-            <div>
-              <div className="flex items-start gap-4 sm:gap-6">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500 text-zinc-950 rounded-2xl flex items-center justify-center font-black text-2xl shrink-0 shadow-lg shadow-emerald-500/20">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <Card className="md:col-span-2">
+            <CardBody className="space-y-5">
+              <div className="flex items-start gap-4">
+                <div className="grid size-16 shrink-0 place-items-center rounded-lg bg-accent font-display text-2xl font-semibold text-accent-fg sm:size-20" aria-hidden="true">
                   {manager.first_name?.[0]}{manager.last_name?.[0]}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-xl sm:text-2xl font-black text-white truncate">
-                      {manager.first_name} {manager.last_name}
-                    </h2>
-                    <span className="px-2.5 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
-                      Nivel {manager.level}
-                    </span>
-                    <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full border ${
-                      isEmployed 
-                        ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
-                        : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                    }`}>
-                      {isEmployed ? 'En Funciones' : 'Agente Libre'}
-                    </span>
+                    <h2 className="truncate font-display text-2xl font-semibold text-fg">{manager.first_name} {manager.last_name}</h2>
+                    <Badge tone="accent">Nivel {manager.level}</Badge>
+                    <Badge tone={isEmployed ? 'neutral' : 'warning'}>{isEmployed ? 'En funciones' : 'Agente libre'}</Badge>
                   </div>
-                  <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-                    {manager.age || 40} años • {manager.nationality || 'Argentina'} • Club actual: <span className="text-white font-semibold">{club?.name || 'Sin Club (Desempleado)'}</span>
-                  </p>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    Filosofía: <span className="text-zinc-300 font-medium">{manager.philosophy || 'Equilibrado'}</span> • Especialidad: <span className="text-zinc-300 font-medium">{manager.specialization || 'Táctico'}</span>
-                  </p>
+                  <p className="mt-1 text-sm text-fg-muted">{manager.age || 40} años · {manager.nationality || 'Argentina'} · Club: <span className="font-semibold text-fg">{club?.name || 'Sin club'}</span></p>
+                  <p className="mt-1 text-xs text-fg-subtle">Filosofía: {manager.philosophy || 'Equilibrado'} · Especialidad: {manager.specialization || 'Táctico'}</p>
                 </div>
               </div>
 
-              {/* Atributos del DT */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-zinc-800/80">
-                <div className="p-3 bg-zinc-950/80 rounded-2xl border border-zinc-800">
-                  <span className="text-[10px] text-zinc-500 block uppercase">Liderazgo</span>
-                  <span className="text-lg font-black text-emerald-400">{manager.attr_leadership || 70}</span>
-                </div>
-                <div className="p-3 bg-zinc-950/80 rounded-2xl border border-zinc-800">
-                  <span className="text-[10px] text-zinc-500 block uppercase">Táctica</span>
-                  <span className="text-lg font-black text-blue-400">{manager.attr_tactics || 70}</span>
-                </div>
-                <div className="p-3 bg-zinc-950/80 rounded-2xl border border-zinc-800">
-                  <span className="text-[10px] text-zinc-500 block uppercase">Motivación</span>
-                  <span className="text-lg font-black text-yellow-400">{manager.attr_motivation || 70}</span>
-                </div>
-                <div className="p-3 bg-zinc-950/80 rounded-2xl border border-zinc-800">
-                  <span className="text-[10px] text-zinc-500 block uppercase">Vestuario</span>
-                  <span className="text-lg font-black text-purple-400">{manager.attr_locker_room || 70}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Renuncia Voluntaria (si está empleado) */}
-            {isEmployed && (
-              <div className="mt-5 pt-4 border-t border-zinc-800/80 flex items-center justify-between">
-                <span className="text-xs text-zinc-500">¿Deseas desvincularte del club?</span>
-                <button
-                  onClick={handleResign}
-                  disabled={actionLoading}
-                  className="px-3 py-1.5 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition-colors disabled:opacity-50"
-                >
-                  Presentar Renuncia
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Economía Personal y Reputación */}
-          <div className="p-6 border border-zinc-800 rounded-3xl bg-zinc-900/60 flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Reputación Deportiva</h3>
-                <button
-                  onClick={() => setReputationModalOpen(true)}
-                  className="text-[11px] text-yellow-400 font-bold hover:underline flex items-center gap-1"
-                >
-                  <History className="w-3.5 h-3.5" />
-                  <span>Ver Ledger</span>
-                </button>
-              </div>
-              <div 
-                className="flex items-center gap-1 mb-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => setReputationModalOpen(true)}
-                title="Abrir libro mayor de prestigio"
-              >
-                {[1, 2, 3, 4, 5].map(star => (
-                  <Star 
-                    key={star} 
-                    className={`w-5 h-5 ${star <= reputationStars ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-700'}`} 
-                  />
-                ))}
-                <span className="ml-2 font-mono text-xs font-bold text-yellow-400">
-                  {manager.reputation || 10} pts
-                </span>
-              </div>
-              <p className="text-xs text-zinc-400">
-                {reputationStars >= 4 ? 'DT de Élite Internacional' : reputationStars >= 3 ? 'Consolidado en Primera' : 'Entrenador Emergente'}
-              </p>
-            </div>
-
-            {/* Finanzas Personales (Regla 31.3) */}
-            <div className="space-y-3 mt-6 pt-6 border-t border-zinc-800/80">
-              <div className="p-3 bg-zinc-950/80 rounded-2xl border border-zinc-800">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-xs mb-1">
-                  <Wallet className="w-4 h-4 text-emerald-400" />
-                  <span>Ahorros Personales Acumulados</span>
-                </div>
-                <p className="text-xl font-black text-emerald-400">
-                  ${Number(stats?.personalSavings || 0).toLocaleString()}
-                </p>
+              <div className="grid grid-cols-2 gap-4 border-t border-line pt-5 sm:grid-cols-4">
+                <Stat label="Liderazgo" value={manager.attr_leadership || 70} valueClassName="text-2xl" />
+                <Stat label="Táctica" value={manager.attr_tactics || 70} valueClassName="text-2xl" />
+                <Stat label="Motivación" value={manager.attr_motivation || 70} valueClassName="text-2xl" />
+                <Stat label="Vestuario" value={manager.attr_locker_room || 70} valueClassName="text-2xl" />
               </div>
 
-              <div className="p-3 bg-zinc-950/80 rounded-2xl border border-zinc-800">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-xs mb-1">
-                  <DollarSign className="w-4 h-4 text-blue-400" />
-                  <span>Salario Semanal Percibido</span>
+              {isEmployed && (
+                <div className="flex items-center justify-between gap-3 border-t border-line pt-4">
+                  <span className="text-xs text-fg-subtle">¿Querés desvincularte del club?</span>
+                  <Button variant="outline" size="sm" disabled={actionLoading} onClick={handleResign}>Presentar renuncia</Button>
                 </div>
-                <p className="text-base font-black text-white">
-                  ${Number(stats?.currentContractWage || 0).toLocaleString()}
-                  <span className="text-xs font-normal text-zinc-500">/sem</span>
-                </p>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardBody className="space-y-5">
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="eyebrow">Reputación deportiva</p>
+                  <Button variant="link" size="sm" onClick={() => setReputationOpen(true)}><History />Ver libro mayor</Button>
+                </div>
+                <div className="flex items-center gap-1" role="img" aria-label={`${stars} de 5 estrellas`}>
+                  {[1, 2, 3, 4, 5].map(s => <Star key={s} className={cn('size-5', s <= stars ? 'fill-gold text-gold' : 'text-surface-3')} aria-hidden="true" />)}
+                  <span className="num ml-2 text-sm font-semibold text-gold">{manager.reputation || 10} pts</span>
+                </div>
+                <p className="mt-1.5 text-xs text-fg-muted">{rank}</p>
               </div>
-            </div>
-          </div>
+              <div className="space-y-4 border-t border-line pt-5">
+                <Stat label="Ahorros personales" value={formatMoney(stats?.personalSavings || 0)} valueClassName="text-2xl text-accent" />
+                <Stat label="Salario semanal" value={formatMoney(stats?.currentContractWage || 0)} hint="por semana" valueClassName="text-2xl" />
+              </div>
+            </CardBody>
+          </Card>
         </div>
 
-        {/* Resumen Global de Partidos */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="p-4 sm:p-5 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <span className="text-xs text-zinc-500 font-medium">Partidos Dirigidos</span>
-            <p className="text-2xl sm:text-3xl font-black text-white mt-1">{stats?.totalMatches || 0}</p>
-          </div>
-          <div className="p-4 sm:p-5 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <span className="text-xs text-zinc-500 font-medium">Victorias</span>
-            <p className="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">{stats?.totalWon || 0}</p>
-          </div>
-          <div className="p-4 sm:p-5 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <span className="text-xs text-zinc-500 font-medium">Empates</span>
-            <p className="text-2xl sm:text-3xl font-black text-yellow-400 mt-1">{stats?.totalDrawn || 0}</p>
-          </div>
-          <div className="p-4 sm:p-5 border border-zinc-800 rounded-2xl bg-zinc-900/40">
-            <div className="flex justify-between items-baseline">
-              <span className="text-xs text-zinc-500 font-medium">Efectividad</span>
-              <span className="text-xs font-bold text-emerald-400 font-mono">{stats?.winRate || 0}%</span>
-            </div>
-            <p className="text-2xl sm:text-3xl font-black text-zinc-300 mt-1">{stats?.totalLost || 0} <span className="text-xs text-red-400 font-medium">D</span></p>
-          </div>
-        </div>
+        <Card>
+          <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+            <Stat label="Partidos dirigidos" value={stats?.totalMatches || 0} />
+            <Stat label="Victorias" value={stats?.totalWon || 0} valueClassName="text-accent" />
+            <Stat label="Empates" value={stats?.totalDrawn || 0} valueClassName="text-warning" />
+            <Stat label="Derrotas" value={stats?.totalLost || 0} hint={`Efectividad ${stats?.winRate || 0}%`} valueClassName="text-danger" />
+          </CardBody>
+        </Card>
 
-        {/* Acceso a Selección Nacional (Fase 33) */}
-        <div 
+        <button
+          type="button"
           onClick={() => navigate('/national-team')}
-          className="p-4 sm:p-5 border border-sky-500/30 rounded-3xl bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:border-sky-500/60 transition-all group"
+          className="flex w-full flex-wrap items-center justify-between gap-4 rounded-lg border border-line bg-surface p-4 text-left transition-colors hover:border-line-strong sm:p-5"
         >
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-2xl group-hover:scale-105 transition-transform shrink-0">
-              <Flag className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm sm:text-base text-white flex items-center gap-2">
-                <span>Selección Nacional & Doble Carrera</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30">Fase FIFA</span>
-              </h3>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                Dirige a tu país, gestiona convocatorias y disputa torneos internacionales sin descuidar a tu club.
-              </p>
-            </div>
-          </div>
-          <button className="px-3.5 py-1.5 bg-sky-500 text-zinc-950 rounded-xl font-bold text-xs flex items-center gap-1.5 group-hover:bg-sky-400 transition-colors shrink-0">
-            <span>Gestionar Selección</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+          <span className="flex items-center gap-3">
+            <span className="grid size-11 shrink-0 place-items-center rounded-md bg-surface-3 text-fg-muted"><Flag className="size-5" aria-hidden="true" /></span>
+            <span>
+              <span className="block text-sm font-semibold text-fg">Selección nacional y doble carrera</span>
+              <span className="block text-xs text-fg-muted">Dirigí a tu país, gestioná convocatorias y disputá torneos internacionales sin descuidar a tu club.</span>
+            </span>
+          </span>
+          <span className="flex items-center gap-1 text-sm font-semibold text-accent">Gestionar<ChevronRight className="size-4" aria-hidden="true" /></span>
+        </button>
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-zinc-800 pb-3 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('stints')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'stints'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Trayectoria & Ciclos ({stats?.stints?.length || 0})</span>
-          </button>
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList aria-label="Secciones de la carrera">
+            <TabsTrigger value="stints">Trayectoria ({stats?.stints?.length || 0})</TabsTrigger>
+            <TabsTrigger value="offers">Ofertas ({offers.length})</TabsTrigger>
+            <TabsTrigger value="vacancies">Bolsa de trabajo ({vacancies.length})</TabsTrigger>
+            <TabsTrigger value="trophies">Trofeos ({stats?.trophies?.length || 0})</TabsTrigger>
+          </TabsList>
 
-          <button
-            onClick={() => setActiveTab('offers')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 relative ${
-              activeTab === 'offers'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            <span>Ofertas Entrantes ({offers.length})</span>
-            {offers.length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('vacancies')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'vacancies'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
-            }`}
-          >
-            <Building className="w-4 h-4" />
-            <span>Bolsa de Trabajo ({vacancies.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('trophies')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'trophies'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
-            }`}
-          >
-            <Trophy className="w-4 h-4" />
-            <span>Vitrina de Trofeos ({stats?.trophies?.length || 0})</span>
-          </button>
-        </div>
-
-        {/* Tab 1: Trayectoria & Ciclos */}
-        {activeTab === 'stints' && (
-          <div className="p-5 sm:p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
-            <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-white mb-1">
-              <FileText className="w-5 h-5 text-emerald-400" /> Historial de Clubes Dirigidos
-            </h2>
-            <p className="text-xs text-zinc-400 mb-5">
-              Registro inmutable de ciclos, efectividad y títulos conquistados en cada institución
-            </p>
-
-            {stats?.stints && stats.stints.length > 0 ? (
-              <div className="space-y-3">
+          <TabsContent value="stints">
+            {stats?.stints?.length > 0 ? (
+              <ul className="space-y-3">
                 {stats.stints.map((stint, idx) => {
-                  const isCurrent = !stint.ended_at
-                  const stintTotal = (stint.matches_won || 0) + (stint.matches_drawn || 0) + (stint.matches_lost || 0)
-                  const stintWinRate = stintTotal > 0 ? Math.round(((stint.matches_won || 0) / stintTotal) * 100) : 0
-
+                  const current = !stint.ended_at
+                  const total = (stint.matches_won || 0) + (stint.matches_drawn || 0) + (stint.matches_lost || 0)
+                  const rate = total > 0 ? Math.round(((stint.matches_won || 0) / total) * 100) : 0
                   return (
-                    <div 
-                      key={stint.id || idx}
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all ${
-                        isCurrent 
-                          ? 'border-emerald-500/30 bg-emerald-500/5' 
-                          : 'border-zinc-800 bg-zinc-950'
-                      }`}
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2.5 rounded-xl border ${
-                            isCurrent 
-                              ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
-                              : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                          }`}>
-                            <Shield className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-white text-base">{stint.club_name}</h3>
-                              {isCurrent ? (
-                                <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full">
-                                  Club Actual
-                                </span>
-                              ) : (
-                                <span className="px-2 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 rounded-full">
-                                  {stint.departure_reason === 'RESIGNED' ? 'Renuncia' :
-                                   stint.departure_reason === 'MOVED_TO_ANOTHER_CLUB' ? 'Traspaso' :
-                                   stint.departure_reason === 'SACKED' ? 'Destituido' : 'Concluido'}
-                                </span>
-                              )}
+                    <li key={stint.id || idx}>
+                      <Card as="article" className={current ? 'border-accent/50' : undefined}>
+                        <CardBody className="space-y-4">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <span className={cn('grid size-10 place-items-center rounded-md', current ? 'bg-accent-soft text-accent' : 'bg-surface-3 text-fg-muted')}><Shield className="size-5" aria-hidden="true" /></span>
+                              <div>
+                                <h3 className="flex items-center gap-2 text-base font-semibold text-fg">
+                                  {stint.club_name}
+                                  <Badge tone={current ? 'accent' : 'neutral'}>{current ? 'Club actual' : (DEPARTURE[stint.departure_reason] || 'Concluido')}</Badge>
+                                </h3>
+                                <p className="text-xs text-fg-muted">Desde {formatDate(stint.started_at)} {stint.ended_at ? `hasta ${formatDate(stint.ended_at)}` : '(en curso)'}</p>
+                              </div>
                             </div>
-                            <p className="text-[11px] text-zinc-400 mt-0.5">
-                              Desde {new Date(stint.started_at).toLocaleDateString('es-AR')} {stint.ended_at ? `hasta ${new Date(stint.ended_at).toLocaleDateString('es-AR')}` : '(En curso)'}
-                            </p>
+                            <Stat label="Efectividad" value={`${rate}%`} valueClassName="text-2xl text-accent" className="text-right" />
                           </div>
-                        </div>
-
-                        <div className="flex items-center gap-4 text-xs">
-                          <div className="text-right">
-                            <span className="text-[10px] text-zinc-500 block">Efectividad</span>
-                            <span className="font-black text-emerald-400 font-mono text-sm">{stintWinRate}%</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-4 gap-2 pt-3 border-t border-zinc-800/80 text-center">
-                        <div className="p-2 bg-zinc-900/60 rounded-xl">
-                          <span className="text-[10px] text-zinc-500 block">PJ</span>
-                          <span className="font-bold text-white text-xs">{stint.matches_managed || 0}</span>
-                        </div>
-                        <div className="p-2 bg-zinc-900/60 rounded-xl">
-                          <span className="text-[10px] text-zinc-500 block">PG</span>
-                          <span className="font-bold text-emerald-400 text-xs">{stint.matches_won || 0}</span>
-                        </div>
-                        <div className="p-2 bg-zinc-900/60 rounded-xl">
-                          <span className="text-[10px] text-zinc-500 block">PE</span>
-                          <span className="font-bold text-yellow-400 text-xs">{stint.matches_drawn || 0}</span>
-                        </div>
-                        <div className="p-2 bg-zinc-900/60 rounded-xl">
-                          <span className="text-[10px] text-zinc-500 block">PP</span>
-                          <span className="font-bold text-red-400 text-xs">{stint.matches_lost || 0}</span>
-                        </div>
-                      </div>
-                    </div>
+                          <dl className="grid grid-cols-4 gap-2 border-t border-line pt-3 text-center">
+                            {[['PJ', stint.matches_managed, 'text-fg'], ['PG', stint.matches_won, 'text-accent'], ['PE', stint.matches_drawn, 'text-warning'], ['PP', stint.matches_lost, 'text-danger']].map(([k, v, c]) => (
+                              <div key={k} className="rounded-md bg-surface-2 p-2"><dt className="eyebrow">{k}</dt><dd className={cn('num text-lg font-semibold', c)}>{v || 0}</dd></div>
+                            ))}
+                          </dl>
+                        </CardBody>
+                      </Card>
+                    </li>
                   )
                 })}
-              </div>
+              </ul>
             ) : (
-              <div className="py-10 text-center border border-dashed border-zinc-800 rounded-2xl">
-                <FileText className="w-8 h-8 text-zinc-700 mx-auto mb-2" />
-                <p className="text-xs text-zinc-400">Aún no hay ciclos registrados</p>
-              </div>
+              <Card as="div"><EmptyState icon={Shield} title="Sin ciclos registrados" description="Tu historial de clubes dirigidos aparecerá acá." /></Card>
             )}
-          </div>
-        )}
+          </TabsContent>
 
-        {/* Tab 2: Ofertas Laborales Activas */}
-        {activeTab === 'offers' && (
-          <div className="p-5 sm:p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
-            <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-white mb-1">
-              <Briefcase className="w-5 h-5 text-emerald-400" /> Ofertas de Empleo Entrantes
-            </h2>
-            <p className="text-xs text-zinc-400 mb-5">
-              Propuestas formales emitidas por comisiones directivas según tu reputación y mérito deportivo
-            </p>
-
+          <TabsContent value="offers">
             {offers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {offers.map(offer => (
-                  <div 
-                    key={offer.id || offer.clubId}
-                    className="p-5 border border-zinc-800 bg-zinc-950 rounded-2xl flex flex-col justify-between hover:border-zinc-700 transition-colors"
-                  >
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-white text-base truncate">{offer.clubName}</h3>
-                        <span className="text-[10px] px-2 py-0.5 bg-zinc-800 text-zinc-300 rounded-full font-medium">
-                          {offer.tierName}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-400">
-                        Objetivo: <span className="text-amber-300 font-semibold">{offer.objective || 'Mitad de Tabla'}</span>
-                      </p>
-
-                      <div className="mt-4 pt-3 border-t border-zinc-900 space-y-2 text-xs">
-                        <div className="flex justify-between text-zinc-400">
-                          <span>Sueldo Ofrecido:</span>
-                          <span className="text-emerald-400 font-semibold font-mono">${Number(offer.offeredSalary || 0).toLocaleString()}/sem</span>
+                  <li key={offer.id || offer.clubId}>
+                    <Card as="article" className="h-full">
+                      <CardBody className="flex h-full flex-col gap-4">
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="truncate text-base font-semibold text-fg">{offer.clubName}</h3>
+                            <Badge>{offer.tierName}</Badge>
+                          </div>
+                          <p className="mt-1 text-xs text-fg-muted">Objetivo: <span className="font-semibold text-gold">{offer.objective || 'Mitad de tabla'}</span></p>
                         </div>
-                        <div className="flex justify-between text-zinc-400">
-                          <span>Presupuesto Fichajes:</span>
-                          <span className="text-white font-semibold font-mono">${Number(offer.budget || 0).toLocaleString()}</span>
+                        <dl className="space-y-2 border-t border-line pt-3 text-sm">
+                          <div className="flex justify-between gap-3"><dt className="text-fg-muted">Sueldo ofrecido</dt><dd className="num font-semibold text-accent">{formatMoney(offer.offeredSalary)}/sem</dd></div>
+                          <div className="flex justify-between gap-3"><dt className="text-fg-muted">Presupuesto de fichajes</dt><dd className="num font-semibold text-fg">{formatMoney(offer.budget)}</dd></div>
+                          <div className="flex justify-between gap-3"><dt className="text-fg-muted">Vigencia</dt><dd className="text-fg">Vence en {offer.weeksRemaining || 2} sem.</dd></div>
+                        </dl>
+                        <div className="mt-auto flex gap-2">
+                          <Button className="flex-1" onClick={() => setSelectedOffer(offer)}>Revisar y firmar</Button>
+                          <Button variant="outline" disabled={actionLoading} onClick={() => handleRejectOffer(offer)} aria-label={`Descartar oferta de ${offer.clubName}`}>Descartar</Button>
                         </div>
-                        <div className="flex justify-between text-zinc-400">
-                          <span>Vigencia:</span>
-                          <span className="text-zinc-300 font-medium">Vence en {offer.weeksRemaining || 2} sem.</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 mt-5">
-                      <button
-                        onClick={() => handleOpenOfferSheet(offer)}
-                        className="flex-1 py-2.5 text-xs font-bold text-zinc-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-colors"
-                      >
-                        Revisar & Firmar
-                      </button>
-                      <button
-                        onClick={() => handleRejectOffer(offer)}
-                        disabled={actionLoading}
-                        className="px-3 py-2.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 border border-zinc-800 hover:bg-zinc-900 rounded-xl transition-colors"
-                        title="Desestimar Oferta"
-                      >
-                        Descartar
-                      </button>
-                    </div>
-                  </div>
+                      </CardBody>
+                    </Card>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div className="py-12 text-center border border-dashed border-zinc-800 rounded-2xl">
-                <Briefcase className="w-10 h-10 text-zinc-700 mx-auto mb-2" />
-                <p className="text-sm text-zinc-400 font-medium">No tienes ofertas pendientes en este momento</p>
-                <p className="text-xs text-zinc-600 mt-1">Avanza en el torneo o postúlate activamente en la Bolsa de Trabajo</p>
-                <button
-                  onClick={() => setActiveTab('vacancies')}
-                  className="mt-4 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold rounded-xl text-xs hover:bg-emerald-500/20 transition-all"
-                >
-                  Explorar Bolsa de Trabajo
-                </button>
-              </div>
+              <Card as="div"><EmptyState icon={Briefcase} title="Sin ofertas pendientes" description="Avanzá en el torneo o postulate activamente en la bolsa de trabajo." action={<Button variant="outline" size="sm" onClick={() => setTab('vacancies')}>Explorar la bolsa de trabajo</Button>} /></Card>
             )}
-          </div>
-        )}
+          </TabsContent>
 
-        {/* Tab 3: Bolsa de Trabajo / Vacantes */}
-        {activeTab === 'vacancies' && (
-          <div className="p-5 sm:p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
-            <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-white mb-1">
-              <Building className="w-5 h-5 text-emerald-400" /> Bolsa de Trabajo & Puestos Vacantes
-            </h2>
-            <p className="text-xs text-zinc-400 mb-5">
-              Clubes de la federación donde puedes presentar tu candidatura formal según los requisitos de reputación
-            </p>
+          <TabsContent value="vacancies">
+            {vacancies.length > 0 ? (
+              <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {vacancies.map(target => (
+                  <li key={target.id}>
+                    <Card as="article" className="h-full">
+                      <CardBody className="flex h-full flex-col gap-4">
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="truncate text-base font-semibold text-fg">{target.name}</h3>
+                            <Badge>{target.tierName}</Badge>
+                          </div>
+                          <p className="text-xs text-fg-muted">{target.city}</p>
+                        </div>
+                        <dl className="space-y-2 border-t border-line pt-3 text-sm">
+                          <div className="flex justify-between gap-3"><dt className="text-fg-muted">Reputación requerida</dt><dd className="num font-semibold text-fg">{target.requiredReputation} pts</dd></div>
+                          <div className="flex items-center justify-between gap-3"><dt className="text-fg-muted">Tu probabilidad</dt><dd><Badge tone={chanceTone(target.chance)}>{target.chance}</Badge></dd></div>
+                        </dl>
+                        <Button className="mt-auto" variant="outline" disabled={actionLoading} onClick={() => handleApplyForJob(target)}><Send />Postularse</Button>
+                      </CardBody>
+                    </Card>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Card as="div"><EmptyState icon={Building} title="Sin vacantes" description="No hay clubes con puestos abiertos que coincidan con tu reputación." /></Card>
+            )}
+          </TabsContent>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {vacancies.map(targetClub => (
-                <div 
-                  key={targetClub.id}
-                  className="p-4 sm:p-5 border border-zinc-800 bg-zinc-950 rounded-2xl flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex justify-between items-start mb-1.5">
-                      <h3 className="font-bold text-white text-base truncate">{targetClub.name}</h3>
-                      <span className="text-[10px] px-2 py-0.5 bg-zinc-800 text-zinc-300 rounded-full font-medium">
-                        {targetClub.tierName}
-                      </span>
-                    </div>
-                    <p className="text-xs text-zinc-400">{targetClub.city}</p>
-
-                    <div className="mt-3 pt-3 border-t border-zinc-900 space-y-1.5 text-xs">
-                      <div className="flex justify-between text-zinc-400">
-                        <span>Reputación requerida:</span>
-                        <span className="text-zinc-200 font-semibold font-mono">{targetClub.requiredReputation} pts</span>
-                      </div>
-                      <div className="flex justify-between text-zinc-400">
-                        <span>Tu probabilidad:</span>
-                        <span className={`font-bold font-mono text-[11px] ${
-                          targetClub.chance === 'MUY ALTA' || targetClub.chance === 'CANDIDATO FIRME' 
-                            ? 'text-emerald-400' 
-                            : targetClub.chance === 'POCAS OPCIONES'
-                            ? 'text-yellow-400'
-                            : 'text-red-400'
-                        }`}>
-                          {targetClub.chance}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => handleApplyForJob(targetClub)}
-                    disabled={actionLoading}
-                    className="w-full mt-4 py-2.5 px-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
-                  >
-                    <Send className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Postularse a este Club</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tab 4: Vitrina de Trofeos */}
-        {activeTab === 'trophies' && (
-          <div className="p-5 sm:p-6 border border-zinc-800 rounded-3xl bg-zinc-900/50">
-            <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-yellow-400 mb-1">
-              <Trophy className="w-5 h-5 text-yellow-400" /> Vitrina de Trofeos & Palmarés
-            </h2>
-            <p className="text-xs text-zinc-400 mb-5">
-              Títulos de liga, ascensos y copas conquistadas durante tu carrera
-            </p>
-
-            {stats?.trophies && stats.trophies.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <TabsContent value="trophies">
+            {stats?.trophies?.length > 0 ? (
+              <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                 {stats.trophies.map(trophy => (
-                  <div key={trophy.id} className="p-4 border border-yellow-500/20 bg-yellow-500/5 rounded-2xl flex items-center gap-4">
-                    <div className="w-12 h-12 bg-yellow-500/10 text-yellow-400 rounded-xl flex items-center justify-center shrink-0 border border-yellow-500/20">
-                      <Trophy className="w-6 h-6" />
-                    </div>
+                  <li key={trophy.id} className="flex items-center gap-4 rounded-lg border border-gold/30 bg-gold-soft p-4">
+                    <span className="grid size-12 shrink-0 place-items-center rounded-md bg-surface text-gold"><Trophy className="size-6" aria-hidden="true" /></span>
                     <div>
-                      <h3 className="font-bold text-white text-sm">{trophy.title}</h3>
-                      <p className="text-xs text-zinc-400 mt-0.5">Año {trophy.year} • {trophy.type}</p>
+                      <h3 className="text-sm font-semibold text-fg">{trophy.title}</h3>
+                      <p className="text-xs text-fg-muted">Año {trophy.year} · {trophy.type}</p>
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
-              <div className="py-12 text-center border border-dashed border-zinc-800 rounded-2xl">
-                <Trophy className="w-10 h-10 text-zinc-700 mx-auto mb-2" />
-                <p className="text-sm text-zinc-400 font-medium">Aún no has levantado trofeos</p>
-                <p className="text-xs text-zinc-600 mt-1">Gana la liga o consigue un ascenso para llenar tu vitrina</p>
-              </div>
+              <Card as="div"><EmptyState icon={Trophy} title="Aún no levantaste trofeos" description="Ganá la liga o conseguí un ascenso para llenar tu vitrina." /></Card>
             )}
-          </div>
-        )}
+          </TabsContent>
+        </Tabs>
 
-        {/* Zona de Administración y Retiro Voluntario */}
         {manager.is_retired ? (
-          <div className="p-6 border border-amber-500/40 rounded-3xl bg-amber-950/10">
-            <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-amber-400 mb-2">
-              <Trophy className="w-5 h-5 text-amber-400" /> Carrera Finalizada • DT Consagrado
-            </h2>
-            <p className="text-xs text-zinc-400 mb-6">
-              Has colgado el buzo de director técnico. Tu legado se encuentra inmortalizado en el Salón de la Fama y en la edición histórica del Diario del Retiro.
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => navigate('/endgame')}
-                className="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black rounded-xl text-sm transition-transform active:scale-95 shadow-lg shadow-amber-500/20"
-              >
-                Ver Diario del Retiro y Epílogo
-              </button>
-              <button
-                onClick={() => navigate('/hall-of-fame')}
-                className="px-6 py-3 border border-amber-500/40 bg-zinc-900 hover:bg-zinc-800 text-amber-400 font-bold rounded-xl text-sm transition-all"
-              >
-                Ver en el Salón de la Fama
-              </button>
-            </div>
-          </div>
+          <Card className="border-gold/40">
+            <CardHeader><div><CardTitle className="flex items-center gap-2 text-gold"><Trophy className="size-5" aria-hidden="true" />Carrera finalizada · DT consagrado</CardTitle><CardDescription>Colgaste el buzo. Tu legado quedó en el Salón de la Fama y en la edición histórica del Diario del Retiro.</CardDescription></div></CardHeader>
+            <CardBody className="flex flex-wrap gap-3">
+              <Button onClick={() => navigate('/endgame')}>Ver el Diario del Retiro y epílogo</Button>
+              <Button variant="outline" onClick={() => navigate('/hall-of-fame')}>Ver en el Salón de la Fama</Button>
+            </CardBody>
+          </Card>
         ) : (
-          <div className="p-6 border border-red-900/40 rounded-3xl bg-red-950/10">
-            <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-red-400 mb-2">
-              <AlertTriangle className="w-5 h-5" /> Retiro Voluntario del Fútbol Profesional
-            </h2>
-            <p className="text-xs text-zinc-400 mb-6">
-              Si decides retirarte, tu carrera como director técnico concluirá definitivamente. El sistema calculará tu Legado Histórico, registrará tu inducción al Salón de la Fama y redactará la crónica periodística de tu trayectoria.
-            </p>
-
-            <button
-              onClick={handleRetire}
-              disabled={retiring}
-              className="px-6 py-3 border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-bold rounded-xl text-sm transition-all"
-            >
-              {retiring ? 'Procesando retiro...' : 'Retirarse del Fútbol Profesional'}
-            </button>
-          </div>
+          <Card className="border-danger/30">
+            <CardHeader><div><CardTitle className="flex items-center gap-2 text-danger"><AlertTriangle className="size-5" aria-hidden="true" />Retiro voluntario</CardTitle><CardDescription>Tu carrera concluirá definitivamente: se calcula tu legado, entrás al Salón de la Fama y se redacta la crónica de tu trayectoria.</CardDescription></div></CardHeader>
+            <CardBody><Button variant="outline" loading={retiring} onClick={handleRetire}>Retirarse del fútbol profesional</Button></CardBody>
+          </Card>
         )}
       </div>
 
-      {/* Mobile Bottom Sheet de Oferta Laboral (Regla 31.1) */}
-      <JobOfferBottomSheet
-        isOpen={!!selectedOffer}
-        offer={selectedOffer}
-        onClose={() => setSelectedOffer(null)}
-        onAccept={handleAcceptOffer}
-        onReject={handleRejectOffer}
-        loading={actionLoading}
-      />
-
-      {/* Modal / Sheet del Libro Mayor de Prestigio (Fase 32) */}
-      <ReputationHistoryModal
-        isOpen={reputationModalOpen}
-        onClose={() => setReputationModalOpen(false)}
-        managerId={manager?.id}
-      />
-
-      <BottomNav />
+      <JobOfferBottomSheet isOpen={!!selectedOffer} offer={selectedOffer} onClose={() => setSelectedOffer(null)} onAccept={handleAcceptOffer} onReject={handleRejectOffer} loading={actionLoading} />
+      <ReputationHistoryModal isOpen={reputationOpen} onClose={() => setReputationOpen(false)} managerId={manager?.id} />
     </div>
   )
 }
