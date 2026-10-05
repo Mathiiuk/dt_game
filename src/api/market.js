@@ -43,6 +43,15 @@ export const marketApi = {
     }
   },
 
+  /** Ids de los demás clubes de la competición del club dado (vacío si todavía no tiene liga) */
+  async getLeagueClubIds(clubId) {
+    if (!clubId) return []
+    const { data: mine } = await supabase.from('standings').select('competition_id').eq('club_id', clubId).limit(1).maybeSingle()
+    if (!mine?.competition_id) return []
+    const { data: rows } = await supabase.from('standings').select('club_id').eq('competition_id', mine.competition_id)
+    return (rows || []).map(r => r.club_id).filter(id => id && id !== clubId)
+  },
+
   /**
    * Obtiene la nómina de futbolistas en el mercado con datos de ojeo.
    */
@@ -53,9 +62,11 @@ export const marketApi = {
         .select('*, clubs(name, short_name, primary_color)')
         .eq('is_retired', false)
 
-      if (currentClubId) {
-        query = query.or(`club_id.neq.${currentClubId},club_id.is.null`)
-      }
+      // El mercado sólo muestra a los clubes de la liga del usuario y a los agentes libres (no a otras carreras)
+      const leagueClubIds = await this.getLeagueClubIds(currentClubId)
+      query = leagueClubIds.length > 0
+        ? query.or(`club_id.in.(${leagueClubIds.join(',')}),club_id.is.null`)
+        : query.is('club_id', null)
 
       if (filters.position) {
         query = query.eq('position', filters.position)

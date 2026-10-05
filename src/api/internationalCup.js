@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { simulateCupScore, clubStrength } from '../domain/cupMatch'
 import { clubHistoryApi } from './clubHistory'
 import { managerApi } from './manager'
 import { auditApi } from './audit'
@@ -170,6 +171,30 @@ export const internationalCupApi = {
   },
 
   /**
+   * Disputa el partido del usuario: el resultado sale de la fuerza de ambos planteles y es determinista por partido.
+   */
+  async playUserMatch(fixtureId, userClubId, managerId) {
+    const { data: fixture } = await supabase
+      .from('international_fixtures')
+      .select('id, home_club_id, away_club_id, played')
+      .eq('id', fixtureId)
+      .single()
+    if (!fixture) throw new Error('Partido internacional no encontrado')
+    if (fixture.played) throw new Error('Este partido ya fue disputado.')
+
+    const squadOf = async (clubId) => (await supabase.from('players').select('attr_overall, overall').eq('club_id', clubId).eq('is_retired', false)).data || []
+    const [homePlayers, awayPlayers] = await Promise.all([squadOf(fixture.home_club_id), squadOf(fixture.away_club_id)])
+    const { homeScore, awayScore } = simulateCupScore({
+      fixtureId,
+      homeStrength: clubStrength(homePlayers),
+      awayStrength: clubStrength(awayPlayers)
+    })
+
+    const result = await this.processUserMatchResult(fixtureId, userClubId, managerId, homeScore, awayScore)
+    return { ...result, homeScore, awayScore }
+  },
+
+  /**
    * Procesa el resultado de un partido internacional del usuario
    */
   async processUserMatchResult(fixtureId, userClubId, managerId, homeScore, awayScore) {
@@ -180,6 +205,8 @@ export const internationalCupApi = {
       .single()
 
     if (!fixture) throw new Error('Partido internacional no encontrado')
+    // Idempotencia: un partido ya disputado no vuelve a pagar premios ni a cambiar el resultado
+    if (fixture.played) throw new Error('Este partido ya fue disputado.')
 
     const isHome = fixture.home_club_id === userClubId
     const userGoals = isHome ? homeScore : awayScore

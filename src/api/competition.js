@@ -32,6 +32,9 @@ export const getZoneForPosition = (pos) => {
   return { id: 'MID_TABLE', label: 'Zona Media', color: 'zinc' }
 }
 
+// Creaciones de liga en vuelo por club (evita carreras entre createClub y getStandings)
+const leagueInit = new Map()
+
 export const competitionApi = {
   /**
    * Obtiene la tabla oficial de posiciones con criterios canónicos de desempate y zonas deportivas.
@@ -137,6 +140,14 @@ export const competitionApi = {
   async initializeLeague(playerClubId, country = 'Argentina') {
     if (!playerClubId) return null
 
+    // Una sola creación en vuelo por club: createClub y getStandings la disparaban a la vez y duplicaban los rivales (x3)
+    if (leagueInit.has(playerClubId)) return leagueInit.get(playerClubId)
+    const task = this._initializeLeague(playerClubId, country).finally(() => leagueInit.delete(playerClubId))
+    leagueInit.set(playerClubId, task)
+    return task
+  },
+
+  async _initializeLeague(playerClubId, country) {
     try {
       // 0. Verificar si ya existe liga para este club (idempotencia estricta)
       const { data: existing } = await supabase

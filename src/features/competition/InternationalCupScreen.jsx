@@ -87,15 +87,8 @@ export default function InternationalCupScreen() {
   const handlePlayUserMatch = async (fixture) => {
     try {
       setPlayingMatchId(fixture.id)
-      const userIsHome = fixture.home_club_id === club.id
-      const userGoals = Math.floor(Math.random() * 3) + 1
-      let oppGoals = Math.floor(Math.random() * 2)
-      // Sin empates en partidos de eliminación directa
-      if (userGoals === oppGoals) oppGoals = Math.max(0, userGoals - 1)
-
-      const homeScore = userIsHome ? userGoals : oppGoals
-      const awayScore = userIsHome ? oppGoals : userGoals
-      const res = await internationalCupApi.processUserMatchResult(fixture.id, club.id, manager?.id, homeScore, awayScore)
+      const res = await internationalCupApi.playUserMatch(fixture.id, club.id, manager?.id)
+      const { homeScore, awayScore } = res
 
       if (res.userWon) toast.success(`¡Victoria continental! ${homeScore}-${awayScore}. Premio: +${formatMoney(res.matchBonus)}`)
       else toast.error(`Derrota en la copa: ${homeScore}-${awayScore}`)

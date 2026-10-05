@@ -8,7 +8,7 @@ vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 const state = { team: null }
 const acceptOffer = vi.fn(async () => ({}))
 const playMatch = vi.fn(async () => ({ won: true, teamGoals: 2, oppGoals: 0, xpBonus: 5 }))
-const processUserMatchResult = vi.fn(async () => ({ userWon: true, matchBonus: 10000 }))
+const playUserMatch = vi.fn(async () => ({ userWon: true, matchBonus: 10000, homeScore: 2, awayScore: 1 }))
 const confirmAction = vi.fn(async () => true)
 
 vi.mock('../../src/api/nationalTeam', () => ({
@@ -36,7 +36,7 @@ vi.mock('../../src/api/internationalCup', () => ({
         { id: 'q2', stage: 'quarter_finals', played: true, home_club_id: 'y', away_club_id: 'z', home_club: { name: 'A' }, away_club: { name: 'B' }, home_score: 1, away_score: 0 }
       ]
     })),
-    processUserMatchResult: (...a) => processUserMatchResult(...a)
+    playUserMatch: (...a) => playUserMatch(...a)
   }
 }))
 vi.mock('../../src/context/GameContext', () => ({
@@ -70,14 +70,13 @@ describe('pantalla Selección Nacional', () => {
 
 describe('pantalla Copa Continental', () => {
   it('muestra las llaves y permite jugar sólo el partido propio pendiente', async () => {
-    processUserMatchResult.mockClear()
+    playUserMatch.mockClear()
     render(<MemoryRouter><InternationalCupScreen /></MemoryRouter>)
     expect(await screen.findByRole('heading', { level: 1, name: 'Copa Gloria' })).toBeInTheDocument()
     expect(screen.getByText('Se definirán al concluir los cuartos de final.')).toBeInTheDocument()
     const buttons = screen.getAllByRole('button', { name: /Jugar partido continental/ })
     expect(buttons).toHaveLength(1)
     await userEvent.click(buttons[0])
-    await waitFor(() => expect(processUserMatchResult).toHaveBeenCalled())
-    expect(processUserMatchResult.mock.calls[0].slice(0, 3)).toEqual(['q1', 'c1', 'm1'])
+    await waitFor(() => expect(playUserMatch).toHaveBeenCalledWith('q1', 'c1', 'm1'))
   })
 })
