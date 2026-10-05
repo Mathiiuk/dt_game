@@ -2,6 +2,8 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
 import { contractEndFor, pickInitialContractYears } from '../domain/contracts'
+import { generateAttributesForOverall, TIER_5_RATING_RANGES } from '../domain/ratings'
+import { POSITION_CODES, normalizePosition } from '../domain/positions'
 
 const FIRST_NAMES = [
   'Santiago', 'Lucas', 'Matias', 'Facundo', 'Tomas', 'Agustin', 'Nicolas',
@@ -19,70 +21,34 @@ const LAST_NAMES = [
 
 export const INITIAL_SQUAD_STRUCTURE = [
   // Arqueros (2)
-  { position: 'GK', squadRole: 'Titular', shirtNumber: 1, ageCategory: 'prime' },
-  { position: 'GK', squadRole: 'Suplente', shirtNumber: 12, ageCategory: 'young' },
+  { position: 'PO', squadRole: 'Titular', shirtNumber: 1, ageCategory: 'prime' },
+  { position: 'PO', squadRole: 'Suplente', shirtNumber: 12, ageCategory: 'young' },
   // Defensores (6)
-  { position: 'CB', squadRole: 'Titular', shirtNumber: 2, ageCategory: 'prime' },
-  { position: 'CB', squadRole: 'Titular', shirtNumber: 6, ageCategory: 'veteran' },
-  { position: 'LB', squadRole: 'Titular', shirtNumber: 3, ageCategory: 'prime' },
-  { position: 'RB', squadRole: 'Titular', shirtNumber: 4, ageCategory: 'prime' },
-  { position: 'CB', squadRole: 'Rotación', shirtNumber: 13, ageCategory: 'prospect' },
-  { position: 'CB', squadRole: 'Rotación', shirtNumber: 14, ageCategory: 'prime' },
+  { position: 'DFC', squadRole: 'Titular', shirtNumber: 2, ageCategory: 'prime' },
+  { position: 'DFC', squadRole: 'Titular', shirtNumber: 6, ageCategory: 'veteran' },
+  { position: 'LI', squadRole: 'Titular', shirtNumber: 3, ageCategory: 'prime' },
+  { position: 'LD', squadRole: 'Titular', shirtNumber: 4, ageCategory: 'prime' },
+  { position: 'DFC', squadRole: 'Rotación', shirtNumber: 13, ageCategory: 'prospect' },
+  { position: 'DFC', squadRole: 'Rotación', shirtNumber: 14, ageCategory: 'prime' },
   // Mediocampistas (7)
-  { position: 'DM', squadRole: 'Titular', shirtNumber: 5, ageCategory: 'prime' },
-  { position: 'CM', squadRole: 'Titular', shirtNumber: 8, ageCategory: 'prime' },
-  { position: 'CM', squadRole: 'Titular', shirtNumber: 10, ageCategory: 'star' },
-  { position: 'DM', squadRole: 'Rotación', shirtNumber: 15, ageCategory: 'prime' },
-  { position: 'CM', squadRole: 'Rotación', shirtNumber: 16, ageCategory: 'young' },
-  { position: 'AM', squadRole: 'Rotación', shirtNumber: 17, ageCategory: 'prospect' },
-  { position: 'LM', squadRole: 'Rotación', shirtNumber: 18, ageCategory: 'prime' },
+  { position: 'MCD', squadRole: 'Titular', shirtNumber: 5, ageCategory: 'prime' },
+  { position: 'MC', squadRole: 'Titular', shirtNumber: 8, ageCategory: 'prime' },
+  { position: 'MC', squadRole: 'Titular', shirtNumber: 10, ageCategory: 'star' },
+  { position: 'MCD', squadRole: 'Rotación', shirtNumber: 15, ageCategory: 'prime' },
+  { position: 'MD', squadRole: 'Rotación', shirtNumber: 16, ageCategory: 'young' },
+  { position: 'MCO', squadRole: 'Rotación', shirtNumber: 17, ageCategory: 'prospect' },
+  { position: 'MI', squadRole: 'Rotación', shirtNumber: 18, ageCategory: 'prime' },
   // Delanteros (5)
-  { position: 'RW', squadRole: 'Titular', shirtNumber: 7, ageCategory: 'prime' },
-  { position: 'ST', squadRole: 'Titular', shirtNumber: 9, ageCategory: 'star' },
-  { position: 'LW', squadRole: 'Titular', shirtNumber: 11, ageCategory: 'prime' },
-  { position: 'ST', squadRole: 'Rotación', shirtNumber: 19, ageCategory: 'prospect' },
-  { position: 'ST', squadRole: 'Rotación', shirtNumber: 20, ageCategory: 'veteran' }
+  { position: 'ED', squadRole: 'Titular', shirtNumber: 7, ageCategory: 'prime' },
+  { position: 'DC', squadRole: 'Titular', shirtNumber: 9, ageCategory: 'star' },
+  { position: 'EI', squadRole: 'Titular', shirtNumber: 11, ageCategory: 'prime' },
+  { position: 'DC', squadRole: 'Rotación', shirtNumber: 19, ageCategory: 'prospect' },
+  { position: 'DC', squadRole: 'Rotación', shirtNumber: 20, ageCategory: 'veteran' }
 ]
 
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 
-/**
- * Genera atributos técnicos, físicos y mentales adaptados al OVR objetivo del jugador
- */
-export const generateAttributes = (targetOvr, position) => {
-  const isGK = position === 'GK'
-  const isDef = ['CB', 'LB', 'RB'].includes(position)
-  const isMid = ['DM', 'CM', 'AM', 'LM', 'RM'].includes(position)
-  const isFwd = ['ST', 'RW', 'LW'].includes(position)
-
-  const genVal = (bias = 0) => Math.max(25, Math.min(85, Math.round(targetOvr + bias + randomInt(-4, 4))))
-
-  return {
-    attr_pace: genVal(isFwd || position === 'LB' || position === 'RB' ? 5 : -2),
-    attr_acceleration: genVal(isFwd ? 4 : 0),
-    attr_strength: genVal(isDef || position === 'DM' ? 6 : -3),
-    attr_stamina: genVal(2),
-    attr_technique: genVal(isMid || isFwd ? 4 : -5),
-    attr_passing: genVal(isMid ? 6 : -3),
-    attr_control: genVal(isMid ? 4 : -2),
-    attr_dribbling: genVal(isFwd || position === 'AM' ? 5 : -4),
-    attr_finishing: genVal(isFwd ? 8 : -8),
-    attr_shooting: genVal(isFwd ? 6 : -6),
-    attr_heading: genVal(isDef || position === 'ST' ? 5 : -4),
-    attr_marking: genVal(isDef || position === 'DM' ? 8 : -10),
-    attr_tackling: genVal(isDef || position === 'DM' ? 7 : -9),
-    attr_positioning: genVal(isGK || isDef ? 5 : 0),
-    attr_vision: genVal(isMid ? 6 : -4),
-    attr_decisions: genVal(0),
-    attr_mentality: genVal(1),
-    attr_concentration: genVal(isGK || isDef ? 4 : 0),
-    attr_leadership: genVal(randomInt(-5, 8)),
-    attr_aggression: genVal(randomInt(-3, 6)),
-    attr_professionalism: genVal(randomInt(0, 8))
-  }
-}
-
-const PROSPECT_POSITIONS = ['GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LM', 'RM', 'ST', 'RW', 'LW']
+const PROSPECT_POSITIONS = POSITION_CODES
 const pick = (list) => list[randomInt(0, list.length - 1)]
 
 /** Primer dorsal libre a partir del 21 (los 1-20 son del plantel inicial) */
@@ -93,26 +59,29 @@ export const nextFreeShirtNumber = (taken = []) => {
 }
 
 /**
- * Arma la fila COMPLETA de un juvenil de cantera: todos los campos obligatorios de `players`
+ * Arma la fila COMPLETA de un jugador joven para insertar en `players`: todos los campos obligatorios
  * (nacionalidad, dorsal, atributos, contrato, valor, rol) y nada de columnas inexistentes.
+ * Escala FIFA: los atributos se generan para que la media en su posición sea `overall`.
  */
-export const buildYouthProspect = ({ clubId, academyLevel = 1, shirtNumber, nationality = 'Argentina', gameDate = '2026-07-01' }) => {
-  const position = pick(PROSPECT_POSITIONS)
-  const targetOvr = randomInt(38, 46) + Math.min(6, academyLevel * 2)
-  const potential = Math.min(99, 60 + academyLevel * 5 + randomInt(0, 14))
-  const wage = Math.round(80 * Math.pow(targetOvr / 50, 1.85))
+export const buildProspectRow = ({
+  clubId, firstName, lastName, age, position, overall, potential, shirtNumber, nationality = 'Argentina', gameDate = '2026-07-01',
+  role = 'Juvenil', isYouth = true
+}) => {
+  const pos = normalizePosition(position)
+  const wage = Math.round(80 * Math.pow((overall - 7) / 50, 1.85))
   const years = 3
 
   return {
     club_id: clubId,
-    first_name: pick(FIRST_NAMES),
-    last_name: pick(LAST_NAMES),
-    age: randomInt(16, 17),
+    first_name: firstName,
+    last_name: lastName,
+    age,
     nationality,
     shirt_number: shirtNumber,
-    position,
-    ...generateAttributes(targetOvr, position),
-    attr_potential: potential,
+    position: pos,
+    ...generateAttributesForOverall(overall, pos),
+    attr_overall: overall,
+    attr_potential: Math.min(99, Math.max(potential, overall)),
     state_fitness: 100,
     state_morale: 80,
     state_form: 6,
@@ -120,11 +89,28 @@ export const buildYouthProspect = ({ clubId, academyLevel = 1, shirtNumber, nati
     contract_salary: wage,
     contract_years: years,
     contract_end: contractEndFor(gameDate, years),
-    contract_role: 'Juvenil',
-    squad_role: 'Juvenil',
-    market_value: targetOvr * 2500,
-    is_youth: true
+    contract_role: role,
+    squad_role: role,
+    market_value: overall * 2500,
+    is_youth: isYouth
   }
+}
+
+/** Juvenil de cantera al azar (botón "Otear" de la Academia): entre 50 y 58 de media, potencial según el nivel de la academia */
+export const buildYouthProspect = ({ clubId, academyLevel = 1, shirtNumber, nationality = 'Argentina', gameDate = '2026-07-01' }) => {
+  const overall = randomInt(50, 54) + Math.min(4, academyLevel)
+  return buildProspectRow({
+    clubId,
+    firstName: pick(FIRST_NAMES),
+    lastName: pick(LAST_NAMES),
+    age: randomInt(16, 17),
+    position: pick(PROSPECT_POSITIONS),
+    overall,
+    potential: Math.max(overall + 6, 66 + academyLevel * 5 + randomInt(0, 14)),
+    shirtNumber,
+    nationality,
+    gameDate
+  })
 }
 
 export const playerApi = {
@@ -151,31 +137,28 @@ export const playerApi = {
       let targetOvr = 50
       let potential = 55
 
+      const [minOvr, maxOvr] = TIER_5_RATING_RANGES[slot.ageCategory] || TIER_5_RATING_RANGES.prime
+      targetOvr = randomInt(minOvr, maxOvr)
       switch (slot.ageCategory) {
         case 'prospect':
           age = randomInt(17, 19)
-          targetOvr = randomInt(44, 48)
-          potential = randomInt(70, 78) // Gran margen de crecimiento (> 68)
+          potential = randomInt(70, 80) // gran margen de crecimiento
           break
         case 'young':
           age = randomInt(20, 22)
-          targetOvr = randomInt(46, 50)
-          potential = randomInt(64, 72)
+          potential = randomInt(66, 74)
           break
         case 'star':
           age = randomInt(26, 29)
-          targetOvr = randomInt(56, 62) // Jugador estrella de la liga
           potential = targetOvr + randomInt(1, 3)
           break
         case 'veteran':
           age = randomInt(31, 34)
-          targetOvr = randomInt(49, 53)
           potential = targetOvr
           break
         case 'prime':
         default:
           age = randomInt(23, 28)
-          targetOvr = randomInt(48, 53)
           potential = targetOvr + randomInt(2, 6)
           break
       }
@@ -194,7 +177,7 @@ export const playerApi = {
       usedNames.add(fullName)
 
       // 3. Salario semanal ajustado a Tier 5 (~$100 a $220 semanal)
-      const weeklyWage = Math.round(120 * Math.pow(targetOvr / 50, 1.85))
+      const weeklyWage = Math.round(120 * Math.pow((targetOvr - 7) / 50, 1.85))
 
       // 4. Contrato escalonado (1 a 5 años) con vencimiento real anclado al 30 de junio
       const contractYears = pickInitialContractYears()
@@ -207,7 +190,8 @@ export const playerApi = {
         nationality: 'Argentina',
         shirt_number: slot.shirtNumber,
         position: slot.position,
-        ...generateAttributes(targetOvr, slot.position),
+        ...generateAttributesForOverall(targetOvr, slot.position),
+        attr_overall: targetOvr,
         state_fitness: 100,
         state_morale: 75,
         state_form: 6,

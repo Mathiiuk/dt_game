@@ -3,11 +3,13 @@ import { Save, Wand2, ShieldAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
 import {
-  tacticsApi, FORMATIONS, calculatePositionalAffinity,
+  tacticsApi, FORMATIONS,
   TACTICAL_MENTALITIES, PASSING_STYLES, PRESSING_LEVELS, TEMPO_LEVELS
 } from '../../api/tactics'
 import { playerApi } from '../../api/player'
-import { reassignLineup } from '../../domain/formations'
+import { reassignLineup, resolveLineup } from '../../domain/formations'
+import { fitLabel, positionName, slotBase } from '../../domain/positions'
+import { ratingAtSlot, playerOverall } from '../../domain/ratings'
 import {
   Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ChoiceChips, EmptyState,
   PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
@@ -21,7 +23,7 @@ const AFFINITY_TONE = { NATURAL: 'accent', COMPATIBLE: 'warning', ADAPTED: 'warn
 const toOptions = (list) => list.map(i => ({ value: i.id, label: i.label }))
 const FORMATION_OPTIONS = Object.values(FORMATIONS).map(f => ({ value: f.id, label: f.id }))
 
-const ovr = (p) => p.attr_overall || p.overall || 50
+const ovr = (p) => playerOverall(p)
 
 /** Un grupo de instrucciones con título y una línea de contexto */
 function InstructionGroup({ title, description, children }) {
@@ -78,21 +80,8 @@ export default function TacticsScreen() {
 
         const form = tactic?.formation || '4-4-2'
         const slots = (FORMATIONS[form] || FORMATIONS['4-4-2']).slots
-        let map = {}
-        if (Array.isArray(tactic?.lineup) && tactic.lineup.length > 0) {
-          const squadIds = new Set((players || []).map(p => p.id))
-          const used = new Set()
-          // Alineaciones guardadas con jugadores repetidos o que ya no están en el plantel se depuran
-          slots.forEach((slot, idx) => {
-            const id = tactic.lineup[idx]
-            if (id && squadIds.has(id) && !used.has(id)) { map[slot] = id; used.add(id) }
-          })
-          if (Object.keys(map).length < slots.length) {
-            map = reassignLineup(slots, players || [], Object.values(map))
-          }
-        } else {
-          map = reassignLineup(slots, players || [], [])
-        }
+        // Alineaciones guardadas con jugadores repetidos, retirados o desordenados se depuran y reubican solas
+        const map = resolveLineup(slots, players || [], Array.isArray(tactic?.lineup) ? tactic.lineup : [])
 
         const next = {
           formation: form,
@@ -125,8 +114,9 @@ export default function TacticsScreen() {
   // Resumen del once: nivel medio y jugadores fuera de puesto o lesionados
   const summary = useMemo(() => {
     const starters = starterIds.map(id => playerMap.get(id)).filter(Boolean)
-    const avg = starters.length ? Math.round(starters.reduce((s, p) => s + ovr(p), 0) / starters.length) : 0
-    const out = starters.filter(p => calculatePositionalAffinity(p.position, starterSlotById[p.id]).code === 'OUT_OF_POSITION').length
+    // El nivel del once cuenta lo que rinde cada uno EN su puesto (un arquero de delantero casi no suma)
+    const avg = starters.length ? Math.round(starters.reduce((s, p) => s + ratingAtSlot(p, starterSlotById[p.id]), 0) / starters.length) : 0
+    const out = starters.filter(p => fitLabel(p.position, starterSlotById[p.id]).code === 'OUT_OF_POSITION').length
     const hurt = starters.filter(p => p.is_injured).length
     return { avg, out, hurt, count: starters.length }
   }, [starterIds.join('|'), playerMap]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -220,8 +210,8 @@ export default function TacticsScreen() {
   // Candidatos para el puesto elegido: mejor afinidad primero y luego mejor nivel; los lesionados quedan al final
   const candidates = selectedSlot
     ? [...squad].sort((a, b) => {
-        const ra = calculatePositionalAffinity(a.position, selectedSlot).rating + (a.is_injured ? -2 : 0)
-        const rb = calculatePositionalAffinity(b.position, selectedSlot).rating + (b.is_injured ? -2 : 0)
+        const ra = ratingAtSlot(a, selectedSlot) - (a.is_injured ? 40 : 0)
+        const rb = ratingAtSlot(b, selectedSlot) - (b.is_injured ? 40 : 0)
         return rb - ra || ovr(b) - ovr(a)
       })
     : []
@@ -267,7 +257,7 @@ export default function TacticsScreen() {
           <TabsList>
             <TabsTrigger value="instructions">Instrucciones</TabsTrigger>
             <TabsTrigger value="players">
-              Jugadores{selectedSlot ? ` · ${selectedSlot}` : ''}
+              Jugadores{selectedSlot ? ` · ${slotBase(selectedSlot)}` : ''}
             </TabsTrigger>
           </TabsList>
 
@@ -299,7 +289,7 @@ export default function TacticsScreen() {
                 <Card>
                   <CardBody className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="eyebrow">Puesto {selectedSlot}</p>
+                      <p className="eyebrow">Puesto {slotBase(selectedSlot)}</p>
                       <p className="mt-1 truncate font-display text-xl font-semibold text-fg">
                         {selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'Vacío'}
                       </p>
@@ -308,9 +298,9 @@ export default function TacticsScreen() {
                   </CardBody>
                 </Card>
 
-                <ul className="space-y-1.5" aria-label={`Candidatos para ${selectedSlot}`}>
+                <ul className="space-y-1.5" aria-label={`Candidatos para ${slotBase(selectedSlot)}`}>
                   {candidates.map(p => {
-                    const aff = calculatePositionalAffinity(p.position, selectedSlot)
+                    const aff = fitLabel(p.position, selectedSlot)
                     const current = lineup[selectedSlot] === p.id
                     const startsAt = starterSlotById[p.id]
                     return (
@@ -329,7 +319,7 @@ export default function TacticsScreen() {
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-sm font-semibold text-fg">{p.first_name} {p.last_name}</span>
                             <span className="block text-xs text-fg-subtle">
-                              {p.position} · Nivel <span className="num">{ovr(p)}</span> · Cond. <span className="num">{p.state_fitness ?? 75}%</span>
+                              <abbr title={positionName(p.position)} className="no-underline">{p.position}</abbr> · Nivel <span className="num">{ovr(p)}</span> · En el puesto <span className="num">{ratingAtSlot(p, selectedSlot)}</span> · Cond. <span className="num">{p.state_fitness ?? 75}%</span>
                               {startsAt && !current ? ` · Titular (${startsAt})` : ''}
                             </span>
                           </span>

@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { FIXTURE_STATUS } from '../domain/fixtureStatus'
+import { positionLine, normalizePosition } from '../domain/positions'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -29,6 +30,40 @@ export const SHOUT_TYPES = [
     effect: { defBuff: 1.25, attBuff: 0.70 }
   }
 ]
+
+/**
+ * Aporte de cada puesto a ataque, defensa y mediocampo (0 a 1). Un equipo se pesa por lo que rinde cada uno EN su puesto
+ * (`slot_rating`): un arquero de delantero casi no suma al ataque y deja un hueco en el arco.
+ */
+export const SLOT_POWER_WEIGHTS = {
+  PO:  { attack: 0.00, defense: 1.10, midfield: 0.00 },
+  DFC: { attack: 0.05, defense: 1.00, midfield: 0.10 },
+  LI:  { attack: 0.20, defense: 0.70, midfield: 0.20 },
+  LD:  { attack: 0.20, defense: 0.70, midfield: 0.20 },
+  MCD: { attack: 0.15, defense: 0.90, midfield: 0.80 },
+  MC:  { attack: 0.35, defense: 0.40, midfield: 1.00 },
+  MCO: { attack: 0.80, defense: 0.10, midfield: 0.80 },
+  MI:  { attack: 0.50, defense: 0.20, midfield: 0.60 },
+  MD:  { attack: 0.50, defense: 0.20, midfield: 0.60 },
+  EI:  { attack: 0.90, defense: 0.05, midfield: 0.20 },
+  ED:  { attack: 0.90, defense: 0.05, midfield: 0.20 },
+  DC:  { attack: 1.00, defense: 0.05, midfield: 0.10 }
+}
+
+/** Poder del equipo a partir de la media de cada titular en su puesto (escala de las medias, 50 a 99) */
+export const slotBasedPower = (players) => {
+  const total = { attack: 0, defense: 0, midfield: 0 }
+  const weight = { attack: 0, defense: 0, midfield: 0 }
+  for (const p of players) {
+    const w = SLOT_POWER_WEIGHTS[normalizePosition(p.slot_base || p.position)]
+    for (const k of ['attack', 'defense', 'midfield']) {
+      total[k] += w[k] * p.slot_rating
+      weight[k] += w[k]
+    }
+  }
+  const avg = (k) => (weight[k] > 0 ? total[k] / weight[k] : 40)
+  return { attack: avg('attack'), defense: avg('defense'), midfield: avg('midfield') }
+}
 
 // Generador pseudoaleatorio determinista (Mulberry32)
 export function createRNG(seedValue) {
@@ -66,6 +101,19 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     }))
 
     const baseFitness = list.reduce((acc, p) => acc + (p.state_fitness || 75), 0) / list.length
+
+    // Con puestos asignados (`slot_rating`) se pesa cada uno por lo que rinde en su lugar: jugar fuera de posición cuesta
+    if (list.every(p => typeof p.slot_rating === 'number')) {
+      const power = slotBasedPower(list)
+      return {
+        fitness: baseFitness,
+        attack: power.attack,
+        defense: power.defense * 0.8 + baseFitness * 0.2,
+        midfield: power.midfield * 0.6 + baseFitness * 0.4,
+        players: list
+      }
+    }
+
     const basePace = list.reduce((acc, p) => acc + (p.attr_pace || 50), 0) / list.length
     const baseShooting = list.reduce((acc, p) => acc + (p.attr_shooting || 50), 0) / list.length
     const baseDefending = list.reduce((acc, p) => acc + (p.attr_defending || 50), 0) / list.length
@@ -143,19 +191,25 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   let homeCorners = 0
   let awayCorners = 0
 
+  // La línea en la que juega cada uno (por su puesto en la cancha si lo tiene, si no por su posición natural)
+  const lineOf = (p) => positionLine(p.slot_base || p.position)
   const getRandomPlayer = (teamList, preferredRole = null) => {
     if (!teamList || teamList.length === 0) return { first_name: 'Futbolista', last_name: '' }
+    const pick = (line) => {
+      const list = teamList.filter(p => lineOf(p) === line)
+      return list.length > 0 ? list[Math.floor(rng() * list.length)] : null
+    }
     if (preferredRole === 'ATTACK') {
-      const attackers = teamList.filter(p => ['ST', 'CF', 'LW', 'RW', 'DEL'].includes(p.position))
-      if (attackers.length > 0) return attackers[Math.floor(rng() * attackers.length)]
+      const found = pick('DEL')
+      if (found) return found
     } else if (preferredRole === 'MID') {
-      const mids = teamList.filter(p => ['CM', 'CAM', 'CDM', 'LM', 'RM', 'MED'].includes(p.position))
-      if (mids.length > 0) return mids[Math.floor(rng() * mids.length)]
+      const found = pick('MED')
+      if (found) return found
     } else if (preferredRole === 'DEF') {
-      const defs = teamList.filter(p => ['CB', 'LB', 'RB', 'DEF'].includes(p.position))
-      if (defs.length > 0) return defs[Math.floor(rng() * defs.length)]
+      const found = pick('DEF')
+      if (found) return found
     } else if (preferredRole === 'GK') {
-      const gks = teamList.filter(p => p.position === 'GK')
+      const gks = teamList.filter(p => lineOf(p) === 'ARQ')
       if (gks.length > 0) return gks[0]
     }
     return teamList[Math.floor(rng() * teamList.length)]

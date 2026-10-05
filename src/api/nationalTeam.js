@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { managerApi } from './manager'
 import { auditApi } from './audit'
 import { queryCache } from '../utils/cache'
+import { isGoalkeeper } from '../domain/positions'
 
 export const NATIONAL_TEAMS_CONFIG = {
   fifa_callup_size: 23,
@@ -259,7 +260,7 @@ export const nationalTeamApi = {
     if (error || !players) throw new Error('Error al validar futbolistas de la lista.')
 
     // Validar arqueros (Regla 33.2)
-    const goalkeepers = players.filter(p => p.position === 'POR' || p.position === 'GK')
+    const goalkeepers = players.filter(p => isGoalkeeper(p.position))
     if (goalkeepers.length < NATIONAL_TEAMS_CONFIG.minimum_goalkeepers) {
       const err = new Error(`ERR_INSUFFICIENT_GOALKEEPERS: La nómina debe incluir de forma obligatoria al menos ${NATIONAL_TEAMS_CONFIG.minimum_goalkeepers} arqueros reglamentarios (actuales: ${goalkeepers.length}).`)
       err.code = 'ERR_INSUFFICIENT_GOALKEEPERS'

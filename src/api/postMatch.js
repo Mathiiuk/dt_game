@@ -6,6 +6,7 @@ import { clubHistoryApi } from './clubHistory'
 import { achievementsApi } from './achievements'
 import { rollAggravations, AGGRAVATION_EXTRA_WEEKS } from '../domain/matchSquad'
 import { queryCache } from '../utils/cache'
+import { positionLine } from '../domain/positions'
 
 /**
  * ¿El gol del evento lo hizo este jugador? Si el evento trae `playerId` manda ese dato; el nombre en el texto sólo
@@ -206,7 +207,7 @@ export const postMatchApi = {
         rating += playerAssists * 0.75
 
         // Bono por valla invicta para arquero y defensas
-        const isDefender = ['GK', 'DEF', 'CB', 'LB', 'RB', 'LWB', 'RWB'].includes(p.position)
+        const isDefender = ['ARQ', 'DEF'].includes(positionLine(p.position))
         if (isDefender) {
           if (goalsConceded === 0) rating += 0.80
           else rating -= Math.min(1.5, goalsConceded * 0.35)

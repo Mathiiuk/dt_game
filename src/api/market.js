@@ -109,18 +109,17 @@ export const marketApi = {
    * Genera futbolistas de mercado y agentes libres de respaldo para garantizar fluidez.
    */
   generateFallbackMarketPlayers(currentClubId) {
-    const positions = ['GK', 'LB', 'CB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST']
-    const names = [
-      { f: 'Lucas', l: 'Martínez', pos: 'ST', age: 20, ovr: 54, pot: 72 },
-      { f: 'Matías', l: 'Ríos', pos: 'CM', age: 23, ovr: 52, pot: 64 },
-      { f: 'Nicolás', l: 'Benítez', pos: 'CB', age: 28, ovr: 56, pot: 58 },
-      { f: 'Fabricio', l: 'Paredes', pos: 'GK', age: 24, ovr: 51, pot: 65 },
-      { f: 'Lautaro', l: 'Acosta', pos: 'LW', age: 19, ovr: 53, pot: 74 },
-      { f: 'Franco', l: 'Sosa', pos: 'RB', age: 22, ovr: 50, pot: 62 },
-      { f: 'Ezequiel', l: 'Fernández', pos: 'CDM', age: 26, ovr: 55, pot: 60 },
-      { f: 'Agustín', l: 'Giménez', pos: 'CAM', age: 21, ovr: 52, pot: 70 },
-      { f: 'Mauro', l: 'Díaz', pos: 'LB', age: 31, ovr: 54, pot: 54 },
-      { f: 'Rodrigo', l: 'Romero', pos: 'RW', age: 20, ovr: 51, pot: 69 }
+        const names = [
+      { f: 'Lucas', l: 'Martínez', pos: 'DC', age: 20, ovr: 58, pot: 76 },
+      { f: 'Matías', l: 'Ríos', pos: 'MC', age: 23, ovr: 57, pot: 68 },
+      { f: 'Nicolás', l: 'Benítez', pos: 'DFC', age: 28, ovr: 61, pot: 62 },
+      { f: 'Fabricio', l: 'Paredes', pos: 'PO', age: 24, ovr: 56, pot: 70 },
+      { f: 'Lautaro', l: 'Acosta', pos: 'EI', age: 19, ovr: 57, pot: 78 },
+      { f: 'Franco', l: 'Sosa', pos: 'LD', age: 22, ovr: 55, pot: 66 },
+      { f: 'Ezequiel', l: 'Fernández', pos: 'MCD', age: 26, ovr: 60, pot: 63 },
+      { f: 'Agustín', l: 'Giménez', pos: 'MCO', age: 21, ovr: 57, pot: 74 },
+      { f: 'Mauro', l: 'Díaz', pos: 'LI', age: 31, ovr: 59, pot: 59 },
+      { f: 'Rodrigo', l: 'Romero', pos: 'ED', age: 20, ovr: 56, pot: 73 }
     ]
 
     return names.map((n, i) => {

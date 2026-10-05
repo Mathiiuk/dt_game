@@ -3,12 +3,9 @@
  * Sin React ni Supabase, para poder probarla.
  */
 
-const GROUPS = {
-  GK: ['GK'],
-  DEF: ['DEF', 'CB', 'LCB', 'RCB', 'LB', 'RB', 'LWB', 'RWB'],
-  MED: ['MED', 'CM', 'LCM', 'RCM', 'CDM', 'LDM', 'RDM', 'CAM', 'LM', 'RM'],
-  DEL: ['DEL', 'ST', 'LST', 'RST', 'CF', 'LW', 'RW']
-}
+import { normalizePosition, positionLine } from './positions'
+
+const LINE_TO_GROUP = { ARQ: 'GK', DEF: 'DEF', MED: 'MED', DEL: 'DEL' }
 
 export const POSITION_GROUP_OPTIONS = [
   { value: 'ALL', label: 'Todos' },
@@ -18,12 +15,8 @@ export const POSITION_GROUP_OPTIONS = [
   { value: 'DEL', label: 'Delanteros' }
 ]
 
-/** 'LCB' -> 'DEF'; posiciones desconocidas caen en 'MED' (la más neutra) */
-export const positionGroup = (position) => {
-  const p = String(position || '').toUpperCase()
-  for (const [group, list] of Object.entries(GROUPS)) if (list.includes(p)) return group
-  return 'MED'
-}
+/** 'DFC' (o el viejo 'LCB') -> 'DEF'; posiciones desconocidas caen en 'MED' (la más neutra) */
+export const positionGroup = (position) => LINE_TO_GROUP[positionLine(normalizePosition(position))] || 'MED'
 
 export const SORT_OPTIONS = [
   { value: 'overall', label: 'Nivel' },

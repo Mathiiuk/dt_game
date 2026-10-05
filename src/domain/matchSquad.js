@@ -8,6 +8,9 @@
  * Funciones puras: sin Supabase, sin azar (el azar se inyecta en las rutinas que lo necesitan).
  */
 
+import { ratingAtSlot } from './ratings'
+import { slotBase } from './positions'
+
 export const MATCH_SQUAD_SIZE = 11
 export const MAX_YOUTH_CALLUPS = 4
 export const INJURED_PERFORMANCE_FACTOR = 0.8
@@ -22,7 +25,7 @@ export const isAvailable = (p) => !p.is_injured && !p.is_suspended && !p.is_reti
 const rating = (p) => p.attr_overall || p.overall || 50
 
 /** Juvenil de cantera convocado de urgencia (no se persiste en la base) */
-export const makeYouthCallup = (index, position = 'MED') => ({
+export const makeYouthCallup = (index, position = 'MC') => ({
   id: `youth_callup_${index}`,
   first_name: 'Juvenil',
   last_name: `de Reserva #${index + 1}`,
@@ -30,7 +33,7 @@ export const makeYouthCallup = (index, position = 'MED') => ({
   age: 17,
   state_fitness: 90,
   attr_pace: 42, attr_shooting: 38, attr_finishing: 38, attr_passing: 40, attr_defending: 38,
-  attr_overall: 40,
+  attr_overall: 45,
   isYouthCallup: true
 })
 
@@ -44,11 +47,52 @@ export const withInjuryPenalty = (p) => {
 }
 
 /**
+ * Ubica a los 11 en los puestos de la formación. Cada titular del DT conserva el puesto que le dio en la pizarra;
+ * los que entran de reemplazo (o los que quedaron sin su puesto) van a los puestos libres donde mejor rinden.
+ * Cada uno sale con `slot`, `slot_base` y `slot_rating` (su media EN ESE puesto: fuera de posición rinde menos).
+ * @returns {Array} los titulares ordenados como `slots`
+ */
+export const assignToSlots = (starters, slots, lineupIds = []) => {
+  const assigned = new Map()
+  const byId = new Map(starters.map(p => [p.id, p]))
+  const placed = new Set()
+
+  // Los titulares elegidos por el DT mantienen su puesto
+  slots.forEach((slot, i) => {
+    const p = byId.get(lineupIds[i])
+    if (p && !placed.has(p.id)) { assigned.set(slot, p); placed.add(p.id) }
+  })
+
+  // El resto, a los puestos libres: primero las mejores combinaciones jugador-puesto
+  const freeSlots = slots.filter(sl => !assigned.has(sl))
+  const rest = starters.filter(p => !placed.has(p.id))
+  const pairs = []
+  for (const sl of freeSlots) for (const p of rest) pairs.push({ sl, p, r: p.isYouthCallup ? 45 : ratingAtSlot(p, sl) })
+  pairs.sort((a, b) => b.r - a.r)
+  for (const { sl, p } of pairs) {
+    if (assigned.has(sl) || placed.has(p.id)) continue
+    assigned.set(sl, p)
+    placed.add(p.id)
+  }
+
+  return slots.map(slot => {
+    const p = assigned.get(slot)
+    if (!p) return null
+    // El juvenil de reserva no tiene puesto propio: juega donde hace falta
+    const player = p.isYouthCallup ? { ...p, position: slotBase(slot) } : p
+    const penalty = p.playingInjured ? INJURED_PERFORMANCE_FACTOR : 1
+    return { ...player, slot, slot_base: slotBase(slot), slot_rating: Math.max(1, Math.round(ratingAtSlot(player, slot) * penalty)) }
+  }).filter(Boolean)
+}
+
+/**
  * @param {Array} players plantel completo
  * @param {Array<string>} lineupIds ids elegidos por el DT en la pizarra (puede estar vacío)
+ * @param {number} size cantidad de titulares
+ * @param {Array<string>} [slots] puestos de la formación, en el mismo orden que `lineupIds` (si se pasan, los titulares salen con su puesto y su media en él)
  * @returns {{ starters: Array, notes: Array, injuredPlayingIds: string[], youthCallupCount: number, healthyCount: number }}
  */
-export const buildMatchSquad = (players = [], lineupIds = [], size = MATCH_SQUAD_SIZE) => {
+export const buildMatchSquad = (players = [], lineupIds = [], size = MATCH_SQUAD_SIZE, slots = null) => {
   const byId = new Map(players.map(p => [p.id, p]))
   const starters = []
   const used = new Set()
@@ -100,7 +144,29 @@ export const buildMatchSquad = (players = [], lineupIds = [], size = MATCH_SQUAD
     youthCallupCount++
   }
 
-  return { starters, notes, injuredPlayingIds, youthCallupCount, healthyCount }
+  const placed = slots && slots.length === starters.length ? assignToSlots(starters, slots, lineupIds || []) : starters
+  return { starters: placed, notes, injuredPlayingIds, youthCallupCount, healthyCount }
+}
+
+const RIVAL_SLOTS = ['PO', 'LI', 'DFC1', 'DFC2', 'LD', 'MI', 'MC1', 'MC2', 'MD', 'DC1', 'DC2']
+
+/**
+ * Once rival genérico para una liga sin planteles de IA: 4-4-2 donde todos rinden `50 + reputación / 2` en su puesto
+ * (con reputación 15, 57: un poco por debajo de un plantel inicial del usuario, que ronda 60).
+ */
+export const buildRivalLineup = (reputation = 10) => {
+  const level = Math.round(50 + reputation * 0.5)
+  return RIVAL_SLOTS.map((slot, idx) => ({
+    id: `rival_${idx}`,
+    first_name: 'Jugador',
+    last_name: `Rival #${idx + 1}`,
+    position: slotBase(slot),
+    slot,
+    slot_base: slotBase(slot),
+    slot_rating: level,
+    attr_overall: level,
+    state_fitness: 90
+  }))
 }
 
 /**

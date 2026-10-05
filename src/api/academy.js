@@ -1,4 +1,6 @@
 import { supabase } from './supabase'
+import { buildProspectRow } from './player'
+import { POSITION_CODES } from '../domain/positions'
 import { queryCache } from '../utils/cache'
 import { levelsApi } from './levels'
 
@@ -93,15 +95,15 @@ export const academyApi = {
 
     const firstNames = ['Thiago', 'Mateo', 'Benjamín', 'Tomás', 'Santino', 'Joaquín', 'Bautista', 'Lautaro', 'Valentín', 'Ramiro', 'Nahuel', 'Facundo']
     const lastNames = ['García', 'Rodríguez', 'Fernández', 'López', 'Martínez', 'Gómez', 'Díaz', 'Álvarez', 'Romero', 'Sosa', 'Torres', 'Benítez']
-    const positions = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'ST', 'RW', 'LW']
+    const positions = POSITION_CODES
 
     // Configuración según nivel de infraestructura (Regla 18.1)
     const levelStats = {
-      1: { minOvr: 38, maxOvr: 44, basePot: 58, gemChance: 0.03 },
-      2: { minOvr: 42, maxOvr: 47, basePot: 63, gemChance: 0.06 },
-      3: { minOvr: 45, maxOvr: 50, basePot: 68, gemChance: 0.10 },
-      4: { minOvr: 48, maxOvr: 54, basePot: 73, gemChance: 0.18 },
-      5: { minOvr: 52, maxOvr: 58, basePot: 78, gemChance: 0.25 }
+      1: { minOvr: 50, maxOvr: 54, basePot: 65, gemChance: 0.03 },
+      2: { minOvr: 52, maxOvr: 57, basePot: 70, gemChance: 0.06 },
+      3: { minOvr: 54, maxOvr: 60, basePot: 75, gemChance: 0.10 },
+      4: { minOvr: 56, maxOvr: 62, basePot: 80, gemChance: 0.18 },
+      5: { minOvr: 58, maxOvr: 66, basePot: 85, gemChance: 0.25 }
     }
 
     const statConfig = levelStats[level] || levelStats[1]
@@ -214,8 +216,8 @@ export const academyApi = {
     // 3. Determinar dorsal
     let finalJersey = jerseyNumber
     if (!finalJersey) {
-      const { data: squad } = await supabase.from('players').select('jersey_number').eq('club_id', clubId)
-      const usedJerseys = new Set(squad?.map(p => p.jersey_number) || [])
+      const { data: squad } = await supabase.from('players').select('shirt_number').eq('club_id', clubId)
+      const usedJerseys = new Set(squad?.map(p => p.shirt_number) || [])
       for (let j = 21; j <= 99; j++) {
         if (!usedJerseys.has(j)) {
           finalJersey = j
@@ -224,31 +226,30 @@ export const academyApi = {
       }
     }
 
-    // 4. Crear jugador en la tabla players
-    const { data: newPlayer, error: playerErr } = await supabase
-      .from('players')
-      .insert({
-        club_id: clubId,
-        first_name: candidate.first_name,
-        last_name: candidate.last_name,
+    // 4. Crear jugador en la tabla players (fila completa: nacionalidad, dorsal y atributos obligatorios)
+    const { data: clubRow } = await supabase.from('clubs').select('country, game_date').eq('id', clubId).maybeSingle()
+    const promotedRow = {
+      ...buildProspectRow({
+        clubId,
+        firstName: candidate.first_name,
+        lastName: candidate.last_name,
         age: candidate.age,
         position: candidate.position,
-        jersey_number: finalJersey,
-        attr_pace: candidate.attributes?.pace || candidate.overall_rating,
-        attr_potential: candidate.potential_rating,
-        attr_overall: candidate.overall_rating,
-        attr_shooting: candidate.attributes?.shooting || candidate.overall_rating,
-        attr_passing: candidate.attributes?.passing || candidate.overall_rating,
-        attr_defending: candidate.attributes?.defending || candidate.overall_rating,
-        attr_stamina: 75,
-        state_fitness: 100,
-        morale: 85,
-        personality: candidate.potential_rating > 80 ? 'Ambicioso' : 'Disciplinado',
-        contract_salary: this.BALANCE.base_youth_weekly_wage,
-        contract_role: 'PROSPECT',
-        is_transfer_listed: false,
-        transfer_status: 'NOT_FOR_SALE'
-      })
+        overall: Math.max(50, candidate.overall_rating),
+        potential: candidate.potential_rating,
+        shirtNumber: finalJersey,
+        nationality: clubRow?.country || 'Argentina',
+        gameDate: clubRow?.game_date || '2026-07-01',
+        role: 'PROSPECT',
+        isYouth: false
+      }),
+      contract_salary: this.BALANCE.base_youth_weekly_wage,
+      is_transfer_listed: false,
+      transfer_status: 'NOT_FOR_SALE'
+    }
+    const { data: newPlayer, error: playerErr } = await supabase
+      .from('players')
+      .insert(promotedRow)
       .select()
       .single()
 

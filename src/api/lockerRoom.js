@@ -138,7 +138,7 @@ export const lockerRoomApi = {
     return (profiles || []).map(p => ({
       ...p,
       name: p.players?.name || 'Jugador',
-      position: p.players?.position || 'MED',
+      position: p.players?.position || 'MC',
       overall: p.players?.overall || 60,
       age: p.players?.age || 20,
       morale: p.players?.morale || 70,

@@ -1,47 +1,48 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
+import { fitLabel, positionPenalty, slotBase } from '../domain/positions'
 
 export const FORMATIONS = {
   '4-4-2': {
     id: '4-4-2',
     name: '4-4-2 Clásico',
-    slots: ['GK', 'LB', 'LCB', 'RCB', 'RB', 'LM', 'LCM', 'RCM', 'RM', 'LST', 'RST'],
+    slots: ['PO', 'LI', 'DFC1', 'DFC2', 'LD', 'MI', 'MC1', 'MC2', 'MD', 'DC1', 'DC2'],
     description: 'Equilibrio defensivo y juego por bandas.'
   },
   '4-3-3': {
     id: '4-3-3',
     name: '4-3-3 Ofensivo',
-    slots: ['GK', 'LB', 'LCB', 'RCB', 'RB', 'CDM', 'LCM', 'RCM', 'LW', 'ST', 'RW'],
+    slots: ['PO', 'LI', 'DFC1', 'DFC2', 'LD', 'MCD', 'MC1', 'MC2', 'EI', 'DC', 'ED'],
     description: 'Amplitud de ataque, presión y transiciones rápidas.'
   },
   '4-2-3-1': {
     id: '4-2-3-1',
     name: '4-2-3-1 Moderno',
-    slots: ['GK', 'LB', 'LCB', 'RCB', 'RB', 'LDM', 'RDM', 'CAM', 'LM', 'RM', 'ST'],
+    slots: ['PO', 'LI', 'DFC1', 'DFC2', 'LD', 'MCD1', 'MCD2', 'MCO', 'MI', 'MD', 'DC'],
     description: 'Control de la medular y llegada escalonada.'
   },
   '3-5-2': {
     id: '3-5-2',
     name: '3-5-2 Con Carrileros',
-    slots: ['GK', 'LCB', 'CB', 'RCB', 'LWB', 'LCM', 'RCM', 'RWB', 'CAM', 'LST', 'RST'],
+    slots: ['PO', 'DFC1', 'DFC2', 'DFC3', 'LI', 'MC1', 'MC2', 'LD', 'MCO', 'DC1', 'DC2'],
     description: 'Densidad en mediocampo y superioridad en centros.'
   },
   '5-3-2': {
     id: '5-3-2',
     name: '5-3-2 Cerrojo / Contra',
-    slots: ['GK', 'LWB', 'LCB', 'CB', 'RCB', 'RWB', 'LCM', 'CM', 'RCM', 'LST', 'RST'],
+    slots: ['PO', 'LI', 'DFC1', 'DFC2', 'DFC3', 'LD', 'MC1', 'MC2', 'MC3', 'DC1', 'DC2'],
     description: 'Seguridad máxima atrás y salidas verticales.'
   },
   '4-1-4-1': {
     id: '4-1-4-1',
     name: '4-1-4-1 Posesión',
-    slots: ['GK', 'LB', 'LCB', 'RCB', 'RB', 'CDM', 'LM', 'LCM', 'RCM', 'RM', 'ST'],
+    slots: ['PO', 'LI', 'DFC1', 'DFC2', 'LD', 'MCD', 'MI', 'MC1', 'MC2', 'MD', 'DC'],
     description: 'Estructura compacta para dominar la pelota.'
   },
   '3-4-3': {
     id: '3-4-3',
     name: '3-4-3 Ataque Total',
-    slots: ['GK', 'LCB', 'CB', 'RCB', 'LM', 'LCM', 'RCM', 'RM', 'LW', 'ST', 'RW'],
+    slots: ['PO', 'DFC1', 'DFC2', 'DFC3', 'MI', 'MC1', 'MC2', 'MD', 'EI', 'DC', 'ED'],
     description: 'Presión ultra alta y juego agresivo en campo rival.'
   }
 }
@@ -73,55 +74,17 @@ export const TEMPO_LEVELS = [
   { id: 'FAST', label: 'Rápido / Vértigo' }
 ]
 
+const AFFINITY_COLOR = { NATURAL: 'emerald', COMPATIBLE: 'amber', ADAPTED: 'orange', OUT_OF_POSITION: 'red' }
+
 /**
- * Calcula el coeficiente de afinidad de un futbolista en un puesto específico.
+ * Cómo rinde un futbolista en un puesto: etiqueta (natural, compatible, adaptado, fuera de puesto) y coeficiente 0-1
+ * (1 = su media completa; baja con los puntos que se pierden por jugar fuera de su posición).
  */
 export const calculatePositionalAffinity = (playerPos, slotPos) => {
   if (!playerPos || !slotPos) return { rating: 1.0, label: 'Natural', color: 'emerald', code: 'NATURAL' }
-
-  const p = playerPos.toUpperCase()
-  const s = slotPos.toUpperCase()
-
-  // Posición idéntica o exacta
-  if (p === s || (p === 'GK' && s === 'GK')) {
-    return { rating: 1.0, label: 'Natural', color: 'emerald', code: 'NATURAL' }
-  }
-
-  // Compatibles directos (laterales, extremos, dobles pivotes)
-  const compatiblePairs = [
-    ['LB', 'LWB'], ['RB', 'RWB'], ['LWB', 'LB'], ['RWB', 'RB'],
-    ['LCB', 'RCB'], ['RCB', 'LCB'], ['CB', 'LCB'], ['CB', 'RCB'], ['LCB', 'CB'], ['RCB', 'CB'],
-    ['CDM', 'CM'], ['CM', 'CDM'], ['LDM', 'RDM'], ['RDM', 'LDM'], ['LCM', 'RCM'], ['RCM', 'LCM'],
-    ['CAM', 'CM'], ['CM', 'CAM'],
-    ['LM', 'LW'], ['LW', 'LM'], ['RM', 'RW'], ['RW', 'RM'],
-    ['LST', 'RST'], ['RST', 'LST'], ['ST', 'LST'], ['ST', 'RST'], ['LST', 'ST'], ['RST', 'ST'], ['CF', 'ST'], ['ST', 'CF']
-  ]
-
-  if (compatiblePairs.some(([a, b]) => (p === a && s === b) || (p === b && s === a))) {
-    return { rating: 0.85, label: 'Compatible', color: 'amber', code: 'COMPATIBLE' }
-  }
-
-  // Misma línea posicional (defensas entre sí, volantes entre sí, delanteros entre sí)
-  const isDefP = ['LB', 'RB', 'CB', 'LCB', 'RCB', 'LWB', 'RWB', 'DEF'].includes(p)
-  const isDefS = ['LB', 'RB', 'CB', 'LCB', 'RCB', 'LWB', 'RWB', 'DEF'].includes(s)
-  if (isDefP && isDefS) {
-    return { rating: 0.65, label: 'Adaptada', color: 'orange', code: 'ADAPTED' }
-  }
-
-  const isMidP = ['CM', 'LCM', 'RCM', 'CDM', 'LDM', 'RDM', 'CAM', 'LM', 'RM', 'MED'].includes(p)
-  const isMidS = ['CM', 'LCM', 'RCM', 'CDM', 'LDM', 'RDM', 'CAM', 'LM', 'RM', 'MED'].includes(s)
-  if (isMidP && isMidS) {
-    return { rating: 0.65, label: 'Adaptada', color: 'orange', code: 'ADAPTED' }
-  }
-
-  const isAttP = ['ST', 'LST', 'RST', 'CF', 'LW', 'RW', 'DEL'].includes(p)
-  const isAttS = ['ST', 'LST', 'RST', 'CF', 'LW', 'RW', 'DEL'].includes(s)
-  if (isAttP && isAttS) {
-    return { rating: 0.65, label: 'Adaptada', color: 'orange', code: 'ADAPTED' }
-  }
-
-  // Arquero de campo o jugador de campo al arco = Fuera de puesto grave
-  return { rating: 0.40, label: 'Fuera de Puesto', color: 'red', code: 'OUT_OF_POSITION' }
+  const fit = fitLabel(playerPos, slotPos)
+  const rating = Math.max(0.3, 1 - positionPenalty(playerPos, slotPos) / 60)
+  return { rating, label: fit.label, color: AFFINITY_COLOR[fit.code], code: fit.code }
 }
 
 export const tacticsApi = {
@@ -203,9 +166,9 @@ export const tacticsApi = {
       }
 
       // Verificar que hay al menos 1 arquero
-      const gkSlots = starters.filter(s => s.pitch_position === 'GK')
+      const gkSlots = starters.filter(s => slotBase(s.pitch_position) === 'PO')
       if (gkSlots.length !== 1) {
-        throw new Error('ERR_NO_GOALKEEPER: La alineación debe contener exactamente un arquero (GK).')
+        throw new Error('ERR_NO_GOALKEEPER: La alineación debe tener exactamente un arquero.')
       }
     }
 

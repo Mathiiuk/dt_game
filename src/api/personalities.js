@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
+import { positionLine, normalizePosition } from '../domain/positions'
 
 export const PERSONALITY_ARCHETYPES = {
   NATURAL_LEADER: {
@@ -102,8 +103,8 @@ export const personalitiesApi = {
         }
 
         const traits = []
-        if (p.position === 'DEL' || p.position === 'EXT') traits.push('LONG_SHOTS')
-        if (p.position === 'DEF' || p.position === 'MCD') traits.push('DIVES_INTO_TACKLES')
+        if (positionLine(p.position) === 'DEL') traits.push('LONG_SHOTS')
+        if (positionLine(p.position) === 'DEF' || normalizePosition(p.position) === 'MCD') traits.push('DIVES_INTO_TACKLES')
         if (p.overall >= 70) traits.push('FREE_KICK_SPECIALIST')
 
         const item = {

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi } from '../../api/club'
-import { tacticsApi } from '../../api/tactics'
+import { tacticsApi, FORMATIONS } from '../../api/tactics'
 import { playerApi } from '../../api/player'
 import { matchEngineApi, SHOUT_TYPES } from '../../api/matchEngine'
 import { supabase } from '../../api/supabase'
@@ -23,7 +23,18 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { isFixturePlayed } from '../../domain/fixtureStatus'
-import { buildMatchSquad } from '../../domain/matchSquad'
+import { buildMatchSquad, buildRivalLineup } from '../../domain/matchSquad'
+import { resolveLineup } from '../../domain/formations'
+
+// Puestos de la formación activa (en el orden en que se guarda la alineación)
+const slotsOf = (tactic) => (FORMATIONS[tactic?.formation] || FORMATIONS['4-4-2']).slots
+
+// Ids de la alineación en el orden de los puestos, con la misma corrección que usa la pizarra (alineaciones desordenadas)
+const lineupIdsOf = (tactic, players) => {
+  const slots = slotsOf(tactic)
+  const map = resolveLineup(slots, players || [], tactic?.lineup || [])
+  return slots.map(sl => map[sl])
+}
 
 export default function MatchScreen() {
   const navigate = useNavigate()
@@ -45,7 +56,7 @@ export default function MatchScreen() {
   const [showStats, setShowStats] = useState(false)
 
   // Vista previa del once: avisa antes del pitazo si el plantel está incompleto
-  const previewSquad = data?.club && data.players?.length > 0 ? buildMatchSquad(data.players, data.tactic?.lineup) : null
+  const previewSquad = data?.club && data.players?.length > 0 ? buildMatchSquad(data.players, lineupIdsOf(data.tactic, data.players), 11, slotsOf(data.tactic)) : null
   const squadNotes = previewSquad?.notes || []
   const youthNotes = squadNotes.filter(n => n.type === 'YOUTH_CALLUP')
   const injuredNotes = squadNotes.filter(n => n.type === 'INJURED_PLAYING')
@@ -153,18 +164,7 @@ export default function MatchScreen() {
       ? (data.fixture.home_team_id === data.club.id ? (data.fixture.away?.reputation || 10) : (data.fixture.home?.reputation || 10)) 
       : 10
       
-    const awayPlayers = Array.from({length: 11}).map((_, idx) => ({
-      id: `rival_${idx}`,
-      first_name: 'Jugador',
-      last_name: `Rival #${idx + 1}`,
-      position: idx === 0 ? 'GK' : (idx < 5 ? 'DEF' : (idx < 9 ? 'MED' : 'DEL')),
-      state_fitness: 90, 
-      attr_pace: 40 + (opponentRep * 0.5), 
-      attr_shooting: 40 + (opponentRep * 0.5),
-      attr_finishing: 40 + (opponentRep * 0.5), 
-      attr_defending: 40 + (opponentRep * 0.5),
-      attr_passing: 40 + (opponentRep * 0.5)
-    }))
+    const awayPlayers = buildRivalLineup(opponentRep)
     
     const isHome = data.fixture ? data.fixture.home_team_id === data.club.id : true
     const oppName = data.fixture 
@@ -172,7 +172,7 @@ export default function MatchScreen() {
       : 'Equipo Rival'
     
     // Once real que sale a la cancha: alineación del DT + reemplazos (juveniles y lesionados con penalización si faltan aptos)
-    const matchSquad = buildMatchSquad(data.players, data.tactic?.lineup)
+    const matchSquad = buildMatchSquad(data.players, lineupIdsOf(data.tactic, data.players), 11, slotsOf(data.tactic))
     
     const results = isHome 
       ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, matchSquad.starters, awayTactic, awayPlayers)

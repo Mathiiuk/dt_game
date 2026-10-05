@@ -6,13 +6,14 @@ import { useGameContext } from '../../context/GameContext'
 import { formatMoney } from '../../lib/format'
 import { friendlyError } from '../../lib/errors'
 import { cn } from '../../lib/utils'
+import { isGoalkeeper } from '../../domain/positions'
 import {
   Badge, Button, Card, CardBody, EmptyState, PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 
 const SQUAD_SIZE = 23
 const MIN_GOALKEEPERS = 3
-const isKeeper = (c) => c.player?.position === 'POR' || c.player?.position === 'GK'
+const isKeeper = (c) => isGoalkeeper(c.player?.position)
 
 export default function NationalTeamScreen() {
   const { manager, loading: contextLoading, confirmAction } = useGameContext()

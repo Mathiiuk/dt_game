@@ -75,3 +75,64 @@ describe('jugar lesionado', () => {
     expect(rollAggravations(['a', 'b', 'c'], () => seq[i++])).toEqual(['a', 'c'])
   })
 })
+
+import { assignToSlots, buildRivalLineup } from '../../src/domain/matchSquad'
+import { ratingAtSlot } from '../../src/domain/ratings'
+
+describe('puestos del once (B7)', () => {
+  const mk = (id, position, overall, extra = {}) => ({ id, first_name: id, last_name: id, position, attr_overall: overall, state_fitness: 90, ...extra })
+  const slots = ['PO', 'DFC1', 'DC1']
+  const gk = mk('gk', 'PO', 64)
+  const cb = mk('cb', 'DFC', 62)
+  const st = mk('st', 'DC', 66)
+
+  it('cada titular conserva el puesto que le dio el DT y sale con su media en ese puesto', () => {
+    const { starters } = buildMatchSquad([gk, cb, st], ['gk', 'cb', 'st'], 3, slots)
+    expect(starters.map(s => s.slot)).toEqual(['PO', 'DFC1', 'DC1'])
+    expect(starters.map(s => s.slot_base)).toEqual(['PO', 'DFC', 'DC'])
+    expect(starters.map(s => s.slot_rating)).toEqual([64, 62, 66])
+  })
+
+  it('un arquero puesto de delantero rinde una fracción de su media (el nivel del once cae)', () => {
+    const { starters } = buildMatchSquad([gk, cb, st], ['st', 'cb', 'gk'], 3, slots) // el DT cruzó arquero y delantero
+    const byPos = Object.fromEntries(starters.map(s => [s.slot, s.slot_rating]))
+    expect(byPos.PO).toBeLessThan(30)
+    expect(byPos.DC1).toBeLessThan(30)
+    const good = buildMatchSquad([gk, cb, st], ['gk', 'cb', 'st'], 3, slots).starters.reduce((s, p) => s + p.slot_rating, 0)
+    const bad = starters.reduce((s, p) => s + p.slot_rating, 0)
+    expect(good).toBeGreaterThan(bad + 50)
+  })
+
+  it('si un titular está lesionado entra el mejor reemplazo disponible en ese puesto', () => {
+    const hurt = { ...st, is_injured: true }
+    const sub = mk('sub', 'DC', 58)
+    const { starters } = buildMatchSquad([gk, cb, hurt, sub], ['gk', 'cb', 'st'], 3, slots)
+    expect(starters.find(s => s.slot === 'DC1').id).toBe('sub')
+  })
+
+  it('el juvenil de reserva juega en el puesto que falta sin castigo por posición', () => {
+    const { starters } = buildMatchSquad([gk, cb], ['gk', 'cb'], 3, slots)
+    const y = starters.find(s => s.isYouthCallup)
+    expect(y.slot_base).toBe(y.position)
+    expect(y.slot_rating).toBe(45)
+  })
+
+  it('sin puestos (compatibilidad) los titulares salen sin media por puesto', () => {
+    const { starters } = buildMatchSquad([gk, cb, st], ['gk', 'cb', 'st'], 3)
+    expect(starters[0].slot_rating).toBeUndefined()
+  })
+
+  it('assignToSlots ubica a los de reemplazo donde mejor rinden', () => {
+    const out = assignToSlots([st, gk, cb], ['PO', 'DFC1', 'DC1'], [])
+    expect(out.find(s => s.id === 'gk').slot).toBe('PO')
+    expect(out.find(s => s.id === 'st').slot).toBe('DC1')
+    expect(ratingAtSlot(st, 'DC1')).toBe(66)
+  })
+
+  it('el once rival genérico rinde 50 + reputación/2 en todos sus puestos', () => {
+    const rival = buildRivalLineup(15)
+    expect(rival).toHaveLength(11)
+    expect(new Set(rival.map(p => p.slot_rating))).toEqual(new Set([58]))
+    expect(rival[0].slot_base).toBe('PO')
+  })
+})

@@ -2,7 +2,8 @@ import React from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { cn } from '../../lib/utils'
 import { getLayout } from '../../domain/formations'
-import { calculatePositionalAffinity } from '../../api/tactics'
+import { fitLabel, slotBase } from '../../domain/positions'
+import { ratingAtSlot } from '../../domain/ratings'
 
 const RING = {
   NATURAL: 'border-accent text-accent',
@@ -41,11 +42,13 @@ function PitchLines() {
 
 /** Ficha de jugador: número, apellido y anillo de afinidad posicional */
 function Token({ slot, player, x, y, selected, onSelect, reduceMotion }) {
-  const affinity = player ? calculatePositionalAffinity(player.position, slot) : null
+  const base = slotBase(slot)
+  const affinity = player ? fitLabel(player.position, slot) : null
+  const rating = player ? ratingAtSlot(player, slot) : null
   const lastName = player ? (player.last_name || '').split(' ').slice(-1)[0] : ''
   const label = player
-    ? `${slot}: ${player.first_name} ${player.last_name}, ${affinity.label}${player.is_injured ? ', lesionado' : ''}${selected ? ', seleccionado' : ''}`
-    : `${slot}: puesto vacío${selected ? ', seleccionado' : ''}`
+    ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${player.is_injured ? ', lesionado' : ''}${selected ? ', seleccionado' : ''}`
+    : `${base}: puesto vacío${selected ? ', seleccionado' : ''}`
 
   return (
     <motion.div
@@ -74,11 +77,14 @@ function Token({ slot, player, x, y, selected, onSelect, reduceMotion }) {
           {player ? (player.shirt_number ?? '·') : '+'}
           {player?.is_injured && <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-bg bg-danger" aria-hidden="true" />}
         </span>
+        {player && (
+          <span className="num -mt-3 ml-7 rounded-sm bg-bg px-1 text-[0.625rem] font-semibold leading-4 text-fg shadow-raised sm:ml-8" aria-hidden="true">{rating}</span>
+        )}
         <span className={cn(
           'max-w-full truncate rounded-sm px-1.5 text-[0.6875rem] font-semibold leading-4',
           player ? 'bg-bg/80 text-fg' : 'text-fg-subtle'
         )}>
-          {player ? lastName : slot}
+          {player ? lastName : base}
         </span>
       </button>
     </motion.div>
