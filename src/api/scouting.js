@@ -185,10 +185,6 @@ export const scoutingApi = {
 
     if (playerErr || !player) throw new Error('Jugador no encontrado en la base de datos.')
 
-    // 3. Descontar viáticos de la caja
-    const newBudget = Math.max(0, (club.budget || 0) - cost)
-    await supabase.from('clubs').update({ budget: newBudget }).eq('id', clubId)
-
     // 4. Generar pros y contras sintéticos según atributos
     const pace = player.attr_pace || 60
     const pros = []
@@ -219,14 +215,19 @@ export const scoutingApi = {
         pros,
         cons,
         recommended_action: recommendedAction,
-        last_scouted_at: new Date().toISOString()
+        updated_at: new Date().toISOString()
       }, { onConflict: 'club_id,player_id' })
       .select()
       .single()
 
     if (reportErr) throw new Error(reportErr.message)
 
-    // 6. Registrar en auditoría de misiones
+    // 6. Descontar los viáticos recién cuando el informe quedó guardado (si falla antes, no se cobra nada)
+    const newBudget = Math.max(0, (club.budget || 0) - cost)
+    const { error: chargeErr } = await supabase.from('clubs').update({ budget: newBudget }).eq('id', clubId)
+    if (chargeErr) throw new Error(chargeErr.message)
+
+    // 7. Registrar en auditoría de misiones
     try {
       await supabase.from('scouting_missions_log').insert({
         club_id: clubId,
