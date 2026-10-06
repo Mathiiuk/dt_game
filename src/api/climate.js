@@ -12,6 +12,7 @@ import { ensureCharacters, rememberBarraVisit, adjustGrudge } from '../domain/ch
 import { countBySource } from '../domain/seasonStory'
 import { stepArcs, chapterTemplate, resolveChapter, parseArcCode, normalizeArcs } from '../domain/arcs'
 import { arcById } from '../domain/arcCatalog'
+import { isPreseason, preseasonEvent, resolveFriendlyGamble, PRESEASON_EVENT_WEEKS } from '../domain/preseason'
 
 const sign = (n) => (n > 0 ? `+${n}` : String(n))
 
@@ -287,12 +288,14 @@ export const climateApi = {
    */
   async advanceWeek({ clubId, managerId = null, careerId = null, week = 1, gameDate = null }) {
     // Cuatro lecturas independientes: una sola ronda de consultas
-    const [state, clubRes, boardRes, streaks, pendingEvents] = await Promise.all([
+    const [state, clubRes, boardRes, streaks, pendingEvents, firstFixture] = await Promise.all([
       this.getState(clubId),
       supabase.from('clubs').select('fans_confidence, budget').eq('id', clubId).single(),
       supabase.from('club_board_confidence').select('sports_satisfaction, confidence_score').eq('club_id', clubId).maybeSingle(),
       moraleApi.getStreaks(clubId),
-      import('./events').then(({ eventsApi }) => eventsApi.getPendingEvents(clubId)).catch(() => [])
+      import('./events').then(({ eventsApi }) => eventsApi.getPendingEvents(clubId)).catch(() => []),
+      // El amistoso solo llega en semanas puntuales de la pretemporada
+      PRESEASON_EVENT_WEEKS.includes(week) ? import('./finances').then(({ financesApi }) => financesApi.firstFixtureDate(clubId)).catch(() => null) : Promise.resolve(null)
     ])
     this.setDifficulty(state.difficulty)
     const club = clubRes.data
@@ -369,6 +372,12 @@ export const climateApi = {
       if (state.board_owed > 0 && climate !== 'FLOWS' && Math.random() < 0.5) eventTemplates.push({ template: BOARD_FAVOR_DUE })
     }
     patch.characters = characters
+
+    // Pretemporada: amistosos con riesgo y recompensa (semanas 2 y 4, antes del primer partido)
+    if (!dismissed && gameDate && isPreseason(gameDate, firstFixture)) {
+      const friendly = preseasonEvent(week)
+      if (friendly) eventTemplates.push({ template: friendly })
+    }
 
     // Historias de varias fechas: una a la vez, con un capítulo cada tanto
     let storyLog = null
@@ -460,6 +469,13 @@ export const climateApi = {
         updated_at: new Date().toISOString()
       }).eq('club_id', clubId)
       return 'La dirigencia te bancó, pero con plazo: 4 puntos en los próximos 3 partidos.'
+    }
+    // Amistoso de pretemporada con apuesta: la suerte se tira al resolver y el resultado queda en la bitácora
+    if (effects.gamble) {
+      const { effects: result, note } = resolveFriendlyGamble(effects.gamble)
+      await this.applySquadConsequence({ clubId, source: 'EVENT', gameDate, effects: { ...result, notes: [note] } })
+      queryCache.invalidate(`climate:${clubId}`)
+      return note
     }
     // Pedido de salida con ruido: el aumento o el malestar del jugador los aplica la base
     if (effects.player_id && (effects.action === 'RAISE_WAGE' || effects.action === 'PLAYER_UNHAPPY')) {

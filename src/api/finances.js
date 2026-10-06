@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
+import { isPreseason, preseasonAid } from '../domain/preseason'
 import { ECONOMY, weeklyBudget, runwayWeeks } from '../domain/finances'
 
 export const financesApi = {
@@ -22,10 +23,11 @@ export const financesApi = {
 
     return queryCache.fetch(`finances:${clubId}`, async () => {
       // Club, jugadores y staff son independientes: se piden juntos (antes eran tres idas y vueltas en fila)
-      const [clubRes, playersRes, staffRes] = await Promise.all([
+      const [clubRes, playersRes, staffRes, firstFixtureDate] = await Promise.all([
         supabase.from('clubs').select('*').eq('id', clubId).single(),
         supabase.from('players').select('contract_salary').eq('club_id', clubId),
-        supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId)
+        supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId),
+        this.firstFixtureDate(clubId)
       ])
       if (clubRes.error) throw new Error(clubRes.error.message)
       const club = clubRes.data
@@ -48,7 +50,10 @@ export const financesApi = {
 
       // La taquilla se juega cada dos semanas en promedio: la mitad del neto por partido entra por semana
       const netWeeklyFlow = totalRecurringIncome - totalExpenses
-      const expectedWeeklyFlow = netWeeklyFlow + Math.round(projectedMatchdayGate / 2)
+      // En pretemporada no hay partidos: no se cuenta taquilla y sí el aporte de la dirigencia
+      const preseason = isPreseason(club.game_date, firstFixtureDate)
+      const boardAid = preseason ? preseasonAid(playerWages) : 0
+      const expectedWeeklyFlow = preseason ? netWeeklyFlow + boardAid : netWeeklyFlow + Math.round(projectedMatchdayGate / 2)
       const balance = Number(club.budget || 0)
 
       // 7. Estimación de liquidez
@@ -91,10 +96,23 @@ export const financesApi = {
         },
         netWeeklyFlow,
         expectedWeeklyFlow,
+        preseason,
+        boardAid,
         wageOverBudget: playerWages + staffWages > (club.wage_budget || 3500),
         monthlyProfit: expectedWeeklyFlow * 4
       }
     }, 20000)
+  },
+
+  /** Fecha del primer partido de liga del club (null si todavía no hay calendario) */
+  async firstFixtureDate(clubId) {
+    const { data } = await supabase
+      .from('fixtures')
+      .select('match_date')
+      .or(`home_team_id.eq.${clubId},away_team_id.eq.${clubId}`)
+      .order('match_date', { ascending: true })
+      .limit(1)
+    return data?.[0]?.match_date || null
   },
 
   /**
@@ -102,12 +120,16 @@ export const financesApi = {
    * Un asiento por concepto en el libro mayor (financial_transactions_ledger) y una sola actualización de la caja.
    */
   async processWeek({ clubId, careerId = null, seasonYear = 1, weekNumber = 1, players = [] }) {
-    const [{ data: club }, { data: staff }] = await Promise.all([
+    const [{ data: club }, { data: staff }, firstFixtureDate] = await Promise.all([
       supabase.from('clubs').select('*').eq('id', clubId).single(),
-      supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId)
+      supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId),
+      // Solo las primeras semanas pueden ser de pretemporada: después no se consulta
+      weekNumber <= 8 ? this.firstFixtureDate(clubId) : Promise.resolve(null)
     ])
     if (!club) return null
     const week = weeklyBudget({ club, players, staff: staff || [] })
+    // Pretemporada: sin partidos no hay taquilla, así que la dirigencia pone la mitad de los sueldos del plantel
+    const aid = isPreseason(club.game_date, firstFixtureDate) ? preseasonAid(week.expenses.playerWages) : 0
 
     const lines = [
       ['MEMBERS', week.income.members, 'Cuotas de socios'],
@@ -116,7 +138,8 @@ export const financesApi = {
       ['STORE', week.income.store, 'Tienda del club'],
       ['SALARY', -week.expenses.playerWages, 'Sueldos del plantel'],
       ['STAFF', -week.expenses.staffWages, 'Sueldos del cuerpo técnico'],
-      ['MAINTENANCE', -(week.expenses.stadiumMaint + week.expenses.academyMaint), 'Mantenimiento del estadio y las inferiores']
+      ['MAINTENANCE', -(week.expenses.stadiumMaint + week.expenses.academyMaint), 'Mantenimiento del estadio y las inferiores'],
+      ['BOARD_AID', aid, 'Aporte de la dirigencia por la pretemporada']
     ].filter(([, amount]) => amount !== 0)
 
     let balance = Number(club.budget || 0)
@@ -133,7 +156,7 @@ export const financesApi = {
     if (error) throw new Error(error.message)
     queryCache.invalidate(`finances:${clubId}`)
     queryCache.invalidate(`club:${clubId}`)
-    return { income: week.totalIncome, expenses: week.totalExpenses, newBudget: balance }
+    return { income: week.totalIncome + aid, expenses: week.totalExpenses, newBudget: balance, boardAid: aid }
   },
 
   /**
