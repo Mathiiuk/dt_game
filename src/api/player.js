@@ -4,6 +4,7 @@ import { auditApi } from './audit'
 import { contractEndFor, pickInitialContractYears } from '../domain/contracts'
 import { generateAttributesForOverall, TIER_5_RATING_RANGES } from '../domain/ratings'
 import { POSITION_CODES, normalizePosition } from '../domain/positions'
+import { playerValue } from '../domain/valuation'
 
 const FIRST_NAMES = [
   'Santiago', 'Lucas', 'Matias', 'Facundo', 'Tomas', 'Agustin', 'Nicolas',
@@ -91,7 +92,7 @@ export const buildProspectRow = ({
     contract_end: contractEndFor(gameDate, years),
     contract_role: role,
     squad_role: role,
-    market_value: overall * 2500,
+    market_value: playerValue({ ovr: overall, potential: Math.min(99, Math.max(potential, overall)), age }),
     is_youth: isYouth
   }
 }
@@ -203,8 +204,8 @@ export const playerApi = {
         contract_end: contractEndFor(gameDate, contractYears),
         contract_role: slot.squadRole,
         attr_potential: Math.min(99, potential),
-        market_value: targetOvr * 3500,
-        release_clause: targetOvr * 7000,
+        market_value: playerValue({ ovr: targetOvr, potential: Math.min(99, potential), age }),
+        release_clause: playerValue({ ovr: targetOvr, potential: Math.min(99, potential), age }) * 2,
         squad_role: slot.squadRole
       }
     })

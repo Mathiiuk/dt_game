@@ -16,8 +16,8 @@ export const MARKET_SORT_OPTIONS = [
 const normalize = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 const fullName = (p) => `${p.first_name || ''} ${p.last_name || ''}`.trim()
 
-/** Cotización del jugador: valor de mercado o, si falta, una estimación por ritmo */
-export const marketPrice = (p) => Number(p.market_value) || (Number(p.attr_pace) || 50) * 10000
+/** Lo que pide el club por el jugador (si falta, su valor de mercado o una estimación) */
+export const marketPrice = (p) => Number(p.asking_price) || Number(p.market_value) || (Number(p.attr_pace) || 50) * 10000
 
 export const isScouted = (p) => (p.scout_level || 0) > 0
 
@@ -55,9 +55,9 @@ export const sortMarketPlayers = (players, key = 'overall') => {
 export const offerPresets = (value) => {
   const base = Number(value) || 0
   return [
-    { label: 'Mínima', hint: '−10%', amount: Math.round(base * 0.9) },
-    { label: 'Valor de mercado', hint: '100%', amount: base },
-    { label: 'Fuerte', hint: '+15%', amount: Math.round(base * 1.15) }
+    { label: 'Mínima', hint: '−15%', amount: Math.round(base * 0.85) },
+    { label: 'Precio pedido', hint: '100%', amount: base },
+    { label: 'Generosa', hint: '+10%', amount: Math.round(base * 1.1) }
   ]
 }
 

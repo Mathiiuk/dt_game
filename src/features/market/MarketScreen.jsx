@@ -104,7 +104,7 @@ export default function MarketScreen() {
         const finances = await financesApi.getFinances(club.id)
         return purchaseWarning({
           fee: amount,
-          marketValue: offerPlayer.market_value || marketApi.calculateMarketValue(offerPlayer),
+          marketValue: offerPlayer.asking_price || offerPlayer.market_value || marketApi.calculateMarketValue(offerPlayer),
           balance: Number(club.budget || 0),
           weeklyExpenses: finances?.expenses?.total || 0
         }, climateApi.difficulty)

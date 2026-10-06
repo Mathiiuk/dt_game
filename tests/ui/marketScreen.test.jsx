@@ -71,7 +71,7 @@ describe('pantalla Mercado', () => {
 
     await userEvent.click(within(dlg).getByRole('button', { name: /Mínima/ }))
     await userEvent.click(within(dlg).getByRole('button', { name: /Enviar oferta/ }))
-    await waitFor(() => expect(buyPlayer).toHaveBeenCalledWith('c1', '2', 45000, 'm1'))
+    await waitFor(() => expect(buyPlayer).toHaveBeenCalledWith('c1', '2', 42500, 'm1'))
   })
 
   it('con el mercado cerrado el botón de ofertar queda deshabilitado', async () => {

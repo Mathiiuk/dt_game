@@ -6,8 +6,8 @@ import { Button, Card, CardBody, Field, Input, ResponsiveOverlay, Stat } from '.
 
 /** Oferta de fichaje. Diálogo en escritorio, página completa en móvil; el error de monto aparece junto al campo. */
 export default function OfferModal({ player, budget, onClose, onConfirm, processing = false }) {
-  const value = player.market_value || 0
-  const [amount, setAmount] = useState(String(value || 50000))
+  const value = player.asking_price || player.market_value || 0
+  const [amount, setAmount] = useState(String(value || 5000))
   const [error, setError] = useState('')
 
   const submit = () => {
@@ -32,7 +32,7 @@ export default function OfferModal({ player, budget, onClose, onConfirm, process
       <div className="space-y-5">
         <Card as="div">
           <CardBody className="grid grid-cols-2 gap-4">
-            <Stat label="Valor de mercado" value={formatMoney(value)} valueClassName="text-2xl" />
+            <Stat label="Precio pedido" value={formatMoney(value)} valueClassName="text-2xl" />
             <Stat label="Tu presupuesto" value={formatMoney(budget)} valueClassName="text-2xl text-accent" />
           </CardBody>
         </Card>

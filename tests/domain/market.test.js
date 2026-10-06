@@ -28,7 +28,7 @@ describe('dominio del mercado', () => {
   })
 
   it('arma ofertas sugeridas y valida el monto contra el presupuesto', () => {
-    expect(offerPresets(10000).map(p => p.amount)).toEqual([9000, 10000, 11500])
+    expect(offerPresets(10000).map(p => p.amount)).toEqual([8500, 10000, 11000])
     expect(validateOffer('abc', 100)).toMatch(/monto válido/)
     expect(validateOffer('500', 100)).toMatch(/presupuesto/)
     expect(validateOffer('100', 100)).toBe('')
