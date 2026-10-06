@@ -10,25 +10,25 @@ export const SHOUT_TYPES = [
   { 
     id: 'SHOUT_FOCUS', 
     label: '¡Más garra y concentración!', 
-    desc: '+15% intensidad defensiva y concentración.',
+    desc: '+15% defensa durante 15 minutos.',
     effect: { defBuff: 1.15, attBuff: 1.0 }
   },
   { 
     id: 'SHOUT_CALM', 
     label: '¡Cálmense, toquen la pelota!', 
-    desc: '+15% posesión y control, reduce riesgo de tarjetas.',
+    desc: '+15% posesión y +5% en ataque y defensa durante 15 minutos.',
     effect: { defBuff: 1.05, attBuff: 1.05, posBuff: 1.15 }
   },
   { 
     id: 'SHOUT_ATTACK', 
     label: '¡Todos al ataque!', 
-    desc: '+20% presencia ofensiva, expone contragolpes.',
+    desc: '+20% ataque y -15% defensa durante 15 minutos.',
     effect: { attBuff: 1.20, defBuff: 0.85 }
   },
   { 
     id: 'SHOUT_LOCK', 
     label: '¡Aseguren el resultado!', 
-    desc: 'Repliegue táctico bajo y contención de balón.',
+    desc: '+25% defensa y -30% ataque durante 15 minutos.',
     effect: { defBuff: 1.25, attBuff: 0.70 }
   }
 ]
@@ -187,10 +187,22 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   const homeTeam = withFactor(applyTactics(homeBase, homeTactic, awayTactic, true), homePowerFactor)
   const awayTeam = withFactor(applyTactics(awayBase, awayTactic, homeTactic, false), awayPowerFactor)
 
+  // Estado de partido de cada lado: efectos activos (gritos y decisiones), expulsados y jugadores con molestias
+  for (const team of [homeTeam, awayTeam]) Object.assign(team, { buffs: [], reds: 0, redIds: new Set(), hurtIds: new Set(), midAcc: 0 })
+  const buffOf = (team, min, key) => team.buffs.reduce((acc, b) => (min <= b.until ? acc * b[key] : acc), 1)
+  // Un expulsado deja al equipo con diez (-8%) y quien sigue jugando con molestias rinde menos (-4% cada uno, hasta dos)
+  const situation = (team) => 0.92 ** team.reds * 0.96 ** Math.min(2, team.players.filter(p => p.id && team.hurtIds.has(p.id)).length)
+
   // Cambios del DT en vivo: desde el minuto siguiente rinde el nuevo once (los que entran llegan frescos, los demás ya corrieron)
   const applyChange = (change, min) => {
     const isHomeSide = change.team === 'home'
     const team = isHomeSide ? homeTeam : awayTeam
+    // Gritos y decisiones: un efecto sobre ataque, defensa y mediocampo que dura `duration` minutos
+    if (!change.players) {
+      const { att = 1, def = 1, mid = 1 } = change.buff || {}
+      team.buffs.push({ att, def, mid, until: change.minute + (change.duration || 15) })
+      return
+    }
     const stayed = new Set(team.players.map(p => p.id))
     const next = withFactor(
       applyTactics(calcBasePower(change.players), isHomeSide ? homeTactic : awayTactic, isHomeSide ? awayTactic : homeTactic, isHomeSide),
@@ -198,7 +210,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     )
     const ran = team.fitnessDrain * (min - 1)
     const fitness = change.players.reduce((acc, p) => acc + (stayed.has(p.id) ? Math.max(0, (p.state_fitness || 75) - ran) : (p.state_fitness || 75)), 0) / change.players.length
-    Object.assign(team, { attack: next.attack, defense: next.defense, midfield: next.midfield, players: next.players, fitness })
+    const stillOn = next.players.filter(p => !(p.id && team.redIds.has(p.id)))
+    Object.assign(team, { attack: next.attack, defense: next.defense, midfield: next.midfield, players: stillOn, fitness })
   }
 
   const events = []
@@ -246,10 +259,14 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     homeTeam.fitness = Math.max(0, homeTeam.fitness - homeTeam.fitnessDrain)
     awayTeam.fitness = Math.max(0, awayTeam.fitness - awayTeam.fitnessDrain)
 
-    const curHomeAtt = homeTeam.attack * (0.6 + (homeTeam.fitness / 250))
-    const curHomeDef = homeTeam.defense * (0.6 + (homeTeam.fitness / 250))
-    const curAwayAtt = awayTeam.attack * (0.6 + (awayTeam.fitness / 250))
-    const curAwayDef = awayTeam.defense * (0.6 + (awayTeam.fitness / 250))
+    const homeSit = situation(homeTeam)
+    const awaySit = situation(awayTeam)
+    const curHomeAtt = homeTeam.attack * (0.6 + (homeTeam.fitness / 250)) * buffOf(homeTeam, min, 'att') * homeSit
+    const curHomeDef = homeTeam.defense * (0.6 + (homeTeam.fitness / 250)) * buffOf(homeTeam, min, 'def') * homeSit
+    const curAwayAtt = awayTeam.attack * (0.6 + (awayTeam.fitness / 250)) * buffOf(awayTeam, min, 'att') * awaySit
+    const curAwayDef = awayTeam.defense * (0.6 + (awayTeam.fitness / 250)) * buffOf(awayTeam, min, 'def') * awaySit
+    homeTeam.midAcc += homeTeam.midfield * buffOf(homeTeam, min, 'mid') * homeSit
+    awayTeam.midAcc += awayTeam.midfield * buffOf(awayTeam, min, 'mid') * awaySit
 
     const roll = rng()
 
@@ -268,7 +285,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       if (isHome) homeShots++
       else awayShots++
 
-      const goalChance = Math.max(0.06, Math.min(0.42, (curHomeAtt / (curHomeAtt + curAwayDef)) * 0.40))
+      const goalChance = Math.max(0.06, Math.min(0.42, ((isHome ? curHomeAtt : curAwayAtt) / ((isHome ? curHomeAtt : curAwayAtt) + (isHome ? curAwayDef : curHomeDef))) * 0.40))
       const shotRoll = rng()
 
       if (shotRoll < goalChance) {
@@ -345,6 +362,11 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           playerId: playerFoul.id,
           text: `¡TARJETA ROJA! Expulsado ${playerFoul.first_name} ${playerFoul.last_name} por una falta temeraria.`
         })
+        foulTeam.reds++
+        if (playerFoul.id) {
+          foulTeam.redIds.add(playerFoul.id)
+          if (foulTeam.players.length > 8) foulTeam.players = foulTeam.players.filter(p => p.id !== playerFoul.id)
+        }
       } else if (cardRoll < 0.28) {
         // Amarilla
         if (isHomeFoul) homeYellows++
@@ -373,6 +395,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         playerId: injuredPlayer.id,
         text: `Atención médica para ${injuredPlayer.first_name} ${injuredPlayer.last_name}. Presenta molestias físicas.`
       })
+      if (injuredPlayer.id) injTeam.hurtIds.add(injuredPlayer.id)
     }
   }
 
@@ -385,8 +408,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   })
 
   // Estadísticas consolidadas
-  const totalPowerMid = homeTeam.midfield + awayTeam.midfield
-  const homePossession = Math.round((homeTeam.midfield / totalPowerMid) * 100)
+  const totalPowerMid = homeTeam.midAcc + awayTeam.midAcc
+  const homePossession = Math.round((homeTeam.midAcc / totalPowerMid) * 100)
   const awayPossession = 100 - homePossession
 
   return {

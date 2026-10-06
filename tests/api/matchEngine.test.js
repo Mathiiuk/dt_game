@@ -68,3 +68,62 @@ describe('cambios en vivo', () => {
     expect(simulateMatch(tactic, weak, tactic, strong, 's', { changes: [] })).toEqual(simulateMatch(tactic, weak, tactic, strong, 's'))
   })
 })
+
+describe('gritos y decisiones del DT cambian el partido', () => {
+  const even = () => squad(60)
+  const goals = (changes, side) => {
+    let total = 0
+    for (let i = 0; i < 200; i++) {
+      const r = simulateMatch(tactic, even(), tactic, even(), `g-${i}`, { changes })
+      total += side === 'home' ? r.homeScore : r.awayScore
+    }
+    return total
+  }
+
+  it('atacar con todo desde el inicio mete más goles y recibe más', () => {
+    const attack = [{ minute: 0, team: 'home', buff: { att: 1.4, def: 0.7 }, duration: 90 }]
+    expect(goals(attack, 'home')).toBeGreaterThan(goals([], 'home'))
+    expect(goals(attack, 'away')).toBeGreaterThan(goals([], 'away'))
+  })
+
+  it('cerrar atrás desde el inicio recibe menos goles', () => {
+    const lock = [{ minute: 0, team: 'home', buff: { def: 1.5, att: 0.9 }, duration: 90 }]
+    expect(goals(lock, 'away')).toBeLessThan(goals([], 'away'))
+  })
+
+  it('el efecto dura solo los minutos indicados: hasta el cambio el partido es idéntico', () => {
+    const base = simulateMatch(tactic, even(), tactic, even(), 'dur-1')
+    const withBuff = simulateMatch(tactic, even(), tactic, even(), 'dur-1', { changes: [{ minute: 60, team: 'home', buff: { att: 2 }, duration: 15 }] })
+    expect(withBuff.events.filter(e => e.minute <= 60)).toEqual(base.events.filter(e => e.minute <= 60))
+  })
+
+  it('el visitante también se beneficia de su propio ataque (no se usa el del local)', () => {
+    const buff = [{ minute: 0, team: 'away', buff: { att: 1.5 }, duration: 90 }]
+    expect(goals(buff, 'away')).toBeGreaterThan(goals([], 'away'))
+  })
+
+  it('un grito de posesión sube la posesión', () => {
+    const base = simulateMatch(tactic, even(), tactic, even(), 'pos')
+    const calm = simulateMatch(tactic, even(), tactic, even(), 'pos', { changes: [{ minute: 0, team: 'home', buff: { mid: 1.5 }, duration: 90 }] })
+    expect(calm.stats.possession.home).toBeGreaterThan(base.stats.possession.home)
+  })
+
+  it('una roja le cuesta goles al equipo que se queda con diez', () => {
+    let reds = 0
+    let dropped = 0
+    let gained = 0
+    for (let i = 0; i < 4000; i++) {
+      const r = simulateMatch(tactic, even(), tactic, even(), `roja-${i}`)
+      const red = r.events.find(e => e.type === 'CARD_RED')
+      if (!red) continue
+      reds++
+      const after = r.events.filter(e => e.type === 'GOAL' && e.minute > red.minute)
+      const mine = after.filter(e => e.team === red.team).length
+      const theirs = after.length - mine
+      if (mine < theirs) dropped++
+      if (mine > theirs) gained++
+    }
+    expect(reds).toBeGreaterThan(20)
+    expect(dropped).toBeGreaterThan(gained)
+  })
+})

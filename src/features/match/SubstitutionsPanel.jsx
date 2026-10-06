@@ -9,8 +9,10 @@ const ovr = (p) => p.attr_overall || p.overall || '-'
  * Cambios durante la pausa: se elige quién sale de la cancha y quién entra del banco.
  * El que entra ocupa el puesto del que sale (la media que se muestra es la que tiene en ese puesto).
  */
-export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstitute }) {
-  const [outId, setOutId] = useState(null)
+export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstitute, preselectOutId = null }) {
+  const [pickedId, setOutId] = useState(null)
+  // El lesionado queda marcado para salir hasta que el DT elija a otro
+  const outId = pickedId ?? (onField.some(p => p.id === preselectOutId) ? preselectOutId : null)
   const out = onField.find(p => p.id === outId)
 
   const confirm = (inId) => {

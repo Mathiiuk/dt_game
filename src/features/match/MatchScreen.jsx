@@ -10,6 +10,8 @@ import { supabase } from '../../api/supabase'
 import { useGameContext } from '../../context/GameContext'
 import MatchControls from './MatchControls'
 import SubstitutionsPanel from './SubstitutionsPanel'
+import DecisionCard from './DecisionCard'
+import { detectMoment, shoutBuff, shoutWaitMinutes, SHOUT_DURATION, MOMENT_ACTION_OPEN_SUBS, decisionText } from '../../domain/quickDecisions'
 import { benchOf, makeSubstitution, substitutionsLeft, substitutionText } from '../../domain/substitutions'
 import { useMatchClock } from './useMatchClock'
 import { DEFAULT_SPEED, MATCH_MINUTES } from '../../domain/matchClock'
@@ -71,6 +73,11 @@ export default function MatchScreen() {
   const [onField, setOnField] = useState([])
   const [subsMade, setSubsMade] = useState([])
   const changesRef = useRef([])
+  // Decisiones rápidas: momento pendiente, los ya resueltos, el último grito y el jugador que se marca para salir
+  const [moment, setMoment] = useState(null)
+  const firedRef = useRef(new Set())
+  const [lastShout, setLastShout] = useState(null)
+  const [preselectOut, setPreselectOut] = useState(null)
 
   // Vista previa del once: avisa antes del pitazo si el plantel está incompleto
   const previewSquad = data?.club && data.players?.length > 0 ? buildMatchSquad(data.players, lineupIdsOf(data.tactic, data.players), 11, slotsOf(data.tactic)) : null
@@ -221,6 +228,9 @@ export default function MatchScreen() {
     setOnField(matchSquad.starters)
     setSubsMade([])
     changesRef.current = []
+    firedRef.current = new Set()
+    setMoment(null)
+    setLastShout(null)
     setSimResults(matchData)
     setMinute(0)
     setScore({ home: 0, away: 0 })
@@ -238,23 +248,51 @@ export default function MatchScreen() {
     }))
   }
 
-  // Cambio en la pausa: el partido se rejuega con el nuevo once desde el minuto siguiente (hasta ahí todo queda igual)
-  const handleSubstitute = (outId, inId) => {
-    const made = makeSubstitution({ onField, players: data.players, subsMade, outId, inId, minute })
-    if (!made.ok) return toast.error(made.error)
-    const isHomeSide = data.fixture ? data.fixture.home_team_id === data.club.id : true
-    changesRef.current = [...changesRef.current, { minute, team: isHomeSide ? 'home' : 'away', players: made.onField }]
+  const userSide = (data.fixture ? data.fixture.home_team_id === data.club?.id : true) ? 'home' : 'away'
+
+  // Todo cambio del DT (jugadores, gritos, decisiones) rejuega el resto del partido con la misma semilla:
+  // hasta el minuto actual queda igual y desde el siguiente rinde lo nuevo
+  const commitChange = (change, extraStarterId = null) => {
+    changesRef.current = [...changesRef.current, { minute, team: userSide, ...change }]
     const replayed = matchEngineApi.replayWithChanges(simResults, changesRef.current)
-    const next = { ...replayed, starterIds: [...(simResults.starterIds || []), inId] }
+    const next = { ...replayed, starterIds: extraStarterId ? [...(simResults.starterIds || []), extraStarterId] : simResults.starterIds }
     setSimResults(next)
     // Si se recarga la página, el partido se retoma con el resultado que dejaron los cambios
     try {
-      sessionStorage.setItem(`active_match_${fixtureId || data.club.id}`, JSON.stringify({ simResults: next, isHome: isHomeSide, oppName: simResults.opponentName, startedAt: Date.now() }))
+      sessionStorage.setItem(`active_match_${fixtureId || data.club.id}`, JSON.stringify({ simResults: next, isHome: userSide === 'home', oppName: simResults.opponentName, startedAt: Date.now() }))
     } catch { /* sin almacenamiento el partido sigue igual */ }
+    return next
+  }
+
+  const logDirective = (text) => setEvents(prev => [{ minute: Math.max(1, minute), type: 'TACTIC_SHOUT', text, team: userSide }, ...prev])
+
+  // Cambio en la pausa: entra un suplente en el puesto del que sale
+  const handleSubstitute = (outId, inId) => {
+    const made = makeSubstitution({ onField, players: data.players, subsMade, outId, inId, minute })
+    if (!made.ok) return toast.error(made.error)
+    commitChange({ players: made.onField }, inId)
     setOnField(made.onField)
     setSubsMade(prev => [...prev, made.sub])
-    setEvents(prev => [{ minute: Math.max(1, minute), type: 'SUBSTITUTION', text: substitutionText(made.sub), team: isHomeSide ? 'home' : 'away' }, ...prev])
+    setPreselectOut(null)
+    setEvents(prev => [{ minute: Math.max(1, minute), type: 'SUBSTITUTION', text: substitutionText(made.sub), team: userSide }, ...prev])
     toast.success(`Cambio: entra ${made.sub.inName}`)
+  }
+
+  // Decisión de un momento (entretiempo, ir perdiendo, roja, lesión)
+  const handleDecision = (option) => {
+    firedRef.current.add(moment.key)
+    const wasMoment = moment
+    setMoment(null)
+    if (option.buff && Object.keys(option.buff).length > 0) {
+      commitChange({ buff: option.buff, duration: option.duration })
+      logDirective(decisionText(option))
+      toast.success(option.label)
+    }
+    if (option.action === MOMENT_ACTION_OPEN_SUBS) {
+      setPreselectOut(wasMoment.playerId || null)
+      return // sigue en pausa para hacer el cambio
+    }
+    setPaused(false)
   }
 
   // Saltear el partido: se juega de inmediato hasta el final (acción aparte de la velocidad)
@@ -283,16 +321,12 @@ export default function MatchScreen() {
 
   // Órdenes tácticas del DT en vivo
   const handleApplyOrder = (order) => {
+    if (shoutWaitMinutes(lastShout, minute) > 0) return
     setActiveOrder(order.id)
+    setLastShout(minute)
+    commitChange({ buff: shoutBuff(order.effect), duration: SHOUT_DURATION })
     toast.success(`Orden aplicada: ${order.label}`)
-    
-    const orderEvent = {
-      minute: Math.max(1, minute),
-      type: 'TACTIC_SHOUT',
-      text: `[DT] ${order.label} - ${order.desc}`,
-      team: 'home'
-    }
-    setEvents(prev => [orderEvent, ...prev])
+    logDirective(`[DT] ${order.label} - ${order.desc}`)
   }
 
   // Fin del partido: al llegar al minuto final se consolida el resultado
@@ -315,14 +349,21 @@ export default function MatchScreen() {
       setMinute(nextMin)
       if (!simResults?.events) return
       const eventsAtThisMinute = simResults.events.filter(e => e.minute === nextMin)
-      if (eventsAtThisMinute.length === 0) return
-      setEvents(prev => [...eventsAtThisMinute, ...prev])
-      eventsAtThisMinute.forEach(e => {
-        if (e.type === 'GOAL') {
-          if (e.team === 'home') setScore(sc => ({ ...sc, home: sc.home + 1 }))
-          else if (e.team === 'away') setScore(sc => ({ ...sc, away: sc.away + 1 }))
-        }
-      })
+      if (eventsAtThisMinute.length > 0) {
+        setEvents(prev => [...eventsAtThisMinute, ...prev])
+        eventsAtThisMinute.forEach(e => {
+          if (e.type === 'GOAL') {
+            if (e.team === 'home') setScore(sc => ({ ...sc, home: sc.home + 1 }))
+            else if (e.team === 'away') setScore(sc => ({ ...sc, away: sc.away + 1 }))
+          }
+        })
+      }
+      // ¿Hay algo para decidir? El partido se pausa solo
+      const found = detectMoment({ minute: nextMin, events: simResults.events, userSide, fired: firedRef.current, morale: data.club?.squad_morale ?? 60 })
+      if (found) {
+        setPaused(true)
+        setMoment(found)
+      }
     }
   })
 
@@ -335,6 +376,8 @@ export default function MatchScreen() {
     )
   }
 
+  const shoutWait = shoutWaitMinutes(lastShout, minute)
+  const sentOffIds = new Set((simResults?.events || []).filter(e => e.type === 'CARD_RED' && e.team === userSide && e.minute <= minute && e.playerId).map(e => e.playerId))
   const isHome = data.fixture ? data.fixture.home_team_id === data.club?.id : true
   const oppDisplayName = data.fixture 
     ? (isHome ? data.fixture.away?.name : data.fixture.home?.name) 
@@ -545,20 +588,24 @@ export default function MatchScreen() {
               </button>
             ) : matchState === 'playing' ? (
               <div className="space-y-2">
-                {paused && minute < MATCH_MINUTES && (
+                {moment && <DecisionCard moment={moment} onChoose={handleDecision} />}
+                {paused && !moment && minute < MATCH_MINUTES && (
                   <SubstitutionsPanel
-                    onField={onField}
+                    preselectOutId={preselectOut}
+                    onField={onField.filter(p => !sentOffIds.has(p.id))}
                     bench={benchOf(data.players, onField, subsMade)}
                     subsLeft={substitutionsLeft(subsMade)}
                     onSubstitute={handleSubstitute}
                   />
                 )}
                 <span className="text-[11px] text-fg-muted block mb-1">Gritos y arengas desde el banco:</span>
+                {shoutWait > 0 && <p className="text-[10px] text-fg-subtle">Podés volver a gritar en {shoutWait} min.</p>}
                 {SHOUT_TYPES.map(order => {
                   const isSelected = activeOrder === order.id
                   return (
                     <button 
                       key={order.id}
+                      disabled={shoutWait > 0}
                       onClick={() => handleApplyOrder(order)}
                       className={`w-full p-2.5 text-left rounded-xl border text-xs transition-all ${
                         isSelected 
