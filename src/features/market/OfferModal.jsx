@@ -54,6 +54,9 @@ export default function OfferModal({ player, budget, wageInfo = null, onClose, o
           {player.first_name} {player.last_name} es nuevo jugador del club por {formatMoney(reply.price)}.
           {reply.installments === 3 && ` Pagaste ${formatMoney(reply.upfront)} hoy; el resto va en dos cuotas, una por semana.`}
         </p>
+        {reply.commission > 0 && (
+          <p className="text-xs text-fg-subtle">Comisión del representante: {formatMoney(reply.commission)} ({Math.round((reply.commission_rate || 0) * 1000) / 10}%).</p>
+        )}
       </div>
     )
     footer = <Button onClick={onClose}>Listo</Button>
@@ -142,7 +145,7 @@ export default function OfferModal({ player, budget, wageInfo = null, onClose, o
             </Button>
           ))}
         </div>
-        <p className="text-xs text-fg-subtle">El club puede contraofertar: hasta dos rondas. Si la oferta es una ofensa, se levantan de la mesa.</p>
+        <p className="text-xs text-fg-subtle">El club puede contraofertar: hasta dos rondas. Si la oferta es una ofensa, se levantan de la mesa. Además se paga la comisión del representante (de 4% a 15% del precio).</p>
       </div>
     )
     footer = (

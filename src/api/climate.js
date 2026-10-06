@@ -461,6 +461,22 @@ export const climateApi = {
       }).eq('club_id', clubId)
       return 'La dirigencia te bancó, pero con plazo: 4 puntos en los próximos 3 partidos.'
     }
+    // Pedido de salida con ruido: el aumento o el malestar del jugador los aplica la base
+    if (effects.player_id && (effects.action === 'RAISE_WAGE' || effects.action === 'PLAYER_UNHAPPY')) {
+      const { data, error } = await supabase.rpc('apply_player_drama', {
+        p_club_id: clubId, p_player_id: effects.player_id, p_action: effects.action === 'RAISE_WAGE' ? 'RAISE_WAGE' : 'UNHAPPY'
+      })
+      queryCache.invalidate('squad:')
+      queryCache.invalidate('finances:')
+      queryCache.invalidate(`climate:${clubId}`)
+      if (error) {
+        console.warn('Aviso: no se pudo aplicar lo del jugador:', error.message)
+        return null
+      }
+      if (data?.status === 'RAISED') return `Le subiste el sueldo: de $${Number(data.previous_wage).toLocaleString('es-AR')} a $${Number(data.wage).toLocaleString('es-AR')} por semana.`
+      if (data?.status === 'UNHAPPY') return 'El jugador no lo tomó bien: anda con la cabeza en otro lado.'
+      return null
+    }
     queryCache.invalidate(`climate:${clubId}`)
     return null
   },

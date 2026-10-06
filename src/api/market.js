@@ -194,7 +194,7 @@ export const marketApi = {
           entityType: 'player',
           entityId: playerId,
           stateBefore: { budget: Number(data.buyer_budget_before) },
-          stateAfter: { budget: Number(data.buyer_budget_after), amount: data.price, installments: data.installments }
+          stateAfter: { budget: Number(data.buyer_budget_after), amount: data.price, installments: data.installments, commission: data.commission }
         })
       } catch (e) { console.warn('Aviso: no se pudo auditar el fichaje:', e) }
     }

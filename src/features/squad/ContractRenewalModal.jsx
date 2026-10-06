@@ -81,10 +81,9 @@ export default function ContractRenewalModal({ player, club, manager, currentWee
       })
 
       if (res.status === 'ACCEPTED') {
-        // Mejora la relación con el representante y se liquida su comisión
+        // Mejora la relación con el representante (su comisión ya la cobró la base)
         if (agentData?.agent?.id && manager?.id) {
           await agentsApi.recordInteraction(manager.id, agentData.agent.id, 'SUCCESS', currentWeek)
-          await agentsApi.disburseCommission(club.id, agentData.agent.id, player.id, wage * 4, agentData.effectiveCommissionRate)
         }
         toast.success(res.message)
         onSuccess?.()

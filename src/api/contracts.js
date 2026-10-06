@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
 import { playerDemands, severanceCost } from '../domain/contractDemands'
+import { dramaChance, transferDramaTemplate } from '../domain/transferDrama'
 
 export const contractApi = {
   // Configuración y parámetros de balance (Reglas 14.1 - 15.4)
@@ -105,7 +106,8 @@ export const contractApi = {
       queryCache.invalidate('finances:')
       return {
         status: 'ACCEPTED',
-        message: `¡Acuerdo sellado! El jugador renovó su contrato por ${data.years} año(s) a $${Number(data.wage).toLocaleString()}/sem.`
+        commission: data.commission,
+        message: `¡Acuerdo sellado! El jugador renovó su contrato por ${data.years} año(s) a $${Number(data.wage).toLocaleString()}/sem. Comisión del representante: $${Number(data.commission || 0).toLocaleString()}.`
       }
     }
 
@@ -306,6 +308,35 @@ export const contractApi = {
   },
 
   /**
+   * El representante del jugador puede hacer ruido por una oferta (según su carácter): se crea un evento para decidir qué hacer.
+   * Máximo tres eventos pendientes y uno por jugador.
+   */
+  async _maybeTransferDrama({ clubId, player, buyer, amount, week }) {
+    try {
+      let agent = null
+      if (player.agent_id) {
+        const { data } = await supabase.from('agents').select('name, personality').eq('id', player.agent_id).maybeSingle()
+        agent = data
+      }
+      if (Math.random() >= dramaChance(agent?.personality)) return
+      const { eventsApi } = await import('./events')
+      const pending = await eventsApi.getPendingEvents(clubId)
+      if (pending.length >= 3) return
+      await eventsApi.createFromTemplate(transferDramaTemplate({
+        playerId: player.id,
+        playerName: `${player.first_name} ${player.last_name}`.trim(),
+        agentName: agent?.name || 'El representante',
+        personality: agent?.personality || null,
+        buyerName: buyer.name,
+        amount,
+        wage: player.contract_salary || 100
+      }), { clubId, week })
+    } catch (e) {
+      console.warn('Aviso: no se pudo armar el pedido de salida:', e)
+    }
+  },
+
+  /**
    * Generar ofertas de compra de clubes de IA durante el avance semanal
    */
   async generateRandomOffersForWeek(clubId, players, isMarketOpen, currentWeek = 1) {
@@ -346,6 +377,7 @@ export const contractApi = {
             expires_at_week: (currentWeek || 1) + 2
           }
           await supabase.from('offers').insert(newOffer)
+          await this._maybeTransferDrama({ clubId, player, buyer, amount: offerAmount, week: currentWeek })
         }
       }
     }

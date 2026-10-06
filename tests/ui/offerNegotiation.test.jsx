@@ -122,4 +122,11 @@ describe('negociación del fichaje', () => {
     const { dlg } = setup([])
     expect(within(dlg).queryByTestId('wage-info')).toBeNull()
   })
+
+  it('al cerrar el acuerdo muestra la comisión del representante', async () => {
+    const { dlg } = setup([{ status: 'ACCEPTED', price: 5000, upfront: 5000, installments: 1, commission: 720, commission_rate: 0.144 }])
+    await userEvent.click(within(dlg).getByRole('button', { name: /Enviar oferta/ }))
+    expect(await within(dlg).findByText(/Comisión del representante: \$\s?720 \(14[.,]4%\)/)).toBeInTheDocument()
+  })
 })
+

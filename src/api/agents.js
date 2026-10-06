@@ -208,47 +208,5 @@ export const agentsApi = {
     }
 
     return newScore
-  },
-
-  /**
-   * Calcular y debitar comisión de agencia en un traspaso o renovación
-   */
-  async disburseCommission(clubId, agentId, playerId, operationAmount, commissionRate = 0.08) {
-    if (!clubId || !operationAmount || operationAmount <= 0) return 0
-
-    // Aplicar tope reglamentario del 15% (Regla 16.1)
-    const rate = Math.min(this.BALANCE.commission_max_rate, Math.max(this.BALANCE.commission_min_rate, commissionRate))
-    const commission = Math.round(operationAmount * rate)
-
-    // Debitar de tesorería del club
-    const { data: club } = await supabase
-      .from('clubs')
-      .select('budget')
-      .eq('id', clubId)
-      .single()
-
-    if (club) {
-      await supabase
-        .from('clubs')
-        .update({ budget: Math.max(0, (club.budget || 0) - commission) })
-        .eq('id', clubId)
-    }
-
-    // Registrar en auditoría
-    try {
-      await supabase.from('agent_action_log').insert({
-        agent_id: agentId || null,
-        player_id: playerId || null,
-        action_type: 'COMMISSION_PAID',
-        financial_impact: commission
-      })
-    } catch {
-      // Ignorar si no disponible
-    }
-
-    queryCache.invalidate('finances:')
-    queryCache.invalidate('club:')
-
-    return commission
   }
 }

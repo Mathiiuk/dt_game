@@ -1,7 +1,13 @@
 // Contratos: la renovación y la rescisión las resuelve la base; el navegador solo propone los términos
-const state = { rpc: [], rpcResult: null, writes: [] }
+const state = { rpc: [], rpcResult: null, writes: [], pending: [], created: [], agent: null }
 
 vi.mock('../../src/api/audit', () => ({ auditApi: { logAction: vi.fn(async () => {}) } }))
+vi.mock('../../src/api/events', () => ({
+  eventsApi: {
+    getPendingEvents: vi.fn(async () => state.pending),
+    createFromTemplate: vi.fn(async (template, opts) => { state.created.push({ template, opts }); return true })
+  }
+}))
 
 vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
@@ -9,7 +15,7 @@ vi.mock('../../src/api/supabase', () => {
     for (const m of ['select', 'eq']) q[m] = () => q
     q.update = (row) => { state.writes.push({ table, row }); return q }
     q.upsert = (row) => { state.writes.push({ table, row }); return q }
-    q.maybeSingle = async () => ({ data: { attr_overall: 56, age: 25, attr_potential: 56, personality: 'Normal', market_value: 6000 } })
+    q.maybeSingle = async () => ({ data: table === 'agents' ? state.agent : { attr_overall: 56, age: 25, attr_potential: 56, personality: 'Normal', market_value: 6000 } })
     q.then = (resolve) => resolve({ data: null, error: null })
     return q
   }
@@ -75,4 +81,46 @@ describe('contratos resueltos por el servidor', () => {
   it('las pretensiones que muestra la mesa salen de la media real del jugador', () => {
     expect(contractApi.calculatePlayerDemands({ attr_overall: 56, age: 25, attr_potential: 56 }).expectedWage).toBe(116)
   })
+
+  it('la comisión del representante la cobra la base: el mensaje la informa', async () => {
+    state.rpcResult = () => ({ data: { status: 'ACCEPTED', round: 1, wage: 120, years: 2, bonus: 0, commission: 38, commission_rate: 0.08, previous_wage: 110 }, error: null })
+    const res = await contractApi.submitRenewalOffer(offer)
+    expect(res.commission).toBe(38)
+    expect(res.message).toMatch(/Comisión del representante: \$38/)
+    expect(state.writes).toEqual([])
+  })
 })
+
+describe('pedido de salida por una oferta', () => {
+  const buyer = { id: 'ai', name: 'Racing', budget: 90000 }
+  const players = [{ id: 'p1', first_name: 'Hugo', last_name: 'Ríos', market_value: 6000, contract_salary: 120, agent_id: 'a1', is_transfer_listed: true }]
+  const created = state.created
+
+  beforeEach(() => {
+    created.length = 0
+    state.agent = { name: 'Carlos Méndez', personality: 'AGGRESSIVE' }
+    state.pending = []
+  })
+
+  it('con un representante hostil y una oferta, el evento llega con el jugador y la acción', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    await contractApi._maybeTransferDrama({ clubId: 'c1', player: players[0], buyer, amount: 6500, week: 4 })
+    vi.restoreAllMocks()
+    expect(created).toHaveLength(1)
+    expect(created[0].template.template_code).toBe('EVT_TRANSFER_DRAMA_p1')
+    expect(created[0].template.options.find(o => o.id === 'RAISE').effects.player_id).toBe('p1')
+  })
+
+  it('con mala suerte o con tres eventos pendientes no hay lío', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+    await contractApi._maybeTransferDrama({ clubId: 'c1', player: players[0], buyer, amount: 6500, week: 4 })
+    vi.restoreAllMocks()
+    expect(created).toHaveLength(0)
+    state.pending = [{}, {}, {}]
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    await contractApi._maybeTransferDrama({ clubId: 'c1', player: players[0], buyer, amount: 6500, week: 4 })
+    vi.restoreAllMocks()
+    expect(created).toHaveLength(0)
+  })
+})
+
