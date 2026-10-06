@@ -4,6 +4,9 @@
 -- Por eso alcanza con una columna `owner_user_id` que toma por defecto el usuario autenticado y una política única.
 -- Las funciones del juego (batch_*, apply_standings_deltas...) son SECURITY INVOKER: respetan estas políticas.
 --
+-- Las filas que ya existían quedan sin dueño (owner_user_id nulo): nadie las ve desde el navegador. Son datos de prueba;
+-- cada cuenta nueva arranca su propia carrera. (En el editor SQL auth.uid() es nulo, por eso la columna no puede ser NOT NULL.)
+--
 -- Qué NO protege: una cuenta puede alterar los datos de su propio club (el cálculo sigue en el navegador).
 -- Los resultados que deben ser autoritativos van en funciones del servidor (ver migration_server_results.sql).
 
@@ -17,7 +20,7 @@ begin
   drop table if exists public.players_backup_positions_v1;
 
   for t in select tablename from pg_tables where schemaname = 'public' and tablename <> all(skip) loop
-    execute format('alter table public.%I add column if not exists owner_user_id uuid not null default auth.uid()', t);
+    execute format('alter table public.%I add column if not exists owner_user_id uuid default auth.uid()', t);
     execute format('create index if not exists %I on public.%I (owner_user_id)', 'idx_' || left(t, 40) || '_owner', t);
     for pol in select policyname from pg_policies where schemaname = 'public' and tablename = t loop
       execute format('drop policy %I on public.%I', pol.policyname, t);
