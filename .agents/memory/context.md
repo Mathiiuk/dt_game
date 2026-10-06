@@ -1,42 +1,56 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-05T17:10:03.978Z | **Nodos:** 306 | **Tareas:** 102
+> **Última sincronización:** 2026-10-06T18:39:41.997Z | **Nodos:** 469 | **Tareas:** 143
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
+| `src/domain/arcCatalog.js` | 907 | ninguna |
 | `src/api/career.js` | 757 | ./supabase, ./audit, ../utils/cache |
-| `src/api/contracts.js` | 738 | ./supabase, ../utils/cache, ./audit |
-| `src/features/match/PostMatchScreen.jsx` | 593 | react, react-router-dom, ../../api/postMatch |
+| `src/features/match/MatchScreen.jsx` | 651 | react, react-router-dom, ../../api/auth |
+| `src/features/match/PostMatchScreen.jsx` | 575 | react, react-router-dom, ../../api/postMatch |
+| `src/api/postMatch.js` | 567 | ./manager, ./morale, ./supabase |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
-| `src/features/match/MatchScreen.jsx` | 556 | react, react-router-dom, ../../api/auth |
-| `src/api/postMatch.js` | 498 | ./manager, ./supabase, ./gameConfig |
-| `src/api/nationalTeam.js` | 497 | ./supabase, ./manager, ./audit |
-| `src/api/calendar.js` | 495 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
-| `src/api/matchEngine.js` | 468 | ./supabase, ../domain/fixtureStatus, ../domain/positions |
+| `src/api/matchEngine.js` | 553 | ./supabase, ../domain/positions, ../domain/consequences |
+| `src/api/climate.js` | 536 | ./supabase, ../utils/cache, ./morale |
+| `src/api/calendar.js` | 534 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
+| `src/api/press.js` | 528 | ./supabase, ../domain/press, ../domain/characters |
+| `src/api/events.js` | 518 | ./supabase, ../utils/cache, ./audit |
+| `src/api/nationalTeam.js` | 491 | ./supabase, ./manager, ./audit |
+| `src/api/auth.js` | 484 | ./supabase, ../utils/cache, ./audit |
 | `src/features/club/screens/LockerRoomTab.jsx` | 460 | react, lucide-react, ../../../api/lockerRoom |
-| `src/api/events.js` | 452 | ./supabase, ../utils/cache, ./audit |
-| `src/features/squad/SquadScreen.jsx` | 437 | react, lucide-react, sonner |
+| `src/features/squad/SquadScreen.jsx` | 449 | react, lucide-react, sonner |
 | `src/features/manager/ManagerCareerScreen.jsx` | 436 | react, react-router-dom, lucide-react |
-| `src/api/auth.js` | 428 | ./supabase, ../utils/cache, ./audit |
-| `src/api/competition.js` | 427 | ./supabase, ../utils/cache, ../domain/fixtureStatus |
+| `src/features/dashboard/Dashboard.jsx` | 433 | react, react-router-dom, lucide-react |
 | `src/api/clubHistory.js` | 423 | ./supabase |
-| `src/api/press.js` | 411 | ./supabase, ../utils/cache |
-| `src/features/dashboard/Dashboard.jsx` | 408 | react, react-router-dom, lucide-react |
-| `src/api/injuries.js` | 399 | ./supabase, ../utils/cache |
+| `src/api/training.js` | 422 | ./supabase, ../domain/squadConsequences |
+| `src/api/injuries.js` | 407 | ./supabase, ../utils/cache |
 | `src/api/lockerRoom.js` | 395 | ./supabase, ../utils/cache |
 | `src/api/stadium.js` | 393 | ./supabase, ../utils/ensureRow, ../utils/cache |
+| `src/features/tactics/TacticsScreen.jsx` | 393 | react, lucide-react, sonner |
 | `src/features/club/screens/StadiumManagementTab.jsx` | 389 | react, lucide-react, ../../../api/stadium |
-| `src/api/training.js` | 380 | ./supabase |
-| `src/features/club/screens/IdolsLegendsTab.jsx` | 366 | react, lucide-react, ../../../api/legends |
-| `src/api/academy.js` | 365 | ./supabase, ./player, ../domain/positions |
+| `src/api/contracts.js` | 386 | ./supabase, ../utils/cache, ./audit |
 
-_(+120 módulos adicionales; consultar con `memory:query`)_
+_(+176 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
+- **auth-security-f5: Acceso seguro: reCAPTCHA v3, Google, Resend y base cerrada por dueño** `[DONE]`
+- **bench-complaints: Suplentes que reclaman minutos** `[DONE]`
+- **characters: Personajes con nombre y memoria** `[DONE]`
 - **ci-auto-merge-retry: Auto-merge resistente a pushes concurrentes** `[DONE]`
+- **climate-feel: Combos, clima visible, resumen de temporada y premios escalados** `[DONE]`
+- **consequences-barra-t4: T4 barra, corrupcion y eventos por clima** `[DONE]`
+- **consequences-results-t2: T2 consecuencias de resultados, precio de entrada y ambiente** `[DONE]`
+- **consequences-squad-t3: T3 consecuencias de entrenamiento y plantel** `[DONE]`
+- **consequences-ui-t6: T6 avisos, feed, tarjeta de clima y dificultad** `[DONE]`
+- **contracts-server: Contratos: renovaciones y rescisiones resueltas por el servidor** `[DONE]`
+- **cup-prizes-server: Premios de la copa liquidados por el servidor** `[DONE]`
+- **cup-two-legs: Copa continental con ida y vuelta** `[DONE]`
+- **econ-climate-t1: T1 economia recalibrada y clima unificado** `[DONE]`
+- **econ-climate-t1b: T1b hinchada y dirigencia unificadas y rachas reales** `[DONE]`
+- **endgame-tests: Epilogo probado y auditoria del retiro corregida** `[DONE]`
 - **f2-1-block-a-fundamentals: Fase 2.1: Bloque A - Contratos de Dominio Fundamentos (Fases 01 a 10)** `[DONE]`
 - **f2-1-block-b-management: Fase 2.1: Bloque B - Contratos de Dominio Gestion Deportiva y Economica (Fases 11 a 20)** `[DONE]`
 - **f2-1-block-c-human-environment: Fase 2.1: Bloque C - Contratos de Dominio Entorno y Simulacion Humana (Fases 21 a 30)** `[DONE]`
@@ -137,6 +151,33 @@ _(+120 módulos adicionales; consultar con `memory:query`)_
 - **fix-scouting-column: Ojear: no escribir columnas inexistentes en scout_reports** `[DONE]`
 - **fix-ui-copy-and-errors: Textos en castellano coloquial y errores amigables en toda la app** `[DONE]`
 - **fix-youth-prospect-generator: Otear en la Academia: juvenil completo con todos los campos obligatorios** `[DONE]`
+- **free-lineup-m4: M4 alineacion libre en la pizarra** `[DONE]`
+- **home-landing: Home publica de Vestuario: portada, frases de DT, SEO y rutas de acceso** `[DONE]`
+- **league-server: Liga con fuerza real de rivales y resultados en el servidor** `[DONE]`
+- **lineup-chemistry-m4: M4 quimica del equipo en la pizarra y el partido** `[DONE]`
+- **market-agents: Mercado 2.0 etapa 4: representantes cobran comision en el servidor y los pedidos de salida dan drama** `[DONE]`
+- **market-consequences: Mercado 2.0 etapa 3: fichajes y ventas con consecuencias en sueldos, caja y vestuario** `[DONE]`
+- **market-negotiation: Mercado 2.0 etapa 2: negociacion con contraofertas y cuotas en el servidor** `[DONE]`
+- **market-sales: Mercado 2.0 etapa 2b: las ventas las resuelve el servidor** `[DONE]`
+- **market-server-prices: Mercado 2.0 etapa 1: precios a escala y fichajes resueltos por el servidor** `[DONE]`
+- **market-window-and-pool: Mercado: ventana mal calculada por zona horaria y sin candidatos (los rivales no tienen plantel)** `[DONE]`
+- **match-experience-m5: M5 pausa, velocidades y saltear partido** `[DONE]`
+- **match-substitutions: Cambios de jugadores durante la pausa del partido** `[DONE]`
+- **more-story-arcs: 12 historias nuevas escritas por el usuario** `[DONE]`
+- **performance-m2: M2 rendimiento del avance semanal, post-partido y Plantel** `[DONE]`
+- **performance-m2b: M2 segunda pasada: profundidad de consultas** `[DONE]`
+- **preseason-arcade: Pretemporada arcade: aporte de la dirigencia y amistosos con riesgo** `[DONE]`
+- **press-flow: Flujo del final del partido y rueda de prensa relampago** `[DONE]`
+- **press-games: Prensa: Titular o fake y Bingo del DT** `[DONE]`
+- **press-skip-t5: T5 rueda de prensa obligatoria omitible** `[DONE]`
+- **quick-decisions: Decisiones rapidas en el partido que cambian el resultado** `[DONE]`
+- **recaptcha-env-name: Clave del sitio de reCAPTCHA sin prefijo VITE** `[DONE]`
+- **rival-names: Rivales distintos en cada carrera** `[DONE]`
+- **rls-owner-nullable: La migracion RLS falla con filas existentes: owner_user_id nulo permitido** `[DONE]`
+- **season-league-isolation: Cierre de temporada solo de la liga del club** `[DONE]`
+- **server-results-f5: Resultados de copa y fechas FIFA decididos por el servidor** `[DONE]`
+- **stale-dashboard-after-actions: Pantallas desactualizadas tras resolver un evento o jugar un partido; texto de años del contrato** `[DONE]`
+- **story-arcs: Historias de 8 a 10 fechas con humor del futbol argentino** `[DONE]`
 - **vercel-spa-rewrites: Rewrites SPA en Vercel (404 en rutas profundas)** `[DONE]`
 
 ## 💡 Lecciones Aprendidas y Anti-Patrones a Evitar
@@ -153,3 +194,8 @@ _(+120 módulos adicionales; consultar con `memory:query`)_
 - **[ARCHITECTURE]** Posiciones y medias: cada módulo usaba su propio set de códigos (GK/DF/MD/FW, DEF/MED/DEL, CB/CM/ST) y el motor de partido ignoraba el puesto en que juega cada jugador, así que poner un arquero de delantero no cambiaba nada *(Solución: Fuente única src/domain/positions.js (PO DFC LI LD MCD MC MCO MI MD EI ED DC; puestos con número DFC1) y src/domain/ratings.js (pesos por posición, ratingAtSlot). buildMatchSquad asigna slot_rating y el motor pesa por puesto. Toda posición nueva pasa por normalizePosition)*
 - **[ARCHITECTURE]** La media (attr_overall) se calculaba en varios lugares y se desfasaba; la base tenía overall generada y attr_overall sin generar *(Solución: Trigger sync_player_overall en la base con pesos generados desde ratings.js por scripts/gen-rating-sql.mjs; test estático rating-sql.test.js obliga a regenerar el SQL si cambian los pesos. Nunca escribir attr_overall a mano)*
 - **[BUG_FIX]** Alineaciones guardadas como 'mejores 11' sin respetar puestos (un delantero en el arco) y reemplazo de juveniles de academia sin nacionalidad ni dorsal válido *(Solución: resolveLineup reubica alineaciones desordenadas (tolerancia 5 puntos) en pizarra y partido; buildProspectRow arma filas completas de players para juveniles y promociones)*
+- **[BUG_FIX]** new Date('YYYY-MM-DD') es medianoche UTC: en Argentina (UTC-3) el 1 de julio cae el 30 de junio y getMonth() devuelve junio (mercado 'cerrado', año de temporada mal). *(Solución: Leer mes y año del texto de la fecha (slice) o con helpers de domain/gameWeek (seasonYearOf, weekOfDate, absoluteWeek); nunca new Date(game_date) con getMonth/getFullYear.)*
+- **[SECURITY]** RLS 'activada' no es RLS 'aplicada': pg_tables.rowsecurity engaña si las políticas son true. Se creyó aplicada la aislación por cuenta cuando 103 de 109 políticas seguían abiertas. *(Solución: Verificar con pg_policies (qual/with_check = 'true', columna owner_user_id) y probar como usuario autenticado dentro de una transacción que se deshace (set local role authenticated + request.jwt.claims).)*
+- **[ARCHITECTURE]** Todo movimiento de plata o resultado va en funciones SQL SECURITY INVOKER (respetan RLS por dueño) con la fórmula duplicada en domain/*.js y tests de paridad contra valores fijos de la base; el navegador solo propone montos. *(Solución: Probar cada función en la base real con un bloque DO que termina en RAISE EXCEPTION para deshacer; cerrar el camino directo (execute_transfer) para que no se saltee las reglas; triggers con GUC app.server_result para bloquear escrituras directas.)*
+- **[BUG_FIX]** Cuenta real en el navegador encontró lo que los 1000 tests no: mercado vacío (rivales sin plantel), pantallas desactualizadas tras resolver eventos (efecto con deps que no cambian) y caja vieja tras un partido. *(Solución: Después de cada tanda grande, recorrer el flujo con la cuenta real; consultar la base con SQL para confirmar lo que el navegador muestra; refrescar contexto al volver de pantallas que escriben.)*
+- **[BEST_PRACTICE]** El gate bdd_tests del manifiesto falla porque @cucumber/cucumber no está instalado y no existe el script test:bdd; los .feature generados quedan como plantilla. *(Solución: Hasta decidir instalarlo, las tareas se marcan bdd_tests:false y los .feature se escriben como documentación viva con escenarios reales.)*

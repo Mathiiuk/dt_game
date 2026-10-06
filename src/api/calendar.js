@@ -428,7 +428,7 @@ export const calendarApi = {
         const { moraleApi } = await import('./morale')
         await Promise.all([
           // 8. Finanzas (salarios semanales e ingresos)
-          timed('semana.finanzas', () => financesApi.processWeek({ clubId, careerId, seasonYear: calendar.current_season_year, weekNumber: nextWeek, players }), timings),
+          timed('semana.finanzas', () => financesApi.processWeek({ clubId, careerId, seasonYear: calendar.current_season_year, weekNumber: nextWeek }), timings),
           // 10. Ofertas aleatorias del mercado
           timed('semana.ofertas', () => contractApi.generateRandomOffersForWeek(clubId, players, nextTransferWindow), timings),
           // 11. Moral semanal con las rachas reales

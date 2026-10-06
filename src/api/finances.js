@@ -116,47 +116,24 @@ export const financesApi = {
   },
 
   /**
-   * Cierre económico de la semana: cobra ingresos recurrentes y paga sueldos y mantenimiento.
-   * Un asiento por concepto en el libro mayor (financial_transactions_ledger) y una sola actualización de la caja.
+   * Cierre económico de la semana: ingresos recurrentes, sueldos, mantenimiento y, en pretemporada, el aporte de la dirigencia.
+   * Lo calcula y lo escribe la base (`close_week_finances`) en una sola transacción y es idempotente por semana:
+   * el navegador solo lo pide y no manda ningún importe.
    */
-  async processWeek({ clubId, careerId = null, seasonYear = 1, weekNumber = 1, players = [] }) {
-    const [{ data: club }, { data: staff }, firstFixtureDate] = await Promise.all([
-      supabase.from('clubs').select('*').eq('id', clubId).single(),
-      supabase.from('staff').select('wage_weekly, salary').eq('club_id', clubId),
-      // Solo las primeras semanas pueden ser de pretemporada: después no se consulta
-      weekNumber <= 8 ? this.firstFixtureDate(clubId) : Promise.resolve(null)
-    ])
-    if (!club) return null
-    const week = weeklyBudget({ club, players, staff: staff || [] })
-    // Pretemporada: sin partidos no hay taquilla, así que la dirigencia pone la mitad de los sueldos del plantel
-    const aid = isPreseason(club.game_date, firstFixtureDate) ? preseasonAid(week.expenses.playerWages) : 0
-
-    const lines = [
-      ['MEMBERS', week.income.members, 'Cuotas de socios'],
-      ['SPONSOR', week.income.sponsors, 'Patrocinio semanal'],
-      ['TV', week.income.tv, 'Derechos de televisión'],
-      ['STORE', week.income.store, 'Tienda del club'],
-      ['SALARY', -week.expenses.playerWages, 'Sueldos del plantel'],
-      ['STAFF', -week.expenses.staffWages, 'Sueldos del cuerpo técnico'],
-      ['MAINTENANCE', -(week.expenses.stadiumMaint + week.expenses.academyMaint), 'Mantenimiento del estadio y las inferiores'],
-      ['BOARD_AID', aid, 'Aporte de la dirigencia por la pretemporada']
-    ].filter(([, amount]) => amount !== 0)
-
-    let balance = Number(club.budget || 0)
-    const rows = lines.map(([category, amount, description]) => {
-      balance += amount
-      return { career_id: careerId, club_id: clubId, season_year: seasonYear, week_number: weekNumber, category, amount, balance_after: balance, description }
+  async processWeek({ clubId, careerId = null, seasonYear = 1, weekNumber = 1 }) {
+    const { data, error } = await supabase.rpc('close_week_finances', {
+      p_club_id: clubId, p_season_year: seasonYear, p_week: weekNumber, p_career_id: careerId
     })
-    // El libro mayor y la caja se escriben juntos: el saldo ya está calculado
-    const [{ error: ledgerErr }, { error }] = await Promise.all([
-      supabase.from('financial_transactions_ledger').insert(rows),
-      supabase.from('clubs').update({ budget: balance }).eq('id', clubId)
-    ])
-    if (ledgerErr) console.warn('Aviso: no se pudo registrar el cierre semanal en el libro mayor:', ledgerErr.message)
     if (error) throw new Error(error.message)
     queryCache.invalidate(`finances:${clubId}`)
     queryCache.invalidate(`club:${clubId}`)
-    return { income: week.totalIncome + aid, expenses: week.totalExpenses, newBudget: balance, boardAid: aid }
+    return {
+      income: Number(data.income || 0) + Number(data.board_aid || 0),
+      expenses: Number(data.expenses || 0),
+      newBudget: Number(data.new_budget || 0),
+      boardAid: Number(data.board_aid || 0),
+      alreadyClosed: Boolean(data.already_closed)
+    }
   },
 
   /**

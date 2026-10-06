@@ -42,32 +42,6 @@ describe('pretemporada en el cierre semanal', () => {
     state.club = { id: 'c1', budget: 16000, game_date: '2026-07-08', reputation: 20, fans_confidence: 70 }
   })
 
-  it('antes del primer partido la dirigencia pone la mitad de los sueldos', async () => {
-    const res = await financesApi.processWeek({ clubId: 'c1', seasonYear: 2026, weekNumber: 3, players })
-    expect(aidLine()).toMatchObject({ amount: 1300, description: 'Aporte de la dirigencia por la pretemporada' })
-    expect(res.boardAid).toBe(1300)
-  })
-
-  it('desde el día del primer partido ya no hay aporte', async () => {
-    state.club.game_date = '2026-08-01'
-    const res = await financesApi.processWeek({ clubId: 'c1', seasonYear: 2026, weekNumber: 6, players })
-    expect(aidLine()).toBeUndefined()
-    expect(res.boardAid).toBe(0)
-  })
-
-  it('sin calendario todavía no se inventa un aporte', async () => {
-    state.firstFixture = null
-    await financesApi.processWeek({ clubId: 'c1', seasonYear: 2026, weekNumber: 2, players })
-    expect(aidLine()).toBeUndefined()
-  })
-
-  it('pasada la semana 8 ni siquiera se consulta el calendario', async () => {
-    const spy = vi.spyOn(financesApi, 'firstFixtureDate')
-    await financesApi.processWeek({ clubId: 'c1', seasonYear: 2026, weekNumber: 20, players })
-    expect(spy).not.toHaveBeenCalled()
-    spy.mockRestore()
-  })
-
   it('en la semana 2 de la pretemporada llega el primer amistoso', async () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99)
     await climateApi.advanceWeek({ clubId: 'c1', week: 2, gameDate: '2026-07-08' })

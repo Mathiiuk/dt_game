@@ -82,5 +82,40 @@
     "category": "BUG_FIX",
     "lesson": "Alineaciones guardadas como 'mejores 11' sin respetar puestos (un delantero en el arco) y reemplazo de juveniles de academia sin nacionalidad ni dorsal válido",
     "solution": "resolveLineup reubica alineaciones desordenadas (tolerancia 5 puntos) en pizarra y partido; buildProspectRow arma filas completas de players para juveniles y promociones"
+  },
+  {
+    "id": "LES-8481",
+    "timestamp": "2026-10-06T18:39:28.481Z",
+    "category": "BUG_FIX",
+    "lesson": "new Date('YYYY-MM-DD') es medianoche UTC: en Argentina (UTC-3) el 1 de julio cae el 30 de junio y getMonth() devuelve junio (mercado 'cerrado', año de temporada mal).",
+    "solution": "Leer mes y año del texto de la fecha (slice) o con helpers de domain/gameWeek (seasonYearOf, weekOfDate, absoluteWeek); nunca new Date(game_date) con getMonth/getFullYear."
+  },
+  {
+    "id": "LES-1625",
+    "timestamp": "2026-10-06T18:39:31.625Z",
+    "category": "SECURITY",
+    "lesson": "RLS 'activada' no es RLS 'aplicada': pg_tables.rowsecurity engaña si las políticas son true. Se creyó aplicada la aislación por cuenta cuando 103 de 109 políticas seguían abiertas.",
+    "solution": "Verificar con pg_policies (qual/with_check = 'true', columna owner_user_id) y probar como usuario autenticado dentro de una transacción que se deshace (set local role authenticated + request.jwt.claims)."
+  },
+  {
+    "id": "LES-5839",
+    "timestamp": "2026-10-06T18:39:35.839Z",
+    "category": "ARCHITECTURE",
+    "lesson": "Todo movimiento de plata o resultado va en funciones SQL SECURITY INVOKER (respetan RLS por dueño) con la fórmula duplicada en domain/*.js y tests de paridad contra valores fijos de la base; el navegador solo propone montos.",
+    "solution": "Probar cada función en la base real con un bloque DO que termina en RAISE EXCEPTION para deshacer; cerrar el camino directo (execute_transfer) para que no se saltee las reglas; triggers con GUC app.server_result para bloquear escrituras directas."
+  },
+  {
+    "id": "LES-8790",
+    "timestamp": "2026-10-06T18:39:38.790Z",
+    "category": "BUG_FIX",
+    "lesson": "Cuenta real en el navegador encontró lo que los 1000 tests no: mercado vacío (rivales sin plantel), pantallas desactualizadas tras resolver eventos (efecto con deps que no cambian) y caja vieja tras un partido.",
+    "solution": "Después de cada tanda grande, recorrer el flujo con la cuenta real; consultar la base con SQL para confirmar lo que el navegador muestra; refrescar contexto al volver de pantallas que escriben."
+  },
+  {
+    "id": "LES-1781",
+    "timestamp": "2026-10-06T18:39:41.781Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "El gate bdd_tests del manifiesto falla porque @cucumber/cucumber no está instalado y no existe el script test:bdd; los .feature generados quedan como plantilla.",
+    "solution": "Hasta decidir instalarlo, las tareas se marcan bdd_tests:false y los .feature se escriben como documentación viva con escenarios reales."
   }
 ]
