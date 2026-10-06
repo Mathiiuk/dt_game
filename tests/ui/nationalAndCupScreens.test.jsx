@@ -113,4 +113,64 @@ describe('pantalla Copa Continental', () => {
       expect(screen.queryByRole('button', { name: /Jugar partido continental/ })).not.toBeInTheDocument()
     })
   })
+
+  const twoLegSchedule = { seedDate: '2026-09-01', quarter_finals: '2026-09-16', quarter_finals_leg2: '2026-09-23', semi_finals: '2026-10-21', semi_finals_leg2: '2026-10-28', final: '2026-11-21' }
+  const club = (id, name) => ({ id, name })
+  const leg = (id, n, number, home, away, extra = {}) => ({
+    id, stage: 'quarter_finals', match_number: number, leg: n, played: false, match_date: n === 1 ? '2026-09-16' : '2026-09-23',
+    home_club_id: home.id, away_club_id: away.id, home_club: home, away_club: away, ...extra
+  })
+
+  it('los cruces de ida y vuelta muestran cuál es cada partido y el global parcial', async () => {
+    const me = club('c1', 'Mi Club')
+    const rival = club('x', 'Rival')
+    await withCup({
+      tournament: { name: 'Copa Gloria', season_year: 2026, status: 'in_progress', prize_pool: 1 },
+      fixtures: [
+        leg('i1', 1, 1, me, rival, { played: true, home_score: 2, away_score: 1 }),
+        leg('v1', 2, 1, rival, me)
+      ],
+      qualified: true, gameDate: '2026-09-23', schedule: twoLegSchedule
+    }, async () => {
+      render(<MemoryRouter><InternationalCupScreen /></MemoryRouter>)
+      expect(await screen.findByText(/Cuartos · Ida/)).toBeInTheDocument()
+      expect(screen.getByText(/Cuartos · Vuelta/)).toBeInTheDocument()
+      expect(screen.getAllByText(/Global parcial: Mi Club 2 - 1 Rival/).length).toBeGreaterThan(0)
+      // Con la ida jugada, la vuelta vencida se puede jugar
+      expect(screen.getAllByRole('button', { name: /Jugar partido continental/ })).toHaveLength(1)
+    })
+  })
+
+  it('la vuelta no se puede jugar antes que la ida', async () => {
+    const me = club('c1', 'Mi Club')
+    const rival = club('x', 'Rival')
+    await withCup({
+      tournament: { name: 'Copa Gloria', season_year: 2026, status: 'in_progress', prize_pool: 1 },
+      fixtures: [leg('i1', 1, 1, me, rival), leg('v1', 2, 1, rival, me)],
+      qualified: true, gameDate: '2026-09-30', schedule: twoLegSchedule
+    }, async () => {
+      render(<MemoryRouter><InternationalCupScreen /></MemoryRouter>)
+      expect(await screen.findByText('Primero se juega el partido de ida.')).toBeInTheDocument()
+      // solo la ida ofrece jugar
+      expect(screen.getAllByRole('button', { name: /Jugar partido continental/ })).toHaveLength(1)
+    })
+  })
+
+  it('con el cruce definido se informa el global y quién clasifica', async () => {
+    const me = club('c1', 'Mi Club')
+    const rival = club('x', 'Rival')
+    await withCup({
+      tournament: { name: 'Copa Gloria', season_year: 2026, status: 'in_progress', prize_pool: 1 },
+      fixtures: [
+        leg('i1', 1, 1, me, rival, { played: true, home_score: 1, away_score: 0 }),
+        leg('v1', 2, 1, rival, me, { played: true, home_score: 1, away_score: 0, winner_club_id: 'c1' })
+      ],
+      qualified: true, gameDate: '2026-09-30', schedule: twoLegSchedule
+    }, async () => {
+      render(<MemoryRouter><InternationalCupScreen /></MemoryRouter>)
+      expect((await screen.findAllByText(/Global Mi Club 1 - 1 Rival/)).length).toBeGreaterThan(0)
+      expect(screen.getAllByText('Mi Club').length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/Clasifica/).length).toBeGreaterThan(0)
+    })
+  })
 })

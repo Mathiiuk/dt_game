@@ -5,13 +5,19 @@ import { internationalCupApi } from '../../api/internationalCup'
 import { useGameContext } from '../../context/GameContext'
 import { formatMoney, formatLongDate } from '../../lib/format'
 import { friendlyError } from '../../lib/errors'
-import { isDue } from '../../domain/cupTournament'
+import { isDue, tieAggregate, tieWinner } from '../../domain/cupTournament'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, EmptyState, PageHeader, Skeleton, Stat } from '../../components/ui'
 
 const STAGE_LABEL = { quarter_finals: 'Cuartos', semi_finals: 'Semifinal', final: 'Gran final' }
 
-function FixtureCard({ fixture, userClubId, gameDate, onPlay, playing, highlight = false }) {
+function FixtureCard({ fixture, legs = [], userClubId, gameDate, onPlay, playing, highlight = false }) {
+  const twoLegs = legs.length > 1
+  const firstLeg = legs.find(l => (l.leg || 1) === 1)
+  const waitingFirstLeg = (fixture.leg || 1) === 2 && firstLeg && !firstLeg.played
+  const totals = twoLegs ? tieAggregate(legs) : null
+  const decidedId = twoLegs ? tieWinner(legs) : null
+  const nameOf = (id) => legs.flatMap(l => [l.home_club, l.away_club]).find(c => c?.id === id)?.name || 'el rival'
   const mine = fixture.home_club_id === userClubId || fixture.away_club_id === userClubId
   const sides = [
     [fixture.home_club?.name || 'Equipo 1', fixture.home_club_id === userClubId, fixture.home_score],
@@ -22,7 +28,7 @@ function FixtureCard({ fixture, userClubId, gameDate, onPlay, playing, highlight
     <Card as="article" className={cn(mine && 'border-gold/50', highlight && 'ring-1 ring-gold/30')}>
       <CardBody className="space-y-3">
         <div className="flex items-center justify-between gap-2 text-xs">
-          <span className="eyebrow">{STAGE_LABEL[fixture.stage] || fixture.stage}</span>
+          <span className="eyebrow">{STAGE_LABEL[fixture.stage] || fixture.stage}{twoLegs && ` · ${(fixture.leg || 1) === 1 ? 'Ida' : 'Vuelta'}`}</span>
           {fixture.played ? (
             <Badge tone="accent"><CheckCircle2 className="size-3" aria-hidden="true" />Finalizado</Badge>
           ) : (
@@ -37,8 +43,17 @@ function FixtureCard({ fixture, userClubId, gameDate, onPlay, playing, highlight
             </li>
           ))}
         </ul>
+        {twoLegs && Object.keys(totals).length > 0 && (
+          <p className="rounded-md bg-surface-2 px-3 py-2 text-xs text-fg-muted">
+            {decidedId
+              ? <>Global {legs[0].home_club?.name || 'Equipo 1'} {totals[legs[0].home_club_id] ?? 0} - {totals[legs[0].away_club_id] ?? 0} {legs[0].away_club?.name || 'Equipo 2'}. Clasifica <strong className="text-fg">{nameOf(decidedId)}</strong>.</>
+              : <>Global parcial: {legs[0].home_club?.name || 'Equipo 1'} {totals[legs[0].home_club_id] ?? 0} - {totals[legs[0].away_club_id] ?? 0} {legs[0].away_club?.name || 'Equipo 2'}.</>}
+          </p>
+        )}
         {mine && !fixture.played && (
-          isDue(fixture, gameDate) ? (
+          waitingFirstLeg ? (
+            <p className="rounded-md bg-surface-2 py-2 text-center text-xs font-medium text-fg-muted">Primero se juega el partido de ida.</p>
+          ) : isDue(fixture, gameDate) ? (
             <Button className="w-full" loading={playing === fixture.id} onClick={() => onPlay(fixture)}>
               {playing !== fixture.id && <Play />}Jugar partido continental
             </Button>
@@ -131,7 +146,7 @@ export default function InternationalCupScreen() {
             icon={Globe}
             title={cupData?.notStarted ? 'La copa todavía no arrancó' : 'Sin torneo activo'}
             description={cupData?.notStarted && schedule
-              ? `Clasifican los 8 mejores de la liga al ${formatLongDate(schedule.seedDate)}. Los cuartos de final se juegan el ${formatLongDate(schedule.quarter_finals)}, las semifinales el ${formatLongDate(schedule.semi_finals)} y la final el ${formatLongDate(schedule.final)}.`
+              ? `Clasifican los 8 mejores de la liga al ${formatLongDate(schedule.seedDate)}. Los cuartos de final son de ida y vuelta (${formatLongDate(schedule.quarter_finals)} y ${formatLongDate(schedule.quarter_finals_leg2)}), las semifinales también (${formatLongDate(schedule.semi_finals)} y ${formatLongDate(schedule.semi_finals_leg2)}) y la final se juega a un solo partido el ${formatLongDate(schedule.final)}.`
               : 'No hay un certamen continental en juego para tu liga.'}
           />
         </Card>
@@ -141,7 +156,7 @@ export default function InternationalCupScreen() {
 
   const renderGrid = (list, props = {}, className = 'md:grid-cols-2') => (
     <ul className={cn('grid grid-cols-1 gap-3', className)}>
-      {list.map(f => <li key={f.id}><FixtureCard fixture={f} userClubId={club?.id} gameDate={cupData?.gameDate} onPlay={handlePlayUserMatch} playing={playingMatchId} {...props} /></li>)}
+      {list.map(f => <li key={f.id}><FixtureCard fixture={f} legs={(fixtures || []).filter(x => x.stage === f.stage && x.match_number === f.match_number)} userClubId={club?.id} gameDate={cupData?.gameDate} onPlay={handlePlayUserMatch} playing={playingMatchId} {...props} /></li>)}
     </ul>
   )
 
