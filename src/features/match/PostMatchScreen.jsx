@@ -51,7 +51,7 @@ export default function PostMatchScreen() {
   const [isPressDelegated, setIsPressDelegated] = useState(false)
   const [skipResult, setSkipResult] = useState(null)
   const [bingo, setBingo] = useState(null)
-  const { confirmAction } = useGameContext()
+  const { confirmAction, refreshContext } = useGameContext()
 
   useEffect(() => {
     if (!results) {
@@ -82,6 +82,8 @@ export default function PostMatchScreen() {
         }, officialFixtureId)
 
         setProcessedData(processed)
+        // La taquilla, la moral y el partido jugado ya están en la base: el inicio no tiene que mostrar los valores de antes
+        Promise.resolve(refreshContext?.()).catch(() => {})
 
         // Inicializar Rueda de Prensa procedimental (Fase 24)
         try {

@@ -6,10 +6,11 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 
 const confirmAction = vi.fn(async () => true)
+const refreshContext = vi.fn(async () => {})
 const skipConference = vi.fn(async () => ({ kind: 'RUMOR', fine: 400, fans: -3, board: -3, message: 'Sin tu voz, la prensa llenó el vacío.', outcome: 'L' }))
 
 vi.mock('../../src/context/GameContext', () => ({
-  useGameContext: () => ({ confirmAction })
+  useGameContext: () => ({ confirmAction, refreshContext })
 }))
 
 vi.mock('../../src/api/postMatch', () => ({
@@ -70,6 +71,13 @@ describe('rueda de prensa después del partido', () => {
     await userEvent.click(await screen.findByRole('button', { name: /No presentarme/ }))
     expect(skipConference).not.toHaveBeenCalled()
     expect(screen.getByText(/¿Qué pasó hoy?/)).toBeInTheDocument()
+  })
+
+  it('al procesar el partido refresca el club para que el inicio no muestre la caja de antes', async () => {
+    refreshContext.mockClear()
+    renderScreen()
+    await screen.findByRole('button', { name: /Continuar a la rueda de prensa/ })
+    expect(refreshContext).toHaveBeenCalledTimes(1)
   })
 
   it('después del partido el resumen ofrece seguir a la prensa en un paso, sin recorrer las pestañas', async () => {

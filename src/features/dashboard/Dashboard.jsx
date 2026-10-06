@@ -135,6 +135,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
   const [showSeasonCloseModal, setShowSeasonCloseModal] = useState(false)
+  // Se sube al resolver una decisión: el club puede quedar igual (caja y fecha) y aun así hay que recargar eventos, clima y bitácora
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     if (contextLoading || !club || !manager) return
@@ -152,7 +154,7 @@ export default function Dashboard() {
 
     loadData()
     return () => { isMounted = false }
-  }, [contextLoading, club?.id, club?.game_date, club?.budget, manager?.id, manager?.xp])
+  }, [contextLoading, club?.id, club?.game_date, club?.budget, manager?.id, manager?.xp, reloadTick])
 
   const handleAdvanceWeek = async () => {
     // Menos de 11 aptos no impide avanzar (la recuperación ocurre al avanzar); sólo un partido vencido lo frena
@@ -187,6 +189,7 @@ export default function Dashboard() {
     try {
       const outcome = await eventsApi.resolveEvent(event.id, option, manager?.id)
       await refreshContext()
+      setReloadTick(t => t + 1)
       toast.success(outcome?.outcomeNote || 'Decisión ejecutada.')
     } catch (err) {
       toast.error(friendlyError(err, 'Error al procesar la decisión.'))
@@ -241,8 +244,8 @@ export default function Dashboard() {
         )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <ClimatePanel club={club} gameDate={clubSummary.gameDate} />
-          <ConsequenceFeed clubId={club?.id} />
+          <ClimatePanel key={`climate-${reloadTick}`} club={club} gameDate={clubSummary.gameDate} />
+          <ConsequenceFeed key={`feed-${reloadTick}`} clubId={club?.id} />
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

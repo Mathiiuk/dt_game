@@ -104,8 +104,11 @@ export default function MarketScreen() {
     setWageInfo(null)
     try {
       const finances = await financesApi.getFinances(club.id)
+      const demands = playerDemands(player)
       setWageInfo({
-        newWage: playerDemands(player).expectedWage,
+        newWage: demands.expectedWage,
+        // Años que firma el jugador al llegar (la base le da dos como mínimo)
+        years: Math.max(2, demands.desiredYears),
         payroll: Number(finances?.expenses?.playerWages || 0) + Number(finances?.expenses?.staffWages || 0),
         budget: Number(finances?.wageBudgetWeekly || 0)
       })

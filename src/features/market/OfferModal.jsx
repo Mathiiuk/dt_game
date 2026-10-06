@@ -110,7 +110,7 @@ export default function OfferModal({ player, budget, wageInfo = null, onClose, o
 
         {wageInfo && (
           <p className="text-xs text-fg-muted" data-testid="wage-info">
-            Si llega, cobra {formatMoney(wageInfo.newWage)} por semana (contrato de 3 años).
+            Si llega, cobra {formatMoney(wageInfo.newWage)} por semana (contrato de {wageInfo.years || 3} años).
             {wageInfo.budget > 0 && (
               wageInfo.payroll + wageInfo.newWage > wageInfo.budget
                 ? <strong className="text-warning"> Con él la masa salarial pasa a {formatMoney(wageInfo.payroll + wageInfo.newWage)} y te pasás del presupuesto de {formatMoney(wageInfo.budget)}.</strong>
