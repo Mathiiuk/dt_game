@@ -18,6 +18,7 @@ import {
   Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, Input, PageHeader, Progress,
   Select, Skeleton, Stat, Tabs, TabsList, TabsTrigger, Tooltip
 } from '../../components/ui'
+import { absoluteWeek } from '../../domain/gameWeek'
 import ContractRenewalModal from './ContractRenewalModal'
 import MentorshipModal from './MentorshipModal'
 import PlayerEvolutionModal from './PlayerEvolutionModal'
@@ -169,7 +170,7 @@ export default function SquadScreen() {
   }
 
   const handleTerminateContract = async (player) => {
-    const severance = contractApi.calculateSeveranceCost(player)
+    const severance = contractApi.calculateSeveranceCost(player, club?.game_date)
     const clubBudget = club?.budget || 0
 
     if (clubBudget < severance) {
@@ -433,7 +434,7 @@ export default function SquadScreen() {
 
       {renewalPlayer && (
         <ContractRenewalModal
-          player={renewalPlayer} club={club} manager={manager} currentWeek={club?.current_week || 1}
+          player={renewalPlayer} club={club} manager={manager} currentWeek={club?.game_date ? absoluteWeek(club.game_date) : 1}
           onClose={() => setRenewalPlayer(null)}
           onSuccess={() => { loadData(); if (typeof refreshContext === 'function') refreshContext() }}
         />
