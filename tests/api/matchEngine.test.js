@@ -42,3 +42,29 @@ describe('motor de partidos', () => {
     expect(strongWins).toBeGreaterThan(weakWins * 2)
   })
 })
+
+describe('cambios en vivo', () => {
+  const strong = squad(80)
+  const weak = squad(40)
+
+  it('hasta el minuto del cambio el partido es idéntico y después rinde el nuevo once', () => {
+    const base = simulateMatch(tactic, weak, tactic, strong, 'cambio-1')
+    const changed = simulateMatch(tactic, weak, tactic, strong, 'cambio-1', { changes: [{ minute: 45, team: 'home', players: squad(95).map((p, i) => ({ ...p, id: `n${i}` })) }] })
+    const upTo = (r) => r.events.filter(e => e.minute <= 45)
+    expect(upTo(changed)).toEqual(upTo(base))
+  })
+
+  it('un once mucho mejor desde el entretiempo mete más goles en promedio', () => {
+    let baseGoals = 0, changedGoals = 0
+    const better = squad(99).map((p, i) => ({ ...p, id: `n${i}` }))
+    for (let i = 0; i < 150; i++) {
+      baseGoals += simulateMatch(tactic, weak, tactic, strong, `c-${i}`).homeScore
+      changedGoals += simulateMatch(tactic, weak, tactic, strong, `c-${i}`, { changes: [{ minute: 45, team: 'home', players: better }] }).homeScore
+    }
+    expect(changedGoals).toBeGreaterThan(baseGoals)
+  })
+
+  it('sin cambios el resultado es el de siempre', () => {
+    expect(simulateMatch(tactic, weak, tactic, strong, 's', { changes: [] })).toEqual(simulateMatch(tactic, weak, tactic, strong, 's'))
+  })
+})

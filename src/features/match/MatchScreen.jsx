@@ -9,6 +9,8 @@ import { matchEngineApi, SHOUT_TYPES } from '../../api/matchEngine'
 import { supabase } from '../../api/supabase'
 import { useGameContext } from '../../context/GameContext'
 import MatchControls from './MatchControls'
+import SubstitutionsPanel from './SubstitutionsPanel'
+import { benchOf, makeSubstitution, substitutionsLeft, substitutionText } from '../../domain/substitutions'
 import { useMatchClock } from './useMatchClock'
 import { DEFAULT_SPEED, MATCH_MINUTES } from '../../domain/matchClock'
 import { 
@@ -65,6 +67,10 @@ export default function MatchScreen() {
   const [activeOrder, setActiveOrder] = useState(null)
   const [savedToDb, setSavedToDb] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  // Cambios del DT: once actual en la cancha y los cambios hechos (cada uno rejuega el resto del partido)
+  const [onField, setOnField] = useState([])
+  const [subsMade, setSubsMade] = useState([])
+  const changesRef = useRef([])
 
   // Vista previa del once: avisa antes del pitazo si el plantel está incompleto
   const previewSquad = data?.club && data.players?.length > 0 ? buildMatchSquad(data.players, lineupIdsOf(data.tactic, data.players), 11, slotsOf(data.tactic)) : null
@@ -212,6 +218,9 @@ export default function MatchScreen() {
       starterIds: matchSquad.starters.map(p => p.id)
     }
 
+    setOnField(matchSquad.starters)
+    setSubsMade([])
+    changesRef.current = []
     setSimResults(matchData)
     setMinute(0)
     setScore({ home: 0, away: 0 })
@@ -227,6 +236,25 @@ export default function MatchScreen() {
       oppName,
       startedAt: Date.now()
     }))
+  }
+
+  // Cambio en la pausa: el partido se rejuega con el nuevo once desde el minuto siguiente (hasta ahí todo queda igual)
+  const handleSubstitute = (outId, inId) => {
+    const made = makeSubstitution({ onField, players: data.players, subsMade, outId, inId, minute })
+    if (!made.ok) return toast.error(made.error)
+    const isHomeSide = data.fixture ? data.fixture.home_team_id === data.club.id : true
+    changesRef.current = [...changesRef.current, { minute, team: isHomeSide ? 'home' : 'away', players: made.onField }]
+    const replayed = matchEngineApi.replayWithChanges(simResults, changesRef.current)
+    const next = { ...replayed, starterIds: [...(simResults.starterIds || []), inId] }
+    setSimResults(next)
+    // Si se recarga la página, el partido se retoma con el resultado que dejaron los cambios
+    try {
+      sessionStorage.setItem(`active_match_${fixtureId || data.club.id}`, JSON.stringify({ simResults: next, isHome: isHomeSide, oppName: simResults.opponentName, startedAt: Date.now() }))
+    } catch { /* sin almacenamiento el partido sigue igual */ }
+    setOnField(made.onField)
+    setSubsMade(prev => [...prev, made.sub])
+    setEvents(prev => [{ minute: Math.max(1, minute), type: 'SUBSTITUTION', text: substitutionText(made.sub), team: isHomeSide ? 'home' : 'away' }, ...prev])
+    toast.success(`Cambio: entra ${made.sub.inName}`)
   }
 
   // Saltear el partido: se juega de inmediato hasta el final (acción aparte de la velocidad)
@@ -378,7 +406,7 @@ export default function MatchScreen() {
 
         {matchState === 'playing' && paused && (
           <p role="status" className="mt-3 border-t border-line/80 pt-3 text-center text-xs font-semibold text-warning">
-            Partido en pausa en el minuto {minute}. Aprovechá para dar una orden táctica y reanudá cuando quieras.
+            Partido en pausa en el minuto {minute}. Aprovechá para dar una orden táctica o hacer cambios, y reanudá cuando quieras.
           </p>
         )}
 
@@ -517,6 +545,14 @@ export default function MatchScreen() {
               </button>
             ) : matchState === 'playing' ? (
               <div className="space-y-2">
+                {paused && minute < MATCH_MINUTES && (
+                  <SubstitutionsPanel
+                    onField={onField}
+                    bench={benchOf(data.players, onField, subsMade)}
+                    subsLeft={substitutionsLeft(subsMade)}
+                    onSubstitute={handleSubstitute}
+                  />
+                )}
                 <span className="text-[11px] text-fg-muted block mb-1">Gritos y arengas desde el banco:</span>
                 {SHOUT_TYPES.map(order => {
                   const isSelected = activeOrder === order.id

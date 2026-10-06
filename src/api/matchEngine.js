@@ -87,7 +87,7 @@ export function createRNG(seedValue) {
 /**
  * Simulación autoritativa minuto a minuto con semilla reproducible.
  */
-export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08, homePowerFactor = 1, awayPowerFactor = 1 } = {}) => {
+export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08, homePowerFactor = 1, awayPowerFactor = 1, changes = [] } = {}) => {
   const rng = createRNG(seed)
 
   // 1. Calcular poder base de cada equipo
@@ -175,15 +175,30 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     }
   }
 
-  const homeTeam = applyTactics(homeBase, homeTactic, awayTactic, true)
-  const awayTeam = applyTactics(awayBase, awayTactic, homeTactic, false)
   // Con el DT suspendido dirige el ayudante y el equipo rinde menos
-  for (const [team, factor] of [[homeTeam, homePowerFactor], [awayTeam, awayPowerFactor]]) {
+  const withFactor = (team, factor) => {
     if (factor !== 1) {
       team.attack *= factor
       team.defense *= factor
       team.midfield *= factor
     }
+    return team
+  }
+  const homeTeam = withFactor(applyTactics(homeBase, homeTactic, awayTactic, true), homePowerFactor)
+  const awayTeam = withFactor(applyTactics(awayBase, awayTactic, homeTactic, false), awayPowerFactor)
+
+  // Cambios del DT en vivo: desde el minuto siguiente rinde el nuevo once (los que entran llegan frescos, los demás ya corrieron)
+  const applyChange = (change, min) => {
+    const isHomeSide = change.team === 'home'
+    const team = isHomeSide ? homeTeam : awayTeam
+    const stayed = new Set(team.players.map(p => p.id))
+    const next = withFactor(
+      applyTactics(calcBasePower(change.players), isHomeSide ? homeTactic : awayTactic, isHomeSide ? awayTactic : homeTactic, isHomeSide),
+      isHomeSide ? homePowerFactor : awayPowerFactor
+    )
+    const ran = team.fitnessDrain * (min - 1)
+    const fitness = change.players.reduce((acc, p) => acc + (stayed.has(p.id) ? Math.max(0, (p.state_fitness || 75) - ran) : (p.state_fitness || 75)), 0) / change.players.length
+    Object.assign(team, { attack: next.attack, defense: next.defense, midfield: next.midfield, players: next.players, fitness })
   }
 
   const events = []
@@ -227,6 +242,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
   // 3. Simular los 90 minutos
   for (let min = 1; min <= 90; min++) {
+    for (const change of changes) if (change.minute + 1 === min) applyChange(change, min)
     homeTeam.fitness = Math.max(0, homeTeam.fitness - homeTeam.fitnessDrain)
     awayTeam.fitness = Math.max(0, awayTeam.fitness - awayTeam.fitnessDrain)
 
@@ -422,7 +438,8 @@ export const matchEngineApi = {
       if (userIsHome) homePowerFactor *= userPowerFactor
       else awayPowerFactor *= userPowerFactor
     }
-    const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, { homeAdvantage: homeAdvantageFactor, homePowerFactor, awayPowerFactor })
+    const options = { homeAdvantage: homeAdvantageFactor, homePowerFactor, awayPowerFactor }
+    const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, options)
 
     if (fixtureId) {
       try {
@@ -442,8 +459,20 @@ export const matchEngineApi = {
 
     return {
       seed: finalSeed,
-      ...simResults
+      ...simResults,
+      // Todo lo necesario para volver a jugar el resto del partido si el DT hace cambios
+      inputs: { homeTactic, homePlayers, awayTactic, awayPlayers, options }
     }
+  },
+
+  /**
+   * Rejuega el partido con los cambios del DT. Es el mismo partido (misma semilla): hasta el minuto del cambio todo queda igual,
+   * y desde el siguiente rinde el nuevo once.
+   */
+  replayWithChanges(results, changes) {
+    const { homeTactic, homePlayers, awayTactic, awayPlayers, options } = results.inputs
+    const next = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, results.seed, { ...options, changes })
+    return { ...results, ...next }
   },
 
   /**
