@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { cupSchedule, cupSeasonYear, qualifiedClubIds, quarterPairs, planTournamentStep, dueUserFixture, isDue } from '../domain/cupTournament'
+import { cupSchedule, cupSeasonYear, qualifiedClubIds, quarterPairs, planTournamentStep, dueUserFixture, isDue, matchDateOf } from '../domain/cupTournament'
 import { clubHistoryApi } from './clubHistory'
 import { managerApi } from './manager'
 import { auditApi } from './audit'
@@ -119,14 +119,16 @@ export const internationalCupApi = {
       return null
     }
 
-    const quarterFixtures = quarterPairs(qualified).map(([home, away], i) => ({
+    // Cuartos de ida y vuelta: en la vuelta se invierte la localía
+    const quarterFixtures = quarterPairs(qualified).flatMap(([home, away], i) => [1, 2].map(leg => ({
       tournament_id: tournament.id,
       stage: 'quarter_finals',
       match_number: i + 1,
-      home_club_id: home,
-      away_club_id: away,
-      match_date: schedule.quarter_finals
-    }))
+      leg,
+      home_club_id: leg === 1 ? home : away,
+      away_club_id: leg === 1 ? away : home,
+      match_date: matchDateOf(schedule, 'quarter_finals', leg)
+    })))
     await supabase.from('international_fixtures').insert(quarterFixtures)
 
     if (qualified.includes(userClubId)) {
@@ -142,7 +144,7 @@ export const internationalCupApi = {
   async syncTournament(tournament, gameDate, userClubId, schedule) {
     let fixtures = await this.loadFixtures(tournament.id)
 
-    for (let guard = 0; guard < 6; guard++) {
+    for (let guard = 0; guard < 8; guard++) {
       const plan = planTournamentStep({ fixtures, gameDate, userClubId, schedule })
       if (plan.toSimulate.length === 0 && plan.toCreate.length === 0) {
         if (plan.championId && tournament.status !== 'finished') {

@@ -1,0 +1,8 @@
+# Reporte de Ejecución: cup-two-legs
+- **Rama**: `feat/cup-two-legs` | **Estado**: `DONE`
+- **Pendiente cerrado**: ida y vuelta de la Copa (cuartos y semifinales); la final sigue a partido único.
+- **Base** (`scripts/db/migration_cup_two_legs.sql`, aplicada): columnas `leg` y `winner_club_id` en `international_fixtures`; funciones `cup_goals` (empates posibles) y `cup_resolve` (final sin empates; vuelta con global y, si empatan, penales deterministas por partido); `play_cup_fixture` y `play_cup_ai_fixtures` usan `cup_resolve`, exigen la ida jugada antes que la vuelta y resuelven en orden de fecha e ida/vuelta; el disparador protege también el ganador.
+- **Verificado en la base real** (transacciones deshechas): la vuelta sin ida se rechaza; global 5-3 con ganador correcto; la ida no tiene ganador; el ganador no se puede escribir a mano ni al insertar; la final tiene ganador; 22% de los globales empatan y se resuelven por penales.
+- **Dominio**: la vuelta se juega una semana después de la ida (`cupSchedule` agrega `quarter_finals_leg2` y `semi_finals_leg2`); `tiesOf`, `tieAggregate`, `tieWinner`, `matchDateOf`; `planTournamentStep` crea la fase siguiente solo con todos los cruces decididos y con ida y vuelta (localía invertida); `dueUserFixture` ofrece primero la ida.
+- **Cliente**: el sorteo crea cuartos de ida y vuelta; la pantalla marca Ida/Vuelta, muestra el global parcial o definitivo y quién clasifica, y no deja jugar la vuelta antes que la ida; el aviso previo explica el formato.
+- **Tests**: `cupTournament.test.js` reescrito (17), `cupSeed.test.js` (2) y 3 casos nuevos de pantalla; suite completa verde (792).
