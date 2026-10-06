@@ -36,4 +36,12 @@ describe('reCAPTCHA v3 en el navegador', () => {
     await expect(first).resolves.toBe(window.grecaptcha)
     await expect(second).resolves.toBe(window.grecaptcha)
   })
+
+  it('acepta la clave con el nombre sin prefijo (RECAPTCHA_SITE_KEY) y esa tiene prioridad', async () => {
+    vi.stubEnv('VITE_RECAPTCHA_SITE_KEY', 'con-prefijo')
+    vi.stubEnv('RECAPTCHA_SITE_KEY', 'sin-prefijo')
+    expect(recaptchaSiteKey()).toBe('sin-prefijo')
+    vi.stubEnv('RECAPTCHA_SITE_KEY', '')
+    expect(recaptchaSiteKey()).toBe('con-prefijo')
+  })
 })

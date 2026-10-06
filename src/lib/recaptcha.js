@@ -1,12 +1,12 @@
 /**
- * reCAPTCHA v3 (invisible). La clave del sitio es pública y viene de VITE_RECAPTCHA_SITE_KEY; la secreta vive solo en el
+ * reCAPTCHA v3 (invisible). La clave del sitio es pública y viene de RECAPTCHA_SITE_KEY (o VITE_RECAPTCHA_SITE_KEY); la secreta vive solo en el
  * servidor (función `auth-gate`). Sin clave configurada (desarrollo, tests) todo sigue por el camino directo.
  */
 const SCRIPT_ID = 'recaptcha-v3-script'
 
 export const recaptchaSiteKey = () => {
   try {
-    return import.meta.env?.VITE_RECAPTCHA_SITE_KEY || ''
+    return import.meta.env?.RECAPTCHA_SITE_KEY || import.meta.env?.VITE_RECAPTCHA_SITE_KEY || ''
   } catch {
     return ''
   }

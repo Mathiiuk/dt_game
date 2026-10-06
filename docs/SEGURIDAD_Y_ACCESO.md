@@ -11,7 +11,7 @@ Este documento no tiene claves. Las claves se cargan **solo** en los paneles (Su
 | **Correos con Resend** | Bienvenida desde `no-contestar@vestuario.com.ar` con respuesta a `hola@vestuario.com.ar`, una sola vez por cuenta, siempre al correo de quien tiene la sesión | `supabase/functions/send-email`, `src/api/email.js` |
 | **Base cerrada por dueño** | Cada fila pertenece a la cuenta que la creó y solo esa cuenta la ve y la modifica; la clave pública sin sesión no puede tocar nada | `scripts/db/migration_rls_owner_isolation.sql` (**sin aplicar, ver abajo**) |
 
-Sin `VITE_RECAPTCHA_SITE_KEY` la app sigue funcionando por el camino directo (útil en desarrollo). Con la clave puesta, el alta y el ingreso **fallan cerrados**: si la función no responde, no se entra.
+Sin `RECAPTCHA_SITE_KEY` la app sigue funcionando por el camino directo (útil en desarrollo). Con la clave puesta, el alta y el ingreso **fallan cerrados**: si la función no responde, no se entra.
 
 ## Pasos que tenés que hacer vos (en este orden)
 
@@ -33,7 +33,8 @@ npx supabase functions deploy send-email --project-ref qozozdaavjfxvssvxqbx
 `auth-gate` va **sin** verificación de JWT porque la llaman personas que todavía no iniciaron sesión (se protege con reCAPTCHA). `send-email` va **con** verificación.
 
 ### 4. Variable pública del sitio (Vercel > Settings > Environment Variables)
-- `VITE_RECAPTCHA_SITE_KEY`: la clave del sitio (es pública).
+- `RECAPTCHA_SITE_KEY`: la clave del sitio. Vercel avisa por el nombre porque suena a "público", pero es seguro: la clave del sitio es pública por diseño (viaja en el navegador de todos). Vite expone **solo** esa variable con ese nombre exacto (`envPrefix` en `vite.config.ts`); nunca va con la clave secreta. También se acepta `VITE_RECAPTCHA_SITE_KEY`.
+- La clave **secreta** NO se carga en Vercel: va solo como secreto de las funciones de Supabase.
 - En reCAPTCHA Admin, los dominios permitidos tienen que incluir `dt-game.vercel.app`, `vestuario.com.ar` y `localhost`.
 
 ### 5. Google
