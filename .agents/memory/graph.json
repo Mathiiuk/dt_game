@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-10-06T18:39:41.997Z",
+  "updatedAt": "2026-10-06T18:56:38.134Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 469,
-    "totalEdges": 1317,
-    "totalTasks": 143,
-    "totalLessons": 17
+    "totalNodes": 473,
+    "totalEdges": 1322,
+    "totalTasks": 145,
+    "totalLessons": 18
   },
   "nodes": [
     {
@@ -86,7 +86,7 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 24658,
+      "sizeBytes": 24649,
       "lineCount": 534,
       "imports": [
         "./supabase",
@@ -292,8 +292,8 @@
       "id": "src/api/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 11223,
-      "lineCount": 275,
+      "sizeBytes": 9532,
+      "lineCount": 252,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -575,8 +575,8 @@
       "id": "src/api/seasonClose.js",
       "label": "seasonClose.js",
       "type": "module",
-      "sizeBytes": 11713,
-      "lineCount": 323,
+      "sizeBytes": 10911,
+      "lineCount": 294,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -2711,7 +2711,7 @@
       "id": "tests/api/competition-sim.test.js",
       "label": "competition-sim.test.js",
       "type": "test",
-      "sizeBytes": 3309,
+      "sizeBytes": 3381,
       "lineCount": 73,
       "imports": [
         "../../src/api/competition",
@@ -2763,7 +2763,7 @@
       "id": "tests/api/finalizeMatch.test.js",
       "label": "finalizeMatch.test.js",
       "type": "test",
-      "sizeBytes": 2383,
+      "sizeBytes": 2432,
       "lineCount": 50,
       "imports": [
         "../../src/api/matchEngine"
@@ -2950,8 +2950,8 @@
       "id": "tests/api/preseasonWeek.test.js",
       "label": "preseasonWeek.test.js",
       "type": "test",
-      "sizeBytes": 6488,
-      "lineCount": 124,
+      "sizeBytes": 5278,
+      "lineCount": 98,
       "imports": [
         "../../src/api/finances",
         "../../src/api/climate"
@@ -3000,6 +3000,16 @@
       ]
     },
     {
+      "id": "tests/api/seasonPrize.test.js",
+      "label": "seasonPrize.test.js",
+      "type": "test",
+      "sizeBytes": 4396,
+      "lineCount": 72,
+      "imports": [
+        "../../src/api/seasonClose"
+      ]
+    },
+    {
       "id": "tests/api/serverResults.test.js",
       "label": "serverResults.test.js",
       "type": "test",
@@ -3038,6 +3048,17 @@
       "lineCount": 208,
       "imports": [
         "../../src/api/calendar"
+      ]
+    },
+    {
+      "id": "tests/api/weeklyFinance.test.js",
+      "label": "weeklyFinance.test.js",
+      "type": "test",
+      "sizeBytes": 4211,
+      "lineCount": 76,
+      "imports": [
+        "../../src/api/finances",
+        "../../src/domain/finances"
       ]
     },
     {
@@ -3396,7 +3417,7 @@
       "id": "tests/domain/rivalLevel.test.js",
       "label": "rivalLevel.test.js",
       "type": "test",
-      "sizeBytes": 1074,
+      "sizeBytes": 1100,
       "lineCount": 27,
       "imports": [
         "../../src/domain/rivalLevel"
@@ -5055,6 +5076,13 @@
       "taskType": "fix"
     },
     {
+      "id": "task:season-prize-server",
+      "label": "season-prize-server: Premio de fin de temporada liquidado por el servidor",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:server-results-f5",
       "label": "server-results-f5: Resultados de copa y fechas FIFA decididos por el servidor",
       "type": "task",
@@ -5081,6 +5109,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
+    },
+    {
+      "id": "task:weekly-finance-server",
+      "label": "weekly-finance-server: Cierre semanal de finanzas resuelto por el servidor",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     }
   ],
   "edges": [
@@ -9595,6 +9630,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/seasonPrize.test.js",
+      "to": "../../src/api/seasonClose",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/serverResults.test.js",
       "to": "../../src/api/internationalCup",
       "relation": "depends_on"
@@ -9617,6 +9657,16 @@
     {
       "from": "tests/api/weekCascade.test.js",
       "to": "../../src/api/calendar",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/weeklyFinance.test.js",
+      "to": "../../src/api/finances",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/weeklyFinance.test.js",
+      "to": "../../src/domain/finances",
       "relation": "depends_on"
     },
     {
@@ -11650,6 +11700,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:season-prize-server",
+      "to": ".agents/workflow/tasks/season-prize-server.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:server-results-f5",
       "to": ".agents/workflow/tasks/server-results-f5.yml",
       "relation": "manifested_by"
@@ -11667,6 +11722,11 @@
     {
       "from": "task:vercel-spa-rewrites",
       "to": ".agents/workflow/tasks/vercel-spa-rewrites.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:weekly-finance-server",
+      "to": ".agents/workflow/tasks/weekly-finance-server.yml",
       "relation": "manifested_by"
     }
   ],
@@ -11789,6 +11849,13 @@
       "category": "BEST_PRACTICE",
       "lesson": "El gate bdd_tests del manifiesto falla porque @cucumber/cucumber no está instalado y no existe el script test:bdd; los .feature generados quedan como plantilla.",
       "solution": "Hasta decidir instalarlo, las tareas se marcan bdd_tests:false y los .feature se escriben como documentación viva con escenarios reales."
+    },
+    {
+      "id": "LES-7846",
+      "timestamp": "2026-10-06T18:56:37.846Z",
+      "category": "BUG_FIX",
+      "lesson": "El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos.",
+      "solution": "Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real."
     }
   ]
 }

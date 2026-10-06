@@ -4,16 +4,13 @@ import { playerEvolutionApi } from './playerEvolution'
 import { clubHistoryApi } from './clubHistory'
 import { yearsRemaining } from '../domain/contracts'
 
-export const SEASON_PRIZES = {
-  1: { position: 1, prize: 100000, label: 'Campeón de Liga' },
-  2: { position: 2, prize: 60000, label: 'Subcampeón (Ascenso Directo)' },
-  TOP_6: { min: 3, max: 6, prize: 30000, label: 'Zona Alta / Reducido' },
-  MID_TABLE: { min: 7, max: 17, prize: 15000, label: 'Permanencia Cómoda' },
-  RELEGATION: { min: 18, max: 20, prize: 5000, label: 'Zona Baja / Descenso' }
-}
-
-/** Premios federativos escalados a la economía del club de la división 5 (la caja inicial es de unos $20.000 y un año deja ~$45.000) */
+/**
+ * Premios federativos escalados a la economía del club de la división 5 (la caja inicial es de unos $20.000 y un año deja ~$45.000).
+ * Los liquida la base (`settle_season_prize`); estas constantes fijan la escala que los tests comparan con la función de la base.
+ * El bono del goleador se paga si su máximo goleador llega a 8 goles en la temporada.
+ */
 export const TOP_SCORER_BONUS = 1500
+export const TOP_SCORER_MIN_GOALS = 8
 
 export function getPrizeForPosition(pos) {
   if (pos === 1) return 12000
@@ -66,14 +63,9 @@ export const seasonCloseApi = {
     const promotedClubIds = standings.slice(0, 2).map(s => s.club_id).filter(Boolean)
     const relegatedClubIds = standings.slice(-3).map(s => s.club_id).filter(Boolean)
 
-    // 3. Obtener goleador del torneo
-    const { data: topScorers } = await supabase
-      .from('players')
-      .select('id, first_name, last_name, club_id, goals_season')
-      .order('goals_season', { ascending: false })
-      .limit(1)
-
-    const topScorer = topScorers?.[0] || null
+    // 3. Premio de la temporada y goleador del club: los calcula y cobra la base (`settle_season_prize`), antes de reiniciar la tabla
+    const { data: prize, error: prizeErr } = await supabase.rpc('settle_season_prize', { p_club_id: clubId, p_season_year: seasonYear, p_career_id: careerId || null })
+    if (prizeErr) throw new Error(prizeErr.message)
 
     // 4. Inmortalizar snapshot inmutable en season_snapshots
     const { data: snapshot, error: snapshotErr } = await supabase
@@ -86,9 +78,9 @@ export const seasonCloseApi = {
         runner_up_club_id: runnerUpClub?.club_id || null,
         promoted_club_ids: promotedClubIds,
         relegated_club_ids: relegatedClubIds,
-        top_scorer_player_id: topScorer?.id || null,
-        top_scorer_goals: topScorer?.goals_season || 0,
-        best_player_id: topScorer?.id || null,
+        top_scorer_player_id: prize.top_scorer_player_id || null,
+        top_scorer_goals: prize.top_scorer_goals || 0,
+        best_player_id: prize.top_scorer_player_id || null,
         final_standings_json: standings
       })
       .select()
@@ -99,35 +91,14 @@ export const seasonCloseApi = {
       throw snapshotErr
     }
 
-    // 5. Liquidación de Premios y Finanzas del Club (Reglas 29.2 y 29.3)
+    // 5. Premio y presupuesto: ya los liquidó la base (caja, presupuesto salarial y categoría)
     const userClubIndex = standings.findIndex(s => s.club_id === clubId)
-    const userPosition = userClubIndex >= 0 ? userClubIndex + 1 : 2
-    const basePrize = getPrizeForPosition(userPosition)
-    const topScorerBonus = (topScorer && topScorer.club_id === clubId) ? TOP_SCORER_BONUS : 0
-    const totalPrizeAwarded = basePrize + topScorerBonus
-
-    const { data: currentClub } = await supabase
-      .from('clubs')
-      .select('budget, wage_budget, league_tier')
-      .eq('id', clubId)
-      .single()
-
-    const isPromoted = promotedClubIds.includes(clubId)
-    const newBudget = Number(currentClub?.budget || 0) + totalPrizeAwarded
-    const newTier = isPromoted ? Math.max(1, (currentClub?.league_tier || 5) - 1) : (currentClub?.league_tier || 5)
-    const newWageBudget = isPromoted 
-      ? Math.round(Number(currentClub?.wage_budget || 20000) * 1.8) // +80% por ascenso
-      : Math.round(Number(currentClub?.wage_budget || 20000) * 1.1)
-
-    // Actualizar club con premio e inyección presupuestaria
-    await supabase
-      .from('clubs')
-      .update({
-        budget: newBudget,
-        wage_budget: newWageBudget,
-        league_tier: newTier
-      })
-      .eq('id', clubId)
+    const userPosition = prize.position || (userClubIndex >= 0 ? userClubIndex + 1 : null)
+    const totalPrizeAwarded = Number(prize.total || 0)
+    const isPromoted = Boolean(prize.promoted) || promotedClubIds.includes(clubId)
+    const newBudget = Number(prize.new_budget || 0)
+    const newTier = prize.new_tier
+    const newWageBudget = Number(prize.new_wage_budget || 0)
 
     // Registrar hitos y crónica de hemeroteca institucional (Fase 36)
     if (championClub?.club_id === clubId) {

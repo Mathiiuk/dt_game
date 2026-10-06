@@ -117,5 +117,12 @@
     "category": "BEST_PRACTICE",
     "lesson": "El gate bdd_tests del manifiesto falla porque @cucumber/cucumber no está instalado y no existe el script test:bdd; los .feature generados quedan como plantilla.",
     "solution": "Hasta decidir instalarlo, las tareas se marcan bdd_tests:false y los .feature se escriben como documentación viva con escenarios reales."
+  },
+  {
+    "id": "LES-7846",
+    "timestamp": "2026-10-06T18:56:37.846Z",
+    "category": "BUG_FIX",
+    "lesson": "El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos.",
+    "solution": "Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real."
   }
 ]

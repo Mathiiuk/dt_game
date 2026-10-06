@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-06T18:39:41.997Z | **Nodos:** 469 | **Tareas:** 143
+> **Última sincronización:** 2026-10-06T18:56:38.134Z | **Nodos:** 473 | **Tareas:** 145
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -175,10 +175,12 @@ _(+176 módulos adicionales; consultar con `memory:query`)_
 - **rival-names: Rivales distintos en cada carrera** `[DONE]`
 - **rls-owner-nullable: La migracion RLS falla con filas existentes: owner_user_id nulo permitido** `[DONE]`
 - **season-league-isolation: Cierre de temporada solo de la liga del club** `[DONE]`
+- **season-prize-server: Premio de fin de temporada liquidado por el servidor** `[DONE]`
 - **server-results-f5: Resultados de copa y fechas FIFA decididos por el servidor** `[DONE]`
 - **stale-dashboard-after-actions: Pantallas desactualizadas tras resolver un evento o jugar un partido; texto de años del contrato** `[DONE]`
 - **story-arcs: Historias de 8 a 10 fechas con humor del futbol argentino** `[DONE]`
 - **vercel-spa-rewrites: Rewrites SPA en Vercel (404 en rutas profundas)** `[DONE]`
+- **weekly-finance-server: Cierre semanal de finanzas resuelto por el servidor** `[DONE]`
 
 ## 💡 Lecciones Aprendidas y Anti-Patrones a Evitar
 
@@ -199,3 +201,4 @@ _(+176 módulos adicionales; consultar con `memory:query`)_
 - **[ARCHITECTURE]** Todo movimiento de plata o resultado va en funciones SQL SECURITY INVOKER (respetan RLS por dueño) con la fórmula duplicada en domain/*.js y tests de paridad contra valores fijos de la base; el navegador solo propone montos. *(Solución: Probar cada función en la base real con un bloque DO que termina en RAISE EXCEPTION para deshacer; cerrar el camino directo (execute_transfer) para que no se saltee las reglas; triggers con GUC app.server_result para bloquear escrituras directas.)*
 - **[BUG_FIX]** Cuenta real en el navegador encontró lo que los 1000 tests no: mercado vacío (rivales sin plantel), pantallas desactualizadas tras resolver eventos (efecto con deps que no cambian) y caja vieja tras un partido. *(Solución: Después de cada tanda grande, recorrer el flujo con la cuenta real; consultar la base con SQL para confirmar lo que el navegador muestra; refrescar contexto al volver de pantallas que escriben.)*
 - **[BEST_PRACTICE]** El gate bdd_tests del manifiesto falla porque @cucumber/cucumber no está instalado y no existe el script test:bdd; los .feature generados quedan como plantilla. *(Solución: Hasta decidir instalarlo, las tareas se marcan bdd_tests:false y los .feature se escriben como documentación viva con escenarios reales.)*
+- **[BUG_FIX]** El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos. *(Solución: Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real.)*
