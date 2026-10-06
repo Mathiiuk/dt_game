@@ -5,6 +5,7 @@ import { climateApi } from '../../api/climate'
 import { climateVisibility, CLIMATE, DIFFICULTY } from '../../domain/consequences'
 import { BARRA_LABELS, climateHeadline } from '../../domain/barra'
 import { absoluteWeek } from '../../domain/gameWeek'
+import { ensureCharacters } from '../../domain/characters'
 import { formatMoney } from '../../lib/format'
 import { friendlyError } from '../../lib/errors'
 import { Badge, Card, CardBody, CardHeader, CardTitle, Progress, Segmented } from '../../components/ui'
@@ -91,7 +92,7 @@ export function ClimatePanel({ club, gameDate }) {
         {visible.pressure && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-fg-muted">
             <span>Presión: <span className="num font-semibold text-fg">{state?.pressure ?? 0}</span></span>
-            <span>Barra: <span className="font-semibold text-fg">{BARRA_LABELS[stage]}</span></span>
+            <span>Barra: <span className="font-semibold text-fg">{BARRA_LABELS[stage]}</span>{stage !== 'CALM' && <span> · la lidera {ensureCharacters(state?.characters, club.id).barra.name}{(state?.characters?.barra?.times || 0) > 1 ? `, que ya vino ${state.characters.barra.times} veces` : ''}</span>}</span>
             {state?.suspended_matches > 0 && <Badge tone="danger">Suspendido {state.suspended_matches} partido(s)</Badge>}
           </div>
         )}

@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
 import { CLIMATE_EVENTS } from '../domain/climateEvents'
+import { renderTemplate, ensureCharacters } from '../domain/characters'
 import { eventProbability, pickEvent } from '../domain/barra'
 
 export const DYNAMIC_EVENTS_CATALOG = [
@@ -438,7 +439,10 @@ export const eventsApi = {
    * Inserta un evento a partir de una plantilla, salvo que ya haya uno igual pendiente.
    * Devuelve true si lo creó.
    */
-  async createFromTemplate(template, { clubId, managerId = null, careerId = null, week = 1 }) {
+  async createFromTemplate(rawTemplate, { clubId, managerId = null, careerId = null, week = 1, characters = null, memory = '' }) {
+    // Los textos nombran a los personajes del club (la barra, el presidente, el periodista) y recuerdan lo que pasó
+    const rendered = renderTemplate(rawTemplate, characters)
+    const template = memory ? { ...rendered, description: `${rendered.description} ${memory}` } : rendered
     const pending = await this.getPendingEvents(clubId)
     if (pending.some(p => p.template_code === template.template_code)) return false
 
@@ -498,6 +502,6 @@ export const eventsApi = {
     })
     if (!selected) return
 
-    await this.createFromTemplate(selected, { clubId, managerId, careerId, week: currentWeek })
+    await this.createFromTemplate(selected, { clubId, managerId, careerId, week: currentWeek, characters: ensureCharacters(state.characters, clubId) })
   }
 }

@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { answerConsequences, outcomeOf, skipPress } from '../domain/press'
+import { ensureCharacters, rumorBoost } from '../domain/characters'
 import { climateApi } from './climate'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 import { queryCache } from '../utils/cache'
@@ -332,6 +333,8 @@ export const pressApi = {
     const isFinished = !pending || pending.length === 0
 
     if (isFinished) {
+      // Dar la cara aplaca al periodista (el rencor baja un punto)
+      if (clubId) climateApi.adjustJournalistGrudge(clubId, -1).catch(() => {})
       await supabase
         .from('press_conferences')
         .update({
@@ -411,9 +414,15 @@ export const pressApi = {
     const outcome = outcomeOf(results)
     const mine = results.isHome ? results.homeScore : results.awayScore
     const theirs = results.isHome ? results.awayScore : results.homeScore
-    const { data: club } = await supabase.from('clubs').select('budget, board_confidence').eq('id', clubId).single()
+    const [{ data: club }, climateState] = await Promise.all([
+      supabase.from('clubs').select('budget, board_confidence').eq('id', clubId).single(),
+      climateApi.getState(clubId)
+    ])
+    // El periodista recuerda si lo dejaste plantado: con rencor, el rumor es más probable
+    const characters = ensureCharacters(climateState.characters, clubId)
 
-    const skip = skipPress({ outcome, goalDiff: mine - theirs, boardConfidence: club?.board_confidence ?? 50 }, climateApi.difficulty, rng)
+    const skip = skipPress({ outcome, goalDiff: mine - theirs, boardConfidence: club?.board_confidence ?? 50, rumorBoost: rumorBoost(characters) }, climateApi.difficulty, rng)
+    if (skip.kind === 'RUMOR') skip.message = `${characters.journalist.name}, de ${characters.journalist.outlet}, escribió sobre tu silencio. ${skip.message}`
 
     await supabase
       .from('press_conferences')
@@ -440,6 +449,7 @@ export const pressApi = {
       effects: { fans: skip.fans, board: skip.board, notes: [skip.message] }
     })
 
+    await climateApi.adjustJournalistGrudge(clubId, 1)
     return { ...skip, outcome }
   },
 

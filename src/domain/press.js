@@ -37,7 +37,7 @@ export function pressFine({ outcome, goalDiff = 0, boardConfidence = 50 }) {
  * Probabilidades: derrota 55% rumor / 35% nada / 10% la hinchada lo entiende; empate 35% molestia / 65% nada;
  * victoria 50% soberbia / 50% nada.
  */
-export function skipPress({ outcome, goalDiff = 0, boardConfidence = 50 }, difficulty = DIFFICULTY.NORMAL, rng = Math.random) {
+export function skipPress({ outcome, goalDiff = 0, boardConfidence = 50, rumorBoost = 0 }, difficulty = DIFFICULTY.NORMAL, rng = Math.random) {
   const { fine, covered } = pressFine({ outcome, goalDiff, boardConfidence })
   const roll = rng()
   let kind = 'NOTHING'
@@ -47,7 +47,9 @@ export function skipPress({ outcome, goalDiff = 0, boardConfidence = 50 }, diffi
 
   if (outcome === 'L') {
     fans -= 1
-    if (roll < 0.55) {
+    // Con rencor del periodista el rumor es más probable; la chance de que la hinchada lo entienda no cambia (10%)
+    const rumorLimit = Math.min(0.9, 0.55 + rumorBoost)
+    if (roll < rumorLimit) {
       kind = 'RUMOR'
       fans -= 2
       board -= 3

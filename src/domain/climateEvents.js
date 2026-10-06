@@ -44,7 +44,7 @@ export const BARRA_EVENTS = {
   ASKS: {
     template_code: 'EVT_BARRA_ASKS',
     title: 'Piden entradas y plata para el viaje',
-    description: 'Dos referentes de la barra te esperan a la salida del entrenamiento. Educados, sin levantar la voz. Piden entradas para el domingo y algo para el micro de visitante. "Entre todos hacemos el club", te dicen, y se quedan mirando cómo respondés.',
+    description: '{Barra} y otro referente de la barra te esperan a la salida del entrenamiento. Educados, sin levantar la voz. Piden entradas para el domingo y algo para el micro de visitante. "Entre todos hacemos el club", te dicen, y se quedan mirando cómo respondés.',
     category: 'COMMUNITY',
     severity: 'MEDIUM',
     options: barraOptions({
@@ -57,7 +57,7 @@ export const BARRA_EVENTS = {
   PRESSURES: {
     template_code: 'EVT_BARRA_PRESSURES',
     title: 'Un banderazo en la puerta del predio',
-    description: 'Sábado a la mañana. Hay una bandera colgada en el alambrado: "Cambien o se van". Un grupo mira el entrenamiento desde afuera. No gritan. Uno de ellos te saluda con la cabeza.',
+    description: 'Sábado a la mañana. Hay una bandera colgada en el alambrado: "Cambien o se van". Un grupo mira el entrenamiento desde afuera. No gritan. {Barra} te saluda con la cabeza.',
     category: 'COMMUNITY',
     severity: 'HIGH',
     options: barraOptions({
@@ -70,7 +70,7 @@ export const BARRA_EVENTS = {
   SQUEEZES: {
     template_code: 'EVT_BARRA_SQUEEZES',
     title: 'Aparecieron en el entrenamiento',
-    description: 'Veinte tipos esperan en la puerta del predio. Pasan al campo mientras el plantel hace los pases. Uno le dice a un pibe, en voz baja: "Cambien, o no cobran". Los jugadores terminan la práctica sin mirar a nadie.',
+    description: 'Veinte tipos esperan en la puerta del predio, con {barra} al frente. Pasan al campo mientras el plantel hace los pases. Uno le dice a un pibe, en voz baja: "Cambien, o no cobran". Los jugadores terminan la práctica sin mirar a nadie.',
     category: 'LOCKER_ROOM',
     severity: 'CRITICAL',
     options: barraOptions({
@@ -83,7 +83,7 @@ export const BARRA_EVENTS = {
   INVASION: {
     template_code: 'EVT_BARRA_INVASION',
     title: 'Entraron al vestuario después del partido',
-    description: 'Todavía no se habían sacado las camisetas cuando se abrió la puerta. Entraron sin golpear. Hablaron con dos jugadores, mirándolos de cerca. Te pidieron que salgas. Saliste.',
+    description: 'Todavía no se habían sacado las camisetas cuando se abrió la puerta. Entraron sin golpear. Hablaron con dos jugadores, mirándolos de cerca. {Barra} te pidió que salgas. Saliste.',
     category: 'LOCKER_ROOM',
     severity: 'CRITICAL',
     options: barraOptions({
@@ -98,7 +98,7 @@ export const BARRA_EVENTS = {
 export const EMERGENCY_MEETING = {
   template_code: 'EVT_EMERGENCY_MEETING',
   title: 'Reunión de emergencia con la dirigencia',
-  description: 'El presidente te cita un domingo a la noche, en su oficina. Están todos. Nadie te ofrece un café. "La situación se nos fue de las manos", dice. "Necesitamos que hagas algo, o hacemos nosotros."',
+  description: '{presidente} te cita un domingo a la noche, en su oficina. Están todos. Nadie te ofrece un café. "La situación se nos fue de las manos", dice. "Necesitamos que hagas algo, o hacemos nosotros."',
   category: 'BOARD_PRESS',
   severity: 'CRITICAL',
   options: [
@@ -128,8 +128,8 @@ export const EMERGENCY_MEETING = {
 
 export const BOARD_FAVOR_DUE = {
   template_code: 'EVT_BOARD_FAVOR_DUE',
-  title: 'El presidente te cobra el favor',
-  description: 'Hace unas semanas la dirigencia te sacó un problema de encima. Hoy el presidente te llama al pasillo. "Necesito un favor chiquito", te dice, y te pide que su sobrino juegue algunos minutos.',
+  title: '{presidente} te cobra el favor',
+  description: 'Hace unas semanas la dirigencia te sacó un problema de encima. Hoy {presidente} te llama al pasillo. "Necesito un favor chiquito", te dice, y te pide que su sobrino juegue algunos minutos.',
   category: 'BOARD_PRESS',
   severity: 'MEDIUM',
   options: [
@@ -237,8 +237,8 @@ export const CLIMATE_EVENTS = [
   // Crisis
   {
     template_code: 'EVT_PRESIDENT_SQUEEZE',
-    title: 'El presidente te pide resultados esta semana',
-    description: 'Te cita en su oficina. Hay un café sobre el escritorio pero no te invita a sentarte. Repasa los últimos partidos en voz baja y termina con una frase: "Necesitamos otra cosa del equipo".',
+    title: '{presidente} te pide resultados esta semana',
+    description: '{presidente} te cita en su oficina. Hay un café sobre el escritorio pero no te invita a sentarte. Repasa los últimos partidos en voz baja y termina con una frase: "Necesitamos otra cosa del equipo".',
     category: 'BOARD_PRESS',
     severity: 'HIGH',
     climates: ['CRISIS', 'CHAOS'],
@@ -252,7 +252,7 @@ export const CLIMATE_EVENTS = [
   {
     template_code: 'EVT_DISMISSAL_RUMOR',
     title: 'Dicen que te van a echar',
-    description: 'Un periodista deportivo de la zona publicó que la dirigencia ya habla con otro técnico. No dio fuentes, pero en el club nadie lo desmintió.',
+    description: '{periodista}, de {medio}, publicó que la dirigencia ya habla con otro técnico. No dio fuentes, pero en el club nadie lo desmintió.',
     category: 'BOARD_PRESS',
     severity: 'MEDIUM',
     climates: ['CRISIS', 'CHAOS'],

@@ -6,7 +6,9 @@ const applied = []
 vi.mock('../../src/api/climate', () => ({
   climateApi: {
     difficulty: { key: 'NORMAL', label: 'Normal', negative: 1, positive: 1 },
-    applySquadConsequence: vi.fn(async (args) => { applied.push(args) })
+    applySquadConsequence: vi.fn(async (args) => { applied.push(args) }),
+    getState: vi.fn(async () => ({ characters: state.characters || {} })),
+    adjustJournalistGrudge: vi.fn(async (clubId, delta) => { state.grudgeCalls = [...(state.grudgeCalls || []), delta] })
   }
 }))
 
@@ -97,8 +99,44 @@ describe('responder en la conferencia', () => {
     expect(applied[0].effects).toMatchObject({ fans: 1, board: 2 })
   })
 
+  it('al terminar la conferencia respondiendo, el rencor del periodista baja un punto', async () => {
+    state.grudgeCalls = []
+    await pressApi.submitAnswer({ conferenceId: 'k1', questionId: 'q1', chosenTone: 'PRAISING', answerText: 'Gracias', moraleImpact: 1, clubId: 'c1' })
+    expect(state.grudgeCalls).toEqual([-1])
+  })
+
   it('sin resultado conocido solo se mueve la moral', async () => {
     await pressApi.submitAnswer({ conferenceId: 'k1', questionId: 'q1', chosenTone: 'PRAISING', answerText: 'Gracias', moraleImpact: 3, clubId: 'c1' })
     expect(applied).toHaveLength(0)
+  })
+
+  it('omitir deja rencor en el periodista, y dar la cara lo aplaca', async () => {
+    state.grudgeCalls = []
+    await pressApi.skipConference({ conferenceId: 'k1', clubId: 'c1', results: lost, rng: () => 0.7 })
+    expect(state.grudgeCalls).toEqual([1])
+  })
+})
+
+describe('el periodista recuerda', () => {
+  beforeEach(() => {
+    writes.length = 0
+    applied.length = 0
+    state.status = 'IN_PROGRESS'
+    state.board = 50
+  })
+
+  it('con rencor acumulado, la misma tirada que antes era "nada" ahora termina en rumor, nombrando al periodista', async () => {
+    state.characters = { journalist: { name: 'Pepe Cabrera', outlet: 'Radio del Barrio', grudge: 4 } }
+    // 0,6 era "nada" (55% de rumor); con 4 puntos de rencor el umbral sube al 75%
+    const res = await pressApi.skipConference({ conferenceId: 'k1', clubId: 'c1', results: lost, rng: () => 0.6 })
+    expect(res.kind).toBe('RUMOR')
+    expect(res.message).toMatch(/Pepe Cabrera, de Radio del Barrio/)
+    state.characters = null
+  })
+
+  it('sin rencor, esa misma tirada no pasa nada', async () => {
+    state.characters = null
+    const res = await pressApi.skipConference({ conferenceId: 'k1', clubId: 'c1', results: lost, rng: () => 0.6 })
+    expect(res.kind).toBe('NOTHING')
   })
 })

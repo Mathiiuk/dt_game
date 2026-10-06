@@ -8,6 +8,7 @@ import { shouldReactivateWarnings } from '../domain/warnings'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 import { wageInequities, benchComplainers, trainingLoad } from '../domain/squadConsequences'
 import { detectCombos } from '../domain/combos'
+import { ensureCharacters, rememberBarraVisit, adjustGrudge } from '../domain/characters'
 import { countBySource } from '../domain/seasonStory'
 
 const sign = (n) => (n > 0 ? `+${n}` : String(n))
@@ -233,6 +234,15 @@ export const climateApi = {
     return aggrieved.length
   },
 
+  /** Ajusta el rencor del periodista (positivo si le diste la espalda, negativo si diste la cara) y lo guarda */
+  async adjustJournalistGrudge(clubId, delta) {
+    const state = await this.getState(clubId)
+    const characters = adjustGrudge(ensureCharacters(state.characters, clubId), delta)
+    await this.saveState(clubId, { characters })
+    queryCache.invalidate(`climate:${clubId}`)
+    return characters.journalist.grudge
+  },
+
   /** Suplentes sin minutos en los últimos partidos: reclaman y pierden moral (-3) */
   async applyBenchComplaints({ clubId, gameDate = null, players = [], fixtureIds = [] }) {
     const recent = fixtureIds.slice(-4)
@@ -261,7 +271,7 @@ export const climateApi = {
   /** Estado del clima del club (valores por defecto si todavía no hay fila) */
   async getState(clubId) {
     const { data } = await supabase.from('club_climate').select('*').eq('club_id', clubId).maybeSingle()
-    return data || { club_id: clubId, pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0, difficulty: 'NORMAL', muted_warnings: {} }
+    return data || { club_id: clubId, pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0, difficulty: 'NORMAL', muted_warnings: {}, characters: {} }
   },
 
   async saveState(clubId, patch) {
@@ -343,18 +353,24 @@ export const climateApi = {
     }
 
     // Guardar el estado, el efecto de la barra y la creación de eventos no dependen entre sí
+    // Personajes del club: se sortean la primera vez y la barra recuerda cuántas veces vino
+    let characters = ensureCharacters(state.characters, clubId)
     const eventTemplates = []
     if (!dismissed) {
-      if (BARRA_STAGES.indexOf(stage) > BARRA_STAGES.indexOf(previousStage) && stage !== 'CALM') eventTemplates.push(BARRA_EVENTS[stage])
-      if (stage === 'INVASION' && (board?.confidence_score ?? 70) < 40) eventTemplates.push(EMERGENCY_MEETING)
-      if (state.board_owed > 0 && climate !== 'FLOWS' && Math.random() < 0.5) eventTemplates.push(BOARD_FAVOR_DUE)
+      if (BARRA_STAGES.indexOf(stage) > BARRA_STAGES.indexOf(previousStage) && stage !== 'CALM') {
+        const visit = rememberBarraVisit(characters)
+        characters = visit.characters
+        eventTemplates.push({ template: BARRA_EVENTS[stage], memory: visit.memory })
+      }
+      if (stage === 'INVASION' && (board?.confidence_score ?? 70) < 40) eventTemplates.push({ template: EMERGENCY_MEETING })
+      if (state.board_owed > 0 && climate !== 'FLOWS' && Math.random() < 0.5) eventTemplates.push({ template: BOARD_FAVOR_DUE })
     }
+    patch.characters = characters
     const { eventsApi } = eventTemplates.length ? await import('./events') : { eventsApi: null }
-    const ctx = { clubId, managerId, careerId, week }
     const [, , ...createdFlags] = await Promise.all([
       this.saveState(clubId, patch),
       weeklyEffect,
-      ...eventTemplates.map(t => eventsApi.createFromTemplate(t, ctx))
+      ...eventTemplates.map(({ template, memory }) => eventsApi.createFromTemplate(template, { clubId, managerId, careerId, week, characters, memory }))
     ])
     const created = createdFlags
 

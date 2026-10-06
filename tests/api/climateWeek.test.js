@@ -2,6 +2,7 @@
 const state = {}
 const writes = []
 const created = []
+const createdCtx = []
 
 vi.mock('../../src/api/morale', () => ({
   moraleApi: { getStreaks: vi.fn(async () => state.streaks) }
@@ -12,7 +13,7 @@ vi.mock('../../src/api/finances', () => ({
 }))
 
 vi.mock('../../src/api/events', () => ({
-  eventsApi: { createFromTemplate: vi.fn(async (template) => { created.push(template.template_code); return true }) }
+  eventsApi: { createFromTemplate: vi.fn(async (template, ctx) => { created.push(template.template_code); createdCtx.push(ctx); return true }) }
 }))
 
 const dismissals = []
@@ -60,6 +61,7 @@ describe('cierre semanal del clima', () => {
   beforeEach(() => {
     writes.length = 0
     created.length = 0
+    createdCtx.length = 0
     dismissals.length = 0
     resigned.length = 0
     state.club = { fans_confidence: 20, budget: 3000 }
@@ -226,6 +228,54 @@ describe('avisos silenciados y dificultad', () => {
     expect(climateApi.difficulty.negative).toBe(1.3)
     expect(upsert().difficulty).toBe('REALISTIC')
     climateApi.setDifficulty('NORMAL')
+  })
+})
+
+describe('personajes del club en el cierre semanal', () => {
+  beforeEach(() => {
+    writes.length = 0
+    created.length = 0
+    createdCtx.length = 0
+    state.club = { fans_confidence: 20, budget: 3000 }
+    state.board = { sports_satisfaction: 30, confidence_score: 50, financial_satisfaction: 70, squad_satisfaction: 70 }
+    state.climate = { club_id: 'c1', pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0, difficulty: 'NORMAL', muted_warnings: {}, characters: {} }
+    state.streaks = { results: ['L', 'L', 'L', 'L'], fixtureIds: [], win: 0, loss: 4, unbeaten: 0, winless: 4 }
+    vi.spyOn(Math, 'random').mockReturnValue(0.99)
+  })
+
+  afterEach(() => vi.restoreAllMocks())
+
+  it('la primera vez se sortean los personajes, se guardan y el evento los nombra sin recordar nada', async () => {
+    await climateApi.advanceWeek({ clubId: 'c1', managerId: 'm1', week: 10 })
+    const saved = upsert().characters
+    expect(saved.barra.name).toBeTruthy()
+    expect(saved.barra.times).toBe(1)
+    expect(createdCtx[0].characters.barra.name).toBe(saved.barra.name)
+    expect(createdCtx[0].memory).toBe('')
+  })
+
+  it('cuando la barra vuelve, el evento recuerda las veces anteriores', async () => {
+    state.climate.characters = { barra: { name: 'el Oso', times: 1 } }
+    await climateApi.advanceWeek({ clubId: 'c1', managerId: 'm1', week: 10 })
+    expect(upsert().characters.barra).toEqual({ name: 'el Oso', times: 2 })
+    expect(createdCtx[0].memory).toMatch(/El Oso ya vino antes/)
+  })
+
+  it('si la barra no aparece, no suma visitas pero los personajes igual quedan guardados', async () => {
+    state.club = { fans_confidence: 90, budget: 30000 }
+    state.board = { sports_satisfaction: 85, confidence_score: 85, financial_satisfaction: 80, squad_satisfaction: 80 }
+    state.streaks = { results: ['W', 'W', 'W'], fixtureIds: [], win: 3, loss: 0, unbeaten: 3, winless: 0 }
+    state.climate.characters = { barra: { name: 'el Gringo', times: 2 } }
+    await climateApi.advanceWeek({ clubId: 'c1', managerId: 'm1', week: 10 })
+    expect(upsert().characters.barra).toEqual({ name: 'el Gringo', times: 2 })
+    expect(created).toEqual([])
+  })
+
+  it('el rencor del periodista se ajusta y se guarda dentro de los personajes', async () => {
+    state.climate.characters = { journalist: { name: 'Pepe Cabrera', outlet: 'Radio del Barrio', grudge: 1 } }
+    expect(await climateApi.adjustJournalistGrudge('c1', 1)).toBe(2)
+    expect(upsert().characters.journalist.grudge).toBe(2)
+    expect(await climateApi.adjustJournalistGrudge('c1', -5)).toBe(0)
   })
 })
 
