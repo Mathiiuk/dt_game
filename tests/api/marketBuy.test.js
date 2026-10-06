@@ -2,8 +2,12 @@
 const state = { rpc: [], rpcResult: null, writes: [], players: [] }
 
 vi.mock('../../src/api/audit', () => ({ auditApi: { logAction: vi.fn(async () => {}) } }))
-vi.mock('../../src/api/finances', () => ({ financesApi: { getFinances: vi.fn(async () => ({ expenses: { total: 500 } })) } }))
-vi.mock('../../src/api/climate', () => ({ climateApi: { difficulty: { key: 'NORMAL' }, applySquadConsequence: vi.fn(async (args) => { state.consequence = args }) } }))
+const finance = { expenses: { total: 500 }, wageOverBudget: false }
+vi.mock('../../src/api/finances', () => ({ financesApi: { getFinances: vi.fn(async () => finance) } }))
+vi.mock('../../src/api/climate', async () => {
+  const { DIFFICULTY } = await import('../../src/domain/consequences')
+  return { climateApi: { difficulty: DIFFICULTY.NORMAL, applySquadConsequence: vi.fn(async (args) => { state.consequence = args }) } }
+})
 
 vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
@@ -43,6 +47,14 @@ describe('negociación y fichajes resueltos por el servidor', () => {
     state.rpcResult = () => ({ data: null, error: { message: 'El Racing rechazó la propuesta de $1. Piden al menos $4000.' } })
     await expect(marketApi.negotiate('c1', 'p1', 1, 1, 'm1')).rejects.toThrow(/Piden al menos/)
     expect(state.consequence).toBeNull()
+  })
+
+  it('si con el sueldo del fichaje la masa salarial se pasa del presupuesto, la dirigencia lo anota', async () => {
+    finance.wageOverBudget = true
+    await marketApi.negotiate('c1', 'p1', 6000, 1, 'm1')
+    finance.wageOverBudget = false
+    expect(state.consequence.effects.board).toBeLessThan(0)
+    expect(state.consequence.effects.notes.join(' ')).toMatch(/presupuesto salarial/)
   })
 
   it('una contraoferta o un rechazo no cuestan nada ni generan consecuencias: se devuelve la respuesta del club', async () => {

@@ -14,7 +14,7 @@ const PLANS = [
  * contraoferta de la segunda es final. Se puede pagar de contado o en 3 cuotas (40% hoy y dos cuotas semanales, con 8% más).
  * `onSubmit(monto, cuotas)` devuelve la respuesta del club (o null si el DT desistió del aviso previo).
  */
-export default function OfferModal({ player, budget, onClose, onSubmit, processing = false }) {
+export default function OfferModal({ player, budget, wageInfo = null, onClose, onSubmit, processing = false }) {
   const asking = player.asking_price || player.market_value || 0
   const [installments, setInstallments] = useState(1)
   const [amount, setAmount] = useState(String(asking || 5000))
@@ -104,6 +104,17 @@ export default function OfferModal({ player, budget, onClose, onSubmit, processi
             <Stat label="Tu presupuesto" value={formatMoney(budget)} valueClassName="text-2xl text-accent" />
           </CardBody>
         </Card>
+
+        {wageInfo && (
+          <p className="text-xs text-fg-muted" data-testid="wage-info">
+            Si llega, cobra {formatMoney(wageInfo.newWage)} por semana (contrato de 3 años).
+            {wageInfo.budget > 0 && (
+              wageInfo.payroll + wageInfo.newWage > wageInfo.budget
+                ? <strong className="text-warning"> Con él la masa salarial pasa a {formatMoney(wageInfo.payroll + wageInfo.newWage)} y te pasás del presupuesto de {formatMoney(wageInfo.budget)}.</strong>
+                : ` La masa salarial quedaría en ${formatMoney(wageInfo.payroll + wageInfo.newWage)} de ${formatMoney(wageInfo.budget)}.`
+            )}
+          </p>
+        )}
 
         <div role="radiogroup" aria-label="Forma de pago" className="flex gap-2">
           {PLANS.map(plan => (

@@ -105,4 +105,21 @@ describe('negociación del fichaje', () => {
     await userEvent.click(within(dlg).getByRole('button', { name: /Enviar oferta/ }))
     expect(within(dlg).getByLabelText('Monto de la oferta')).toBeInTheDocument()
   })
+
+  it('muestra el sueldo que cobraría y cómo queda la masa salarial', () => {
+    const { dlg } = setup([], { wageInfo: { newWage: 122, payroll: 2500, budget: 3500 } })
+    const info = within(dlg).getByTestId('wage-info')
+    expect(info).toHaveTextContent(/cobra \$\s?122 por semana/)
+    expect(info).toHaveTextContent(/queda?ría en \$\s?2\.622 de \$\s?3\.500/)
+  })
+
+  it('avisa cuando el sueldo te pasa del presupuesto salarial', () => {
+    const { dlg } = setup([], { wageInfo: { newWage: 400, payroll: 3300, budget: 3500 } })
+    expect(within(dlg).getByTestId('wage-info')).toHaveTextContent(/te pasás del presupuesto/)
+  })
+
+  it('sin datos de la masa salarial no muestra nada', () => {
+    const { dlg } = setup([])
+    expect(within(dlg).queryByTestId('wage-info')).toBeNull()
+  })
 })

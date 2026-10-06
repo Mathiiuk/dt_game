@@ -45,10 +45,17 @@ export function trainingRisk({ consecutiveHigh = 0, avgFitness = 75, matchInDays
 }
 
 /** Vender al ídolo o al capitán cae mal en la tribuna y en el vestuario */
-export function saleConsequences({ isIdol = false, isCaptain = false }, difficulty = DIFFICULTY.NORMAL) {
+export function saleConsequences({ isIdol = false, isCaptain = false, fee = 0, balance = null, weeklyExpenses = 0 }, difficulty = DIFFICULTY.NORMAL) {
   let fans = 0
   let locker = 0
+  let board = 0
   const notes = []
+  // Vender con la caja en apuros alivia a la dirigencia, pero la tribuna lo vive como una venta de urgencia
+  if (fee > 0 && balance !== null && weeklyExpenses > 0 && balance < weeklyExpenses * 6) {
+    board += 2
+    fans -= 1
+    notes.push('Vendiste con la caja en apuros: la dirigencia respira y la tribuna lo ve como una venta de urgencia.')
+  }
   if (isIdol) {
     fans -= 8
     locker -= 6
@@ -59,22 +66,32 @@ export function saleConsequences({ isIdol = false, isCaptain = false }, difficul
     fans -= isIdol ? 0 : 1
     notes.push('El capitán se fue y el vestuario se queda sin referente.')
   }
-  return { fans: scaleEffect(fans, difficulty), locker: scaleEffect(locker, difficulty), notes }
+  return { fans: scaleEffect(fans, difficulty), locker: scaleEffect(locker, difficulty), board: scaleEffect(board, difficulty), notes }
 }
 
 /**
  * Fichaje: pagar mucho más que el valor molesta a la dirigencia, y quedar sin caja para sostener los sueldos
  * es peor. `weeklyExpenses` es el gasto semanal fijo del club.
  */
-export function purchaseConsequences({ fee, marketValue, balance, weeklyExpenses = 0 }, difficulty = DIFFICULTY.NORMAL) {
+export function purchaseConsequences({ fee, marketValue, balance, weeklyExpenses = 0, installments = 1, wageOverBudget = false }, difficulty = DIFFICULTY.NORMAL) {
   let board = 0
   const notes = []
+  // En cuotas hoy se paga el 40%; lo que se debe después también pesa si la caja no lo cubre
+  const paidToday = installments === 3 ? fee * 0.4 : fee
+  if (installments === 3 && balance - paidToday < fee * 0.6) {
+    board -= 1
+    notes.push('Fichás en cuotas con una caja que no cubre lo que queda por pagar.')
+  }
+  if (wageOverBudget) {
+    board -= 2
+    notes.push('El sueldo del nuevo jugador te pasa del presupuesto salarial.')
+  }
   if (marketValue > 0 && fee > marketValue * 1.2) {
     board -= 3
     notes.push('Pagaste muy por encima del valor del jugador: en el palco no cayó bien.')
   }
-  const remaining = balance - fee
-  if (balance > 0 && fee > balance * 0.4 && remaining < weeklyExpenses * 6) {
+  const remaining = balance - paidToday
+  if (balance > 0 && paidToday > balance * 0.4 && remaining < weeklyExpenses * 6) {
     board -= 5
     notes.push('El fichaje te dejó con la caja flaca: no alcanza para sostener seis semanas de gastos.')
   }

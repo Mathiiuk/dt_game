@@ -73,8 +73,8 @@ export function saleWarning({ isIdol = false, isCaptain = false, playerName = 'E
   )
 }
 
-export function purchaseWarning({ fee, marketValue, balance, weeklyExpenses = 0 }, difficulty = DIFFICULTY.NORMAL) {
-  const effects = purchaseConsequences({ fee, marketValue, balance, weeklyExpenses }, difficulty)
+export function purchaseWarning({ fee, marketValue, balance, weeklyExpenses = 0, installments = 1, wageOverBudget = false }, difficulty = DIFFICULTY.NORMAL) {
+  const effects = purchaseConsequences({ fee, marketValue, balance, weeklyExpenses, installments, wageOverBudget }, difficulty)
   if (!effects.board) return null
   return make(
     WARNING_KEYS.EXPENSIVE_SIGNING,

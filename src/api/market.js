@@ -165,12 +165,22 @@ export const marketApi = {
       const { financesApi } = await import('./finances')
       const { climateApi } = await import('./climate')
       const { purchaseConsequences } = await import('../domain/squadConsequences')
+      // La plantilla cambió: se vuelve a leer la masa salarial con el sueldo del fichaje
+      queryCache.invalidate(`finances:${buyerClubId}`)
       const finances = await financesApi.getFinances(buyerClubId)
       await climateApi.applySquadConsequence({
         clubId: buyerClubId,
         source: 'PURCHASE',
         gameDate: data.game_date,
-        effects: purchaseConsequences({ fee: data.price, marketValue: data.asking, balance: Number(data.buyer_budget_before), weeklyExpenses: finances?.expenses?.total || 0 }, climateApi.difficulty)
+        effects: purchaseConsequences({
+          fee: data.price,
+          marketValue: data.asking,
+          balance: Number(data.buyer_budget_before),
+          weeklyExpenses: finances?.expenses?.total || 0,
+          installments: data.installments,
+          // El club ya tiene al jugador con su sueldo nuevo: si la masa salarial se pasó del presupuesto, la dirigencia lo nota
+          wageOverBudget: Boolean(finances?.wageOverBudget)
+        }, climateApi.difficulty)
       })
     } catch (climateErr) {
       console.warn('Aviso: no se pudieron aplicar las consecuencias del fichaje:', climateErr)

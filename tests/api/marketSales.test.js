@@ -1,6 +1,8 @@
 // Ventas: el traspaso de un jugador de tu club lo resuelve la base; el navegador no manda monto ni clubes
 const state = { rpc: [], rpcResult: null, consequence: null }
 
+const finance = { expenses: { total: 1000 } }
+vi.mock('../../src/api/finances', () => ({ financesApi: { getFinances: vi.fn(async () => finance) } }))
 vi.mock('../../src/api/audit', () => ({ auditApi: { logAction: vi.fn(async () => {}) } }))
 vi.mock('../../src/api/climate', async () => {
   const { DIFFICULTY } = await import('../../src/domain/consequences')
@@ -46,6 +48,14 @@ describe('ventas resueltas por el servidor', () => {
     const res = await contractApi.resolveOffer('o1', 'COUNTER', 'p1', 'ai', 'c1', 10000, 'm1', { counterAmount: 50000 })
     expect(res.status).toBe('REJECTED')
     expect(state.consequence).toMatchObject({ source: 'SALE' }) // la del primer intento: la rechazada no suma otra
+  })
+
+  it('vender con la caja en apuros alivia a la dirigencia (caja de antes de cobrar la venta)', async () => {
+    // Caja nueva $6.000 con $4.000 de reinversión: antes había $2.000 contra gastos de $1.000 por semana
+    state.rpcResult = () => ({ data: { status: 'ACCEPTED', amount: 5000, reinvestment: 4000, player_id: 'p1', new_budget: 6000, game_date: '2026-07-01' }, error: null })
+    await contractApi.resolveOffer('o1', 'ACCEPTED', 'p1', 'ai', 'c1', 5000, 'm1')
+    expect(state.consequence.effects.board).toBeGreaterThan(0)
+    expect(state.consequence.effects.notes.join(' ')).toMatch(/caja en apuros/)
   })
 
   it('rechazar no mueve nada ni genera consecuencias de venta', async () => {

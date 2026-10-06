@@ -268,11 +268,20 @@ export const contractApi = {
       ])
       const { climateApi } = await import('./climate')
       const { saleConsequences } = await import('../domain/squadConsequences')
+      const { financesApi } = await import('./finances')
+      const finances = await financesApi.getFinances(clubId).catch(() => null)
       await climateApi.applySquadConsequence({
         clubId,
         source: 'SALE',
         gameDate: data.game_date,
-        effects: saleConsequences({ isIdol: Boolean(sold?.is_idol), isCaptain: locker?.captain_player_id === data.player_id }, climateApi.difficulty)
+        effects: saleConsequences({
+          isIdol: Boolean(sold?.is_idol),
+          isCaptain: locker?.captain_player_id === data.player_id,
+          fee: data.amount,
+          // Caja de antes de cobrar la venta: si ya estaba en apuros, vender alivia a la dirigencia
+          balance: finances ? Number(data.new_budget) - Number(data.reinvestment) : null,
+          weeklyExpenses: finances?.expenses?.total || 0
+        }, climateApi.difficulty)
       })
     } catch (climateErr) {
       console.warn('Aviso: no se pudieron aplicar las consecuencias de la venta:', climateErr)

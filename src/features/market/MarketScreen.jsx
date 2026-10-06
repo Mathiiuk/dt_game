@@ -19,6 +19,7 @@ import { financesApi } from '../../api/finances'
 import { climateApi } from '../../api/climate'
 import { purchaseWarning } from '../../domain/warnings'
 import { askRisk } from '../../lib/risk'
+import { playerDemands } from '../../domain/contractDemands'
 
 const levelOf = (p) => p.attr_overall || p.overall || 0
 
@@ -38,6 +39,8 @@ export default function MarketScreen() {
   const [onlyAffordable, setOnlyAffordable] = useState(false)
 
   const [offerPlayer, setOfferPlayer] = useState(null)
+  // Sueldo que cobraría el jugador y cómo queda la masa salarial con él: se calcula al abrir la negociación
+  const [wageInfo, setWageInfo] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
   const budget = Number(club?.budget || 0)
@@ -96,6 +99,21 @@ export default function MarketScreen() {
     }
   }
 
+  const openOffer = async (player) => {
+    setOfferPlayer(player)
+    setWageInfo(null)
+    try {
+      const finances = await financesApi.getFinances(club.id)
+      setWageInfo({
+        newWage: playerDemands(player).expectedWage,
+        payroll: Number(finances?.expenses?.playerWages || 0) + Number(finances?.expenses?.staffWages || 0),
+        budget: Number(finances?.wageBudgetWeekly || 0)
+      })
+    } catch {
+      // Sin la masa salarial se negocia igual, sin el aviso del sueldo
+    }
+  }
+
   // Cada oferta va al club vendedor, que acepta, contraoferta o rechaza (hasta dos rondas); el modal muestra su respuesta
   const handleSubmitOffer = async (amount, installments) => {
     try {
@@ -107,7 +125,9 @@ export default function MarketScreen() {
           fee: amount,
           marketValue: Math.round((offerPlayer.asking_price || offerPlayer.market_value || marketApi.calculateMarketValue(offerPlayer)) * (installments === 3 ? 1.08 : 1)),
           balance: Number(club.budget || 0),
-          weeklyExpenses: finances?.expenses?.total || 0
+          weeklyExpenses: finances?.expenses?.total || 0,
+          installments,
+          wageOverBudget: Boolean(wageInfo && wageInfo.budget > 0 && wageInfo.payroll + wageInfo.newWage > wageInfo.budget)
         }, climateApi.difficulty)
       })
       if (!proceed) return null
@@ -132,7 +152,7 @@ export default function MarketScreen() {
     }
     const blocked = offerBlockReason(p, { isOpen, budget })
     return (
-      <Button size="sm" disabled={!!blocked} onClick={() => setOfferPlayer(p)} aria-label={`Ofertar por ${p.first_name} ${p.last_name}`}>
+      <Button size="sm" disabled={!!blocked} onClick={() => openOffer(p)} aria-label={`Ofertar por ${p.first_name} ${p.last_name}`}>
         {blocked ? <Lock /> : <ShoppingCart />}{blocked || 'Ofertar'}
       </Button>
     )
@@ -236,7 +256,7 @@ export default function MarketScreen() {
       )}
 
       {offerPlayer && (
-        <OfferModal player={offerPlayer} budget={budget} processing={submitting} onClose={() => setOfferPlayer(null)} onSubmit={handleSubmitOffer} />
+        <OfferModal player={offerPlayer} budget={budget} wageInfo={wageInfo} processing={submitting} onClose={() => setOfferPlayer(null)} onSubmit={handleSubmitOffer} />
       )}
     </div>
   )

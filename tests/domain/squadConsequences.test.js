@@ -90,3 +90,34 @@ describe('suplentes que reclaman minutos', () => {
     expect(benchComplainers({ players: many, playedIds: [], games: 6 })).toHaveLength(3)
   })
 })
+
+describe('mercado: consecuencias de fichar y vender', () => {
+  it('vender con la caja en apuros alivia a la dirigencia y preocupa a la tribuna', () => {
+    const r = saleConsequences({ fee: 6000, balance: 3000, weeklyExpenses: 1000 })
+    expect(r).toMatchObject({ board: 2, fans: -1 })
+    expect(r.notes[0]).toMatch(/caja en apuros/)
+  })
+
+  it('con la caja sana, vender no alivia a nadie; sin datos de la caja tampoco', () => {
+    expect(saleConsequences({ fee: 6000, balance: 20000, weeklyExpenses: 1000 })).toMatchObject({ board: 0, fans: 0 })
+    expect(saleConsequences({ fee: 6000 })).toMatchObject({ board: 0 })
+  })
+
+  it('vender al ídolo con la caja en apuros suma las dos cosas', () => {
+    expect(saleConsequences({ isIdol: true, fee: 6000, balance: 2000, weeklyExpenses: 1000 })).toMatchObject({ board: 2, fans: -9, locker: -6 })
+  })
+
+  it('un sueldo que te pasa del presupuesto salarial molesta a la dirigencia', () => {
+    const r = purchaseConsequences({ fee: 5000, marketValue: 5000, balance: 20000, weeklyExpenses: 1000, wageOverBudget: true })
+    expect(r.board).toBe(-2)
+    expect(r.notes[0]).toMatch(/presupuesto salarial/)
+  })
+
+  it('en cuotas solo cuenta lo que se paga hoy, pero deber más de lo que cubre la caja pesa', () => {
+    // 40% de $9.000 hoy = $3.600: la caja de $12.000 sigue sana
+    expect(purchaseConsequences({ fee: 9000, marketValue: 9000, balance: 12000, weeklyExpenses: 1000, installments: 3 }).board).toBe(0)
+    // Con $4.000 de caja no se cubre lo que queda por pagar ($5.400)
+    expect(purchaseConsequences({ fee: 9000, marketValue: 9000, balance: 4000, weeklyExpenses: 0, installments: 3 }).board).toBe(-1)
+  })
+})
+
