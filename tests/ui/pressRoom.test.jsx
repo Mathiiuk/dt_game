@@ -18,7 +18,8 @@ const setup = (props = {}) => {
     onNext: vi.fn(),
     onSkip: vi.fn(),
     onDelegate: vi.fn(),
-    onPhrase: vi.fn(async () => {})
+    onPhrase: vi.fn(async () => null),
+    onHeadline: vi.fn(async () => {})
   }
   render(<PressRoom questions={questions} currentIndex={0} outcome="L" finished={false} delegated={false} skipResult={null} conferenceId="k1" {...handlers} {...props} />)
   return handlers
@@ -90,4 +91,44 @@ describe('sala de prensa relámpago', () => {
     expect(h.onSkip).toHaveBeenCalledTimes(1)
     expect(h.onDelegate).toHaveBeenCalledTimes(1)
   })
+
+  it('Titular o fake: se marca una vez y se informa el efecto', async () => {
+    const h = setup({ finished: true, headlineContext: { clubName: 'Potrero', rivalName: 'Racing', isHome: true, homeScore: 2, awayScore: 1, mvpName: null } })
+    const section = screen.getByRole('region', { name: 'Titular o fake' })
+    const buttons = section.querySelectorAll('button')
+    expect(buttons).toHaveLength(3)
+    await click(buttons[0])
+    expect(h.onHeadline).toHaveBeenCalledTimes(1)
+    expect(h.onHeadline.mock.calls[0][0]).toHaveProperty('correct')
+    expect(screen.queryByRole('region', { name: 'Titular o fake' })).toBeNull()
+  })
+
+  it('si ya jugaste el titular de esta conferencia no se vuelve a ofrecer', () => {
+    sessionStorage.setItem('press_headline_k1', '1')
+    setup({ finished: true, headlineContext: { clubName: 'Potrero', rivalName: 'Racing', isHome: true, homeScore: 0, awayScore: 0 } })
+    expect(screen.queryByRole('region', { name: 'Titular o fake' })).toBeNull()
+  })
+
+  it('el Bingo muestra la cartilla con los clichés tachados', () => {
+    setup({ finished: true, bingo: { card: ['W1', 'W2', 'W3', 'D1', 'D2', 'D3', 'L1', 'L2', 'L3'], marks: ['W1'], lines: 0 } })
+    const card = screen.getByRole('region', { name: 'Bingo del DT' })
+    expect(card).toHaveTextContent('1 de 9')
+    expect(card.querySelectorAll('li')).toHaveLength(9)
+    expect(card.querySelector('li[aria-label$="(tachado)"]')).not.toBeNull()
+  })
+
+  it('la frase de manual tacha su cliché y avisa la línea completada', async () => {
+    const card = ['W1', 'W2', 'W3', 'D1', 'D2', 'D3', 'L1', 'L2', 'L3']
+    const h = setup({
+      finished: true, outcome: 'W', bingo: { card, marks: ['W2', 'W3'], lines: 0 },
+      onPhrase: vi.fn(async () => ({ card, marks: ['W2', 'W3', 'W1'], lines: 1, newLines: 1, full: false }))
+    })
+    const section = screen.getByRole('region', { name: 'Completá la frase del DT' })
+    for (const b of section.querySelectorAll('button')) {
+      if (/seguir trabajando|partido a partido|muy parejo|entienden lo que les pido/.test(b.textContent)) { await click(b); break }
+    }
+    expect(h).toBeTruthy()
+    expect(await screen.findByText(/Línea! Completaste una línea/)).toBeInTheDocument()
+  })
 })
+

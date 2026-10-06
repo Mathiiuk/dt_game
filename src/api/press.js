@@ -4,6 +4,7 @@ import { ensureCharacters, rumorBoost } from '../domain/characters'
 import { climateApi } from './climate'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 import { queryCache } from '../utils/cache'
+import { bingoCard, bingoLines, markCliche } from '../domain/pressRoom'
 
 export const MEDIA_OUTLETS = [
   { name: 'FM El Aguante 91.5', journalist: 'Horacio "El Turco" Méndez', tier: 5 },
@@ -280,6 +281,51 @@ export const pressApi = {
       conference,
       questions: (insertedQuestions || questionsList).sort((a, b) => a.order_index - b.order_index)
     }
+  },
+
+  /** Cartilla del Bingo del DT de esta temporada: los 9 clichés y los que ya tachaste (se reinicia cada temporada) */
+  async getBingo(clubId) {
+    const [{ data: club }, { data: climate }] = await Promise.all([
+      supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle(),
+      supabase.from('club_climate').select('press_bingo').eq('club_id', clubId).maybeSingle()
+    ])
+    const season = club?.game_date ? seasonYearOf(club.game_date) : 2026
+    const saved = climate?.press_bingo || {}
+    const marks = saved.season === season ? (saved.marks || []) : []
+    const card = bingoCard(`${clubId}:${season}`)
+    return { season, card, marks, lines: bingoLines(card, marks).length, gameDate: club?.game_date || null }
+  },
+
+  /** Tacha un cliché de la cartilla y cobra el premio de la línea o de la cartilla llena (hinchada y dirigencia) */
+  async markBingo({ clubId, cliche }) {
+    const bingo = await this.getBingo(clubId)
+    const marked = markCliche({ card: bingo.card, marks: bingo.marks }, cliche)
+    if (!marked.changed) return { ...bingo, newLines: 0, full: false, reward: { fans: 0, board: 0 } }
+
+    await climateApi.saveState(clubId, { press_bingo: { season: bingo.season, marks: marked.marks, lines: bingoLines(bingo.card, marked.marks).length, full: marked.full } })
+    if (marked.reward.fans || marked.reward.board) {
+      await climateApi.applySquadConsequence({
+        clubId,
+        source: 'PRESS',
+        gameDate: bingo.gameDate,
+        effects: {
+          ...marked.reward,
+          notes: [marked.full ? 'Bingo del DT: completaste la cartilla de clichés de la temporada.' : 'Bingo del DT: completaste una línea de clichés.']
+        }
+      })
+    }
+    return { ...bingo, marks: marked.marks, lines: bingoLines(bingo.card, marked.marks).length, newLines: marked.newLines, full: marked.full, reward: marked.reward }
+  },
+
+  /** "Titular o fake": acertar desmiente el rumor a tiempo (+1 dirigencia); errar deja correr el rumor (-1 hinchada) */
+  async applyHeadline({ clubId, fans = 0, board = 0, gameDate = null }) {
+    if (!clubId || (!fans && !board)) return null
+    return climateApi.applySquadConsequence({
+      clubId,
+      source: 'PRESS',
+      gameDate,
+      effects: { fans, board, notes: [board > 0 ? 'Desmentiste un rumor a tiempo.' : 'Un rumor falso se te escapó.'] }
+    })
   },
 
   /** "Completá la frase del DT": ±1 de hinchada según lo bien que cae la frase elegida */

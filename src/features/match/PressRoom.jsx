@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, CheckCircle2, Mic, Timer, UserCheck } from 'lucide-react'
 import { AsyncButton } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
-import { PRESS_SECONDS, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
+import { BINGO_CLICHES, PRESS_SECONDS, headlineResult, headlineRound, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
 
 const TONE_COLORS = {
   PRAISING: 'border-accent/40 text-accent bg-accent-soft',
@@ -21,6 +21,9 @@ const NO_TIMER_KEY = 'press_no_timer'
 const readNoTimer = () => { try { return localStorage.getItem(NO_TIMER_KEY) === '1' } catch { return false } }
 const phraseKey = (conferenceId) => `press_phrase_${conferenceId}`
 const phraseDoneBefore = (conferenceId) => { try { return sessionStorage.getItem(phraseKey(conferenceId)) === '1' } catch { return false } }
+const headlineKey = (conferenceId) => `press_headline_${conferenceId}`
+const headlineDoneBefore = (conferenceId) => { try { return sessionStorage.getItem(headlineKey(conferenceId)) === '1' } catch { return false } }
+const clicheText = Object.fromEntries(BINGO_CLICHES.map(c => [c.id, c.text]))
 
 const signed = (n) => (n > 0 ? 'sube' : n < 0 ? 'baja' : 'sin cambios')
 
@@ -54,12 +57,21 @@ function Countdown({ seconds, onExpire }) {
  * Sala de conferencias: preguntas relámpago con cuenta regresiva, reacción de la sala tras cada respuesta,
  * y al final la ronda de "Completá la frase del DT".
  */
-export default function PressRoom({ questions, currentIndex, outcome, finished, delegated, skipResult, conferenceId, onAnswer, onNext, onSkip, onDelegate, onPhrase }) {
+export default function PressRoom({ questions, currentIndex, outcome, finished, delegated, skipResult, conferenceId, bingo = null, headlineContext = null, onAnswer, onNext, onSkip, onDelegate, onPhrase, onHeadline }) {
   const [noTimer, setNoTimer] = useState(readNoTimer)
   const [reaction, setReaction] = useState(null) // { line, fans, board, timedOut, tone } tras responder
   const [phrase, setPhrase] = useState(null) // resultado de la frase elegida
   const [phraseDone, setPhraseDone] = useState(() => phraseDoneBefore(conferenceId))
   const round = useMemo(() => phraseRound(outcome), [outcome]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Titular o fake y Bingo del DT
+  const [headline, setHeadline] = useState(null) // resultado del titular elegido
+  const [headlineDone, setHeadlineDone] = useState(() => headlineDoneBefore(conferenceId))
+  // El contexto llega como objeto nuevo en cada render: los titulares se arman solo cuando cambian sus datos
+  const headlineKeyValue = JSON.stringify(headlineContext)
+  const headlines = useMemo(() => (headlineContext ? headlineRound(headlineContext) : null), [headlineKeyValue]) // eslint-disable-line react-hooks/exhaustive-deps
+  const [bingoState, setBingoState] = useState(bingo)
+  const [bingoNote, setBingoNote] = useState('')
+  useEffect(() => { if (bingo) setBingoState(bingo) }, [bingo])
   const question = questions[currentIndex]
 
   const toggleTimer = () => {
@@ -83,7 +95,21 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
     setPhrase(result)
     setPhraseDone(true)
     try { sessionStorage.setItem(phraseKey(conferenceId), '1') } catch { /* sin almacenamiento sigue funcionando */ }
-    await onPhrase(result)
+    const updated = await onPhrase(result)
+    if (updated?.marks) {
+      setBingoState(prev => ({ ...prev, ...updated }))
+      if (updated.full) setBingoNote('¡Cartilla llena! Completaste el Bingo del DT de la temporada.')
+      else if (updated.newLines > 0) setBingoNote('¡Línea! Completaste una línea del Bingo del DT.')
+      else if (result.cliche) setBingoNote('Tachaste un cliché del Bingo del DT.')
+    }
+  }
+
+  const pickHeadline = async (option) => {
+    const result = headlineResult(option)
+    setHeadline(result)
+    setHeadlineDone(true)
+    try { sessionStorage.setItem(headlineKey(conferenceId), '1') } catch { /* sin almacenamiento sigue funcionando */ }
+    await onHeadline?.(result)
   }
 
   const header = (
@@ -172,7 +198,49 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
         {phrase && (
           <p role="status" className="rounded-xl border border-line bg-bg p-3 text-xs text-fg">
             {phrase.line} {phrase.fans !== 0 && <strong>Hinchada {phrase.fans > 0 ? '+1' : '-1'}.</strong>}
+            {bingoNote && <strong className="block pt-1 text-gold">{bingoNote}</strong>}
           </p>
+        )}
+
+        {headlines && !headlineDone && (
+          <section aria-label="Titular o fake" className="space-y-3 rounded-xl border border-gold/40 bg-gold/5 p-4">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-gold">Titular o fake</p>
+            <p className="text-sm font-medium text-fg">{headlines.prompt}</p>
+            <ul className="space-y-2">
+              {headlines.options.map(option => (
+                <li key={option.key}>
+                  <AsyncButton onClick={() => pickHeadline(option)} className="w-full rounded-xl border border-line bg-bg/70 p-3 text-left text-xs text-fg transition-all hover:border-gold/60 hover:bg-surface">
+                    {option.text}
+                  </AsyncButton>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {headline && (
+          <p role="status" className="rounded-xl border border-line bg-bg p-3 text-xs text-fg">
+            {headline.line} {headline.board > 0 && <strong>Dirigencia +1.</strong>}{headline.fans < 0 && <strong>Hinchada -1.</strong>}
+          </p>
+        )}
+
+        {bingoState?.card && (
+          <section aria-label="Bingo del DT" className="space-y-2 rounded-xl border border-line bg-bg/70 p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-fg-muted">Bingo del DT</p>
+              <p className="text-[11px] text-fg-subtle">{bingoState.card.filter(id => (bingoState.marks || []).includes(id)).length} de 9 · {bingoState.lines || 0} {bingoState.lines === 1 ? 'línea' : 'líneas'}</p>
+            </div>
+            <ul className="grid grid-cols-3 gap-1.5">
+              {bingoState.card.map(id => {
+                const marked = (bingoState.marks || []).includes(id)
+                return (
+                  <li key={id} aria-label={`${clicheText[id]}${marked ? ' (tachado)' : ''}`} className={`flex min-h-14 items-center justify-center rounded-lg border p-1.5 text-center text-[10px] leading-tight ${marked ? 'border-gold/60 bg-gold/15 font-bold text-gold line-through' : 'border-line text-fg-muted'}`}>
+                    {clicheText[id]}
+                  </li>
+                )
+              })}
+            </ul>
+            <p className="text-[10px] text-fg-subtle">Cada frase de manual que elegís tacha un cliché. Línea: hinchada +2 y dirigencia +1. Cartilla llena: premio grande. Se reinicia cada temporada.</p>
+          </section>
         )}
 
         <div className="space-y-3 pt-2">

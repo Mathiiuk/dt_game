@@ -50,6 +50,7 @@ export default function PostMatchScreen() {
   const [isPressFinished, setIsPressFinished] = useState(false)
   const [isPressDelegated, setIsPressDelegated] = useState(false)
   const [skipResult, setSkipResult] = useState(null)
+  const [bingo, setBingo] = useState(null)
   const { confirmAction } = useGameContext()
 
   useEffect(() => {
@@ -145,9 +146,26 @@ export default function PostMatchScreen() {
   const handlePhrase = async (result) => {
     try {
       await pressApi.applyPhrase({ clubId, fans: result.fans, gameDate: processedData?.gameDate || null })
+      // La frase de manual tacha su cliché en el Bingo del DT
+      if (result.cliche) return await pressApi.markBingo({ clubId, cliche: result.cliche })
     } catch (err) {
       console.warn('Aviso: no se pudo aplicar la frase del DT:', err)
     }
+    return null
+  }
+
+  const handleHeadline = async (result) => {
+    try {
+      await pressApi.applyHeadline({ clubId, fans: result.fans, board: result.board })
+    } catch (err) {
+      console.warn('Aviso: no se pudo aplicar el titular:', err)
+    }
+  }
+
+  // La cartilla del Bingo se carga al pasar a la prensa
+  const openPress = async () => {
+    setStep('PRESS')
+    try { setBingo(await pressApi.getBingo(clubId)) } catch { /* sin cartilla se juega igual */ }
   }
 
   // La conferencia es obligatoria: se puede omitir, pero cuesta una multa y la prensa puede hablar de más
@@ -212,6 +230,9 @@ export default function PostMatchScreen() {
   const stats = results.stats || {}
   const ratings = processedData?.playerRatings || []
   const mvp = processedData?.mvp
+
+  // Datos para "Titular o fake": el resultado y la figura del partido son verdaderos
+  const headlineContext = { clubName: clubName || 'Tu Club', rivalName: oppName, isHome, homeScore: results.homeScore, awayScore: results.awayScore, mvpName: mvp?.name || null }
 
   const keyEvents = (results.events || []).filter(e => ['GOAL', 'CARD_RED', 'CARD_YELLOW', 'INJURY'].includes(e.type))
 
@@ -311,6 +332,9 @@ export default function PostMatchScreen() {
             onSkip={handleSkipPress}
             onDelegate={handleDelegatePress}
             onPhrase={handlePhrase}
+            onHeadline={handleHeadline}
+            bingo={bingo}
+            headlineContext={headlineContext}
           />
         )}
 
@@ -525,7 +549,7 @@ export default function PostMatchScreen() {
 
           {step === 'SUMMARY' && pressConference && !isPressFinished && !isPressDelegated ? (
             <button
-              onClick={() => setStep('PRESS')}
+              onClick={openPress}
               className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
             >
               <Mic className="w-4 h-4" />
