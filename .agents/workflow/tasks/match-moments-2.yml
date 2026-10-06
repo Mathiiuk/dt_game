@@ -1,0 +1,40 @@
+id: match-moments-2
+external_ref: ''
+title: 'Decisiones en partido: penales, arquero lesionado y rival que reacciona'
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar Decisiones en partido: penales, arquero lesionado y rival que
+    reacciona
+acceptance_criteria:
+  - Hay penales: >-
+      se anuncian, el DT elige quién patea (a favor) o hacia dónde se tira el
+      arquero (en contra) y se resuelven al minuto siguiente
+  - >-
+    Si se lesiona el arquero, el equipo rinde 12 por ciento menos hasta que se
+    lo cambia
+  - El rival (IA) reacciona al marcador a los 60 y a los 75 minutos
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: false
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd

@@ -124,5 +124,12 @@
     "category": "BUG_FIX",
     "lesson": "El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos.",
     "solution": "Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real."
+  },
+  {
+    "id": "LES-2010",
+    "timestamp": "2026-10-06T19:06:12.010Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "Al sumar eventos aleatorios nuevos a un motor determinista por semilla, usar un generador aparte (seed:pen) para no alterar el resto del partido ni los tests estadísticos existentes.",
+    "solution": "createRNG con semilla derivada para cada fuente de azar nueva; subir el tamaño de muestra de los tests estadísticos si los totales se mueven."
   }
 ]

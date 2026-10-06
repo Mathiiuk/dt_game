@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-06T18:56:38.134Z | **Nodos:** 473 | **Tareas:** 145
+> **Última sincronización:** 2026-10-06T19:06:12.249Z | **Nodos:** 474 | **Tareas:** 146
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -8,11 +8,11 @@
 |---|---|---|
 | `src/domain/arcCatalog.js` | 907 | ninguna |
 | `src/api/career.js` | 757 | ./supabase, ./audit, ../utils/cache |
-| `src/features/match/MatchScreen.jsx` | 651 | react, react-router-dom, ../../api/auth |
+| `src/features/match/MatchScreen.jsx` | 659 | react, react-router-dom, ../../api/auth |
+| `src/api/matchEngine.js` | 615 | ./supabase, ../domain/positions, ../domain/consequences |
 | `src/features/match/PostMatchScreen.jsx` | 575 | react, react-router-dom, ../../api/postMatch |
 | `src/api/postMatch.js` | 567 | ./manager, ./morale, ./supabase |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
-| `src/api/matchEngine.js` | 553 | ./supabase, ../domain/positions, ../domain/consequences |
 | `src/api/climate.js` | 536 | ./supabase, ../utils/cache, ./morale |
 | `src/api/calendar.js` | 534 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
 | `src/api/press.js` | 528 | ./supabase, ../domain/press, ../domain/characters |
@@ -162,6 +162,7 @@ _(+176 módulos adicionales; consultar con `memory:query`)_
 - **market-server-prices: Mercado 2.0 etapa 1: precios a escala y fichajes resueltos por el servidor** `[DONE]`
 - **market-window-and-pool: Mercado: ventana mal calculada por zona horaria y sin candidatos (los rivales no tienen plantel)** `[DONE]`
 - **match-experience-m5: M5 pausa, velocidades y saltear partido** `[DONE]`
+- **match-moments-2: Decisiones en partido: penales, arquero lesionado y rival que reacciona** `[DONE]`
 - **match-substitutions: Cambios de jugadores durante la pausa del partido** `[DONE]`
 - **more-story-arcs: 12 historias nuevas escritas por el usuario** `[DONE]`
 - **performance-m2: M2 rendimiento del avance semanal, post-partido y Plantel** `[DONE]`
@@ -202,3 +203,4 @@ _(+176 módulos adicionales; consultar con `memory:query`)_
 - **[BUG_FIX]** Cuenta real en el navegador encontró lo que los 1000 tests no: mercado vacío (rivales sin plantel), pantallas desactualizadas tras resolver eventos (efecto con deps que no cambian) y caja vieja tras un partido. *(Solución: Después de cada tanda grande, recorrer el flujo con la cuenta real; consultar la base con SQL para confirmar lo que el navegador muestra; refrescar contexto al volver de pantallas que escriben.)*
 - **[BEST_PRACTICE]** El gate bdd_tests del manifiesto falla porque @cucumber/cucumber no está instalado y no existe el script test:bdd; los .feature generados quedan como plantilla. *(Solución: Hasta decidir instalarlo, las tareas se marcan bdd_tests:false y los .feature se escriben como documentación viva con escenarios reales.)*
 - **[BUG_FIX]** El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos. *(Solución: Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real.)*
+- **[BEST_PRACTICE]** Al sumar eventos aleatorios nuevos a un motor determinista por semilla, usar un generador aparte (seed:pen) para no alterar el resto del partido ni los tests estadísticos existentes. *(Solución: createRNG con semilla derivada para cada fuente de azar nueva; subir el tamaño de muestra de los tests estadísticos si los totales se mueven.)*

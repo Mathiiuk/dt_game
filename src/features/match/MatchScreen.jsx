@@ -273,6 +273,14 @@ export default function MatchScreen() {
       logDirective(decisionText(option))
       toast.success(option.label)
     }
+    // Penal: quién lo patea (a favor) o hacia dónde se tira el arquero (en contra); se resuelve al minuto siguiente
+    if (option.action === 'PENALTY_TAKER' && option.playerId) {
+      commitChange({ kind: 'PENALTY_TAKER', playerId: option.playerId })
+      logDirective(decisionText(option))
+    } else if (option.action === 'PENALTY_DIVE') {
+      commitChange({ kind: 'PENALTY_DIVE', dive: option.dive })
+      logDirective(decisionText(option))
+    }
     if (option.action === MOMENT_ACTION_OPEN_SUBS) {
       setPreselectOut(wasMoment.playerId || null)
       return // sigue en pausa para hacer el cambio
@@ -358,7 +366,7 @@ export default function MatchScreen() {
         })
       }
       // ¿Hay algo para decidir? El partido se pausa solo
-      const found = detectMoment({ minute: nextMin, events: simResults.events, userSide, fired: firedRef.current, morale: data.club?.squad_morale ?? 60 })
+      const found = detectMoment({ minute: nextMin, events: simResults.events, userSide, fired: firedRef.current, morale: data.club?.squad_morale ?? 60, onField })
       if (found) {
         setPaused(true)
         setMoment(found)

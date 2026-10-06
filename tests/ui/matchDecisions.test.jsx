@@ -90,4 +90,38 @@ describe('partido en vivo con decisiones', () => {
     expect(screen.getByText(/Sale/)).toHaveTextContent('Nro3')
     expect(screen.getByText(/¿Quién entra\?/)).toBeInTheDocument()
   })
+
+  it('un penal a favor pausa el partido, deja elegir quién patea y rejuega el resto con esa decisión', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'PENALTY', team: 'home', text: '¡PENAL para el local!' }]))
+    await startMatch()
+    minutes(5)
+    expect(screen.getByRole('region', { name: '¡Penal a favor!' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reanudar' })).toBeInTheDocument()
+    const taker = screen.getAllByRole('button').find(b => /Que patee Juan/.test(b.textContent))
+    click(taker)
+    expect(mocks.replay).toHaveBeenCalledTimes(1)
+    const change = mocks.replay.mock.calls[0][1][0]
+    expect(change).toMatchObject({ minute: 5, team: 'home', kind: 'PENALTY_TAKER' })
+    expect(change.playerId).toMatch(/^p\d+$/)
+    expect(screen.queryByRole('region', { name: '¡Penal a favor!' })).toBeNull()
+  })
+
+  it('un penal en contra deja elegir hacia dónde se tira el arquero', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'PENALTY', team: 'away', text: '¡PENAL para la visita!' }]))
+    await startMatch()
+    minutes(5)
+    expect(screen.getByRole('region', { name: 'Penal en contra' })).toBeInTheDocument()
+    click(screen.getByRole('button', { name: /Que se tire a la derecha/ }))
+    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'PENALTY_DIVE', dive: 'R' })
+  })
+
+  it('dejarlo a quien corresponde no cambia nada del partido', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'PENALTY', team: 'home', text: '¡PENAL!' }]))
+    await startMatch()
+    minutes(5)
+    click(screen.getByRole('button', { name: /Que patee quien corresponde/ }))
+    expect(mocks.replay).not.toHaveBeenCalled()
+    expect(screen.queryByRole('region', { name: '¡Penal a favor!' })).toBeNull()
+  })
 })
+

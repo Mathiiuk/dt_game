@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-10-06T18:56:38.134Z",
+  "updatedAt": "2026-10-06T19:06:12.249Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 473,
-    "totalEdges": 1322,
-    "totalTasks": 145,
-    "totalLessons": 18
+    "totalNodes": 474,
+    "totalEdges": 1324,
+    "totalTasks": 146,
+    "totalLessons": 19
   },
   "nodes": [
     {
@@ -421,8 +421,8 @@
       "id": "src/api/matchEngine.js",
       "label": "matchEngine.js",
       "type": "module",
-      "sizeBytes": 22097,
-      "lineCount": 553,
+      "sizeBytes": 26352,
+      "lineCount": 615,
       "imports": [
         "./supabase",
         "../domain/positions",
@@ -1231,9 +1231,11 @@
       "id": "src/domain/quickDecisions.js",
       "label": "quickDecisions.js",
       "type": "module",
-      "sizeBytes": 6547,
-      "lineCount": 130,
-      "imports": []
+      "sizeBytes": 9044,
+      "lineCount": 166,
+      "imports": [
+        "./positions"
+      ]
     },
     {
       "id": "src/domain/ratings.js",
@@ -2129,8 +2131,8 @@
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 30404,
-      "lineCount": 651,
+      "sizeBytes": 30880,
+      "lineCount": 659,
       "imports": [
         "react",
         "react-router-dom",
@@ -2836,8 +2838,8 @@
       "id": "tests/api/matchEngine.test.js",
       "label": "matchEngine.test.js",
       "type": "test",
-      "sizeBytes": 6084,
-      "lineCount": 130,
+      "sizeBytes": 11495,
+      "lineCount": 235,
       "imports": [
         "../../src/api/matchEngine"
       ]
@@ -3003,7 +3005,7 @@
       "id": "tests/api/seasonPrize.test.js",
       "label": "seasonPrize.test.js",
       "type": "test",
-      "sizeBytes": 4396,
+      "sizeBytes": 4467,
       "lineCount": 72,
       "imports": [
         "../../src/api/seasonClose"
@@ -3375,8 +3377,8 @@
       "id": "tests/domain/quickDecisions.test.js",
       "label": "quickDecisions.test.js",
       "type": "test",
-      "sizeBytes": 3271,
-      "lineCount": 54,
+      "sizeBytes": 6477,
+      "lineCount": 104,
       "imports": [
         "../../src/domain/quickDecisions"
       ]
@@ -3826,8 +3828,8 @@
       "id": "tests/ui/matchDecisions.test.jsx",
       "label": "matchDecisions.test.jsx",
       "type": "test",
-      "sizeBytes": 5336,
-      "lineCount": 94,
+      "sizeBytes": 7232,
+      "lineCount": 128,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4980,6 +4982,13 @@
     {
       "id": "task:match-experience-m5",
       "label": "match-experience-m5: M5 pausa, velocidades y saltear partido",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:match-moments-2",
+      "label": "match-moments-2: Decisiones en partido: penales, arquero lesionado y rival que reacciona",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -6542,6 +6551,11 @@
     {
       "from": "src/domain/pressRoom.js",
       "to": "./cupMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/quickDecisions.js",
+      "to": "./positions",
       "relation": "depends_on"
     },
     {
@@ -11635,6 +11649,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:match-moments-2",
+      "to": ".agents/workflow/tasks/match-moments-2.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:match-substitutions",
       "to": ".agents/workflow/tasks/match-substitutions.yml",
       "relation": "manifested_by"
@@ -11856,6 +11875,13 @@
       "category": "BUG_FIX",
       "lesson": "El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos.",
       "solution": "Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real."
+    },
+    {
+      "id": "LES-2010",
+      "timestamp": "2026-10-06T19:06:12.010Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "Al sumar eventos aleatorios nuevos a un motor determinista por semilla, usar un generador aparte (seed:pen) para no alterar el resto del partido ni los tests estadísticos existentes.",
+      "solution": "createRNG con semilla derivada para cada fuente de azar nueva; subir el tamaño de muestra de los tests estadísticos si los totales se mueven."
     }
   ]
 }

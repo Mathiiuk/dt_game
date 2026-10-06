@@ -86,8 +86,10 @@ export function createRNG(seedValue) {
 /**
  * Simulación autoritativa minuto a minuto con semilla reproducible.
  */
-export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08, homePowerFactor = 1, awayPowerFactor = 1, changes = [] } = {}) => {
+export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08, homePowerFactor = 1, awayPowerFactor = 1, changes = [], aiSide = null } = {}) => {
   const rng = createRNG(seed)
+  // Penales y reacciones del rival tienen su propio azar: no alteran el resto del partido
+  const penRng = createRNG(`${seed}:pen`)
 
   // 1. Calcular poder base de cada equipo
   const calcBasePower = (players) => {
@@ -190,12 +192,19 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   for (const team of [homeTeam, awayTeam]) Object.assign(team, { buffs: [], reds: 0, redIds: new Set(), hurtIds: new Set(), midAcc: 0 })
   const buffOf = (team, min, key) => team.buffs.reduce((acc, b) => (min <= b.until ? acc * b[key] : acc), 1)
   // Un expulsado deja al equipo con diez (-8%) y quien sigue jugando con molestias rinde menos (-4% cada uno, hasta dos)
-  const situation = (team) => 0.92 ** team.reds * 0.96 ** Math.min(2, team.players.filter(p => p.id && team.hurtIds.has(p.id)).length)
+  // Con el arquero lesionado el golpe es mayor (-12%)
+  const situation = (team) => {
+    const hurt = team.players.filter(p => p.id && team.hurtIds.has(p.id)).slice(0, 2)
+    return 0.92 ** team.reds * hurt.reduce((acc, p) => acc * (positionLine(p.slot_base || p.position) === 'ARQ' ? 0.88 : 0.96), 1)
+  }
 
   // Cambios del DT en vivo: desde el minuto siguiente rinde el nuevo once (los que entran llegan frescos, los demás ya corrieron)
   const applyChange = (change, min) => {
     const isHomeSide = change.team === 'home'
     const team = isHomeSide ? homeTeam : awayTeam
+    // Penal pendiente: quién lo patea (equipo con el penal) o hacia dónde se tira el arquero (equipo que defiende)
+    if (change.kind === 'PENALTY_TAKER') { team.penaltyTaker = change.playerId; return }
+    if (change.kind === 'PENALTY_DIVE') { team.penaltyDive = change.dive; return }
     // Gritos y decisiones: un efecto sobre ataque, defensa y mediocampo que dura `duration` minutos
     if (!change.players) {
       const { att = 1, def = 1, mid = 1 } = change.buff || {}
@@ -252,9 +261,26 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     return teamList[Math.floor(rng() * teamList.length)]
   }
 
+  // Penal anunciado a la espera de que se patee (se resuelve al minuto siguiente, después de las decisiones del DT)
+  let pendingPenalty = null
+  const penaltyText = (team) => (team === 'home' ? 'el local' : 'la visita')
+
   // 3. Simular los 90 minutos
   for (let min = 1; min <= 90; min++) {
     for (const change of changes) if (change.minute + 1 === min) applyChange(change, min)
+
+    // El rival (IA) reacciona al marcador: a los 60 si pierde se tira al ataque y a los 75 si gana se cierra
+    if (aiSide && (min === 60 || min === 75)) {
+      const aiTeam = aiSide === 'home' ? homeTeam : awayTeam
+      const diff = aiSide === 'home' ? homeScore - awayScore : awayScore - homeScore
+      if (min === 60 && diff < 0) {
+        aiTeam.buffs.push({ att: 1.15, def: 0.9, mid: 1, until: min + 15 })
+        events.push({ minute: min, type: 'RIVAL_TACTIC', team: aiSide, text: 'El rival va perdiendo y se tira con todo al ataque: adelanta las líneas.' })
+      } else if (min === 75 && diff > 0) {
+        aiTeam.buffs.push({ att: 0.9, def: 1.15, mid: 1, until: min + 15 })
+        events.push({ minute: min, type: 'RIVAL_TACTIC', team: aiSide, text: 'El rival cuida la ventaja: se repliega y espera para pegar de contra.' })
+      }
+    }
     homeTeam.fitness = Math.max(0, homeTeam.fitness - homeTeam.fitnessDrain)
     awayTeam.fitness = Math.max(0, awayTeam.fitness - awayTeam.fitnessDrain)
 
@@ -266,6 +292,41 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     const curAwayDef = awayTeam.defense * (0.6 + (awayTeam.fitness / 250)) * buffOf(awayTeam, min, 'def') * awaySit
     homeTeam.midAcc += homeTeam.midfield * buffOf(homeTeam, min, 'mid') * homeSit
     awayTeam.midAcc += awayTeam.midfield * buffOf(awayTeam, min, 'mid') * awaySit
+
+    // Resolución del penal pendiente: patea el elegido por el DT (o el mejor definidor) y el arquero puede adivinar la esquina
+    if (pendingPenalty && pendingPenalty.minute === min) {
+      const { team: penTeam } = pendingPenalty
+      pendingPenalty = null
+      const shooters = penTeam === 'home' ? homeTeam : awayTeam
+      const keepers = penTeam === 'home' ? awayTeam : homeTeam
+      const skillOf = (p) => p.attr_finishing ?? p.attr_shooting ?? p.attr_overall ?? 50
+      const chosen = shooters.players.find(p => p.id && p.id === shooters.penaltyTaker)
+      const taker = chosen || [...shooters.players].sort((a, b) => skillOf(b) - skillOf(a))[0] || { first_name: 'Futbolista', last_name: '' }
+      const corner = ['L', 'C', 'R'][Math.floor(penRng() * 3)]
+      let convert = Math.max(0.55, Math.min(0.9, 0.5 + skillOf(taker) / 200))
+      // Si el arquero adivina la esquina, casi siempre la ataja
+      if (keepers.penaltyDive && keepers.penaltyDive === corner) convert = 0.15
+      shooters.penaltyTaker = null
+      keepers.penaltyDive = null
+      if (penTeam === 'home') homeShots++
+      else awayShots++
+      const goes = penRng() < convert
+      if (goes) {
+        if (penTeam === 'home') { homeScore++; homeShotsOnTarget++ } else { awayScore++; awayShotsOnTarget++ }
+        events.push({ minute: min, type: 'GOAL', team: penTeam, playerId: taker.id, text: `¡GOL DE PENAL! ${taker.first_name} ${taker.last_name} la clava ${corner === 'L' ? 'a la izquierda' : corner === 'R' ? 'a la derecha' : 'al medio'}.` })
+      } else {
+        if (penTeam === 'home') homeShotsOnTarget++
+        else awayShotsOnTarget++
+        events.push({ minute: min, type: 'MISS', team: penTeam, text: `¡Penal ${keepers.penaltyDive === corner ? 'atajado' : 'fallado'}! ${taker.first_name} ${taker.last_name} no pudo.` })
+      }
+    }
+    // Un penal nuevo (poco frecuente): lo pide el equipo que más ataca y se anuncia antes de patearse
+    if (min < 90 && penRng() < 0.0035) {
+      const toHome = penRng() < (curHomeAtt / (curHomeAtt + curAwayAtt))
+      const penTeam = toHome ? 'home' : 'away'
+      pendingPenalty = { team: penTeam, minute: min + 1 }
+      events.push({ minute: min, type: 'PENALTY', team: penTeam, text: `¡PENAL para ${penaltyText(penTeam)}! El árbitro lo cobra y se arma la polémica.` })
+    }
 
     const roll = rng()
 
@@ -460,7 +521,8 @@ export const matchEngineApi = {
       if (userIsHome) homePowerFactor *= userPowerFactor
       else awayPowerFactor *= userPowerFactor
     }
-    const options = { homeAdvantage: homeAdvantageFactor, homePowerFactor, awayPowerFactor }
+    // El rival (IA) es el lado que no dirige el usuario: reacciona al marcador durante el partido
+    const options = { homeAdvantage: homeAdvantageFactor, homePowerFactor, awayPowerFactor, aiSide: userIsHome === null ? null : (userIsHome ? 'away' : 'home') }
     const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, options)
 
     if (fixtureId) {

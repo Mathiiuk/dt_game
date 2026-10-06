@@ -4,6 +4,8 @@
  * Los gritos se pueden dar cada 15 minutos; los momentos (entretiempo, ir perdiendo, una roja, una lesión) pausan el partido solos.
  */
 
+import { positionLine } from './positions'
+
 export const SHOUT_COOLDOWN_MINUTES = 15
 export const SHOUT_DURATION = 15
 
@@ -38,6 +40,11 @@ export function halftimeTalk({ morale = 60 } = {}) {
   }
 }
 
+const skillOf = (p) => p.attr_finishing ?? p.attr_shooting ?? p.attr_overall ?? 50
+/** Probabilidad de convertir un penal según la definición de quien patea (misma cuenta que el motor del partido) */
+export const penaltyChance = (skill) => Math.max(0.55, Math.min(0.9, 0.5 + skill / 200))
+const isKeeper = (p) => p && positionLine(p.slot_base || p.position) === 'ARQ'
+
 const OPEN_SUBS = 'OPEN_SUBS'
 export const MOMENT_ACTION_OPEN_SUBS = OPEN_SUBS
 
@@ -46,7 +53,7 @@ export const MOMENT_ACTION_OPEN_SUBS = OPEN_SUBS
  * @param {{ minute: number, events: Array, userSide: 'home'|'away', fired: Set<string>, morale?: number, isFinished?: boolean }} p
  * @returns {object|null} { id, key, title, text, options, playerId? }
  */
-export function detectMoment({ minute, events = [], userSide, fired = new Set(), morale = 60 }) {
+export function detectMoment({ minute, events = [], userSide, fired = new Set(), morale = 60, onField = [] }) {
   if (minute >= 90) return null
   const rivalSide = userSide === 'home' ? 'away' : 'home'
 
@@ -80,17 +87,46 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
     }
   }
 
-  // Una lesión de uno de los tuyos en este minuto
+  // Penal en este minuto: a favor se elige quién patea; en contra, hacia dónde se tira el arquero
+  const pen = here.find(e => e.type === 'PENALTY' && (e.team === userSide || e.team === rivalSide))
+  if (pen) {
+    const key = `PENALTY_${minute}`
+    if (!fired.has(key)) {
+      if (pen.team === userSide) {
+        const takers = onField.filter(p => p.id && !isKeeper(p)).sort((a, b) => skillOf(b) - skillOf(a)).slice(0, 3)
+        return {
+          key, id: 'PENALTY_FOR', title: '¡Penal a favor!',
+          text: 'El árbitro señala el punto penal. El estadio contiene la respiración: ¿quién se anima?',
+          options: [
+            ...takers.map(p => ({ id: `TAKER_${p.id}`, label: `Que patee ${`${p.first_name} ${p.last_name}`.trim()}`, desc: `Definición ${Math.round(skillOf(p))}: cerca de ${Math.round(penaltyChance(skillOf(p)) * 100)}% de gol.`, action: 'PENALTY_TAKER', playerId: p.id })),
+            { id: 'TAKER_DEFAULT', label: 'Que patee quien corresponde', desc: 'Lo patea el mejor definidor del equipo.', action: 'PENALTY_TAKER', playerId: null }
+          ]
+        }
+      }
+      return {
+        key, id: 'PENALTY_AGAINST', title: 'Penal en contra',
+        text: 'Lo cobraron contra tu equipo. Tu arquero te mira: ¿para dónde se tira?',
+        options: [
+          { id: 'DIVE_L', label: 'Que se tire a la izquierda', desc: 'Si adivina la esquina, casi siempre la ataja.', action: 'PENALTY_DIVE', dive: 'L' },
+          { id: 'DIVE_C', label: 'Que se quede en el medio', desc: 'Si adivina la esquina, casi siempre la ataja.', action: 'PENALTY_DIVE', dive: 'C' },
+          { id: 'DIVE_R', label: 'Que se tire a la derecha', desc: 'Si adivina la esquina, casi siempre la ataja.', action: 'PENALTY_DIVE', dive: 'R' }
+        ]
+      }
+    }
+  }
+
+  // Una lesión de uno de los tuyos en este minuto (si es el arquero, es peor)
   const hurt = here.find(e => e.type === 'INJURY' && e.team === userSide && e.playerId)
   if (hurt) {
     const key = `INJURY_${hurt.playerId}`
     if (!fired.has(key)) {
+      const keeper = isKeeper(onField.find(p => p.id === hurt.playerId))
       return {
-        key, id: 'INJURY', title: 'Un lesionado en tu equipo', playerId: hurt.playerId,
+        key, id: keeper ? 'GK_INJURY' : 'INJURY', title: keeper ? 'Se lesionó el arquero' : 'Un lesionado en tu equipo', playerId: hurt.playerId,
         text: hurt.text,
         options: [
           { id: 'INJ_OUT', label: 'Sacarlo ahora', desc: 'Abre los cambios con él marcado para salir.', action: OPEN_SUBS },
-          { id: 'INJ_STAY', label: 'Que siga', desc: 'Sigue jugando con molestias: el equipo rinde -4% hasta que lo cambies.', buff: {}, duration: 0 }
+          { id: 'INJ_STAY', label: 'Que siga', desc: keeper ? 'Sigue en el arco con molestias: el equipo rinde -12% hasta que lo cambies.' : 'Sigue jugando con molestias: el equipo rinde -4% hasta que lo cambies.', buff: {}, duration: 0 }
         ]
       }
     }
