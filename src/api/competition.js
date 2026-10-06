@@ -221,7 +221,7 @@ export const competitionApi = {
         lost: 0,
         goals_for: 0,
         goals_against: 0,
-        form: 'E'
+        form: ''
       }))
 
       await supabase.from('standings').insert(standingsData)

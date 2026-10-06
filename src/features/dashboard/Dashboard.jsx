@@ -10,6 +10,7 @@ import { queryCache } from '../../utils/cache'
 import { friendlyError } from '../../lib/errors'
 import { useGameContext } from '../../context/GameContext'
 import { isFixtureDue } from '../../domain/fixtureStatus'
+import { rivalLevel, rivalOf } from '../../domain/rivalLevel'
 import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
@@ -205,6 +206,7 @@ export default function Dashboard() {
   const daysToMatch = matchFuture ? daysBetween(clubSummary.gameDate, String(nextFixture.match_date).slice(0, 10)) : 0
   const seasonEnded = club?.current_week >= 52
   const isHome = nextFixture?.home_team_id === club.id
+  const rival = nextFixture ? rivalLevel(rivalOf(nextFixture, club.id)?.strength) : null
   const wageUsage = financesSummary.wageBudget > 0 ? Math.round((financesSummary.weeklyWageBill / financesSummary.wageBudget) * 100) : 0
 
   // Acción principal según el momento: jugar, avanzar o cerrar la temporada
@@ -278,6 +280,13 @@ export default function Dashboard() {
                       <p className="eyebrow">{nextFixture.away_team_id === club.id ? 'Tu club' : 'Rival'}</p>
                     </div>
                   </div>
+
+                  {rival && (
+                    <p className="flex flex-wrap items-center gap-2 border-t border-line py-3 text-sm text-fg-muted" data-testid="rival-level">
+                      <Badge tone={rival.tone}>Rival: {rival.label} · nivel {rival.level}</Badge>
+                      <span>{rival.hint}</span>
+                    </p>
+                  )}
 
                   <div className="flex flex-col gap-2 border-t border-line pt-4 sm:flex-row sm:items-center">
                     <Button asChild variant="outline"><Link to="/tactics">Ajustar táctica y once</Link></Button>
