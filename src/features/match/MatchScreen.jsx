@@ -329,6 +329,20 @@ export default function MatchScreen() {
     logDirective(`[DT] ${order.label} - ${order.desc}`)
   }
 
+  // Del pitazo final al resumen (el botón también está arriba, junto al marcador)
+  const goToSummary = () => {
+    sessionStorage.removeItem(`active_match_${fixtureId || data.club?.id}`)
+    navigate('/post-match', {
+      state: {
+        results: simResults,
+        fixtureId: fixtureId || null,
+        managerId: data.club?.manager_id,
+        clubId: data.club?.id,
+        clubName: data.club?.name
+      }
+    })
+  }
+
   // Fin del partido: al llegar al minuto final se consolida el resultado
   useEffect(() => {
     if (matchState !== 'playing' || minute < MATCH_MINUTES) return
@@ -446,6 +460,21 @@ export default function MatchScreen() {
             </h2>
           </div>
         </div>
+
+        {matchState === 'finished' && (
+          <div className="mt-3 border-t border-line/80 pt-3 text-center space-y-2">
+            <p className="text-xs font-semibold text-fg-muted">Pitazo final</p>
+            <button
+              type="button"
+              onClick={goToSummary}
+              className="mx-auto flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-accent-fg transition-all hover:bg-accent-strong active:scale-95"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Continuar</span>
+            </button>
+            <p className="text-[11px] text-fg-subtle">Si querés, mirá las estadísticas antes de seguir.</p>
+          </div>
+        )}
 
         {matchState === 'playing' && paused && (
           <p role="status" className="mt-3 border-t border-line/80 pt-3 text-center text-xs font-semibold text-warning">
@@ -620,21 +649,8 @@ export default function MatchScreen() {
                 })}
               </div>
             ) : (
-              <button 
-                onClick={() => {
-                  const sessionKey = `active_match_${fixtureId || data.club?.id}`
-                  sessionStorage.removeItem(sessionKey)
-
-                  navigate('/post-match', { 
-                    state: { 
-                      results: simResults, 
-                      fixtureId: fixtureId || null, 
-                      managerId: data.club?.manager_id, 
-                      clubId: data.club?.id, 
-                      clubName: data.club?.name 
-                    } 
-                  })
-                }}
+              <button
+                onClick={goToSummary}
                 className="w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
               >
                 <CheckCircle className="w-4 h-4" />
