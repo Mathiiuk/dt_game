@@ -1,5 +1,4 @@
 import { supabase } from './supabase'
-import { FIXTURE_STATUS } from '../domain/fixtureStatus'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { homeAdvantage } from '../domain/consequences'
 import { SUSPENSION_POWER_FACTOR } from '../domain/barra'
@@ -521,16 +520,12 @@ export const matchEngineApi = {
     // 2. Actualizar fixture oficial de torneo si existe
     if (fixtureId) {
       try {
-        await supabase
-          .from('fixtures')
-          .update({
-            status: FIXTURE_STATUS.PLAYED,
-            home_score: homeScore,
-            away_score: awayScore,
-            current_minute: 90,
-            finished_at: new Date().toISOString()
-          })
-          .eq('id', fixtureId)
+        // El resultado y la tabla los cierra la base: valida que el partido sea tuyo, esté abierto, ya haya llegado su fecha
+        // y el marcador sea razonable (la simulación en vivo sigue en el navegador)
+        const { error: finishErr } = await supabase.rpc('finish_user_fixture', {
+          p_fixture_id: fixtureId, p_user_club_id: clubId, p_home: homeScore, p_away: awayScore
+        })
+        if (finishErr) throw new Error(finishErr.message)
 
         // Registrar eventos en match_events
         const keyEvents = events.filter(e => ['GOAL', 'CARD_RED', 'CARD_YELLOW'].includes(e.type))

@@ -163,19 +163,6 @@ export default function MatchScreen() {
         resultsToSave.stats
       )
 
-      if (data.fixture) {
-        const homeGoals = isHome ? resultsToSave.homeScore : resultsToSave.awayScore
-        const awayGoals = isHome ? resultsToSave.awayScore : resultsToSave.homeScore
-
-        const { competitionApi } = await import('../../api/competition')
-        await competitionApi._updateStandings(
-          data.fixture.competition_id, 
-          data.fixture.home_team_id, 
-          data.fixture.away_team_id, 
-          homeGoals, 
-          awayGoals
-        )
-      }
     } catch (err) {
       console.error('Error persistiendo resultado de partido:', err)
     }
@@ -184,11 +171,9 @@ export default function MatchScreen() {
   const handleStartMatch = async () => {
     const awayTactic = { mentality: 'Equilibrada', build_up: 'Posesión', pressure: 'Media', tempo: 'Normal' }
     
-    const opponentRep = data.fixture 
-      ? (data.fixture.home_team_id === data.club.id ? (data.fixture.away?.reputation || 10) : (data.fixture.home?.reputation || 10)) 
-      : 10
-      
-    const awayPlayers = buildRivalLineup(opponentRep)
+    const rival = data.fixture ? (data.fixture.home_team_id === data.club.id ? data.fixture.away : data.fixture.home) : null
+    // El rival juega con su fuerza real (si no la tiene, con la de su reputación)
+    const awayPlayers = buildRivalLineup(rival?.reputation || 10, rival?.strength ?? null)
     
     const isHome = data.fixture ? data.fixture.home_team_id === data.club.id : true
     const oppName = data.fixture 

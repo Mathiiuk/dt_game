@@ -154,8 +154,9 @@ const RIVAL_SLOTS = ['PO', 'LI', 'DFC1', 'DFC2', 'LD', 'MI', 'MC1', 'MC2', 'MD',
  * Once rival genérico para una liga sin planteles de IA: 4-4-2 donde todos rinden `50 + reputación / 2` en su puesto
  * (con reputación 15, 57: un poco por debajo de un plantel inicial del usuario, que ronda 60).
  */
-export const buildRivalLineup = (reputation = 10) => {
-  const level = Math.round(50 + reputation * 0.5)
+export const buildRivalLineup = (reputation = 10, strength = null) => {
+  // Con fuerza propia el rival rinde exactamente eso; si no la tiene, se estima por reputación
+  const level = strength != null ? Math.round(strength) : Math.round(50 + reputation * 0.5)
   return RIVAL_SLOTS.map((slot, idx) => ({
     id: `rival_${idx}`,
     first_name: 'Jugador',
