@@ -123,6 +123,15 @@ describe('negociación y fichajes resueltos por el servidor', () => {
     expect(inserted.every(r => r.club_id === null && r.market_value > 0 && r.contract_role === 'Libre')).toBe(true)
   })
 
+  it('dos pedidos seguidos del mercado reponen el pozo una sola vez', async () => {
+    const inserted = []
+    state.insertSpy = (rows) => inserted.push(...rows)
+    state.freeCount = 0
+    await Promise.all([marketApi.getMarketPlayers('c1', { gameDate: '2026-07-01' }), marketApi.getMarketPlayers('c1', { gameDate: '2026-07-01' })])
+    state.insertSpy = null
+    expect(inserted).toHaveLength(32)
+  })
+
   it('con el pozo completo no inserta nada', async () => {
     const inserted = []
     state.insertSpy = (rows) => inserted.push(...rows)

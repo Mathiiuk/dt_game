@@ -3,6 +3,9 @@ import { queryCache } from '../utils/cache'
 import { valueOfPlayer, askingPrice } from '../domain/valuation'
 import { freeAgentSpecs, freeAgentsNeeded } from '../domain/marketPool'
 
+// Reposición del pozo de agentes libres en curso (evita duplicarla si se abre el mercado dos veces a la vez)
+let poolInFlight = null
+
 export const marketApi = {
   /**
    * Algoritmo de valuación de mercado autoritativo por OVR, edad y categoría.
@@ -48,6 +51,13 @@ export const marketApi = {
    * (los que se rescinden y un grupo que se repone cuando quedan pocos).
    */
   async ensureFreeAgentPool(gameDate) {
+    // Una sola reposición en vuelo: la pantalla puede pedir el mercado dos veces seguidas y se duplicaría el pozo
+    if (poolInFlight) return poolInFlight
+    poolInFlight = this._ensureFreeAgentPool(gameDate).finally(() => { poolInFlight = null })
+    return poolInFlight
+  },
+
+  async _ensureFreeAgentPool(gameDate) {
     try {
       const { count } = await supabase.from('players').select('id', { count: 'exact', head: true }).is('club_id', null).eq('is_retired', false)
       const need = freeAgentsNeeded(count || 0)
