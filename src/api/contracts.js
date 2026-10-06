@@ -509,201 +509,58 @@ export const contractApi = {
   },
   
   /**
-   * Resolver oferta entrante: Aceptar, Rechazar o Contraofertar
+   * Resolver oferta entrante: Aceptar, Rechazar o Contraofertar. La resuelve la base (`resolve_sale_offer`) en una sola transacción:
+   * el monto sale de la oferta guardada (no del navegador), valida que sea de tu club y que el jugador siga siendo tuyo,
+   * y mueve la plata (80% del precio entra a la caja) y al jugador. Los argumentos de jugador, clubes y monto se mantienen por
+   * compatibilidad, pero la base no los usa.
    */
   async resolveOffer(offerId, status, playerId, fromClubId, toClubId, offerAmount, managerId, extra = {}) {
-    const { data: offer, error: fetchErr } = await supabase
-      .from('offers')
-      .select('*')
-      .eq('id', offerId)
-      .single()
+    const { data, error } = await supabase.rpc('resolve_sale_offer', {
+      p_offer_id: offerId,
+      p_action: status,
+      p_counter: status === 'COUNTER' ? (extra.counterAmount ?? null) : null
+    })
+    if (error) throw new Error(error.message)
 
-    if (fetchErr || !offer) throw new Error('Oferta no encontrada.')
-    if (offer.status === 'ACCEPTED' || offer.status === 'REJECTED') {
-      throw new Error('La oferta ya fue resuelta anteriormente (operación idempotente).')
-    }
+    queryCache.invalidate('offers:')
+    queryCache.invalidate('squad:')
+    if (data.status !== 'ACCEPTED') return data
 
-    const effectivePlayerId = playerId || offer.player_id
-    const effectiveToClubId = toClubId || offer.to_club_id
-    const effectiveFromClubId = fromClubId || offer.from_club_id
-    const effectiveAmount = offerAmount || offer.amount
-
-    if (status === 'COUNTER') {
-      const counterAmount = extra.counterAmount || Math.round(effectiveAmount * 1.15)
-      const maxTolerance = effectiveAmount * this.BALANCE.ai_counter_tolerance_threshold
-
-      if (counterAmount <= maxTolerance) {
-        await supabase
-          .from('offers')
-          .update({
-            amount: counterAmount,
-            counter_amount: counterAmount,
-            status: 'ACCEPTED'
-          })
-          .eq('id', offerId)
-
-        return await this.executeSaleTransfer({
-          offerId,
-          playerId: effectivePlayerId,
-          toClubId: effectiveToClubId,
-          fromClubId: effectiveFromClubId,
-          finalAmount: counterAmount,
-          managerId
-        })
-      } else {
-        await supabase
-          .from('offers')
-          .update({
-            status: 'REJECTED',
-            counter_amount: counterAmount
-          })
-          .eq('id', offerId)
-
-        queryCache.invalidate('offers:')
-        return {
-          status: 'REJECTED',
-          message: 'El club comprador ha rechazado la contraoferta por considerarla fuera de su presupuesto y se retiró de las negociaciones.'
-        }
-      }
-    }
-
-    if (status === 'REJECTED') {
-      await supabase
-        .from('offers')
-        .update({ status: 'REJECTED' })
-        .eq('id', offerId)
-
-      const { data: player } = await supabase
-        .from('players')
-        .select('market_value, personality, morale')
-        .eq('id', effectivePlayerId)
-        .maybeSingle()
-
-      if (player && effectiveAmount >= (player.market_value * 1.2)) {
-        const isAmbitious = player.personality === 'Ambicioso' || player.personality === 'Estrella'
-        const penalty = isAmbitious ? 25 : 15
-        const newMorale = Math.max(10, (player.morale ?? 70) - penalty)
-        
-        await supabase
-          .from('players')
-          .update({
-            morale: newMorale,
-            morale_unhappy_transfer_blocked: true
-          })
-          .eq('id', effectivePlayerId)
-      }
-
-      queryCache.invalidate('offers:')
-      queryCache.invalidate('squad:')
-      return { status: 'REJECTED' }
-    }
-
-    if (status === 'ACCEPTED') {
-      await supabase
-        .from('offers')
-        .update({ status: 'ACCEPTED' })
-        .eq('id', offerId)
-
-      return await this.executeSaleTransfer({
-        offerId,
-        playerId: effectivePlayerId,
-        toClubId: effectiveToClubId,
-        fromClubId: effectiveFromClubId,
-        finalAmount: effectiveAmount,
-        managerId
-      })
-    }
-  },
-
-  /**
-   * Ejecutar traspaso físico y liquidación financiera
-   */
-  async executeSaleTransfer({ offerId, playerId, toClubId, fromClubId, finalAmount, managerId }) {
-    const { data: toClub } = await supabase
-      .from('clubs')
-      .select('budget, name')
-      .eq('id', toClubId)
-      .single()
-
-    const reinvestment = Math.round(finalAmount * this.BALANCE.transfer_budget_reinvestment_ratio)
-    const newBudget = (toClub?.budget || 0) + reinvestment
-
-    await supabase.from('clubs').update({ budget: newBudget }).eq('id', toClubId)
-
+    const clubId = toClubId
     // Vender al ídolo o al capitán tiene costo en la tribuna y en el vestuario
     try {
       const [{ data: sold }, { data: locker }] = await Promise.all([
-        supabase.from('players').select('is_idol').eq('id', playerId).maybeSingle(),
-        supabase.from('club_locker_room').select('captain_player_id').eq('club_id', toClubId).maybeSingle()
+        supabase.from('players').select('is_idol').eq('id', data.player_id).maybeSingle(),
+        supabase.from('club_locker_room').select('captain_player_id').eq('club_id', clubId).maybeSingle()
       ])
       const { climateApi } = await import('./climate')
       const { saleConsequences } = await import('../domain/squadConsequences')
       await climateApi.applySquadConsequence({
-        clubId: toClubId,
+        clubId,
         source: 'SALE',
-        effects: saleConsequences({ isIdol: Boolean(sold?.is_idol), isCaptain: locker?.captain_player_id === playerId }, climateApi.difficulty)
+        gameDate: data.game_date,
+        effects: saleConsequences({ isIdol: Boolean(sold?.is_idol), isCaptain: locker?.captain_player_id === data.player_id }, climateApi.difficulty)
       })
     } catch (climateErr) {
       console.warn('Aviso: no se pudieron aplicar las consecuencias de la venta:', climateErr)
     }
-    
-    if (fromClubId) {
-      const { data: fromClub } = await supabase.from('clubs').select('budget').eq('id', fromClubId).maybeSingle()
-      if (fromClub) {
-        await supabase
-          .from('clubs')
-          .update({ budget: Math.max(0, (fromClub.budget || 0) - finalAmount) })
-          .eq('id', fromClubId)
-      }
-    }
-
-    await supabase
-      .from('players')
-      .update({
-        club_id: fromClubId,
-        is_transfer_listed: false,
-        transfer_status: 'NOT_FOR_SALE',
-        asking_price: null,
-        morale_unhappy_transfer_blocked: false
-      })
-      .eq('id', playerId)
-
-    try {
-      await supabase.from('transfer_audit_log').insert({
-        player_id: playerId,
-        from_club_id: toClubId,
-        to_club_id: fromClubId,
-        transfer_fee: finalAmount,
-        wage_weekly: 0,
-        season_year: 1
-      })
-    } catch {
-      // Ignorar si tabla no disponible
-    }
 
     if (managerId) {
-      await auditApi.logAction({
-        whoId: managerId,
-        action: 'SELL_PLAYER',
-        entityType: 'player',
-        entityId: playerId,
-        stateBefore: { club_id: toClubId, budget: toClub?.budget },
-        stateAfter: { club_id: fromClubId, budget: newBudget, amount: finalAmount, reinvestment }
-      })
+      try {
+        await auditApi.logAction({
+          whoId: managerId,
+          action: 'SELL_PLAYER',
+          entityType: 'player',
+          entityId: data.player_id,
+          stateAfter: { club_id: fromClubId, budget: data.new_budget, amount: data.amount, reinvestment: data.reinvestment }
+        })
+      } catch (e) { console.warn('Aviso: no se pudo auditar la venta:', e) }
     }
 
-    queryCache.invalidate('squad:')
-    queryCache.invalidate('offers:')
     queryCache.invalidate('finances:')
     queryCache.invalidate('club:')
     queryCache.invalidate('market:')
-
-    return {
-      status: 'ACCEPTED',
-      amount: finalAmount,
-      reinvestment,
-      newBudget
-    }
+    return { status: 'ACCEPTED', amount: data.amount, reinvestment: data.reinvestment, newBudget: data.new_budget }
   },
 
   /**
