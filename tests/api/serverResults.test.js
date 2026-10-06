@@ -40,6 +40,14 @@ describe('copa con resultados del servidor', () => {
     expect(state.writes.find(w => w.table === 'clubs')).toBeTruthy()
   })
 
+  it('el premio lo acredita la base: el navegador no toca la caja y solo informa el monto', async () => {
+    state.rpcResult = () => ({ data: { home_score: 2, away_score: 1, winner_club_id: 'me', match_bonus: 2500, champion_prize: 0 }, error: null })
+    const res = await internationalCupApi.playUserMatch('f1', 'me', 'm1')
+    expect(res.matchBonus).toBe(2500)
+    const clubWrites = state.writes.filter(w => w.table === 'clubs').map(w => w.row)
+    expect(clubWrites.every(r => !('budget' in r))).toBe(true)
+  })
+
   it('si el servidor rechaza (otra fecha, ya jugado), se informa su mensaje y no se paga nada', async () => {
     state.rpcResult = () => ({ data: null, error: { message: 'Este partido se juega el 2026-10-01. Avanzá las semanas hasta esa fecha.' } })
     await expect(internationalCupApi.playUserMatch('f1', 'me', 'm1')).rejects.toThrow(/Avanzá las semanas/)

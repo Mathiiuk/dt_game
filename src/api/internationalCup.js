@@ -203,14 +203,14 @@ export const internationalCupApi = {
 
     const homeScore = data.home_score
     const awayScore = data.away_score
-    const result = await this.processUserMatchResult(fixtureId, userClubId, managerId, homeScore, awayScore)
+    const result = await this.processUserMatchResult(fixtureId, userClubId, managerId, homeScore, awayScore, data)
     return { ...result, homeScore, awayScore }
   },
 
   /**
    * Procesa el resultado de un partido internacional del usuario
    */
-  async processUserMatchResult(fixtureId, userClubId, managerId, homeScore, awayScore) {
+  async processUserMatchResult(fixtureId, userClubId, managerId, homeScore, awayScore, serverResult = {}) {
     const { data: fixture } = await supabase
       .from('international_fixtures')
       .select('*, tournament:international_tournaments(*)')
@@ -226,13 +226,13 @@ export const internationalCupApi = {
     const userWon = userGoals > oppGoals
 
     // 2. Recompensas de Copa Continental
+    // Los premios (por partido y del campeón) ya los acreditó la base al guardar el resultado: acá solo se informan
     const { data: club } = await supabase.from('clubs').select('budget, reputation').eq('id', userClubId).single()
-    const matchBonus = userWon ? INTERNATIONAL_CUPS_CONFIG.win_bonus : INTERNATIONAL_CUPS_CONFIG.loss_bonus // premio por cada partido de copa
+    const matchBonus = Number(serverResult.match_bonus || 0)
     const xpBonus = userWon ? 100 : 35
 
     if (club) {
       await supabase.from('clubs').update({
-        budget: Number(club.budget || 0) + matchBonus,
         reputation: Math.min(100, (club.reputation || 50) + (userWon ? 2 : 0))
       }).eq('id', userClubId)
 
@@ -241,8 +241,7 @@ export const internationalCupApi = {
         action: 'INTERNATIONAL_MATCH_REWARD',
         entityType: 'club',
         entityId: userClubId,
-        stateBefore: { budget: club.budget },
-        stateAfter: { budget: Number(club.budget) + matchBonus, bonus: matchBonus }
+        stateAfter: { budget: Number(club.budget), bonus: matchBonus, championPrize: Number(serverResult.champion_prize || 0) }
       })
     }
 
@@ -286,11 +285,6 @@ export const internationalCupApi = {
 
     // 4. Si era la FINAL y el usuario ganó: Consagración continental suprema
     if (fixture.stage === 'final' && userWon) {
-      const champPrize = INTERNATIONAL_CUPS_CONFIG.champion_prize
-      await supabase.from('clubs').update({
-        budget: Number(club.budget || 0) + matchBonus + champPrize
-      }).eq('id', userClubId)
-
       await supabase.from('international_tournaments').update({
         status: 'finished',
         champion_id: userClubId
