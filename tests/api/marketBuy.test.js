@@ -1,5 +1,5 @@
 // Mercado: el fichaje lo resuelve la base (execute_transfer); el navegador solo propone el monto y aplica las consecuencias
-const state = { rpc: [], rpcResult: null, writes: [], players: [] }
+const state = { rpc: [], rpcResult: null, writes: [], players: [], freeCount: 0, insertSpy: null }
 
 vi.mock('../../src/api/audit', () => ({ auditApi: { logAction: vi.fn(async () => {}) } }))
 const finance = { expenses: { total: 500 }, wageOverBudget: false }
@@ -15,7 +15,8 @@ vi.mock('../../src/api/supabase', () => {
     for (const m of ['select', 'eq', 'or', 'is', 'limit']) q[m] = () => q
     q.maybeSingle = async () => ({ data: table === 'standings' ? { competition_id: 'comp' } : null })
     q.update = (row) => { state.writes.push({ table, row }); return q }
-    q.then = (resolve) => resolve({ data: table === 'players' ? state.players : table === 'standings' ? [{ club_id: 'rival' }] : [], error: null })
+    q.insert = (rows) => { state.insertSpy?.(rows); return Promise.resolve({ error: null }) }
+    q.then = (resolve) => resolve({ data: table === 'players' ? state.players : table === 'standings' ? [{ club_id: 'rival' }] : [], count: state.freeCount ?? 0, error: null })
     return q
   }
   return { supabase: { from: chain, rpc: async (fn, args) => { state.rpc.push({ fn, args }); return state.rpcResult(fn, args) } } }
@@ -103,4 +104,32 @@ describe('negociación y fichajes resueltos por el servidor', () => {
     state.players = []
     expect(await marketApi.getMarketPlayers('c1')).toEqual([])
   })
+
+  it('la ventana de pases sale del texto de la fecha (el 1 de julio ya está abierta en cualquier zona horaria)', () => {
+    expect(marketApi.getMarketStatus('2026-07-01').isOpen).toBe(true)
+    expect(marketApi.getMarketStatus('2026-08-31').isOpen).toBe(true)
+    expect(marketApi.getMarketStatus('2026-09-01').isOpen).toBe(false)
+    expect(marketApi.getMarketStatus('2027-01-01').windowName).toMatch(/Invierno/)
+    expect(marketApi.getMarketStatus('2027-03-01').isOpen).toBe(false)
+  })
+
+  it('con pocos agentes libres el mercado se repone con jugadores sin club', async () => {
+    const inserted = []
+    state.insertSpy = (rows) => inserted.push(...rows)
+    state.freeCount = 3
+    await marketApi.getMarketPlayers('c1', { gameDate: '2026-07-01' })
+    state.insertSpy = null
+    expect(inserted).toHaveLength(29)
+    expect(inserted.every(r => r.club_id === null && r.market_value > 0 && r.contract_role === 'Libre')).toBe(true)
+  })
+
+  it('con el pozo completo no inserta nada', async () => {
+    const inserted = []
+    state.insertSpy = (rows) => inserted.push(...rows)
+    state.freeCount = 30
+    await marketApi.getMarketPlayers('c1', { gameDate: '2026-07-01' })
+    state.insertSpy = null
+    expect(inserted).toEqual([])
+  })
 })
+

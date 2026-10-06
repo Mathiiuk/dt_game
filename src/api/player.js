@@ -114,6 +114,21 @@ export const buildYouthProspect = ({ clubId, academyLevel = 1, shirtNumber, nati
   })
 }
 
+/** Filas de agentes libres (sin club) a partir de sus perfiles: nombre al azar, dorsal libre y contrato de 3 años que se rehace al fichar */
+export const buildFreeAgentRows = (specs, gameDate = '2026-07-01') => specs.map(spec => buildProspectRow({
+  clubId: null,
+  firstName: pick(FIRST_NAMES),
+  lastName: pick(LAST_NAMES),
+  age: spec.age,
+  position: spec.position,
+  overall: spec.overall,
+  potential: spec.potential,
+  shirtNumber: randomInt(21, 99),
+  gameDate,
+  role: 'Libre',
+  isYouth: false
+}))
+
 export const playerApi = {
   /**
    * Actualiza varios jugadores en UNA sola llamada (RPC batch_update_players).

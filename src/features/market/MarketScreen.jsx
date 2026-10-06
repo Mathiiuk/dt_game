@@ -48,7 +48,7 @@ export default function MarketScreen() {
   const loadData = async () => {
     try {
       if (!club?.id) return
-      const list = await marketApi.getMarketPlayers(club.id, {})
+      const list = await marketApi.getMarketPlayers(club.id, { gameDate: club.game_date })
       setMarketStatus(marketApi.getMarketStatus(club.game_date))
 
       const { data: scouted } = await supabase.from('scout_reports').select('*').eq('club_id', club.id)

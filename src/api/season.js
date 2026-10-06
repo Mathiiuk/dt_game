@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { seasonYearOf } from '../domain/gameWeek'
 import { competitionApi } from './competition'
 import { auditApi } from './audit'
 import { FIXTURE_OPEN_STATUSES, FIXTURE_STATUS } from '../domain/fixtureStatus'
@@ -58,7 +59,7 @@ export const seasonApi = {
     else if (position <= 5) prizeMoney = 90000
     else if (position <= 10) prizeMoney = 60000
 
-    const currentYear = new Date(club.game_date).getFullYear()
+    const currentYear = seasonYearOf(club.game_date)
 
     // 3. Guardar en season_history
     await supabase.from('season_history').insert({

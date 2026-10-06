@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { valueOfPlayer, askingPrice } from '../domain/valuation'
+import { freeAgentSpecs, freeAgentsNeeded } from '../domain/marketPool'
 
 export const marketApi = {
   /**
@@ -14,8 +15,8 @@ export const marketApi = {
    * Estado de la ventana reglamentaria de pases.
    */
   getMarketStatus(dateString) {
-    const d = new Date(dateString || '2026-08-01')
-    const month = d.getMonth() + 1 // 1 a 12
+    // El mes sale del texto de la fecha: new Date('2026-07-01') es medianoche UTC y en Argentina cae el 30 de junio
+    const month = Number(String(dateString || '2026-08-01').slice(5, 7)) // 1 a 12
 
     // Verano: Julio (7) y Agosto (8) | Invierno: Enero (1) y Febrero (2)
     const isSummer = month === 7 || month === 8
@@ -43,10 +44,30 @@ export const marketApi = {
   },
 
   /**
+   * Repone los agentes libres del mercado. Los clubes rivales no tienen plantel propio: el mercado vive de los jugadores sin club
+   * (los que se rescinden y un grupo que se repone cuando quedan pocos).
+   */
+  async ensureFreeAgentPool(gameDate) {
+    try {
+      const { count } = await supabase.from('players').select('id', { count: 'exact', head: true }).is('club_id', null).eq('is_retired', false)
+      const need = freeAgentsNeeded(count || 0)
+      if (!need) return 0
+      const { buildFreeAgentRows } = await import('./player')
+      const { error } = await supabase.from('players').insert(buildFreeAgentRows(freeAgentSpecs(need), gameDate))
+      if (error) throw new Error(error.message)
+      return need
+    } catch (e) {
+      console.warn('Aviso: no se pudo reponer el mercado de agentes libres:', e)
+      return 0
+    }
+  },
+
+  /**
    * Obtiene la nómina de futbolistas en el mercado con datos de ojeo.
    */
   async getMarketPlayers(currentClubId, filters = {}) {
     try {
+      if (filters.gameDate) await this.ensureFreeAgentPool(filters.gameDate)
       let query = supabase
         .from('players')
         .select('*, clubs(name, short_name, primary_color, reputation)')

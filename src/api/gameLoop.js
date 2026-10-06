@@ -109,12 +109,8 @@ export const gameLoopApi = {
     }
 
     // 5. Avanzar fecha a la próxima temporada (Julio del año siguiente)
-    const currentDate = new Date(club?.game_date || '2026-07-01')
-    currentDate.setFullYear(currentDate.getFullYear() + 1)
-    currentDate.setMonth(6) // Julio
-    currentDate.setDate(1)
-
-    const nextSeasonDate = currentDate.toISOString().split('T')[0]
+    // La temporada siguiente arranca el 1 de julio del año de temporada que viene (sin pasar por el reloj ni la zona horaria)
+    const nextSeasonDate = `${seasonYearOf(club?.game_date || '2026-07-01') + 1}-07-01`
 
     await supabase.from('clubs').update({
       game_date: nextSeasonDate,
