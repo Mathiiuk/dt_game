@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 export default defineConfig({
+  // Además de VITE_*, se expone SOLO la clave pública de reCAPTCHA con el nombre sin prefijo (Vercel avisa por el prefijo
+  // "público"; la clave del sitio es pública por diseño). El prefijo es el nombre exacto: no expone RECAPTCHA_SECRET ni otras.
+  envPrefix: ['VITE_', 'RECAPTCHA_SITE_KEY'],
   plugins: [
     react(),
     tailwindcss(),
