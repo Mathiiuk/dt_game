@@ -5,13 +5,16 @@ import { managerApi } from './manager'
 import { auditApi } from './audit'
 
 export const INTERNATIONAL_CUPS_CONFIG = {
-  group_stage_qualification_prize: 300000,
-  group_stage_win_bonus: 50000,
-  round_of_16_prize: 400000,
-  quarter_finals_prize: 600000,
-  semi_finals_prize: 900000,
-  runner_up_prize: 1200000,
-  champion_prize: 2000000,
+  // Premios escalados a la economía del club de la división 5 (caja inicial ~$20.000): antes eran de millones
+  group_stage_qualification_prize: 3000,
+  group_stage_win_bonus: 500,
+  round_of_16_prize: 4000,
+  quarter_finals_prize: 5000,
+  semi_finals_prize: 8000,
+  runner_up_prize: 12000,
+  champion_prize: 25000,
+  win_bonus: 2500,
+  loss_bonus: 800,
   continental_title_reputation_boost: 25.0,
   travel_fatigue_penalty: -10
 }
@@ -224,7 +227,7 @@ export const internationalCupApi = {
 
     // 2. Recompensas de Copa Continental
     const { data: club } = await supabase.from('clubs').select('budget, reputation').eq('id', userClubId).single()
-    const matchBonus = userWon ? 200000 : 75000 // Gran premio económico por partido de copa
+    const matchBonus = userWon ? INTERNATIONAL_CUPS_CONFIG.win_bonus : INTERNATIONAL_CUPS_CONFIG.loss_bonus // premio por cada partido de copa
     const xpBonus = userWon ? 100 : 35
 
     if (club) {
@@ -283,7 +286,7 @@ export const internationalCupApi = {
 
     // 4. Si era la FINAL y el usuario ganó: Consagración continental suprema
     if (fixture.stage === 'final' && userWon) {
-      const champPrize = INTERNATIONAL_CUPS_CONFIG.champion_prize // $2,000,000
+      const champPrize = INTERNATIONAL_CUPS_CONFIG.champion_prize
       await supabase.from('clubs').update({
         budget: Number(club.budget || 0) + matchBonus + champPrize
       }).eq('id', userClubId)

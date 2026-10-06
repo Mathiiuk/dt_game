@@ -166,7 +166,7 @@ export default function InternationalCupScreen() {
         backTo="/standings"
         eyebrow={`Temporada ${tournament.season_year || 2026} · Torneo de clubes de América`}
         title={tournament.name || 'Copa Gloria Continental'}
-        actions={<Stat label="Bolsa de premios" value={formatMoney(tournament.prize_pool || 1500000)} valueClassName="text-2xl text-accent" className="text-right" />}
+        actions={<Stat label="Bolsa de premios" value={formatMoney(tournament.prize_pool || 25000)} valueClassName="text-2xl text-accent" className="text-right" />}
       />
 
       {!cupData?.qualified && (

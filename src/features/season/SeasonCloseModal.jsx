@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Trophy, CheckCircle2, Landmark, Building2, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { seasonCloseApi } from '../../api/seasonClose'
+import { climateApi } from '../../api/climate'
+import { seasonStory } from '../../domain/seasonStory'
 import { useGameContext } from '../../context/GameContext'
 import { formatMoney } from '../../lib/format'
 import { Badge, Button, Card, CardBody, ResponsiveOverlay } from '../../components/ui'
@@ -19,12 +21,29 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
   const { refreshContext } = useGameContext()
   const [closing, setClosing] = useState(false)
   const [closedSummary, setClosedSummary] = useState(null)
+  const [story, setStory] = useState(null)
 
   const handleExecuteClose = async () => {
     try {
       setClosing(true)
       const res = await seasonCloseApi.executeSeasonClose({ careerId: careerId || club?.career_id, clubId: club.id, seasonYear })
       setClosedSummary(res)
+      // Resumen de historia del año: se arma con el resultado final y las consecuencias registradas
+      try {
+        const data = await climateApi.getSeasonSummaryData(club.id, seasonYear)
+        setStory(seasonStory({
+          clubName: club.name,
+          position: res.userPosition,
+          champion: res.championClub?.club_id === club.id,
+          promoted: res.isPromoted,
+          prize: res.totalPrizeAwarded,
+          cash: res.newBudget,
+          state: data.state,
+          counts: data.counts
+        }))
+      } catch (storyErr) {
+        console.warn('Aviso: no se pudo armar el resumen de la temporada:', storyErr)
+      }
       toast.success('Temporada cerrada. Comienza la pretemporada.')
       if (typeof refreshContext === 'function') await refreshContext()
       onSuccess?.(res)
@@ -60,8 +79,8 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
           <Card as="div">
             <CardBody className="space-y-1.5">
               <p className="flex items-center gap-2 text-sm text-fg-muted"><Landmark className="size-4 text-accent" aria-hidden="true" />Premios federativos</p>
-              <p className="num font-display text-3xl font-semibold text-accent">+{formatMoney(60000)}</p>
-              <p className="text-xs text-fg-subtle">Se acreditan en la caja al cerrar la temporada.</p>
+              <p className="num font-display text-3xl font-semibold text-accent">{formatMoney(1000)} a {formatMoney(12000)}</p>
+              <p className="text-xs text-fg-subtle">Según la posición final. Se acreditan en la caja al cerrar la temporada.</p>
             </CardBody>
           </Card>
           <Card as="div">
@@ -97,6 +116,15 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
               Se archivó el balance oficial. Tu caja es de <span className="num font-semibold text-fg">{formatMoney(closedSummary.newBudget)}</span>.
             </p>
           </div>
+        )}
+
+        {story && (
+          <section aria-labelledby="season-story" className="rounded-lg border border-line bg-surface-2 p-4">
+            <h3 id="season-story" className="font-display text-lg font-semibold text-fg">{story.headline}</h3>
+            <ul className="mt-2 space-y-1.5 text-sm text-fg-muted">
+              {story.lines.map(line => <li key={line}>{line}</li>)}
+            </ul>
+          </section>
         )}
       </div>
     </ResponsiveOverlay>

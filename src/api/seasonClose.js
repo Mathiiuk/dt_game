@@ -12,12 +12,15 @@ export const SEASON_PRIZES = {
   RELEGATION: { min: 18, max: 20, prize: 5000, label: 'Zona Baja / Descenso' }
 }
 
+/** Premios federativos escalados a la economía del club de la división 5 (la caja inicial es de unos $20.000 y un año deja ~$45.000) */
+export const TOP_SCORER_BONUS = 1500
+
 export function getPrizeForPosition(pos) {
-  if (pos === 1) return 100000
-  if (pos === 2) return 60000
-  if (pos >= 3 && pos <= 6) return 30000
-  if (pos >= 7 && pos <= 17) return 15000
-  return 5000
+  if (pos === 1) return 12000
+  if (pos === 2) return 8000
+  if (pos >= 3 && pos <= 6) return 5000
+  if (pos >= 7 && pos <= 17) return 2500
+  return 1000
 }
 
 export const seasonCloseApi = {
@@ -100,7 +103,7 @@ export const seasonCloseApi = {
     const userClubIndex = standings.findIndex(s => s.club_id === clubId)
     const userPosition = userClubIndex >= 0 ? userClubIndex + 1 : 2
     const basePrize = getPrizeForPosition(userPosition)
-    const topScorerBonus = (topScorer && topScorer.club_id === clubId) ? 10000 : 0
+    const topScorerBonus = (topScorer && topScorer.club_id === clubId) ? TOP_SCORER_BONUS : 0
     const totalPrizeAwarded = basePrize + topScorerBonus
 
     const { data: currentClub } = await supabase

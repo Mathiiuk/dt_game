@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Activity, History } from 'lucide-react'
+import { Activity, History, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { climateApi } from '../../api/climate'
 import { climateVisibility, CLIMATE, DIFFICULTY } from '../../domain/consequences'
@@ -8,6 +8,14 @@ import { absoluteWeek } from '../../domain/gameWeek'
 import { formatMoney } from '../../lib/format'
 import { friendlyError } from '../../lib/errors'
 import { Badge, Card, CardBody, CardHeader, CardTitle, Progress, Segmented } from '../../components/ui'
+
+// El clima se ve: el borde y el fondo de la tarjeta cambian de tono (sin animaciones: respeta "reducir movimiento")
+const CLIMATE_LOOK = {
+  FLOWS: 'border-accent/40 bg-accent-soft/20',
+  TENSION: 'border-warning/40 bg-warning-soft/20',
+  CRISIS: 'border-danger/40 bg-danger-soft/20',
+  CHAOS: 'border-danger bg-danger-soft/40'
+}
 
 const DIFFICULTY_OPTIONS = Object.values(DIFFICULTY).map(d => ({ value: d.key, label: d.label }))
 
@@ -53,7 +61,7 @@ export function ClimatePanel({ club, gameDate }) {
   }
 
   return (
-    <Card>
+    <Card data-climate={visible.pressure ? climate.key : undefined} className={visible.pressure ? CLIMATE_LOOK[climate.key] : undefined}>
       <CardHeader>
         <div className="flex items-center gap-2.5">
           <Activity className="size-5 text-accent" aria-hidden="true" />
@@ -131,6 +139,9 @@ export function ConsequenceFeed({ clubId }) {
           <ul className="divide-y divide-line">
             {items.map(item => (
               <li key={item.id} className="py-2.5 text-sm">
+                {item.source === 'COMBO' && (
+                  <Badge tone={/Círculo vicioso/.test(item.message) ? 'danger' : 'accent'} className="mb-1"><Zap className="size-3" aria-hidden="true" />{/Círculo vicioso/.test(item.message) ? 'Círculo vicioso' : 'Combo'}</Badge>
+                )}
                 <p className="text-fg">{item.message}</p>
                 <p className="mt-0.5 text-xs text-fg-subtle">Semana {item.week_number}</p>
               </li>

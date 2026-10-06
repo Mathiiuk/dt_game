@@ -6,7 +6,9 @@ import { BARRA_STAGES, BARRA_LABELS, shiftBarra, nextBarraStage, barraWeeklyEffe
 import { BARRA_EVENTS, EMERGENCY_MEETING, BOARD_FAVOR_DUE } from '../domain/climateEvents'
 import { shouldReactivateWarnings } from '../domain/warnings'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
-import { wageInequities, benchComplainers } from '../domain/squadConsequences'
+import { wageInequities, benchComplainers, trainingLoad } from '../domain/squadConsequences'
+import { detectCombos } from '../domain/combos'
+import { countBySource } from '../domain/seasonStory'
 
 const sign = (n) => (n > 0 ? `+${n}` : String(n))
 
@@ -137,12 +139,14 @@ export const climateApi = {
     const { financesApi } = await import('./finances')
 
     // Todo lo que se lee es independiente: una sola ronda de consultas
-    const [clubRes, streaks, finances, boardRes, playersRes] = await Promise.all([
+    const { trainingApi } = await import('./training')
+    const [clubRes, streaks, finances, boardRes, playersRes, recentIntensities] = await Promise.all([
       supabase.from('clubs').select('budget, ticket_price, wage_budget, squad_morale').eq('id', clubId).single(),
       moraleApi.getStreaks(clubId),
       financesApi.getFinances(clubId),
       supabase.from('club_board_confidence').select('sports_satisfaction').eq('club_id', clubId).maybeSingle(),
-      supabase.from('players').select('id, attr_overall, contract_salary, state_morale, is_injured').eq('club_id', clubId).eq('is_retired', false)
+      supabase.from('players').select('id, attr_overall, contract_salary, state_morale, is_injured').eq('club_id', clubId).eq('is_retired', false),
+      trainingApi.getRecentIntensities(clubId).catch(() => [])
     ])
     const club = clubRes.data
     if (!club) return null
@@ -159,9 +163,23 @@ export const climateApi = {
     // Las escrituras tocan filas distintas (hinchada del club, satisfacción de la dirigencia, moral de los jugadores): van juntas
     await Promise.all([
       (async () => {
-        if (!mood.fans) return
-        await this.applyDeltas(clubId, { fans: mood.fans })
-        await this.log(clubId, gameDate, 'TICKET_PRICE', `${mood.note} (hinchada ${sign(mood.fans)})`, { fans: mood.fans })
+        if (mood.fans) {
+          await this.applyDeltas(clubId, { fans: mood.fans })
+          await this.log(clubId, gameDate, 'TICKET_PRICE', `${mood.note} (hinchada ${sign(mood.fans)})`, { fans: mood.fans })
+        }
+        // Combos y círculos viciosos: en la misma rama que el humor por el precio, para no pisarse al escribir el club
+        const trainingHighWeeks = recentIntensities.length
+          ? trainingLoad({ recent: recentIntensities.slice(1), current: recentIntensities[0] }).consecutiveHigh
+          : 0
+        const combos = detectCombos({
+          price: Number(club.ticket_price || 10),
+          streaks,
+          trainingHighWeeks,
+          injuredCount: (playersRes.data || []).filter(p => p.is_injured).length
+        }, this.difficulty)
+        for (const combo of combos) {
+          await this.applySquadConsequence({ clubId, source: 'COMBO', gameDate, effects: { ...combo.effects, notes: [`${combo.label}. ${combo.note}`] } })
+        }
       })(),
       (async () => {
         if (!row) return
@@ -408,6 +426,15 @@ export const climateApi = {
     }
     queryCache.invalidate(`climate:${clubId}`)
     return null
+  },
+
+  /** Datos para el resumen de la temporada: el estado del clima y cuántas consecuencias hubo de cada tipo */
+  async getSeasonSummaryData(clubId, seasonYear) {
+    const [state, { data: logs }] = await Promise.all([
+      this.getState(clubId),
+      supabase.from('consequence_log').select('source').eq('club_id', clubId).eq('season_year', seasonYear)
+    ])
+    return { state, counts: countBySource(logs || []) }
   },
 
   /** Últimas consecuencias registradas del club */

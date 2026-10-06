@@ -1,0 +1,62 @@
+/**
+ * Combos y círculos viciosos: combinaciones de decisiones y resultados que se premian o se castigan de forma visible.
+ * Se detectan una vez por racha (cuando la racha llega justo al valor que dispara el combo) para no repetirse cada semana.
+ */
+import { scaleEffect, DIFFICULTY } from './consequences'
+
+export const COMBO_KIND = { COMBO: 'COMBO', VICIOUS: 'VICIOUS' }
+
+/**
+ * @param {object} ctx { price, recommended, streaks: { win, loss, winless }, trainingHighWeeks, injuredCount }
+ * @returns {Array<{ key, kind, label, note, effects: { fans, board, locker } }>}
+ */
+export function detectCombos({ price = 10, recommended = 10, streaks = {}, trainingHighWeeks = 0, injuredCount = 0 }, difficulty = DIFFICULTY.NORMAL) {
+  const found = []
+  const ratio = price / recommended
+
+  // Entrada barata y el equipo ganando: la gente se vuelca a la cancha
+  if (ratio <= 0.7 && streaks.win === 3) {
+    found.push({
+      key: 'VILLAGE_PARTY',
+      kind: COMBO_KIND.COMBO,
+      label: 'La fiesta del pueblo',
+      note: 'Entradas accesibles y tres victorias seguidas: el barrio entero se vuelca a la cancha.',
+      effects: { fans: scaleEffect(8, difficulty), board: scaleEffect(2, difficulty), locker: scaleEffect(3, difficulty) }
+    })
+  }
+
+  // Entrada cara y el equipo sin ganar: la tribuna pierde la paciencia
+  if (ratio >= 1.5 && streaks.winless === 3) {
+    found.push({
+      key: 'EXPENSIVE_LOSING',
+      kind: COMBO_KIND.VICIOUS,
+      label: 'Círculo vicioso: entradas caras y sin ganar',
+      note: 'Cuesta caro ir a la cancha y el equipo no gana: cada vez va menos gente y cada vez hay más bronca.',
+      effects: { fans: scaleEffect(-8, difficulty), board: scaleEffect(-2, difficulty), locker: 0 }
+    })
+  }
+
+  // Entrenar al límite con el plantel ya golpeado
+  if (trainingHighWeeks === 3 && injuredCount >= 3) {
+    found.push({
+      key: 'BURNED_SQUAD',
+      kind: COMBO_KIND.VICIOUS,
+      label: 'Círculo vicioso: plantel reventado',
+      note: 'Tres semanas a máxima intensidad y ya hay varios lesionados: el cuerpo médico pide frenar.',
+      effects: { fans: 0, board: scaleEffect(-2, difficulty), locker: scaleEffect(-8, difficulty) }
+    })
+  }
+
+  // Racha larga sin perder con la dirigencia contenta
+  if (streaks.unbeaten === 6 && streaks.loss === 0) {
+    found.push({
+      key: 'UNBEATEN_SPELL',
+      kind: COMBO_KIND.COMBO,
+      label: 'Racha de campeón',
+      note: 'Seis partidos sin perder: en el club se respira otro aire.',
+      effects: { fans: scaleEffect(4, difficulty), board: scaleEffect(4, difficulty), locker: scaleEffect(4, difficulty) }
+    })
+  }
+
+  return found
+}

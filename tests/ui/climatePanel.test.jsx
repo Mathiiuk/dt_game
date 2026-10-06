@@ -84,4 +84,47 @@ describe('Esto pasó por tu decisión', () => {
     expect(await screen.findByText('Subiste la entrada y la hinchada se queja.')).toBeInTheDocument()
     expect(screen.getByText('Semana 11')).toBeInTheDocument()
   })
+
+  it('los combos y los círculos viciosos aparecen con su insignia en el feed', async () => {
+    getRecent.mockResolvedValueOnce([
+      { id: 'c', source: 'COMBO', message: 'La fiesta del pueblo. El barrio se vuelca a la cancha.', week_number: 9 },
+      { id: 'v', source: 'COMBO', message: 'Círculo vicioso: plantel reventado. El cuerpo médico pide frenar.', week_number: 8 },
+      { id: 'n', source: 'SALE', message: 'Vendiste al ídolo del club.', week_number: 7 }
+    ])
+    render(<ConsequenceFeed clubId="c1" />)
+    expect(await screen.findByText('Combo')).toBeInTheDocument()
+    expect(screen.getByText('Círculo vicioso')).toBeInTheDocument()
+    // Solo las filas de combos llevan insignia
+    expect(screen.getAllByRole('listitem')).toHaveLength(3)
+  })
+})
+
+describe('tono visual del clima', () => {
+  const look = async (climate) => {
+    state.current = { climate, pressure: 70, barra_stage: 'CALM', suspended_matches: 0, difficulty: 'NORMAL' }
+    const { container, unmount } = render(<ClimatePanel club={club} gameDate="2026-10-15" />)
+    await screen.findByText(climate === 'FLOWS' ? 'Fluye' : climate === 'TENSION' ? 'Tensión' : climate === 'CRISIS' ? 'Crisis' : 'Caos')
+    const card = container.querySelector('[data-climate]')
+    const result = { key: card.getAttribute('data-climate'), cls: card.className }
+    unmount()
+    return result
+  }
+
+  it('cada clima pinta la tarjeta de un tono distinto: del verde al rojo', async () => {
+    const flows = await look('FLOWS')
+    const tension = await look('TENSION')
+    const crisis = await look('CRISIS')
+    const chaos = await look('CHAOS')
+    expect(flows.cls).toMatch(/accent/)
+    expect(tension.cls).toMatch(/warning/)
+    expect(crisis.cls).toMatch(/danger/)
+    expect(chaos.cls).toMatch(/danger/)
+    expect(new Set([flows.cls, tension.cls, crisis.cls, chaos.cls]).size).toBe(4)
+    expect([flows.key, chaos.key]).toEqual(['FLOWS', 'CHAOS'])
+  })
+
+  it('en las primeras semanas la tarjeta no se tiñe: todavía no se muestra el clima', () => {
+    const { container } = render(<ClimatePanel club={club} gameDate="2026-07-01" />)
+    expect(container.querySelector('[data-climate]')).toBeNull()
+  })
 })
