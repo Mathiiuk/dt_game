@@ -282,6 +282,12 @@ export const pressApi = {
     }
   },
 
+  /** "Completá la frase del DT": ±1 de hinchada según lo bien que cae la frase elegida */
+  async applyPhrase({ clubId, fans = 0, gameDate = null }) {
+    if (!clubId || !fans) return null
+    return climateApi.applySquadConsequence({ clubId, source: 'PRESS', gameDate, effects: { fans, notes: ['La frase que elegiste en la conferencia.'] } })
+  },
+
   /**
    * Responde a una pregunta de la rueda de prensa
    */

@@ -40,13 +40,14 @@ const renderScreen = () => render(
     <Routes>
       <Route path="/post-match" element={<PostMatchScreen />} />
       <Route path="/dashboard" element={<p>Pantalla de inicio</p>} />
+      <Route path="/standings" element={<p>Tabla de posiciones</p>} />
     </Routes>
   </MemoryRouter>
 )
 
 const openPress = async () => {
   renderScreen()
-  await userEvent.click(await screen.findByRole('button', { name: /Rueda de prensa/ }))
+  await userEvent.click(await screen.findByRole('button', { name: /Continuar a la rueda de prensa/ }))
 }
 
 describe('rueda de prensa después del partido', () => {
@@ -71,19 +72,26 @@ describe('rueda de prensa después del partido', () => {
     expect(screen.getByText(/¿Qué pasó hoy?/)).toBeInTheDocument()
   })
 
+  it('después del partido el resumen ofrece seguir a la prensa en un paso, sin recorrer las pestañas', async () => {
+    renderScreen()
+    expect(await screen.findByRole('button', { name: /Continuar a la rueda de prensa/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Rueda de prensa$/ })).toBeNull()
+    expect(screen.getByRole('button', { name: /Crónica y incidencias/ })).toBeInTheDocument()
+  })
+
   it('irse sin hablar cuenta como no presentarse (con aviso previo)', async () => {
     renderScreen()
-    await userEvent.click(await screen.findByRole('button', { name: /Volver al inicio/ }))
+    await userEvent.click(await screen.findByRole('button', { name: /Ver tabla de posiciones/ }))
     expect(confirmAction).toHaveBeenCalledTimes(1)
     await waitFor(() => expect(skipConference).toHaveBeenCalledTimes(1))
-    expect(await screen.findByText('Pantalla de inicio')).toBeInTheDocument()
+    expect(await screen.findByText('Tabla de posiciones')).toBeInTheDocument()
   })
 
   it('irse sin hablar y cancelar el aviso te deja en la pantalla', async () => {
     confirmAction.mockResolvedValue(false)
     renderScreen()
-    await userEvent.click(await screen.findByRole('button', { name: /Volver al inicio/ }))
+    await userEvent.click(await screen.findByRole('button', { name: /Ver tabla de posiciones/ }))
     expect(skipConference).not.toHaveBeenCalled()
-    expect(screen.queryByText('Pantalla de inicio')).not.toBeInTheDocument()
+    expect(screen.queryByText('Tabla de posiciones')).not.toBeInTheDocument()
   })
 })

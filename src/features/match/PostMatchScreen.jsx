@@ -28,6 +28,7 @@ import {
 import { toast } from 'sonner'
 import { AsyncButton } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
+import PressRoom from './PressRoom'
 
 export default function PostMatchScreen() {
   const navigate = useNavigate()
@@ -37,7 +38,9 @@ export default function PostMatchScreen() {
   const officialFixtureId = stateFixtureId || results?.fixtureId || null
 
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('CRONICA') // 'CRONICA' | 'STATS' | 'RATINGS' | 'FINANCES' | 'PRENSA'
+  const [activeTab, setActiveTab] = useState('CRONICA') // 'CRONICA' | 'STATS' | 'RATINGS' | 'FINANCES'
+  // Dos pasos: el resumen (estadísticas si se quieren) y después la rueda de prensa
+  const [step, setStep] = useState('SUMMARY') // 'SUMMARY' | 'PRESS'
   const [processedData, setProcessedData] = useState(null)
   
   // Conferencia de Prensa (Fase 24)
@@ -113,12 +116,13 @@ export default function PostMatchScreen() {
     process()
   }, [results, managerId, clubId, navigate])
 
-  const handleSelectPressOption = async (questionId, option) => {
+  // Responde una pregunta: la sala reacciona y el DT sigue con "Siguiente" (ver PressRoom)
+  const handleSelectPressOption = async (question, option) => {
     if (!pressConference) return
     try {
-      const res = await pressApi.submitAnswer({
+      await pressApi.submitAnswer({
         conferenceId: pressConference.id,
-        questionId,
+        questionId: question.id,
         chosenTone: option.tone,
         answerText: option.text,
         moraleImpact: option.moraleDelta,
@@ -126,17 +130,23 @@ export default function PostMatchScreen() {
         managerId,
         outcome: outcomeOf(results)
       })
-      toast.success(`Declaración emitida (${option.tone}) • Moral (${option.moraleDelta >= 0 ? '+' : ''}${option.moraleDelta})`)
-      
-      setPressQuestions(prev => prev.map(q => q.id === questionId ? { ...q, chosen_tone: option.tone, manager_answer_text: option.text } : q))
-
-      if (res.isFinished || currentQIndex + 1 >= pressQuestions.length) {
-        setIsPressFinished(true)
-      } else {
-        setCurrentQIndex(prev => prev + 1)
-      }
+      setPressQuestions(prev => prev.map(q => q.id === question.id ? { ...q, chosen_tone: option.tone, manager_answer_text: option.text } : q))
     } catch (err) {
       toast.error(friendlyError(err, 'Error al emitir respuesta'))
+      throw err
+    }
+  }
+
+  const handleNextPress = () => {
+    if (currentQIndex + 1 >= pressQuestions.length) setIsPressFinished(true)
+    else setCurrentQIndex(prev => prev + 1)
+  }
+
+  const handlePhrase = async (result) => {
+    try {
+      await pressApi.applyPhrase({ clubId, fans: result.fans, gameDate: processedData?.gameDate || null })
+    } catch (err) {
+      console.warn('Aviso: no se pudo aplicar la frase del DT:', err)
     }
   }
 
@@ -258,14 +268,13 @@ export default function PostMatchScreen() {
           </div>
         </div>
 
-        {/* 4 Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-line text-xs">
+        {/* Pestañas del resumen */}
+        {step === 'SUMMARY' && <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-line text-xs">
           {[
             { id: 'CRONICA', label: 'Crónica y incidencias', icon: Trophy },
             { id: 'STATS', label: 'Estadísticas de equipo', icon: BarChart3 },
             { id: 'RATINGS', label: 'Calificaciones individuales', icon: Users },
-            { id: 'FINANCES', label: 'Boletería', icon: DollarSign },
-            { id: 'PRENSA', label: 'Rueda de prensa', icon: Mic }
+            { id: 'FINANCES', label: 'Boletería', icon: DollarSign }
           ].map(tab => {
             const Icon = tab.icon
             const isSelected = activeTab === tab.id
@@ -284,12 +293,29 @@ export default function PostMatchScreen() {
               </button>
             )
           })}
-        </div>
+        </div>}
       </div>
 
       <main className="max-w-4xl mx-auto">
+        {step === 'PRESS' && (
+          <PressRoom
+            questions={pressQuestions}
+            currentIndex={currentQIndex}
+            outcome={outcomeOf(results)}
+            finished={isPressFinished}
+            delegated={isPressDelegated}
+            skipResult={skipResult}
+            conferenceId={pressConference?.id}
+            onAnswer={handleSelectPressOption}
+            onNext={handleNextPress}
+            onSkip={handleSkipPress}
+            onDelegate={handleDelegatePress}
+            onPhrase={handlePhrase}
+          />
+        )}
+
         {/* Tab 1: Crónica & Goles */}
-        {activeTab === 'CRONICA' && (
+        {step === 'SUMMARY' && activeTab === 'CRONICA' && (
           <div className="space-y-4">
             <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
@@ -335,7 +361,7 @@ export default function PostMatchScreen() {
         )}
 
         {/* Tab 2: Estadísticas de Equipo */}
-        {activeTab === 'STATS' && (
+        {step === 'SUMMARY' && activeTab === 'STATS' && (
           <div className="space-y-4">
             <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
@@ -377,7 +403,7 @@ export default function PostMatchScreen() {
         )}
 
         {/* Tab 3: Calificaciones Individuales */}
-        {activeTab === 'RATINGS' && (
+        {step === 'SUMMARY' && activeTab === 'RATINGS' && (
           <div className="space-y-4">
             {/* MVP Card */}
             {mvp && (
@@ -450,7 +476,7 @@ export default function PostMatchScreen() {
         )}
 
         {/* Tab 4: Boletería */}
-        {activeTab === 'FINANCES' && (
+        {step === 'SUMMARY' && activeTab === 'FINANCES' && (
           <div className="space-y-4">
             <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
@@ -486,164 +512,35 @@ export default function PostMatchScreen() {
           </div>
         )}
 
-        {/* Tab 5: Rueda de Prensa Oficial (Fase 24) */}
-        {activeTab === 'PRENSA' && (
-          <div className="space-y-4">
-            <div className="p-4 sm:p-6 rounded-lg border border-line bg-surface/60 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-line gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="p-2 rounded-xl bg-gold/10 border border-gold/20 text-gold">
-                    <Mic className="w-5 h-5" />
-                  </span>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-fg">Sala de conferencias oficial</h3>
-                    <p className="text-xs text-fg-muted">Micrófonos abiertos ante los cronistas locales</p>
-                  </div>
-                </div>
-
-                {!isPressFinished && (
-                  <AsyncButton
-                    onClick={handleSkipPress}
-                    className="px-3 py-1.5 rounded-xl border border-line bg-bg hover:bg-surface-3 text-xs text-danger font-semibold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
-                  >
-                    <span>No presentarme</span>
-                  </AsyncButton>
-                )}
-                {!isPressFinished && (
-                  <AsyncButton
-                    onClick={handleDelegatePress}
-                    className="px-3 py-1.5 rounded-xl border border-line bg-bg hover:bg-surface-3 text-xs text-fg font-semibold flex items-center gap-1.5 transition-colors self-start sm:self-auto"
-                  >
-                    <UserCheck className="w-3.5 h-3.5 text-fg-muted" />
-                    <span>Delegar en 2º Entrenador</span>
-                  </AsyncButton>
-                )}
-              </div>
-
-              {skipResult && !skipResult.alreadyClosed ? (
-                <div className="p-6 rounded-xl bg-bg/80 border border-line text-center space-y-2">
-                  <Mic className="w-8 h-8 text-fg-subtle mx-auto" />
-                  <p className="text-sm font-bold text-fg">No diste conferencia</p>
-                  <p className="text-xs text-fg-muted">{skipResult.message}</p>
-                  <p className="text-xs text-fg-subtle">
-                    Multa: {formatMoney(skipResult.fine)}
-                    {skipResult.fans ? ` • Hinchada ${skipResult.fans > 0 ? '+' : ''}${skipResult.fans}` : ''}
-                    {skipResult.board ? ` • Dirigencia ${skipResult.board > 0 ? '+' : ''}${skipResult.board}` : ''}
-                  </p>
-                </div>
-              ) : isPressDelegated ? (
-                <div className="p-6 rounded-xl bg-bg/80 border border-line text-center space-y-2">
-                  <UserCheck className="w-8 h-8 text-accent mx-auto" />
-                  <p className="text-sm font-bold text-fg">Conferencia atendida por el Ayudante de Campo</p>
-                  <p className="text-xs text-fg-muted">
-                    Tu segundo entrenador respondió con diplomacia y cautela ante los medios sin generar polémicas. (+1 moral general)
-                  </p>
-                </div>
-              ) : isPressFinished ? (
-                <div className="space-y-3">
-                  <div className="p-3 rounded-xl bg-accent-soft border border-accent/40/50 flex items-center gap-2 text-xs text-accent font-bold">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                    <span>Rueda de prensa finalizada. Las declaraciones han sido publicadas en los medios.</span>
-                  </div>
-
-                  <div className="space-y-3 pt-2">
-                    {pressQuestions.map((q, idx) => (
-                      <div key={q.id || idx} className="p-3.5 rounded-xl bg-bg/70 border border-line/80 text-xs space-y-1.5">
-                        <div className="flex items-center justify-between text-[11px] text-fg-subtle">
-                          <span className="font-semibold text-fg-muted">{q.media_outlet} • {q.journalist_name}</span>
-                          <span className="uppercase font-mono font-bold text-accent">{q.chosen_tone || 'RESPONDIDA'}</span>
-                        </div>
-                        <p className="font-medium text-fg italic">"{q.question_text}"</p>
-                        <p className="text-fg-muted pl-3 border-l-2 border-accent/50 text-[11px]">
-                          "{q.manager_answer_text}"
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : pressQuestions.length > 0 && pressQuestions[currentQIndex] ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-fg-muted">
-                    <span className="font-semibold text-accent">
-                      {pressQuestions[currentQIndex].media_outlet}
-                    </span>
-                    <span className="font-mono text-fg-subtle">
-                      Pregunta {currentQIndex + 1} de {pressQuestions.length}
-                    </span>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-bg border border-line">
-                    <p className="text-xs text-fg-muted font-semibold mb-1">
-                      {pressQuestions[currentQIndex].journalist_name}:
-                    </p>
-                    <p className="text-sm font-medium text-fg italic">
-                      "{pressQuestions[currentQIndex].question_text}"
-                    </p>
-                  </div>
-
-                  <div className="space-y-2 pt-2">
-                    <p className="text-xs font-semibold text-fg-muted">Elige tu postura y respuesta:</p>
-                    {(pressQuestions[currentQIndex].options || []).map((opt, optIdx) => {
-                      const toneColors = {
-                        PRAISING: 'border-accent/40 text-accent bg-accent-soft',
-                        COMBATIVE: 'border-danger/40 text-danger bg-danger-soft',
-                        SELF_CRITICAL: 'border-line-strong/40 text-fg-muted bg-surface-2',
-                        PRAGMATIC: 'border-line text-fg bg-surface/40'
-                      }
-                      const toneNames = {
-                        PRAISING: 'Elogioso / Motivador',
-                        COMBATIVE: 'Combativo / Confrontativo',
-                        SELF_CRITICAL: 'Autocrítico / Exigente',
-                        PRAGMATIC: 'Cauteloso / Pragmático'
-                      }
-
-                      return (
-                        <AsyncButton
-                          key={optIdx}
-                          onClick={() => handleSelectPressOption(pressQuestions[currentQIndex].id, opt)}
-                          className="w-full p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-accent/60 hover:bg-surface transition-all text-xs group"
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${toneColors[opt.tone] || 'border-line text-fg-muted'}`}>
-                              {toneNames[opt.tone] || opt.tone}
-                            </span>
-                            <span className="text-[10px] text-fg-subtle">
-                              Impacto moral: {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}
-                            </span>
-                          </div>
-                          <p className="text-fg group-hover:text-fg leading-snug">
-                            "{opt.text}"
-                          </p>
-                        </AsyncButton>
-                      )
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-fg-subtle py-6 text-center">
-                  Sin preguntas de prensa para este encuentro.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Bottom Actions */}
+        {/* Acciones: del resumen se sigue a la prensa; al final se vuelve al inicio */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3">
-          <button
-            onClick={() => leaveTo('/standings')}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl border border-line bg-surface hover:bg-surface-3 text-xs font-bold text-fg transition-colors"
-          >
-            Ver tabla de posiciones
-          </button>
+          {step === 'SUMMARY' && (
+            <button
+              onClick={() => leaveTo('/standings')}
+              className="w-full sm:w-auto px-5 py-3 rounded-xl border border-line bg-surface hover:bg-surface-3 text-xs font-bold text-fg transition-colors"
+            >
+              Ver tabla de posiciones
+            </button>
+          )}
 
-          <button
-            onClick={() => leaveTo('/dashboard')}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
-          >
-            <Home className="w-4 h-4" />
-            <span>Volver al inicio</span>
-          </button>
+          {step === 'SUMMARY' && pressConference && !isPressFinished && !isPressDelegated ? (
+            <button
+              onClick={() => setStep('PRESS')}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+            >
+              <Mic className="w-4 h-4" />
+              <span>Continuar a la rueda de prensa</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => leaveTo('/dashboard')}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+            >
+              <Home className="w-4 h-4" />
+              <span>Volver al inicio</span>
+            </button>
+          )}
         </div>
       </main>
     </div>
