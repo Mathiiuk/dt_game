@@ -10,6 +10,8 @@ import { wageInequities, benchComplainers, trainingLoad } from '../domain/squadC
 import { detectCombos } from '../domain/combos'
 import { ensureCharacters, rememberBarraVisit, adjustGrudge } from '../domain/characters'
 import { countBySource } from '../domain/seasonStory'
+import { stepArcs, chapterTemplate, resolveChapter, parseArcCode, normalizeArcs } from '../domain/arcs'
+import { arcById } from '../domain/arcCatalog'
 
 const sign = (n) => (n > 0 ? `+${n}` : String(n))
 
@@ -271,7 +273,7 @@ export const climateApi = {
   /** Estado del clima del club (valores por defecto si todavía no hay fila) */
   async getState(clubId) {
     const { data } = await supabase.from('club_climate').select('*').eq('club_id', clubId).maybeSingle()
-    return data || { club_id: clubId, pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0, difficulty: 'NORMAL', muted_warnings: {}, characters: {} }
+    return data || { club_id: clubId, pressure: 0, climate: 'FLOWS', barra_stage: 'CALM', favors: 0, scandals: 0, suspended_matches: 0, board_owed: 0, difficulty: 'NORMAL', muted_warnings: {}, characters: {}, arcs: {} }
   },
 
   async saveState(clubId, patch) {
@@ -285,11 +287,12 @@ export const climateApi = {
    */
   async advanceWeek({ clubId, managerId = null, careerId = null, week = 1, gameDate = null }) {
     // Cuatro lecturas independientes: una sola ronda de consultas
-    const [state, clubRes, boardRes, streaks] = await Promise.all([
+    const [state, clubRes, boardRes, streaks, pendingEvents] = await Promise.all([
       this.getState(clubId),
       supabase.from('clubs').select('fans_confidence, budget').eq('id', clubId).single(),
       supabase.from('club_board_confidence').select('sports_satisfaction, confidence_score').eq('club_id', clubId).maybeSingle(),
-      moraleApi.getStreaks(clubId)
+      moraleApi.getStreaks(clubId),
+      import('./events').then(({ eventsApi }) => eventsApi.getPendingEvents(clubId)).catch(() => [])
     ])
     this.setDifficulty(state.difficulty)
     const club = clubRes.data
@@ -366,10 +369,28 @@ export const climateApi = {
       if (state.board_owed > 0 && climate !== 'FLOWS' && Math.random() < 0.5) eventTemplates.push({ template: BOARD_FAVOR_DUE })
     }
     patch.characters = characters
+
+    // Historias de varias fechas: una a la vez, con un capítulo cada tanto
+    let storyLog = null
+    if (!dismissed) {
+      const step = stepArcs({
+        arcs: state.arcs,
+        climate,
+        week,
+        pendingEvents: (pendingEvents || []).length + eventTemplates.length,
+        chapterPending: (pendingEvents || []).some(p => parseArcCode(p.template_code))
+      })
+      patch.arcs = step.arcs
+      if (step.deliver) {
+        eventTemplates.push({ template: chapterTemplate(step.deliver.arcId, step.deliver.index, step.deliver.flags, characters) })
+        if (step.started) storyLog = `Empieza una historia: ${arcById(step.deliver.arcId).title}. ${arcById(step.deliver.arcId).tagline}`
+      }
+    }
     const { eventsApi } = eventTemplates.length ? await import('./events') : { eventsApi: null }
-    const [, , ...createdFlags] = await Promise.all([
+    const [, , , ...createdFlags] = await Promise.all([
       this.saveState(clubId, patch),
       weeklyEffect,
+      storyLog ? this.log(clubId, gameDate, 'ARC', storyLog, {}) : Promise.resolve(),
       ...eventTemplates.map(({ template, memory }) => eventsApi.createFromTemplate(template, { clubId, managerId, careerId, week, characters, memory }))
     ])
     const created = createdFlags
@@ -444,13 +465,29 @@ export const climateApi = {
     return null
   },
 
+  /**
+   * Un capítulo de una historia se resolvió: guarda la marca de la opción y prepara el siguiente capítulo.
+   * Al terminar la historia deja su desenlace en la bitácora (y en el resumen de la temporada).
+   */
+  async onArcChapterResolved({ clubId, code, optionId, gameDate = null }) {
+    if (!parseArcCode(code)) return null
+    const state = await this.getState(clubId)
+    const { arcs, finished } = resolveChapter(state.arcs, code, optionId, gameDate ? seasonYearOf(gameDate) : null)
+    await this.saveState(clubId, { arcs })
+    if (finished) await this.log(clubId, gameDate, 'ARC', `Historia cerrada, ${finished.title}: ${finished.ending}`, {})
+    queryCache.invalidate(`climate:${clubId}`)
+    return finished
+  },
+
   /** Datos para el resumen de la temporada: el estado del clima y cuántas consecuencias hubo de cada tipo */
   async getSeasonSummaryData(clubId, seasonYear) {
     const [state, { data: logs }] = await Promise.all([
       this.getState(clubId),
       supabase.from('consequence_log').select('source').eq('club_id', clubId).eq('season_year', seasonYear)
     ])
-    return { state, counts: countBySource(logs || []) }
+    // Historias que se cerraron este año (las que no tienen año, de carreras viejas, no se cuentan)
+    const arcsClosed = normalizeArcs(state.arcs).done.filter(d => d.season === seasonYear)
+    return { state, counts: countBySource(logs || []), arcsClosed }
   },
 
   /** Últimas consecuencias registradas del club */

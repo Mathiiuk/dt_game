@@ -422,6 +422,16 @@ export const eventsApi = {
       console.warn('Aviso consequences log:', logErr)
     }
 
+    // Si era un capítulo de una historia, la historia avanza según lo que elegiste
+    if (String(event.template_code || '').startsWith('ARC_')) {
+      try {
+        const { climateApi } = await import('./climate')
+        await climateApi.onArcChapterResolved({ clubId: event.club_id, code: event.template_code, optionId })
+      } catch (arcErr) {
+        console.warn('Aviso: no se pudo avanzar la historia:', arcErr)
+      }
+    }
+
     // Invalidar cachés
     queryCache.invalidate('events:')
     queryCache.invalidate('dashboard:')

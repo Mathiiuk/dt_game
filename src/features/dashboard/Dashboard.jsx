@@ -23,6 +23,9 @@ const EVENT_CATEGORY = {
   FINANCIAL_CRISIS: { label: 'Economía y crisis', tone: 'warning' }
 }
 
+// Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)"
+const isStoryEvent = (event) => String(event.template_code || '').startsWith('ARC_')
+
 /** Escudo provisional: iniciales del club sobre el color primario (hasta tener escudos reales) */
 function Crest({ name, highlight }) {
   const initials = (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
@@ -94,6 +97,7 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
     <Card className={cn(critical && 'border-danger/50')}>
       <CardBody className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
+          {isStoryEvent(event) && <Badge tone="gold">Historia</Badge>}
           <Badge tone={category.tone}>{category.label}</Badge>
           {critical && <Badge tone="danger" dot>Decisión urgente</Badge>}
         </div>

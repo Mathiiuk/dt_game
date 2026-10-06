@@ -39,7 +39,8 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
           prize: res.totalPrizeAwarded,
           cash: res.newBudget,
           state: data.state,
-          counts: data.counts
+          counts: data.counts,
+          arcs: data.arcsClosed
         }))
       } catch (storyErr) {
         console.warn('Aviso: no se pudo armar el resumen de la temporada:', storyErr)

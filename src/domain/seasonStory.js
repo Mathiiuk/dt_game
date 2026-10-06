@@ -23,7 +23,7 @@ export function seasonHeadline({ position, champion = false, promoted = false })
 /**
  * @returns {{ headline: string, lines: string[] }}
  */
-export function seasonStory({ clubName = 'El club', position = 10, champion = false, promoted = false, prize = 0, cash = 0, state = {}, counts = {}, fansDelta = null }) {
+export function seasonStory({ clubName = 'El club', position = 10, champion = false, promoted = false, prize = 0, cash = 0, state = {}, counts = {}, fansDelta = null, arcs = [] }) {
   const lines = []
   lines.push(`${clubName} terminó ${ordinal(position)}${champion ? ' y se quedó con el título' : promoted ? ' y ascendió' : ''}.`)
 
@@ -42,6 +42,7 @@ export function seasonStory({ clubName = 'El club', position = 10, champion = fa
   const combos = counts.COMBO || 0
   if (combos > 0) lines.push(`Se encadenaron ${combos} combinaciones de decisiones y resultados que quedaron en la memoria del club.`)
 
+  for (const arc of arcs) lines.push(`${arc.title}: ${arc.ending}`)
   lines.push(`La caja cierra en $${Math.round(cash).toLocaleString('es-AR')}${prize ? ` (incluye $${Math.round(prize).toLocaleString('es-AR')} de premios)` : ''}.`)
   if (fansDelta !== null && fansDelta !== 0) lines.push(`La hinchada terminó ${fansDelta > 0 ? 'más' : 'menos'} contenta que al empezar (${fansDelta > 0 ? '+' : ''}${fansDelta}).`)
 
