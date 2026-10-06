@@ -1,3 +1,4 @@
+import { roundRobinSchedule } from '../domain/leagueSchedule'
 import { seededRandom } from '../domain/cupMatch'
 import { pickRivalClubs } from '../domain/rivalClubs'
 import { supabase } from './supabase'
@@ -238,44 +239,31 @@ export const competitionApi = {
   },
 
   /**
-   * Generador de fixture Round-Robin canónico (ida y vuelta) para 20 clubes.
+   * Generador de fixture todos contra todos (una rueda, 19 fechas para 20 clubes) con la localía repartida (domain/leagueSchedule).
    */
   async generateRoundRobinFixtures(competitionId, clubIds) {
     if (!competitionId || !clubIds || clubIds.length < 2) return
 
-    const n = clubIds.length
-    const rounds = (n - 1) * 2 // 38 fechas
     const fixtures = []
     const baseDate = new Date('2026-08-01')
 
-    const teams = [...clubIds]
-
-    for (let round = 0; round < n - 1; round++) {
+    roundRobinSchedule(clubIds).forEach((matches, round) => {
       const matchDate = new Date(baseDate)
       matchDate.setDate(matchDate.getDate() + round * 7)
       const dateStr = matchDate.toISOString().split('T')[0]
-
-      for (let i = 0; i < n / 2; i++) {
-        const homeIdx = (round + i) % (n - 1)
-        let awayIdx = (n - 1 - i + round) % (n - 1)
-        if (i === 0) awayIdx = n - 1
-
-        const isReversed = (round + i) % 2 === 1
-        const homeClub = isReversed ? teams[awayIdx] : teams[homeIdx]
-        const awayClub = isReversed ? teams[homeIdx] : teams[awayIdx]
-
+      for (const m of matches) {
         fixtures.push({
           competition_id: competitionId,
-          home_team_id: homeClub,
-          away_team_id: awayClub,
-          home_club_id: homeClub,
-          away_club_id: awayClub,
+          home_team_id: m.home,
+          away_team_id: m.away,
+          home_club_id: m.home,
+          away_club_id: m.away,
           match_date: dateStr,
           status: 'SCHEDULED',
           round: round + 1
         })
       }
-    }
+    })
 
     // Insertar fixtures por lotes de 100 para evitar límites de payload
     for (let i = 0; i < fixtures.length; i += 100) {
