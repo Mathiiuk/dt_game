@@ -147,14 +147,18 @@ export const marketApi = {
   },
 
   /**
-   * Compra o ficha a un futbolista. La operación la resuelve la base (`execute_transfer`) en una sola transacción: valida la
-   * ventana de pases, el precio que pide el club vendedor y la caja, y mueve la plata y el jugador. El navegador solo propone el monto.
+   * Negocia el fichaje con el club vendedor. La base (`negotiate_transfer`) responde ACEPTA, CONTRAOFERTA o RECHAZA; hasta dos
+   * rondas, y si acepta ejecuta el fichaje en la misma transacción (de contado o en 3 cuotas: 40% hoy y dos cuotas semanales, +8%).
+   * El navegador solo propone un monto: el precio mínimo y las rondas las decide el servidor.
    */
-  async buyPlayer(buyerClubId, playerId, offerAmount, managerId) {
+  async negotiate(buyerClubId, playerId, offerAmount, installments = 1, managerId = null) {
     const { auditApi } = await import('./audit')
 
-    const { data, error } = await supabase.rpc('execute_transfer', { p_player_id: playerId, p_buyer_club_id: buyerClubId, p_offer: offerAmount })
+    const { data, error } = await supabase.rpc('negotiate_transfer', {
+      p_player_id: playerId, p_buyer_club_id: buyerClubId, p_offer: offerAmount, p_installments: installments
+    })
     if (error) throw new Error(error.message)
+    if (data.status !== 'ACCEPTED') return data
 
     // Consecuencias del fichaje: pagar de más o dejar la caja sin aire molesta a la dirigencia
     try {
@@ -166,7 +170,7 @@ export const marketApi = {
         clubId: buyerClubId,
         source: 'PURCHASE',
         gameDate: data.game_date,
-        effects: purchaseConsequences({ fee: offerAmount, marketValue: data.asking, balance: Number(data.buyer_budget_before), weeklyExpenses: finances?.expenses?.total || 0 }, climateApi.difficulty)
+        effects: purchaseConsequences({ fee: data.price, marketValue: data.asking, balance: Number(data.buyer_budget_before), weeklyExpenses: finances?.expenses?.total || 0 }, climateApi.difficulty)
       })
     } catch (climateErr) {
       console.warn('Aviso: no se pudieron aplicar las consecuencias del fichaje:', climateErr)
@@ -180,13 +184,41 @@ export const marketApi = {
           entityType: 'player',
           entityId: playerId,
           stateBefore: { budget: Number(data.buyer_budget_before) },
-          stateAfter: { budget: Number(data.buyer_budget_after), amount: offerAmount }
+          stateAfter: { budget: Number(data.buyer_budget_after), amount: data.price, installments: data.installments }
         })
       } catch (e) { console.warn('Aviso: no se pudo auditar el fichaje:', e) }
     }
 
     queryCache.invalidate(`squad:${buyerClubId}`)
     queryCache.invalidate(`club:${buyerClubId}`)
+    return data
+  },
+
+  /**
+   * Cuotas de fichajes que vencen con la fecha del juego: la base las cobra y acredita al vendedor. Si la caja no alcanza, la cuota se
+   * atrasa con 10% de recargo y la dirigencia lo anota. Se llama una vez por semana.
+   */
+  async settleInstallments({ clubId, gameDate }) {
+    const { data, error } = await supabase.rpc('settle_installments', { p_club_id: clubId, p_game_date: String(gameDate) })
+    if (error) {
+      console.warn('Aviso: no se pudieron liquidar las cuotas de fichajes:', error.message)
+      return null
+    }
+    if (data?.late > 0) {
+      try {
+        const { climateApi } = await import('./climate')
+        await climateApi.applySquadConsequence({
+          clubId,
+          source: 'PURCHASE',
+          gameDate,
+          effects: { board: -2 * data.late, notes: [`Te atrasaste con ${data.late === 1 ? 'una cuota' : `${data.late} cuotas`} de un fichaje: recargo del 10% y la dirigencia lo anotó.`] }
+        })
+      } catch (e) { console.warn('Aviso: no se pudo registrar el atraso de la cuota:', e) }
+    }
+    if (data?.paid > 0 || data?.late > 0) {
+      queryCache.invalidate(`club:${clubId}`)
+      queryCache.invalidate('finances:')
+    }
     return data
   }
 }

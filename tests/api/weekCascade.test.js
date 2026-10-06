@@ -60,6 +60,7 @@ vi.mock('../../src/api/climate', () => ({
     advanceWeek: (...a) => step('clima-barra')()
   }
 }))
+vi.mock('../../src/api/market', () => ({ marketApi: { settleInstallments: (...a) => step('cuotas')() } }))
 vi.mock('../../src/api/events', () => ({
   eventsApi: {
     hasCriticalPendingEvent: async () => blocks.critical,
@@ -88,7 +89,7 @@ describe('cascada del avance semanal', () => {
   it('ejecuta todos los pasos de la semana y devuelve el tiempo de cada uno', async () => {
     const res = await advance()
     expect(res.success).toBe(true)
-    for (const name of ['entrenamiento', 'lesiones', 'mentorias', 'liga-ia', 'estadio', 'carrera', 'finanzas', 'ofertas', 'moral', 'clima', 'clima-barra', 'eventos']) {
+    for (const name of ['entrenamiento', 'lesiones', 'mentorias', 'liga-ia', 'estadio', 'carrera', 'finanzas', 'ofertas', 'moral', 'clima', 'cuotas', 'clima-barra', 'eventos']) {
       expect(log).toContain(`end:${name}`)
     }
     expect(Object.keys(res.timings)).toEqual(expect.arrayContaining(['total', 'semana.liga-ia', 'semana.finanzas', 'semana.cadena-jugadores']))
@@ -153,6 +154,9 @@ describe('cascada del avance semanal', () => {
     expect(index('end:finanzas')).toBeLessThan(index('start:clima'))
     expect(index('end:moral')).toBeLessThan(index('start:clima'))
     expect(index('end:clima')).toBeLessThan(index('start:clima-barra'))
+    // Las cuotas de fichajes se liquidan antes de que la barra y la presión lean la caja
+    expect(index('end:cuotas')).toBeLessThan(index('start:clima-barra'))
+    expect(index('end:moral')).toBeLessThan(index('start:cuotas'))
     expect(index('end:clima-barra')).toBeLessThan(index('start:eventos'))
   })
 

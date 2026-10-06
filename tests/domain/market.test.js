@@ -1,4 +1,4 @@
-import { filterMarketPlayers, sortMarketPlayers, offerPresets, validateOffer, offerBlockReason, marketPrice, hiddenRange, isScouted } from '../../src/domain/market'
+import { filterMarketPlayers, sortMarketPlayers, offerPresets, validateOffer, offerBlockReason, marketPrice, hiddenRange, isScouted, payToday, installmentAmounts } from '../../src/domain/market'
 
 const players = [
   { id: '1', first_name: 'Hugo', last_name: 'Ríos', position: 'GK', age: 31, attr_overall: 60, attr_pace: 40, attr_potential: 62, market_value: 20000, clubs: { name: 'Racing' } },
@@ -32,6 +32,15 @@ describe('dominio del mercado', () => {
     expect(validateOffer('abc', 100)).toMatch(/monto válido/)
     expect(validateOffer('500', 100)).toMatch(/presupuesto/)
     expect(validateOffer('100', 100)).toBe('')
+  })
+
+  it('en cuotas se paga el 40% hoy y el resto en dos cuotas semanales; solo el 40% tiene que entrar en la caja', () => {
+    expect(payToday(10000, 1)).toBe(10000)
+    expect(payToday(10000, 3)).toBe(4000)
+    expect(installmentAmounts(10000)).toEqual([3000, 3000])
+    expect(installmentAmounts(10001).reduce((a, b) => a + b, 0)).toBe(10001 - payToday(10001, 3))
+    expect(validateOffer('10000', 5000, 1)).toMatch(/presupuesto/)
+    expect(validateOffer('10000', 5000, 3)).toBe('')
   })
 
   it('explica por qué no se puede ofertar', () => {

@@ -96,7 +96,8 @@ export default function MarketScreen() {
     }
   }
 
-  const handleConfirmOffer = async (amount) => {
+  // Cada oferta va al club vendedor, que acepta, contraoferta o rechaza (hasta dos rondas); el modal muestra su respuesta
+  const handleSubmitOffer = async (amount, installments) => {
     try {
       setSubmitting(true)
       // Pagar de más o dejar la caja flaca molesta a la dirigencia: se avisa antes de cerrar el fichaje
@@ -104,19 +105,22 @@ export default function MarketScreen() {
         const finances = await financesApi.getFinances(club.id)
         return purchaseWarning({
           fee: amount,
-          marketValue: offerPlayer.asking_price || offerPlayer.market_value || marketApi.calculateMarketValue(offerPlayer),
+          marketValue: Math.round((offerPlayer.asking_price || offerPlayer.market_value || marketApi.calculateMarketValue(offerPlayer)) * (installments === 3 ? 1.08 : 1)),
           balance: Number(club.budget || 0),
           weeklyExpenses: finances?.expenses?.total || 0
         }, climateApi.difficulty)
       })
-      if (!proceed) return
-      await marketApi.buyPlayer(club.id, offerPlayer.id, amount, club.manager_id)
-      toast.success(`¡Acuerdo cerrado! ${offerPlayer.last_name} es nuevo jugador del club por ${formatMoney(amount)}.`)
-      setOfferPlayer(null)
-      if (typeof refreshContext === 'function') await refreshContext()
-      loadData()
+      if (!proceed) return null
+      const reply = await marketApi.negotiate(club.id, offerPlayer.id, amount, installments, club.manager_id)
+      if (reply.status === 'ACCEPTED') {
+        toast.success(`¡Acuerdo cerrado! ${offerPlayer.last_name} es nuevo jugador del club por ${formatMoney(reply.price)}.`)
+        if (typeof refreshContext === 'function') await refreshContext()
+        loadData()
+      }
+      return reply
     } catch (e) {
       toast.error(friendlyError(e))
+      return null
     } finally {
       setSubmitting(false)
     }
@@ -232,7 +236,7 @@ export default function MarketScreen() {
       )}
 
       {offerPlayer && (
-        <OfferModal player={offerPlayer} budget={budget} processing={submitting} onClose={() => setOfferPlayer(null)} onConfirm={handleConfirmOffer} />
+        <OfferModal player={offerPlayer} budget={budget} processing={submitting} onClose={() => setOfferPlayer(null)} onSubmit={handleSubmitOffer} />
       )}
     </div>
   )

@@ -438,7 +438,12 @@ export const calendarApi = {
         // 11a y 11f leen la caja y la moral que dejaron los pasos anteriores: van después y en orden
         try {
           const { climateApi } = await import('./climate')
-          await timed('semana.clima', () => climateApi.processWeek({ clubId, gameDate: nextDate }), timings)
+          const { marketApi } = await import('./market')
+          await Promise.all([
+            timed('semana.clima', () => climateApi.processWeek({ clubId, gameDate: nextDate }), timings),
+            // Cuotas de fichajes que vencen esta semana (un solo llamado a la base)
+            timed('semana.cuotas', () => marketApi.settleInstallments({ clubId, gameDate: nextDate }), timings)
+          ])
           await timed('semana.clima-barra', () => climateApi.advanceWeek({ clubId, managerId, careerId, week: nextWeek, gameDate: nextDate }), timings)
           const { eventsApi } = await import('./events')
           await timed('semana.eventos', () => eventsApi.generateWeeklyEvents(clubId, managerId, nextWeek, careerId), timings)

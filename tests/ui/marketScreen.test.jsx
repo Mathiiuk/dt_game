@@ -20,13 +20,13 @@ const players = [
   { id: '2', first_name: 'Álvaro', last_name: 'Medina', position: 'CM', age: 19, attr_overall: 55, attr_pace: 70, attr_potential: 80, market_value: 50000, clubs: { name: 'Racing' } }
 ]
 
-const buyPlayer = vi.fn(async () => ({}))
+const negotiate = vi.fn(async () => ({ status: 'ACCEPTED', price: 42500, upfront: 42500, installments: 1 }))
 const scoutPlayer = vi.fn(async () => ({}))
 let status = { isOpen: true, windowName: 'Libro de Pases de Verano (Abierto)' }
 const confirmAction = vi.fn(async () => true)
 
 vi.mock('../../src/api/market', () => ({
-  marketApi: { getMarketPlayers: vi.fn(async () => players), getMarketStatus: () => status, buyPlayer: (...a) => buyPlayer(...a) }
+  marketApi: { getMarketPlayers: vi.fn(async () => players), getMarketStatus: () => status, negotiate: (...a) => negotiate(...a) }
 }))
 vi.mock('../../src/api/scouting', () => ({ scoutingApi: { scoutPlayer: (...a) => scoutPlayer(...a) } }))
 vi.mock('../../src/context/GameContext', () => ({
@@ -38,7 +38,7 @@ import MarketScreen from '../../src/features/market/MarketScreen'
 const renderScreen = () => render(<MemoryRouter><MarketScreen /></MemoryRouter>)
 
 describe('pantalla Mercado', () => {
-  beforeEach(() => { setViewport(false); status = { isOpen: true, windowName: 'Libro de Pases de Verano (Abierto)' }; buyPlayer.mockClear(); scoutPlayer.mockClear() })
+  beforeEach(() => { setViewport(false); status = { isOpen: true, windowName: 'Libro de Pases de Verano (Abierto)' }; negotiate.mockClear(); scoutPlayer.mockClear() })
 
   it('muestra candidatos, oculta atributos no ojeados y revela los ojeados', async () => {
     renderScreen()
@@ -67,11 +67,12 @@ describe('pantalla Mercado', () => {
     await userEvent.type(field, '999999')
     await userEvent.click(within(dlg).getByRole('button', { name: /Enviar oferta/ }))
     expect(await within(dlg).findByRole('alert')).toHaveTextContent(/presupuesto suficiente/)
-    expect(buyPlayer).not.toHaveBeenCalled()
+    expect(negotiate).not.toHaveBeenCalled()
 
     await userEvent.click(within(dlg).getByRole('button', { name: /Mínima/ }))
     await userEvent.click(within(dlg).getByRole('button', { name: /Enviar oferta/ }))
-    await waitFor(() => expect(buyPlayer).toHaveBeenCalledWith('c1', '2', 42500, 'm1'))
+    await waitFor(() => expect(negotiate).toHaveBeenCalledWith('c1', '2', 42500, 1, 'm1'))
+    expect(await within(dlg).findByText(/Acuerdo cerrado/)).toBeInTheDocument()
   })
 
   it('con el mercado cerrado el botón de ofertar queda deshabilitado', async () => {

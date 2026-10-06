@@ -61,11 +61,24 @@ export const offerPresets = (value) => {
   ]
 }
 
-/** Devuelve el mensaje de error de una oferta, o '' si es válida */
-export const validateOffer = (raw, budget) => {
+export const INSTALLMENT_UPFRONT = 0.4 // en 3 cuotas se paga el 40% hoy y el resto en dos cuotas semanales
+export const INSTALLMENT_SURCHARGE = 1.08 // pagar en cuotas suma 8% al precio
+
+/** Lo que se paga hoy por un monto ofertado: todo de contado, o el 40% si es en cuotas */
+export const payToday = (amount, installments = 1) => (installments === 3 ? Math.round(amount * INSTALLMENT_UPFRONT) : amount)
+
+/** Monto de cada cuota restante (dos, semanales) de una compra en 3 cuotas */
+export const installmentAmounts = (amount) => {
+  const rest = amount - payToday(amount, 3)
+  const first = Math.round(rest / 2)
+  return [first, rest - first]
+}
+
+/** Devuelve el mensaje de error de una oferta, o '' si es válida (en cuotas solo se necesita el 40% hoy) */
+export const validateOffer = (raw, budget, installments = 1) => {
   const amount = parseInt(raw, 10)
   if (isNaN(amount) || amount <= 0) return 'Ingresá un monto válido para la oferta.'
-  if (amount > (budget || 0)) return 'No tenés presupuesto suficiente para esta oferta.'
+  if (payToday(amount, installments) > (budget || 0)) return 'No tenés presupuesto suficiente para esta oferta.'
   return ''
 }
 
