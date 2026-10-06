@@ -1,3 +1,4 @@
+import { pickRivalClubs } from '../domain/rivalClubs'
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
@@ -178,7 +179,8 @@ export const competitionApi = {
       }
 
       // 2. Crear 19 clubes IA
-      const aiClubsData = DEFAULT_REGION_CLUBS.map((c, i) => ({
+      // Los rivales se sortean por carrera (no son siempre los mismos 19 clubes)
+      const aiClubsData = pickRivalClubs(playerClubId, 19).map((c, i) => ({
         name: c.name,
         short_name: c.short_name,
         city: 'Región Deportiva',
