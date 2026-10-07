@@ -152,6 +152,10 @@ export const seasonCloseApi = {
         approved_wage_budget_next_year: newWageBudget
       }, { onConflict: 'club_id,season_year' })
 
+    // Los jugadores cedidos a préstamo vuelven al club antes de la evolución y de liberar los contratos vencidos
+    const { error: loanErr } = await supabase.rpc('return_loans', { p_club_id: clubId })
+    if (loanErr) console.warn('Aviso: no se pudieron devolver los cedidos:', loanErr.message)
+
     // 6. Proceso Biológico de Envejecimiento y Evolución (Fase 28)
     const evolutionResults = await playerEvolutionApi.processAnnualEvolution(clubId, seasonYear)
 

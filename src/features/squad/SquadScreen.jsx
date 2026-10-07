@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Bell, Check, DollarSign, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
+import { ArrowRightLeft, Bell, Check, DollarSign, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { playerApi } from '../../api/player'
 import { contractApi } from '../../api/contracts'
+import { loansApi } from '../../api/loans'
 import { climateApi } from '../../api/climate'
 import { saleWarning } from '../../domain/warnings'
 import { askRisk } from '../../lib/risk'
@@ -45,15 +46,16 @@ function PlayerBadges({ player }) {
 }
 
 /** Acciones de un jugador: con texto en móvil y sólo icono (con nombre accesible y tooltip) en tabla */
-function PlayerActions({ player, onRenew, onSell, onTerminate, compact }) {
+function PlayerActions({ player, onRenew, onSell, onTerminate, onLoan, compact }) {
   const listed = isListedForSale(player)
   const items = [
     { key: 'renew', label: 'Renovar contrato', short: 'Renovar', icon: FileSignature, onClick: () => onRenew(player), variant: 'secondary' },
     { key: 'sell', label: listed ? 'Editar precio de venta' : 'Poner en venta', short: listed ? 'Precio' : 'Vender', icon: DollarSign, onClick: () => onSell(player), variant: 'outline' },
+    { key: 'loan', label: 'Ceder a préstamo', short: 'Prestar', icon: ArrowRightLeft, onClick: () => onLoan(player), variant: 'outline' },
     { key: 'end', label: 'Rescindir contrato', short: 'Rescindir', icon: UserMinus, onClick: () => onTerminate(player), variant: 'ghost', danger: true }
   ]
   return (
-    <div className={compact ? 'flex items-center justify-end gap-1' : 'grid grid-cols-3 gap-2'}>
+    <div className={compact ? 'flex items-center justify-end gap-1' : 'grid grid-cols-2 gap-2 sm:grid-cols-4'}>
       {items.map(({ key, label, short, icon: Icon, onClick, variant, danger }) => (
         compact ? (
           <Tooltip key={key} content={label}>
@@ -104,6 +106,7 @@ export default function SquadScreen() {
 
   const [loading, setLoading] = useState(!cachedPlayers)
   const [data, setData] = useState({ players: cachedPlayers || [], offers: cachedOffers || [] })
+  const [loans, setLoans] = useState({ players: [], weeklySaving: 0 })
   const [mobileTab, setMobileTab] = useState('squad')
   const [group, setGroup] = useState('ALL')
   const [query, setQuery] = useState('')
@@ -118,10 +121,12 @@ export default function SquadScreen() {
   const loadData = async () => {
     try {
       if (!club?.id) return
-      const [players, offers] = await Promise.all([
+      const [players, offers, loanList] = await Promise.all([
         playerApi.getSquad(club.id),
-        contractApi.getOffersForClub(club.id)
+        contractApi.getOffersForClub(club.id),
+        loansApi.getLoans(club.id).catch(() => ({ players: [], weeklySaving: 0 }))
       ])
+      setLoans(loanList)
       // Las personalidades se leen con el plantel ya cargado (sin pedirlo otra vez)
       const personalitiesList = await personalitiesApi.syncSquadPersonalities(club.id, players || []).catch(() => [])
       const persMap = new Map((personalitiesList || []).map(p => [p.id, p.personality]))
@@ -162,6 +167,27 @@ export default function SquadScreen() {
         : `${sellPlayer.last_name} salió de la lista de transferibles`)
       setSellPlayer(null)
       loadData()
+    } catch (e) {
+      toast.error(friendlyError(e))
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleLoanOut = async (player) => {
+    const confirmed = await confirmAction({
+      title: `Ceder a ${player.first_name} ${player.last_name} a préstamo`,
+      description: `Se va a otro club de tu liga hasta el cierre de la temporada: no está disponible, dejás de pagarle ${formatMoney(player.contract_salary || 0)} por semana y vuelve al terminar el año. Máximo 3 cedidos a la vez y un plantel de 16 como mínimo.`,
+      confirmText: 'Ceder a préstamo',
+      cancelText: 'Cancelar',
+      variant: 'primary'
+    })
+    if (!confirmed) return
+    try {
+      setIsProcessing(true)
+      const res = await loansApi.loanOut(club.id, player.id)
+      toast.success(`${player.last_name} se fue a ${res.borrowerName}. Ahorrás ${formatMoney(res.wageSaved)} por semana y vuelve al cierre de la temporada.`)
+      await afterChange()
     } catch (e) {
       toast.error(friendlyError(e))
     } finally {
@@ -380,7 +406,7 @@ export default function SquadScreen() {
                           <div><p className="eyebrow">Moral</p><p className={`num mt-0.5 text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(playerMorale(p))]}`}>{playerMorale(p)}%</p></div>
                           <div><p className="eyebrow">Salario</p><p className="num mt-0.5 text-sm font-semibold text-fg">{formatMoney(playerSalary(p) || 500)}</p></div>
                         </div>
-                        <PlayerActions player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} />
+                        <PlayerActions player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} onLoan={handleLoanOut} />
                       </CardBody>
                     </Card>
                   </li>
@@ -410,13 +436,30 @@ export default function SquadScreen() {
                           <td className="num px-4 py-3 font-display text-lg font-semibold text-fg">{playerLevel(p)}</td>
                           <td className="px-4 py-3"><div className="w-24"><div className="num mb-1 text-xs text-fg-muted">{playerMorale(p)}%</div><Progress auto value={playerMorale(p)} label={`Moral de ${p.last_name}`} /></div></td>
                           <td className="num px-4 py-3 text-fg">{formatMoney(playerSalary(p) || 500)}</td>
-                          <td className="px-4 py-3"><PlayerActions compact player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} /></td>
+                          <td className="px-4 py-3"><PlayerActions compact player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} onLoan={handleLoanOut} /></td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               </Card>
+
+              {loans.players.length > 0 && (
+                <Card as="section" aria-label="Jugadores a préstamo">
+                  <CardBody className="space-y-2">
+                    <h3 className="font-display text-lg font-semibold text-fg">A préstamo</h3>
+                    <p className="text-xs text-fg-muted">Vuelven al cerrar la temporada. Mientras tanto ahorrás <span className="num font-semibold text-fg">{formatMoney(loans.weeklySaving)}</span> por semana en sueldos.</p>
+                    <ul className="divide-y divide-line text-sm">
+                      {loans.players.map(p => (
+                        <li key={p.id} className="flex items-center justify-between gap-3 py-2">
+                          <span className="font-semibold text-fg">{p.first_name} {p.last_name}</span>
+                          <span className="text-fg-muted">en {p.clubs?.name || 'otro club'}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardBody>
+                </Card>
+              )}
             </>
           )}
         </section>
