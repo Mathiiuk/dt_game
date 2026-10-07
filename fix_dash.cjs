@@ -1,58 +1,22 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import {
-  AlertTriangle, AlertCircle, Bell, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered
-} from 'lucide-react'
-import { toast } from 'sonner'
-import { dashboardApi } from '../../api/dashboard'
-import { eventsApi } from '../../api/events'
-import { queryCache } from '../../utils/cache'
-import { friendlyError } from '../../lib/errors'
-import { useGameContext } from '../../context/GameContext'
-import { isFixtureDue } from '../../domain/fixtureStatus'
-import { isSeasonEnded, seasonYearOf } from '../../domain/gameWeek'
-import { divisionName } from '../../domain/divisions'
-import { rivalLevel, rivalOf } from '../../domain/rivalLevel'
-import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
-import { cn } from '../../lib/utils'
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
-import SeasonCloseModal from '../season/SeasonCloseModal'
-import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
+const fs = require('fs')
 
-const EVENT_CATEGORY = {
-  COMMUNITY: { label: 'Comunidad y barrio', tone: 'accent' },
-  LOCKER_ROOM: { label: 'Vestuario y disciplina', tone: 'neutral' },
-  BOARD_PRESS: { label: 'Dirigencia y prensa', tone: 'neutral' },
-  FINANCIAL_CRISIS: { label: 'Economía y crisis', tone: 'warning' }
-}
+let code = fs.readFileSync('src/features/dashboard/Dashboard.jsx', 'utf8')
 
-// Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)"
-const isStoryEvent = (event) => String(event.template_code || '').startsWith('ARC_')
+// We will change the layout structure in the return statement.
+// The primaryAction is currently rendered at the top in mobile. We'll move it into Next Fixture? 
+// The proposal says "Próximo partido con la acción principal".
+// I'll keep the current primaryAction buttons but place them nicely.
 
-/** Escudo provisional: iniciales del club sobre el color primario (hasta tener escudos reales) */
-function Crest({ name, highlight }) {
-  const initials = (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
-  return (
-    <span
-      className={cn(
-        'grid size-14 place-items-center rounded-lg border font-display text-xl font-semibold sm:size-16 sm:text-2xl',
-        highlight ? 'border-accent/50 bg-accent-soft text-accent' : 'border-line-strong bg-surface-2 text-fg-muted'
-      )}
-      aria-hidden="true"
-    >
-      {initials}
-    </span>
-  )
-}
+// First, I'll extract everything in the return down to the end of the file, then re-compose it.
+// Since it's complex, I'll use regex to isolate the `return (` block.
 
-function DashboardSkeleton() {
-  
+const newReturn = `
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
       <PageHeader
-        eyebrow={`${formatLongDate(clubSummary.gameDate)} · ${divisionName(club?.league_tier)}`}
+        eyebrow={\`\${formatLongDate(clubSummary.gameDate)} · \${divisionName(club?.league_tier)}\`}
         title={clubSummary.name}
-        description={`${clubSummary.city}, ${clubSummary.country} · ${clubSummary.stadiumName}`}
+        description={\`\${clubSummary.city}, \${clubSummary.country} · \${clubSummary.stadiumName}\`}
         className="hidden lg:flex"
       />
 
@@ -76,7 +40,7 @@ function DashboardSkeleton() {
             {seasonEnded ? (
               <div className="py-6 flex flex-col items-start gap-4">
                 <div>
-                  <p className="font-display text-xl font-semibold text-fg">Fin de temporada</p>
+                  <p className="font-display text-xl font-semibold text-fg">Fin de Temporada</p>
                   <p className="mt-1 max-w-prose text-sm text-fg-muted">La temporada ha finalizado. Es momento de hacer balance.</p>
                 </div>
                 {primaryAction}
@@ -145,7 +109,7 @@ function DashboardSkeleton() {
           </Link>
           <Link to="/standings" className="block p-4 rounded-xl border border-line bg-surface hover:border-accent transition-colors">
             <p className="text-xs text-fg-muted mb-1 flex items-center gap-1.5"><ListOrdered className="size-3.5" /> Posición</p>
-            <p className="font-semibold text-fg">{standingsSnippet?.rank ? `${standingsSnippet.rank}º` : '?'}</p>
+            <p className="font-semibold text-fg">{standingsSnippet?.rank ? \`\${standingsSnippet.rank}º\` : '?'}</p>
             <p className="text-xs text-fg-subtle mt-1">{standingsSnippet?.points || 0} pts · {standingsSnippet?.played || 0} PJ</p>
           </Link>
           <Link to="/manager" className="block p-4 rounded-xl border border-line bg-surface hover:border-accent transition-colors">
@@ -175,22 +139,22 @@ function DashboardSkeleton() {
           <details className="group lg:hidden rounded-xl border border-line bg-surface">
             <summary className="p-4 font-semibold text-fg cursor-pointer select-none">Clima del club</summary>
             <div className="p-4 pt-0">
-              <ClimatePanel key={`climate-${reloadTick}`} club={club} gameDate={clubSummary.gameDate} />
+              <ClimatePanel key={\`climate-\${reloadTick}\`} club={club} gameDate={clubSummary.gameDate} />
             </div>
           </details>
           <details className="group lg:hidden rounded-xl border border-line bg-surface">
             <summary className="p-4 font-semibold text-fg cursor-pointer select-none">Últimos sucesos</summary>
             <div className="p-4 pt-0">
-              <ConsequenceFeed key={`feed-${reloadTick}`} clubId={club?.id} />
+              <ConsequenceFeed key={\`feed-\${reloadTick}\`} clubId={club?.id} />
             </div>
           </details>
 
           {/* Versión Desktop */}
           <div className="hidden lg:block">
-            <ClimatePanel key={`climate-desktop-${reloadTick}`} club={club} gameDate={clubSummary.gameDate} />
+            <ClimatePanel key={\`climate-desktop-\${reloadTick}\`} club={club} gameDate={clubSummary.gameDate} />
           </div>
           <div className="hidden lg:block">
-            <ConsequenceFeed key={`feed-desktop-${reloadTick}`} clubId={club?.id} />
+            <ConsequenceFeed key={\`feed-desktop-\${reloadTick}\`} clubId={club?.id} />
           </div>
         </div>
 
@@ -209,3 +173,7 @@ function DashboardSkeleton() {
     </div>
   )
 }
+`
+
+code = code.replace(/return \(\s*<div className="mx-auto max-w-6xl[\s\S]+/, newReturn)
+fs.writeFileSync('src/features/dashboard/Dashboard.jsx', code, 'utf8')

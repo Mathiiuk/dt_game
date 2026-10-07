@@ -10,6 +10,7 @@ Disallow: /create-manager
 Disallow: /create-club
 Disallow: /design
 Disallow: /dashboard
+Disallow: /events
 Disallow: /calendar
 Disallow: /tactics
 Disallow: /standings

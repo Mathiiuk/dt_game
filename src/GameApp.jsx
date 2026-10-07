@@ -8,6 +8,7 @@ import AuthScreen from './features/auth/AuthScreen'
 import CreateManagerWizard from './features/manager/CreateManagerWizard'
 import CreateClubWizard from './features/club/CreateClubWizard'
 import Dashboard from './features/dashboard/Dashboard'
+import EventScreen from './features/events/EventScreen'
 import WelcomeScreen from './features/auth/WelcomeScreen'
 import CalendarScreen from './features/calendar/CalendarScreen'
 import TacticsScreen from './features/tactics/TacticsScreen'
@@ -67,6 +68,7 @@ function GameApp() {
             {/* Pantallas de juego dentro del AppShell (menú lateral en escritorio, barra inferior en móvil) */}
             <Route element={<RequireCareer><AppShell /></RequireCareer>}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/events" element={<EventScreen />} />
               <Route path="/calendar" element={<CalendarScreen />} />
               <Route path="/tactics" element={<TacticsScreen />} />
               <Route path="/standings" element={<StandingsScreen />} />
