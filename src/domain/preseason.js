@@ -3,7 +3,7 @@
  * La dirigencia pone la mitad de los sueldos y aparecen amistosos con riesgo y recompensa. Funciones puras.
  */
 
-export const PRESEASON_WAGE_COVER = 0.5 // la dirigencia cubre la mitad de los sueldos del plantel
+export const PRESEASON_WAGE_COVER = 1.0 // la dirigencia cubre la mitad de los sueldos del plantel
 export const PRESEASON_EVENT_WEEKS = [2, 4] // semanas de la temporada en las que llega un amistoso
 
 const day = (d) => String(d || '').slice(0, 10)

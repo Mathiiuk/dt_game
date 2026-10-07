@@ -19,7 +19,7 @@ import OfferModal from './OfferModal'
 import { friendlyError } from '../../lib/errors'
 import { financesApi } from '../../api/finances'
 import { climateApi } from '../../api/climate'
-import { purchaseWarning } from '../../domain/warnings'
+import { purchaseWarning, financeSafetyWarning } from '../../domain/warnings'
 import { askRisk } from '../../lib/risk'
 import { playerDemands } from '../../domain/contractDemands'
 
@@ -89,7 +89,13 @@ export default function MarketScreen() {
   const clearFilters = () => { setGroup('ALL'); setQuery(''); setMinPace(''); setOnlyAffordable(false) }
   const isOpen = !!marketStatus?.isOpen
 
-  const handleScout = async (p) => {
+    const handleScout = async (p) => {
+    const proceed = await askRisk(confirmRisk, async () => {
+      const finances = await financesApi.getFinances(club.id)
+      return financeSafetyWarning({ cost: SCOUT_COST, balance: finances.balance, expectedWeeklyFlow: finances.expectedWeeklyFlow, gameDate: club.game_date })
+    })
+    if (!proceed) return
+
     const confirmed = await confirmAction({
       title: `Ojear a ${p.first_name} ${p.last_name}`,
       description: `Un ojeador elaborará un informe completo: revela atributos, potencial y cotización por ${formatMoney(SCOUT_COST)}.`,
@@ -108,8 +114,15 @@ export default function MarketScreen() {
     }
   }
 
-  const handleBuyback = async (right) => {
+    const handleBuyback = async (right) => {
     const name = `${right.players?.first_name || ''} ${right.players?.last_name || ''}`.trim()
+    
+    const proceed = await askRisk(confirmRisk, async () => {
+      const finances = await financesApi.getFinances(club.id)
+      return financeSafetyWarning({ cost: Number(right.price), balance: finances.balance, expectedWeeklyFlow: finances.expectedWeeklyFlow, gameDate: club.game_date })
+    })
+    if (!proceed) return
+
     const confirmed = await confirmAction({
       title: `Recomprar a ${name}`,
       description: `Ejercés la cláusula de recompra: pagás ${formatMoney(right.price)} y el jugador vuelve a tu plantel.`,
@@ -153,7 +166,10 @@ export default function MarketScreen() {
       // Pagar de más o dejar la caja flaca molesta a la dirigencia: se avisa antes de cerrar el fichaje
       const proceed = await askRisk(confirmRisk, async () => {
         const finances = await financesApi.getFinances(club.id)
-        return purchaseWarning({
+        
+          const safety = financeSafetyWarning({ cost: amount, balance: finances.balance, expectedWeeklyFlow: finances.expectedWeeklyFlow, gameDate: club.game_date })
+          if (safety) return safety
+          return purchaseWarning({
           fee: amount,
           marketValue: Math.round((offerPlayer.asking_price || offerPlayer.market_value || marketApi.calculateMarketValue(offerPlayer)) * (installments === 3 ? 1.08 : 1)),
           balance: Number(club.budget || 0),

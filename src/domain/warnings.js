@@ -5,13 +5,15 @@
  */
 import { ticketPriceMood, DIFFICULTY } from './consequences'
 import { trainingRisk, saleConsequences, purchaseConsequences } from './squadConsequences'
+import { absoluteWeek } from './gameWeek'
 
 export const WARNING_KEYS = {
   TICKET_PRICE: 'TICKET_PRICE',
   TRAINING_HIGH: 'TRAINING_HIGH',
   SELL_REFERENT: 'SELL_REFERENT',
   EXPENSIVE_SIGNING: 'EXPENSIVE_SIGNING',
-  PRESS_SKIP: 'PRESS_SKIP'
+  PRESS_SKIP: 'PRESS_SKIP',
+  FINANCE_SAFETY_NET: 'FINANCE_SAFETY_NET'
 }
 
 export const WARNING_LABELS = {
@@ -19,7 +21,8 @@ export const WARNING_LABELS = {
   TRAINING_HIGH: 'Entrenamiento a máxima intensidad',
   SELL_REFERENT: 'Vender al ídolo o al capitán',
   EXPENSIVE_SIGNING: 'Fichajes que dejan la caja flaca',
-  PRESS_SKIP: 'No presentarte a la conferencia'
+  PRESS_SKIP: 'No presentarte a la conferencia',
+  FINANCE_SAFETY_NET: 'Gasto grande al comienzo de la carrera'
 }
 
 const make = (key, level, title, description, confirmText) => ({
@@ -91,4 +94,23 @@ export const isWarningMuted = (muted, key) => Boolean(muted && muted[key])
 /** Los avisos silenciados se reactivan tras un escándalo nuevo o al llegar a 5 victorias seguidas */
 export function shouldReactivateWarnings({ previousScandals = 0, scandals = 0, winStreak = 0 }) {
   return scandals > previousScandals || winStreak === 5
+}
+
+
+export function financeSafetyWarning({ cost = 0, balance = 0, expectedWeeklyFlow = 0, gameDate }) {
+  if (!gameDate) return null
+  if (absoluteWeek(gameDate) > 8) return null
+  if (expectedWeeklyFlow >= 0) return null
+  const balanceAfter = balance - cost
+  if (balanceAfter < 0) return null // handled elsewhere
+  const weeksLeft = balanceAfter / Math.abs(expectedWeeklyFlow)
+  if (weeksLeft >= 4) return null
+
+  return make(
+    WARNING_KEYS.FINANCE_SAFETY_NET,
+    'HIGH',
+    'Cuidado con la caja',
+    `Ese gasto te deja con plata para ${Math.floor(weeksLeft)} semana(s). Estás en las primeras fechas, el club todavía no hace pie financieramente y podés quedar en rojo.`,
+    'Gastar igual'
+  )
 }

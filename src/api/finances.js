@@ -53,7 +53,25 @@ export const financesApi = {
       // En pretemporada no hay partidos: no se cuenta taquilla y sí el aporte de la dirigencia
       const preseason = isPreseason(club.game_date, firstFixtureDate)
       const boardAid = preseason ? preseasonAid(playerWages) : 0
-      const expectedWeeklyFlow = preseason ? netWeeklyFlow + boardAid : netWeeklyFlow + Math.round(projectedMatchdayGate / 2)
+      
+      // Buscar si hay partido de local esta semana para calcular el flujo real
+      const weekStart = new Date(club.game_date)
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekEnd.getDate() + 7)
+      
+      const { data: homeFixtures } = await supabase
+        .from('fixtures')
+        .select('id')
+        .eq('home_team_id', clubId)
+        .gte('match_date', weekStart.toISOString())
+        .lt('match_date', weekEnd.toISOString())
+      
+      const isHomeMatchThisWeek = homeFixtures && homeFixtures.length > 0
+      
+      const expectedWeeklyFlow = preseason 
+        ? netWeeklyFlow + boardAid 
+        : netWeeklyFlow + (isHomeMatchThisWeek ? projectedMatchdayGate : 0)
+
       const balance = Number(club.budget || 0)
 
       // 7. Estimación de liquidez

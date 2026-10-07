@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { financesApi } from '../../api/finances'
 import { moraleApi } from '../../api/morale'
 import { climateApi } from '../../api/climate'
-import { ticketPriceWarning } from '../../domain/warnings'
+import { ticketPriceWarning, financeSafetyWarning } from '../../domain/warnings'
 import { askRisk } from '../../lib/risk'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
@@ -97,17 +97,30 @@ export default function FinancesScreen() {
     }
   }
 
-  const handleUpgrade = async (facility) => {
+    const handleUpgrade = async (facility) => {
     const level = levelOf(club, facility.key)
     const cost = upgradeCost(facility, level)
-    const confirmed = await confirmAction({
-      title: `Mejorar ${facility.name.toLowerCase()}`,
-      description: `¿Confirmás la inversión de ${formatMoney(cost)} para llevarla al nivel ${level + 1}?`,
-      confirmText: 'Invertir y mejorar',
-      cancelText: 'Cancelar',
-      variant: 'primary'
+    
+    const safetyWarning = financeSafetyWarning({
+      cost,
+      balance: finances?.balance,
+      expectedWeeklyFlow: finances?.expectedWeeklyFlow,
+      gameDate: club?.game_date
     })
-    if (!confirmed) return
+
+    if (safetyWarning) {
+      const ok = await confirmRisk(safetyWarning)
+      if (!ok) return
+    } else {
+      const confirmed = await confirmAction({
+        title: `Mejorar ${facility.name.toLowerCase()}`,
+        description: `¿Confirmás la inversión de ${formatMoney(cost)} para llevarla al nivel ${level + 1}?`,
+        confirmText: 'Invertir y mejorar',
+        cancelText: 'Cancelar',
+        variant: 'primary'
+      })
+      if (!confirmed) return
+    }
     try {
       await financesApi.upgradeFacility(club.id, facility.key, cost, level)
       toast.success(`${facility.name} mejorada con éxito`)
