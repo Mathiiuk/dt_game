@@ -47,7 +47,7 @@ vi.mock('../../src/features/club/screens/IdolsLegendsTab', () => ({ default: () 
 
 import ClubScreen from '../../src/features/club/screens/ClubScreen'
 
-const renderScreen = () => render(<MemoryRouter><ClubScreen /></MemoryRouter>)
+const renderScreen = (path = '/club') => render(<MemoryRouter initialEntries={[path]}><ClubScreen /></MemoryRouter>)
 
 describe('pantalla Club', () => {
   beforeEach(() => { fireStaff.mockClear(); hireStaff.mockClear(); confirmAction.mockClear() })
@@ -83,5 +83,15 @@ describe('pantalla Club', () => {
     expect(await screen.findByText('Enfermería tab')).toBeInTheDocument()
     await userEvent.click(within(tabs).getByRole('tab', { name: 'Ídolos y leyendas' }))
     expect(await screen.findByText('Ídolos tab')).toBeInTheDocument()
+  })
+
+  it('la dirección /club?tab=enfermeria abre directo la Enfermería (enlace de los avisos)', async () => {
+    renderScreen('/club?tab=enfermeria')
+    expect(await screen.findByText('Enfermería tab')).toBeInTheDocument()
+  })
+
+  it('una pestaña desconocida en la dirección cae en Gestión', async () => {
+    renderScreen('/club?tab=cualquiera')
+    expect(await screen.findByText('Marcos Peña')).toBeInTheDocument()
   })
 })

@@ -46,6 +46,11 @@ describe('filtros y orden', () => {
     expect(sortPlayers(squad, 'name').map(p => p.first_name)).toEqual(['Álvaro', 'Cristian', 'Hugo', 'Luis', 'Pablo'])
     expect(squad.map(p => p.id)).toEqual(before)
   })
+
+  it('ordena por contrato: primero el que vence antes, sin fecha al final', () => {
+    const list = [{ id: 'a', first_name: 'A', contract_end: '2028-06-30' }, { id: 'b', first_name: 'B' }, { id: 'c', first_name: 'C', contract_end: '2027-06-30' }]
+    expect(sortPlayers(list, 'contract').map(p => p.id)).toEqual(['c', 'a', 'b'])
+  })
 })
 
 describe('resumen y tonos', () => {

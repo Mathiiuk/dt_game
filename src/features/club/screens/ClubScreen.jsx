@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { GraduationCap, Mic, Sparkles, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import { staffApi, academyApi } from '../../../api/clubFeatures'
@@ -41,7 +42,11 @@ export default function ClubScreen() {
 
   const cachedClubData = club?.id ? queryCache.get(`club:screen:${club.id}`) : null
   const [loading, setLoading] = useState(!cachedClubData)
-  const [activeTab, setActiveTab] = useState('gestion')
+  // La pestaña vive en la dirección (/club?tab=enfermeria): así un aviso del Inicio o del Plantel abre la sección exacta
+  const [searchParams, setSearchParams] = useSearchParams()
+  const requestedTab = searchParams.get('tab')
+  const activeTab = TABS.some(([id]) => id === requestedTab) ? requestedTab : 'gestion'
+  const setActiveTab = (tab) => setSearchParams(tab === 'gestion' ? {} : { tab }, { replace: true })
   const [showYouthModal, setShowYouthModal] = useState(false)
   const [showStaffModal, setShowStaffModal] = useState(false)
   const [showPressModal, setShowPressModal] = useState(false)

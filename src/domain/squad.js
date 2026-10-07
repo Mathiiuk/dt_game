@@ -23,6 +23,7 @@ export const SORT_OPTIONS = [
   { value: 'age', label: 'Edad' },
   { value: 'salary', label: 'Salario' },
   { value: 'morale', label: 'Moral' },
+  { value: 'contract', label: 'Contrato por vencer' },
   { value: 'name', label: 'Nombre' }
 ]
 
@@ -43,7 +44,7 @@ export const filterPlayers = (players, { group = 'ALL', query = '' } = {}) => {
   })
 }
 
-/** Orden estable; nivel, salario y moral descendente; edad y nombre ascendente */
+/** Orden estable; nivel, salario y moral descendente; edad, nombre y vencimiento de contrato ascendente (sin fecha, al final) */
 export const sortPlayers = (players, key = 'overall') => {
   const copy = [...players]
   const cmp = {
@@ -51,6 +52,7 @@ export const sortPlayers = (players, key = 'overall') => {
     age: (a, b) => (a.age || 0) - (b.age || 0),
     salary: (a, b) => salary(b) - salary(a),
     morale: (a, b) => morale(b) - morale(a),
+    contract: (a, b) => String(a.contract_end || '9999').localeCompare(String(b.contract_end || '9999')),
     name: (a, b) => fullName(a).localeCompare(fullName(b), 'es')
   }[key] || (() => 0)
   return copy.sort((a, b) => cmp(a, b) || fullName(a).localeCompare(fullName(b), 'es'))

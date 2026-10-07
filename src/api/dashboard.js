@@ -81,7 +81,7 @@ export const dashboardApi = {
           priority: 'MEDIUM',
           title: 'Bajas Médicas',
           message: `${injuredPlayers.length} jugador(es) en enfermería no disponibles para jugar.`,
-          actionUrl: '/squad'
+          actionUrl: '/club?tab=enfermeria'
         })
       }
 

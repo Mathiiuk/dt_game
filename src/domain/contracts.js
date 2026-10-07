@@ -76,6 +76,8 @@ export const pickInitialContractYears = (rng = Math.random) => {
  * @returns {{ id: string, priority: string, title: string, message: string, count: number, actionUrl: string } | null}
  */
 export const URGENT_CONTRACT_WEEKS = 12
+// El aviso abre el Plantel ordenado por vencimiento: los que hay que renovar quedan arriba
+export const CONTRACTS_ALERT_URL = '/squad?orden=contrato'
 export const contractsAlert = (squad = [], gameDate) => {
   const expiring = squad.filter(p => isContractExpiringSoon(p.contract_end, gameDate, CONTRACT_ALERT_WINDOW_WEEKS))
   if (expiring.length === 0) return null
@@ -88,7 +90,7 @@ export const contractsAlert = (squad = [], gameDate) => {
       title: 'Se te vencen contratos',
       message: `${n} ${n === 1 ? 'jugador queda libre' : 'jugadores quedan libres'} en ${weeksLeft} ${weeksLeft === 1 ? 'semana' : 'semanas'} si no renovás. Después del cierre de la temporada no hay vuelta atrás.`,
       count: n,
-      actionUrl: '/squad'
+      actionUrl: CONTRACTS_ALERT_URL
     }
   }
   return {
@@ -97,6 +99,6 @@ export const contractsAlert = (squad = [], gameDate) => {
     title: 'Contratos por Vencer',
     message: `${n} futbolista(s) con contrato que vence en los próximos 6 meses.`,
     count: n,
-    actionUrl: '/squad'
+    actionUrl: CONTRACTS_ALERT_URL
   }
 }

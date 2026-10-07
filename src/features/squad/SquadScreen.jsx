@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, Bell, Check, DollarSign, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { Link, useSearchParams } from 'react-router-dom'
 import { playerApi } from '../../api/player'
 import { contractApi } from '../../api/contracts'
 import { loansApi } from '../../api/loans'
@@ -114,7 +115,9 @@ export default function SquadScreen() {
   const [mobileTab, setMobileTab] = useState('squad')
   const [group, setGroup] = useState('ALL')
   const [query, setQuery] = useState('')
-  const [sortKey, setSortKey] = useState('overall')
+  // El aviso de contratos por vencer llega con /squad?orden=contrato
+  const [searchParams] = useSearchParams()
+  const [sortKey, setSortKey] = useState(searchParams.get('orden') === 'contrato' ? 'contract' : 'overall')
   const [showMentorshipModal, setShowMentorshipModal] = useState(false)
   const [showEvolutionModal, setShowEvolutionModal] = useState(false)
   const [renewalPlayer, setRenewalPlayer] = useState(null)
@@ -371,6 +374,13 @@ export default function SquadScreen() {
           <Stat label="Caja" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl text-accent sm:text-3xl" />
         </CardBody>
       </Card>
+
+      {summary.injured > 0 && (
+        <p className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-danger/40 bg-danger-soft px-3.5 py-2.5 text-sm text-fg">
+          <span>{summary.injured === 1 ? 'Tenés 1 jugador lesionado.' : `Tenés ${summary.injured} jugadores lesionados.`}</span>
+          <Button asChild variant="outline" size="sm"><Link to="/club?tab=enfermeria">Ver la enfermería</Link></Button>
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <div className="min-w-0 space-y-4">
