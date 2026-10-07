@@ -8,7 +8,13 @@ import { playerApi } from '../../api/player'
 import { matchEngineApi, SHOUT_TYPES } from '../../api/matchEngine'
 import { supabase } from '../../api/supabase'
 import { useGameContext } from '../../context/GameContext'
-import MatchControls from './MatchControls'
+import MatchHeader from './MatchHeader'
+import MatchTimeline from './MatchTimeline'
+import MatchActions from './MatchActions'
+import MatchStats from './MatchStats'
+import SubstitutionsSheet from './SubstitutionsSheet'
+import ShoutsSheet from './ShoutsSheet'
+import DecisionSheet from './DecisionSheet'
 import SubstitutionsPanel from './SubstitutionsPanel'
 import DecisionCard from './DecisionCard'
 import { detectMoment, shoutBuff, shoutWaitMinutes, SHOUT_DURATION, MOMENT_ACTION_OPEN_SUBS, decisionText } from '../../domain/quickDecisions'
@@ -78,6 +84,8 @@ export default function MatchScreen() {
   const firedRef = useRef(new Set())
   const [lastShout, setLastShout] = useState(null)
   const [preselectOut, setPreselectOut] = useState(null)
+  const [subsSheetOpen, setSubsSheetOpen] = useState(false)
+  const [shoutsSheetOpen, setShoutsSheetOpen] = useState(false)
 
   // Vista previa del once: avisa antes del pitazo si el plantel está incompleto
   const previewSquad = data?.club && data.players?.length > 0 ? buildMatchSquad(data.players, lineupIdsOf(data.tactic, data.players), 11, slotsOf(data.tactic)) : null
@@ -391,268 +399,192 @@ export default function MatchScreen() {
     : 'Equipo Rival'
 
   return (
-    <div className="min-h-dvh p-3 sm:p-6 text-fg bg-bg pb-20">
-      {/* Header */}
-      <header className="max-w-5xl mx-auto flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate('/dashboard')} 
-            className="p-2 transition-colors border rounded-xl border-line bg-surface hover:bg-surface-3 text-fg"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-base sm:text-lg font-bold text-fg flex items-center gap-2">
-              <Shield className="w-4 h-4 text-accent" />
-              {data.fixture ? 'Fecha Oficial de Torneo' : 'Partido Amistoso'}
-            </h1>
-            <p className="text-xs text-fg-muted">Dirección técnica en vivo minuto a minuto</p>
-          </div>
-        </div>
-
-        {/* Pausa, velocidad y saltear */}
-        {matchState === 'playing' && (
-          <MatchControls speed={speed} onSpeed={setSpeed} paused={paused} onTogglePause={() => setPaused(p => !p)} onSkip={handleSkipMatch} />
-        )}
-      </header>
-
-      {/* Scoreboard Hero */}
-      <div className="max-w-5xl mx-auto mb-4 p-4 sm:p-6 rounded-lg border border-line bg-gradient-to-b from-surface via-surface/90 to-bg shadow-md">
-        <div className="flex items-center justify-between text-center">
-          {/* Local */}
-          <div className="flex-1 text-left sm:text-center">
-            <span className="text-[10px] sm:text-xs uppercase font-bold text-fg-muted tracking-wider">Local</span>
-            <h2 className="text-sm sm:text-xl font-semibold text-fg truncate">
-              {isHome ? data.club?.name : oppDisplayName}
-            </h2>
-          </div>
-
-          {/* Marcador Central y Minuto */}
-          <div className="flex flex-col items-center px-4">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl sm:text-5xl font-semibold text-accent tracking-tighter">
-                {score.home}
-              </span>
-              <span className="text-fg-subtle font-light text-2xl">-</span>
-              <span className="text-3xl sm:text-5xl font-semibold text-accent tracking-tighter">
-                {score.away}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 mt-1 px-2.5 py-0.5 rounded-full bg-surface-3/80 border border-line text-xs font-mono font-bold text-fg">
-              <Timer className="w-3 h-3 text-accent" />
-              <span>{matchState === 'pre-match' ? "00:00" : `${minute}'`}</span>
-            </div>
-          </div>
-
-          {/* Visita */}
-          <div className="flex-1 text-right sm:text-center">
-            <span className="text-[10px] sm:text-xs uppercase font-bold text-fg-muted tracking-wider">Visita</span>
-            <h2 className="text-sm sm:text-xl font-semibold text-fg truncate">
-              {isHome ? oppDisplayName : data.club?.name}
-            </h2>
-          </div>
-        </div>
-
-        {matchState === 'finished' && (
-          <div className="mt-3 border-t border-line/80 pt-3 text-center space-y-2">
-            <p className="text-xs font-semibold text-fg-muted">Pitazo final</p>
-            <button
-              type="button"
-              onClick={goToSummary}
-              className="mx-auto flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-accent-fg transition-all hover:bg-accent-strong active:scale-95"
-            >
-              <CheckCircle className="w-4 h-4" />
-              <span>Continuar</span>
-            </button>
-            <p className="text-[11px] text-fg-subtle">Si querés, mirá las estadísticas antes de seguir.</p>
-          </div>
-        )}
-
-        {matchState === 'playing' && paused && (
-          <p role="status" className="mt-3 border-t border-line/80 pt-3 text-center text-xs font-semibold text-warning">
-            Partido en pausa en el minuto {minute}. Aprovechá para dar una orden táctica o hacer cambios, y reanudá cuando quieras.
-          </p>
-        )}
-
-        {/* Active DT Shout Banner */}
-        {activeOrder && (
-          <div className="mt-3 pt-3 border-t border-line/80 flex items-center justify-center gap-2 text-xs text-accent">
-            <Volume2 className="w-3.5 h-3.5" />
-            <span className="font-semibold">Orden táctica activa:</span>
-            <span>{SHOUT_TYPES.find(o => o.id === activeOrder)?.label || activeOrder}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Relato Minuto a Minuto */}
-        <div className="lg:col-span-2 p-4 sm:p-5 rounded-lg border border-line bg-surface/60 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
-              <Activity className="w-3.5 h-3.5 text-accent" />
-              Relato radial en directo
-            </h3>
-
-            {simResults?.stats && (
-              <button
-                onClick={() => setShowStats(!showStats)}
-                className="text-xs text-fg-muted hover:text-accent flex items-center gap-1"
-              >
-                <BarChart3 className="w-3.5 h-3.5" />
-                <span>{showStats ? 'Ver relato' : 'Ver estadísticas'}</span>
-              </button>
-            )}
-          </div>
-
-          {showStats && simResults?.stats ? (
-            <div className="p-3 rounded-xl bg-bg/80 border border-line space-y-3 text-xs">
-              <div>
-                <div className="flex justify-between text-fg-muted mb-1">
-                  <span>Posesión de balón</span>
-                  <span>{simResults.stats.possession.home}% - {simResults.stats.possession.away}%</span>
-                </div>
-                <div className="w-full h-2 bg-surface-3 rounded-full overflow-hidden flex">
-                  <div className="bg-accent h-full" style={{ width: `${simResults.stats.possession.home}%` }} />
-                  <div className="bg-accent h-full" style={{ width: `${simResults.stats.possession.away}%` }} />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-fg">
-                <div className="p-2 rounded bg-surface border border-line">
-                  <span className="block text-fg-subtle text-[10px]">Tiros totales</span>
-                  <span className="font-bold">{simResults.stats.shots.home} vs {simResults.stats.shots.away}</span>
-                </div>
-                <div className="p-2 rounded bg-surface border border-line">
-                  <span className="block text-fg-subtle text-[10px]">Tiros al arco</span>
-                  <span className="font-bold">{simResults.stats.shotsOnTarget.home} vs {simResults.stats.shotsOnTarget.away}</span>
-                </div>
-                <div className="p-2 rounded bg-surface border border-line">
-                  <span className="block text-fg-subtle text-[10px]">Faltas</span>
-                  <span className="font-bold">{simResults.stats.fouls.home} vs {simResults.stats.fouls.away}</span>
-                </div>
-                <div className="p-2 rounded bg-surface border border-line">
-                  <span className="block text-fg-subtle text-[10px]">Córners</span>
-                  <span className="font-bold">{simResults.stats.corners.home} vs {simResults.stats.corners.away}</span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="h-64 sm:h-80 overflow-y-auto space-y-2 pr-1 text-xs">
-              {events.map((e, idx) => {
-                const isGoal = e.type === 'GOAL'
-                const isCard = e.type === 'CARD_YELLOW' || e.type === 'CARD_RED'
-                const isShout = e.type === 'TACTIC_SHOUT'
-
-                return (
-                  <div 
-                    key={idx}
-                    className={`p-2.5 rounded-xl border flex items-start gap-2.5 transition-all ${
-                      isGoal 
-                        ? 'bg-accent-soft border-accent/50 text-accent font-bold'
-                        : isCard
-                        ? 'bg-gold-soft border-gold/40 text-gold'
-                        : isShout
-                        ? 'bg-indigo-950/30 border-indigo-500/30 text-indigo-300 italic'
-                        : 'bg-bg/60 border-line text-fg'
-                    }`}
-                  >
-                    <span className="text-fg-subtle font-mono font-bold shrink-0">{e.minute}'</span>
-                    <span className="leading-relaxed">{e.text}</span>
+    <div className="min-h-dvh text-fg bg-bg lg:overflow-hidden lg:h-dvh lg:flex lg:flex-col">
+      <div className="max-w-[1400px] mx-auto w-full flex-1 flex flex-col h-full relative">
+        <MatchHeader 
+          isHome={isHome}
+          clubName={data.club?.name || 'Local'}
+          opponentName={oppDisplayName}
+          score={score}
+          minute={minute}
+          matchState={matchState}
+          onBack={() => navigate('/dashboard')}
+        />
+        
+        <div className="flex-1 lg:grid lg:grid-cols-12 gap-6 p-4 pt-0 overflow-y-auto lg:overflow-hidden pb-32 lg:pb-4">
+          
+          {/* Izquierda: Desktop (Tu Equipo) / Oculto en mA3vil (van a las Sheets) */}
+          <div className="hidden lg:flex lg:col-span-3 flex-col gap-4 overflow-y-auto custom-scrollbar h-full pr-2">
+            <div className="p-4 rounded-xl bg-surface border border-line space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Direcci�n T�cnica</h3>
+              
+              {matchState === 'pre-match' ? (
+                <button 
+                  onClick={handleStartMatch}
+                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all shadow-lg flex items-center justify-center gap-2"
+                >
+                  <Play className="w-5 h-5 fill-zinc-950" />
+                  Comenzar partido
+                </button>
+              ) : matchState === 'playing' ? (
+                <div className="space-y-4">
+                  <div className="bg-surface-2 p-3 rounded-xl border border-line">
+                    <p className="text-xs text-fg-subtle mb-2">T�ctica y Gritos (Enfriamiento: {shoutWait}m)</p>
+                    {SHOUT_TYPES.map(order => (
+                      <button 
+                        key={order.id}
+                        disabled={shoutWait > 0}
+                        onClick={() => handleApplyOrder(order)}
+                        className={`w-full p-2.5 mt-2 text-left rounded-lg border text-xs transition-all ${
+                          activeOrder === order.id 
+                            ? 'border-accent bg-accent-soft text-accent font-bold'
+                            : 'border-line bg-bg/60 text-fg hover:border-line'
+                        }`}
+                      >
+                        {order.label}
+                      </button>
+                    ))}
                   </div>
-                )
-              })}
-
-              {events.length === 0 && matchState !== 'pre-match' && (
-                <div className="h-full flex items-center justify-center text-center text-fg-subtle text-xs italic">
-                  Balón en disputa, equipos midiendo fuerzas en el campo...
                 </div>
-              )}
-
-              {events.length === 0 && matchState === 'pre-match' && (
-                <div className="h-full flex items-center justify-center text-center text-fg-subtle text-xs italic">
-                  Equipos en vestuarios finalizando la charla táctica.
-                </div>
+              ) : (
+                <button
+                  onClick={goToSummary}
+                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all shadow-lg flex items-center justify-center gap-2"
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  Resumen
+                </button>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Panel Lateral: Órdenes del DT */}
-        <div className="space-y-4">
-          <div className="p-4 sm:p-5 rounded-lg border border-line bg-surface/60 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">
-              Dirección técnica
-            </h3>
+            {matchState === 'playing' && (
+              <div className="flex-1 bg-surface border border-line rounded-xl overflow-hidden flex flex-col">
+                 <div className="p-3 bg-surface-2 border-b border-line">
+                   <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Tu Equipo (Alineaci�n)</h3>
+                 </div>
+                 <div className="flex-1 overflow-y-auto p-2">
+                   <SubstitutionsPanel
+                      preselectOutId={preselectOut}
+                      onField={onField.filter(p => !sentOffIds.has(p.id))}
+                      bench={benchOf(data.players, onField, subsMade)}
+                      subsLeft={substitutionsLeft(subsMade)}
+                      onSubstitute={handleSubstitute}
+                   />
+                 </div>
+              </div>
+            )}
+          </div>
 
+          {/* Centro: Relato */}
+          <div className="col-span-12 lg:col-span-6 flex flex-col gap-4 h-[65vh] lg:h-full">
+            
             {matchState === 'pre-match' && squadNotes.length > 0 && (
-              <div className="p-3 rounded-xl border border-gold/40 bg-gold/10 text-[11px] text-gold space-y-1.5" role="status">
+              <div className="p-4 rounded-xl border border-gold/40 bg-gold/10 text-sm text-gold space-y-2 lg:hidden" role="status">
                 <p className="font-bold uppercase tracking-wider text-gold">Plantel incompleto</p>
-                {youthNotes.length > 0 && (
-                  <p>Se convocan {youthNotes.length} juvenil(es) de la cantera para completar el once (rendimiento bajo).</p>
-                )}
-                {injuredNotes.length > 0 && (
-                  <p>
-                    Jugarán lesionados: {injuredNotes.map(n => n.name).join(', ')}. Rinden un 20% menos y tienen un 35% de
-                    riesgo de empeorar la lesión.
-                  </p>
-                )}
+                {youthNotes.length > 0 && <p>Se convocan {youthNotes.length} juvenil(es).</p>}
+                {injuredNotes.length > 0 && <p>Jugar�n lesionados: {injuredNotes.map(n => n.name).join(', ')}.</p>}
               </div>
             )}
 
-            {matchState === 'pre-match' ? (
-              <button 
-                onClick={handleStartMatch}
-                className="w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
-              >
-                <Play className="w-4 h-4 fill-zinc-950" />
-                <span>Comenzar partido</span>
-              </button>
-            ) : matchState === 'playing' ? (
-              <div className="space-y-2">
-                {moment && <DecisionCard moment={moment} onChoose={handleDecision} />}
-                {paused && !moment && minute < MATCH_MINUTES && (
-                  <SubstitutionsPanel
-                    preselectOutId={preselectOut}
-                    onField={onField.filter(p => !sentOffIds.has(p.id))}
-                    bench={benchOf(data.players, onField, subsMade)}
-                    subsLeft={substitutionsLeft(subsMade)}
-                    onSubstitute={handleSubstitute}
-                  />
-                )}
-                <span className="text-[11px] text-fg-muted block mb-1">Gritos y arengas desde el banco:</span>
-                {shoutWait > 0 && <p className="text-[10px] text-fg-subtle">Podés volver a gritar en {shoutWait} min.</p>}
-                {SHOUT_TYPES.map(order => {
-                  const isSelected = activeOrder === order.id
-                  return (
-                    <button 
-                      key={order.id}
-                      disabled={shoutWait > 0}
-                      onClick={() => handleApplyOrder(order)}
-                      className={`w-full p-2.5 text-left rounded-xl border text-xs transition-all ${
-                        isSelected 
-                          ? 'border-accent bg-accent-soft text-accent font-bold'
-                          : 'border-line bg-bg/60 text-fg hover:border-line'
-                      }`}
-                    >
-                      <span className="block font-bold">{order.label}</span>
-                      <span className="text-[10px] text-fg-subtle">{order.desc}</span>
-                    </button>
-                  )
-                })}
+            <MatchTimeline events={events} matchState={matchState} />
+
+            {/* Controles"}
+            <div className="">
+              {matchState === 'playing' && (
+                <MatchActions 
+                  speed={speed} 
+                  onSpeed={setSpeed} 
+                  paused={paused} 
+                  onTogglePause={() => setPaused(!paused)}
+                  onSkip={() => confirm('Saltar resto del partido? El resultado se calculara inmediatamente.') && finishMatchInstantly()}
+                  onOpenSubs={() => setSubsSheetOpen(true)}
+                  onOpenShouts={() => setShoutsSheetOpen(true)}
+                />
+              )}
+            </div>
+            
+            {/* Si es dA3vil y estA en pre-match */}
+            {matchState === 'pre-match' && (
+              <div className="lg:hidden mt-auto">
+                 <button 
+                  onClick={handleStartMatch}
+                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent text-accent-fg flex justify-center items-center gap-2 shadow-lg shadow-accent/20"
+                >
+                  <Play className="w-5 h-5 fill-zinc-950" /> Comenzar Partido
+                </button>
               </div>
-            ) : (
-              <button
-                onClick={goToSummary}
-                className="w-full py-3.5 rounded-xl font-semibold text-xs uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all active:scale-95 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
-              >
-                <CheckCircle className="w-4 h-4" />
-                <span>Continuar al resumen</span>
-              </button>
             )}
+
+            {/* Si es dA3vil y terminA3 */}
+            {matchState === 'ended' && (
+              <div className="lg:hidden mt-auto">
+                 <button 
+                  onClick={goToSummary}
+                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent text-accent-fg flex justify-center items-center gap-2 shadow-lg shadow-accent/20"
+                >
+                  <CheckCircle className="w-5 h-5" /> Ver Resumen
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Derecha: Stats (Desktop & Mobile) */}
+          <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
+             {matchState !== 'pre-match' && simResults?.stats && (
+                <MatchStats stats={simResults.stats} />
+             )}
           </div>
         </div>
       </div>
+      
+      {/* Mobile Fixed Toolbar */}
+      {matchState === 'playing' && (
+        <div className="lg:hidden">
+          <MatchActions 
+            speed={speed} 
+            onSpeed={setSpeed} 
+            paused={paused} 
+            onTogglePause={() => setPaused(!paused)}
+            onOpenSubs={() => setSubsSheetOpen(true)}
+            onOpenShouts={() => setShoutsSheetOpen(true)}
+          />
+        </div>
+      )}
+
+      {/* Mobile Sheets */}
+      <SubstitutionsSheet 
+        open={subsSheetOpen}
+        onClose={() => setSubsSheetOpen(false)}
+        preselectOutId={preselectOut}
+        onField={onField.filter(p => !sentOffIds.has(p.id))}
+        players={data.players}
+        subsMade={subsMade}
+        onSubstitute={handleSubstitute}
+        sentOffIds={sentOffIds}
+      />
+
+      <ShoutsSheet
+        open={shoutsSheetOpen}
+        onClose={() => setShoutsSheetOpen(false)}
+        shoutWait={shoutWait}
+        activeOrder={activeOrder}
+        onApplyOrder={handleApplyOrder}
+      />
+
+      <DecisionSheet 
+        open={!!moment}
+        moment={moment}
+        onChoose={(...args) => {
+          handleDecision(...args)
+          // La decisiA3n sola cierra el sheet al limpiar el moment (hace trigger de null)
+        }}
+      />
     </div>
   )
 }
+
+
+
+
+
+

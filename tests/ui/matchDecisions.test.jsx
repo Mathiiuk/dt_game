@@ -60,7 +60,6 @@ describe('partido en vivo con decisiones', () => {
     await startMatch()
     minutes(45)
     expect(screen.getByRole('region', { name: 'Entretiempo' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Reanudar' })).toBeInTheDocument()
 
     click(screen.getByRole('button', { name: /Orden y paciencia/ }))
     expect(mocks.replay).toHaveBeenCalledTimes(1)
@@ -96,7 +95,7 @@ describe('partido en vivo con decisiones', () => {
     await startMatch()
     minutes(5)
     expect(screen.getByRole('region', { name: '¡Penal a favor!' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Reanudar' })).toBeInTheDocument()
+
     const taker = screen.getAllByRole('button').find(b => /Que patee Juan/.test(b.textContent))
     click(taker)
     expect(mocks.replay).toHaveBeenCalledTimes(1)
@@ -124,4 +123,5 @@ describe('partido en vivo con decisiones', () => {
     expect(screen.queryByRole('region', { name: '¡Penal a favor!' })).toBeNull()
   })
 })
+
 
