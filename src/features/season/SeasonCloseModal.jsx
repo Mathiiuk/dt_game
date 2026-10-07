@@ -25,6 +25,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
   const [closedSummary, setClosedSummary] = useState(null)
   const [story, setStory] = useState(null)
   const [outlook, setOutlook] = useState(null)
+  const [expiring, setExpiring] = useState([])
 
   // Puesto actual en la tabla: de ahí salen el premio y el ascenso que se muestran antes de cerrar
   useEffect(() => {
@@ -35,6 +36,12 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
     }).catch(() => {})
     return () => { alive = false }
   }, [club?.id, club?.league_tier])
+
+  useEffect(() => {
+    let alive = true
+    seasonCloseApi.getExpiringContracts(club?.id, seasonYear).then(list => { if (alive) setExpiring(list || []) }).catch(() => {})
+    return () => { alive = false }
+  }, [club?.id, seasonYear])
 
   const handleExecuteClose = async () => {
     try {
@@ -115,6 +122,16 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
             </CardBody>
           </Card>
         </div>
+
+        {expiring.length > 0 && !closedSummary && (
+          <div role="alert" className="rounded-lg border border-warning/40 bg-surface-2 p-4 text-sm">
+            <p className="font-semibold text-fg">Quedan libres {expiring.length} jugador{expiring.length === 1 ? '' : 'es'} si cerrás ahora</p>
+            <p className="mt-1 text-fg-muted">
+              {expiring.slice(0, 5).map(p => `${p.first_name} ${p.last_name} (${p.overall})`).join(', ')}{expiring.length > 5 ? ` y ${expiring.length - 5} más` : ''}.
+              Renová los que quieras conservar desde el plantel antes de cerrar: después no hay vuelta atrás.
+            </p>
+          </div>
+        )}
 
         <section aria-labelledby="season-consequences">
           <h3 id="season-consequences" className="mb-2.5 flex items-center gap-2 font-display text-lg font-semibold text-fg">
