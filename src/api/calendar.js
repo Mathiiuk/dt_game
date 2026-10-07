@@ -110,6 +110,8 @@ export const calendarApi = {
         .eq('career_id', careerId)
         .maybeSingle()
 
+      // Si la lectura falla no se sabe si hay calendario: no se inserta otro (el catch devuelve uno en memoria)
+      if (error) throw error
       if (data) return data
 
       // Si no existe, lo inicializamos

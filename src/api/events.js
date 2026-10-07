@@ -330,7 +330,9 @@ export const eventsApi = {
       .eq('id', event.club_id)
       .single()
 
-    if (cost > 0 && club && Number(club.budget || 0) < cost) {
+    // Sin poder leer el club no se puede comprobar que haya fondos: se corta en vez de saltear el chequeo
+    if (clubErr || !club) throw new Error('No pudimos verificar los fondos del club. Probá de nuevo.')
+    if (cost > 0 && Number(club.budget || 0) < cost) {
       const err = new Error(`ERR_INSUFFICIENT_FUNDS_FOR_OPTION: Fondos insuficientes en tesorería ($${Number(club.budget || 0).toLocaleString()}) para costear esta opción ($${cost.toLocaleString()}).`)
       err.code = 'ERR_INSUFFICIENT_FUNDS_FOR_OPTION'
       throw err

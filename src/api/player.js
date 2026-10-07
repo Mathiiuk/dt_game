@@ -239,6 +239,8 @@ export const playerApi = {
       .eq('club_id', clubId)
       .limit(1)
 
+    // Si la lectura falla no se sabe si hay plantel: generar otro encima lo duplicaría
+    if (countError) throw new Error(countError.message)
     if (existing && existing.length > 0) {
       return await this.getSquad(clubId)
     }
