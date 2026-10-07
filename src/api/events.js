@@ -303,8 +303,8 @@ export const eventsApi = {
 
     if (evErr || !event) throw new Error('Evento no encontrado o ya eliminado')
 
-    // Idempotencia
-    if (event.status === 'RESOLVED') {
+    // Idempotencia: solo se resuelve un evento pendiente
+    if (event.status !== 'PENDING') {
       return { alreadyResolved: true }
     }
 
@@ -338,21 +338,38 @@ export const eventsApi = {
       throw err
     }
 
-    // 3. Aplicar consecuencias financieras y de confianza al club
+    // 3. Reclamar el evento en un solo paso antes de aplicar nada: de dos clics seguidos (o dos pestañas) solo uno
+    // encuentra el evento pendiente; el otro no cambia ninguna fila y se va sin tocar caja, moral ni reputación
+    const { data: claimed, error: claimErr } = await supabase
+      .from('dynamic_events')
+      .update({ status: 'RESOLVED', resolved_option_id: optionId, resolved_at: new Date().toISOString() })
+      .eq('id', eventId)
+      .eq('status', 'PENDING')
+      .select('id')
+    if (claimErr) throw new Error('No pudimos registrar tu decisión. Probá de nuevo.')
+    if (!claimed || claimed.length === 0) return { alreadyResolved: true }
+
+    // 4. Aplicar consecuencias financieras y de confianza al club
     // El costo de la opción y el efecto sobre la caja van juntos al servidor (que ya verificó los fondos del costo arriba);
     // el efecto puede dejar la caja en rojo, por eso se permite el saldo negativo
     const moneyDelta = (effects.budget || 0) - cost
     if (moneyDelta !== 0) {
-      const { financesApi } = await import('./finances')
-      await financesApi.moveCash({
-        clubId: event.club_id,
-        amount: moneyDelta,
-        category: 'DECISION',
-        description: `Decisión: ${event.title || event.event_type || 'dilema'}`,
-        careerId: event.career_id || null,
-        allowNegative: true,
-        ref: `evt:${event.id}`
-      })
+      try {
+        const { financesApi } = await import('./finances')
+        await financesApi.moveCash({
+          clubId: event.club_id,
+          amount: moneyDelta,
+          category: 'DECISION',
+          description: `Decisión: ${event.title || event.event_type || 'dilema'}`,
+          careerId: event.career_id || null,
+          allowNegative: true,
+          ref: `evt:${event.id}`
+        })
+      } catch (cashErr) {
+        // Si la caja no se pudo mover todavía no se aplicó nada: el evento vuelve a quedar pendiente para elegir de nuevo
+        await supabase.from('dynamic_events').update({ status: 'PENDING', resolved_option_id: null, resolved_at: null }).eq('id', eventId)
+        throw cashErr
+      }
     }
 
     // Hinchada, dirigencia, vestuario, barra, favores y acciones especiales pasan por el clima del club,
@@ -370,7 +387,7 @@ export const eventsApi = {
       console.warn('Aviso aplicando consecuencias del evento al clima:', climateErr)
     }
 
-    // 4. Aplicar impacto en moral de jugadores si aplica
+    // 5. Aplicar impacto en moral de jugadores si aplica
     if (effects.morale && event.club_id) {
       try {
         const { data: squad } = await supabase
@@ -390,7 +407,7 @@ export const eventsApi = {
       }
     }
 
-    // 5. Aplicar impacto en reputación del DT si aplica (Fase 32)
+    // 6. Aplicar impacto en reputación del DT si aplica (Fase 32)
     const effectiveManagerId = managerId || event.manager_id
     if (effects.reputation && effectiveManagerId) {
       try {
@@ -406,13 +423,6 @@ export const eventsApi = {
         console.warn('Aviso reputación evento:', repErr)
       }
     }
-
-    // 6. Marcar evento como RESOLVED
-    await supabase.from('dynamic_events').update({
-      status: 'RESOLVED',
-      resolved_option_id: optionId,
-      resolved_at: new Date().toISOString()
-    }).eq('id', eventId)
 
     // 7. Insertar auditoría en event_consequences_log
     try {

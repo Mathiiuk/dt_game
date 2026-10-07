@@ -95,6 +95,17 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
   const critical = event.severity === 'CRITICAL'
   const category = EVENT_CATEGORY[event.category] || { label: event.category, tone: 'neutral' }
   const options = Array.isArray(event.options) ? event.options : []
+  // Una sola elección por evento: al apretar una opción se bloquean todas hasta que termine
+  const [choosing, setChoosing] = useState(false)
+  const choose = async (opt) => {
+    if (choosing) return
+    setChoosing(true)
+    try {
+      await onResolve(event, opt)
+    } finally {
+      setChoosing(false)
+    }
+  }
 
   return (
     <Card className={cn(critical && 'border-danger/50')}>
@@ -118,7 +129,7 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
             const needsBoard = Number(opt.requires?.board || 0)
             const hasBackup = !needsBoard || boardConfidence >= needsBoard
             return (
-              <Button key={opt.id} variant="outline" disabled={!canAfford || !hasBackup} onClick={() => onResolve(event, opt)} className="justify-between" title={opt.description}>
+              <Button key={opt.id} variant="outline" disabled={choosing || !canAfford || !hasBackup} onClick={() => choose(opt)} className="justify-between" title={opt.description}>
                 <span>{opt.label}</span>
                 {cost > 0 && <Badge tone={canAfford ? 'warning' : 'danger'} className="num">-{formatMoney(cost)}</Badge>}
                 {!hasBackup && <Badge tone="danger">Sin respaldo de la dirigencia</Badge>}
@@ -193,7 +204,8 @@ export default function Dashboard() {
       const outcome = await eventsApi.resolveEvent(event.id, option, manager?.id)
       await refreshContext()
       setReloadTick(t => t + 1)
-      toast.success(outcome?.outcomeNote || 'Decisión ejecutada.')
+      // Si el evento ya estaba resuelto (doble clic u otra pestaña) no se aplicó nada: solo se refresca la pantalla
+      if (!outcome?.alreadyResolved) toast.success(outcome?.outcomeNote || 'Decisión ejecutada.')
     } catch (err) {
       toast.error(friendlyError(err, 'Error al procesar la decisión.'))
     }

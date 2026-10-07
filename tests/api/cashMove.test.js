@@ -18,7 +18,8 @@ vi.mock('../../src/api/supabase', () => {
     q.upsert = (row) => { state.writes.push({ table, op: 'upsert', row }); return q }
     q.single = async () => ({ data: rows[table] || {}, error: null })
     q.maybeSingle = async () => ({ data: rows[table] || null, error: null })
-    q.then = (resolve) => resolve({ data: [], error: null })
+    // El reclamo de un evento (update ... where status = PENDING) devuelve la fila reclamada
+    q.then = (resolve) => resolve({ data: table === 'dynamic_events' ? [{ id: 'e1' }] : [], error: null })
     return q
   }
   return { supabase: { from: chain, rpc: async (fn, args) => { state.rpc.push({ fn, args }); return state.rpcResult(fn, args) } } }
