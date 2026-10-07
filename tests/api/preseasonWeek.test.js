@@ -12,7 +12,7 @@ vi.mock('../../src/api/events', () => ({
 vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
     const q = {}
-    for (const m of ['select', 'eq', 'or', 'order', 'limit', 'update']) q[m] = () => q
+    for (const m of ['select', 'eq', 'or', 'order', 'limit', 'update', 'gte', 'lt']) q[m] = () => q
     q.insert = (rows) => { if (table === 'financial_transactions_ledger') state.ledger.push(...rows); return Promise.resolve({ error: null }) }
     q.upsert = () => Promise.resolve({ error: null })
     const read = () => (table === 'clubs' ? state.club

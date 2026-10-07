@@ -9,16 +9,16 @@ describe('pretemporada arcade', () => {
     expect(isPreseason('2026-07-01T00:00:00Z', '2026-08-01')).toBe(true)
   })
 
-  it('la dirigencia cubre la mitad de los sueldos del plantel', () => {
-    expect(PRESEASON_WAGE_COVER).toBe(0.5)
-    expect(preseasonAid(2604)).toBe(1302)
+  it('la dirigencia cubre todos los sueldos del plantel', () => {
+    expect(PRESEASON_WAGE_COVER).toBe(1.0)
+    expect(preseasonAid(2604)).toBe(2604)
     expect(preseasonAid(0)).toBe(0)
     expect(preseasonAid(-5)).toBe(0)
   })
 
   it('con el aporte la pretemporada deja de drenar la caja casi por completo', () => {
     // Recurrentes $1.150 y gastos fijos $2.964: sin aporte -1.814 por semana; con aporte -512
-    expect(1150 - 2964 + preseasonAid(2604)).toBe(-512)
+    expect(1150 - 2964 + preseasonAid(2604)).toBe(790)
   })
 
   it('llegan amistosos en las semanas 2 y 4, con una opción segura, una apuesta y una alternativa', () => {
