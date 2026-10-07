@@ -29,6 +29,12 @@ describe('cancha de la pizarra', () => {
     expect(gk).toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('marca al capitán en su ficha y lo anuncia en el nombre accesible', () => {
+    render(<Pitch formation="4-4-2" lineup={{ PO: 'gk', LI: 'lb' }} players={squad} selectedSlot={null} onSelectSlot={() => {}} captainId="lb" />)
+    expect(screen.getByRole('button', { name: /LI: Leo Borda.*capitán/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /PO: Hugo Lloris/ }).getAttribute('aria-label')).not.toMatch(/capitán/)
+  })
+
   it('al tocar una ficha informa el puesto', async () => {
     const onSelect = vi.fn()
     render(<Pitch formation="4-4-2" lineup={{ PO: 'gk' }} players={squad} selectedSlot={null} onSelectSlot={onSelect} />)

@@ -18,6 +18,7 @@ import {
   PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 import { cn } from '../../lib/utils'
+import { lockerRoomApi } from '../../api/lockerRoom'
 import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
 
@@ -58,6 +59,7 @@ export default function TacticsScreen() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [squad, setSquad] = useState([])
+  const [captainId, setCaptainId] = useState(null)
   const [formation, setFormation] = useState('4-4-2')
   const [mentality, setMentality] = useState('BALANCED')
   const [passingStyle, setPassingStyle] = useState('MIXED')
@@ -84,6 +86,8 @@ export default function TacticsScreen() {
         setSquad(players || [])
         // La química usa mentorías y personalidades; si no se pueden leer, se calcula sin ellas
         chemistryApi.getContext(club.id, players || []).then(setChemistryContext).catch(() => {})
+        // La cinta se marca en la pizarra; si no se puede leer, la pizarra se muestra igual
+        lockerRoomApi.getCaptains(club.id).then(c => setCaptainId(c?.captainId || null)).catch(() => {})
 
         // Con alineación libre la formación guardada es 'LIBRE' y las posiciones salen del layout personalizado
         const custom = tactic?.formation === FREE_FORMATION ? normalizeLayout(tactic?.custom_layout) : null
@@ -262,7 +266,7 @@ export default function TacticsScreen() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
         {/* Cancha y resumen */}
         <div className="min-w-0 space-y-4">
-          <Pitch formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={handleMove} links={chemistry.links} />
+          <Pitch formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={handleMove} links={chemistry.links} captainId={captainId} />
 
           <Card>
             <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">

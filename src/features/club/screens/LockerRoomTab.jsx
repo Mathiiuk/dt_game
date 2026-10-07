@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { 
   Users, 
   Award, 
@@ -34,6 +35,8 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [showCaptainsModal, setShowCaptainsModal] = useState(false)
+  const [searchParams] = useSearchParams()
+  const proposedCaptain = searchParams.get('capitan')
   const [selectedCaptain, setSelectedCaptain] = useState('')
   const [selectedViceCaptain, setSelectedViceCaptain] = useState('')
 
@@ -49,8 +52,12 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       setLockerRoom(lockerRes)
       setProfiles(profilesRes)
       setEvents(eventsRes)
-      setSelectedCaptain(lockerRes?.captain_player_id || '')
-      setSelectedViceCaptain(lockerRes?.vice_captain_player_id || '')
+      // Desde el Plantel se llega con /club?tab=vestuario&capitan=<jugador>: se abre el panel con ese jugador elegido
+      const proposed = (profilesRes || []).some(p => p.player_id === proposedCaptain) ? proposedCaptain : null
+      setSelectedCaptain(proposed || lockerRes?.captain_player_id || '')
+      // Si el propuesto era el subcapitán, el capitán actual pasa a ser el segundo
+      setSelectedViceCaptain(proposed && proposed === lockerRes?.vice_captain_player_id ? (lockerRes?.captain_player_id || '') : (lockerRes?.vice_captain_player_id || ''))
+      if (proposed && proposed !== lockerRes?.captain_player_id) setShowCaptainsModal(true)
     } catch (e) {
       console.error(e)
       toast.error('Error al cargar datos del vestuario')
@@ -268,12 +275,9 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                 <Crown className="w-4 h-4 text-gold" />
                 Capitanía oficial
               </span>
-              <button
-                onClick={() => setShowCaptainsModal(true)}
-                className="text-[11px] text-gold hover:underline font-semibold"
-              >
-                Cambiar brazaletes
-              </button>
+              <Button variant="outline" size="sm" onClick={() => setShowCaptainsModal(true)}>
+                <Crown />Cambiar capitán
+              </Button>
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs">

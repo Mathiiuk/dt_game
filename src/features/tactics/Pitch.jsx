@@ -75,13 +75,13 @@ function PitchLines() {
  * Ficha de jugador: número, apellido y anillo de afinidad posicional.
  * Con `draggable` se arrastra; seleccionada, también se mueve con las flechas del teclado.
  */
-function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, onPointerDown, onPointerMove, onPointerUp, onNudge, reduceMotion }) {
+function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, onPointerDown, onPointerMove, onPointerUp, onNudge, reduceMotion, captain }) {
   const base = slotBase(slot)
   const affinity = player ? fitLabel(player.position, slot) : null
   const rating = player ? ratingAtSlot(player, slot) : null
   const lastName = player ? (player.last_name || '').split(' ').slice(-1)[0] : ''
   const label = player
-    ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${player.is_injured ? ', lesionado' : ''}${selected ? ', seleccionado' : ''}`
+    ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${captain ? ', capitán' : ''}${player.is_injured ? ', lesionado' : ''}${selected ? ', seleccionado' : ''}`
     : `${base}: puesto vacío${selected ? ', seleccionado' : ''}`
 
   const handleKeyDown = (e) => {
@@ -115,7 +115,7 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
       >
         <span
           className={cn(
-            'grid size-10 place-items-center rounded-full border-2 bg-bg font-display text-lg font-semibold shadow-raised transition-transform sm:size-11',
+            'relative grid size-10 place-items-center rounded-full border-2 bg-bg font-display text-lg font-semibold shadow-raised transition-transform sm:size-11',
             player ? RING[affinity.code] : 'border-dashed border-fg-subtle text-fg-subtle',
             selected && 'scale-110 ring-2 ring-fg ring-offset-2 ring-offset-transparent',
             dragging && 'scale-110 shadow-overlay',
@@ -124,6 +124,7 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
         >
           {player ? (player.shirt_number ?? '·') : '+'}
           {player?.is_injured && <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-bg bg-danger" aria-hidden="true" />}
+          {captain && <span className="absolute -left-1 -top-1 grid size-4 place-items-center rounded-full bg-gold text-[0.5625rem] font-bold leading-none text-bg" aria-hidden="true">C</span>}
         </span>
         {player && (
           <span className="num -mt-3 ml-7 rounded-sm bg-bg px-1 text-[0.625rem] font-semibold leading-4 text-fg shadow-raised sm:ml-8" aria-hidden="true">{rating}</span>
@@ -147,7 +148,7 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
  * Con `onMove(slot, x, y, { keepSelection })` las fichas se arrastran a cualquier lugar. En el celular también se puede tocar
  * una ficha y después tocar el lugar de la cancha, o mover la seleccionada con las flechas del teclado.
  */
-export default function Pitch({ formation, layout: layoutProp, lineup, players, selectedSlot, onSelectSlot, onMove, links, className }) {
+export default function Pitch({ formation, layout: layoutProp, lineup, players, selectedSlot, onSelectSlot, onMove, links, captainId = null, className }) {
   const reduceMotion = useReducedMotion()
   const boxRef = useRef(null)
   const dragRef = useRef(null)
@@ -234,6 +235,7 @@ export default function Pitch({ formation, layout: layoutProp, lineup, players, 
             x={dragging ? drag.x : x}
             y={dragging ? drag.y : y}
             player={player}
+            captain={Boolean(player && captainId && player.id === captainId)}
             selected={selectedSlot === slot}
             onSelect={handleSelect}
             draggable={Boolean(onMove)}

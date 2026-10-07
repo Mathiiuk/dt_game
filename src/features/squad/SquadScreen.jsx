@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowRightLeft, Bell, Check, DollarSign, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
+import { ArrowRightLeft, Bell, Check, Crown, DollarSign, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { playerApi } from '../../api/player'
 import { contractApi } from '../../api/contracts'
 import { loansApi } from '../../api/loans'
+import { lockerRoomApi } from '../../api/lockerRoom'
 import { buybackApi } from '../../api/buyback'
 import { buybackTerms } from '../../domain/buyback'
 import { climateApi } from '../../api/climate'
@@ -32,10 +33,12 @@ import { friendlyError } from '../../lib/errors'
 
 const GROUP_LABEL = { GK: 'ARQ', DEF: 'DEF', MED: 'MED', DEL: 'DEL' }
 
-function PlayerBadges({ player }) {
+function PlayerBadges({ player, captains }) {
   const arche = player.personalityData?.primary_archetype
   return (
     <div className="flex flex-wrap items-center gap-1.5">
+      {captains?.captainId === player.id && <Badge tone="gold"><Crown className="size-3" aria-hidden="true" />Capitán</Badge>}
+      {captains?.viceCaptainId === player.id && <Badge tone="gold">Subcapitán</Badge>}
       {player.is_injured && <Badge tone="danger" dot>Lesionado{player.injury_type ? ` · ${player.injury_type}` : ''}</Badge>}
       {player.morale_unhappy_transfer_blocked && <Badge tone="warning">Descontento</Badge>}
       {isListedForSale(player) && <Badge tone="accent">En venta{player.asking_price ? ` · ${formatMoney(player.asking_price)}` : ''}</Badge>}
@@ -49,10 +52,12 @@ function PlayerBadges({ player }) {
 }
 
 /** Acciones de un jugador: con texto en móvil y sólo icono (con nombre accesible y tooltip) en tabla */
-function PlayerActions({ player, onRenew, onSell, onTerminate, onLoan, compact }) {
+function PlayerActions({ player, onRenew, onSell, onTerminate, onLoan, onCaptain, isCaptain, compact }) {
   const listed = isListedForSale(player)
   const items = [
     { key: 'renew', label: 'Renovar contrato', short: 'Renovar', icon: FileSignature, onClick: () => onRenew(player), variant: 'secondary' },
+    // El capitán se confirma en el Vestuario, que avisa lo que cuesta sacarle la cinta a un líder
+    ...(isCaptain || !onCaptain ? [] : [{ key: 'captain', label: 'Hacer capitán', short: 'Capitán', icon: Crown, onClick: () => onCaptain(player), variant: 'outline' }]),
     { key: 'sell', label: listed ? 'Editar precio de venta' : 'Poner en venta', short: listed ? 'Precio' : 'Vender', icon: DollarSign, onClick: () => onSell(player), variant: 'outline' },
     { key: 'loan', label: 'Ceder a préstamo', short: 'Prestar', icon: ArrowRightLeft, onClick: () => onLoan(player), variant: 'outline' },
     { key: 'end', label: 'Rescindir contrato', short: 'Rescindir', icon: UserMinus, onClick: () => onTerminate(player), variant: 'ghost', danger: true }
@@ -118,6 +123,9 @@ export default function SquadScreen() {
   // El aviso de contratos por vencer llega con /squad?orden=contrato
   const [searchParams] = useSearchParams()
   const [sortKey, setSortKey] = useState(searchParams.get('orden') === 'contrato' ? 'contract' : 'overall')
+  const navigate = useNavigate()
+  const [captains, setCaptains] = useState({ captainId: null, viceCaptainId: null })
+  const proposeCaptain = (player) => navigate(`/club?tab=vestuario&capitan=${player.id}`)
   const [showMentorshipModal, setShowMentorshipModal] = useState(false)
   const [showEvolutionModal, setShowEvolutionModal] = useState(false)
   const [renewalPlayer, setRenewalPlayer] = useState(null)
@@ -134,6 +142,7 @@ export default function SquadScreen() {
         loansApi.getLoans(club.id).catch(() => ({ players: [], weeklySaving: 0 }))
       ])
       setLoans(loanList)
+      lockerRoomApi.getCaptains(club.id).then(setCaptains).catch(() => {})
       // Las personalidades se leen con el plantel ya cargado (sin pedirlo otra vez)
       const personalitiesList = await personalitiesApi.syncSquadPersonalities(club.id, players || []).catch(() => [])
       const persMap = new Map((personalitiesList || []).map(p => [p.id, p.personality]))
@@ -434,13 +443,13 @@ export default function SquadScreen() {
                             <p className="eyebrow mt-1">Nivel</p>
                           </div>
                         </div>
-                        <PlayerBadges player={p} />
+                        <PlayerBadges player={p} captains={captains} />
                         <div className="grid grid-cols-3 gap-3 border-t border-line pt-3">
                           <div><p className="eyebrow">Físico</p><p className={`num mt-0.5 text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(p.state_fitness ?? 75)]}`}>{p.state_fitness ?? 75}%</p></div>
                           <div><p className="eyebrow">Moral</p><p className={`num mt-0.5 text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(playerMorale(p))]}`}>{playerMorale(p)}%</p></div>
                           <div><p className="eyebrow">Salario</p><p className="num mt-0.5 text-sm font-semibold text-fg">{formatMoney(playerSalary(p) || 500)}</p></div>
                         </div>
-                        <PlayerActions player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} onLoan={handleLoanOut} />
+                        <PlayerActions player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} onLoan={handleLoanOut} onCaptain={proposeCaptain} isCaptain={captains.captainId === p.id} />
                       </CardBody>
                     </Card>
                   </li>
@@ -463,14 +472,14 @@ export default function SquadScreen() {
                         <tr key={p.id} className="transition-colors hover:bg-surface-2/60">
                           <th scope="row" className="px-4 py-3 text-left font-normal">
                             <p className="font-semibold text-fg">{p.first_name} {p.last_name}</p>
-                            <div className="mt-1"><PlayerBadges player={p} /></div>
+                            <div className="mt-1"><PlayerBadges player={p} captains={captains} /></div>
                           </th>
                           <td className="px-4 py-3"><Badge>{GROUP_LABEL[positionGroup(p.position)]}</Badge> <span className="text-xs text-fg-subtle">{p.position}</span></td>
                           <td className="num px-4 py-3 text-fg-muted">{p.age}</td>
                           <td className="num px-4 py-3 font-display text-lg font-semibold text-fg">{playerLevel(p)}</td>
                           <td className="px-4 py-3"><div className="w-24"><div className="num mb-1 text-xs text-fg-muted">{playerMorale(p)}%</div><Progress auto value={playerMorale(p)} label={`Moral de ${p.last_name}`} /></div></td>
                           <td className="num px-4 py-3 text-fg">{formatMoney(playerSalary(p) || 500)}</td>
-                          <td className="px-4 py-3"><PlayerActions compact player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} onLoan={handleLoanOut} /></td>
+                          <td className="px-4 py-3"><PlayerActions compact player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} onLoan={handleLoanOut} onCaptain={proposeCaptain} isCaptain={captains.captainId === p.id} /></td>
                         </tr>
                       ))}
                     </tbody>

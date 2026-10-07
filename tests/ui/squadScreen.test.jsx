@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, within, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom'
 
 vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 
@@ -48,16 +48,28 @@ vi.mock('../../src/api/personalities', () => ({
   personalitiesApi: { syncSquadPersonalities: vi.fn(async () => []) },
   PERSONALITY_ARCHETYPES: {}
 }))
+// B19: quién lleva la cinta (lectura liviana del vestuario)
+const getCaptains = vi.fn(async () => ({ captainId: null, viceCaptainId: null }))
+vi.mock('../../src/api/lockerRoom', () => ({ lockerRoomApi: { getCaptains: (...x) => getCaptains(...x) } }))
 vi.mock('../../src/features/squad/ContractRenewalModal', () => ({ default: () => null }))
 vi.mock('../../src/features/squad/MentorshipModal', () => ({ default: () => null }))
 vi.mock('../../src/features/squad/PlayerEvolutionModal', () => ({ default: () => null }))
 
 import SquadScreen from '../../src/features/squad/SquadScreen'
 
-const renderScreen = () => render(<MemoryRouter><SquadScreen /></MemoryRouter>)
+const LocationProbe = () => { const l = useLocation(); return <p>Club {l.search}</p> }
+
+const renderScreen = () => render(
+  <MemoryRouter initialEntries={['/squad']}>
+    <Routes>
+      <Route path="/squad" element={<SquadScreen />} />
+      <Route path="/club" element={<LocationProbe />} />
+    </Routes>
+  </MemoryRouter>
+)
 
 describe('pantalla Plantel', () => {
-  beforeEach(() => { setViewport(true); resolveOffer.mockClear(); setTransferStatus.mockClear(); confirmAction.mockClear() })
+  beforeEach(() => { setViewport(true); resolveOffer.mockClear(); setTransferStatus.mockClear(); confirmAction.mockClear(); getCaptains.mockResolvedValue({ captainId: null, viceCaptainId: null }) })
 
   it('muestra el resumen del plantel y la tabla accesible con todos los jugadores', async () => {
     renderScreen()
@@ -67,6 +79,19 @@ describe('pantalla Plantel', () => {
     expect(screen.getByText('1 lesionados')).toBeInTheDocument()
     expect(within(table).getByText(/Lesionado · Esguince/)).toBeInTheDocument()
     expect(within(table).getByText(/En venta · \$30\.000/)).toBeInTheDocument()
+  })
+
+  it('marca al capitán y al subcapitán, y "Hacer capitán" lleva al Vestuario con ese jugador elegido', async () => {
+    getCaptains.mockResolvedValue({ captainId: players[0].id, viceCaptainId: players[1].id })
+    renderScreen()
+    const table = await screen.findByRole('table', { name: 'Plantel profesional' })
+    expect(await within(table).findByText('Capitán')).toBeInTheDocument()
+    expect(within(table).getByText('Subcapitán')).toBeInTheDocument()
+    // El capitán actual no tiene la acción; los demás sí
+    const buttons = within(table).getAllByRole('button', { name: /^Hacer capitán: / })
+    expect(buttons).toHaveLength(players.length - 1)
+    await userEvent.click(within(table).getByRole('button', { name: `Hacer capitán: ${players[2].first_name} ${players[2].last_name}` }))
+    expect(await screen.findByText(`Club ?tab=vestuario&capitan=${players[2].id}`)).toBeInTheDocument()
   })
 
   it('filtra por línea y por búsqueda (sin tildes) y permite quitar los filtros', async () => {

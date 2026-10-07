@@ -17,6 +17,20 @@ export const SOCIAL_GROUPS = {
 
 export const lockerRoomApi = {
   /**
+   * Quién lleva la cinta: lectura liviana para marcarlo en el Plantel (no crea ni sincroniza nada)
+   */
+  async getCaptains(clubId) {
+    if (!clubId) return { captainId: null, viceCaptainId: null }
+    const { data, error } = await supabase
+      .from('club_locker_room')
+      .select('captain_player_id, vice_captain_player_id')
+      .eq('club_id', clubId)
+      .maybeSingle()
+    if (error) return { captainId: null, viceCaptainId: null }
+    return { captainId: data?.captain_player_id || null, viceCaptainId: data?.vice_captain_player_id || null }
+  },
+
+  /**
    * Obtiene o inicializa el estado del vestuario y sincroniza los perfiles sociales de los jugadores
    */
   async getLockerRoomState(clubId) {
