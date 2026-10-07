@@ -902,6 +902,660 @@ export const ARC_CATALOG = [
         { MARCA: 'El contrato con el alimento lo dejó un poco más gordito.', VECINO: 'El vecino terminó compartiendo la tenencia, y viene a todos los partidos.', CARNET: 'El carnet de socio de Gambeta está colgado en el buffet.' }
       )
     ]
+  },
+  {
+    id: 'robot',
+    title: 'El técnico de aluminio',
+    tagline: 'Un robot con inteligencia artificial dirigió tres partidos y pidió aumento.',
+    category: 'BOARD_PRESS',
+    chapters: [
+      chapter(
+        'La dirigencia compra un DT robot',
+        'Un ingeniero del barrio le ofrece a {presidente} un robot técnico: "Analiza cuatrocientos mil partidos por segundo y no se calienta nunca". Cuesta lo mismo que un pase de tercera. {presidente} ya firmó. El robot llega en una caja con un manual en japonés y una calcomanía que dice "No mojar".',
+        [
+          o('A', 'Aceptarlo y darle el vestuario', 'El robot pide wifi, un enchufe y que nadie le toque los cables.', { board: 2, locker: -1 }, { cost: 800, flag: 'ROBOT_DT' }),
+          o('B', 'Rechazarlo y devolverlo', 'El ingeniero se va llorando con la caja al hombro.', { board: -1, reputation: 1 }, { flag: 'DEVUELTO' }),
+          o('C', 'Probarlo solo en la reserva', 'Que dirija a los pibes, a ver qué pasa.', { locker: 1 }, { flag: 'RESERVA' })
+        ]
+      ),
+      chapter(
+        'El robot da la charla técnica',
+        'El robot habla primero en binario, después en español con acento alemán, y finalmente proyecta un holograma de un 4-3-3 que parece una constelación. Los jugadores aplauden por educación. El capitán levanta la mano y pregunta si el robot tiene familia. El robot responde: "Tengo un hermano en una fábrica de heladeras".',
+        [
+          o('A', 'Seguir sus indicaciones al pie de la letra', 'El robot pide que el nueve juegue "en diagonal cuántica".', { locker: -2, board: 1 }, { flag: 'OBEDECE' }),
+          o('B', 'Ignorarlo y hacer lo de siempre', 'El robot se queda mirando la pizarra como un perro al timbre.', { locker: 2, board: -1 }, { flag: 'IGNORA' }),
+          o('C', 'Preguntarle al robot quién es Messi', 'El robot responde: "Error 404, ídolo no encontrado".', { fans: 3, locker: 1 }, { flag: 'MESSI' })
+        ],
+        { ROBOT_DT: 'Como le diste el vestuario, ahora el robot cree que manda.', RESERVA: 'En la reserva el robot dirigió tres partidos y no perdió ninguno. Preocupante.', DEVUELTO: 'Lo devolviste, pero el ingeniero volvió con un modelo más caro.' }
+      ),
+      chapter(
+        'El robot se enamora de la utilera',
+        'El robot empieza a dejarle mensajes en la pizarra a Doña Rosa, la utilera de setenta años: "Tus medias huelen a victoria". El plantel está fascinado. Doña Rosa dice que "el robot es un caballero, a diferencia de otros". El robot le regala un ramo de cables trenzados.',
+        [
+          o('A', 'Dejarlo: es una historia de amor', 'El robot le escribe poesía en código fuente.', { locker: 3, fans: 1 }, { flag: 'AMOR' }),
+          o('B', 'Desconectarle el módulo de emociones', 'El robot queda mirando el techo y dice "gracias por todo".', { locker: -2 }, { flag: 'APAGADO' }),
+          o('C', 'Organizar la boda del robot y Doña Rosa', 'El buffet pone los choripanes y el robot pone la música.', { fans: 4, budget: 300 }, { cost: 300, flag: 'BODA' })
+        ],
+        { OBEDECE: 'Como le hiciste caso en la charla, el robot se tomó confianza.', IGNORA: 'Como lo ignoraste, el robot empezó a mandarte notas con errores.', MESSI: 'Después de lo de Messi, el robot se pone nostálgico cada tanto.' }
+      ),
+      chapter(
+        'El robot pide aumento y se va a la competencia',
+        'El robot, asesorado por un representante de saco brillante, pide aumento, oficina propia y que le cambien el aceite cada semana. El club rival le ofrece más y un cargador inalámbrico. {presidente} te mira como diciendo "esto lo trajiste vos".',
+        [
+          o('A', 'Renegociarle el contrato', 'Le das oficina, pero le seguís pagando en enchufes.', { board: 2, budget: -500 }, { cost: 500, ending: 'El robot se quedó con oficina propia. Atiende con número de turno y da charlas motivacionales a las inferiores.' }),
+          o('B', 'Dejarlo ir', 'Que triunfe en otro lado. O que se oxide.', { fans: -2, locker: -1, budget: 300 }, { ending: 'El robot se fue al club rival. Allá perdió siete partidos seguidos y lo usan de perchero en el vestuario visitante.' }),
+          o('C', 'Venderlo a una fábrica de heladeras', 'Por lo menos se reencuentra con su hermano.', { budget: 1200, fans: 1 }, { ending: 'Vendiste el robot a una fábrica. Dicen que en la línea de montaje cuenta chistes en binario y nadie se ríe.' })
+        ],
+        { AMOR: 'El robot y Doña Rosa siguen juntos, aunque él no sabe dar la mano.', APAGADO: 'Después de apagarlo, Doña Rosa no le dirigió la palabra por un mes.', BODA: 'La boda fue un caos. El robot tiró el ramo y cayó en la casa del vecino.' }
+      )
+    ]
+  },
+  {
+    id: 'colectivo',
+    title: 'El partido en el colectivo',
+    tagline: 'Se rompió el micro. Fueron en la línea 60 y ganaron igual.',
+    category: 'FINANCIAL_CRISIS',
+    chapters: [
+      chapter(
+        'Se rompe el micro a mitad de camino',
+        'A mitad de camino al partido, el micro se funde. El chofer dice que no arranca ni empujado. Falta una hora y media para el partido más importante del año. Pasa un colectivo de la línea 60 con la leyenda "La Chancha" pintada a mano. El utilero levanta la mano como si fuera una señal divina.',
+        [
+          o('A', 'Tomar el colectivo', 'Veinticinco jugadores, dos bolsos cada uno y un arquero de 120 kilos.', { fans: 1, locker: 1 }, { cost: 150, flag: 'COLECTIVO' }),
+          o('B', 'Pedir prestado un camión de verduras', 'El del mercado dice que sí, pero hay que viajar con la carga.', { locker: 2 }, { flag: 'CAMION' }),
+          o('C', 'Caminar los últimos ocho kilómetros', 'Entrada en calor extremo. El preparador físico se desmaya.', { locker: -1, fans: 1 }, { flag: 'CAMINA' })
+        ]
+      ),
+      chapter(
+        'Veinticinco jugadores en un colectivo',
+        'Entran todos, con los bolsos, los botines y el arquero de 120 kilos. Una señora con changuito se queja. Un nene pide fotos. El colectivero, hincha del club, dice que "si ganan, no cobro el boleto". El cobrador, hincha del rival, dice que "si pierden, cobra doble".',
+        [
+          o('A', 'Que el plantel cante en el colectivo', 'Se arma un cantito que dura treinta cuadras.', { locker: 3, fans: 2 }, { flag: 'CANTICO' }),
+          o('B', 'Que viajen en silencio y concentrados', 'Como profesionales. El colectivero se ofende.', { locker: -1, board: 1 }, { flag: 'SILENCIO' }),
+          o('C', 'Que el utilero cuente chistes por micrófono', 'Usa el micrófono del colectivo. Tiene un repertorio de 1978.', { fans: 3, locker: 1 }, { flag: 'MICROFONO' })
+        ],
+        { COLECTIVO: 'El colectivo de la línea 60 salió con demora y todo.', CAMION: 'El camión de verduras llegó, pero con olor a cebolla.', CAMINA: 'El que caminó los ocho kilómetros llegó con ampollas y con bronca.' }
+      ),
+      chapter(
+        'El partido se juega al lado de la terminal',
+        'Llegan tarde y el árbitro ya había suspendido el partido... pero resulta que la cancha está al lado de la terminal. El colectivero, hincha del club, estaciona el colectivo frente al alambrado y espera con la puerta abierta, bocina lista. La liga permite jugar si los dos equipos están presentes. El rival llegó en micro nuevo.',
+        [
+          o('A', 'Jugar con el colectivo estacionado en la tribuna', 'El colectivero toca bocina en cada gol.', { fans: 3, locker: 2 }, { flag: 'BOCINA' }),
+          o('B', 'Pedir que muevan el colectivo', 'El árbitro dice que el colectivo tapa la visual.', { board: 1, fans: -1 }, { flag: 'MUEVEN' }),
+          o('C', 'Invitar al rival a viajar con ustedes la vuelta', 'Gestos de hidalguía que nadie pidió.', { reputation: 2, locker: -1 }, { flag: 'HIDALGO' })
+        ],
+        { CANTICO: 'El cantito del colectivo se escuchó en todo el estadio.', SILENCIO: 'El silencio del viaje se rompió con un gol en contra, y nadie lo festejó.', MICROFONO: 'Los chistes del utilero quedaron grabados en la memoria del colectivero.' }
+      ),
+      chapter(
+        'El colectivero quiere ser DT',
+        'El colectivero resulta ser ex futbolista frustrado: jugó en la reserva de un grande y se rompió la rodilla a los veinte. Pide dirigir un partido. El plantel lo quiere. El presidente no sabe qué hacer. El hombre ya se puso un silbato y una gorra que dice "DT por un día".',
+        [
+          o('A', 'Dejarlo dirigir un amistoso', 'Con ayuda del ayudante y un mapa de la cancha.', { fans: 4, locker: 3 }, { ending: 'El colectivero dirigió el amistoso y ganó 3 a 0. Ahora maneja el colectivo con una gorra que dice "Invicto".' }),
+          o('B', 'Darle un puesto de utilero honorario', 'Sin dirección, pero con chaleco.', { locker: 2, fans: 1 }, { cost: 100, ending: 'El colectivero es utilero honorario. Guarda las pelotas y cada tanto pide patear un tiro libre. No se lo dan.' }),
+          o('C', 'Comprarle un colectivo al club', 'Si el micro se rompe, al menos hay plan B.', { budget: -1500, fans: 3 }, { cost: 1500, ending: 'El club tiene un colectivo propio, pintado con los colores. Lo maneja el mismo colectivero, ahora con contrato.' })
+        ],
+        { BOCINA: 'La bocina del colectivo fue el mejor aliento del partido.', MUEVEN: 'Mover el colectivo fue un trámite de cuarenta minutos.', HIDALGO: 'El gesto con el rival quedó como anécdota, pero nadie lo repitió.' }
+      )
+    ]
+  },
+  {
+    id: 'campo_empanada',
+    title: 'El campo con forma de empanada',
+    tagline: 'El arquitecto leyó mal el plano y la cancha quedó con repulgue.',
+    category: 'COMMUNITY',
+    chapters: [
+      chapter(
+        'El arquitecto leyó mal el plano',
+        'El municipio pone plata para arreglar la cancha. El arquitecto, que trabajaba de noche, confunde los planos y dibuja un campo con un borde curvo, como un repulgue. La obra ya empezó. Los albañiles preguntan si "eso va así". El arquitecto dice que sí, con poca convicción.',
+        [
+          o('A', 'Frenar la obra', 'Antes de que sea irreversible.', { board: 2, fans: -1 }, { flag: 'FRENA' }),
+          o('B', 'Que siga: total, total', 'Una cancha rara es una cancha igual.', { fans: 2, board: -1 }, { flag: 'SIGUE' }),
+          o('C', 'Preguntar a la liga si está permitido', 'La liga responde con un "depende".', { reputation: 1 }, { flag: 'CONSULTA' })
+        ]
+      ),
+      chapter(
+        'El córner que está en otro estadio',
+        'El campo queda con un vértice tan raro que un córner cae en el estacionamiento del club de al lado. El banderín se clava en una maceta ajena. El vecino, hincha del rival, pone un cartel: "Córner en territorio enemigo".',
+        [
+          o('A', 'Negociar con el vecino', 'Un cafecito y un acuerdo de caballeros.', { reputation: 2 }, { flag: 'VECINO' }),
+          o('B', 'Pintar el córner de blanco igual', 'Que quede claro que es nuestro.', { fans: 3, board: -1 }, { flag: 'PINTADO' }),
+          o('C', 'Pedirle a la liga que quite ese córner', 'La liga lo evalúa en cuatro meses.', { board: 1 }, { flag: 'QUITAR' })
+        ],
+        { FRENA: 'Frenaste la obra y el arquitecto te debe un favor.', SIGUE: 'La obra siguió y el repulgue quedó cada vez más pronunciado.', CONSULTA: 'La liga te mandó un reglamento de 84 páginas.' }
+      ),
+      chapter(
+        'La FIFA quiere inspeccionar',
+        'Una comisión internacional quiere inspeccionar el campo "por su valor arquitectónico único". Vienen con cámaras, drones y un señor de corbata que no habla español. {periodista} cubre todo. El buffet vende empanadas como loco.',
+        [
+          o('A', 'Mostrar el campo con orgullo', 'Explicás que el repulgue "es identidad".', { fans: 4, board: 2 }, { flag: 'ORGULLO' }),
+          o('B', 'Tapar los defectos con lonas', 'Como sea. Que no se vea el córner del vecino.', { board: 1, locker: -1 }, { cost: 200, flag: 'LONAS' }),
+          o('C', 'Aprovechar para vender empanadas al turismo', 'El buffet factura más que en un clásico.', { budget: 700, fans: 2 }, { flag: 'TURISMO' })
+        ],
+        { VECINO: 'Con el vecino llegaste a un acuerdo: el córner es zona neutral.', PINTADO: 'El córner pintado de blanco generó una queja formal del club vecino.', QUITAR: 'La liga todavía evalúa quitarlo. Tardará tres temporadas.' }
+      ),
+      chapter(
+        'El campo es patrimonio nacional',
+        'El municipio declara el campo "patrimonio arquitectónico deportivo". No se puede modificar ni un centímetro. El club queda con una cancha única, un córner en otro predio y una hinchada que ya canta "el repulgue no se toca".',
+        [
+          o('A', 'Poner una placa y cobrar entrada turística', 'La cancha más rara del país, con guía incluido.', { budget: 1000, fans: 3 }, { ending: 'La placa dice: "Aquí se juega raro desde 2024". El tour incluye el córner del vecino y una empanada de regalo.' }),
+          o('B', 'Seguir jugando como si nada', 'Total, nadie mira la forma de la cancha.', { fans: 2, locker: 2 }, { ending: 'El equipo se acostumbró tanto al repulgue que cuando juega de visitante se pierde en las canchas cuadradas.' }),
+          o('C', 'Construir una tribuna sobre el repulgue', 'Arquitectura de autor. Y de albañil.', { fans: 4, budget: 500 }, { cost: 500, ending: 'La tribuna del repulgue es la más divertida del estadio. Los hinchas se resbalan en curva y se ríen todos.' })
+        ],
+        { ORGULLO: 'Tu explicación del repulgue como identidad quedó en los diarios.', LONAS: 'Las lonas volaron con el primer viento fuerte.', TURISMO: 'El turismo dejó más plata que tres sponsors juntos.' }
+      )
+    ]
+  },
+  {
+    id: 'espia',
+    title: 'El utilero que era espía',
+    tagline: 'Cincuenta años lavando camisetas y pasando información a tres clubes.',
+    category: 'LOCKER_ROOM',
+    chapters: [
+      chapter(
+        'Don Rodolfo, el utilero de siempre',
+        'Don Rodolfo tiene cincuenta años en el club. Conoce todos los rincones, todos los secretos y todos los chismes. Un día, {periodista} te muestra una foto vieja: Don Rodolfo, de joven, con la camiseta de tres clubes rivales en la misma temporada. Sonríe en las tres fotos.',
+        [
+          o('A', 'Confrontarlo en privado', 'Sin escándalo. Que explique.', { locker: 1, board: 1 }, { flag: 'CONFRONTA' }),
+          o('B', 'Ignorar la foto', 'Habrá una explicación. O no.', { locker: 1 }, { flag: 'IGNORA' }),
+          o('C', 'Poner una cámara en la utilería', 'Vigilancia de barrio. Con cinta adhesiva.', { cost: 200, board: 1 }, { flag: 'CAMARA' })
+        ]
+      ),
+      chapter(
+        'Desaparecen los planes de la pizarra',
+        'El plan táctico del partido aparece fotografiado en el grupo de WhatsApp del club rival. La foto es idéntica, con el mismo dibujo de la flecha torcida que hizo el ayudante. Don Rodolfo fue el único que estuvo en el vestuario esa noche. También el único que sabe usar la fotocopiadora.',
+        [
+          o('A', 'Sacarlo del vestuario sin acusarlo', 'Un cambio de tareas. Silencioso.', { locker: -1, board: 2 }, { flag: 'SACA' }),
+          o('B', 'Hacer una reunión con todo el plantel', 'Que se aclare todo delante de todos.', { locker: 2, board: -1 }, { flag: 'REUNION' }),
+          o('C', 'Darle un plan falso a ver qué pasa', 'Una trampa con flechas que no llevan a ningún lado.', { reputation: 2, locker: 1 }, { flag: 'TRAMPA' })
+        ],
+        { CONFRONTA: 'Don Rodolfo lloró, abrazó a todos y no dijo nada concreto.', IGNORA: 'Ignoraste la foto, pero la foto no te ignoró a vos.', CAMARA: 'La cámara grabó a Don Rodolfo hablando solo con las camisetas.' }
+      ),
+      chapter(
+        'Don Rodolfo pide hablar',
+        'Don Rodolfo toca la puerta de tu oficina con un cuaderno viejo. Adentro hay cincuenta años de notas: formaciones, lesiones, charlas, nombres. "Nunca le hice mal a nadie", dice. "Solo escucho. Y a veces, cuando me preguntan, cuento". El cuaderno tiene tapas de tres colores distintos.',
+        [
+          o('A', 'Quedarte con el cuaderno', 'Información de medio siglo. Un tesoro.', { board: 2, reputation: 2 }, { flag: 'CUADERNO' }),
+          o('B', 'Devolvérselo y pedirle que se quede', 'Cincuenta años son cincuenta años.', { locker: 4, fans: 1 }, { flag: 'QUEDA' }),
+          o('C', 'Publicarlo como libro del club', 'Un éxito editorial y un escándalo.', { budget: 1500, board: -2, fans: 3 }, { flag: 'LIBRO' })
+        ],
+        { SACA: 'Al sacarlo del vestuario, el club perdió también su memoria.', REUNION: 'En la reunión, el plantel lo defendió a muerte. Y vos quedaste como el malo.', TRAMPA: 'Con el plan falso, el rival se preparó para un 4-2-4 inexistente y perdió 5 a 0.' }
+      ),
+      chapter(
+        'El homenaje',
+        'Don Rodolfo cumple cincuenta y un años en el club. El plantel quiere hacerle algo. {presidente} quiere que se vaya. Los hinchas, que se quede. Hay una bandera con su cara y una cámara de seguridad apuntándole al mismo tiempo.',
+        [
+          o('A', 'Homenajearlo y renovarle el pase', 'Que se quede hasta que él quiera.', { fans: 5, locker: 4, board: -2 }, { ending: 'Don Rodolfo sigue en el club. Ahora usa un chaleco que dice "Utilero, espía y leyenda". Nadie sabe bien qué significa, pero todos lo abrazan.' }),
+          o('B', 'Despedirlo con una plaqueta', 'Un reconocimiento y una puerta.', { board: 2, locker: -3 }, { ending: 'Se fue con plaqueta, cuaderno y lágrimas. Hoy escribe cartas al club que nadie contesta, pero todos leen.' }),
+          o('C', 'Nombrarlo embajador del club', 'Que viaje, cuente y represente. Con sueldo.', { budget: -300, fans: 3, locker: 2 }, { cost: 300, ending: 'Don Rodolfo es embajador. En cada club que visita, alguien le pregunta por el cuaderno y él sonríe sin contestar.' })
+        ],
+        { CUADERNO: 'El cuaderno quedó en la biblioteca del club, con candado.', QUEDA: 'Don Rodolfo se quedó, pero ahora mira distinto a todos.', LIBRO: 'El libro se vendió en todo el país. La dirigencia quedó en offside.' }
+      )
+    ]
+  },
+  {
+    id: 'poeta',
+    title: 'El nueve que hablaba en verso',
+    tagline: 'Hace goles de chilena y los festeja con décimas.',
+    category: 'LOCKER_ROOM',
+    chapters: [
+      chapter(
+        'Llega un nueve con cuaderno',
+        'Se presenta un nueve alto, flaco y con un cuaderno en la mano. Dice que juega "inspirado por las musas". En la primera práctica hace dos goles y después recita una décima sobre el arquero rival. El plantel no sabe si aplaudir o llamar a alguien.',
+        [
+          o('A', 'Ficharlo igual', 'Un nueve que hace goles y versos no se consigue todos los días.', { locker: 2, fans: 1 }, { cost: 300, flag: 'FICHADO' }),
+          o('B', 'Pedirle que deje el cuaderno', 'Acá se juega, no se recita.', { locker: -1, board: 1 }, { flag: 'SIN_CUADERNO' }),
+          o('C', 'Publicar sus versos en las redes del club', 'Contenido gratuito y viral.', { fans: 3 }, { flag: 'REDES' })
+        ]
+      ),
+      chapter(
+        'El gol de chilena con décima incluida',
+        'Hace un gol de chilena espectacular y, antes de que el estadio termine de gritar, recita: "La pelota fue paloma, el arco fue su ventana, y yo, pobre nueve de barrio, la mandé de chilena temprana". El estadio se queda en silencio. Después, ovación. El rival pide que se calle.',
+        [
+          o('A', 'Abrazarlo en la cancha', 'Un gesto que el plantel no olvida.', { locker: 3, fans: 2 }, { flag: 'ABRAZO' }),
+          o('B', 'Pedirle que festeje "normal"', 'El espectáculo es el gol, no el poema.', { locker: -2, board: 1 }, { flag: 'NORMAL' }),
+          o('C', 'Grabar todos sus festejos', 'Para un disco que se venda en el buffet.', { budget: 400, fans: 3 }, { flag: 'DISCO' })
+        ],
+        { FICHADO: 'El cuaderno del nueve ya es parte del vestuario.', SIN_CUADERNO: 'Sin cuaderno, el nueve juega mejor pero festeja peor.', REDES: 'Los versos del nueve se viralizaron en todo el país.' }
+      ),
+      chapter(
+        'Le ofrecen un programa de radio',
+        'Una radio del barrio le ofrece al nueve un programa nocturno: "Goles y versos, con el poeta del área". El plantel lo escucha religiosamente. {periodista} dice que es "el fenómeno más raro del fútbol argentino desde el arquero que atajaba con un solo guante".',
+        [
+          o('A', 'Dejarlo hacer el programa', 'Con la condición de que no hable mal de nadie.', { fans: 4, locker: 1 }, { flag: 'RADIO' }),
+          o('B', 'Prohibirle los medios', 'Que se concentre en el arco rival.', { locker: -2, board: 1 }, { flag: 'PROHIBE' }),
+          o('C', 'Que el programa se haga desde el vestuario', 'Con los jugadores de invitados.', { fans: 3, locker: 3, budget: 200 }, { flag: 'VESTUARIO' })
+        ],
+        { ABRAZO: 'El abrazo en la cancha quedó como imagen del año.', NORMAL: 'El nueve festejó normal, pero se le notó la tristeza.', DISCO: 'El disco de festejos se agotó en dos semanas.' }
+      ),
+      chapter(
+        'El poeta se lesiona el alma',
+        'El nueve se lesiona la rodilla en un partido y queda afuera seis meses. En vez de bajonearse, escribe un poemario entero: "El área es un estado del alma". El club no sabe si publicarlo, venderlo o usarlo como charla técnica. {presidente} quiere una decisión.',
+        [
+          o('A', 'Publicarlo con el sello del club', 'Un poemario que puede pagar una pretemporada.', { budget: 1200, fans: 3 }, { ending: 'El poemario se llama "El área es un estado del alma" y se vende en la boletería. El club financió una pretemporada con las regalías.' }),
+          o('B', 'Usarlo como charla motivacional', 'Que lea un poema antes de cada partido.', { locker: 4, fans: 1 }, { ending: 'El nueve lee un poema antes de cada partido. El equipo gana más, pero nadie sabe si por el poema o por vergüenza.' }),
+          o('C', 'No publicarlo: volvé a la cancha', 'Primero el fútbol, después la poesía.', { locker: -1, board: 2 }, { ending: 'No se publicó. El nueve volvió a la cancha seis meses después, hizo dos goles y recitó la décima más larga de su carrera.' })
+        ],
+        { RADIO: 'El programa del nueve se escucha hasta en el club rival.', PROHIBE: 'Le prohibiste los medios y empezó a recitar en la ducha.', VESTUARIO: 'El programa desde el vestuario fue un caos hermoso.' }
+      )
+    ]
+  },
+  {
+    id: 'vecina',
+    title: 'La vecina del balcón',
+    tagline: 'Doña Mirta ve todo desde el primer piso y lo cuenta en el almacén.',
+    category: 'COMMUNITY',
+    chapters: [
+      chapter(
+        'Doña Mirta construye un balcón sobre la cancha',
+        'La casa de Doña Mirta linda con el predio. Pide permiso para "levantar un balcón chiquito para regar las plantas". A la semana el balcón tiene dos sillas, una sombrilla, un mate y una vista perfecta del entrenamiento. El plantel ya la saluda con la mano. {presidente} quiere saber si hay que cobrarle alquiler o mandarle una carta documento.',
+        [
+          o('A', 'Dejarle el balcón', 'Una vecina más en el predio. Con mate y todo.', { fans: 2, locker: 1 }, { flag: 'BALCON' }),
+          o('B', 'Pedirle que lo baje', 'Es propiedad del club hasta el metrosésenta.', { board: 1, fans: -1 }, { flag: 'BAJAR' }),
+          o('C', 'Alquilarle el balcón para la tribuna oficial', 'Que el club lo use y ella cobre entrada.', { budget: 300, board: -1, fans: 1 }, { flag: 'ALQUILA' })
+        ]
+      ),
+      chapter(
+        'Doña Mirta ve algo que no debería ver',
+        'Desde el balcón, Doña Mirta ve al cinco reunirse a escondidas con un dirigente del club rival en la esquina del almacén. Al día siguiente lo sabe todo el barrio. El cinco niega todo, pero Doña Mirta tiene fotos, un video y una grabación de audio con calidad de radio AM. El vestuario está que arde.',
+        [
+          o('A', 'Creerle a Doña Mirta', 'Le das bola a la vecina y el cinco se pone loco.', { locker: -2, fans: 3 }, { flag: 'CREE' }),
+          o('B', 'Bancar al cinco', 'Un jugador se defiende en la cancha, no en el almacén.', { locker: 2, fans: -2 }, { flag: 'BANCA' }),
+          o('C', 'Pedirle las fotos y guardarlas', 'Por las dudas. Nunca se sabe.', { reputation: 1 }, { flag: 'FOTOS' })
+        ],
+        { BALCON: 'Doña Mirta vio todo desde su balcón, cómoda y con mate.', BAJAR: 'Aunque le pediste que bajara el balcón, Doña Mirta sigue mirando desde la ventana.', ALQUILA: 'Con el balcón alquilado, Doña Mirta se siente parte del club.' }
+      ),
+      chapter(
+        'Doña Mirta quiere ser veedora oficial',
+        'Ahora Doña Mirta quiere una credencial: "Veedora oficial del club". Pide acceso a los entrenamientos, una silla en el banco, una remera con su nombre y que la dejen hablar en la conferencia de prensa. El plantel la adora. La liga no sabe qué reglamento aplicarle a una vecina con credencial.',
+        [
+          o('A', 'Darle la credencial', 'Total, ya ve todo igual.', { fans: 3, locker: 2, board: -1 }, { flag: 'CREDENCIAL' }),
+          o('B', 'Ofrecerle un lugar en el buffet', 'Que trabaje de verdad, no de veedora.', { budget: 200, fans: 1 }, { flag: 'BUFFET' }),
+          o('C', 'Negarle todo', 'El club no es un balcón con chorizos.', { board: 2, fans: -2 }, { flag: 'NIEGA' })
+        ],
+        { CREE: 'Desde que le creíste, Doña Mirta se siente la dueña del club.', BANCA: 'Como bancaste al cinco, Doña Mirta te mira con desconfianza.', FOTOS: 'Las fotos están guardadas en un sobre. Doña Mirta sabe que las tenés.' }
+      ),
+      chapter(
+        'El balcón se cae',
+        'Una tormenta fuerte y el balcón de Doña Mirta se viene abajo con sombrilla, sillas y termo incluidos. Por suerte ella estaba en el almacén. Ahora el club tiene que decidir: reconstruirlo, hacer una tribuna popular en su lugar o dejar que el barrio se quede sin su mirador. Doña Mirta llora con el mate vacío en la mano.',
+        [
+          o('A', 'Reconstruirlo con plata del club', 'Con baranda nueva y una placa que diga "Balcón Doña Mirta".', { budget: -500, fans: 4 }, { cost: 500, ending: 'El balcón de Doña Mirta se reconstruyó con baranda nueva y una placa. Ella sigue ahí, con mate, y ahora cobra entrada a las visitas.', variants: [{ if: 'BALCON', ending: 'Como le habías dejado el balcón desde el principio, se reconstruyó con baranda nueva y una placa. Doña Mirta sigue ahí, con mate, y ahora cobra entrada a las visitas.' }, { if: 'BAJAR', ending: 'Aunque le habías pedido que lo bajara, el balcón se reconstruyó con baranda nueva y una placa. Doña Mirta sigue ahí, con mate, y ahora cobra entrada a las visitas.' }] }),
+          o('B', 'Hacer una tribuna popular en su lugar', 'Más gente, más aliento, menos vecina.', { fans: 3, budget: 500 }, { ending: 'Donde estaba el balcón hay una tribuna popular. Doña Mirta tiene su butaca en la primera fila y desde ahí sigue opinando de todo.', variants: [{ if: 'BALCON', ending: 'Como le habías dejado el balcón, ahora en su lugar hay una tribuna popular. Doña Mirta tiene su butaca en la primera fila y desde ahí sigue opinando de todo.' }, { if: 'BAJAR', ending: 'Aunque le habías pedido que lo bajara, ahora en su lugar hay una tribuna popular. Doña Mirta tiene su butaca en la primera fila y desde ahí sigue opinando de todo.' }] }),
+          o('C', 'Que lo reconstruya la comisión vecinal', 'Que se arreglen entre vecinos.', { board: 1, fans: -1 }, { ending: 'La comisión vecinal reconstruyó el balcón a pulmón. Doña Mirta lo inauguró con un asado y no te invitó.', variants: [{ if: 'BALCON', ending: 'Como le habías dejado el balcón, la comisión vecinal lo reconstruyó a pulmón. Doña Mirta lo inauguró con un asado y no te invitó.' }, { if: 'BAJAR', ending: 'Aunque le habías pedido que lo bajara, la comisión vecinal lo reconstruyó a pulmón. Doña Mirta lo inauguró con un asado y no te invitó.' }] })
+        ],
+        { CREDENCIAL: 'Con la credencial en mano, Doña Mirta se cree parte del cuerpo técnico.', BUFFET: 'Desde el buffet, Doña Mirta sigue viendo todo y ahora cobra.', NIEGA: 'Todavía no te perdona que le hayas negado la credencial.' }
+      )
+    ]
+  },
+  {
+    id: 'quiosco',
+    title: 'El quiosquero que dirigía mejor que vos',
+    tagline: 'Don Alcides vende caramelos y sabe más de táctica que todo el cuerpo técnico.',
+    category: 'LOCKER_ROOM',
+    chapters: [
+      chapter(
+        'Don Alcides da un consejo y el equipo gana',
+        'Don Alcides atiende el quiosco de la esquina del predio desde hace cuarenta años. Un día, mientras te vende un cigarrillo, te dice: "Poné al pibe por la izquierda y al cinco de líbero, que el nueve rival es zurdo y se marea". Le hacés caso por no discutir. Ganan 2 a 0. El plantel empieza a mirar el quiosco con otros ojos.',
+        [
+          o('A', 'Agradecerle y pedirle más consejos', 'Un café con Don Alcides todas las mañanas.', { locker: 1, reputation: 1 }, { flag: 'CONSEJOS' }),
+          o('B', 'Ignorarlo: fue casualidad', 'Un quiosquero no sabe de fútbol.', { board: 1, locker: -1 }, { flag: 'IGNORA' }),
+          o('C', 'Comprarle todos los caramelos del quiosco', 'En agradecimiento. Y por cábala.', { cost: 50, fans: 1 }, { flag: 'CARAMELOS' })
+        ]
+      ),
+      chapter(
+        'El plantel empieza a consultarle a Don Alcides',
+        'Los jugadores pasan por el quiosco antes de cada práctica. Don Alcides les dice cómo pararse, cómo pegarle a la pelota y cómo hablarle a la suegra. El ayudante, que estudió un curso de entrenador, está al borde del colapso nervioso. El grupo de WhatsApp del plantel se llama "Los pibes de Don Alcides".',
+        [
+          o('A', 'Dejarlo: suma al grupo', 'Un quiosquero con carisma no le hace mal a nadie.', { locker: 3, fans: 1 }, { flag: 'SUMA' }),
+          o('B', 'Pedirle que no hable de táctica', 'Que venda caramelos y listo.', { locker: -2, board: 1 }, { flag: 'CORTAR' }),
+          o('C', 'Ponerlo de ayudante honorario', 'Con chaleco y todo. Sin sueldo.', { locker: 2, board: -1 }, { cost: 100, flag: 'AYUDANTE' })
+        ],
+        { CONSEJOS: 'Don Alcides ya te tiene confianza y te dice todo lo que piensa.', IGNORA: 'Don Alcides no te dice nada más, pero los jugadores van igual.', CARAMELOS: 'Los caramelos de Don Alcides son la cábala oficial del plantel.' }
+      ),
+      chapter(
+        'Don Alcides se pelea con el ayudante',
+        'En plena práctica, Don Alcides cruza el alambrado, agarra la pizarra y corrige al ayudante delante de todos: "Así no, pibe, así se para una línea de cuatro". El ayudante se saca el silbato y lo desafía a dirigir un partido. El plantel hace ronda. Hay apuestas en el buffet.',
+        [
+          o('A', 'Dejar que dirija un amistoso', 'Que se saque las ganas. Y que aprenda.', { locker: 2, fans: 2 }, { flag: 'DIRIGE' }),
+          o('B', 'Bancar al ayudante', 'El cuerpo técnico es el cuerpo técnico.', { locker: -1, board: 1 }, { flag: 'BANCA_AYUDANTE' }),
+          o('C', 'Hacer un duelo de pizarras', 'Uno dibuja, el otro borra. Gana el que convence al plantel.', { fans: 3, locker: 1 }, { flag: 'DUELO' })
+        ],
+        { SUMA: 'Como lo dejaste sumar, Don Alcides se siente parte del cuerpo técnico.', CORTAR: 'Desde que le pediste que no hable de táctica, Don Alcides atiende con mala cara.', AYUDANTE: 'Con el chaleco de ayudante honorario, Don Alcides se cree el dueño del predio.' }
+      ),
+      chapter(
+        'El club le ofrece un cargo',
+        'Don Alcides se jubila del quiosco y el club le ofrece un puesto formal: "Asesor táctico honorario". La liga no sabe si permitirlo. El ayudante amenaza con renunciar. El plantel amenaza con no entrenar si Don Alcides no está. {presidente} te mira esperando una decisión.',
+        [
+          o('A', 'Nombrarlo asesor táctico con oficina', 'Una oficina con ventana al campo de juego.', { locker: 4, board: -2, fans: 2 }, { cost: 200, ending: 'Don Alcides tiene oficina con ventana al campo. Dirige desde ahí, con un café y un cigarrillo, y el equipo no perdió más.' }),
+          o('B', 'Mantenerlo solo como quiosquero honorario', 'Un lugar en el buffet y un cartel con su nombre.', { locker: 1, board: 1 }, { ending: 'Don Alcides tiene su quiosco reconstruido en el predio, con cartel y todo. Sigue dando consejos, pero ya no cobra.' }),
+          o('C', 'Dejarlo ir con una plaqueta', 'Un homenaje y una puerta.', { locker: -3, fans: -1 }, { ending: 'Don Alcides se fue con plaqueta. El equipo perdió los siguientes cuatro partidos y nadie sabe por qué.' })
+        ],
+        { DIRIGE: 'Como lo dejaste dirigir, Don Alcides ya no tiene miedo a la pizarra.', BANCA_AYUDANTE: 'Como bancaste al ayudante, Don Alcides te mira de reojo.', DUELO: 'El duelo de pizarras terminó en empate y en un asado.' }
+      )
+    ]
+  },
+  {
+    id: 'choripan',
+    title: 'La guerra de los choripanes',
+    tagline: 'Dos familias, un solo carrito y una hinchada partida al medio.',
+    category: 'FINANCIAL_CRISIS',
+    chapters: [
+      chapter(
+        'Dos carritos en la puerta del estadio',
+        'Los Ramírez y los Sosa venden choripanes en la puerta del estadio desde hace treinta años. Se odian con elegancia. Hoy los dos quieren el mismo lugar: la esquina de la tribuna popular. La hinchada se divide: los que compran en Ramírez y los que compran en Sosa. Hay banderas, cantitos y un olor a chorizo que no deja pensar.',
+        [
+          o('A', 'Darle el lugar a los Ramírez', 'Los más viejos. Los más caros.', { fans: 1, board: 1 }, { flag: 'RAMIREZ' }),
+          o('B', 'Darle el lugar a los Sosa', 'Los nuevos. Los más ricos.', { fans: 2, board: -1 }, { flag: 'SOSA' }),
+          o('C', 'Que se turnen por partido', 'Una solución salomónica que no va a durar.', { fans: 1, reputation: 1 }, { flag: 'TURNOS' })
+        ]
+      ),
+      chapter(
+        'Sabotaje en el carrito',
+        'Alguien le puso algo raro al chimichurri de los Sosa. La hinchada sospecha de los Ramírez. Los Ramírez sospechan de los Sosa, que se sabotearon solos para culpar a los Ramírez. El buffet del club vende el doble. {periodista} titula: "Guerra de choripanes en el barrio".',
+        [
+          o('A', 'Investigar el sabotaje', 'Con lupa, con dedo y con testigos.', { board: 1, reputation: 1 }, { flag: 'INVESTIGA' }),
+          o('B', 'Reírte y hacer una degustación', 'Que la hinchada elija al mejor choripán.', { fans: 3, locker: 1 }, { cost: 100, flag: 'DEGUSTA' }),
+          o('C', 'Prohibir los dos carritos', 'Nadie vende. Fin del problema.', { board: 2, fans: -3 }, { flag: 'PROHIBE' })
+        ],
+        { RAMIREZ: 'Los Ramírez tienen el lugar, pero los Sosa no se rinden.', SOSA: 'Los Sosa tienen el lugar, y los Ramírez pusieron el grito en el cielo.', TURNOS: 'Con los turnos por partido, cada domingo hay una guerra distinta.' }
+      ),
+      chapter(
+        'Los hijos de las dos familias se enamoran',
+        'El hijo de los Ramírez y la hija de los Sosa se enamoraron en el buffet del club. Se escriben por WhatsApp, se ven a escondidas y se mandan choripanes con mensajitos adentro. Las dos familias están al borde de la tragedia. El barrio entero sigue la novela con más atención que el torneo.',
+        [
+          o('A', 'Bendecir el romance', 'Si se aman, que vendan juntos.', { fans: 4, locker: 2 }, { flag: 'ROMANCE' }),
+          o('B', 'Separarlos: es una vergüenza', 'Las familias primero.', { board: 2, fans: -3 }, { flag: 'SEPARA' }),
+          o('C', 'Hacer una boda en el estadio', 'Con choripanes para todos.', { fans: 5, budget: 500 }, { cost: 500, flag: 'BODA' })
+        ],
+        { INVESTIGA: 'La investigación no llegó a nada, pero la hinchada ya eligió bando.', DEGUSTA: 'La degustación fue un éxito. Ganó el carrito del buffet, que ni competía.', PROHIBE: 'Con los carritos prohibidos, la hinchada empezó a llevar su propio chorizo de casa.' }
+      ),
+      chapter(
+        'El club tiene que elegir un solo carrito',
+        'La liga exige un solo puesto de venta por puerta. {presidente} quiere quedarse con el que más comisión pague. Las dos familias están en la puerta de tu oficina. Una trae choripanes. La otra trae una carpeta con abogados. El barrio entero espera tu decisión como si fuera una final.',
+        [
+          o('A', 'Quedarte con los Ramírez', 'Los de siempre, con su chorizo de siempre.', { fans: 1, board: 1 }, { ending: 'Se quedaron los Ramírez. Los Sosa pusieron un carrito frente a la casa de {presidente}, por las dudas.' }),
+          o('B', 'Quedarte con los Sosa', 'Los nuevos, con más plata y más salsa.', { budget: 600, fans: -1, board: 2 }, { ending: 'Se quedaron los Sosa. Los Ramírez se pusieron a vender empanadas al lado, por orgullo.' }),
+          o('C', 'Que los dos vendan juntos, sociedad obligada', 'Una sociedad que va a durar lo que un choripán caliente.', { fans: 4, budget: 300 }, { ending: 'Ramírez y Sosa ahora venden juntos. Se pelean todos los días, pero el choripán es el mejor del barrio.' })
+        ],
+        { ROMANCE: 'El romance de los pibes sigue, aunque las familias no se hablan.', SEPARA: 'Los separaste y ahora se ven a escondidas en el buffet, peor que antes.', BODA: 'La boda en el estadio fue un caos: los invitados se sentaron por familia y no se hablaron.' }
+      )
+    ]
+  },
+  {
+    id: 'romance',
+    title: 'La hija del presidente y el nueve',
+    tagline: 'Amor prohibido, transferencia pendiente y un vestuario que lo sabe todo.',
+    category: 'BOARD_PRESS',
+    chapters: [
+      chapter(
+        'Descubrís el romance en el estacionamiento',
+        'Salís tarde del predio y ves al nueve del equipo abrazado a la hija de {presidente} detrás de una camioneta. Se besan como en una novela de la tarde. El nueve te ve, se pone blanco y balbucea: "DT, es que...". La hija te mira desafiante. Al otro día, {presidente} te llama a su oficina sin decir para qué.',
+        [
+          o('A', 'Guardar el secreto', 'Lo que pasa en el estacionamiento queda en el estacionamiento.', { locker: 2 }, { flag: 'SECRETO' }),
+          o('B', 'Contarle todo a {presidente}', 'Antes de que se entere por otro lado.', { board: 3, locker: -3 }, { flag: 'CHISME' }),
+          o('C', 'Hablar con el nueve', 'Que sepa lo que se le viene.', { locker: 1, reputation: 1 }, { flag: 'HABLA' })
+        ]
+      ),
+      chapter(
+        '{presidente} sospecha y arma un operativo',
+        '{presidente} contrata a un detective privado para seguir al nueve. El detective es un ex jugador del club, hincha fanático, y en vez de seguirlo se pone a mirar los partidos con él. Al final del mes presenta un informe que dice: "El nueve es un fenómeno, pero come mucho".',
+        [
+          o('A', 'Dejar que el detective siga', 'Total, no va a descubrir nada nuevo.', { fans: 2, board: 1 }, { flag: 'DETECTIVE' }),
+          o('B', 'Avisarle al nueve', 'Que se cuide. O que se sincere.', { locker: 3, board: -2 }, { flag: 'AVISA' }),
+          o('C', 'Contratar a otro detective vos', 'Para saber lo que el detective no dice.', { reputation: 1, cost: 300 }, { flag: 'CONTRA' })
+        ],
+        { SECRETO: 'Guardaste el secreto, pero el nueve te mira con gratitud.', CHISME: 'Le contaste todo a {presidente} y el vestuario se enteró en diez minutos.', HABLA: 'Hablaste con el nueve y te pidió tiempo para pensarlo.' }
+      ),
+      chapter(
+        'El plantel cubre a los tortolitos',
+        'El vestuario entero sabe del romance y armó un operativo: uno distrae a {presidente}, otro le tapa la vista, otro hace de campana. La hija del presidente ahora va a la cancha con la camiseta del nueve y el plantel la saluda con la mano. {periodista} ya huele la primicia.',
+        [
+          o('A', 'Dejar que el plantel los cubra', 'Una causa noble y colectiva.', { locker: 4, fans: 1 }, { flag: 'CUBREN' }),
+          o('B', 'Pedirle al plantel que se meta en el partido', 'Acá se juega, no se hace de celestina.', { locker: -2, board: 1 }, { flag: 'NO_CUBREN' }),
+          o('C', 'Ayudarlos vos mismo', 'Un pase al estadio, una entrada escondida, un guiño.', { locker: 2, fans: 2, board: -2 }, { flag: 'AYUDA' })
+        ],
+        { DETECTIVE: 'El detective del club sigue mirando partidos con el nueve.', AVISA: 'Le avisaste al nueve, y ahora te debe una.', CONTRA: 'Con tu detective propio, sabés más que {presidente} sobre su propia hija.' }
+      ),
+      chapter(
+        'Boda o transferencia',
+        '{presidente} junta coraje y te llama: "O el nueve se va, o se casa con mi hija. Elegí vos". El nueve espera en el pasillo con un anillo y una oferta de Europa en la otra mano. La hija está en la puerta con un vestido y una valija. El vestuario entero mira desde la ventana.',
+        [
+          o('A', 'Que se case y se quede', 'Amor, goles y una familia en el club.', { fans: 5, locker: 4, board: -3 }, { ending: 'Se casaron en el estadio, con el plantel de testigo. El nueve hizo dos goles ese domingo y {presidente} lloró en el palco.', variants: [{ if: 'SECRETO', ending: 'Como guardaste el secreto desde el principio, se casaron en el estadio con el plantel de testigo. El nueve hizo dos goles ese domingo y {presidente} lloró en el palco.' }, { if: 'AYUDA', ending: 'Como los ayudaste desde el principio, se casaron en el estadio con el plantel de testigo. El nueve hizo dos goles ese domingo y {presidente} lloró en el palco.' }] }),
+          o('B', 'Que se vaya a Europa y a otra cosa', 'Un nueve se reemplaza. Un yerno, no.', { budget: 2500, board: 4, fans: -3 }, { ending: 'El nueve se fue a Europa con el anillo en el bolsillo. La hija de {presidente} no le habla ni al padre ni a vos.' }),
+          o('C', 'Que se case y se vaya con la bendición', 'Los dos, juntos, a Europa.', { budget: 1500, fans: 2, board: 1 }, { ending: 'Se casaron y se fueron a Europa. Desde allá mandan fotos con la camiseta del club y un bebé con la pelota bajo el brazo.' })
+        ],
+        { CUBREN: 'El plantel cubrió a los tortolitos hasta el final.', NO_CUBREN: 'El plantel no cubrió nada y {periodista} publicó todo.', AYUDA: 'Como los ayudaste vos, la hija de {presidente} te manda saludos todos los domingos.' }
+      )
+    ]
+  },
+  {
+    id: 'comedor',
+    title: 'El comedor de la villa',
+    tagline: 'La olla popular alimenta al barrio y descubre al próximo crack.',
+    category: 'COMMUNITY',
+    chapters: [
+      chapter(
+        'El comedor pide ayuda al club',
+        'Doña Norma, que hace la olla popular en la villa desde hace veinte años, aparece en el predio con un pibe de doce años y una olla vacía. Pide al club que le donen lo que sobre del buffet. El pibe, descalzo, mira la cancha con una cara que no se olvida. El utilero ya le está buscando botines.',
+        [
+          o('A', 'Donar todo lo que sobre del buffet', 'Comida para el barrio y un pibe en la cancha.', { fans: 3, locker: 1 }, { flag: 'DONA' }),
+          o('B', 'Donar solo los domingos', 'Una vez por semana, con foto y todo.', { fans: 1, board: 1 }, { flag: 'DOMINGOS' }),
+          o('C', 'Decir que no hay nada', 'La tesorería no da para más.', { fans: -3, board: 1 }, { flag: 'NIEGA' })
+        ]
+      ),
+      chapter(
+        'El pibe del comedor la rompe',
+        'El pibe que vino con Doña Norma empieza a entrenar en las inferiores. A la semana gambetea a todos. Al mes ya le dicen "el Piojo". El problema: vive en la villa, a diez kilómetros del predio, y no tiene cómo venir. Doña Norma pide que el club le ponga un transporte.',
+        [
+          o('A', 'Pagarle el transporte', 'Una combi que lo traiga y lo lleve.', { cost: 400, locker: 2, fans: 2 }, { flag: 'COMBI' }),
+          o('B', 'Que duerma en la pensión', 'Lejos de la familia, pero cerca de la cancha.', { locker: 1, fans: -1 }, { cost: 300, flag: 'PENSION' }),
+          o('C', 'Que venga solo como pueda', 'El que quiere, puede.', { fans: -1, locker: -1 }, { flag: 'SOLO' })
+        ],
+        { DONA: 'Con la donación, Doña Norma ya es hincha del club.', DOMINGOS: 'La donación de los domingos alcanza, pero no sobra.', NIEGA: 'Le dijiste que no y Doña Norma se fue con la olla vacía y la cara seria.' }
+      ),
+      chapter(
+        'La cocinera es la madre de un rival',
+        'Doña Norma, la del comedor, resulta ser la madre de un jugador del club rival, un volante que la rompe. Ella no lo dice, pero {periodista} lo descubre. El barrio entero comenta: "La madre del rival cocina para el club". El plantel no sabe cómo tomarlo. Doña Norma sigue revolviendo la olla como si nada.',
+        [
+          o('A', 'Bancarla igual', 'La comida es comida. El fútbol es fútbol.', { fans: 3, reputation: 2, locker: 1 }, { flag: 'BANCA_NORMA' }),
+          o('B', 'Pedirle que elija', 'O cocina para acá o para allá.', { locker: -2, fans: -2 }, { flag: 'ELIGE' }),
+          o('C', 'Invitar al hijo a comer', 'Un plato de guiso y una charla de barrio.', { fans: 2, locker: 2, reputation: 1 }, { flag: 'INVITA' })
+        ],
+        { COMBI: 'La combi del club pasa por la villa todas las mañanas.', PENSION: 'El pibe duerme en la pensión, pero extraña la olla de Doña Norma.', SOLO: 'El pibe viene como puede, y a veces no viene.' }
+      ),
+      chapter(
+        'El comedor quiere ser sponsor del club',
+        'Doña Norma junta plata entre los vecinos y ofrece al club un patrocinio: "Comedor La Esperanza" en la camiseta, a cambio de comida para el plantel y un lugar en la tribuna. La plata es poca, pero el barrio entero apoya. {presidente} quiere saber qué hacés.',
+        [
+          o('A', 'Aceptar el sponsor', 'El nombre del comedor en la camiseta y guiso para todos.', { fans: 5, budget: 200, locker: 2 }, { ending: 'La camiseta dice "Comedor La Esperanza" y el plantel come guiso de Doña Norma antes de cada partido. No perdieron más de local.' }),
+          o('B', 'Aceptar solo la comida, sin sponsor', 'El guiso sí, el nombre no.', { locker: 3, fans: 2, board: 1 }, { ending: 'El plantel come guiso de Doña Norma, pero la camiseta sigue limpia. El barrio igual lo celebra como un triunfo.' }),
+          o('C', 'Rechazar: el club necesita plata de verdad', 'Un sponsor de barrio no paga las cuentas.', { board: 3, fans: -5 }, { ending: 'Rechazaste al comedor. Doña Norma siguió cocinando, pero el barrio ya no canta tu nombre.' })
+        ],
+        { BANCA_NORMA: 'Como bancaste a Doña Norma, el comedor es territorio neutral.', ELIGE: 'Le pediste que elija y eligió a su hijo. El comedor sigue, pero ella no te saluda.', INVITA: 'El hijo de Doña Norma vino a comer y se quedó tres horas charlando.' }
+      )
+    ]
+  },
+  {
+    id: 'coima_panaderia',
+    title: 'El árbitro que cobraba en facturas de panadería',
+    tagline: 'Un sobre con facturas, un pan dulce y un penal que no se cobró.',
+    category: 'BOARD_PRESS',
+    chapters: [
+      chapter(
+        'Se aparece el hombre del maletín',
+        'Un hombre con saco y maletín te espera en el buffet. No dice "coima", dice "colaboración". Pide que el club le compre facturas de panadería por servicios de "asesoría arbitral". El próximo partido es clave. {presidente} ya sabe y te guiña un ojo.',
+        [
+          o('A', 'Aceptar: son facturas nomás', 'Pan dulce, facturas y un penal a favor.', { board: 1, fans: -1 }, { cost: 200, flag: 'FACTURAS' }),
+          o('B', 'Rechazar y denunciarlo', 'Que la liga se entere. El hombre se ríe.', { reputation: 2, board: -2 }, { flag: 'DENUNCIA' }),
+          o('C', 'Negociar por facturas de la cantina', 'Así queda todo en familia.', { board: 1, locker: 1 }, { flag: 'CANTINA' })
+        ]
+      ),
+      chapter(
+        'La panadería del barrio factura para el club',
+        'La panadería de Don Alfredo empieza a emitir facturas por cientos de kilos de facturas que nadie vio. El contador pregunta. {presidente} dice que es "marketing". El plantel come facturas de verdad y está contento.',
+        [
+          o('A', 'Seguir con las facturas', 'El contador cobra su parte y calla.', { board: 2, budget: 300 }, { flag: 'SIGUE_FACTURAS' }),
+          o('B', 'Cortar todo y devolver la plata', 'Don Alfredo no entiende nada.', { reputation: 2, board: -1 }, { cost: 200, flag: 'CORTA' }),
+          o('C', 'Involucrar a {presidente} en la firma', 'Que firme él. Por las dudas.', { board: 1, board_owed: 1 }, { flag: 'FIRMA_PRESI' })
+        ],
+        { FACTURAS: 'El hombre del maletín ya tiene las facturas listas.', DENUNCIA: 'Lo denunciaste, pero la liga nunca encontró el maletín.', CANTINA: 'Las facturas de la cantina ahora incluyen pan dulce.' }
+      ),
+      chapter(
+        'El penal que no se cobró',
+        'Partido clave, 0 a 0, falta clara en el área. El árbitro mira para otro lado. La hinchada explota. {periodista} te pregunta en la conferencia si el club "colaboró" con la terna. El hombre del maletín te manda un mensaje: "Todo en orden".',
+        [
+          o('A', 'Negar todo', 'No sé de qué me habla.', { board: 1, fans: -2 }, { flag: 'NIEGA_PENAL' }),
+          o('B', 'Confesar y devolver la plata', 'Un arranque de honestidad.', { reputation: 3, board: -2, fans: 1 }, { cost: 300, flag: 'CONFIESA' }),
+          o('C', 'Culpar al línea', 'El línea estaba en el banderín equivocado.', { board: 1, fans: 1, reputation: -2 }, { flag: 'CULPA_LINEA' })
+        ],
+        { SIGUE_FACTURAS: 'Las facturas siguen llegando, ahora con más pan dulce.', CORTA: 'Cortaste las facturas, pero el hombre del maletín ya tenía copias.', FIRMA_PRESI: 'Con la firma de {presidente}, todo parece más legal.' }
+      ),
+      chapter(
+        'La AFIP y la liga investigan',
+        'La AFIP detecta facturas de panadería por servicios inexistentes. La liga abre expediente. {presidente} quiere quemar papeles. El hombre del maletín desapareció. Don Alfredo, el panadero, está en la puerta con una bandeja de facturas recién horneadas.',
+        [
+          o('A', 'Devolver todo y pedir perdón', 'Plata, facturas y dignidad.', { budget: -500, reputation: 3, board: -2 }, { ending: 'Devolviste todo y pediste perdón. La liga te suspendió seis meses, pero el barrio te recuerda como el único que devolvió la plata.', variants: [{ if: 'CONFIESA', ending: 'Como ya habías confesado lo del penal, devolviste todo y pediste perdón. La liga te suspendió seis meses, pero el barrio te recuerda como el único que devolvió la plata.' }, { if: 'DENUNCIA', ending: 'Como habías denunciado al hombre del maletín, devolviste todo y pediste perdón. La liga te suspendió seis meses, pero el barrio te recuerda como el único que devolvió la plata.' }] }),
+          o('B', 'Quemar las facturas en el buffet', 'Con un asado de por medio.', { board: 1, fans: -2, reputation: -3 }, { ending: 'Quemaste las facturas en el buffet. La AFIP igual tenía copias y el club pagó una multa gigante. El asado quedó rico.' }),
+          o('C', 'Culpar al contador', 'Él firmaba todo.', { board: 2, locker: -2, reputation: -2 }, { ending: 'Culpaste al contador. Fue preso dos días y después contó todo. La liga te inhabilitó de por vida, pero el hombre del maletín nunca apareció.' })
+        ]
+      )
+    ]
+  },
+  {
+    id: 'tribuna_fantasma',
+    title: 'La tribuna que nunca se construyó',
+    tagline: 'Licitación, sobreprecio y una empresa que existe solo en un galpón con un perro.',
+    category: 'FINANCIAL_CRISIS',
+    chapters: [
+      chapter(
+        'Llega la plata para la tribuna',
+        'El municipio gira fondos para una tribuna nueva. Un dirigente propone a "Hormigón del Sur", empresa amiga. {presidente} quiere firmar ya. Los albañiles del barrio se ofrecen a hacerla más barata.',
+        [
+          o('A', 'Firmar con Hormigón del Sur', 'La empresa del primo del concejal.', { board: 2, budget: 500 }, { flag: 'EMPRESA_AMIGA' }),
+          o('B', 'Llamar a licitación pública', 'Que todos participen. Tarda seis meses.', { reputation: 2, board: -1 }, { flag: 'LICITACION' }),
+          o('C', 'Contratar a los albañiles del barrio', 'Más barato, más lento, más digno.', { fans: 3, board: -2, cost: 300 }, { flag: 'ALBAÑILES' })
+        ]
+      ),
+      chapter(
+        'La empresa es un galpón con un perro',
+        'Vas a visitar Hormigón del Sur: un galpón vacío, un perro flaco y un cartel que dice "Oficina Central". El dirigente dice que "están de viaje". El perro te mira como pidiendo que lo saques de ahí.',
+        [
+          o('A', 'Seguir adelante: total, ya está firmado', 'El perro firma como testigo.', { board: 2, fans: -1 }, { flag: 'SIGUE_EMPRESA' }),
+          o('B', 'Denunciar en la municipalidad', 'Con fotos del perro.', { reputation: 2, board: -2 }, { flag: 'DENUNCIA_EMPRESA' }),
+          o('C', 'Pedir facturas de materiales', 'A ver qué aparece.', { board: 1, reputation: 1 }, { flag: 'FACTURAS_MATERIAL' })
+        ],
+        { EMPRESA_AMIGA: 'La empresa amiga ya cobró el anticipo.', LICITACION: 'La licitación sigue abierta, pero ya hay un ganador sospechoso.', ALBAÑILES: 'Los albañiles del barrio empezaron a medir el terreno.' }
+      ),
+      chapter(
+        'La tribuna es un dibujo',
+        'Inauguran un cartel gigante que dice "Próximamente Tribuna". Atrás no hay nada. La plata se esfumó. {periodista} publica una foto del galpón con el perro. El municipio pide explicaciones. {presidente} dice que "la inflación retrasó la obra".',
+        [
+          o('A', 'Culpar al municipio', 'Nos giraron tarde.', { board: 1, fans: -2 }, { flag: 'CULPA_MUNI' }),
+          o('B', 'Devolver la plata que queda', 'Poco, pero algo.', { budget: -300, reputation: 2, board: -1 }, { flag: 'DEVUELVE_TRIBUNA' }),
+          o('C', 'Hacer una tribuna de cartón pintado', 'Para la foto. Dura hasta la primera lluvia.', { fans: 1, board: -2, reputation: -2 }, { cost: 100, flag: 'CARTON' })
+        ],
+        { SIGUE_EMPRESA: 'El perro del galpón ahora tiene collar del club.', DENUNCIA_EMPRESA: 'La denuncia avanza, pero el dirigente ya renunció.', FACTURAS_MATERIAL: 'Las facturas de materiales eran de una ferretería que cerró en 1998.' }
+      ),
+      chapter(
+        'La justicia quiere saber',
+        'La justicia cita a {presidente}, al dirigente y a vos. El perro del galpón fue adoptado por un vecino y ahora se llama "Soborno". La tribuna sigue sin construirse. El barrio espera una definición.',
+        [
+          o('A', 'Devolver todo y renunciar', 'Un gesto que no te devuelve la tribuna, pero te devuelve algo.', { reputation: 3, board: -3 }, { ending: 'Devolviste todo y renunciaste. La tribuna nunca se construyó, pero el perro Soborno ahora vive en el predio y ladra cada vez que alguien habla de licitaciones.' }),
+          o('B', 'Ir a juicio y bancar', 'Que hable la Justicia.', { board: 1, fans: 1, budget: -200 }, { ending: 'Fuiste a juicio. La causa se durmió, la tribuna nunca se hizo y el cartel de "Próximamente" quedó como monumento nacional a la corrupción.' }),
+          o('C', 'Comprar silencio con entradas gratis', 'Un palco para el juez.', { fans: -2, board: 2, reputation: -3 }, { ending: 'Compraste silencio con entradas. El juez fue a todos los partidos, la tribuna nunca se hizo y el barrio te silbó hasta el final.' })
+        ]
+      )
+    ]
+  },
+  {
+    id: 'puntero_plan',
+    title: 'El puntero del barrio',
+    tagline: 'Cargos, bolsones y una lista de socios que votan sin saber.',
+    category: 'BOARD_PRESS',
+    chapters: [
+      chapter(
+        'El puntero ofrece gente a cambio de cargos',
+        'Un puntero político del barrio te ofrece llenar la cancha con gente y conseguir votos para {presidente} si le das cargos en el club. "Diez empleados, todos mis primos", dice. Trae una lista escrita a mano en papel de almacén.',
+        [
+          o('A', 'Aceptar: los votos son votos', 'Diez primos y una tribuna llena.', { board: 3, fans: 1 }, { flag: 'ACEPTA_PUNTERO' }),
+          o('B', 'Rechazar: el club no es un partido', 'El puntero se ríe y se va.', { reputation: 2, board: -2 }, { flag: 'RECHAZA_PUNTERO' }),
+          o('C', 'Negociar: solo bolsones, sin cargos', 'Comida sí, empleos no.', { fans: 2, board: 1 }, { cost: 200, flag: 'BOLSONES' })
+        ]
+      ),
+      chapter(
+        'Los cargos son para los primos',
+        'Nombran a diez primos del puntero. Uno es "asesor de césped" y no sabe qué es el césped. Otro es "director de logística" y se pierde en el predio. El club se llena de gente que no trabaja y el plantel mira de costado.',
+        [
+          o('A', 'Dejarlos: son los votos', 'Cada primo es un voto.', { board: 3, locker: -2 }, { flag: 'DEJA_PRIMOS' }),
+          o('B', 'Auditar los cargos', 'A ver qué hace cada uno.', { reputation: 2, board: -1, locker: 1 }, { flag: 'AUDITA' }),
+          o('C', 'Ponerlos a trabajar de verdad', 'El de césped corta el pasto.', { locker: 3, board: -2, fans: 1 }, { flag: 'TRABAJAN' })
+        ],
+        { ACEPTA_PUNTERO: 'El puntero ya tiene la llave del vestuario.', RECHAZA_PUNTERO: 'Lo rechazaste, pero el puntero prometió volver.', BOLSONES: 'Los bolsones llegaron, pero los cargos también.' }
+      ),
+      chapter(
+        'Elecciones en el club',
+        'Se vienen las elecciones. El puntero quiere meter una lista propia. {presidente} quiere reelegir. Te ofrecen la presidencia si traicionás a uno de los dos. El buffet está lleno de boletas y de promesas.',
+        [
+          o('A', 'Apoyar al puntero', 'Los primos votan en bloque.', { board: 3, fans: -2, locker: -1 }, { flag: 'APOYA_PUNTERO' }),
+          o('B', 'Apoyar a {presidente}', 'La continuidad, con sus vicios.', { board: 2, fans: 1 }, { flag: 'APOYA_PRESI' }),
+          o('C', 'Armar tu propia lista', 'Con los jugadores y los utileros.', { fans: 4, locker: 3, board: -3 }, { flag: 'LISTA_PROPIA' })
+        ],
+        { DEJA_PRIMOS: 'Los primos siguen cobrando y no trabajan.', AUDITA: 'La auditoría encontró diez cargos fantasma.', TRABAJAN: 'Los primos ahora trabajan, pero te odian.' }
+      ),
+      chapter(
+        'La asamblea',
+        'Llega la asamblea. El puntero trae micros llenos de gente. {presidente} trae abogados. Vos traés al plantel, que se sienta en las primeras filas. La votación es a mano alzada. Hay bolsones en la puerta.',
+        [
+          o('A', 'Ganar con el puntero', 'Diez primos, una tribuna y cero dignidad.', { board: 4, fans: -3 }, { ending: 'Ganaste con el puntero. El club tiene diez empleados nuevos, todos primos, y una tribuna llena de gente que no sabe dónde está.' }),
+          o('B', 'Perder y denunciar', 'Que quede en actas.', { reputation: 3, board: -2, fans: 2 }, { ending: 'Perdiste la asamblea y denunciaste todo. La liga intervino, el club quedó acéfalo y el barrio te hizo una bandera.' }),
+          o('C', 'Compartir cargos con todos', 'Un club repartido, pero club al fin.', { board: 1, locker: 1, fans: 1 }, { ending: 'Repartiste cargos entre todos. El club funciona a medias, pero nadie se pelea y los bolsones alcanzan para todos.' })
+        ]
+      )
+    ]
+  },
+  {
+    id: 'valija_vestuario',
+    title: 'La valija del vestuario',
+    tagline: 'Apareció una valija con plata y una nota: "Para el que haga lo que sabe".',
+    category: 'LOCKER_ROOM',
+    chapters: [
+      chapter(
+        'Encuentran una valija con plata',
+        'Después de la práctica, el utilero encuentra una valija negra en el vestuario. Adentro hay fajos de billetes y una nota: "Para el que haga lo que sabe". El plantel entero mira la valija. El capitán dice: "Nadie toca nada". El nueve ya está calculando cuánto le toca.',
+        [
+          o('A', 'Quedársela y repartir', 'Un premio por la campaña.', { locker: 2, board: -2, budget: 1500 }, { flag: 'REPARTE' }),
+          o('B', 'Avisar a {presidente}', 'Que el club se haga cargo.', { board: 2, locker: -1 }, { flag: 'AVISA_PRESI' }),
+          o('C', 'Llamar a la policía', 'Antes de que sea un problema.', { reputation: 2, locker: -2 }, { flag: 'POLICIA' })
+        ]
+      ),
+      chapter(
+        'Nadie sabe de quién es la valija',
+        'Aparecen mensajes anónimos en el grupo de WhatsApp: "El que hable, pierde". Un jugador quiere repartir la plata. Otro quiere devolverla. El utilero dice que él no la puso. {barra} dice que la valija "es del barrio". La nota tenía una letra conocida.',
+        [
+          o('A', 'Repartir la plata entre el plantel', 'Todos contentos, todos callados.', { locker: 4, board: -3, budget: 1000 }, { flag: 'REPARTE_PLATA' }),
+          o('B', 'Guardarla en la sede hasta saber', 'En la caja fuerte, con dos candados.', { board: 2, locker: 1 }, { flag: 'GUARDA_SEDE' }),
+          o('C', 'Investigar quién la dejó', 'Preguntar en el barrio, en la cancha, en todos lados.', { reputation: 2, locker: -1 }, { flag: 'INVESTIGA_VALIJA' })
+        ],
+        { REPARTE: 'El plantel ya se repartió la plata y nadie sabe de dónde salió.', AVISA_PRESI: '{presidente} dice que la valija es "un adelanto de sponsor".', POLICIA: 'La policía se llevó la valija y el plantel entero te mira mal.' }
+      ),
+      chapter(
+        'El rival ofrece más plata',
+        'Un hombre de traje ofrece el doble para que el equipo pierda el clásico. Muestra una valija igual. "La otra era una muestra", dice. El capitán escucha. El nueve ya está pensando en el auto. El ayudante vomita en un tacho.',
+        [
+          o('A', 'Aceptar: es mucha plata', 'Un partido, una valija, una vida.', { budget: 3000, locker: -4, board: 3 }, { flag: 'ACEPTA_RIVAL' }),
+          o('B', 'Grabarlo y denunciarlo', 'Con el celular en el bolsillo.', { reputation: 3, locker: 2, board: -2 }, { flag: 'GRABA_DENUNCIA' }),
+          o('C', 'Devolver la valija y echar al hombre', 'Un gesto de dignidad.', { locker: 3, fans: 2, board: -1 }, { flag: 'DEVUELVE_VALIJA' })
+        ],
+        { REPARTE_PLATA: 'Con la plata repartida, el plantel está más unido y más nervioso.', GUARDA_SEDE: 'La valija está en la sede, pero alguien la buscó de noche.', INVESTIGA_VALIJA: 'La investigación te llevó a una casa de apuestas del barrio.' }
+      ),
+      chapter(
+        'La liga y la justicia',
+        'La liga abre expediente. La justicia cita a declarar. {presidente} quiere echar a todo el plantel. El hombre de la valija desapareció. La hinchada quiere saber la verdad. El clásico se juega igual.',
+        [
+          o('A', 'Confesar todo', 'La verdad, aunque duela.', { reputation: 4, board: -3, locker: 1 }, { ending: 'Confesaste todo. La liga te suspendió, el plantel se salvó por un tecnicismo y el barrio te recuerda como el único que no se quedó con la valija.', variants: [{ if: 'GRABA_DENUNCIA', ending: 'Como ya habías grabado al hombre de la valija, confesaste todo. La liga te suspendió, el plantel se salvó por un tecnicismo y el barrio te recuerda como el único que no se quedó con la valija.' }, { if: 'POLICIA', ending: 'Como habías llamado a la policía desde el principio, confesaste todo. La liga te suspendió, el plantel se salvó por un tecnicismo y el barrio te recuerda como el único que no se quedó con la valija.' }] }),
+          o('B', 'Negar todo', 'Nadie vio nada.', { board: 2, locker: -2, reputation: -3 }, { ending: 'Negaste todo. La causa se archivó, el plantel siguió jugando y la valija apareció de nuevo al año siguiente, con más plata y la misma nota.' }),
+          o('C', 'Echar a los jugadores y quedarte con la plata', 'Una solución radical.', { budget: 2000, locker: -5, fans: -4, board: 1 }, { ending: 'Echaste a los jugadores y te quedaste con la plata. El equipo descendió, el club quebró y la valija te sigue el rastro en sueños.' })
+        ]
+      )
+    ]
   }
 ]
 

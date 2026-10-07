@@ -25,7 +25,7 @@ export function PageHeader({ title, description, eyebrow, backTo, actions, class
         )}
         <div className="min-w-0">
           {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-          <h1 className="font-display text-3xl font-semibold leading-none text-fg sm:text-4xl">{title}</h1>
+          <h1 className="font-display text-3xl font-semibold leading-none text-fg sm:text-4xl truncate">{title}</h1>
           {description && <p className="mt-2 max-w-prose text-sm text-fg-muted">{description}</p>}
         </div>
       </div>
@@ -38,7 +38,7 @@ export function PageHeader({ title, description, eyebrow, backTo, actions, class
 export function SectionTitle({ children, action, className }) {
   return (
     <div className={cn('mb-3 flex items-center justify-between gap-3', className)}>
-      <h2 className="font-display text-xl font-semibold text-fg">{children}</h2>
+      <h2 className="font-display text-xl font-semibold text-fg truncate">{children}</h2>
       {action}
     </div>
   )

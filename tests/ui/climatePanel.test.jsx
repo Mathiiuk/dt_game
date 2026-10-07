@@ -59,10 +59,11 @@ describe('tarjeta de clima', () => {
     expect(screen.getByText('Vestuario')).toBeInTheDocument()
     expect(screen.getByText('$18.500')).toBeInTheDocument()
     expect(screen.getByText(/banderas en el alambrado/)).toBeInTheDocument()
+    expect(screen.queryByRole('radiogroup', { name: 'Dificultad' })).toBeNull()
   })
 
   it('cambiar la dificultad la guarda', async () => {
-    render(<ClimatePanel club={club} gameDate="2026-10-15" />)
+    render(<ClimatePanel club={club} gameDate="2026-10-15" showDifficulty />)
     await userEvent.click(await screen.findByRole('radio', { name: 'Realista' }))
     await waitFor(() => expect(saveDifficulty).toHaveBeenCalledWith('c1', 'REALISTIC'))
   })

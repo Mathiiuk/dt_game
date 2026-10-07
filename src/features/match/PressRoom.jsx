@@ -66,8 +66,29 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const headlines = useMemo(() => (headlineContext ? headlineRound(headlineContext) : null), [headlineKeyValue]) // eslint-disable-line react-hooks/exhaustive-deps
   const [bingoState, setBingoState] = useState(bingo)
   const [bingoNote, setBingoNote] = useState('')
+  const [showBingoGrid, setShowBingoGrid] = useState(false)
   useEffect(() => { if (bingo) setBingoState(bingo) }, [bingo])
-  const question = questions[currentIndex]
+
+  // M8: Auto-avance de la reacción de la sala tras 2.5s
+  useEffect(() => {
+    if (!reaction) return
+    const id = setTimeout(() => {
+      setReaction(null)
+      onNext()
+    }, 2500)
+    return () => clearTimeout(id)
+  }, [reaction, onNext])
+
+  // M8: Un solo minijuego por conferencia, rotando entre Frase y Titular
+  const activeMinigame = useMemo(() => {
+    if (!headlines) return 'PHRASE'
+    const code = String(conferenceId || '').charCodeAt(String(conferenceId || '').length - 1) || 0
+    return code % 2 === 1 ? 'HEADLINE' : 'PHRASE'
+  }, [conferenceId, headlines])
+
+  // M8: Conferencia corta de 2 preguntas máximo
+  const activeQuestions = useMemo(() => (questions || []).slice(0, 2), [questions])
+  const question = activeQuestions[currentIndex]
   // No presentarse y delegar son decisiones de antes de hablar: después de la primera respuesta solo se puede terminar ahí
   const answeredAny = questions.some(q => q.chosen_tone)
 
@@ -167,7 +188,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           </p>
         </div>
         <button type="button" onClick={next} className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-xs font-semibold uppercase tracking-wider text-accent-fg transition-all hover:bg-accent-strong active:scale-95">
-          <span>{currentIndex + 1 >= questions.length ? 'Terminar la conferencia' : 'Siguiente pregunta'}</span>
+          <span>{currentIndex + 1 >= activeQuestions.length ? 'Terminar la conferencia' : 'Siguiente pregunta'}</span>
           <ArrowRight className="size-4" aria-hidden="true" />
         </button>
       </div>
@@ -180,7 +201,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           <span>Rueda de prensa finalizada. Las declaraciones han sido publicadas en los medios.</span>
         </div>
 
-        {!phraseDone && (
+        {/* M8: Un solo minijuego por conferencia, rotando entre Frase y Titular */}
+        {activeMinigame === 'PHRASE' && !phraseDone && !headline && (
           <section aria-label="Completá la frase del DT" className="space-y-3 rounded-xl border border-gold/40 bg-gold/5 p-4">
             <p className="text-[11px] font-bold uppercase tracking-wider text-gold">Completá la frase del DT</p>
             <p className="text-sm font-medium text-fg">{round.prompt}</p>
@@ -202,7 +224,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           </p>
         )}
 
-        {headlines && !headlineDone && (
+        {activeMinigame === 'HEADLINE' && headlines && !headlineDone && !phrase && (
           <section aria-label="Titular o fake" className="space-y-3 rounded-xl border border-gold/40 bg-gold/5 p-4">
             <p className="text-[11px] font-bold uppercase tracking-wider text-gold">Titular o fake</p>
             <p className="text-sm font-medium text-fg">{headlines.prompt}</p>
@@ -223,38 +245,62 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           </p>
         )}
 
+        {/* M8: Bingo como línea de avance con cartilla plegable */}
         {bingoState?.card && (
-          <section aria-label="Bingo del DT" className="space-y-2 rounded-xl border border-line bg-bg/70 p-4">
+          <section aria-label="Bingo del DT" className="rounded-xl border border-line bg-bg/70 p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-fg-muted">Bingo del DT</p>
-              <p className="text-[11px] text-fg-subtle">{bingoState.card.filter(id => (bingoState.marks || []).includes(id)).length} de 9 · {bingoState.lines || 0} {bingoState.lines === 1 ? 'línea' : 'líneas'}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-fg-muted">Bingo del DT</p>
+                <span className="text-[11px] text-fg-subtle font-mono">
+                  {bingoState.card.filter(id => (bingoState.marks || []).includes(id)).length} de 9 · {bingoState.lines || 0} {bingoState.lines === 1 ? 'línea' : 'líneas'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBingoGrid(s => !s)}
+                className="text-[11px] font-medium text-accent hover:underline"
+              >
+                {showBingoGrid ? 'Plegar cartilla' : 'Ver cartilla'}
+              </button>
             </div>
-            <ul className="grid grid-cols-3 gap-1.5">
-              {bingoState.card.map(id => {
-                const marked = (bingoState.marks || []).includes(id)
-                return (
-                  <li key={id} aria-label={`${clicheText[id]}${marked ? ' (tachado)' : ''}`} className={`flex min-h-14 items-center justify-center rounded-lg border p-1.5 text-center text-[10px] leading-tight ${marked ? 'border-gold/60 bg-gold/15 font-bold text-gold line-through' : 'border-line text-fg-muted'}`}>
-                    {clicheText[id]}
-                  </li>
-                )
-              })}
-            </ul>
-            <p className="text-[10px] text-fg-subtle">Cada frase de manual que elegís tacha un cliché. Línea: hinchada +2 y dirigencia +1. Cartilla llena: premio grande. Se reinicia cada temporada.</p>
+            <div className={showBingoGrid ? 'space-y-2' : 'hidden space-y-2'}>
+              <ul className="grid grid-cols-3 gap-1.5">
+                {bingoState.card.map(id => {
+                  const marked = (bingoState.marks || []).includes(id)
+                  return (
+                    <li key={id} aria-label={`${clicheText[id]}${marked ? ' (tachado)' : ''}`} className={`flex min-h-14 items-center justify-center rounded-lg border p-1.5 text-center text-[10px] leading-tight ${marked ? 'border-gold/60 bg-gold/15 font-bold text-gold line-through' : 'border-line text-fg-muted'}`}>
+                      {clicheText[id]}
+                    </li>
+                  )
+                })}
+              </ul>
+              <p className="text-[10px] text-fg-subtle">Cada frase de manual que elegís tacha un cliché. Línea: hinchada +2 y dirigencia +1. Cartilla llena: premio grande. Se reinicia cada temporada.</p>
+            </div>
           </section>
         )}
 
-        <div className="space-y-3 pt-2">
-          {questions.filter(q => q.chosen_tone).map((q, idx) => (
-            <div key={q.id || idx} className="space-y-1.5 rounded-xl border border-line/80 bg-bg/70 p-3.5 text-xs">
-              <div className="flex items-center justify-between text-[11px] text-fg-subtle">
-                <span className="font-semibold text-fg-muted">{q.media_outlet} • {q.journalist_name}</span>
-                <span className="font-semibold text-accent">{toneLabel(q.chosen_tone)}</span>
-              </div>
-              <p className="font-medium italic text-fg">"{q.question_text}"</p>
-              <p className="border-l-2 border-accent/50 pl-3 text-[11px] text-fg-muted">"{q.manager_answer_text}"</p>
+        {/* M8: Transcripción plegada */}
+        {questions.some(q => q.chosen_tone) && (
+          <details className="pt-2 group">
+            <summary className="cursor-pointer text-xs font-semibold text-fg-muted hover:text-fg select-none flex items-center justify-between rounded-lg border border-line bg-bg/50 p-2.5">
+              <span>Transcripción de declaraciones ({questions.filter(q => q.chosen_tone).length})</span>
+              <span className="text-[10px] text-fg-subtle group-open:hidden">Desplegar</span>
+              <span className="text-[10px] text-fg-subtle hidden group-open:inline">Plegar</span>
+            </summary>
+            <div className="space-y-3 pt-3">
+              {questions.filter(q => q.chosen_tone).map((q, idx) => (
+                <div key={q.id || idx} className="space-y-1.5 rounded-xl border border-line/80 bg-bg/70 p-3.5 text-xs">
+                  <div className="flex items-center justify-between text-[11px] text-fg-subtle">
+                    <span className="font-semibold text-fg-muted">{q.media_outlet} • {q.journalist_name}</span>
+                    <span className="font-semibold text-accent">{toneLabel(q.chosen_tone)}</span>
+                  </div>
+                  <p className="font-medium italic text-fg">"{q.question_text}"</p>
+                  <p className="border-l-2 border-accent/50 pl-3 text-[11px] text-fg-muted">"{q.manager_answer_text}"</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </details>
+        )}
       </div>
     )
   } else if (question) {
@@ -262,7 +308,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
       <div className="space-y-4">
         <div className="flex items-center justify-between text-xs text-fg-muted">
           <span className="font-semibold text-accent">{question.media_outlet}</span>
-          <span className="font-mono text-fg-subtle">Pregunta {currentIndex + 1} de {questions.length}</span>
+          <span className="font-mono text-fg-subtle">Pregunta {currentIndex + 1} de {activeQuestions.length}</span>
         </div>
 
         {noTimer ? null : <Countdown key={question.id || currentIndex} seconds={PRESS_SECONDS} onExpire={() => answer(timeoutOption(question.options), true)} />}

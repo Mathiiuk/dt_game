@@ -140,3 +140,6 @@
     padding-right: env(safe-area-inset-right);
   }
 }
+
+.grecaptcha-badge { visibility: hidden !important; }
+

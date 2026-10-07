@@ -57,9 +57,16 @@ describe('pantalla Calendario', () => {
   it('filtra por partidos y por mercado', async () => {
     renderScreen()
     await screen.findByRole('heading', { level: 1, name: 'Calendario' })
+    await userEvent.click(screen.getByRole('radio', { name: 'Semanas' }))
     await userEvent.click(screen.getByRole('radio', { name: 'Partidos' }))
     expect(screen.getAllByRole('listitem')).toHaveLength(1)
     await userEvent.click(screen.getByRole('radio', { name: 'Fichajes' }))
     expect(screen.getAllByRole('listitem')).toHaveLength(2)
+  })
+
+  it('muestra el rival y la condición en próximos partidos', async () => {
+    renderScreen()
+    expect(await screen.findByText(/vs\. Rival/i)).toBeInTheDocument()
+    expect(screen.getByText(/\(Local\)/i)).toBeInTheDocument()
   })
 })

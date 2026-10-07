@@ -5,6 +5,7 @@ import { Award, Shield } from 'lucide-react'
 import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
 import { clubApi, TIER_5_STARTING_CONFIG } from '../../api/club'
+import { climateApi } from '../../api/climate'
 import { useGameContext } from '../../context/GameContext'
 import { BADGES, COLOR_PRESETS, defaultStadiumName, isAutoStadiumName, sameColors, validateIdentity } from '../../domain/clubIdentity'
 import { formatMoney } from '../../lib/format'
@@ -37,6 +38,7 @@ export default function CreateClubWizard() {
   const [colors, setColors] = useState({ primary: '#047857', secondary: '#FFFFFF' })
   const [badgeId, setBadgeId] = useState('SHIELD')
   const [stadium, setStadium] = useState({ name: defaultStadiumName('Club Atlético Potrero'), capacity: TIER_5_STARTING_CONFIG.stadiumCapacity, pitchCondition: TIER_5_STARTING_CONFIG.pitchCondition })
+  const [difficulty, setDifficulty] = useState('NORMAL')
 
   const setField = (field) => (e) => setIdentity(prev => ({ ...prev, [field]: e.target.value }))
 
@@ -72,7 +74,14 @@ export default function CreateClubWizard() {
   const handleCreate = async () => {
     setLoading(true)
     try {
-      await clubApi.createClub(manager.id, { identity, colors, badgeId, stadium })
+      const createdClub = await clubApi.createClub(manager.id, { identity, colors, badgeId, stadium })
+      if (createdClub?.id && difficulty) {
+        try {
+          await climateApi.saveDifficulty(createdClub.id, difficulty)
+        } catch (e) {
+          console.warn('No se pudo guardar la dificultad inicial:', e)
+        }
+      }
       toast.success('¡Institución fundada e inscripta en la liga!')
       // Recarga manager y club en el contexto antes de entrar al juego (evita estado obsoleto tras una sucesión)
       await refreshContext()
@@ -201,6 +210,21 @@ export default function CreateClubWizard() {
               <div className="rounded-md bg-surface p-2.5"><dt className="eyebrow">Tope salarial semanal</dt><dd className="num font-semibold text-fg">{formatMoney(TIER_5_STARTING_CONFIG.initialWeeklyWageCap)}</dd></div>
             </dl>
             <p className="mt-4 rounded-md bg-surface p-3 text-sm text-fg-muted"><span className="font-semibold text-fg">Cancha oficial: </span>{stadium.name} (capacidad {TIER_5_STARTING_CONFIG.stadiumCapacity.toLocaleString('es-AR')} · césped {TIER_5_STARTING_CONFIG.pitchCondition}/100)</p>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-semibold text-fg">Dificultad de la partida</h3>
+            <OptionCards
+              label="Dificultad de la partida"
+              value={difficulty}
+              onChange={setDifficulty}
+              columns="grid-cols-1 sm:grid-cols-3"
+              options={[
+                { value: 'RELAXED', title: 'Relajado', description: 'Consecuencias más suaves y menor presión de hinchada y dirigencia.' },
+                { value: 'NORMAL', title: 'Normal', description: 'Equilibrio estándar para un DT de ascenso.' },
+                { value: 'REALISTIC', title: 'Realista', description: 'Mayor exigencia: las crisis y derrotas pegan con fuerza real.' }
+              ]}
+            />
           </div>
         </div>
       )}

@@ -169,7 +169,36 @@ export const calendarApi = {
           .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
           .order('match_date', { ascending: true })
 
-        if (fixtures) clubFixtures = fixtures
+        if (fixtures && fixtures.length > 0) {
+          const opponentIds = [...new Set(fixtures.map(f => (f.home_club_id === clubId ? f.away_club_id : f.home_club_id)).filter(Boolean))]
+          let opponentMap = new Map()
+          if (opponentIds.length > 0) {
+            try {
+              const { data: opponents } = await supabase
+                .from('clubs')
+                .select('id, name, short_name')
+                .in('id', opponentIds)
+              if (opponents) {
+                opponentMap = new Map(opponents.map(o => [o.id, o]))
+              }
+            } catch (err) {
+              console.warn('Error leyendo nombres de rivales:', err)
+            }
+          }
+
+          clubFixtures = fixtures.map(f => {
+            const isHome = f.home_club_id === clubId
+            const oppId = isHome ? f.away_club_id : f.home_club_id
+            const opp = opponentMap.get(oppId)
+            return {
+              ...f,
+              is_home: isHome,
+              opponent_id: oppId,
+              opponent_name: opp?.name || (isHome ? 'Rival' : 'Rival'),
+              opponent_short_name: opp?.short_name || 'RIV'
+            }
+          })
+        }
       }
     } catch (e) {
       console.warn('Error leyendo fixtures para calendario:', e)

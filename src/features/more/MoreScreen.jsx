@@ -4,6 +4,8 @@ import { ChevronRight, LogOut } from 'lucide-react'
 import { Card } from '../../components/ui'
 import { NAV_GROUPS, MOBILE_TABS } from '../../components/layout/navigation'
 import { useLogout } from '../../components/layout/useLogout'
+import { useGameContext } from '../../context/GameContext'
+import DifficultySelector from '../dashboard/DifficultySelector'
 
 // Los destinos que ya están en la barra inferior no se repiten aquí
 const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
@@ -11,6 +13,7 @@ const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
 /** Página "Más" (móvil): el resto de las secciones del juego, agrupadas, con descripción */
 export default function MoreScreen() {
   const logout = useLogout()
+  const { club } = useGameContext()
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-5">
@@ -37,6 +40,13 @@ export default function MoreScreen() {
           </section>
         )
       })}
+
+      <section aria-labelledby="more-settings">
+        <h2 id="more-settings" className="eyebrow mb-2 px-1">Ajustes de partida</h2>
+        <Card as="div" className="p-4">
+          <DifficultySelector clubId={club?.id} />
+        </Card>
+      </section>
 
       <section aria-labelledby="more-account">
         <h2 id="more-account" className="eyebrow mb-2 px-1">Cuenta</h2>

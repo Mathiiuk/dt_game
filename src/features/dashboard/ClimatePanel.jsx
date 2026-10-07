@@ -34,7 +34,7 @@ const Meter = ({ label, value }) => (
  * Tarjeta de clima del club: medidores, estado general, barra y selector de dificultad.
  * Se revela de a poco: las primeras semanas solo hinchada y dirigencia.
  */
-export function ClimatePanel({ club, gameDate }) {
+export function ClimatePanel({ club, gameDate, showDifficulty = false }) {
   const [state, setState] = useState(null)
 
   useEffect(() => {
@@ -97,16 +97,18 @@ export function ClimatePanel({ club, gameDate }) {
           </div>
         )}
 
-        <div>
-          <p className="eyebrow mb-1.5">Dificultad</p>
-          <Segmented
-            label="Dificultad"
-            size="sm"
-            value={state?.difficulty || 'NORMAL'}
-            onChange={changeDifficulty}
-            options={DIFFICULTY_OPTIONS}
-          />
-        </div>
+        {showDifficulty && (
+          <div>
+            <p className="eyebrow mb-1.5">Dificultad</p>
+            <Segmented
+              label="Dificultad"
+              size="sm"
+              value={state?.difficulty || 'NORMAL'}
+              onChange={changeDifficulty}
+              options={DIFFICULTY_OPTIONS}
+            />
+          </div>
+        )}
       </CardBody>
     </Card>
   )

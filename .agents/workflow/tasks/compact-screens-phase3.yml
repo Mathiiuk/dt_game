@@ -1,0 +1,39 @@
+id: compact-screens-phase3
+external_ref: ''
+title: >-
+  Pantallas compactas: dificultad (B9), titulo (B11), botones wizard (B12), auth
+  (B13), calendario (M4) y prensa post-partido (M8)
+type: feat
+status: PLANNED
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar Pantallas compactas: dificultad (B9), titulo (B11), botones
+    wizard (B12), auth (B13), calendario (M4) y prensa post-partido (M8)
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Pantallas compactas: dificultad (B9), titulo
+    (B11), botones wizard (B12), auth (B13), calendario (M4) y prensa
+    post-partido (M8)
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd

@@ -152,12 +152,12 @@ export default function AuthScreen({ initialMode = 'splash' }) {
     return (
       <main className="grid min-h-dvh place-items-center bg-bg px-4 py-8">
         <div className="flex w-full max-w-md flex-col items-center text-center">
-          <span className="mb-6 grid size-16 place-items-center rounded-lg border border-line bg-surface text-accent"><Shield className="size-8" aria-hidden="true" /></span>
+          <span className="mb-4 grid size-16 place-items-center rounded-lg border border-line bg-surface text-accent"><Shield className="size-8" aria-hidden="true" /></span>
           <p className="eyebrow mb-2">Juego de director técnico de fútbol</p>
           <h1 className="font-display text-5xl font-semibold leading-none text-fg sm:text-6xl">Vestuario</h1>
           <p className="font-display text-3xl font-semibold leading-tight text-accent sm:text-4xl">Vos sos el DT.</p>
           <p className="mb-8 mt-4 max-w-xs text-sm text-fg-muted">Del barro barrial a la gloria continental. Armá tu plantel, bancá tus decisiones y escribí tu dinastía.</p>
-          <div className="flex w-full flex-col gap-3">
+          <div className="flex w-full flex-col gap-2">
             <Button size="lg" onClick={() => go('register')}><Sparkles />Nueva carrera</Button>
             <Button size="lg" variant="outline" onClick={() => go('login')}><Play />Continuar carrera</Button>
           </div>
@@ -173,7 +173,7 @@ export default function AuthScreen({ initialMode = 'splash' }) {
         <button type="button" onClick={() => { setMode('login'); setForgotSent(false) }} className="-ml-2 mb-4 flex min-h-11 items-center gap-2 rounded-md px-2 text-sm font-medium text-fg-muted hover:text-fg">
           <ArrowLeft className="size-4" aria-hidden="true" />Volver a iniciar sesión
         </button>
-        <div className="mb-5 flex items-center gap-3">
+        <div className="mb-5 flex items-center gap-2">
           <span className="grid size-11 place-items-center rounded-md bg-accent-soft text-accent"><KeyRound className="size-5" aria-hidden="true" /></span>
           <div>
             <h1 className="font-display text-2xl font-semibold text-fg">Recuperar acceso</h1>
@@ -181,13 +181,13 @@ export default function AuthScreen({ initialMode = 'splash' }) {
           </div>
         </div>
         {forgotSent ? (
-          <div role="status" className="space-y-4 rounded-lg border border-accent/30 bg-accent-soft p-4 text-sm">
+          <div role="status" className="space-y-3 rounded-lg border border-accent/30 bg-accent-soft p-4 text-sm">
             <p className="font-semibold text-accent">Solicitud procesada</p>
             <p className="text-fg-muted">Si el correo <strong className="text-fg">{forgotEmail}</strong> existe en el sistema, recibirás las instrucciones en breve. Revisá la casilla de spam.</p>
             <Button className="w-full" onClick={() => setMode('login')}>Ir a iniciar sesión</Button>
           </div>
         ) : (
-          <form onSubmit={handleForgotPassword} className="space-y-4">
+          <form onSubmit={handleForgotPassword} className="space-y-3">
             <p className="text-sm text-fg-muted">Ingresá el correo asociado a tu cuenta y te enviamos un enlace de recuperación seguro.</p>
             <Field label="Correo electrónico">
               {(p) => <Input {...p} required type="email" autoComplete="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="ejemplo@club.com" />}
@@ -203,7 +203,7 @@ export default function AuthScreen({ initialMode = 'splash' }) {
   const isLogin = mode === 'login'
   return (
     <AuthShell>
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="font-display text-3xl font-semibold text-fg">{isLogin ? 'Iniciar sesión' : 'Nueva cuenta de DT'}</h1>
         <p className="mt-1 text-sm text-fg-muted">{isLogin ? 'Accedé a tu banquillo técnico y continuá tu carrera.' : 'Registrate para empezar a forjar tu dinastía.'}</p>
       </div>
@@ -223,7 +223,7 @@ export default function AuthScreen({ initialMode = 'splash' }) {
         </p>
       )}
 
-      <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4">
+      <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-3">
         {!isLogin && (
           <Field label="Nombre de entrenador">
             {(p) => <Input {...p} required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Marcelo Gallardo" />}
@@ -266,7 +266,7 @@ export default function AuthScreen({ initialMode = 'splash' }) {
         </Button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs text-fg-subtle" aria-hidden="true">
+      <div className="my-3 flex items-center gap-2 text-xs text-fg-subtle" aria-hidden="true">
         <span className="h-px flex-1 bg-line" />o<span className="h-px flex-1 bg-line" />
       </div>
       <Button type="button" variant="outline" size="lg" className="w-full" onClick={handleGoogle} disabled={loading}>
@@ -281,7 +281,7 @@ export default function AuthScreen({ initialMode = 'splash' }) {
         </p>
       )}
 
-      <div className={cn('mt-6 space-y-1 border-t border-line pt-4 text-center')}>
+      <div className={cn('mt-4 space-y-1 border-t border-line pt-3 text-center')}>
         <Button variant="link" type="button" onClick={() => { setMode(isLogin ? 'register' : 'login'); setPassword(''); setConfirmPassword('') }}>
           {isLogin ? '¿No tenés carrera? Registrate acá' : '¿Ya tenés cuenta de DT? Iniciá sesión'}
         </Button>

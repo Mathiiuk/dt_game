@@ -41,11 +41,11 @@ export function Stepper({ steps, step }) {
 /** Marco del asistente: encabezado, pasos, contenido y barra de navegación pegada al borde inferior en móvil */
 export function Wizard({ eyebrow, title, steps, step, onBack, onNext, nextLabel, finalLabel, isLast, loading, nextDisabled, children }) {
   return (
-    <main className="min-h-dvh bg-bg px-4 pb-28 pt-8 sm:pb-10">
+    <main className="min-h-dvh bg-bg px-4 pb-28 pt-8 lg:pb-10">
       <div className="mx-auto w-full max-w-2xl">
         <header className="mb-6">
           {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-          <h1 className="font-display text-3xl font-semibold leading-none text-fg sm:text-4xl">{title}</h1>
+          <h1 className="font-display text-3xl font-semibold leading-none text-fg sm:text-4xl break-words">{title}</h1>
         </header>
         <div className="mb-6"><Stepper steps={steps} step={step} /></div>
 
@@ -53,7 +53,7 @@ export function Wizard({ eyebrow, title, steps, step, onBack, onNext, nextLabel,
           {children}
         </section>
 
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur sm:static sm:mt-5 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur lg:static lg:mt-5 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
           <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
             {step > 1 ? <Button variant="outline" onClick={onBack}><ChevronLeft />Atrás</Button> : <span />}
             {isLast ? (
