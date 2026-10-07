@@ -11,4 +11,14 @@ describe('avance de semana al terminar la temporada', () => {
     vi.spyOn(calendarApi, 'getOrCreateCalendar').mockResolvedValue({ id: 'virtual-calendar', career_id: null, current_week: 52, current_date: '2027-06-23', current_season_year: 2026, is_advancing: false })
     await expect(calendarApi.advanceWeek({ careerId: null, clubId: 'me', managerId: 'm' })).rejects.toMatchObject({ code: 'ERR_SEASON_END' })
   })
+
+  it('un candado de avance abandonado hace minutos no deja la partida trabada', async () => {
+    vi.spyOn(calendarApi, 'getOrCreateCalendar').mockResolvedValue({ id: 'virtual-calendar', career_id: null, current_week: 52, current_date: '2027-06-23', current_season_year: 2026, is_advancing: true, updated_at: new Date(Date.now() - 600000).toISOString() })
+    await expect(calendarApi.advanceWeek({ careerId: null, clubId: 'me', managerId: 'm' })).rejects.toMatchObject({ code: 'ERR_SEASON_END' })
+  })
+
+  it('un avance en curso (de hace segundos) sí bloquea otro simultáneo', async () => {
+    vi.spyOn(calendarApi, 'getOrCreateCalendar').mockResolvedValue({ id: 'virtual-calendar', career_id: null, current_week: 10, current_date: '2026-09-02', current_season_year: 2026, is_advancing: true, updated_at: new Date().toISOString() })
+    await expect(calendarApi.advanceWeek({ careerId: null, clubId: 'me', managerId: 'm' })).rejects.toMatchObject({ code: 'ERR_TIME_ADVANCE_IN_PROGRESS' })
+  })
 })
