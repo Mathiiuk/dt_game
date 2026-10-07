@@ -505,7 +505,10 @@ export const climateApi = {
   async onArcChapterResolved({ clubId, code, optionId, gameDate = null }) {
     if (!parseArcCode(code)) return null
     const state = await this.getState(clubId)
-    const { arcs, finished } = resolveChapter(state.arcs, code, optionId, gameDate ? seasonYearOf(gameDate) : null)
+    // El final depende también de cómo está el club cuando se cierra la historia (barra, dirigencia, favores)
+    const { data: clubRow } = await supabase.from('clubs').select('board_confidence').eq('id', clubId).maybeSingle()
+    const ctx = { barra: state.barra_stage, board: clubRow?.board_confidence ?? null, favors: state.favors || 0 }
+    const { arcs, finished } = resolveChapter(state.arcs, code, optionId, gameDate ? seasonYearOf(gameDate) : null, ctx)
     await this.saveState(clubId, { arcs })
     if (finished) await this.log(clubId, gameDate, 'ARC', `Historia cerrada, ${finished.title}: ${finished.ending}`, {})
     queryCache.invalidate(`climate:${clubId}`)

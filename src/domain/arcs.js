@@ -86,10 +86,34 @@ export function stepArcs({ arcs: raw, climate = 'FLOWS', week = 1, pendingEvents
 }
 
 /**
+ * Frase que cierra el final según cómo está el club: la barra manda sobre la dirigencia y esta sobre los favores.
+ * @param {{ barra?: string, board?: number, favors?: number }} ctx
+ */
+export function closingTail(ctx = {}) {
+  const { barra = 'CALM', board = null, favors = 0 } = ctx
+  if (barra === 'INVASION' || barra === 'SQUEEZES') return 'Y todo esto pasó con la barra respirándote en la nuca.'
+  if (board !== null && board <= 30) return 'En el palco, mientras tanto, ya se hablaba de tu continuidad.'
+  if (board !== null && board >= 75) return 'La dirigencia, de buen humor, se quedó con los aplausos.'
+  if (favors >= 3) return 'Algunos favores quedaron anotados en una libreta que ojalá nadie abra.'
+  return ''
+}
+
+/**
+ * Final de la historia: el de la opción elegida, o la variante de la primera marca del camino que coincida,
+ * más la frase de cierre del estado del club.
+ */
+export function endingFor(option, flags = [], ctx = {}) {
+  const variant = (option?.variants || []).find(v => flags.includes(v.if))
+  const base = variant?.ending || option?.ending || 'La historia terminó como pudo.'
+  const tail = closingTail(ctx)
+  return tail ? `${base} ${tail}` : base
+}
+
+/**
  * Resolvió un capítulo: guarda la marca de la opción y prepara el siguiente, o cierra la historia en el último.
  * @returns {{ arcs: object, finished: { id, title, ending } | null }}
  */
-export function resolveChapter(raw, code, optionId, season = null) {
+export function resolveChapter(raw, code, optionId, season = null, ctx = {}) {
   const arcs = normalizeArcs(raw)
   const parsed = parseArcCode(code)
   if (!parsed || !arcs.active || arcs.active.id !== parsed.arcId || arcs.active.chapter !== parsed.index) return { arcs, finished: null }
@@ -99,7 +123,7 @@ export function resolveChapter(raw, code, optionId, season = null) {
   const flags = option?.flag ? [...(arcs.active.flags || []), option.flag] : (arcs.active.flags || [])
 
   if (parsed.index >= arc.chapters.length - 1) {
-    const finished = { id: arc.id, title: arc.title, ending: option?.ending || 'La historia terminó como pudo.', season }
+    const finished = { id: arc.id, title: arc.title, ending: endingFor(option, flags, ctx), season }
     return { arcs: { active: null, cooldown: ARC_COOLDOWN_WEEKS, done: [...arcs.done, finished] }, finished }
   }
   return {
