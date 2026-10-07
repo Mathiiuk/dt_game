@@ -21,7 +21,7 @@ import {
   Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, Input, PageHeader, Progress,
   Select, Skeleton, Stat, Tabs, TabsList, TabsTrigger, Tooltip
 } from '../../components/ui'
-import { absoluteWeek } from '../../domain/gameWeek'
+import { absoluteWeek, seasonYearOf } from '../../domain/gameWeek'
 import ContractRenewalModal from './ContractRenewalModal'
 import MentorshipModal from './MentorshipModal'
 import PlayerEvolutionModal from './PlayerEvolutionModal'
@@ -102,6 +102,8 @@ function OfferCard({ offer, busy, onAccept, onCounter, onReject }) {
 
 export default function SquadScreen() {
   const { club, manager, loading: contextLoading, refreshContext, confirmAction, confirmRisk } = useGameContext()
+  // La evolución anual se registra al cerrar cada temporada: se muestra el balance de la última cerrada
+  const lastClosedSeason = seasonYearOf(club?.game_date || '2026-07-01') - 1
 
   const cachedPlayers = club?.id ? queryCache.get(`squad:${club.id}`) : null
   const cachedOffers = club?.id ? queryCache.get(`offers:${club.id}`) : null
@@ -507,7 +509,7 @@ export default function SquadScreen() {
       {sellPlayer && <SellPlayerModal player={sellPlayer} processing={isProcessing} onClose={() => setSellPlayer(null)} onSave={handleSaveTransferStatus} />}
       {counterOffer && <CounterOfferModal offer={counterOffer} processing={isProcessing} onClose={() => setCounterOffer(null)} onSend={handleSendCounterOffer} />}
       {showMentorshipModal && <MentorshipModal club={club} players={data.players} onClose={() => setShowMentorshipModal(false)} onMentorshipStarted={() => loadData()} />}
-      {showEvolutionModal && <PlayerEvolutionModal club={club} players={data.players} onClose={() => setShowEvolutionModal(false)} currentSeasonYear={club?.current_season_year || 2026} />}
+      {showEvolutionModal && <PlayerEvolutionModal club={club} players={data.players} onClose={() => setShowEvolutionModal(false)} currentSeasonYear={lastClosedSeason} />}
     </div>
   )
 }

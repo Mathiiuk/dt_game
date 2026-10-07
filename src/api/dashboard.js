@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { levelsApi } from './levels'
 import { eventsApi } from './events'
+import { competitionApi } from './competition'
 import { contractsAlert } from '../domain/contracts'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
@@ -18,7 +19,7 @@ export const dashboardApi = {
         levelInfo,
         { data: fixtureData },
         { data: squadData },
-        { data: standingsData },
+        leagueTable,
         pendingEvents
       ] = await Promise.all([
         levelsApi.getLevelInfo(manager.xp || 0),
@@ -35,15 +36,13 @@ export const dashboardApi = {
           .from('players')
           .select('id, first_name, last_name, position, is_injured, is_suspended, state_fitness, state_morale, contract_wage, contract_years, contract_end')
           .eq('club_id', club.id),
-        supabase
-          .from('standings')
-          .select('*')
-          .eq('club_id', club.id)
-          .maybeSingle(),
+        // La misma tabla ordenada que usa la pantalla Tabla (con caché): de ahí sale el puesto, que no se guarda en la base
+        competitionApi.getStandings(club.id).catch(() => []),
         eventsApi.getPendingEvents(club.id).catch(() => [])
       ])
 
       const squad = squadData || []
+      const myRow = (leagueTable || []).find(r => r.club_id === club.id) || null
 
       // 2. Cálculo de métricas de plantel
       const totalPlayers = squad.length
@@ -144,7 +143,7 @@ export const dashboardApi = {
           injuredCount: injuredPlayers.length,
           suspendedCount: suspendedPlayers.length
         },
-        standingsSnippet: standingsData || null,
+        standingsSnippet: myRow ? { rank: myRow.position, points: myRow.points || 0, played: myRow.played || 0 } : null,
         nextFixture: fixtureData || null,
         urgentAlerts,
         pendingEvents: pendingEvents || []

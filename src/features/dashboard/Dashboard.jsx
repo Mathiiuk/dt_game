@@ -393,7 +393,7 @@ export default function Dashboard() {
             <CardBody>
               {standingsSnippet ? (
                 <div className="grid grid-cols-3 gap-4">
-                  <Stat label="Puesto" value={`${standingsSnippet.rank || '—'}º`} />
+                  <Stat label="Puesto" value={standingsSnippet.rank ? `${standingsSnippet.rank}º` : '—'} />
                   <Stat label="Puntos" value={standingsSnippet.points || 0} />
                   <Stat label="Jugados" value={standingsSnippet.played || 0} />
                 </div>
