@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-10-06T19:06:12.249Z",
+  "updatedAt": "2026-10-07T11:33:13.999Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 474,
-    "totalEdges": 1324,
-    "totalTasks": 146,
-    "totalLessons": 19
+    "totalNodes": 481,
+    "totalEdges": 1332,
+    "totalTasks": 148,
+    "totalLessons": 20
   },
   "nodes": [
     {
@@ -86,8 +86,8 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 24649,
-      "lineCount": 534,
+      "sizeBytes": 24785,
+      "lineCount": 536,
       "imports": [
         "./supabase",
         "../domain/fixtureStatus",
@@ -179,9 +179,10 @@
       "id": "src/api/competition.js",
       "label": "competition.js",
       "type": "module",
-      "sizeBytes": 11396,
-      "lineCount": 305,
+      "sizeBytes": 11111,
+      "lineCount": 293,
       "imports": [
+        "../domain/leagueSchedule",
         "../domain/cupMatch",
         "../domain/rivalClubs",
         "./supabase",
@@ -192,7 +193,7 @@
       "id": "src/api/competitionTiers.js",
       "label": "competitionTiers.js",
       "type": "module",
-      "sizeBytes": 10609,
+      "sizeBytes": 10579,
       "lineCount": 300,
       "imports": [
         "./supabase",
@@ -315,10 +316,9 @@
       "id": "src/api/gameLoop.js",
       "label": "gameLoop.js",
       "type": "module",
-      "sizeBytes": 4700,
-      "lineCount": 123,
+      "sizeBytes": 1993,
+      "lineCount": 65,
       "imports": [
-        "../domain/gameWeek",
         "./supabase",
         "./calendar"
       ]
@@ -575,14 +575,15 @@
       "id": "src/api/seasonClose.js",
       "label": "seasonClose.js",
       "type": "module",
-      "sizeBytes": 10911,
-      "lineCount": 294,
+      "sizeBytes": 11705,
+      "lineCount": 307,
       "imports": [
         "./supabase",
         "../utils/cache",
         "./playerEvolution",
         "./clubHistory",
-        "../domain/contracts"
+        "../domain/contracts",
+        "./competition"
       ]
     },
     {
@@ -1131,8 +1132,8 @@
       "id": "src/domain/gameWeek.js",
       "label": "gameWeek.js",
       "type": "module",
-      "sizeBytes": 1246,
-      "lineCount": 29,
+      "sizeBytes": 1464,
+      "lineCount": 32,
       "imports": []
     },
     {
@@ -1141,6 +1142,14 @@
       "type": "module",
       "sizeBytes": 841,
       "lineCount": 27,
+      "imports": []
+    },
+    {
+      "id": "src/domain/leagueSchedule.js",
+      "label": "leagueSchedule.js",
+      "type": "module",
+      "sizeBytes": 1607,
+      "lineCount": 34,
       "imports": []
     },
     {
@@ -1720,8 +1729,8 @@
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 9794,
-      "lineCount": 198,
+      "sizeBytes": 9252,
+      "lineCount": 180,
       "imports": [
         "react",
         "react-router-dom",
@@ -1729,12 +1738,12 @@
         "sonner",
         "../../api/competition",
         "../../context/GameContext",
+        "../../domain/gameWeek",
         "../../utils/cache",
         "../../domain/standings",
         "../../lib/utils",
         "../../components/ui",
-        "./LeaguePyramidModal",
-        "../../lib/errors"
+        "./LeaguePyramidModal"
       ]
     },
     {
@@ -1761,8 +1770,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 21131,
-      "lineCount": 433,
+      "sizeBytes": 21212,
+      "lineCount": 434,
       "imports": [
         "react",
         "react-router-dom",
@@ -1774,6 +1783,7 @@
         "../../lib/errors",
         "../../context/GameContext",
         "../../domain/fixtureStatus",
+        "../../domain/gameWeek",
         "../../domain/rivalLevel",
         "../../lib/format",
         "../../lib/utils",
@@ -2637,6 +2647,16 @@
       "imports": []
     },
     {
+      "id": "tests/api/advanceAtSeasonEnd.test.js",
+      "label": "advanceAtSeasonEnd.test.js",
+      "type": "test",
+      "sizeBytes": 1072,
+      "lineCount": 15,
+      "imports": [
+        "../../src/api/calendar"
+      ]
+    },
+    {
       "id": "tests/api/arcsWeek.test.js",
       "label": "arcsWeek.test.js",
       "type": "test",
@@ -2994,10 +3014,9 @@
       "id": "tests/api/seasonIsolation.test.js",
       "label": "seasonIsolation.test.js",
       "type": "test",
-      "sizeBytes": 3932,
-      "lineCount": 80,
+      "sizeBytes": 2732,
+      "lineCount": 58,
       "imports": [
-        "../../src/api/gameLoop",
         "../../src/api/seasonClose"
       ]
     },
@@ -3005,8 +3024,8 @@
       "id": "tests/api/seasonPrize.test.js",
       "label": "seasonPrize.test.js",
       "type": "test",
-      "sizeBytes": 4467,
-      "lineCount": 72,
+      "sizeBytes": 5167,
+      "lineCount": 86,
       "imports": [
         "../../src/api/seasonClose"
       ]
@@ -3268,6 +3287,16 @@
       ]
     },
     {
+      "id": "tests/domain/leagueSchedule.test.js",
+      "label": "leagueSchedule.test.js",
+      "type": "test",
+      "sizeBytes": 2114,
+      "lineCount": 60,
+      "imports": [
+        "../../src/domain/leagueSchedule"
+      ]
+    },
+    {
       "id": "tests/domain/managerBuild.test.js",
       "label": "managerBuild.test.js",
       "type": "test",
@@ -3377,7 +3406,7 @@
       "id": "tests/domain/quickDecisions.test.js",
       "label": "quickDecisions.test.js",
       "type": "test",
-      "sizeBytes": 6477,
+      "sizeBytes": 6527,
       "lineCount": 104,
       "imports": [
         "../../src/domain/quickDecisions"
@@ -3423,6 +3452,16 @@
       "lineCount": 27,
       "imports": [
         "../../src/domain/rivalLevel"
+      ]
+    },
+    {
+      "id": "tests/domain/seasonEnd.test.js",
+      "label": "seasonEnd.test.js",
+      "type": "test",
+      "sizeBytes": 460,
+      "lineCount": 13,
+      "imports": [
+        "../../src/domain/gameWeek"
       ]
     },
     {
@@ -3511,6 +3550,17 @@
       "type": "test",
       "sizeBytes": 1073,
       "lineCount": 25,
+      "imports": [
+        "node:fs",
+        "node:path"
+      ]
+    },
+    {
+      "id": "tests/static/clubColumns.test.js",
+      "label": "clubColumns.test.js",
+      "type": "test",
+      "sizeBytes": 709,
+      "lineCount": 18,
       "imports": [
         "node:fs",
         "node:path"
@@ -4924,6 +4974,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:league-home-away-balance",
+      "label": "league-home-away-balance: El calendario de liga reparte local y visitante parejo",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:league-server",
       "label": "league-server: Liga con fuerza real de rivales y resultados en el servidor",
       "type": "task",
@@ -5073,6 +5130,13 @@
     {
       "id": "task:rls-owner-nullable",
       "label": "rls-owner-nullable: La migracion RLS falla con filas existentes: owner_user_id nulo permitido",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:season-close-flow",
+      "label": "season-close-flow: La temporada se cierra desde la gala y arranca la siguiente con su calendario",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -5380,6 +5444,11 @@
     },
     {
       "from": "src/api/competition.js",
+      "to": "../domain/leagueSchedule",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/competition.js",
       "to": "../domain/cupMatch",
       "relation": "depends_on"
     },
@@ -5561,11 +5630,6 @@
     {
       "from": "src/api/gameConfig.js",
       "to": "./supabase",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/gameLoop.js",
-      "to": "../domain/gameWeek",
       "relation": "depends_on"
     },
     {
@@ -5986,6 +6050,11 @@
     {
       "from": "src/api/seasonClose.js",
       "to": "../domain/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/seasonClose.js",
+      "to": "./competition",
       "relation": "depends_on"
     },
     {
@@ -7490,6 +7559,11 @@
     },
     {
       "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../domain/gameWeek",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
       "to": "../../utils/cache",
       "relation": "depends_on"
     },
@@ -7511,11 +7585,6 @@
     {
       "from": "src/features/competition/StandingsScreen.jsx",
       "to": "./LeaguePyramidModal",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/competition/StandingsScreen.jsx",
-      "to": "../../lib/errors",
       "relation": "depends_on"
     },
     {
@@ -7621,6 +7690,11 @@
     {
       "from": "src/features/dashboard/Dashboard.jsx",
       "to": "../../domain/fixtureStatus",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../domain/gameWeek",
       "relation": "depends_on"
     },
     {
@@ -9394,6 +9468,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/advanceAtSeasonEnd.test.js",
+      "to": "../../src/api/calendar",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/arcsWeek.test.js",
       "to": "../../src/api/climate",
       "relation": "depends_on"
@@ -9635,11 +9714,6 @@
     },
     {
       "from": "tests/api/seasonIsolation.test.js",
-      "to": "../../src/api/gameLoop",
-      "relation": "depends_on"
-    },
-    {
-      "from": "tests/api/seasonIsolation.test.js",
       "to": "../../src/api/seasonClose",
       "relation": "depends_on"
     },
@@ -9849,6 +9923,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/leagueSchedule.test.js",
+      "to": "../../src/domain/leagueSchedule",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/managerBuild.test.js",
       "to": "../../src/domain/managerBuild",
       "relation": "depends_on"
@@ -9964,6 +10043,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/seasonEnd.test.js",
+      "to": "../../src/domain/gameWeek",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/squad.test.js",
       "to": "../../src/domain/squad",
       "relation": "depends_on"
@@ -10010,6 +10094,16 @@
     },
     {
       "from": "tests/static/api-calls.test.js",
+      "to": "node:path",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/clubColumns.test.js",
+      "to": "node:fs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/static/clubColumns.test.js",
       "to": "node:path",
       "relation": "depends_on"
     },
@@ -11604,6 +11698,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:league-home-away-balance",
+      "to": ".agents/workflow/tasks/league-home-away-balance.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:league-server",
       "to": ".agents/workflow/tasks/league-server.yml",
       "relation": "manifested_by"
@@ -11711,6 +11810,11 @@
     {
       "from": "task:rls-owner-nullable",
       "to": ".agents/workflow/tasks/rls-owner-nullable.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:season-close-flow",
+      "to": ".agents/workflow/tasks/season-close-flow.yml",
       "relation": "manifested_by"
     },
     {
@@ -11882,6 +11986,13 @@
       "category": "BEST_PRACTICE",
       "lesson": "Al sumar eventos aleatorios nuevos a un motor determinista por semilla, usar un generador aparte (seed:pen) para no alterar el resto del partido ni los tests estadísticos existentes.",
       "solution": "createRNG con semilla derivada para cada fuente de azar nueva; subir el tamaño de muestra de los tests estadísticos si los totales se mueven."
+    },
+    {
+      "id": "LES-3642",
+      "timestamp": "2026-10-07T11:33:13.642Z",
+      "category": "BUG_FIX",
+      "lesson": "Correr el juego de punta a punta en el navegador destapo 3 bugs que los tests no veian: calendario de liga sin localia pareja, gala de fin de temporada inalcanzable (leia clubs.current_week que no existe; la semana real sale de la fecha de juego con domain/gameWeek) y consulta de la tabla con clubs.logo_url inexistente que fallaba en silencio. Una consulta de Supabase con una columna inexistente devuelve error y data null: siempre chequear error.",
+      "solution": ""
     }
   ]
 }

@@ -1,6 +1,6 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-06T19:06:12.249Z | **Nodos:** 474 | **Tareas:** 146
+> **Última sincronización:** 2026-10-07T11:33:13.999Z | **Nodos:** 481 | **Tareas:** 148
 
 ## 📦 Mapa de Módulos y Dependencias
 
@@ -13,8 +13,8 @@
 | `src/features/match/PostMatchScreen.jsx` | 575 | react, react-router-dom, ../../api/postMatch |
 | `src/api/postMatch.js` | 567 | ./manager, ./morale, ./supabase |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
+| `src/api/calendar.js` | 536 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
 | `src/api/climate.js` | 536 | ./supabase, ../utils/cache, ./morale |
-| `src/api/calendar.js` | 534 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
 | `src/api/press.js` | 528 | ./supabase, ../domain/press, ../domain/characters |
 | `src/api/events.js` | 518 | ./supabase, ../utils/cache, ./audit |
 | `src/api/nationalTeam.js` | 491 | ./supabase, ./manager, ./audit |
@@ -22,7 +22,7 @@
 | `src/features/club/screens/LockerRoomTab.jsx` | 460 | react, lucide-react, ../../../api/lockerRoom |
 | `src/features/squad/SquadScreen.jsx` | 449 | react, lucide-react, sonner |
 | `src/features/manager/ManagerCareerScreen.jsx` | 436 | react, react-router-dom, lucide-react |
-| `src/features/dashboard/Dashboard.jsx` | 433 | react, react-router-dom, lucide-react |
+| `src/features/dashboard/Dashboard.jsx` | 434 | react, react-router-dom, lucide-react |
 | `src/api/clubHistory.js` | 423 | ./supabase |
 | `src/api/training.js` | 422 | ./supabase, ../domain/squadConsequences |
 | `src/api/injuries.js` | 407 | ./supabase, ../utils/cache |
@@ -32,7 +32,7 @@
 | `src/features/club/screens/StadiumManagementTab.jsx` | 389 | react, lucide-react, ../../../api/stadium |
 | `src/api/contracts.js` | 386 | ./supabase, ../utils/cache, ./audit |
 
-_(+176 módulos adicionales; consultar con `memory:query`)_
+_(+177 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
@@ -153,6 +153,7 @@ _(+176 módulos adicionales; consultar con `memory:query`)_
 - **fix-youth-prospect-generator: Otear en la Academia: juvenil completo con todos los campos obligatorios** `[DONE]`
 - **free-lineup-m4: M4 alineacion libre en la pizarra** `[DONE]`
 - **home-landing: Home publica de Vestuario: portada, frases de DT, SEO y rutas de acceso** `[DONE]`
+- **league-home-away-balance: El calendario de liga reparte local y visitante parejo** `[DONE]`
 - **league-server: Liga con fuerza real de rivales y resultados en el servidor** `[DONE]`
 - **lineup-chemistry-m4: M4 quimica del equipo en la pizarra y el partido** `[DONE]`
 - **market-agents: Mercado 2.0 etapa 4: representantes cobran comision en el servidor y los pedidos de salida dan drama** `[DONE]`
@@ -175,6 +176,7 @@ _(+176 módulos adicionales; consultar con `memory:query`)_
 - **recaptcha-env-name: Clave del sitio de reCAPTCHA sin prefijo VITE** `[DONE]`
 - **rival-names: Rivales distintos en cada carrera** `[DONE]`
 - **rls-owner-nullable: La migracion RLS falla con filas existentes: owner_user_id nulo permitido** `[DONE]`
+- **season-close-flow: La temporada se cierra desde la gala y arranca la siguiente con su calendario** `[DONE]`
 - **season-league-isolation: Cierre de temporada solo de la liga del club** `[DONE]`
 - **season-prize-server: Premio de fin de temporada liquidado por el servidor** `[DONE]`
 - **server-results-f5: Resultados de copa y fechas FIFA decididos por el servidor** `[DONE]`
@@ -204,3 +206,4 @@ _(+176 módulos adicionales; consultar con `memory:query`)_
 - **[BEST_PRACTICE]** El gate bdd_tests del manifiesto falla porque @cucumber/cucumber no está instalado y no existe el script test:bdd; los .feature generados quedan como plantilla. *(Solución: Hasta decidir instalarlo, las tareas se marcan bdd_tests:false y los .feature se escriben como documentación viva con escenarios reales.)*
 - **[BUG_FIX]** El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos. *(Solución: Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real.)*
 - **[BEST_PRACTICE]** Al sumar eventos aleatorios nuevos a un motor determinista por semilla, usar un generador aparte (seed:pen) para no alterar el resto del partido ni los tests estadísticos existentes. *(Solución: createRNG con semilla derivada para cada fuente de azar nueva; subir el tamaño de muestra de los tests estadísticos si los totales se mueven.)*
+- **[BUG_FIX]** Correr el juego de punta a punta en el navegador destapo 3 bugs que los tests no veian: calendario de liga sin localia pareja, gala de fin de temporada inalcanzable (leia clubs.current_week que no existe; la semana real sale de la fecha de juego con domain/gameWeek) y consulta de la tabla con clubs.logo_url inexistente que fallaba en silencio. Una consulta de Supabase con una columna inexistente devuelve error y data null: siempre chequear error. *(Solución: )*
