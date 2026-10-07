@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { levelsApi } from './levels'
 import { eventsApi } from './events'
-import { isContractExpiringSoon, CONTRACT_ALERT_WINDOW_WEEKS } from '../domain/contracts'
+import { contractsAlert } from '../domain/contracts'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
 export const dashboardApi = {
@@ -60,7 +60,6 @@ export const dashboardApi = {
 
       // Por vencer = vence dentro de la ventana de alerta (6 meses) según la fecha del juego
       const alertGameDate = club.game_date || '2026-07-01'
-      const expiringContracts = squad.filter(p => isContractExpiringSoon(p.contract_end, alertGameDate, CONTRACT_ALERT_WINDOW_WEEKS))
 
       // 3. Sistema de Alertas Críticas
       const urgentAlerts = []
@@ -87,16 +86,9 @@ export const dashboardApi = {
         })
       }
 
-      // Alerta de Contratos por vencer
-      if (expiringContracts.length > 0) {
-        urgentAlerts.push({
-          id: 'ALERT_CONTRACTS',
-          priority: 'LOW',
-          title: 'Contratos por Vencer',
-          message: `${expiringContracts.length} futbolista(s) con contrato que vence en los próximos 6 meses.`,
-          actionUrl: '/squad'
-        })
-      }
+      // Alerta de contratos por vencer (suave a mitad de temporada, urgente en las últimas 12 semanas)
+      const contractsWarning = contractsAlert(squad, alertGameDate)
+      if (contractsWarning) urgentAlerts.push(contractsWarning)
 
       // Alerta de Déficit Financiero
       const currentBalance = Number(club.budget) || 0

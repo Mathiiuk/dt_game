@@ -43,3 +43,28 @@ describe('dominio de contratos', () => {
     expect(counts[3] / 20000).toBeLessThan(0.33)
   })
 })
+
+import { contractsAlert } from '../../src/domain/contracts'
+
+describe('alerta de contratos por vencer', () => {
+  const squad = [
+    { contract_end: '2027-06-30' }, { contract_end: '2027-06-30' }, { contract_end: '2028-06-30' }
+  ]
+  it('no hay alerta si no vence nada en la ventana', () => {
+    expect(contractsAlert(squad, '2026-08-05')).toBeNull()
+  })
+  it('a mitad de temporada es un aviso suave', () => {
+    const a = contractsAlert(squad, '2027-01-06')
+    expect(a).toMatchObject({ priority: 'LOW', count: 2 })
+  })
+  it('en las últimas 12 semanas es urgente y dice cuántas faltan', () => {
+    const a = contractsAlert(squad, '2027-04-14')
+    expect(a.priority).toBe('HIGH')
+    expect(a.count).toBe(2)
+    expect(a.message).toMatch(/2 jugadores quedan libres/)
+    expect(a.message).toMatch(/11 semanas/)
+  })
+  it('los que vencen el año siguiente no cuentan para la urgencia de esta temporada', () => {
+    expect(contractsAlert([{ contract_end: '2028-06-30' }], '2027-04-14')).toBeNull()
+  })
+})
