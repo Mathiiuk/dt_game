@@ -1,3 +1,4 @@
+import { pickVacancies } from '../domain/vacancies'
 import { supabase } from './supabase'
 import { auditApi } from './audit'
 import { queryCache } from '../utils/cache'
@@ -568,10 +569,10 @@ export const careerApi = {
       query = query.neq('id', currentClubId)
     }
 
-    const { data: clubs, error } = await query.limit(15)
+    const { data: clubs, error } = await query.limit(80)
     if (error || !clubs) return []
 
-    return clubs.map(c => {
+    const all = clubs.map(c => {
       const tier = c.league_tier || 5
       const reqRep = 
         tier === 1 ? CAREER_PROGRESSION_RULES.reputation_required_tier_1 :
@@ -596,6 +597,7 @@ export const careerApi = {
         budget: Number(c.budget || 0)
       }
     })
+    return pickVacancies(all)
   },
 
   /**

@@ -193,6 +193,7 @@ export const competitionApi = {
         founded_year: 1910 + i,
         colors: '#10B981',
         history_type: 'bot',
+        league_tier: 5,
         budget: 25000,
         wage_budget: 3500,
         reputation: 15,
@@ -250,7 +251,7 @@ export const competitionApi = {
   async prepareNextLeague({ clubId, competitionId, standings, oldTier, newTier, seasonYear, country = 'Argentina' }) {
     const seed = `${clubId}:${seasonYear}`
     const strengthRand = seededRandom(`strength:${seed}`)
-    const rivalRow = (c, i, [lo, hi]) => ({
+    const rivalRow = (c, i, [lo, hi], tier) => ({
       name: c.name,
       short_name: c.short_name,
       city: 'Región Deportiva',
@@ -258,6 +259,7 @@ export const competitionApi = {
       founded_year: 1910 + i,
       colors: '#10B981',
       history_type: 'bot',
+      league_tier: tier,
       budget: 25000,
       wage_budget: 3500,
       reputation: 15,
@@ -274,7 +276,7 @@ export const competitionApi = {
         .single()
       if (compErr || !comp) throw new Error(compErr?.message || 'No se pudo crear la liga de la nueva categoría.')
 
-      const rows = pickRivalClubs(seed, 19).map((c, i) => rivalRow(c, i, tierStrengthRange(newTier)))
+      const rows = pickRivalClubs(seed, 19).map((c, i) => rivalRow(c, i, tierStrengthRange(newTier), newTier))
       const { data: aiClubs, error: clubsErr } = await supabase.from('clubs').insert(rows).select('id')
       if (clubsErr) throw new Error(clubsErr.message)
 
@@ -297,7 +299,7 @@ export const competitionApi = {
     const [lo, hi] = tierStrengthRange(oldTier)
     const mid = Math.round((lo + hi) / 2)
     const picks = pickRivalClubs(seed, movers.length, names)
-    const rows = movers.map((m, i) => rivalRow(picks[i], i, movementOf(m.position, oldTier) === 'PROMOTED' ? [lo, mid] : [mid, hi]))
+    const rows = movers.map((m, i) => rivalRow(picks[i], i, movementOf(m.position, oldTier) === 'PROMOTED' ? [lo, mid] : [mid, hi], oldTier))
     const { data: newClubs, error: newErr } = await supabase.from('clubs').insert(rows).select('id')
     if (newErr) throw new Error(newErr.message)
 
