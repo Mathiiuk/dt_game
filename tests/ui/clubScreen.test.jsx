@@ -12,6 +12,10 @@ const hireStaff = vi.fn(async () => ({}))
 const confirmAction = vi.fn(async () => true)
 
 vi.mock('../../src/api/club', () => ({ clubApi: { updateClub: vi.fn() } }))
+// Los números del resumen salen de Finanzas (B8): sueldos semanales reales y el flujo de la semana
+vi.mock('../../src/api/finances', () => ({
+  financesApi: { getFinances: vi.fn(async () => ({ expenses: { playerWages: 2900, staffWages: 300 }, expectedWeeklyFlow: -450 })), moveCash: vi.fn() }
+}))
 vi.mock('../../src/api/clubFeatures', () => ({
   staffApi: {
     getStaff: vi.fn(async () => [{ id: 's1', name: 'Marcos Peña', role: 'Preparador físico', level: 2, salary: 4000 }]),
@@ -53,7 +57,10 @@ describe('pantalla Club', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Club Atlético Potrero' })).toBeInTheDocument()
     expect(await screen.findByText('Marcos Peña')).toBeInTheDocument()
     expect(screen.getByText('Tomás Luna')).toBeInTheDocument()
-    expect(screen.getByText('Margen semanal')).toBeInTheDocument()
+    // Mismos números que Finanzas: sueldos de plantel y staff sumados, y lo que entra menos lo que sale
+    expect(screen.getByText('$3.200')).toBeInTheDocument()
+    expect(screen.getByText('-$450')).toBeInTheDocument()
+    expect(screen.queryByText('Margen semanal')).not.toBeInTheDocument()
   })
 
   it('despedir pide confirmación antes de rescindir', async () => {

@@ -34,7 +34,6 @@ const TABS = [
   ['idolos', 'Ídolos y leyendas']
 ]
 
-const WEEKLY_INCOME = 40000
 const PROSPECT_COST = 5000
 
 export default function ClubScreen() {
@@ -48,7 +47,7 @@ export default function ClubScreen() {
   const [showPressModal, setShowPressModal] = useState(false)
 
   const [data, setData] = useState(cachedClubData || {
-    staff: [], youth: [], candidates: [], history: [], idols: [], milestones: [], records: [], salaries: 0
+    staff: [], youth: [], candidates: [], history: [], idols: [], milestones: [], records: [], finances: null
   })
 
   const loadData = async (force = false) => {
@@ -57,7 +56,7 @@ export default function ClubScreen() {
       if (force) queryCache.invalidate(`club:screen:${club.id}`)
 
       const clubData = await queryCache.fetch(`club:screen:${club.id}`, async () => {
-        const [staff, youth, candidates, historyRes, idols, milestones, records, squadRes] = await Promise.all([
+        const [staff, youth, candidates, historyRes, idols, milestones, records, finances] = await Promise.all([
           staffApi.getStaff(club.id),
           academyApi.getYouthPlayers(club.id),
           staffApi.getAvailableStaff(),
@@ -65,11 +64,9 @@ export default function ClubScreen() {
           clubHistoryApi.getIdolsAndLegends(club.id),
           clubHistoryApi.getClubMilestones(club.id),
           clubHistoryApi.getClubRecords(club.id),
-          supabase.from('players').select('contract_salary').eq('club_id', club.id)
+          // Sueldos y flujo semanal: los mismos números que la pantalla Finanzas (antes se calculaban acá con valores fijos)
+          financesApi.getFinances(club.id).catch(() => null)
         ])
-
-        const playerSalaries = squadRes.data?.reduce((sum, p) => sum + Math.round((p.contract_salary || 1000) / 52), 0) || 0
-        const staffSalaries = staff?.reduce((sum, s) => sum + Math.round((s.salary || 1000) / 4), 0) || 0
 
         return {
           staff: staff || [],
@@ -79,7 +76,7 @@ export default function ClubScreen() {
           idols: idols || [],
           milestones: milestones || [],
           records: records || [],
-          salaries: playerSalaries + staffSalaries
+          finances: finances || null
         }
       }, 60000)
 
@@ -158,7 +155,9 @@ export default function ClubScreen() {
     )
   }
 
-  const margin = WEEKLY_INCOME - (data.salaries || 0)
+  const fin = data.finances
+  const salaries = fin ? (fin.expenses?.playerWages || 0) + (fin.expenses?.staffWages || 0) : null
+  const weeklyFlow = fin ? fin.expectedWeeklyFlow || 0 : null
   const refresh = () => loadData(true)
 
   return (
@@ -172,8 +171,8 @@ export default function ClubScreen() {
       <Card className="mb-6">
         <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
           <Stat label="Presupuesto" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl text-accent sm:text-3xl" />
-          <Stat label="Sueldos" value={formatMoney(data.salaries || 0)} hint="plantel y staff por semana" valueClassName="text-2xl sm:text-3xl" />
-          <Stat label="Margen semanal" value={`${margin >= 0 ? '+' : ''}${formatMoney(margin)}`} hint="ingresos estimados menos sueldos" valueClassName={`text-2xl sm:text-3xl ${margin >= 0 ? 'text-accent' : 'text-danger'}`} />
+          <Stat label="Sueldos" value={salaries === null ? '—' : formatMoney(salaries)} hint="plantel y staff por semana" valueClassName="text-2xl sm:text-3xl" />
+          <Stat label="Por semana" value={weeklyFlow === null ? '—' : `${weeklyFlow >= 0 ? '+' : ''}${formatMoney(weeklyFlow)}`} hint="lo que entra menos lo que sale" valueClassName={`text-2xl sm:text-3xl ${weeklyFlow === null ? '' : weeklyFlow >= 0 ? 'text-accent' : 'text-danger'}`} />
           <Stat label="Academia" value={`Nv. ${club?.academy_level || 1}`} hint={`${data.youth.length} juveniles`} valueClassName="text-2xl sm:text-3xl" />
         </CardBody>
       </Card>
