@@ -1,5 +1,4 @@
 import { supabase } from './supabase'
-import { queryCache } from '../utils/cache'
 
 export const agentsApi = {
   BALANCE: {

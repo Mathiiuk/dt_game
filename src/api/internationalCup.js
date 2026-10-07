@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { cupSchedule, cupSeasonYear, qualifiedClubIds, quarterPairs, planTournamentStep, dueUserFixture, isDue, matchDateOf } from '../domain/cupTournament'
+import { cupSchedule, cupSeasonYear, qualifiedClubIds, quarterPairs, planTournamentStep, matchDateOf } from '../domain/cupTournament'
 import { clubHistoryApi } from './clubHistory'
 import { managerApi } from './manager'
 import { auditApi } from './audit'

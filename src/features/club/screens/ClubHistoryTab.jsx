@@ -21,7 +21,7 @@ import { clubHistoryApi } from '../../../api/clubHistory'
 import { supabase } from '../../../api/supabase'
 import { toast } from 'sonner'
 
-export default function ClubHistoryTab({ club, confirmAction, onUpdateClub }) {
+export default function ClubHistoryTab({ club }) {
   const [loading, setLoading] = useState(true)
   const [records, setRecords] = useState([])
   const [milestones, setMilestones] = useState([])

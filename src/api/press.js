@@ -3,7 +3,6 @@ import { answerConsequences, outcomeOf, skipPress } from '../domain/press'
 import { ensureCharacters, rumorBoost } from '../domain/characters'
 import { climateApi } from './climate'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
-import { queryCache } from '../utils/cache'
 import { bingoCard, bingoLines, markCliche } from '../domain/pressRoom'
 
 export const MEDIA_OUTLETS = [
