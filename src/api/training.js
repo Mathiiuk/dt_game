@@ -69,7 +69,7 @@ export const trainingApi = {
     if (!clubId) return { general_focus: 'BALANCED', intensity_level: 'MEDIUM' }
 
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('club_training_plans')
         .select('*')
         .eq('club_id', clubId)

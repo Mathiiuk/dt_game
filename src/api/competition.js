@@ -49,13 +49,15 @@ export const competitionApi = {
     return queryCache.fetch(`standings:${clubId}`, async () => {
       try {
         // 1. Buscar la fila del club en standings
-        let { data: myStanding, error } = await supabase
+        const { data: myStanding, error } = await supabase
           .from('standings')
           .select('id, competition_id, club_id')
           .eq('club_id', clubId)
           .limit(1)
           .maybeSingle()
 
+        // Si la lectura falla no se sabe si ya hay liga: crear otra la duplicaría (el catch muestra la vista segura)
+        if (error) throw new Error(error.message)
         let competitionId = myStanding?.competition_id
 
         // 2. Si no existe, inicializar la liga
