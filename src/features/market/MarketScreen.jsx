@@ -3,6 +3,7 @@ import { Eye, Lock, Search, ShoppingCart, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { marketApi } from '../../api/market'
 import { scoutingApi } from '../../api/scouting'
+import { buybackApi } from '../../api/buyback'
 import { scoutInsights } from '../../domain/scoutInsights'
 import { supabase } from '../../api/supabase'
 import { useGameContext } from '../../context/GameContext'
@@ -40,6 +41,7 @@ export default function MarketScreen() {
   const [onlyAffordable, setOnlyAffordable] = useState(false)
 
   const [ownSquad, setOwnSquad] = useState([])
+  const [rights, setRights] = useState([])
   const [offerPlayer, setOfferPlayer] = useState(null)
   // Sueldo que cobraría el jugador y cómo queda la masa salarial con él: se calcula al abrir la negociación
   const [wageInfo, setWageInfo] = useState(null)
@@ -58,6 +60,7 @@ export default function MarketScreen() {
         supabase.from('players').select('position, attr_overall').eq('club_id', club.id)
       ])
       setOwnSquad(mine || [])
+      setRights(await buybackApi.getRights(club.id).catch(() => []))
       const reports = new Map((scouted || []).map(s => [s.player_id, s]))
 
       setPlayers(list.map(p => {
@@ -98,6 +101,26 @@ export default function MarketScreen() {
     try {
       await scoutingApi.scoutPlayer(club.id, p.id, 'FULL')
       toast.success(`Informe completado para ${p.last_name}`)
+      if (typeof refreshContext === 'function') await refreshContext()
+      loadData()
+    } catch (e) {
+      toast.error(friendlyError(e))
+    }
+  }
+
+  const handleBuyback = async (right) => {
+    const name = `${right.players?.first_name || ''} ${right.players?.last_name || ''}`.trim()
+    const confirmed = await confirmAction({
+      title: `Recomprar a ${name}`,
+      description: `Ejercés la cláusula de recompra: pagás ${formatMoney(right.price)} y el jugador vuelve a tu plantel.`,
+      confirmText: `Recomprar (${formatMoney(right.price)})`,
+      cancelText: 'Cancelar',
+      variant: 'primary'
+    })
+    if (!confirmed) return
+    try {
+      await buybackApi.exercise(club.id, right.id)
+      toast.success(`${name} volvió al club.`)
       if (typeof refreshContext === 'function') await refreshContext()
       loadData()
     } catch (e) {
@@ -193,6 +216,28 @@ export default function MarketScreen() {
           <Stat label="Estado" value={isOpen ? 'Abierto' : 'Cerrado'} hint={isOpen ? 'Podés ofertar' : 'Sólo podés ojear'} valueClassName="text-2xl sm:text-3xl" />
         </CardBody>
       </Card>
+
+      {rights.length > 0 && (
+        <Card as="section" aria-label="Derechos de recompra" className="mb-6">
+          <CardBody className="space-y-2">
+            <h2 className="font-display text-lg font-semibold text-fg">Derechos de recompra</h2>
+            <p className="text-xs text-fg-muted">Jugadores que vendiste con cláusula: podés traerlos de vuelta por el precio pactado hasta que venza.</p>
+            <ul className="divide-y divide-line text-sm">
+              {rights.map(r => (
+                <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+                  <span>
+                    <span className="font-semibold text-fg">{r.players?.first_name} {r.players?.last_name}</span>
+                    <span className="ml-2 text-fg-muted">hasta la temporada {r.expires_season}</span>
+                  </span>
+                  <Button size="sm" variant="outline" disabled={!isOpen || budget < Number(r.price)} onClick={() => handleBuyback(r)} aria-label={`Recomprar a ${r.players?.first_name} ${r.players?.last_name}`}>
+                    Recomprar · {formatMoney(r.price)}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </CardBody>
+        </Card>
+      )}
 
       <section aria-label="Filtros" className="mb-5 space-y-3">
         <ChoiceChips label="Filtrar por línea" value={group} onChange={setGroup} options={POSITION_GROUP_OPTIONS} />

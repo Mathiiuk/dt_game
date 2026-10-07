@@ -20,6 +20,8 @@ const players = [
   { id: '2', first_name: 'Álvaro', last_name: 'Medina', position: 'CM', age: 19, attr_overall: 55, attr_pace: 70, attr_potential: 80, market_value: 50000, clubs: { name: 'Racing' } }
 ]
 
+const exerciseBuyback = vi.fn(async () => ({ price: 10000 }))
+vi.mock('../../src/api/buyback', () => ({ buybackApi: { getRights: vi.fn(async () => [{ id: 'r1', price: 10000, expires_season: 2028, players: { first_name: 'Nico', last_name: 'Paz', position: 'DC', age: 24 } }]), exercise: (...a) => exerciseBuyback(...a) } }))
 const negotiate = vi.fn(async () => ({ status: 'ACCEPTED', price: 42500, upfront: 42500, installments: 1 }))
 const scoutPlayer = vi.fn(async () => ({}))
 let status = { isOpen: true, windowName: 'Libro de Pases de Verano (Abierto)' }
@@ -61,6 +63,16 @@ describe('pantalla Mercado', () => {
     expect(within(lectura).getByText(/puede crecer hasta 80/)).toBeInTheDocument()
     const hugo = cards.find(c => within(c).queryByText('Hugo Ríos'))
     expect(within(hugo).queryByRole('list', { name: 'Lectura del ojeador' })).not.toBeInTheDocument()
+  })
+
+  it('lista los derechos de recompra y ejercerlos pide confirmación y llama a la API', async () => {
+    renderScreen()
+    const section = await screen.findByRole('region', { name: 'Derechos de recompra' })
+    expect(within(section).getByText(/Nico Paz/)).toBeInTheDocument()
+    expect(within(section).getByText(/\$10\.000/)).toBeInTheDocument()
+    await userEvent.click(within(section).getByRole('button', { name: /Recomprar a Nico Paz/ }))
+    await waitFor(() => expect(exerciseBuyback).toHaveBeenCalledWith('c1', 'r1'))
+    expect(confirmAction).toHaveBeenCalled()
   })
 
   it('ojear pide confirmación y llama a la API', async () => {

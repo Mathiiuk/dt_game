@@ -4,6 +4,8 @@ import { toast } from 'sonner'
 import { playerApi } from '../../api/player'
 import { contractApi } from '../../api/contracts'
 import { loansApi } from '../../api/loans'
+import { buybackApi } from '../../api/buyback'
+import { buybackTerms } from '../../domain/buyback'
 import { climateApi } from '../../api/climate'
 import { saleWarning } from '../../domain/warnings'
 import { askRisk } from '../../lib/risk'
@@ -245,6 +247,26 @@ export default function SquadScreen() {
       setIsProcessing(true)
       await contractApi.resolveOffer(offer.id, 'ACCEPTED', offer.player_id, offer.from_club_id, club.id, offer.amount, manager?.id)
       toast.success(`Venta cerrada: ${formatMoney(offer.amount)} por el traspaso.`)
+
+      // Opción de dejar una cláusula de recompra: el 10% de la venta ahora, y recomprarlo por el 125% durante dos temporadas
+      const terms = buybackTerms(offer.amount)
+      if (terms.cost > 0) {
+        const wantsClause = await confirmAction({
+          title: '¿Dejar una cláusula de recompra?',
+          description: `Pagás ${formatMoney(terms.cost)} ahora (el 10% de la venta) y durante dos temporadas podés recomprar a ${offer.players?.last_name || 'el jugador'} por ${formatMoney(terms.price)}.`,
+          confirmText: `Dejar cláusula (${formatMoney(terms.cost)})`,
+          cancelText: 'No, gracias',
+          variant: 'primary'
+        })
+        if (wantsClause) {
+          try {
+            await buybackApi.grant(club.id, offer.player_id)
+            toast.success('Cláusula de recompra registrada. La ves en el mercado.')
+          } catch (clauseErr) {
+            toast.error(friendlyError(clauseErr))
+          }
+        }
+      }
       await afterChange()
     } catch (e) {
       toast.error(friendlyError(e))

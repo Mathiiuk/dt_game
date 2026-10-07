@@ -26,7 +26,7 @@ const setTransferStatus = vi.fn(async () => ({}))
 vi.mock('../../src/context/GameContext', () => ({
   useGameContext: () => ({
     club: { id: 'c1', budget: 94916, squad_morale: 72, squad_cohesion: 40, current_week: 3 },
-    manager: { id: 'm1' }, loading: false, refreshContext: vi.fn(), confirmAction
+    manager: { id: 'm1' }, loading: false, refreshContext: vi.fn(), confirmAction, confirmRisk: vi.fn(async () => true)
   })
 }))
 vi.mock('../../src/api/player', () => ({ playerApi: { getSquad: vi.fn(async () => players) } }))
@@ -41,6 +41,9 @@ vi.mock('../../src/api/contracts', () => ({
 }))
 const loanOut = vi.fn(async () => ({ borrowerName: 'Juventud Unida', wageSaved: 500 }))
 vi.mock('../../src/api/loans', () => ({ loansApi: { loanOut: (...a) => loanOut(...a), getLoans: vi.fn(async () => ({ players: [{ id: '9', first_name: 'Nico', last_name: 'Paz', contract_salary: 400, clubs: { name: 'Almagro Regional' } }], weeklySaving: 400 })) } }))
+const grantBuyback = vi.fn(async () => ({ cost: 1000, price: 12500, expiresSeason: 2028 }))
+vi.mock('../../src/api/buyback', () => ({ buybackApi: { grant: (...a) => grantBuyback(...a) } }))
+vi.mock('../../src/api/climate', () => ({ climateApi: { getReferentFlags: vi.fn(async () => ({})), difficulty: { key: 'NORMAL', negative: 1, positive: 1 } } }))
 vi.mock('../../src/api/personalities', () => ({
   personalitiesApi: { syncSquadPersonalities: vi.fn(async () => []) },
   PERSONALITY_ARCHETYPES: {}
@@ -114,6 +117,19 @@ describe('pantalla Plantel', () => {
     expect(within(section).getByText(/Nico Paz/)).toBeInTheDocument()
     expect(within(section).getByText(/Almagro Regional/)).toBeInTheDocument()
     expect(within(section).getByText(/\$400/)).toBeInTheDocument()
+  })
+
+  it('al aceptar una oferta se puede dejar una cláusula de recompra: 10% ahora y recompra al 125%', async () => {
+    resolveOffer.mockResolvedValueOnce({ status: 'ACCEPTED' })
+    renderScreen()
+    const aside = await screen.findByRole('complementary', { name: 'Ofertas y vestuario' })
+    await userEvent.click(await within(aside).findByRole('button', { name: /Aceptar/ }))
+    await waitFor(() => expect(grantBuyback).toHaveBeenCalledWith('c1', '3'))
+    const asked = confirmAction.mock.calls.map(c => c[0].title)
+    expect(asked).toContain('¿Dejar una cláusula de recompra?')
+    const clause = confirmAction.mock.calls.find(c => c[0].title === '¿Dejar una cláusula de recompra?')[0]
+    expect(clause.description).toMatch(/\$1\.000/)
+    expect(clause.description).toMatch(/\$12\.500/)
   })
 
   it('poner en venta abre el panel con precios sugeridos y guarda el estado', async () => {
