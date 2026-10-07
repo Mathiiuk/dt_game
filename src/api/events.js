@@ -337,13 +337,20 @@ export const eventsApi = {
     }
 
     // 3. Aplicar consecuencias financieras y de confianza al club
-    let moneyDelta = 0
-    if (club) {
-      const budgetDelta = (effects.budget || 0) - cost
-      moneyDelta = budgetDelta
-      const newBudget = Number(club.budget || 0) + budgetDelta
-
-      await supabase.from('clubs').update({ budget: newBudget }).eq('id', event.club_id)
+    // El costo de la opción y el efecto sobre la caja van juntos al servidor (que ya verificó los fondos del costo arriba);
+    // el efecto puede dejar la caja en rojo, por eso se permite el saldo negativo
+    const moneyDelta = (effects.budget || 0) - cost
+    if (moneyDelta !== 0) {
+      const { financesApi } = await import('./finances')
+      await financesApi.moveCash({
+        clubId: event.club_id,
+        amount: moneyDelta,
+        category: 'DECISION',
+        description: `Decisión: ${event.title || event.event_type || 'dilema'}`,
+        careerId: event.career_id || null,
+        allowNegative: true,
+        ref: `evt:${event.id}`
+      })
     }
 
     // Hinchada, dirigencia, vestuario, barra, favores y acciones especiales pasan por el clima del club,

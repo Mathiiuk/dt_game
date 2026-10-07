@@ -201,23 +201,13 @@ export const stadiumApi = {
       throw new Error(`ERR_INSUFFICIENT_FUNDS_FOR_UPGRADE: Saldo insuficiente. Se requieren $${projectDef.cost.toLocaleString()}`)
     }
 
-    // 3. Debitar fondos y registrar libro mayor contable (Fase 20)
-    const newBudget = (club.budget || 0) - projectDef.cost
-    await supabase
-      .from('clubs')
-      .update({ budget: newBudget })
-      .eq('id', clubId)
-
-    try {
-      await financesApi.recordLedgerTransaction({
-        clubId,
-        category: 'INFRASTRUCTURE',
-        amount: -projectDef.cost,
-        description: `Inicio de obra: ${projectDef.name} (${projectDef.durationWeeks} sem)`
-      })
-    } catch (e) {
-      console.warn('Aviso ledger contable estadio:', e)
-    }
+    // 3. Debitar fondos en el servidor (verifica la caja y escribe el libro mayor contable en la misma transacción)
+    await financesApi.moveCash({
+      clubId,
+      amount: -projectDef.cost,
+      category: 'INFRASTRUCTURE',
+      description: `Inicio de obra: ${projectDef.name} (${projectDef.durationWeeks} sem)`
+    })
 
     // 4. Crear registro en stadium_projects
     const { data: newProject, error: projErr } = await supabase
