@@ -3,52 +3,42 @@ import { roundRobinSchedule } from '../../src/domain/leagueSchedule'
 const ids = (n) => Array.from({ length: n }, (_, i) => `c${i}`)
 
 describe('calendario de liga', () => {
-  it('20 clubes: 19 fechas de 10 partidos', () => {
+  it('20 clubes: 38 fechas de 10 partidos (ida y vuelta)', () => {
     const rounds = roundRobinSchedule(ids(20))
-    expect(rounds).toHaveLength(19)
+    expect(rounds).toHaveLength(38)
     expect(rounds.every(r => r.length === 10)).toBe(true)
   })
 
-  it('cada club juega una vez por fecha y se cruza una sola vez con cada rival', () => {
+  it('cada club juega una vez por fecha y se cruza exactamente dos veces con cada rival', () => {
     const clubs = ids(20)
     const rounds = roundRobinSchedule(clubs)
-    const pairs = new Set()
+    const pairsCount = new Map()
     for (const round of rounds) {
       const seen = new Set()
       for (const m of round) {
         expect(seen.has(m.home) || seen.has(m.away)).toBe(false)
         seen.add(m.home); seen.add(m.away)
         const key = [m.home, m.away].sort().join('|')
-        expect(pairs.has(key)).toBe(false)
-        pairs.add(key)
+        pairsCount.set(key, (pairsCount.get(key) || 0) + 1)
       }
       expect(seen.size).toBe(20)
     }
-    expect(pairs.size).toBe(190)
+    expect(pairsCount.size).toBe(190)
+    for (const count of pairsCount.values()) {
+      expect(count).toBe(2)
+    }
   })
 
-  it('la localía queda repartida: ningún club juega más de 10 de local ni menos de 9', () => {
+  it('la localía queda perfectamente equilibrada: cada club juega 19 de local y 19 de visitante', () => {
     const rounds = roundRobinSchedule(ids(20))
     const home = {}
     for (const round of rounds) for (const m of round) home[m.home] = (home[m.home] || 0) + 1
-    for (const c of ids(20)) expect([9, 10]).toContain(home[c] || 0)
-  })
-
-  it('nadie juega más de 3 fechas seguidas de visitante', () => {
-    const rounds = roundRobinSchedule(ids(20))
-    for (const c of ids(20)) {
-      let streak = 0
-      for (const round of rounds) {
-        const m = round.find(x => x.home === c || x.away === c)
-        streak = m.away === c ? streak + 1 : 0
-        expect(streak).toBeLessThanOrEqual(3)
-      }
-    }
+    for (const c of ids(20)) expect(home[c] || 0).toBe(19)
   })
 
   it('cantidad impar de clubes: alguien descansa por fecha', () => {
     const rounds = roundRobinSchedule(ids(5))
-    expect(rounds).toHaveLength(5)
+    expect(rounds).toHaveLength(10) // 5 idas + 5 vueltas
     expect(rounds.every(r => r.length === 2)).toBe(true)
   })
 

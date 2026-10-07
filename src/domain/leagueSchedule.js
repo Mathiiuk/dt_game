@@ -1,5 +1,6 @@
-// Calendario de liga: todos contra todos, una sola rueda (n - 1 fechas), con la localía repartida parejo.
+// Calendario de liga: todos contra todos, ida y vuelta (2 * (n - 1) fechas), con la localía repartida parejo.
 // Método del círculo: un club queda fijo y el resto rota; la localía se alterna para que ningún club juegue casi todo de visitante.
+// En la segunda rueda, se invierten las localías exactas de la primera rueda.
 export function roundRobinSchedule(clubIds) {
   const teams = [...(clubIds || [])]
   if (teams.length < 2) return []
@@ -7,12 +8,13 @@ export function roundRobinSchedule(clubIds) {
   const n = teams.length
   const fixed = teams[n - 1]
   const rotating = teams.slice(0, n - 1)
-  const rounds = []
-  // Balance de localía por club: se le da la localía a quien más la debe (menos partidos de local) y, a igualdad, a quien viene de visitante
+  
+  // Balance de localía por club
   const home = new Map(teams.map(t => [t, 0]))
   const away = new Map(teams.map(t => [t, 0]))
   const awayRun = new Map(teams.map(t => [t, 0]))
 
+  const primeraRueda = []
   for (let r = 0; r < n - 1; r++) {
     const ring = [...rotating.slice(r), ...rotating.slice(0, r)]
     const matches = []
@@ -27,7 +29,13 @@ export function roundRobinSchedule(clubIds) {
       away.set(m.away, away.get(m.away) + 1); awayRun.set(m.away, awayRun.get(m.away) + 1)
       matches.push(m)
     }
-    rounds.push(matches)
+    primeraRueda.push(matches)
   }
-  return rounds
+
+  // Segunda Rueda (Vuelta): se invierten las localías de la primera rueda
+  const segundaRueda = primeraRueda.map(round => 
+    round.map(m => ({ home: m.away, away: m.home }))
+  )
+
+  return [...primeraRueda, ...segundaRueda]
 }
