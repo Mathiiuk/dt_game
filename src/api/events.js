@@ -516,7 +516,7 @@ export const eventsApi = {
 
     const selected = pickEvent(FULL_EVENTS_CATALOG, {
       climate: state.climate,
-      state: { favors: state.favors, scandals: state.scandals, barra: state.barra_stage },
+      state: { favors: state.favors, scandals: state.scandals, barra: state.barra_stage, pressure: state.pressure },
       pendingCodes: new Set(pending.map(p => p.template_code))
     })
     if (!selected) return

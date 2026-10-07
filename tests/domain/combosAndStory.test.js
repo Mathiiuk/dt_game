@@ -111,3 +111,27 @@ describe('historia de un descenso', () => {
     expect(story.lines[0]).toBe('Potrero terminó 19.º y descendió.')
   })
 })
+
+describe('más combos', () => {
+  it('caja en rojo y dos derrotas seguidas: el palco pregunta quién firma los cheques', () => {
+    const [c] = detectCombos({ cash: -500, streaks: { loss: 2 } })
+    expect(c).toMatchObject({ key: 'EMPTY_COFFERS', kind: COMBO_KIND.VICIOUS })
+    expect(c.effects.board).toBeLessThan(0)
+    expect(detectCombos({ cash: 5000, streaks: { loss: 2 } })).toEqual([])
+    expect(detectCombos({ cash: -500, streaks: { loss: 1 } })).toEqual([])
+  })
+  it('cuatro victorias seguidas con la enfermería llena: el grupo se hace fuerte', () => {
+    const [c] = detectCombos({ streaks: { win: 4 }, injuredCount: 3 })
+    expect(c).toMatchObject({ key: 'GRIT_WINS', kind: COMBO_KIND.COMBO })
+    expect(c.effects.locker).toBeGreaterThan(0)
+    expect(detectCombos({ streaks: { win: 4 }, injuredCount: 2 })).toEqual([])
+  })
+  it('plata en caja y tres victorias: el presidente se anima a hablar de refuerzos', () => {
+    const [c] = detectCombos({ cash: 25000, streaks: { win: 3 }, price: 10 })
+    expect(c).toMatchObject({ key: 'FUNDED_MOMENTUM', kind: COMBO_KIND.COMBO })
+    expect(detectCombos({ cash: 25000, streaks: { win: 2 } })).toEqual([])
+  })
+  it('un combo por semana como mucho de cada clase repetida: la misma racha no dispara dos veces', () => {
+    expect(detectCombos({ streaks: { win: 5 }, injuredCount: 3, cash: 25000 })).toEqual([])
+  })
+})
