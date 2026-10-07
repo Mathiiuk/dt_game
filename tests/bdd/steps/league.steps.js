@@ -23,7 +23,7 @@ Then('cada club juega entre {int} y {int} partidos de local', function (min, max
   for (const c of this.clubs) assert.ok(home[c] >= min && home[c] <= max, `${c} juega ${home[c]} de local`)
 })
 
-Then('ningún club juega más de {int} fechas seguidas de visitante', function (max) {
+Then('ningAn club juega mAs de {int} fechas seguidas de visitante', function (max) {
   for (const c of this.clubs) {
     let run = 0
     for (const r of this.rounds) {
@@ -34,14 +34,18 @@ Then('ningún club juega más de {int} fechas seguidas de visitante', function (
   }
 })
 
-Then('cada par de clubes se cruza exactamente una vez', function () {
-  const seen = new Set()
-  for (const r of this.rounds) for (const m of r) {
-    const key = [m.home, m.away].sort().join('|')
-    assert.ok(!seen.has(key), `repetido ${key}`)
-    seen.add(key)
+Then('cada par de clubes se cruza exactamente dos veces', function () {
+  const seen = {}
+  for (const r of this.rounds) {
+    for (const m of r) {
+      const key = [m.home, m.away].sort().join('|')
+      seen[key] = (seen[key] || 0) + 1
+    }
   }
-  assert.equal(seen.size, (this.clubs.length * (this.clubs.length - 1)) / 2)
+  for (const [key, count] of Object.entries(seen)) {
+    assert.equal(count, 2, `esperado 2 partidos entre ${key}, hubo ${count}`)
+  }
+  assert.equal(Object.keys(seen).length, (this.clubs.length * (this.clubs.length - 1)) / 2)
 })
 
 Given('la fecha del juego es {word}', function (fecha) {
