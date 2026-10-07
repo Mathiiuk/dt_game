@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { matchAttendance } from '../domain/attendance'
 import { ensureRow } from '../utils/ensureRow'
 import { queryCache } from '../utils/cache'
 
@@ -71,25 +72,10 @@ export const fanbaseApi = {
     const casualPotential = fanbase?.casual_fanbase_potential || 2500
     const supportScore = fanbase?.fan_support_score || 65
 
-    // Elasticidad de precio
-    const recommendedPrice = FANBASE_BALANCE.RECOMMENDED_TICKET_PRICE
-    const priceRatio = Math.max(0.1, recommendedPrice / Math.max(1, ticketPrice))
-    const priceElasticity = Math.min(1.2, Math.pow(priceRatio, 1.6))
-
-    // Factor racha de victorias
-    const formMultiplier = Math.max(0.7, 0.9 + (recentWins * 0.08))
-
-    // Factor Clásico
-    const derbyMultiplier = isDerby ? FANBASE_BALANCE.DERBY_BONUS_MULTIPLIER : 1.0
-
-    // Demanda de entradas
-    const supportWeight = supportScore / 100
-    const casualDemand = casualPotential * supportWeight * formMultiplier * derbyMultiplier * priceElasticity
-    const totalDemand = loyalMembers + casualDemand
-
-    // La asistencia nunca cae por debajo de socios fieles ni supera la capacidad
-    const attendance = Math.min(stadiumCapacity, Math.max(loyalMembers, Math.round(totalDemand)))
-    const capacityFillPercentage = Number(((attendance / Math.max(1, stadiumCapacity)) * 100).toFixed(1))
+    // Asistencia: fórmula pura compartida con la base (domain/attendance.js)
+    const { attendance, totalDemand, fillPct: capacityFillPercentage } = matchAttendance({
+      loyal: loyalMembers, casual: casualPotential, support: supportScore, price: ticketPrice, isDerby, recentWins, capacity: stadiumCapacity
+    })
 
     // Factor Caldera (+0% a +8% ventaja en el campo)
     const fillFactor = (capacityFillPercentage / 100) * 0.05
@@ -100,7 +86,7 @@ export const fanbaseApi = {
       attendance,
       capacityFillPercentage,
       homeAdvantageBonus,
-      totalDemand: Math.round(totalDemand),
+      totalDemand,
       loyalMembers,
       isSoldOut: attendance >= stadiumCapacity
     }

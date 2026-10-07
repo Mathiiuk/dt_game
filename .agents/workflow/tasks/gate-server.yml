@@ -1,0 +1,32 @@
+id: gate-server
+external_ref: ''
+title: La taquilla la calcula y acredita el servidor
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar La taquilla la calcula y acredita el servidor
+acceptance_criteria:
+  - Criterio de aceptación 1 para La taquilla la calcula y acredita el servidor
+requires_approval: false
+quality_gates:
+  lint: true
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd

@@ -329,14 +329,16 @@ export const postMatchApi = {
       const ticketPrice = Number(clubData?.ticket_price) || 10.0
 
       let computed = null
+      let recentWins = 0
       try {
+        recentWins = (await moraleApi.getStreaks(clubId, 5)).results.filter(r => r === 'W').length
         const { fanbaseApi } = await import('./fanbase')
         computed = await fanbaseApi.computeMatchAttendance({
           clubId,
           stadiumCapacity: capacity,
           ticketPrice,
           isDerby: Boolean(result.isDerby),
-          recentWins: (await moraleApi.getStreaks(clubId, 5)).results.filter(r => r === 'W').length
+          recentWins
         })
       } catch (err) {
         console.warn('Fallback attendance computation:', err)
@@ -349,19 +351,33 @@ export const postMatchApi = {
       netIncome = gate.net
 
       if (clubData && netIncome > 0) {
-        // La taquilla entra por el servidor, una sola vez por partido (la referencia evita acreditarla dos veces).
-        // El cobro, la auditoría, la atmósfera de la tribuna y el desgaste del césped no dependen entre sí
+        // La taquilla la calcula y acredita el servidor (`settle_gate`), una sola vez por partido y solo por un partido de local
+        // ya jugado. El cobro, la auditoría, la atmósfera de la tribuna y el desgaste del césped no dependen entre sí
         await Promise.all([
           (async () => {
+            // Mientras no haya respuesta del servidor no se muestra ni se cuenta ningún ingreso
+            let settled = null
             try {
-              const { financesApi } = await import('./finances')
-              await financesApi.moveCash({
-                clubId, amount: netIncome, category: 'MATCH_DAY', allowNegative: true,
-                description: `Taquilla: ${attendance} espectadores a $${ticketPrice} (neto de seguridad y logística)`,
-                ref: fixtureId ? `gate:${fixtureId}` : null
-              })
+              if (fixtureId) {
+                const { data, error } = await supabase.rpc('settle_gate', {
+                  p_club_id: clubId, p_fixture_id: fixtureId, p_is_derby: Boolean(result.isDerby),
+                  p_recent_wins: recentWins, p_career_id: null
+                })
+                if (error) throw new Error(error.message)
+                settled = data
+              }
             } catch (ledgerErr) {
-              console.warn('Aviso: no se pudo acreditar la taquilla:', ledgerErr)
+              console.warn('Aviso: no se pudo liquidar la taquilla:', ledgerErr)
+            }
+            if (settled) {
+              attendance = settled.attendance
+              grossIncome = settled.gross
+              operatingCost = settled.operating
+              netIncome = settled.already_done ? 0 : settled.net
+            } else {
+              grossIncome = 0
+              operatingCost = 0
+              netIncome = 0
             }
           })(),
           Promise.resolve(auditApi.logAction({

@@ -16,6 +16,8 @@ const { log, gates, step, deferred } = vi.hoisted(() => {
   return { log, gates, step, deferred }
 })
 
+const gate = vi.hoisted(() => ({ error: null }))
+
 const players = [
   { id: 'p1', first_name: 'A', last_name: 'Uno', position: 'PO', age: 25, attr_overall: 60, state_fitness: 90, state_morale: 70 },
   { id: 'p2', first_name: 'B', last_name: 'Dos', position: 'DC', age: 25, attr_overall: 62, state_fitness: 90, state_morale: 70 }
@@ -35,7 +37,7 @@ vi.mock('../../src/api/supabase', () => {
     q.then = (resolve) => resolve({ data: table === 'players' ? players : [], error: null })
     return q
   }
-  return { supabase: { from: chain, rpc: async () => ({}) } }
+  return { supabase: { from: chain, rpc: async (fn) => { if (fn === 'settle_gate') { await step('libro')(); if (gate.error) return { data: null, error: { message: gate.error } }; return { data: { attendance: 800, gross: 8000, operating: 3200, net: 4800, already_done: false }, error: null } } return {} } } }
 })
 
 vi.mock('../../src/api/manager', () => ({ managerApi: {} }))
@@ -51,7 +53,6 @@ vi.mock('../../src/api/fanbase', () => ({
     recordMatchAtmosphere: step('atmosfera')
   }
 }))
-vi.mock('../../src/api/finances', () => ({ financesApi: { moveCash: step('libro') } }))
 vi.mock('../../src/api/stadium', () => ({ stadiumApi: { degradePitchHomeMatch: step('cesped') } }))
 vi.mock('../../src/api/board', () => ({ boardApi: { updateConfidenceAfterMatch: step('directiva') } }))
 vi.mock('../../src/api/climate', () => ({
@@ -105,6 +106,20 @@ describe('orden del post-partido', () => {
     gates.directiva.resolve()
     await running
     expect(log).toContain('end:clima')
+  })
+
+  it('la taquilla que se muestra y se cuenta es la que liquidó el servidor', async () => {
+    gate.error = null
+    const res = await run()
+    expect(res).toMatchObject({ matchIncome: 4800, attendance: 800 })
+  })
+
+  it('si el servidor rechaza la taquilla no se cuenta ningún ingreso', async () => {
+    gate.error = 'Partido no válido para liquidar la taquilla.'
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const res = await run()
+    expect(res.matchIncome).toBe(0)
+    gate.error = null
   })
 
   it('un paso lateral que falla no impide que el resto termine', async () => {
