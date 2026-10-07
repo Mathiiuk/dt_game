@@ -28,5 +28,6 @@ Disallow: /more
 Disallow: /match
 Disallow: /post-match
 Disallow: /endgame
+Disallow: /logbook
 
 Sitemap: https://vestuario.com.ar/sitemap.xml
