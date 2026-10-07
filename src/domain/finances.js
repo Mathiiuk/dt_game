@@ -2,6 +2,8 @@
  * Reglas puras de la pantalla de Finanzas: instalaciones, costos de mejora, precios de entrada y salud financiera.
  */
 
+import { tierIncomeFactor } from './pyramid'
+
 export const TICKET_PRICES = [6, 8, 10, 14, 18]
 
 /**
@@ -32,10 +34,11 @@ export const ECONOMY = {
  */
 export function weeklyBudget({ club = {}, players = [], staff = [] } = {}) {
   const sum = (list, f) => list.reduce((t, x) => t + Number(f(x) || 0), 0)
+  const tier = tierIncomeFactor(club.league_tier)
   const income = {
-    members: Math.round(ECONOMY.members * ECONOMY.memberDue),
-    sponsors: ECONOMY.sponsorBase + (club.reputation ?? 15) * ECONOMY.sponsorPerReputation,
-    tv: ECONOMY.tvRights,
+    members: Math.round(Math.round(ECONOMY.members * ECONOMY.memberDue) * tier),
+    sponsors: Math.round((ECONOMY.sponsorBase + (club.reputation ?? 15) * ECONOMY.sponsorPerReputation) * tier),
+    tv: Math.round(ECONOMY.tvRights * tier),
     store: storeWeeklyIncome(club.store_level)
   }
   const expenses = {

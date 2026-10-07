@@ -1,4 +1,4 @@
-import { movementOf, tierStrengthRange, wageFactorFor, TOP_TIER, BOTTOM_TIER } from '../../src/domain/pyramid'
+import { movementOf, tierStrengthRange, wageFactorFor, tierIncomeFactor, TOP_TIER, BOTTOM_TIER } from '../../src/domain/pyramid'
 
 describe('pirámide de divisiones', () => {
   it('los dos primeros suben y los tres últimos bajan', () => {
@@ -22,5 +22,12 @@ describe('pirámide de divisiones', () => {
     expect(wageFactorFor('PROMOTED')).toBe(1.8)
     expect(wageFactorFor('RELEGATED')).toBe(0.85)
     expect(wageFactorFor('STAY')).toBe(1.1)
+  })
+})
+
+describe('ingresos por categoría', () => {
+  it('cada escalón hacia arriba suma 50% a los ingresos fijos', () => {
+    expect([5, 4, 3, 2, 1].map(tierIncomeFactor)).toEqual([1, 1.5, 2, 2.5, 3])
+    expect(tierIncomeFactor(undefined)).toBe(1)
   })
 })

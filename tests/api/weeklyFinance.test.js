@@ -65,6 +65,16 @@ describe('paridad de la economía semanal con la base', () => {
     expect(w.expenses.academyMaint).toBe(200)
   })
 
+  it('en una categoría más alta los ingresos fijos (socios, patrocinio y TV) crecen 50% por escalón; la tienda no', () => {
+    const base = { reputation: 15, stadium_level: 1, academy_level: 1, store_level: 1 }
+    const w3 = weeklyBudget({ club: { ...base, league_tier: 3 }, players: [], staff: [] })
+    expect(w3.income).toEqual({ members: 560, sponsors: 1040, tv: 660, store: 150 })
+    const w1 = weeklyBudget({ club: { ...base, league_tier: 1 }, players: [], staff: [] })
+    expect(w1.income).toEqual({ members: 840, sponsors: 1560, tv: 990, store: 150 })
+    const w5 = weeklyBudget({ club: { ...base, league_tier: 5 }, players: [], staff: [] })
+    expect(w5.income).toEqual({ members: 280, sponsors: 520, tv: 330, store: 150 })
+  })
+
   it('sin sueldo cargado se toma 500 por jugador y 120 por integrante del cuerpo técnico; nivel 0 cuenta como 1', () => {
     const w = weeklyBudget({ club: { reputation: 10, stadium_level: 0, academy_level: 0, store_level: 0 }, players: [{}, {}], staff: [{}] })
     expect(w.expenses.playerWages).toBe(1000)

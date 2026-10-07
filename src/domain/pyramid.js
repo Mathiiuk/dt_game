@@ -20,3 +20,6 @@ export const tierStrengthRange = (tier) => {
 }
 
 export const wageFactorFor = (movement) => (movement === 'PROMOTED' ? 1.8 : movement === 'RELEGATED' ? 0.85 : 1.1)
+
+/** Ingresos fijos (socios, patrocinio y TV): +50% por escalón hacia arriba, para que ascender no deje al club sin caja frente a su nuevo presupuesto salarial */
+export const tierIncomeFactor = (tier) => 1 + 0.5 * (BOTTOM_TIER - (tier || BOTTOM_TIER))
