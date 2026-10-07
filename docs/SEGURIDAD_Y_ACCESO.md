@@ -9,23 +9,21 @@ Este documento no tiene claves. Las claves se cargan **solo** en los paneles (Su
 | **reCAPTCHA v3 en el servidor** | Alta, ingreso y recuperar clave pasan por la función `auth-gate`, que verifica el token con la clave secreta, la acción, el dominio y un puntaje mínimo (0,5) antes de tocar la cuenta | `supabase/functions/auth-gate`, `src/lib/recaptcha.js`, `src/api/auth.js` |
 | **Ingreso con Google** | Botón "Continuar con Google" en ingreso y alta; la carrera inicial se crea al leer la sesión por primera vez | `src/api/auth.js`, `src/features/auth/AuthScreen.jsx` |
 | **Correos con Resend** | Bienvenida desde `no-contestar@vestuario.com.ar` con respuesta a `hola@vestuario.com.ar`, una sola vez por cuenta, siempre al correo de quien tiene la sesión | `supabase/functions/send-email`, `src/api/email.js` |
-| **Base cerrada por dueño** | Cada fila pertenece a la cuenta que la creó y solo esa cuenta la ve y la modifica; la clave pública sin sesión no puede tocar nada | `scripts/db/migration_rls_owner_isolation.sql` (**sin aplicar, ver abajo**) |
+| **Base cerrada por dueño** | Cada fila pertenece a la cuenta que la creó y solo esa cuenta la ve y la modifica; la clave pública sin sesión no puede tocar nada | `scripts/db/migration_rls_owner_isolation.sql` (**aplicada y verificada el 7/10/2026**) |
 
 Sin `RECAPTCHA_SITE_KEY` la app sigue funcionando por el camino directo (útil en desarrollo). Con la clave puesta, el alta y el ingreso **fallan cerrados**: si la función no responde, no se entra.
 
 ## Pasos que tenés que hacer vos (en este orden)
 
-### 1. Cerrar la base (lo bloqueó el sistema de permisos, no lo apliqué)
-La migración borra todas las políticas abiertas, agrega la columna `owner_user_id` a todas las tablas de juego y revoca permisos a la clave pública. Está probada solo en teoría: la base ya está vacía (la limpié), así que es el mejor momento.
-- Abrila en `scripts/db/migration_rls_owner_isolation.sql`, revisala y pegala en **Supabase > SQL Editor**, o decime que la aplique yo y confirmame en el chat.
-- Después hay que hacer un recorrido completo con una cuenta nueva (alta, DT, club, partido, avanzar semana, mercado) para ver que nada se rompe.
+### 1. Cerrar la base — **HECHO**
+La migración está aplicada y verificada con una cuenta real (alta, DT, club, partido, semana, mercado, temporada completa). Las filas anteriores a la migración quedaron sin dueño: `scripts/db/cleanup_orphan_rows.sql` las borra cuando lo pidas.
 
-### 2. Secretos de las funciones (Supabase > Edge Functions > Secrets)
+### 2. Secretos de las funciones (Supabase > Edge Functions > Secrets) — **HECHO**
 - `RECAPTCHA_SECRET`: la clave secreta de reCAPTCHA v3.
 - `RESEND_API_KEY`: la clave de Resend.
 - Opcional: `ALLOWED_ORIGINS` (por defecto: `https://dt-game.vercel.app`, `https://vestuario.com.ar`, `https://www.vestuario.com.ar` y `http://localhost:5173`) y `RECAPTCHA_MIN_SCORE` (0,5 por defecto).
 
-### 3. Desplegar las dos funciones
+### 3. Desplegar las dos funciones — **HECHO el 7/10/2026** (`auth-gate` sin JWT y `send-email` con JWT, desplegadas desde `supabase/functions`)
 ```bash
 npx supabase functions deploy auth-gate --no-verify-jwt --project-ref qozozdaavjfxvssvxqbx
 npx supabase functions deploy send-email --project-ref qozozdaavjfxvssvxqbx
@@ -49,7 +47,7 @@ npx supabase functions deploy send-email --project-ref qozozdaavjfxvssvxqbx
 - Para **recibir** respuestas en `hola@vestuario.com.ar` sí hace falta una casilla o un reenvío (por ejemplo, reenvío de correo de tu proveedor de DNS). Es un servicio aparte de Resend.
 - Para que también los correos de Supabase (confirmar cuenta, recuperar clave) salgan por Resend: **Authentication > SMTP Settings**: host `smtp.resend.com`, puerto `465`, usuario `resend`, contraseña = tu clave de Resend, remitente `no-contestar@vestuario.com.ar`.
 
-### 7. Ajustes de Supabase pendientes
+### 7. Ajustes de Supabase pendientes (los que siguen sin hacerse; el asesor de seguridad de Supabase solo marca "contraseñas filtradas")
 - **Authentication > Providers > Email**: activar "Confirm email".
 - **Authentication > Attack Protection**: activar la protección de contraseñas filtradas.
 - **Settings > Database**: rotar la contraseña de la base (la histórica sigue sin rotar).
