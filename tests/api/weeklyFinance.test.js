@@ -49,15 +49,15 @@ describe('paridad de la economía semanal con la base', () => {
 
   it('club inicial: reputación 20, tienda 1, estadio 1, cantera 1, plantel de 20 que cobra 130', () => {
     const w = weeklyBudget({ club: { reputation: 20, stadium_level: 1, academy_level: 1, store_level: 1 }, players: players(20, 130), staff: [] })
-    expect(w.income).toEqual({ members: 280, sponsors: 510, tv: 250, store: 150 })
+    expect(w.income).toEqual({ members: 280, sponsors: 560, tv: 330, store: 150 })
     expect(w.expenses).toEqual({ playerWages: 2600, staffWages: 0, stadiumMaint: 260, academyMaint: 100 })
-    expect(w.totalIncome).toBe(1190)
+    expect(w.totalIncome).toBe(1320)
     expect(w.totalExpenses).toBe(2960)
   })
 
   it('reputación 15 y tienda de nivel 3 con dos del cuerpo técnico', () => {
     const w = weeklyBudget({ club: { reputation: 15, stadium_level: 2, academy_level: 2, store_level: 3 }, players: players(18, 110), staff: [{ wage_weekly: 100 }, { salary: 80 }] })
-    expect(w.income.sponsors).toBe(470)
+    expect(w.income.sponsors).toBe(520)
     expect(w.income.store).toBe(450)
     expect(w.expenses.playerWages).toBe(1980)
     expect(w.expenses.staffWages).toBe(180)
