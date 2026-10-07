@@ -23,6 +23,9 @@ jobs:
       - name: 📥 Instalar Dependencias
         run: npm install
 
+      - name: 🔎 Lint (ESLint)
+        run: npm run lint
+
       - name: 🧪 Ejecutar Pruebas Unitarias
         run: npm test
 

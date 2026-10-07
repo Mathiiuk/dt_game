@@ -10,10 +10,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:bdd": "cucumber-js --tags @auto",
-    "test:bdd:docs": "cucumber-js --dry-run --no-strict"
+    "test:bdd:docs": "cucumber-js --dry-run --no-strict",
+    "lint": "eslint . --max-warnings=54"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^13.3.0",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -21,6 +23,9 @@
     "@testing-library/user-event": "^14.6.7",
     "@vitejs/plugin-react-swc": "^4.3.3",
     "autoprefixer": "^10.6.1",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
     "jsdom": "^30.1.1",
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",

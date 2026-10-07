@@ -30,6 +30,9 @@ jobs:
       - name: 📥 Instalar npm (Vite build)
         run: npm install
 
+      - name: 🔎 Lint (ESLint)
+        run: npm run lint
+
       - name: 🧪 Ejecutar Pruebas Unitarias
         run: npm test
 

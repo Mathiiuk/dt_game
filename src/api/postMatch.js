@@ -549,7 +549,9 @@ export const postMatchApi = {
     // 8. Logros de carrera
     try {
       achievementsApi.evaluateAchievements(managerId, clubId).catch(() => {})
-    } catch (e) {}
+    } catch (e) {
+      // Los logros no frenan el cierre del partido
+    }
 
     await xpWrite
 
