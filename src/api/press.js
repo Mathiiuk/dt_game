@@ -4,6 +4,7 @@ import { ensureCharacters, rumorBoost } from '../domain/characters'
 import { climateApi } from './climate'
 import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 import { bingoCard, bingoLines, markCliche } from '../domain/pressRoom'
+import { toneHistory, memoryQuestion, situationQuestion } from '../domain/pressSituations'
 
 export const MEDIA_OUTLETS = [
   { name: 'FM El Aguante 91.5', journalist: 'Horacio "El Turco" Méndez', tier: 5 },
@@ -225,12 +226,10 @@ export const pressApi = {
       ]
     })
 
-    // PREGUNTA 3: Clásico o Clima del Club
-    if (isDerby || Math.random() > 0.4) {
-      const outlet3 = MEDIA_OUTLETS[2]
-      questionsList.push({
+    // PREGUNTA 3: Clásico o Clima del Club (candidata: entra si es clásico, o con 60% si no hay nada más para preguntar)
+    const outlet3 = MEDIA_OUTLETS[2]
+    const generalQuestion = {
         conference_id: conference.id,
-        order_index: 3,
         journalist_name: outlet3.journalist,
         media_outlet: outlet3.name,
         topic_category: isDerby ? 'NEXT_DERBY_HYPE' : 'TACTICAL_CHOICE',
@@ -263,8 +262,25 @@ export const pressApi = {
             boardReaction: 'Autocrítica rigurosa.'
           }
         ]
-      })
     }
+
+    // Situación (racha, ex jugador del rival, refuerzo que fue la figura) y memoria de cómo contestaste: la conferencia sigue siendo
+    // corta (hasta 4 preguntas) y las que dependen de lo que pasa pasan al frente de la pregunta de clima de siempre
+    const [pressCtx, tones] = await Promise.all([
+      this.buildPressContext({ clubId, fixtureId, mvpPlayer }),
+      this.toneMemory(clubId)
+    ])
+    const dynamicQuestions = [situationQuestion(pressCtx), memoryQuestion(tones)].filter(Boolean)
+    const extras = []
+    if (isDerby) extras.push({ ...generalQuestion })
+    extras.push(...dynamicQuestions.map((q, i) => ({
+      conference_id: conference.id,
+      journalist_name: MEDIA_OUTLETS[(2 + i + (isDerby ? 1 : 0)) % MEDIA_OUTLETS.length].journalist,
+      media_outlet: MEDIA_OUTLETS[(2 + i + (isDerby ? 1 : 0)) % MEDIA_OUTLETS.length].name,
+      ...q
+    })))
+    if (!isDerby && extras.length === 0 && Math.random() > 0.4) extras.push({ ...generalQuestion })
+    extras.slice(0, 2).forEach((q, i) => questionsList.push({ ...q, order_index: 3 + i }))
 
     // Insertar preguntas en BD
     const { data: insertedQuestions, error: qaErr } = await supabase
@@ -279,6 +295,61 @@ export const pressApi = {
     return {
       conference,
       questions: (insertedQuestions || questionsList).sort((a, b) => a.order_index - b.order_index)
+    }
+  },
+
+  /**
+   * Lo que está pasando alrededor del partido, para que el periodista pregunte por eso: rachas del club, si la figura es un
+   * refuerzo de esta temporada y si el rival tiene a un ex jugador del club. Cada dato que no se puede leer se omite.
+   */
+  async buildPressContext({ clubId, fixtureId = null, mvpPlayer = null }) {
+    const ctx = {}
+    try {
+      const { moraleApi } = await import('./morale')
+      const streaks = await moraleApi.getStreaks(clubId, 8)
+      ctx.winStreak = streaks.win || 0
+      ctx.lossStreak = streaks.loss || 0
+      ctx.unbeaten = streaks.unbeaten || 0
+    } catch (e) {
+      console.warn('Aviso: no se pudieron leer las rachas para la prensa:', e)
+    }
+    try {
+      const { data: club } = await supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle()
+      const season = club?.game_date ? seasonYearOf(club.game_date) : null
+      if (mvpPlayer?.id && season !== null) {
+        const { data: buys } = await supabase.from('transfer_audit_log').select('player_id').eq('to_club_id', clubId).eq('season_year', season)
+        if ((buys || []).some(b => b.player_id === mvpPlayer.id)) ctx.mvpSigningName = mvpPlayer.name
+      }
+      if (fixtureId) {
+        const { data: fx } = await supabase.from('fixtures').select('home_club_id, away_club_id').eq('id', fixtureId).maybeSingle()
+        const opponentId = fx ? (fx.home_club_id === clubId ? fx.away_club_id : fx.home_club_id) : null
+        if (opponentId) {
+          const { data: sold } = await supabase.from('transfer_audit_log').select('player_id').eq('from_club_id', clubId).eq('to_club_id', opponentId).limit(3)
+          if (sold?.length) {
+            const { data: p } = await supabase.from('players').select('first_name, last_name').eq('id', sold[0].player_id).maybeSingle()
+            if (p) ctx.exPlayerName = `${p.first_name} ${p.last_name}`.trim()
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Aviso: no se pudo leer el contexto de traspasos para la prensa:', e)
+    }
+    return ctx
+  },
+
+  /** Cómo contestaste en las últimas conferencias (más nuevo primero): el periodista lo recuerda */
+  async toneMemory(clubId) {
+    try {
+      const { data } = await supabase
+        .from('press_conferences')
+        .select('press_qa_items(chosen_tone, order_index)')
+        .eq('club_id', clubId)
+        .order('created_at', { ascending: false })
+        .limit(4)
+      return toneHistory(data || [])
+    } catch (e) {
+      console.warn('Aviso: no se pudo leer el historial de tonos de la prensa:', e)
+      return []
     }
   },
 
