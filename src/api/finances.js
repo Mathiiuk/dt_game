@@ -233,17 +233,36 @@ export const financesApi = {
   },
 
   /**
+   * Mueve la caja del club en el servidor (`club_cash_move`): verifica fondos, actualiza la caja y escribe el asiento en una
+   * transacción. Importe positivo = ingreso, negativo = gasto. `allowNegative` deja la caja en rojo (multas, consecuencias).
+   * `ref` evita cobrar dos veces el mismo movimiento.
+   */
+  async moveCash({ clubId, amount, category, description, careerId = null, allowNegative = false, ref = null }) {
+    const { data, error } = await supabase.rpc('club_cash_move', {
+      p_club_id: clubId, p_amount: amount, p_category: category, p_description: description,
+      p_career_id: careerId, p_allow_negative: allowNegative, p_ref: ref
+    })
+    if (error) throw new Error(error.message)
+    queryCache.invalidate(`finances:${clubId}`)
+    queryCache.invalidate('club:')
+    return { newBudget: Number(data?.new_budget ?? 0), moved: Boolean(data?.moved) }
+  },
+
+  /**
    * Mejorar nivel de instalación edilicia
    */
   async upgradeFacility(clubId, facilityType, cost, currentLevel) {
     const { data: club } = await supabase.from('clubs').select('budget').eq('id', clubId).single()
     if (!club || club.budget < cost) throw new Error('Presupuesto insuficiente')
-    
-    const updates = { budget: club.budget - cost }
-    updates[facilityType] = currentLevel + 1
-    
-    const { error } = await supabase.from('clubs').update(updates).eq('id', clubId)
-    if (error) throw new Error(error.message)
+
+    // El cobro lo hace el servidor; el navegador solo sube el nivel de la instalación
+    await this.moveCash({ clubId, amount: -cost, category: 'FACILITY', description: `Mejora de instalaciones (${facilityType}) al nivel ${currentLevel + 1}` })
+    const { error } = await supabase.from('clubs').update({ [facilityType]: currentLevel + 1 }).eq('id', clubId)
+    if (error) {
+      // Si el nivel no se pudo guardar se devuelve el cobro
+      await this.moveCash({ clubId, amount: cost, category: 'REFUND', description: `Devolución por mejora no aplicada (${facilityType})`, allowNegative: true }).catch(() => {})
+      throw new Error(error.message)
+    }
 
     queryCache.invalidate('finances:')
     queryCache.invalidate('club:')
