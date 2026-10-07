@@ -1,13 +1,16 @@
--- Ingresos fijos por categoría (A2, segunda pasada).
---
--- Al ascender el presupuesto salarial sube 80% pero los ingresos fijos seguían iguales: un club ascendido no podía sostener su plantel.
--- Socios, patrocinio y televisión crecen 50% por escalón hacia arriba (factor 1, 1.5, 2, 2.5, 3 de la quinta a la primera categoría);
--- la tienda no cambia (depende de la inversión del club). Mismo factor en src/domain/pyramid.js (`tierIncomeFactor`).
+-- Fix para close_week_finances: autorizar actualización de clubs.budget con app.server_result = '1' y fijar search_path
+-- Corrige el error en producción: "la caja del club la mueve el servidor" / HTTP 400 en /rpc/close_week_finances
 
-create or replace function public.close_week_finances(p_club_id uuid, p_season_year integer, p_week integer, p_career_id uuid default null)
-returns jsonb language plpgsql
-set search_path to 'public', 'pg_temp'
-as $$
+CREATE OR REPLACE FUNCTION public.close_week_finances(
+  p_club_id uuid,
+  p_season_year integer,
+  p_week integer,
+  p_career_id uuid DEFAULT NULL::uuid
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SET search_path TO 'public', 'pg_temp'
+AS $function$
 declare
   club public.clubs%rowtype;
   first_fixture date;
@@ -26,14 +29,25 @@ declare
   total_expenses numeric;
   line record;
 begin
+  -- Habilitar modificación de clubs.budget bajo el trigger trg_protect_club_cash
   perform set_config('app.server_result', '1', true);
 
   select * into club from public.clubs where id = p_club_id and manager_id is not null for update;
   if not found then raise exception 'Club no encontrado.'; end if;
 
   -- Idempotente: si la semana ya tiene su cierre, no se cobra de nuevo
-  if exists (select 1 from public.financial_transactions_ledger where club_id = p_club_id and season_year = p_season_year and week_number = p_week and category = 'SALARY') then
-    return jsonb_build_object('closed', false, 'already_closed', true, 'income', 0, 'expenses', 0, 'board_aid', 0, 'new_budget', coalesce(club.budget, 0));
+  if exists (
+    select 1 from public.financial_transactions_ledger
+    where club_id = p_club_id and season_year = p_season_year and week_number = p_week and category = 'SALARY'
+  ) then
+    return jsonb_build_object(
+      'closed', false,
+      'already_closed', true,
+      'income', 0,
+      'expenses', 0,
+      'board_aid', 0,
+      'new_budget', coalesce(club.budget, 0)
+    );
   end if;
 
   select round(coalesce(sum(coalesce(contract_salary, 500)), 0)) into player_wages from public.players where club_id = p_club_id;
@@ -49,7 +63,9 @@ begin
   -- Pretemporada: antes del primer partido de liga la dirigencia cubre el 100% de los sueldos del plantel (M11)
   if p_week <= 8 then
     select min(match_date) into first_fixture from public.fixtures where home_team_id = p_club_id or away_team_id = p_club_id;
-    if first_fixture is not null and club.game_date::date < first_fixture then aid := round(player_wages); end if;
+    if first_fixture is not null and club.game_date::date < first_fixture then
+      aid := round(player_wages);
+    end if;
   end if;
 
   balance := coalesce(club.budget, 0);
@@ -71,10 +87,22 @@ begin
     -- El asiento de sueldos se registra siempre (es la marca de cierre); los demás solo si tienen importe
     continue when line.amount = 0 and line.category <> 'SALARY';
     balance := balance + line.amount;
-    insert into public.financial_transactions_ledger (career_id, club_id, season_year, week_number, category, amount, balance_after, description)
-    values (p_career_id, p_club_id, p_season_year, p_week, line.category, line.amount, balance, line.description);
+    insert into public.financial_transactions_ledger (
+      career_id, club_id, season_year, week_number, category, amount, balance_after, description
+    )
+    values (
+      p_career_id, p_club_id, p_season_year, p_week, line.category, line.amount, balance, line.description
+    );
   end loop;
 
   update public.clubs set budget = balance where id = p_club_id;
-  return jsonb_build_object('closed', true, 'already_closed', false, 'income', total_income - aid, 'expenses', total_expenses, 'board_aid', aid, 'new_budget', balance);
-end $$;
+
+  return jsonb_build_object(
+    'closed', true,
+    'already_closed', false,
+    'income', total_income - aid,
+    'expenses', total_expenses,
+    'board_aid', aid,
+    'new_budget', balance
+  );
+end $function$;

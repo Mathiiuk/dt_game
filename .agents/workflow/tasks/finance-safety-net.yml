@@ -1,0 +1,32 @@
+id: finance-safety-net
+external_ref: ''
+title: M11 - Red de contencion financiera
+type: feat
+status: PLANNED
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar M11 - Red de contencion financiera
+acceptance_criteria:
+  - Criterio de aceptación 1 para M11 - Red de contencion financiera
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd
