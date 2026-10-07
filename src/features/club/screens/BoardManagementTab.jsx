@@ -86,7 +86,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
     AVOID_RELEGATION: 'Mantener la categoría / Luchar por la permanencia',
     MID_TABLE: 'Consolidación en mitad de tabla sin sobresaltos',
     TOP_HALF: 'Clasificar en la mitad superior de la tabla',
-    PLAYOFFS: 'Alcanzar el Reducido / Playoffs de Ascenso',
+    PLAYOFFS: 'Terminar entre los seis primeros',
     AUTOMATIC_PROMOTION: 'Pelear el Ascenso Directo',
     CHAMPION: 'Salir Campeón de la División'
   }

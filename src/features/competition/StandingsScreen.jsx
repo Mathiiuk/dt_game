@@ -7,7 +7,7 @@ import { useGameContext } from '../../context/GameContext'
 import { isSeasonEnded } from '../../domain/gameWeek'
 import { divisionName } from '../../domain/divisions'
 import { queryCache } from '../../utils/cache'
-import { FORM_LABELS, ZONES, formatDiff, goalDiff, parseForm, zoneOf } from '../../domain/standings'
+import { FORM_LABELS, formatDiff, goalDiff, parseForm, zoneLegend, zoneOf } from '../../domain/standings'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, EmptyState, PageHeader, Skeleton } from '../../components/ui'
 import LeaguePyramidModal from './LeaguePyramidModal'
@@ -25,6 +25,7 @@ export default function StandingsScreen() {
   const [loading, setLoading] = useState(true)
   const [standings, setStandings] = useState([])
   const [refreshing, setRefreshing] = useState(false)
+  const [loadError, setLoadError] = useState(false)
   const [showPyramid, setShowPyramid] = useState(false)
 
   const loadData = async (force = false) => {
@@ -35,9 +36,13 @@ export default function StandingsScreen() {
         queryCache.invalidate(`standings:${club.id}`)
       }
       setStandings((await competitionApi.getStandings(club.id)) || [])
+      setLoadError(false)
     } catch (e) {
       console.error('Error cargando tabla de posiciones:', e)
-      toast.error('No se pudo sincronizar la tabla de posiciones.')
+      // Sin datos reales no se muestra ninguna tabla: queda el aviso con "Reintentar"
+      setStandings([])
+      setLoadError(true)
+      if (force) toast.error('No se pudo cargar la tabla de posiciones.')
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -73,6 +78,8 @@ export default function StandingsScreen() {
   }
 
   const total = standings.length
+  const tier = club?.league_tier || 5
+  const legend = zoneLegend(tier, total)
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8">
@@ -86,26 +93,27 @@ export default function StandingsScreen() {
               <RefreshCw className={refreshing ? 'animate-spin' : ''} />
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate('/calendar')}><Calendar />Calendario</Button>
-            <Button variant="outline" size="sm" onClick={() => setShowPyramid(true)}><Layers />Pirámide y reducido</Button>
+            <Button variant="outline" size="sm" onClick={() => setShowPyramid(true)}><Layers />Pirámide</Button>
             {seasonEnded && <Button size="sm" onClick={() => navigate('/dashboard')}><Trophy />Cierre anual</Button>}
           </>
         }
       />
 
-      <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-fg-muted" aria-label="Referencias de zonas">
-        {[
-          [ZONES.PROMOTION, '1º - 2º'],
-          [ZONES.PLAYOFF, '3º - 6º'],
-          [ZONES.RELEGATION, 'últimos 3']
-        ].map(([zone, range]) => (
-          <li key={zone.id} className="flex items-center gap-1.5">
-            <span className={cn('size-2.5 rounded-full', zone.dot)} aria-hidden="true" />
-            {zone.label} ({range})
-          </li>
-        ))}
-      </ul>
+      {legend.length > 0 && !loadError && (
+        <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-fg-muted" aria-label="Referencias de zonas">
+          {legend.map(([zone, range]) => (
+            <li key={zone.id} className="flex items-center gap-1.5">
+              <span className={cn('size-2.5 rounded-full', zone.dot)} aria-hidden="true" />
+              {zone.label} ({range})
+            </li>
+          ))}
+          {tier >= 5 && <li>En esta división no hay descensos</li>}
+        </ul>
+      )}
 
-      {total === 0 ? (
+      {loadError ? (
+        <Card as="div"><EmptyState icon={RefreshCw} title="No pudimos cargar la tabla" description="Revisá tu conexión y probá de nuevo." action={<Button onClick={() => loadData(true)} loading={refreshing}>Reintentar</Button>} /></Card>
+      ) : total === 0 ? (
         <Card as="div"><EmptyState icon={Trophy} title="Sin clasificación" description="Todavía no hay partidos jugados en esta competencia." /></Card>
       ) : (
         <Card as="div" className="overflow-hidden">
@@ -128,7 +136,7 @@ export default function StandingsScreen() {
               {standings.map((s, idx) => {
                 const mine = s.club_id === club.id
                 const pos = idx + 1
-                const zone = zoneOf(pos, total)
+                const zone = zoneOf(pos, total, tier)
                 const diff = goalDiff(s)
                 return (
                   <tr key={s.id || idx} aria-current={mine ? 'true' : undefined} className={cn('border-l-4', zone.border, mine && 'bg-accent-soft')}>
@@ -170,8 +178,6 @@ export default function StandingsScreen() {
         <LeaguePyramidModal
           club={club}
           currentTier={club?.league_tier || 5}
-          careerId={club?.career_id}
-          seasonYear={club?.current_season_year || 2026}
           onClose={() => setShowPyramid(false)}
         />
       )}

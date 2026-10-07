@@ -7,7 +7,7 @@ import { JOB_MAX_ROUNDS } from '../../domain/jobNegotiation'
 const OBJECTIVES = {
   CHAMPION: 'Salir campeón del torneo',
   PROMOTION: 'Lograr el ascenso de categoría',
-  TOP_HALF: 'Clasificar al reducido',
+  TOP_HALF: 'Terminar en la mitad de arriba',
   MID_TABLE: 'Mitad de tabla cómoda',
   AVOID_RELEGATION: 'Evitar el descenso'
 }

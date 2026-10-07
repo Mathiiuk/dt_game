@@ -135,12 +135,13 @@ describe.each([['escritorio', true], ['móvil', false]])('modales migrados (%s)'
     expect(screen.getByRole('button', { name: /Iniciar mentoría/ })).toBeDisabled()
   })
 
-  it('LeaguePyramidModal marca la división actual y ofrece la pestaña del reducido', async () => {
+  it('LeaguePyramidModal marca la división actual y muestra lo que pasa de verdad: dos ascensos y, en la última, ningún descenso', async () => {
     render(<LeaguePyramidModal club={club} onClose={() => {}} />)
     expect(await screen.findByText('Torneo Regional')).toBeInTheDocument()
     expect(screen.getByText('Tu división')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('tab', { name: /Torneo reducido/ }))
-    expect(screen.getByText('Las llaves aún no existen')).toBeInTheDocument()
+    expect(screen.getByText('2 ascensos directos')).toBeInTheDocument()
+    expect(screen.getByText('Sin descensos')).toBeInTheDocument()
+    expect(screen.queryByText(/reducido/i)).not.toBeInTheDocument()
   })
 
   it('StaffManagementModal muestra puestos ocupados y vacantes', async () => {

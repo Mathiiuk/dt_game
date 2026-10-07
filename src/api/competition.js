@@ -6,36 +6,6 @@ import { pickRivalClubs } from '../domain/rivalClubs'
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 
-// Lista de clubes regionales para poblar la división Tier 5
-export const DEFAULT_REGION_CLUBS = [
-  { name: 'Deportivo Central', short_name: 'DCE' },
-  { name: 'Atlético Belgrano', short_name: 'ATB' },
-  { name: 'Defensores del Valle', short_name: 'DDV' },
-  { name: 'Juventud Unida', short_name: 'JUN' },
-  { name: 'Social y Deportivo Rivadavia', short_name: 'SDR' },
-  { name: 'Estudiantes del Norte', short_name: 'EDN' },
-  { name: 'Unión Ferroviaria', short_name: 'UFE' },
-  { name: 'Club Náutico Costanera', short_name: 'CNC' },
-  { name: 'San Martín Social', short_name: 'SMS' },
-  { name: 'Sportivo Balcarce', short_name: 'SPB' },
-  { name: 'Club Atlético Mitre', short_name: 'CAM' },
-  { name: 'Racing de la Pampa', short_name: 'RLP' },
-  { name: 'Tiro Federal Argentino', short_name: 'TFA' },
-  { name: 'Huracán del Sur', short_name: 'HDS' },
-  { name: 'Almagro Regional', short_name: 'ALM' },
-  { name: 'Independiente de la Ribera', short_name: 'IDR' },
-  { name: 'Talleres del Parque', short_name: 'TDP' },
-  { name: 'Club Barrio Jardín', short_name: 'CBJ' },
-  { name: 'Deportivo Sarmiento', short_name: 'DSA' }
-]
-
-export const getZoneForPosition = (pos) => {
-  if (pos <= 2) return { id: 'PROMOTION', label: 'Ascenso Directo', color: 'emerald' }
-  if (pos <= 6) return { id: 'PLAYOFF', label: 'Zona Reducido / Playoff', color: 'cyan' }
-  if (pos >= 18) return { id: 'RELEGATION', label: 'Zona Descenso', color: 'red' }
-  return { id: 'MID_TABLE', label: 'Zona Media', color: 'zinc' }
-}
-
 // Creaciones de liga en vuelo por club (evita carreras entre createClub y getStandings)
 const leagueInit = new Map()
 
@@ -47,97 +17,42 @@ export const competitionApi = {
     if (!clubId) return []
 
     return queryCache.fetch(`standings:${clubId}`, async () => {
-      try {
-        // 1. Buscar la fila del club en standings
-        const { data: myStanding, error } = await supabase
-          .from('standings')
-          .select('id, competition_id, club_id')
-          .eq('club_id', clubId)
-          .limit(1)
-          .maybeSingle()
+      // 1. Buscar la fila del club en standings
+      const { data: myStanding, error } = await supabase
+        .from('standings')
+        .select('id, competition_id, club_id')
+        .eq('club_id', clubId)
+        .limit(1)
+        .maybeSingle()
 
-        // Si la lectura falla no se sabe si ya hay liga: crear otra la duplicaría (el catch muestra la vista segura)
-        if (error) throw new Error(error.message)
-        let competitionId = myStanding?.competition_id
+      // Si la lectura falla no se sabe si ya hay liga: crear otra la duplicaría. El error llega a la pantalla,
+      // que ofrece reintentar (antes se mostraba una tabla inventada)
+      if (error) throw new Error(error.message)
 
-        // 2. Si no existe, inicializar la liga
-        if (!competitionId) {
-          competitionId = await this.initializeLeague(clubId)
-        }
+      // 2. Si no existe, inicializar la liga
+      const competitionId = myStanding?.competition_id || await this.initializeLeague(clubId)
+      if (!competitionId) return []
 
-        // 3. Consultar todos los clubes de la competición con ordenamiento canónico
-        if (competitionId) {
-          const { data: allStandings, error: allErr } = await supabase
-            .from('standings')
-            .select('*, clubs(name, short_name, primary_color)')
-            .eq('competition_id', competitionId)
+      // 3. Consultar todos los clubes de la competición
+      const { data: allStandings, error: allErr } = await supabase
+        .from('standings')
+        .select('*, clubs(name, short_name, primary_color)')
+        .eq('competition_id', competitionId)
+      if (allErr) throw new Error(allErr.message)
 
-          if (!allErr && allStandings && allStandings.length > 0) {
-            // Aplicar criterios de desempate en memoria autoritativos:
-            // 1. Puntos DESC, 2. Diferencia de Gol DESC, 3. Goles a Favor DESC, 4. Nombre ASC
-            const sorted = allStandings.map(s => ({
-              ...s,
-              goal_difference: (s.goals_for || 0) - (s.goals_against || 0),
-              club_name: s.clubs?.name || 'Club de Liga',
-              club_short: s.clubs?.short_name || 'CLB'
-            })).sort((a, b) => {
-              if (b.points !== a.points) return b.points - a.points
-              if (b.goal_difference !== a.goal_difference) return b.goal_difference - a.goal_difference
-              if (b.goals_for !== a.goals_for) return b.goals_for - a.goals_for
-              return (a.club_name || '').localeCompare(b.club_name || '')
-            })
-
-            return sorted.map((s, idx) => ({
-              ...s,
-              position: idx + 1,
-              zone: getZoneForPosition(idx + 1)
-            }))
-          }
-        }
-      } catch (err) {
-        console.warn('Aviso: error obteniendo standings desde DB, generando vista segura:', err)
-      }
-
-      // Fallback seguro: Nunca mostrar pantalla en negro
-      return this.generateFallbackStandings(clubId)
+      // Criterios de desempate: 1. Puntos, 2. Diferencia de gol, 3. Goles a favor, 4. Nombre
+      return (allStandings || []).map(s => ({
+        ...s,
+        goal_difference: (s.goals_for || 0) - (s.goals_against || 0),
+        club_name: s.clubs?.name || 'Club de Liga',
+        club_short: s.clubs?.short_name || 'CLB'
+      })).sort((x, y) => {
+        if (y.points !== x.points) return y.points - x.points
+        if (y.goal_difference !== x.goal_difference) return y.goal_difference - x.goal_difference
+        if (y.goals_for !== x.goals_for) return y.goals_for - x.goals_for
+        return (x.club_name || '').localeCompare(y.club_name || '')
+      }).map((s, idx) => ({ ...s, position: idx + 1 }))
     }, 30000)
-  },
-
-  /**
-   * Genera una tabla de 20 clubes con el club del usuario para garantizar 0ms de carga sin pantallas negras.
-   */
-  generateFallbackStandings(clubId) {
-    const list = [
-      { id: clubId, name: 'Tu Club', short_name: 'CLUB', points: 3, played: 1, won: 1, drawn: 0, lost: 0, goals_for: 2, goals_against: 0, goal_difference: 2, form: 'V' },
-      ...DEFAULT_REGION_CLUBS.map((c, i) => ({
-        id: `bot_club_${i}`,
-        name: c.name,
-        short_name: c.short_name,
-        points: Math.max(0, 3 - Math.floor(i / 6)),
-        played: 1,
-        won: i < 5 ? 1 : 0,
-        drawn: i >= 5 && i < 12 ? 1 : 0,
-        lost: i >= 12 ? 1 : 0,
-        goals_for: Math.max(0, 2 - (i % 3)),
-        goals_against: Math.max(0, i % 2),
-        goal_difference: Math.max(-2, 2 - (i % 3) - (i % 2)),
-        form: i < 5 ? 'V' : (i < 12 ? 'E' : 'D')
-      }))
-    ]
-
-    list.sort((a, b) => {
-      if (b.points !== a.points) return b.points - a.points
-      if (b.goal_difference !== a.goal_difference) return b.goal_difference - a.goal_difference
-      return b.goals_for - a.goals_for
-    })
-
-    return list.map((s, idx) => ({
-      ...s,
-      club_id: s.id,
-      position: idx + 1,
-      zone: getZoneForPosition(idx + 1),
-      clubs: { name: s.name, short_name: s.short_name }
-    }))
   },
 
   /**

@@ -1,20 +1,35 @@
 /**
  * Lógica pura de la tabla de posiciones: zonas, diferencia de gol y racha.
  */
+import { BOTTOM_TIER, PROMOTED_SPOTS, RELEGATED_SPOTS, TOP_TIER } from './pyramid'
 
 export const ZONES = {
   PROMOTION: { id: 'PROMOTION', label: 'Ascenso directo', border: 'border-l-accent', dot: 'bg-accent' },
-  PLAYOFF: { id: 'PLAYOFF', label: 'Reducido / playoff', border: 'border-l-gold', dot: 'bg-gold' },
   RELEGATION: { id: 'RELEGATION', label: 'Zona de descenso', border: 'border-l-danger', dot: 'bg-danger' },
   NONE: { id: 'NONE', label: '', border: 'border-l-transparent', dot: '' }
 }
 
-/** Zona de la posición `pos` (1 = líder) en una tabla de `total` clubes: 1-2 ascenso, 3-6 reducido, últimos 3 descenso */
-export const zoneOf = (pos, total) => {
-  if (pos <= 2) return ZONES.PROMOTION
-  if (pos <= 6) return ZONES.PLAYOFF
-  if (total > 8 && pos > total - 3) return ZONES.RELEGATION
+const hasPromotion = (tier) => tier > TOP_TIER
+// En tablas muy chicas (pruebas, ligas incompletas) no se marca descenso
+const hasRelegation = (tier, total) => tier < BOTTOM_TIER && total > 8
+
+/**
+ * Zona de la posición `pos` (1 = líder) en una tabla de `total` clubes de la división `tier`.
+ * Sale de las mismas reglas que el cierre de temporada (domain/pyramid): suben los dos primeros salvo en Primera
+ * y bajan los tres últimos salvo en la última división.
+ */
+export const zoneOf = (pos, total, tier = BOTTOM_TIER) => {
+  if (hasPromotion(tier) && pos <= PROMOTED_SPOTS) return ZONES.PROMOTION
+  if (hasRelegation(tier, total) && pos > total - RELEGATED_SPOTS) return ZONES.RELEGATION
   return ZONES.NONE
+}
+
+/** Referencias que corresponden a la división: [zona, rango de puestos] */
+export const zoneLegend = (tier = BOTTOM_TIER, total = 20) => {
+  const legend = []
+  if (hasPromotion(tier)) legend.push([ZONES.PROMOTION, `1º - ${PROMOTED_SPOTS}º`])
+  if (hasRelegation(tier, total)) legend.push([ZONES.RELEGATION, `últimos ${RELEGATED_SPOTS}`])
+  return legend
 }
 
 export const goalDiff = (s) => (s.goals_for || 0) - (s.goals_against || 0)

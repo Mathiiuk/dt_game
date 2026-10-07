@@ -1,7 +1,7 @@
 vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 
 import { calculateXpForLevel, getHonorificTitle } from '../../src/api/levels'
-import { getZoneForPosition } from '../../src/api/competition'
+import { zoneOf } from '../../src/domain/standings'
 
 describe('niveles del DT', () => {
   it('la curva de XP es estrictamente creciente y arranca en 0', () => {
@@ -23,11 +23,11 @@ describe('niveles del DT', () => {
 })
 
 describe('zonas de la tabla', () => {
-  it('clasifica ascenso, playoff, zona media y descenso', () => {
-    expect(getZoneForPosition(1).id).toBe('PROMOTION')
-    expect(getZoneForPosition(2).id).toBe('PROMOTION')
-    expect(getZoneForPosition(4).id).toBe('PLAYOFF')
-    expect(getZoneForPosition(10).id).toBe('MID_TABLE')
-    expect(getZoneForPosition(19).id).toBe('RELEGATION')
+  it('clasifica ascenso, zona media y descenso en una división intermedia (sin reducido)', () => {
+    expect(zoneOf(1, 20, 3).id).toBe('PROMOTION')
+    expect(zoneOf(2, 20, 3).id).toBe('PROMOTION')
+    expect(zoneOf(4, 20, 3).id).toBe('NONE')
+    expect(zoneOf(10, 20, 3).id).toBe('NONE')
+    expect(zoneOf(19, 20, 3).id).toBe('RELEGATION')
   })
 })

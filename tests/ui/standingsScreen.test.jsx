@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen, within, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { zoneOf, goalDiff, formatDiff, parseForm } from '../../src/domain/standings'
+import { zoneLegend, zoneOf, goalDiff, formatDiff, parseForm } from '../../src/domain/standings'
 
 vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 
@@ -12,18 +12,27 @@ const rows = Array.from({ length: 10 }, (_, i) => ({
 }))
 const getStandings = vi.fn(async () => rows)
 vi.mock('../../src/api/competition', () => ({ competitionApi: { getStandings: (...a) => getStandings(...a) } }))
-vi.mock('../../src/context/GameContext', () => ({ useGameContext: () => ({ club: { id: 'c1' }, loading: false, confirmAction: vi.fn(async () => false) }) }))
+const club = { id: 'c1', league_tier: 5 }
+vi.mock('../../src/context/GameContext', () => ({ useGameContext: () => ({ club, loading: false, confirmAction: vi.fn(async () => false) }) }))
 vi.mock('../../src/features/competition/LeaguePyramidModal', () => ({ default: () => <div role="dialog" aria-label="Pirámide" /> }))
 
 import StandingsScreen from '../../src/features/competition/StandingsScreen'
 
 describe('dominio de la tabla', () => {
-  it('asigna zonas según posición y tamaño de la tabla', () => {
-    expect(zoneOf(1, 20).id).toBe('PROMOTION')
-    expect(zoneOf(5, 20).id).toBe('PLAYOFF')
-    expect(zoneOf(10, 20).id).toBe('NONE')
-    expect(zoneOf(18, 20).id).toBe('RELEGATION')
-    expect(zoneOf(8, 10).id).toBe('RELEGATION')
+  it('asigna zonas según posición, tamaño de la tabla y división', () => {
+    expect(zoneOf(1, 20, 4).id).toBe('PROMOTION')
+    expect(zoneOf(5, 20, 4).id).toBe('NONE')
+    expect(zoneOf(18, 20, 4).id).toBe('RELEGATION')
+    expect(zoneOf(8, 10, 4).id).toBe('RELEGATION')
+  })
+  it('la última división no tiene descenso y Primera no tiene ascenso', () => {
+    expect(zoneOf(20, 20, 5).id).toBe('NONE')
+    expect(zoneOf(2, 20, 5).id).toBe('PROMOTION')
+    expect(zoneOf(1, 20, 1).id).toBe('NONE')
+    expect(zoneOf(19, 20, 1).id).toBe('RELEGATION')
+    expect(zoneLegend(5).map(([z]) => z.id)).toEqual(['PROMOTION'])
+    expect(zoneLegend(1).map(([z]) => z.id)).toEqual(['RELEGATION'])
+    expect(zoneLegend(3).map(([z]) => z.id)).toEqual(['PROMOTION', 'RELEGATION'])
   })
   it('diferencia de gol y racha', () => {
     expect(goalDiff({ goals_for: 3, goals_against: 5 })).toBe(-2)
@@ -34,6 +43,32 @@ describe('dominio de la tabla', () => {
 })
 
 describe('pantalla Tabla', () => {
+  beforeEach(() => { club.league_tier = 5; getStandings.mockReset(); getStandings.mockImplementation(async () => rows) })
+
+  it('en la última división no marca descenso ni muestra el reducido', async () => {
+    render(<MemoryRouter><StandingsScreen /></MemoryRouter>)
+    const table = await screen.findByRole('table', { name: 'Tabla de posiciones' })
+    expect(within(table).queryByText(/Zona de descenso/)).not.toBeInTheDocument()
+    expect(screen.getByText('En esta división no hay descensos')).toBeInTheDocument()
+    expect(screen.queryByText(/Reducido/i)).not.toBeInTheDocument()
+  })
+
+  it('en una división intermedia marca a los tres últimos en descenso', async () => {
+    club.league_tier = 3
+    render(<MemoryRouter><StandingsScreen /></MemoryRouter>)
+    const table = await screen.findByRole('table', { name: 'Tabla de posiciones' })
+    expect(within(table).getAllByText(/Zona de descenso/)).toHaveLength(3)
+  })
+
+  it('si la carga falla no inventa una tabla: avisa y deja reintentar', async () => {
+    getStandings.mockRejectedValueOnce(new Error('fallo de red'))
+    render(<MemoryRouter><StandingsScreen /></MemoryRouter>)
+    expect(await screen.findByText('No pudimos cargar la tabla')).toBeInTheDocument()
+    expect(screen.queryByRole('table')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Reintentar' }))
+    expect(await screen.findByRole('table', { name: 'Tabla de posiciones' })).toBeInTheDocument()
+  })
+
   it('lista los clubes en una tabla accesible y resalta al propio', async () => {
     render(<MemoryRouter><StandingsScreen /></MemoryRouter>)
     const table = await screen.findByRole('table', { name: 'Tabla de posiciones' })
@@ -48,7 +83,7 @@ describe('pantalla Tabla', () => {
     await screen.findByRole('table')
     await userEvent.click(screen.getByRole('button', { name: 'Recargar tabla' }))
     await waitFor(() => expect(getStandings).toHaveBeenCalledTimes(2))
-    await userEvent.click(screen.getByRole('button', { name: /Pirámide y reducido/ }))
+    await userEvent.click(screen.getByRole('button', { name: /Pirámide/ }))
     expect(await screen.findByRole('dialog', { name: 'Pirámide' })).toBeInTheDocument()
   })
 })

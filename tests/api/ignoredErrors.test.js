@@ -33,7 +33,8 @@ describe('errores de lectura que no se pueden ignorar', () => {
 
   it('si falla la lectura de la tabla del club no se crea una liga nueva', async () => {
     state.failTable = 'standings'
-    await competitionApi.getStandings('c-error')
+    // El error llega a la pantalla (que ofrece reintentar) en vez de mostrar una tabla inventada
+    await expect(competitionApi.getStandings('c-error')).rejects.toThrow()
     expect(state.writes.filter(w => w.table === 'competitions')).toEqual([])
   })
 
