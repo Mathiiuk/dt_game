@@ -4,7 +4,7 @@ import { Briefcase, HeartHandshake, ShieldCheck, Flame, UserCheck, AlertTriangle
 export default function AgentProfileCard({ agentData }) {
   if (!agentData || !agentData.agent) return null
 
-  const { agent, relationshipScore, effectiveCommissionRate, archetypeDetails } = agentData
+  const { agent, relationshipScore, effectiveCommissionRate } = agentData
 
   const getAffinityLabel = (score) => {
     if (score >= 80) return { label: 'Socio de confianza', color: 'text-emerald-400', barColor: 'bg-emerald-500' }

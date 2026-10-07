@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "test:bdd": "cucumber-js --tags @auto",
     "test:bdd:docs": "cucumber-js --dry-run --no-strict",
-    "lint": "eslint . --max-warnings=54"
+    "lint": "eslint . --max-warnings=46"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^13.3.0",
