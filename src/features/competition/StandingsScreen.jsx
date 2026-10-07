@@ -117,7 +117,8 @@ export default function StandingsScreen() {
         <Card as="div"><EmptyState icon={Trophy} title="Sin clasificación" description="Todavía no hay partidos jugados en esta competencia." /></Card>
       ) : (
         <Card as="div" className="overflow-hidden">
-          <table className="w-full border-collapse text-left text-sm" aria-label="Tabla de posiciones">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm" aria-label="Tabla de posiciones">
             <thead>
               <tr className="border-b border-line bg-surface-2 text-fg-subtle">
                 <th scope="col" className="eyebrow w-10 py-3 pl-3 text-center sm:w-12">Pos</th>
@@ -171,6 +172,7 @@ export default function StandingsScreen() {
               })}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
 

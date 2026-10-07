@@ -242,10 +242,15 @@ export default function Dashboard() {
         className="hidden lg:flex"
       />
 
-      {/* En móvil el título vive en la barra superior; la acción principal queda a mano debajo */}
-      <div className="mb-5 flex items-center justify-between gap-3 lg:hidden">
-        <p className="min-w-0 truncate text-sm text-fg-muted">{clubSummary.city} · {clubSummary.stadiumName}</p>
-        {primaryAction}
+      {/* En móvil el título vive en la barra superior; la acción principal se destaca a ancho completo y el estadio se muestra sin cortarse */}
+      <div className="mb-5 space-y-2 lg:hidden">
+        <div className="flex items-center justify-between text-xs text-fg-muted">
+          <span className="truncate">{clubSummary.stadiumName}</span>
+          <span className="shrink-0 text-fg-subtle">· {clubSummary.city}</span>
+        </div>
+        <div className="[&>button]:w-full">
+          {primaryAction}
+        </div>
       </div>
 
       <div className="min-w-0 space-y-6">

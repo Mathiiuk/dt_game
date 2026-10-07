@@ -61,7 +61,8 @@ export const isActivePath = (pathname, to) => pathname === to || pathname.starts
 /** Pantallas que no están en el menú (se llega desde Carrera del DT) pero necesitan su título en la barra superior móvil */
 const EXTRA_TITLES = [
   { to: '/achievements', label: 'Logros' },
-  { to: '/hall-of-fame', label: 'Salón de la Fama' }
+  { to: '/hall-of-fame', label: 'Salón de la Fama' },
+  { to: '/events', label: 'Eventos' }
 ]
 
 /** Título de la sección actual (para la barra superior móvil) */

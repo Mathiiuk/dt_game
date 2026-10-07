@@ -132,7 +132,7 @@ export default function CalendarScreen() {
           value={viewMode}
           onChange={setViewMode}
           options={[
-            { value: 'UPCOMING', label: 'Próximos y resultados' },
+            { value: 'UPCOMING', label: 'Próximos' },
             { value: 'SEASON', label: 'Por mes' },
             { value: 'WEEKS', label: 'Semanas' }
           ]}
