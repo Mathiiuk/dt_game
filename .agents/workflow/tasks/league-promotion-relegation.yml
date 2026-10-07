@@ -4,7 +4,7 @@ title: >-
   Ascensos y descensos reales: el club cambia de liga y los rivales de la IA
   rotan
 type: feat
-status: PLANNED
+status: DONE
 priority: medium
 owner: team-agent
 base_branch: main
