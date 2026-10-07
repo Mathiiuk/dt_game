@@ -179,7 +179,8 @@ export const climateApi = {
           price: Number(club.ticket_price || 10),
           streaks,
           trainingHighWeeks,
-          injuredCount: (playersRes.data || []).filter(p => p.is_injured).length
+          injuredCount: (playersRes.data || []).filter(p => p.is_injured).length,
+          cash: club.budget === null || club.budget === undefined ? null : Number(club.budget)
         }, this.difficulty)
         for (const combo of combos) {
           await this.applySquadConsequence({ clubId, source: 'COMBO', gameDate, effects: { ...combo.effects, notes: [`${combo.label}. ${combo.note}`] } })

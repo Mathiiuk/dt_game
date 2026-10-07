@@ -165,7 +165,96 @@ const corrupt = (code, title, description, accept, decline) => ({
   ]
 })
 
+/**
+ * Eventos de ambiente: dependen de la etapa de la barra (`state.barra`) o del nivel de presión (`state.pressure`, 0 a 100).
+ * Son más chicos que los aprietes de la barra, pero hacen que cada etapa se sienta distinta durante las semanas que dura.
+ */
+export const STAGE_EVENTS = [
+  {
+    template_code: 'EVT_POPULAR_SONG',
+    title: 'La popular estrenó una canción con tu nombre',
+    description: 'Los pibes de la popular armaron un cantito nuevo con la música de moda y tu apellido en el estribillo. Lo cantaron todo el partido. Hay gente que filma desde el alambrado para subirlo a las redes.',
+    category: 'COMMUNITY',
+    severity: 'LOW',
+    climates: ['FLOWS'],
+    weight: 2,
+    when: (state) => (state.barra || 'CALM') === 'CALM',
+    options: [
+      { id: 'WAVE', label: 'Saludar con la mano desde el banco', description: 'Un gesto chico que la tribuna no olvida.', cost: 0, effects: { fans: 3 } },
+      { id: 'KEEP_LOW', label: 'Agradecer, pero pedir que el cantito sea para el equipo', description: 'Los jugadores lo valoran. La tribuna se queda un poco fría.', cost: 0, effects: { fans: 1, locker: 2 } }
+    ]
+  },
+  {
+    template_code: 'EVT_TICKET_RESELLING',
+    title: 'Las entradas de favor aparecieron en la reventa',
+    description: 'Alguien te muestra en el celular una publicación: entradas del club, de las que se reparten como favor, a precio de reventa. {Barra} no dice nada. Los que se enteraron tampoco.',
+    category: 'COMMUNITY',
+    severity: 'MEDIUM',
+    weight: 2,
+    when: (state) => state.barra === 'ASKS',
+    options: [
+      { id: 'CUT', label: 'Cortar las entradas de favor', description: 'La dirigencia lo agradece. En la barra se anota quién lo decidió.', cost: 0, effects: { board: 3, fans: -1 } },
+      { id: 'LOOK_AWAY', label: 'Hacer la vista gorda', description: 'No pasa nada hoy. Mañana saben que se puede.', cost: 0, effects: { barra: 1, board: -1 } }
+    ]
+  },
+  {
+    template_code: 'EVT_WALL_PAINTINGS',
+    title: 'Amanecieron pintadas en la pared del estadio',
+    description: 'Letras grandes, con aerosol negro, sobre la pared del acceso: "Cambien o se van". Los de mantenimiento no se animan a borrarlas hasta que alguien dé la orden.',
+    category: 'COMMUNITY',
+    severity: 'MEDIUM',
+    weight: 2,
+    when: (state) => state.barra === 'PRESSURES',
+    options: [
+      { id: 'ERASE', label: 'Mandar a borrarlas (cuesta $300)', description: 'Se tapa rápido. Alguien va a volver con otro aerosol.', cost: 300, effects: { board: 1 } },
+      { id: 'LEAVE', label: 'Dejarlas para no avivar el fuego', description: 'El mensaje queda a la vista de todos, también del plantel.', cost: 0, effects: { locker: -1, fans: -1 } }
+    ]
+  },
+  {
+    template_code: 'EVT_PLAYER_AFRAID',
+    title: 'Un pibe llega con miedo al entrenamiento',
+    description: 'Uno de los jugadores jóvenes llega tarde, sin hablar, y se queda mirando el estacionamiento. Un compañero te cuenta en voz baja que alguien lo esperó en la puerta de su casa. No quiere que se sepa.',
+    category: 'LOCKER_ROOM',
+    severity: 'HIGH',
+    weight: 2,
+    when: (state) => state.barra === 'SQUEEZES' || state.barra === 'INVASION',
+    options: [
+      { id: 'ACCOMPANY', label: 'Hablar con él y acompañarlo', description: 'El plantel ve que lo cuidás. La dirigencia prefiere que no te metas.', cost: 0, effects: { locker: 3, board: -1 } },
+      { id: 'TOUGHEN', label: 'Decirle que se acostumbre', description: 'Entrena igual. En el vestuario nadie lo olvida.', cost: 0, effects: { locker: -4 } }
+    ]
+  },
+  {
+    template_code: 'EVT_PRESIDENT_RADIO',
+    title: 'El presidente dijo en la radio que "hay que ganar ya"',
+    description: 'Lo escuchaste en el auto, volviendo del club. El presidente habló de "paciencia agotada" y de "revisar todo si no llegan los resultados". No dio nombres, pero nadie duda de a quién se refería.',
+    category: 'FINANCIAL_CRISIS',
+    severity: 'HIGH',
+    weight: 2,
+    when: (state) => (state.pressure ?? 0) >= 60,
+    options: [
+      { id: 'CALM', label: 'Responder con calma que el proceso lleva tiempo', description: 'La hinchada lo toma bien. En el palco no gusta que le contestes.', cost: 0, effects: { fans: 1, board: -2 } },
+      { id: 'PROMISE', label: 'Prometer resultados', description: 'Te dan aire, pero ahora el plantel carga con esa promesa.', cost: 0, effects: { board: 2, locker: -2 } },
+      { id: 'SILENCE', label: 'No decir nada', description: 'Que hablen los resultados. El rumor sigue su camino.', cost: 0, effects: {} }
+    ]
+  },
+  {
+    template_code: 'EVT_QUIET_WEEK',
+    title: 'Semana tranquila en el club',
+    description: 'No hay fichajes ni reclamos. El plantel entrena sin apuro, el sol se queda hasta tarde y en la cantina alguien puso a calentar el agua para el mate. Es de esas semanas que no se anotan en ningún lado.',
+    category: 'LOCKER_ROOM',
+    severity: 'LOW',
+    climates: ['FLOWS', 'TENSION'],
+    weight: 2,
+    when: (state) => (state.pressure ?? 100) <= 25,
+    options: [
+      { id: 'YOUTH', label: 'Pasar la tarde con los juveniles', description: 'Los pibes de la cantera se sienten tenidos en cuenta.', cost: 0, effects: { locker: 2 } },
+      { id: 'ASADO', label: 'Hacer un asado con el plantel (cuesta $400)', description: 'El grupo se junta fuera de la cancha. Se nota el lunes.', cost: 400, effects: { locker: 4, fans: 1 } }
+    ]
+  }
+]
+
 export const CLIMATE_EVENTS = [
+  ...STAGE_EVENTS,
   // Cuando todo fluye
   {
     template_code: 'EVT_SPONSOR_UPGRADE',

@@ -7,10 +7,10 @@ import { scaleEffect, DIFFICULTY } from './consequences'
 export const COMBO_KIND = { COMBO: 'COMBO', VICIOUS: 'VICIOUS' }
 
 /**
- * @param {object} ctx { price, recommended, streaks: { win, loss, winless }, trainingHighWeeks, injuredCount }
+ * @param {object} ctx { price, recommended, streaks: { win, loss, winless }, trainingHighWeeks, injuredCount, cash }
  * @returns {Array<{ key, kind, label, note, effects: { fans, board, locker } }>}
  */
-export function detectCombos({ price = 10, recommended = 10, streaks = {}, trainingHighWeeks = 0, injuredCount = 0 }, difficulty = DIFFICULTY.NORMAL) {
+export function detectCombos({ price = 10, recommended = 10, streaks = {}, trainingHighWeeks = 0, injuredCount = 0, cash = null }, difficulty = DIFFICULTY.NORMAL) {
   const found = []
   const ratio = price / recommended
 
@@ -55,6 +55,39 @@ export function detectCombos({ price = 10, recommended = 10, streaks = {}, train
       label: 'Racha de campeón',
       note: 'Seis partidos sin perder: en el club se respira otro aire.',
       effects: { fans: scaleEffect(4, difficulty), board: scaleEffect(4, difficulty), locker: scaleEffect(4, difficulty) }
+    })
+  }
+
+  // Caja en rojo y dos derrotas seguidas: la dirigencia se pregunta quién firma los cheques
+  if (cash !== null && cash < 0 && streaks.loss === 2) {
+    found.push({
+      key: 'EMPTY_COFFERS',
+      kind: COMBO_KIND.VICIOUS,
+      label: 'Círculo vicioso: caja vacía y derrotas',
+      note: 'No hay plata y el equipo pierde: en el palco preguntan quién firma los cheques y en el vestuario, quién les paga.',
+      effects: { fans: scaleEffect(-2, difficulty), board: scaleEffect(-4, difficulty), locker: scaleEffect(-4, difficulty) }
+    })
+  }
+
+  // Ganar con la enfermería llena une al grupo
+  if (streaks.win === 4 && injuredCount >= 3) {
+    found.push({
+      key: 'GRIT_WINS',
+      kind: COMBO_KIND.COMBO,
+      label: 'Ganan con la enfermería llena',
+      note: 'Cuatro victorias seguidas con varios lesionados: los que quedan se hicieron fuertes y el barrio lo reconoce.',
+      effects: { fans: scaleEffect(3, difficulty), board: scaleEffect(1, difficulty), locker: scaleEffect(6, difficulty) }
+    })
+  }
+
+  // Plata en caja y buen momento: se habla de refuerzos
+  if (cash !== null && cash >= 20000 && streaks.win === 3) {
+    found.push({
+      key: 'FUNDED_MOMENTUM',
+      kind: COMBO_KIND.COMBO,
+      label: 'Plata en caja y buen momento',
+      note: 'Tres victorias seguidas y la caja holgada: el presidente se anima a hablar de refuerzos.',
+      effects: { fans: scaleEffect(2, difficulty), board: scaleEffect(3, difficulty), locker: scaleEffect(2, difficulty) }
     })
   }
 

@@ -5,6 +5,7 @@
       ".agents/workflow/features/**/*.feature"
     ],
     "import": [
+      "tests/bdd/register.mjs",
       "tests/bdd/steps/**/*.js"
     ],
     "format": [
