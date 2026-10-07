@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
-import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
+import { seasonYearOf, weekOfDate, isAdvanceLocked } from '../domain/gameWeek'
 import { timed } from '../lib/perf'
 
 export { seasonYearOf, weekOfDate }
@@ -241,7 +241,7 @@ export const calendarApi = {
     const calendar = await this.reconcileWithClub(rawCalendar, clubId, clubDateRes?.data?.game_date ?? null)
 
     // 2. Control de concurrencia y Mutex
-    if (calendar.is_advancing) {
+    if (isAdvanceLocked(calendar)) {
       const err = new Error('ERR_TIME_ADVANCE_IN_PROGRESS: El motor de tiempo está procesando una semana en este instante.')
       err.code = 'ERR_TIME_ADVANCE_IN_PROGRESS'
       throw err

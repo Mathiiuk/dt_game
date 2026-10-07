@@ -10,3 +10,21 @@ describe('fin de temporada por la fecha del juego', () => {
     expect(isSeasonEnded('2027-06-30')).toBe(true)
   })
 })
+
+import { isAdvanceLocked } from '../../src/domain/gameWeek'
+
+describe('candado del avance de semana', () => {
+  const now = new Date('2026-10-07T12:00:00Z').getTime()
+  it('sin candado se puede avanzar', () => {
+    expect(isAdvanceLocked({ is_advancing: false }, now)).toBe(false)
+  })
+  it('un avance en curso (reciente) bloquea el segundo', () => {
+    expect(isAdvanceLocked({ is_advancing: true, updated_at: '2026-10-07T11:59:50Z' }, now)).toBe(true)
+  })
+  it('un candado abandonado hace minutos (pestaña cerrada a mitad) ya no bloquea', () => {
+    expect(isAdvanceLocked({ is_advancing: true, updated_at: '2026-10-07T11:50:00Z' }, now)).toBe(false)
+  })
+  it('si no sabemos desde cuándo, se respeta el candado', () => {
+    expect(isAdvanceLocked({ is_advancing: true }, now)).toBe(true)
+  })
+})
