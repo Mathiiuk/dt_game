@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Trophy, CheckCircle2, Landmark, Building2, ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { seasonCloseApi } from '../../api/seasonClose'
+import { competitionApi } from '../../api/competition'
+import { seasonOutlook } from '../../domain/divisions'
 import { climateApi } from '../../api/climate'
 import { seasonStory } from '../../domain/seasonStory'
 import { useGameContext } from '../../context/GameContext'
@@ -22,6 +24,17 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
   const [closing, setClosing] = useState(false)
   const [closedSummary, setClosedSummary] = useState(null)
   const [story, setStory] = useState(null)
+  const [outlook, setOutlook] = useState(null)
+
+  // Puesto actual en la tabla: de ahí salen el premio y el ascenso que se muestran antes de cerrar
+  useEffect(() => {
+    let alive = true
+    competitionApi.getStandings(club?.id).then(rows => {
+      const mine = (rows || []).find(r => r.club_id === club?.id)
+      if (alive) setOutlook(seasonOutlook(mine?.position))
+    }).catch(() => {})
+    return () => { alive = false }
+  }, [club?.id])
 
   const handleExecuteClose = async () => {
     try {
@@ -80,15 +93,24 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
           <Card as="div">
             <CardBody className="space-y-1.5">
               <p className="flex items-center gap-2 text-sm text-fg-muted"><Landmark className="size-4 text-accent" aria-hidden="true" />Premios federativos</p>
-              <p className="num font-display text-3xl font-semibold text-accent">{formatMoney(1000)} a {formatMoney(12000)}</p>
-              <p className="text-xs text-fg-subtle">Según la posición final. Se acreditan en la caja al cerrar la temporada.</p>
+              {outlook ? (
+                <>
+                  <p className="num font-display text-3xl font-semibold text-accent">{formatMoney(outlook.prize)}</p>
+                  <p className="text-xs text-fg-subtle">Por terminar {outlook.position}.º. Se acredita en la caja al cerrar (más un bono si tu goleador llega a 8 goles).</p>
+                </>
+              ) : (
+                <>
+                  <p className="num font-display text-3xl font-semibold text-accent">{formatMoney(1000)} a {formatMoney(12000)}</p>
+                  <p className="text-xs text-fg-subtle">Según la posición final. Se acreditan en la caja al cerrar la temporada.</p>
+                </>
+              )}
             </CardBody>
           </Card>
           <Card as="div">
             <CardBody className="space-y-1.5">
               <p className="flex items-center gap-2 text-sm text-fg-muted"><Building2 className="size-4 text-accent" aria-hidden="true" />Presupuesto del próximo año</p>
-              <p className="num font-display text-3xl font-semibold text-fg">80% <span className="text-base font-medium text-fg-muted">de la masa salarial</span></p>
-              <p className="text-xs text-fg-subtle">Aprobado por la presidencia para el nuevo ciclo.</p>
+              <p className="num font-display text-3xl font-semibold text-fg">+{outlook ? outlook.wageRisePct : 10}% <span className="text-base font-medium text-fg-muted">de la masa salarial</span></p>
+              <p className="text-xs text-fg-subtle">{outlook?.promoted ? 'Ascendés: la presidencia aprueba un salto grande para la categoría nueva.' : 'Sin ascenso, la presidencia aprueba un ajuste chico (con los dos primeros puestos sube 80%).'}</p>
             </CardBody>
           </Card>
         </div>

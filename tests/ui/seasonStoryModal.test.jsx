@@ -11,6 +11,7 @@ const executeSeasonClose = vi.fn(async () => ({
 const getSeasonSummaryData = vi.fn(async () => ({ state: { favors: 2, scandals: 0 }, counts: { BARRA: 5, SALE: 1 } }))
 
 vi.mock('../../src/api/seasonClose', () => ({ seasonCloseApi: { executeSeasonClose: (...a) => executeSeasonClose(...a) } }))
+vi.mock('../../src/api/competition', () => ({ competitionApi: { getStandings: vi.fn(async () => [{ club_id: 'c1', position: 2 }]) } }))
 vi.mock('../../src/api/climate', () => ({ climateApi: { getSeasonSummaryData: (...a) => getSeasonSummaryData(...a) } }))
 vi.mock('../../src/context/GameContext', () => ({ useGameContext: () => ({ refreshContext: vi.fn() }) }))
 
@@ -21,9 +22,11 @@ const club = { id: 'c1', name: 'Potrero' }
 describe('gala de fin de temporada', () => {
   beforeEach(() => { executeSeasonClose.mockClear(); getSeasonSummaryData.mockClear() })
 
-  it('muestra los premios según la posición final, en la escala de la economía chica', () => {
+  it('muestra el premio y el ascenso que corresponden al puesto actual', async () => {
     render(<SeasonCloseModal club={club} careerId="k1" seasonYear={2026} onClose={() => {}} />)
-    expect(screen.getByText(/\$1\.000 a \$12\.000/)).toBeInTheDocument()
+    expect(await screen.findByText(/Por terminar 2\.º/)).toBeInTheDocument()
+    expect(screen.getByText(/\+80%/)).toBeInTheDocument()
+    expect(screen.getByText(/Ascendés/)).toBeInTheDocument()
   })
 
   it('al cerrar la temporada cuenta la historia del año con las consecuencias registradas', async () => {

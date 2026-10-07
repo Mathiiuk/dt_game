@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { competitionApi } from '../../api/competition'
 import { useGameContext } from '../../context/GameContext'
 import { isSeasonEnded } from '../../domain/gameWeek'
+import { divisionName } from '../../domain/divisions'
 import { queryCache } from '../../utils/cache'
 import { FORM_LABELS, ZONES, formatDiff, goalDiff, parseForm, zoneOf } from '../../domain/standings'
 import { cn } from '../../lib/utils'
@@ -76,7 +77,7 @@ export default function StandingsScreen() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8">
       <PageHeader
-        eyebrow="Torneo regional · División Tier 5"
+        eyebrow={divisionName(club?.league_tier)}
         title="Tabla de posiciones"
         description={`${total} clubes`}
         actions={

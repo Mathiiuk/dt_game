@@ -11,6 +11,7 @@ import { friendlyError } from '../../lib/errors'
 import { useGameContext } from '../../context/GameContext'
 import { isFixtureDue } from '../../domain/fixtureStatus'
 import { isSeasonEnded, seasonYearOf } from '../../domain/gameWeek'
+import { divisionName } from '../../domain/divisions'
 import { rivalLevel, rivalOf } from '../../domain/rivalLevel'
 import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
@@ -222,7 +223,7 @@ export default function Dashboard() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
       <PageHeader
-        eyebrow={`${formatLongDate(clubSummary.gameDate)} · Torneo Regional · Tier 5`}
+        eyebrow={`${formatLongDate(clubSummary.gameDate)} · ${divisionName(club?.league_tier)}`}
         title={clubSummary.name}
         description={`${clubSummary.city}, ${clubSummary.country} · ${clubSummary.stadiumName}`}
         actions={primaryAction}
