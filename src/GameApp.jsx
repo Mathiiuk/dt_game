@@ -26,6 +26,7 @@ import InternationalCupScreen from './features/competition/InternationalCupScree
 import HallOfFameScreen from './features/manager/HallOfFameScreen'
 import AchievementsScreen from './features/career/AchievementsScreen'
 import EndgameScreen from './features/career/EndgameScreen'
+import LogbookScreen from './features/dashboard/LogbookScreen'
 import ReloadPrompt from './components/ReloadPrompt'
 import { GameProvider } from './context/GameContext'
 import AppShell from './components/layout/AppShell'
@@ -87,6 +88,7 @@ function GameApp() {
             {/* El Salón de la Fama es accesible incluso con el DT retirado */}
             <Route element={<AppShell />}>
               <Route path="/hall-of-fame" element={<HallOfFameScreen />} />
+              <Route path="/logbook" element={<RequireCareer><LogbookScreen /></RequireCareer>} />
             </Route>
 
             <Route path="/game" element={<Navigate to="/welcome" replace />} />

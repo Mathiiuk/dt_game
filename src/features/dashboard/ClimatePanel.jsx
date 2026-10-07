@@ -121,32 +121,39 @@ export function ConsequenceFeed({ clubId }) {
   useEffect(() => {
     if (!clubId) return
     let alive = true
-    climateApi.getRecent(clubId, 8).then(rows => { if (alive) setItems(rows) }).catch(() => { if (alive) setItems([]) })
+    climateApi.getRecent(clubId, 3).then(rows => { if (alive) setItems(rows) }).catch(() => { if (alive) setItems([]) })
     return () => { alive = false }
   }, [clubId])
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2.5">
-          <History className="size-5 text-accent" aria-hidden="true" />
-          <CardTitle>Esto pasó por tu decisión</CardTitle>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2.5">
+            <History className="size-5 text-accent" aria-hidden="true" />
+            <CardTitle>Esto pasó</CardTitle>
+          </div>
+          <a href="/logbook" className="text-sm font-medium text-accent hover:underline">Ver todo</a>
         </div>
       </CardHeader>
       <CardBody>
         {items === null ? (
           <p className="text-sm text-fg-subtle">Cargando...</p>
         ) : items.length === 0 ? (
-          <p className="text-sm text-fg-muted">Todavía no hay consecuencias para mostrar. Tus decisiones y los resultados van a aparecer acá.</p>
+          <p className="text-sm text-fg-muted">Todavía no hay consecuencias para mostrar.</p>
         ) : (
           <ul className="divide-y divide-line">
             {items.map(item => (
               <li key={item.id} className="py-2.5 text-sm">
-                {item.source === 'COMBO' && (
-                  <Badge tone={/Círculo vicioso/.test(item.message) ? 'danger' : 'accent'} className="mb-1"><Zap className="size-3" aria-hidden="true" />{/Círculo vicioso/.test(item.message) ? 'Círculo vicioso' : 'Combo'}</Badge>
-                )}
-                <p className="text-fg">{item.message}</p>
-                <p className="mt-0.5 text-xs text-fg-subtle">Semana {item.week_number}</p>
+                <div className="flex flex-wrap gap-1.5 mb-1.5">
+                  {item.source === 'COMBO' && <Badge tone={/Círculo vicioso/.test(item.message) ? 'danger' : 'accent'}><Zap className="size-3" aria-hidden="true" />{/Círculo vicioso/.test(item.message) ? 'Círculo vicioso' : 'Combo'}</Badge>}
+                  {item.fans !== 0 && <Badge tone={item.fans > 0 ? 'success' : 'danger'}>Hinchada {item.fans > 0 ? '+' : ''}{item.fans}</Badge>}
+                  {item.board !== 0 && <Badge tone={item.board > 0 ? 'success' : 'danger'}>Dirigencia {item.board > 0 ? '+' : ''}{item.board}</Badge>}
+                  {item.locker !== 0 && <Badge tone={item.locker > 0 ? 'success' : 'danger'}>Vestuario {item.locker > 0 ? '+' : ''}{item.locker}</Badge>}
+                  {item.message.includes('-$') && <Badge tone="danger">Caja -${item.message.split('-$')[1]?.replace(/[^0-9]/g, '')}</Badge>}
+                </div>
+                <p className="text-fg leading-relaxed">{item.message}</p>
+                <p className="mt-1 text-xs text-fg-subtle font-medium">Semana {item.week_number}</p>
               </li>
             ))}
           </ul>
