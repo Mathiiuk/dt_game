@@ -21,6 +21,12 @@ import { AsyncButton } from '../../../components/ui'
 import { absoluteWeek } from '../../../domain/gameWeek'
 import { friendlyError } from '../../../lib/errors'
 
+const LOCKER_EVENT_LABELS = {
+  CAPTAIN_APPOINTED: 'Cambio de capitán',
+  TEAM_MEETING_HELD: 'Reunión de plantel',
+  PLAYER_REVOLT_DEFUSED: 'Conflicto resuelto'
+}
+
 export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   const [lockerRoom, setLockerRoom] = useState(null)
   const [profiles, setProfiles] = useState([])
@@ -402,7 +408,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             {events.map((ev) => (
               <div key={ev.id} className="p-3 rounded-xl bg-bg/70 border border-line/80 text-xs space-y-1">
                 <div className="flex items-center justify-between text-[11px] text-fg-subtle">
-                  <span className="font-bold text-fg">{ev.event_type}</span>
+                  <span className="font-bold text-fg">{LOCKER_EVENT_LABELS[ev.event_type] || 'Acontecimiento'}</span>
                   <span>{new Date(ev.timestamp).toLocaleDateString()}</span>
                 </div>
                 <p className="text-fg-muted">{ev.details}</p>

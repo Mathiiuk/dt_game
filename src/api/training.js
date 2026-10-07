@@ -11,7 +11,7 @@ export const FOCUS_OPTIONS = [
   { 
     id: 'PHYSICAL_STAMINA', 
     label: 'Acondicionamiento Físico', 
-    desc: 'Fuerza, velocidad y resistencia. Nota: No aumenta atributos en veteranos > 29 años.',
+    desc: 'Fuerza, velocidad y resistencia. Ojo: no mejora a los mayores de 29 años.',
     attributes: ['pace', 'strength', 'stamina'] 
   },
   { 

@@ -59,11 +59,12 @@ export const financesApi = {
       // 7. Estimación de liquidez
       let liquidityWeeks
       if (balance <= 0) {
-        liquidityWeeks = '0 semanas (En números rojos)'
+        liquidityWeeks = 'Sin caja'
       } else if (expectedWeeklyFlow < 0) {
-        liquidityWeeks = `${runwayWeeks(balance, expectedWeeklyFlow).toFixed(1)} semanas`
+        const weeks = Math.max(1, Math.floor(runwayWeeks(balance, expectedWeeklyFlow)))
+        liquidityWeeks = weeks > 52 ? 'Más de un año' : weeks === 1 ? '1 semana' : `${weeks} semanas`
       } else {
-        liquidityWeeks = 'Superavitario (> 52 semanas)'
+        liquidityWeeks = 'No se gasta'
       }
 
       // 8. Estado de salud financiera

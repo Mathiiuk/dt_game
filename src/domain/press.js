@@ -12,6 +12,15 @@ export function outcomeOf({ isHome = true, homeScore = 0, awayScore = 0 } = {}) 
   return mine > theirs ? 'W' : mine < theirs ? 'L' : 'D'
 }
 
+/** Nombre a la vista de cada tono de respuesta: los códigos internos (PRAISING...) nunca se muestran */
+export const TONE_LABELS = {
+  PRAISING: 'Elogioso',
+  COMBATIVE: 'Combativo',
+  SELF_CRITICAL: 'Autocrítico',
+  PRAGMATIC: 'Cauteloso'
+}
+export const toneLabel = (tone, fallback = 'Respondida') => TONE_LABELS[tone] || fallback
+
 /**
  * Efecto sobre hinchada y dirigencia de cada respuesta, según el tono y el resultado.
  * Se suma a la moral del plantel que ya traía cada respuesta.

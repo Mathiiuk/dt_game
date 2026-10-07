@@ -81,7 +81,7 @@ export default function ReputationHistoryModal({ isOpen, onClose, managerId }) {
           </section>
 
           <section aria-labelledby="rep-ledger">
-            <SectionTitle><span className="flex items-center gap-2"><Award className="size-4.5 text-accent" aria-hidden="true" />Libro mayor de variaciones</span></SectionTitle>
+            <SectionTitle><span className="flex items-center gap-2"><Award className="size-4.5 text-accent" aria-hidden="true" />Historial de cambios</span></SectionTitle>
             {profile?.recentLedger?.length > 0 ? (
               <Card as="div">
                 <ul className="divide-y divide-line">

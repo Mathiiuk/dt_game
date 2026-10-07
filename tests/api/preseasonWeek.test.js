@@ -82,7 +82,7 @@ describe('pretemporada en el cierre semanal', () => {
     expect(f.preseason).toBe(true)
     expect(f.boardAid).toBeGreaterThanOrEqual(0)
     expect(f.expectedWeeklyFlow).toBe(f.netWeeklyFlow + f.boardAid)
-    expect(f.liquidityWeeks).not.toMatch(/Superavitario/)
+    expect(f.liquidityWeeks).not.toMatch(/Superavitario|[<>]/)
   })
 
   it('con la liga en marcha la taquilla vuelve a entrar en la cuenta', async () => {

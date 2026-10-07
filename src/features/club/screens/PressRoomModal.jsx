@@ -3,6 +3,7 @@ import { Newspaper, CalendarDays } from 'lucide-react'
 import { toast } from 'sonner'
 import { pressApi } from '../../../api/press'
 import { Badge, Card, CardBody, EmptyState, ResponsiveOverlay, Skeleton } from '../../../components/ui'
+import { toneLabel } from '../../../domain/press'
 
 /** Sala de prensa: archivo histórico de ruedas de prensa. Diálogo en escritorio, página completa en móvil. */
 export default function PressRoomModal({ club, onClose }) {
@@ -63,7 +64,7 @@ export default function PressRoomModal({ club, onClose }) {
                       <div key={qa.id} className="space-y-1.5">
                         <div className="flex items-center justify-between gap-3 text-xs text-fg-subtle">
                           <span className="min-w-0 truncate font-medium text-fg-muted">{qa.media_outlet} · {qa.journalist_name}</span>
-                          <Badge tone="warning" className="shrink-0 uppercase">{qa.chosen_tone || 'Declaración'}</Badge>
+                          <Badge tone="warning" className="shrink-0">{toneLabel(qa.chosen_tone, 'Declaración')}</Badge>
                         </div>
                         <p className="text-sm italic text-fg">“{qa.question_text}”</p>
                         <p className="border-l-2 border-accent/50 pl-3 text-sm text-fg-muted">

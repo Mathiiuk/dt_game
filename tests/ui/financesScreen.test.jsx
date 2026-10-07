@@ -57,9 +57,9 @@ describe('pantalla Finanzas', () => {
     expect(confirmAction).toHaveBeenCalled()
   })
 
-  it('el libro mayor lista los movimientos', async () => {
+  it('la pestaña de movimientos lista los asientos', async () => {
     renderScreen()
-    await userEvent.click(await screen.findByRole('tab', { name: 'Libro mayor' }))
+    await userEvent.click(await screen.findByRole('tab', { name: 'Movimientos' }))
     expect(await screen.findAllByText('Sueldos semana 3')).not.toHaveLength(0)
   })
 })

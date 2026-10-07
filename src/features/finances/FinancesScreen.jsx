@@ -146,23 +146,23 @@ export default function FinancesScreen() {
         <TabsList aria-label="Secciones de finanzas" className="mb-6">
           <TabsTrigger value="balance">Flujo semanal</TabsTrigger>
           <TabsTrigger value="facilities">Instalaciones</TabsTrigger>
-          <TabsTrigger value="ledger">Libro mayor</TabsTrigger>
+          <TabsTrigger value="ledger">Movimientos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="balance" className="space-y-6">
           <Card>
             <CardBody className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-              <Stat label="Caja" value={formatMoney(f?.balance || 0)} hint="Saldo bancario líquido" valueClassName="text-accent" />
+              <Stat label="Caja" value={formatMoney(f?.balance || 0)} hint="Plata disponible hoy" valueClassName="text-accent" />
               <Stat
-                label="Flujo neto semanal"
+                label="Por semana"
                 value={<span className="inline-flex items-center gap-2">{profitable ? <TrendingUp className="size-6 text-accent" aria-hidden="true" /> : <TrendingDown className="size-6 text-danger" aria-hidden="true" />}{profitable ? '+' : ''}{formatMoney(net)}</span>}
-                hint="Estimación entre fechas de liga"
+                hint="Lo que entra menos lo que sale"
                 valueClassName={profitable ? 'text-accent' : 'text-danger'}
               />
               <Stat
-                label="Respaldo de liquidez"
+                label="Cuánto te dura la caja"
                 value={<span className="inline-flex items-center gap-2"><Clock className="size-6 text-fg-muted" aria-hidden="true" />{f?.liquidityWeeks}</span>}
-                hint="Autonomía sin ingresos extra"
+                hint="Si todo sigue como esta semana"
               />
             </CardBody>
           </Card>
@@ -265,10 +265,10 @@ export default function FinancesScreen() {
         </TabsContent>
 
         <TabsContent value="ledger">
-          <Card as="section" aria-label="Libro mayor">
+          <Card as="section" aria-label="Movimientos">
             <CardHeader className="items-center">
               <div>
-                <CardTitle className="text-lg">Libro mayor</CardTitle>
+                <CardTitle className="text-lg">Movimientos</CardTitle>
                 <CardDescription>Registro inmutable de movimientos financieros</CardDescription>
               </div>
               <span className="text-xs text-fg-subtle">{transactions.length} registros</span>

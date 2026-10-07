@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, CheckCircle2, Mic, Timer, UserCheck } from 'lucide-react'
 import { AsyncButton } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
+import { toneLabel } from '../../domain/press'
 import { BINGO_CLICHES, PRESS_SECONDS, headlineResult, headlineRound, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
 
 const TONE_COLORS = {
@@ -9,12 +10,6 @@ const TONE_COLORS = {
   COMBATIVE: 'border-danger/40 text-danger bg-danger-soft',
   SELF_CRITICAL: 'border-line-strong/40 text-fg-muted bg-surface-2',
   PRAGMATIC: 'border-line text-fg bg-surface/40'
-}
-const TONE_NAMES = {
-  PRAISING: 'Elogioso / Motivador',
-  COMBATIVE: 'Combativo / Confrontativo',
-  SELF_CRITICAL: 'Autocrítico / Exigente',
-  PRAGMATIC: 'Cauteloso / Pragmático'
 }
 
 const NO_TIMER_KEY = 'press_no_timer'
@@ -253,7 +248,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
             <div key={q.id || idx} className="space-y-1.5 rounded-xl border border-line/80 bg-bg/70 p-3.5 text-xs">
               <div className="flex items-center justify-between text-[11px] text-fg-subtle">
                 <span className="font-semibold text-fg-muted">{q.media_outlet} • {q.journalist_name}</span>
-                <span className="font-mono font-bold uppercase text-accent">{q.chosen_tone || 'RESPONDIDA'}</span>
+                <span className="font-semibold text-accent">{toneLabel(q.chosen_tone)}</span>
               </div>
               <p className="font-medium italic text-fg">"{q.question_text}"</p>
               <p className="border-l-2 border-accent/50 pl-3 text-[11px] text-fg-muted">"{q.manager_answer_text}"</p>
@@ -282,7 +277,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           {(question.options || []).map((opt, optIdx) => (
             <AsyncButton key={optIdx} onClick={() => answer(opt)} className="group w-full rounded-xl border border-line bg-bg/70 p-3 text-left text-xs transition-all hover:border-accent/60 hover:bg-surface">
               <div className="mb-1 flex items-center justify-between">
-                <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted'}`}>{TONE_NAMES[opt.tone] || opt.tone}</span>
+                <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted'}`}>{toneLabel(opt.tone, 'Respuesta')}</span>
                 <span className="text-[10px] text-fg-subtle">Impacto moral: {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
               </div>
               <p className="leading-snug text-fg">"{opt.text}"</p>

@@ -64,9 +64,9 @@ export default function InfirmaryTab({ club }) {
   const handleInfiltrate = async (injury) => {
     const player = injury.players
     const confirmed = await confirmAction({
-      title: `Infiltración Médica: ${player?.first_name} ${player?.last_name}`,
-      description: `El cuerpo médico aplicará analgesia infiltrativa para disimular el dolor. Existe un 50% de probabilidad de éxito (habilitación con 60% fitness) y un 50% de catástrofe (+10 semanas de baja y -2 permanente en velocidad y resistencia). ¿Asumes la responsabilidad como DT?`,
-      confirmText: 'Autorizar Infiltración (50% Riesgo)',
+      title: `Infiltrar a ${player?.first_name} ${player?.last_name}`,
+      description: `Le inyectan un calmante para que juegue igual el próximo partido. Sale bien la mitad de las veces: juega, pero al 60% de su físico. La otra mitad sale mal: suma 10 semanas de baja y pierde 2 puntos de ritmo y 2 de resistencia para siempre. ¿Te la jugás?`,
+      confirmText: 'Infiltrar igual',
       cancelText: 'Cancelar',
       variant: 'danger'
     })
@@ -243,10 +243,10 @@ export default function InfirmaryTab({ club }) {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-line">
                     <div className="text-[11px] text-fg-subtle">
                       {canInfiltrate 
-                        ? 'Apto para infiltración con 50% de probabilidad de éxito.'
+                        ? 'Se lo puede infiltrar para que juegue el próximo partido: sale bien la mitad de las veces.'
                         : injury.weeks_remaining > 2 
-                          ? 'Infiltración desaconsejada: fase inflamatoria aguda (> 2 semanas).'
-                          : 'Infiltración prohibida: daño estructural de grado alto.'}
+                          ? 'Todavía no se lo puede infiltrar: le faltan más de 2 semanas.'
+                          : 'No se lo puede infiltrar: la lesión es grave.'}
                     </div>
 
                     <AsyncButton
@@ -257,10 +257,10 @@ export default function InfirmaryTab({ club }) {
                           ? 'bg-danger/20 text-danger border border-danger/40 hover:bg-danger/30 shadow-md' 
                           : 'bg-surface text-fg-subtle border border-line cursor-not-allowed'
                       }`}
-                      title={canInfiltrate ? 'Infiltrar con anestesia para habilitar en el partido' : 'No apto para infiltración médica'}
+                      title={canInfiltrate ? 'Inyectarle un calmante para que juegue el próximo partido' : 'No se lo puede infiltrar'}
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      {processingInfiltration === injury.id ? 'Infiltrando...' : 'Infiltrar (50% Riesgo)'}
+                      {processingInfiltration === injury.id ? 'Infiltrando...' : 'Infiltrar (mitad de riesgo)'}
                     </AsyncButton>
                   </div>
                 </div>

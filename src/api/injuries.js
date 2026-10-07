@@ -322,11 +322,11 @@ export const injuriesApi = {
     }
 
     if (injury.severity_tier === 'SEVERE' || injury.severity_tier === 'CATASTROPHIC') {
-      throw new Error('El cuerpo médico rechaza categóricamente infiltrar una lesión de grado ' + injury.severity_tier + '. Es un riesgo inaceptable.')
+      throw new Error('El médico no lo infiltra: la lesión es grave y el riesgo es demasiado alto.')
     }
 
     if (injury.weeks_remaining > 2) {
-      throw new Error('La lesión se encuentra en fase aguda (restan ' + injury.weeks_remaining + ' semanas). El protocolo médico exige un máximo de 2 semanas para evaluar infiltración.')
+      throw new Error('Todavía no se lo puede infiltrar: le faltan ' + injury.weeks_remaining + ' semanas y solo se puede cuando quedan 2 o menos.')
     }
 
     // 2. Tirada de riesgo (50% éxito, 50% catástrofe)
@@ -355,12 +355,12 @@ export const injuriesApi = {
 
       return {
         success: true,
-        message: 'Infiltración médica exitosa. El futbolista soportó la anestesia y está habilitado con 60% de aptitud para jugar.'
+        message: 'La infiltración salió bien: puede jugar el próximo partido, al 60% de su físico.'
       }
     } else {
       // Fracaso: Recaída catastrófica a SEVERE (+10 semanas) con secuela permanente
       const newWeeks = injury.weeks_remaining + 10
-      const resultingName = 'Recaída grave post-infiltración: rotura fibrilar con secuela'
+      const resultingName = 'Recaída grave después de infiltrarlo: desgarro con secuela'
       const permLoss = { pace: -2, stamina: -2 }
 
       const { data: updatedInjury } = await supabase
@@ -399,7 +399,7 @@ export const injuriesApi = {
 
       return {
         success: false,
-        message: '¡Desastre en el vestuario! La zona infiltrada colapsó ante el esfuerzo. Se agravó a lesión GRAVE (+10 semanas) y sufrirá secuelas físicas permanentes (-2 ritmo, -2 resistencia).'
+        message: 'La infiltración salió mal: la lesión se agravó. Suma 10 semanas de baja y pierde 2 puntos de ritmo y 2 de resistencia para siempre.'
       }
     }
   }

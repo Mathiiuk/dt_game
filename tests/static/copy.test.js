@@ -9,6 +9,12 @@ const walk = (dir) => readdirSync(dir).flatMap(name => {
 })
 
 const files = walk('src')
+// Los textos que arma la capa de datos (carteles de Finanzas, mensajes de Enfermería) también llegan a la pantalla
+const walkJs = (dir) => readdirSync(dir).flatMap(name => {
+  const full = join(dir, name)
+  return statSync(full).isDirectory() ? walkJs(full) : /\.jsx?$/.test(name) ? [full] : []
+})
+const allFiles = walkJs('src')
 const code = (line) => { const t = line.trim(); return !(t.startsWith('//') || t.startsWith('{/*') || t.startsWith('*') || t.startsWith('/*')) }
 
 const offenders = (test) => files.flatMap(file =>
@@ -33,6 +39,23 @@ describe('redacción de la interfaz', () => {
 
   it('los errores no se muestran crudos: se pasan por friendlyError', () => {
     const bad = offenders(line => (/toast\.error\((e|err|error)\.message/.test(line) ? [line.trim()] : []))
+    expect(bad).toEqual([])
+  })
+
+  it('no usa los símbolos > ni < para decir "más de" o "menos de" (se escribe con palabras)', () => {
+    const bad = allFiles.flatMap(file => readFileSync(file, 'utf8').split('\n').flatMap((line, i) =>
+      (code(line) && /['`][^'`]*[<>]=? ?\d+ ?(semanas|sem\b|años|partidos|%)[^'`]*['`]/.test(line) ? [`${file}:${i + 1}  ${line.trim()}`] : [])
+    ))
+    expect(bad).toEqual([])
+  })
+
+  it('no muestra códigos internos en mayúsculas (PRAISING, CAPTAIN_APPOINTED): cada uno tiene su nombre', () => {
+    const bad = offenders(line => [
+      // Un campo de código puesto tal cual como texto
+      ...[...line.matchAll(/>\{[\w.?]*\.(chosen_tone|tone|event_type|severity_tier|season_phase)\}</g)].map(m => m[0]),
+      // Un texto de reemplazo escrito como código
+      ...[...line.matchAll(/>\{[^<>]*\|\| '[A-ZÁÉÍÓÚÑ_ ]{4,}'\}</g)].map(m => m[0])
+    ])
     expect(bad).toEqual([])
   })
 
