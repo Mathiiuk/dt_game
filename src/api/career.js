@@ -1,4 +1,5 @@
 import { pickVacancies } from '../domain/vacancies'
+import { negotiateJob } from '../domain/jobNegotiation'
 import { supabase } from './supabase'
 import { auditApi } from './audit'
 import { queryCache } from '../utils/cache'
@@ -241,6 +242,7 @@ export const careerApi = {
         objective: o.season_objective_expected,
         contractDurationYears: o.contract_years || 1,
         expiresAtWeek: o.expires_at_week,
+        negotiationRounds: o.negotiation_rounds || 0,
         weeksRemaining: Math.max(0, (o.expires_at_week || currentWeek) - currentWeek + 1)
       }))
     }
@@ -478,6 +480,28 @@ export const careerApi = {
   /**
    * Rechazar una oferta formal de trabajo
    */
+  /**
+   * Negocia el sueldo de una oferta de trabajo (domain/jobNegotiation.js): el club acepta, contraoferta, cierra o retira la oferta.
+   * Cuenta las rondas en la propia oferta, así reabrir la pantalla no permite negociar de nuevo.
+   */
+  async negotiateJobOffer(managerId, offerId, askWage, reputation) {
+    const { data: offer } = await supabase.from('manager_job_offers').select('*').eq('id', offerId).maybeSingle()
+    if (!offer || offer.manager_id !== managerId || offer.status !== 'PENDING') {
+      throw new Error('ERR_JOB_OFFER_INVALID: La oferta de trabajo ya no está disponible.')
+    }
+    const tier = offer.offering_club_tier || 5
+    const required = CAREER_PROGRESSION_RULES[`reputation_required_tier_${tier}`] ?? 10
+    const round = (offer.negotiation_rounds || 0) + 1
+    const result = negotiateJob({ offered: Number(offer.wage_offered), ask: Number(askWage), reputation: Number(reputation || 0), requiredReputation: required, round })
+
+    if (result.status === 'ACCEPTED' || result.status === 'COUNTER' || result.status === 'FINAL') {
+      await supabase.from('manager_job_offers').update({ wage_offered: result.wage, negotiation_rounds: round }).eq('id', offerId)
+    } else if (result.status === 'WITHDRAWN') {
+      await supabase.from('manager_job_offers').update({ status: 'EXPIRED', negotiation_rounds: round }).eq('id', offerId)
+    }
+    return result
+  },
+
   async rejectJobOffer(managerId, offerId) {
     if (!offerId) return
 

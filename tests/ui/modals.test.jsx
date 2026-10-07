@@ -83,6 +83,31 @@ describe.each([['escritorio', true], ['móvil', false]])('modales migrados (%s)'
     expect(onReject).toHaveBeenCalledWith(offer)
   })
 
+  it('JobOfferBottomSheet permite negociar el sueldo y muestra la respuesta del club', async () => {
+    const onNegotiate = vi.fn(async () => ({ status: 'COUNTER', wage: 1050, round: 1 }))
+    const offer = { id: 'o1', clubName: 'Racing de la Pampa', tier: 4, tierName: 'Primera C', offeredSalary: 900, budget: 25000, objective: 'PROMOTION', contractDurationYears: 2, weeksRemaining: 2, negotiationRounds: 0 }
+    render(<JobOfferBottomSheet isOpen offer={offer} onClose={() => {}} onAccept={() => {}} onReject={() => {}} onNegotiate={onNegotiate} />)
+    const dlg = screen.getByRole('dialog', { name: 'Racing de la Pampa' })
+    const field = within(dlg).getByLabelText('Sueldo semanal que pedís')
+    await userEvent.clear(field)
+    await userEvent.type(field, '1100')
+    await userEvent.click(within(dlg).getByRole('button', { name: 'Negociar' }))
+    expect(onNegotiate).toHaveBeenCalledWith(offer, 1100)
+    expect(await within(dlg).findByText(/contraofertó \$1\.050/)).toBeInTheDocument()
+  })
+
+  it('JobOfferBottomSheet exige pedir más de lo ofrecido y no deja negociar cuando se agotaron las rondas', async () => {
+    const onNegotiate = vi.fn()
+    const offer = { id: 'o1', clubName: 'Racing de la Pampa', tier: 4, offeredSalary: 900, budget: 25000, contractDurationYears: 1, weeksRemaining: 2, negotiationRounds: 0 }
+    const { rerender } = render(<JobOfferBottomSheet isOpen offer={offer} onClose={() => {}} onAccept={() => {}} onReject={() => {}} onNegotiate={onNegotiate} />)
+    const dlg = screen.getByRole('dialog', { name: 'Racing de la Pampa' })
+    await userEvent.type(within(dlg).getByLabelText('Sueldo semanal que pedís'), '800')
+    expect(within(dlg).getByRole('button', { name: 'Negociar' })).toBeDisabled()
+    rerender(<JobOfferBottomSheet isOpen offer={{ ...offer, negotiationRounds: 2 }} onClose={() => {}} onAccept={() => {}} onReject={() => {}} onNegotiate={onNegotiate} />)
+    expect(within(screen.getByRole('dialog', { name: 'Racing de la Pampa' })).queryByLabelText('Sueldo semanal que pedís')).not.toBeInTheDocument()
+    expect(onNegotiate).not.toHaveBeenCalled()
+  })
+
   it('JobOfferBottomSheet no renderiza nada si está cerrado', () => {
     const { container } = render(<JobOfferBottomSheet isOpen={false} offer={null} onClose={() => {}} />)
     expect(container).toBeEmptyDOMElement()

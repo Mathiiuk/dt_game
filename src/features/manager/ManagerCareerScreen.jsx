@@ -80,6 +80,20 @@ export default function ManagerCareerScreen() {
     }
   }
 
+  // El club responde al pedido de sueldo: si acepta o contraoferta se actualiza la oferta; si se ofende, la retira
+  const handleNegotiateOffer = async (offer, askWage) => {
+    const result = await careerApi.negotiateJobOffer(manager.id, offer.id, askWage, manager?.reputation)
+    if (result.status === 'WITHDRAWN') {
+      setSelectedOffer(null)
+      setOffers(prev => prev.filter(o => o.id !== offer.id))
+    } else if (['ACCEPTED', 'COUNTER', 'FINAL'].includes(result.status)) {
+      const updated = { ...offer, offeredSalary: result.wage, negotiationRounds: result.round }
+      setSelectedOffer(updated)
+      setOffers(prev => prev.map(o => (o.id === offer.id ? updated : o)))
+    }
+    return result
+  }
+
   const handleRejectOffer = async (offer) => {
     setActionLoading(true)
     try {
@@ -428,7 +442,7 @@ export default function ManagerCareerScreen() {
         )}
       </div>
 
-      <JobOfferBottomSheet isOpen={!!selectedOffer} offer={selectedOffer} onClose={() => setSelectedOffer(null)} onAccept={handleAcceptOffer} onReject={handleRejectOffer} loading={actionLoading} />
+      <JobOfferBottomSheet isOpen={!!selectedOffer} offer={selectedOffer} onClose={() => setSelectedOffer(null)} onAccept={handleAcceptOffer} onReject={handleRejectOffer} onNegotiate={handleNegotiateOffer} loading={actionLoading} />
       <ReputationHistoryModal isOpen={reputationOpen} onClose={() => setReputationOpen(false)} managerId={manager?.id} />
     </div>
   )
