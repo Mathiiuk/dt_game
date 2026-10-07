@@ -31,8 +31,8 @@ export const endgameApi = {
     const matches = stats.totalMatches || 0
     const wins = stats.totalWon || stats.wonMatches || 0
 
-    let headline = ''
-    let subheadline = ''
+    let headline
+    let subheadline
 
     if (titlesCount >= 3 || (stats.legacyScore || 0) >= 1000) {
       headline = '¡HASTA SIEMPRE, MAESTRO! EL ADIÓS DE UN INMORTAL'

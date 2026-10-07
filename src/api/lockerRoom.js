@@ -91,7 +91,7 @@ export const lockerRoomApi = {
             tier = 'FRINGE_PLAYER'
           }
 
-          let group = 'NEUTRAL'
+          let group
           if (p.age <= 20) {
             group = 'HOMEGROWN_CORE'
           } else if (p.age >= 27) {
@@ -291,9 +291,9 @@ export const lockerRoomApi = {
   async resolvePlayerDemand(playerId, choiceKey, clubId) {
     if (!playerId) return
 
-    let moraleDelta = 0
-    let satisfactionDelta = 0
-    let details = ''
+    let moraleDelta
+    let satisfactionDelta
+    let details
 
     if (choiceKey === 'PROMISE_MINUTES') {
       moraleDelta = 12

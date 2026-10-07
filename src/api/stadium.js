@@ -247,7 +247,7 @@ export const stadiumApi = {
   /**
    * Procesa el paso semanal de obras en construcción
    */
-  async advanceConstructionWeek(clubId, currentWeek, currentSeason) {
+  async advanceConstructionWeek(clubId, _currentWeek, _currentSeason) {
     if (!clubId) return null
 
     const active = await this.getActiveProject(clubId)

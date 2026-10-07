@@ -70,7 +70,7 @@ export const playerEvolutionApi = {
     const minutes = player.minutes_played_season || 0
     const professionalism = personality?.professionalism || 10
 
-    let ovrDelta = 0
+    let ovrDelta
     const deltas = {
       pace: 0,
       stamina: 0,
@@ -162,7 +162,6 @@ export const playerEvolutionApi = {
     let newOvr = currentOvr + ovrDelta
     if (newOvr > potential) {
       newOvr = potential
-      ovrDelta = newOvr - currentOvr
     }
     newOvr = Math.max(30, Math.min(99, newOvr))
 

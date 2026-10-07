@@ -57,7 +57,7 @@ export const financesApi = {
       const balance = Number(club.budget || 0)
 
       // 7. Estimación de liquidez
-      let liquidityWeeks = 'Estable'
+      let liquidityWeeks
       if (balance <= 0) {
         liquidityWeeks = '0 semanas (En números rojos)'
       } else if (expectedWeeklyFlow < 0) {

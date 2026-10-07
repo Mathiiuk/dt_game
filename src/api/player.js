@@ -144,14 +144,14 @@ export const playerApi = {
   /**
    * Genera el arreglo oficial de 20 jugadores respetando cuotas posicionales y Tier 5
    */
-  generatePlayersArray(clubId, reputation = 15, gameDate = '2026-07-01') {
+  generatePlayersArray(clubId, _reputation = 15, gameDate = '2026-07-01') {
     const usedNames = new Set()
 
     return INITIAL_SQUAD_STRUCTURE.map((slot) => {
       // 1. Determinar edad y OVR objetivo según categoría
-      let age = 24
-      let targetOvr = 50
-      let potential = 55
+      let age
+      let targetOvr
+      let potential
 
       const [minOvr, maxOvr] = TIER_5_RATING_RANGES[slot.ageCategory] || TIER_5_RATING_RANGES.prime
       targetOvr = randomInt(minOvr, maxOvr)

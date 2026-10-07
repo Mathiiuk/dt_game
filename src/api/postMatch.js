@@ -10,7 +10,6 @@ import { queryCache } from '../utils/cache'
 import { positionLine } from '../domain/positions'
 import { gateSettlement } from '../domain/finances'
 import { benchConsequences } from '../domain/squadConsequences'
-import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
 
 /**
  * ¿El gol del evento lo hizo este jugador? Si el evento trae `playerId` manda ese dato; el nombre en el texto sólo

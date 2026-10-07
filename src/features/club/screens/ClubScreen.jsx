@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { GraduationCap, Mic, Sparkles, UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
-import { clubApi } from '../../../api/club'
 import { staffApi, academyApi } from '../../../api/clubFeatures'
 import { clubHistoryApi } from '../../../api/clubHistory'
 import { financesApi } from '../../../api/finances'

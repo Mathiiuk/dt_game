@@ -93,7 +93,7 @@ export const competitionTiersApi = {
     // Final Reducido en cancha neutral
     const finalHomeGoals = Math.floor(Math.random() * 3)
     const finalAwayGoals = Math.floor(Math.random() * 3)
-    let finalWinner = semi1Winner
+    let finalWinner
     let penHome = null
     let penAway = null
 

@@ -112,7 +112,7 @@ export const fanbaseApi = {
     let score = fanbase?.fan_support_score || 65
 
     // Variación según resultado
-    let delta = 0
+    let delta
     if (isWin) {
       delta = isDerby ? 8 : FANBASE_BALANCE.SUPPORT_GAIN_PER_WIN
     } else if (isDraw) {
@@ -124,7 +124,7 @@ export const fanbaseApi = {
     const newScore = Math.min(100, Math.max(0, score + delta))
 
     // Estado del clima en tribunas
-    let status = 'NEUTRAL'
+    let status
     if (newScore >= FANBASE_BALANCE.EUPHORIA_TRIGGER_SCORE) {
       status = 'EUPHORIC_FORTRESS'
     } else if (newScore >= 60) {

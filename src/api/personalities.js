@@ -103,7 +103,7 @@ export const personalitiesApi = {
     for (const p of squad) {
       if (!existingMap.has(p.id)) {
         // Generación pseudo-determinista de rasgos
-        let arch = 'STREET_RESILIENT'
+        let arch
         if (p.age >= 29 && p.overall >= 68) arch = 'NATURAL_LEADER'
         else if (p.age <= 19 && Math.random() > 0.6) arch = 'SLACKER'
         else if (p.overall >= 72) arch = 'MODEL_PROFESSIONAL'

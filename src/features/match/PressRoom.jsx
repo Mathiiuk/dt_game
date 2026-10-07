@@ -62,7 +62,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const [reaction, setReaction] = useState(null) // { line, fans, board, timedOut, tone } tras responder
   const [phrase, setPhrase] = useState(null) // resultado de la frase elegida
   const [phraseDone, setPhraseDone] = useState(() => phraseDoneBefore(conferenceId))
-  const round = useMemo(() => phraseRound(outcome), [outcome]) // eslint-disable-line react-hooks/exhaustive-deps
+  const round = useMemo(() => phraseRound(outcome), [outcome])
   // Titular o fake y Bingo del DT
   const [headline, setHeadline] = useState(null) // resultado del titular elegido
   const [headlineDone, setHeadlineDone] = useState(() => headlineDoneBefore(conferenceId))

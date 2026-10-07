@@ -5,7 +5,7 @@
  */
 export async function askRisk(confirmRisk, getWarning) {
   if (typeof confirmRisk !== 'function') return true
-  let warning = null
+  let warning
   try {
     warning = await getWarning()
   } catch (e) {

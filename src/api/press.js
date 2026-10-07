@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 import { answerConsequences, outcomeOf, skipPress } from '../domain/press'
 import { ensureCharacters, rumorBoost } from '../domain/characters'
 import { climateApi } from './climate'
-import { seasonYearOf, weekOfDate } from '../domain/gameWeek'
+import { seasonYearOf } from '../domain/gameWeek'
 import { bingoCard, bingoLines, markCliche } from '../domain/pressRoom'
 import { toneHistory, memoryQuestion, situationQuestion } from '../domain/pressSituations'
 
@@ -89,8 +89,8 @@ export const pressApi = {
 
     // PREGUNTA 1: Análisis general del trámite
     const outlet1 = MEDIA_OUTLETS[0]
-    let q1Text = ''
-    let q1Options = []
+    let q1Text
+    let q1Options
 
     if (isWin) {
       q1Text = `Mister, gran triunfo ${myScore}-${rivalScore} ante ${opponent}. ¿Siente que el planteo táctico superó de principio a fin al rival?`
@@ -527,7 +527,7 @@ export const pressApi = {
    * El DT no se presenta a la conferencia: multa y un evento aleatorio que depende del resultado.
    * Es idempotente: si la conferencia ya se cerró, no cobra dos veces.
    */
-  async skipConference({ conferenceId, clubId, managerId = null, results, gameDate = null, rng = Math.random }) {
+  async skipConference({ conferenceId, clubId, managerId: _managerId = null, results, gameDate = null, rng = Math.random }) {
     if (!conferenceId || !clubId) return null
 
     const { data: conference } = await supabase.from('press_conferences').select('status').eq('id', conferenceId).maybeSingle()

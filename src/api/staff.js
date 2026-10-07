@@ -138,7 +138,7 @@ export const staffApi = {
   /**
    * Contratar a un especialista en un rol específico
    */
-  async hireStaff(clubId, candidate, managerId = null) {
+  async hireStaff(clubId, candidate, _managerId = null) {
     if (!clubId || !candidate) throw new Error('Parámetros de contratación incompletos.')
 
     const wage = candidate.wage_demanded || candidate.salary || this.BALANCE.base_staff_wage_tier_5
@@ -241,7 +241,7 @@ export const staffApi = {
   /**
    * Despedir a un empleado del cuerpo técnico con indemnización de 8 semanas
    */
-  async dismissStaff(clubId, staffId, managerId = null) {
+  async dismissStaff(clubId, staffId, _managerId = null) {
     if (!clubId || !staffId) throw new Error('Parámetros de despido incompletos.')
 
     const { data: member, error: fetchErr } = await supabase

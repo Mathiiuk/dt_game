@@ -135,7 +135,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   const awayBase = calcBasePower(awayPlayers)
 
   // 2. Modificadores tácticos
-  const applyTactics = (base, myTactic = {}, oppTactic = {}, isHome = false) => {
+  const applyTactics = (base, myTactic = {}, _oppTactic = {}, isHome = false) => {
     let attack = base.attack
     let defense = base.defense
     let midfield = base.midfield
@@ -562,7 +562,7 @@ export const matchEngineApi = {
   /**
    * Guarda de forma inmutable el resultado oficial del partido al pitazo final.
    */
-  async finalizeMatch(fixtureId, clubId, isHome, oppName, homeScore, awayScore, events = [], stats = {}) {
+  async finalizeMatch(fixtureId, clubId, isHome, oppName, homeScore, awayScore, events = [], _stats = {}) {
     if (!clubId) return false
 
     // 1. Guardar en match_history local
