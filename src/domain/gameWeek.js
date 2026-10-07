@@ -26,3 +26,6 @@ export const weekOfDate = (dateString) => {
  * que cruzan el cierre de temporada (semana 50 de una temporada y semana 2 de la siguiente están a 4 semanas).
  */
 export const absoluteWeek = (dateString) => (seasonYearOf(dateString) - FIRST_SEASON_YEAR) * WEEKS_PER_SEASON + weekOfDate(dateString)
+
+/** La temporada terminó para el juego cuando se llega a la última semana: ahí se cierra desde la gala (no se avanza más) */
+export const isSeasonEnded = (dateString) => weekOfDate(dateString) >= WEEKS_PER_SEASON

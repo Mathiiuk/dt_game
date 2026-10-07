@@ -287,9 +287,9 @@ export const competitionTiersApi = {
       .from('playoff_fixtures')
       .select(`
         *,
-        home_club:home_club_id (name, short_name, logo_url),
-        away_club:away_club_id (name, short_name, logo_url),
-        winner_club:winner_club_id (name, short_name, logo_url)
+        home_club:home_club_id (name, short_name),
+        away_club:away_club_id (name, short_name),
+        winner_club:winner_club_id (name, short_name)
       `)
       .eq('career_id', careerId)
       .eq('season_year', seasonYear)

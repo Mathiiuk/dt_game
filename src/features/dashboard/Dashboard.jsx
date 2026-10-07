@@ -10,6 +10,7 @@ import { queryCache } from '../../utils/cache'
 import { friendlyError } from '../../lib/errors'
 import { useGameContext } from '../../context/GameContext'
 import { isFixtureDue } from '../../domain/fixtureStatus'
+import { isSeasonEnded, seasonYearOf } from '../../domain/gameWeek'
 import { rivalLevel, rivalOf } from '../../domain/rivalLevel'
 import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
@@ -204,7 +205,7 @@ export default function Dashboard() {
   const matchDue = !!nextFixture && isFixtureDue(nextFixture.match_date, clubSummary.gameDate)
   const matchFuture = !!nextFixture && !matchDue
   const daysToMatch = matchFuture ? daysBetween(clubSummary.gameDate, String(nextFixture.match_date).slice(0, 10)) : 0
-  const seasonEnded = club?.current_week >= 52
+  const seasonEnded = isSeasonEnded(clubSummary.gameDate)
   const isHome = nextFixture?.home_team_id === club.id
   const rival = nextFixture ? rivalLevel(rivalOf(nextFixture, club.id)?.strength) : null
   const wageUsage = financesSummary.wageBudget > 0 ? Math.round((financesSummary.weeklyWageBill / financesSummary.wageBudget) * 100) : 0
@@ -421,7 +422,7 @@ export default function Dashboard() {
           club={club}
           manager={manager}
           careerId={club?.career_id}
-          seasonYear={club?.current_season_year || 2026}
+          seasonYear={seasonYearOf(clubSummary.gameDate)}
           onClose={() => setShowSeasonCloseModal(false)}
           // El modal queda abierto para mostrar el resumen de la transición; se cierra con "Comenzar pretemporada"
           onSuccess={() => { queryCache.clear() }}

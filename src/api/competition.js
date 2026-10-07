@@ -241,15 +241,15 @@ export const competitionApi = {
   /**
    * Generador de fixture todos contra todos (una rueda, 19 fechas para 20 clubes) con la localía repartida (domain/leagueSchedule).
    */
-  async generateRoundRobinFixtures(competitionId, clubIds) {
+  async generateRoundRobinFixtures(competitionId, clubIds, startDate = '2026-08-01') {
     if (!competitionId || !clubIds || clubIds.length < 2) return
 
     const fixtures = []
-    const baseDate = new Date('2026-08-01')
+    const baseDate = new Date(`${startDate}T00:00:00Z`)
 
     roundRobinSchedule(clubIds).forEach((matches, round) => {
       const matchDate = new Date(baseDate)
-      matchDate.setDate(matchDate.getDate() + round * 7)
+      matchDate.setUTCDate(matchDate.getUTCDate() + round * 7)
       const dateStr = matchDate.toISOString().split('T')[0]
       for (const m of matches) {
         fixtures.push({

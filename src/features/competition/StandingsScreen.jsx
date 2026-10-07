@@ -4,12 +4,12 @@ import { Calendar, Layers, RefreshCw, Shield, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 import { competitionApi } from '../../api/competition'
 import { useGameContext } from '../../context/GameContext'
+import { isSeasonEnded } from '../../domain/gameWeek'
 import { queryCache } from '../../utils/cache'
 import { FORM_LABELS, ZONES, formatDiff, goalDiff, parseForm, zoneOf } from '../../domain/standings'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, EmptyState, PageHeader, Skeleton } from '../../components/ui'
 import LeaguePyramidModal from './LeaguePyramidModal'
-import { friendlyError } from '../../lib/errors'
 
 const FORM_STYLE = {
   V: 'bg-accent-soft text-accent',
@@ -19,7 +19,7 @@ const FORM_STYLE = {
 
 export default function StandingsScreen() {
   const navigate = useNavigate()
-  const { club, loading: contextLoading, confirmAction } = useGameContext()
+  const { club, loading: contextLoading } = useGameContext()
 
   const [loading, setLoading] = useState(true)
   const [standings, setStandings] = useState([])
@@ -50,26 +50,8 @@ export default function StandingsScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contextLoading, club?.id])
 
-  const handleEndSeason = async () => {
-    const confirmed = await confirmAction({
-      title: 'Finalizar temporada',
-      description: '¿Finalizar la temporada? Se procesarán edades, retiros, ascensos y descensos para el próximo año.',
-      confirmText: 'Finalizar temporada',
-      cancelText: 'Cancelar',
-      variant: 'warning'
-    })
-    if (!confirmed) return
-    try {
-      setLoading(true)
-      const { gameLoopApi } = await import('../../api/gameLoop')
-      await gameLoopApi.endSeason(club.id)
-      toast.success('Temporada regular finalizada con éxito.')
-      navigate('/dashboard')
-    } catch (e) {
-      toast.error(friendlyError(e, 'Error al finalizar temporada.'))
-      setLoading(false)
-    }
-  }
+  // El cierre anual se hace desde la gala del inicio (premio, ascenso, evolución y calendario nuevo)
+  const seasonEnded = !!club?.game_date && isSeasonEnded(club.game_date)
 
   if (loading || contextLoading) {
     return (
@@ -104,7 +86,7 @@ export default function StandingsScreen() {
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate('/calendar')}><Calendar />Calendario</Button>
             <Button variant="outline" size="sm" onClick={() => setShowPyramid(true)}><Layers />Pirámide y reducido</Button>
-            <Button size="sm" onClick={handleEndSeason}>Cierre anual</Button>
+            {seasonEnded && <Button size="sm" onClick={() => navigate('/dashboard')}><Trophy />Cierre anual</Button>}
           </>
         }
       />

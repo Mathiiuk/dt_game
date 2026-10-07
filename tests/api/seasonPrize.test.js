@@ -48,6 +48,13 @@ describe('premio de fin de temporada en el servidor', () => {
     expect(statement.row).toMatchObject({ prize_money_received: 13500, approved_wage_budget_next_year: 36000 })
   })
 
+  it('arma el calendario de la temporada siguiente de la misma liga, desde el 1 de agosto del año que viene', async () => {
+    await seasonCloseApi.executeSeasonClose({ careerId: 'k1', clubId: 'me', seasonYear: 2026 })
+    const rows = state.writes.filter(w => w.table === 'fixtures' && w.op === 'insert').flatMap(w => w.row)
+    expect(rows.length).toBeGreaterThan(0)
+    expect(rows.every(r => r.competition_id === 'comp' && r.match_date >= '2027-08-01')).toBe(true)
+  })
+
   it('si la base rechaza la liquidación (club ajeno) el cierre se corta con su mensaje', async () => {
     state.rpcResult = () => ({ data: null, error: { message: 'Club no encontrado.' } })
     await expect(seasonCloseApi.executeSeasonClose({ careerId: 'k1', clubId: 'x', seasonYear: 2026 })).rejects.toThrow('Club no encontrado.')
@@ -67,5 +74,12 @@ describe('escala de premios', () => {
   })
   it('bono del goleador', () => {
     expect(TOP_SCORER_BONUS).toBe(1500)
+  })
+})
+
+describe('cierre con la tabla de la liga', () => {
+  it('no pide columnas que clubs no tiene (logo_url hacía fallar la consulta de la tabla)', async () => {
+    const fs = await import('node:fs')
+    expect(fs.readFileSync('src/api/seasonClose.js', 'utf8')).not.toContain('logo_url')
   })
 })

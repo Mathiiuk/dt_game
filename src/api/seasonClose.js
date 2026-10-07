@@ -3,6 +3,7 @@ import { queryCache } from '../utils/cache'
 import { playerEvolutionApi } from './playerEvolution'
 import { clubHistoryApi } from './clubHistory'
 import { yearsRemaining } from '../domain/contracts'
+import { competitionApi } from './competition'
 
 /**
  * Premios federativos escalados a la economía del club de la división 5 (la caja inicial es de unos $20.000 y un año deja ~$45.000).
@@ -48,14 +49,16 @@ export const seasonCloseApi = {
 
     // 2. Obtener la tabla de posiciones definitiva de ESTA liga (antes se leían todas las ligas y el campeón salía de cualquiera)
     const { data: mine } = await supabase.from('standings').select('competition_id').eq('club_id', clubId).limit(1).maybeSingle()
-    const { data: standingsRaw } = !mine?.competition_id ? { data: [] } : await supabase
+    const { data: standingsRaw, error: standingsErr } = !mine?.competition_id ? { data: [], error: null } : await supabase
       .from('standings')
-      .select('*, club:clubs(id, name, short_name, logo_url)')
+      .select('*, club:clubs(id, name, short_name)')
       .eq('competition_id', mine.competition_id)
       .order('points', { ascending: false })
       .order('goal_difference', { ascending: false })
       .order('goals_for', { ascending: false })
 
+    // Sin la tabla no se cierra nada: el premio y el calendario nuevo dependen de ella (antes un error de consulta pasaba en silencio)
+    if (standingsErr) throw new Error(standingsErr.message)
     const standings = standingsRaw || []
 
     const championClub = standings[0] || null
@@ -195,6 +198,16 @@ export const seasonCloseApi = {
 
     // 9. Avanzar calendario del juego al nuevo año (Semana 1)
     const nextYear = seasonYear + 1
+
+    // Historial del club (puesto de la temporada) y partidos de la temporada que empieza, en la misma liga
+    try {
+      await supabase.from('season_history').insert({ club_id: clubId, season_year: seasonYear, position: userPosition })
+    } catch (e) {
+      console.warn('Aviso: no se pudo guardar el historial de la temporada:', e)
+    }
+    if (mine?.competition_id && standings.length > 1) {
+      await competitionApi.generateRoundRobinFixtures(mine.competition_id, standings.map(s => s.club_id), `${nextYear}-08-01`)
+    }
     const nextGameDate = `${nextYear}-07-01`
 
     // Actualizar fecha en clubs
@@ -275,8 +288,8 @@ export const seasonCloseApi = {
       .from('season_snapshots')
       .select(`
         *,
-        champion:champion_club_id (name, short_name, logo_url),
-        runner_up:runner_up_club_id (name, short_name, logo_url),
+        champion:champion_club_id (name, short_name),
+        runner_up:runner_up_club_id (name, short_name),
         top_scorer:top_scorer_player_id (first_name, last_name)
       `)
       .eq('career_id', careerId)

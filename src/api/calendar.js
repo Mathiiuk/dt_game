@@ -254,6 +254,13 @@ export const calendarApi = {
       throw err
     }
 
+    // 3b. En la última semana no se avanza: la temporada se cierra desde la gala de fin de temporada
+    if (calendar.current_week >= WEEKS_PER_SEASON) {
+      const err = new Error('ERR_SEASON_END: La temporada terminó. Cerrala desde la gala de fin de temporada para empezar la siguiente.')
+      err.code = 'ERR_SEASON_END'
+      throw err
+    }
+
     // 4. Condiciones que frenan el avance. Las tres consultas son independientes: se piden juntas y se evalúan
     // en el mismo orden de siempre (partido de liga, copa continental, dilema crítico)
     if (clubId) {
@@ -458,13 +465,8 @@ export const calendarApi = {
           .eq('id', clubId)
       }
 
-      // 12. Fin de temporada si supera semana 52
-      let seasonCompleted = false
-      if (nextWeek > WEEKS_PER_SEASON) {
-        seasonCompleted = true
-        const { gameLoopApi } = await import('./gameLoop')
-        await gameLoopApi.endSeason(clubId)
-      }
+      // 12. El cierre de la temporada no pasa por acá: la semana 52 frena el avance y se cierra desde la gala
+      const seasonCompleted = false
 
       // 13 y 14. El estado del calendario y la auditoría del avance son independientes: se guardan juntos
       const durationMs = Date.now() - startTime
@@ -475,8 +477,8 @@ export const calendarApi = {
             await supabase
               .from('career_calendar')
               .update({
-                current_week: nextWeek > WEEKS_PER_SEASON ? 1 : nextWeek,
-                current_season_year: nextWeek > WEEKS_PER_SEASON ? calendar.current_season_year + 1 : calendar.current_season_year,
+                current_week: nextWeek,
+                current_season_year: calendar.current_season_year,
                 current_date: nextDate,
                 season_phase: nextPhase.id,
                 transfer_window_open: nextTransferWindow,
