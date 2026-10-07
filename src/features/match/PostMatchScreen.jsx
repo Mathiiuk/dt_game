@@ -99,7 +99,10 @@ export default function PostMatchScreen() {
             setPressConference(pressRes.conference)
             setPressQuestions(pressRes.questions || [])
             const pendingIdx = pressRes.questions.findIndex(q => !q.chosen_tone)
-            if (pendingIdx !== -1) {
+            // Una conferencia ya cerrada (terminada antes de la última pregunta) no se retoma al volver a la pantalla
+            if (pressRes.conference?.status && pressRes.conference.status !== 'IN_PROGRESS') {
+              setIsPressFinished(true)
+            } else if (pendingIdx !== -1) {
               setCurrentQIndex(pendingIdx)
             } else if (pressRes.questions.length > 0) {
               setIsPressFinished(true)
@@ -195,10 +198,23 @@ export default function PostMatchScreen() {
     }
   }
 
-  // Salir de la pantalla con la conferencia sin resolver cuenta como no presentarse
+  // Después de contestar al menos una pregunta se puede cortar ahí: lo respondido queda y no hay multa
+  const handleFinishPressEarly = async () => {
+    if (!pressConference) return false
+    try {
+      await pressApi.finishEarly(pressConference.id)
+      setIsPressFinished(true)
+      return true
+    } catch (err) {
+      toast.error(friendlyError(err, 'No pudimos cerrar la conferencia. Probá de nuevo.'))
+      return false
+    }
+  }
+
+  // Salir de la pantalla con la conferencia sin resolver cuenta como no presentarse; si ya contestaste algo, se termina ahí
   const leaveTo = async (path) => {
     if (pressConference && !isPressFinished && !isPressDelegated) {
-      const done = await handleSkipPress()
+      const done = pressQuestions.some(q => q.chosen_tone) ? await handleFinishPressEarly() : await handleSkipPress()
       if (!done) return
     }
     navigate(path)
@@ -207,10 +223,12 @@ export default function PostMatchScreen() {
   const handleDelegatePress = async () => {
     if (!pressConference) return
     try {
-      await pressApi.delegateToAssistant(pressConference.id, clubId)
-      setIsPressDelegated(true)
+      const res = await pressApi.delegateToAssistant(pressConference.id, clubId)
+      // Si ya habías contestado no se delega nada: la conferencia sigue con tus respuestas
+      if (res?.alreadyAnswered) return
+      setIsPressDelegated(!res?.alreadyClosed)
       setIsPressFinished(true)
-      toast.info('Conferencia delegada en el ayudante de campo.')
+      if (!res?.alreadyClosed) toast.info('Conferencia delegada en el ayudante de campo.')
     } catch (err) {
       toast.error('Error al delegar rueda de prensa')
     }
@@ -333,6 +351,7 @@ export default function PostMatchScreen() {
             onNext={handleNextPress}
             onSkip={handleSkipPress}
             onDelegate={handleDelegatePress}
+            onFinishEarly={handleFinishPressEarly}
             onPhrase={handlePhrase}
             onHeadline={handleHeadline}
             bingo={bingo}

@@ -57,7 +57,7 @@ function Countdown({ seconds, onExpire }) {
  * Sala de conferencias: preguntas relámpago con cuenta regresiva, reacción de la sala tras cada respuesta,
  * y al final la ronda de "Completá la frase del DT".
  */
-export default function PressRoom({ questions, currentIndex, outcome, finished, delegated, skipResult, conferenceId, bingo = null, headlineContext = null, onAnswer, onNext, onSkip, onDelegate, onPhrase, onHeadline }) {
+export default function PressRoom({ questions, currentIndex, outcome, finished, delegated, skipResult, conferenceId, bingo = null, headlineContext = null, onAnswer, onNext, onSkip, onDelegate, onFinishEarly, onPhrase, onHeadline }) {
   const [noTimer, setNoTimer] = useState(readNoTimer)
   const [reaction, setReaction] = useState(null) // { line, fans, board, timedOut, tone } tras responder
   const [phrase, setPhrase] = useState(null) // resultado de la frase elegida
@@ -73,6 +73,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const [bingoNote, setBingoNote] = useState('')
   useEffect(() => { if (bingo) setBingoState(bingo) }, [bingo])
   const question = questions[currentIndex]
+  // No presentarse y delegar son decisiones de antes de hablar: después de la primera respuesta solo se puede terminar ahí
+  const answeredAny = questions.some(q => q.chosen_tone)
 
   const toggleTimer = () => {
     const next = !noTimer
@@ -121,7 +123,10 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           <p className="text-xs text-fg-muted">Preguntas relámpago: contestá antes de que se acabe el tiempo</p>
         </div>
       </div>
-      {!finished && !reaction && (
+      {!finished && !reaction && answeredAny && (
+        <AsyncButton onClick={onFinishEarly} className="rounded-xl border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-fg transition-colors hover:bg-surface-3">Terminar acá</AsyncButton>
+      )}
+      {!finished && !reaction && !answeredAny && (
         <div className="flex flex-wrap gap-2">
           <AsyncButton onClick={onSkip} className="rounded-xl border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-danger transition-colors hover:bg-surface-3">No presentarme</AsyncButton>
           <AsyncButton onClick={onDelegate} className="flex items-center gap-1.5 rounded-xl border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-fg transition-colors hover:bg-surface-3">
@@ -244,7 +249,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
         )}
 
         <div className="space-y-3 pt-2">
-          {questions.map((q, idx) => (
+          {questions.filter(q => q.chosen_tone).map((q, idx) => (
             <div key={q.id || idx} className="space-y-1.5 rounded-xl border border-line/80 bg-bg/70 p-3.5 text-xs">
               <div className="flex items-center justify-between text-[11px] text-fg-subtle">
                 <span className="font-semibold text-fg-muted">{q.media_outlet} • {q.journalist_name}</span>

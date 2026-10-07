@@ -483,7 +483,15 @@ export const pressApi = {
   async delegateToAssistant(conferenceId, clubId) {
     if (!conferenceId) return
 
-    await supabase
+    // Solo se delega antes de contestar: si ya hablaste, tus respuestas (y sus efectos) quedan como están
+    const { data: questions } = await supabase
+      .from('press_qa_items')
+      .select('id, chosen_tone')
+      .eq('conference_id', conferenceId)
+    if ((questions || []).some(q => q.chosen_tone)) return { alreadyAnswered: true }
+
+    // Se cierra solo si sigue abierta: dos clics seguidos no suman la moral dos veces
+    const { data: closed } = await supabase
       .from('press_conferences')
       .update({
         delegated_to_assistant: true,
@@ -491,25 +499,20 @@ export const pressApi = {
         completed_at: new Date().toISOString()
       })
       .eq('id', conferenceId)
+      .eq('status', 'IN_PROGRESS')
+      .select('id')
+    if (!closed || closed.length === 0) return { alreadyClosed: true }
 
-    // Respuestas automáticas sobrias
-    const { data: questions } = await supabase
+    // Respuestas automáticas sobrias, en una sola escritura
+    await supabase
       .from('press_qa_items')
-      .select('*')
+      .update({
+        chosen_tone: 'PRAGMATIC',
+        manager_answer_text: 'El segundo entrenador atendió a los medios con declaraciones protocolares.',
+        morale_impact_applied: 1
+      })
       .eq('conference_id', conferenceId)
-
-    if (questions) {
-      for (const q of questions) {
-        await supabase
-          .from('press_qa_items')
-          .update({
-            chosen_tone: 'PRAGMATIC',
-            manager_answer_text: 'El segundo entrenador atendió a los medios con declaraciones protocolares.',
-            morale_impact_applied: 1
-          })
-          .eq('id', q.id)
-      }
-    }
+      .is('chosen_tone', null)
 
     // Bono atenuado suave
     if (clubId) {
@@ -521,6 +524,20 @@ export const pressApi = {
     }
 
     return { success: true }
+  },
+
+  /**
+   * Termina la conferencia antes de la última pregunta: lo ya respondido queda como está y no se aplica nada más
+   */
+  async finishEarly(conferenceId) {
+    if (!conferenceId) return null
+    const { data: closed } = await supabase
+      .from('press_conferences')
+      .update({ status: 'COMPLETED', completed_at: new Date().toISOString() })
+      .eq('id', conferenceId)
+      .eq('status', 'IN_PROGRESS')
+      .select('id')
+    return closed && closed.length > 0 ? { success: true } : { alreadyClosed: true }
   },
 
   /**
