@@ -8,9 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:bdd": "cucumber-js --tags @auto",
+    "test:bdd:docs": "cucumber-js --dry-run --no-strict"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^13.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",

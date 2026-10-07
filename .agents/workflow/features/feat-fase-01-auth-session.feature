@@ -1,4 +1,5 @@
-Funcionalidad: Inicio de Sesión, Autenticación y Aislamiento de Carreras
+# language: es
+Característica: Inicio de Sesión, Autenticación y Aislamiento de Carreras
   Como director técnico
   Quiero autenticarme de forma segura y acceder a mi carrera protegida
   Para gestionar mi club con total integridad de datos

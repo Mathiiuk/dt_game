@@ -1,4 +1,5 @@
-Funcionalidad: Creación del Director Técnico y Presets de Trasfondo
+# language: es
+Característica: Creación del Director Técnico y Presets de Trasfondo
   Como nuevo entrenador en Del Potrero al Ídolo
   Quiero forjar mi identidad profesional eligiendo mi historia previa y habilidades
   Para iniciar mi carrera con una credencial oficial y atributos balanceados

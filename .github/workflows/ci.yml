@@ -26,5 +26,8 @@ jobs:
       - name: 🧪 Ejecutar Pruebas Unitarias
         run: npm test
 
+      - name: 🥒 Escenarios BDD (Cucumber)
+        run: npm run test:bdd
+
       - name: 🔨 Compilar (Build)
         run: npm run build

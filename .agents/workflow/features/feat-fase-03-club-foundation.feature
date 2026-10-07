@@ -1,4 +1,5 @@
-Funcionalidad: Creación y Fundación de la Institución
+# language: es
+Característica: Creación y Fundación de la Institución
   Como director técnico recién recibido
   Quiero fundar mi club con identidad visual propia y su cancha oficial
   Para competir en el Torneo Regional (Tier 5) con un presupuesto regulado

@@ -1,54 +1,18 @@
-# ==============================================================================
-# PLANTILLA ESTÁNDAR DE ESPECIFICACIÓN BDD EN GHERKIN
-# ==============================================================================
-# Propósito: Definir los criterios de aceptación y el comportamiento del sistema
-# en un formato legible por humanos y ejecutable por máquinas (Cucumber).
-# Palabras clave en inglés (estándar universal) con comentarios en español.
-# ==============================================================================
-
 Feature: league-home-away-balance - El calendario de liga reparte local y visitante parejo
-  # Como [rol del usuario]
-  # Quiero [acción o funcionalidad deseada]
-  # Para [beneficio o valor de negocio obtenido]
+  # Como DT
+  # Quiero jugar la mitad de los partidos de local
+  # Para que la taquilla y la economía del club tengan sentido
 
-  # ----------------------------------------------------------------------------
-  # CONTEXTO / PRECONDICIONES COMUNES (Opcional)
-  # Se ejecuta antes de cada escenario de esta característica
-  # ----------------------------------------------------------------------------
-  Background:
-    Given the environment is initialized for "league-home-away-balance"
+  @auto
+  Scenario: Calendario de una liga de 20 clubes
+    Given una liga de 20 clubes
+    When se arma el calendario
+    Then hay 19 fechas de 10 partidos
+    And cada club juega entre 9 y 10 partidos de local
+    And ningún club juega más de 3 fechas seguidas de visitante
 
-  # ----------------------------------------------------------------------------
-  # ESCENARIO 1: Camino Feliz (Happy Path)
-  # Describe el flujo principal donde todo funciona según lo esperado
-  # ----------------------------------------------------------------------------
-  Scenario: Successful execution of main flow
-    Given the system is in a valid initial state
-    When the user performs the primary action with valid input
-    Then the system should produce the expected successful result
-    And the state changes should be persisted correctly
-
-  # ----------------------------------------------------------------------------
-  # ESCENARIO 2: Caso de Validación / Error (Edge Case / Error Handling)
-  # Describe cómo reacciona el sistema ante entradas inválidas o fallos
-  # ----------------------------------------------------------------------------
-  Scenario: Handling invalid input or edge case
-    Given the system is ready
-    When the user provides invalid or empty data
-    Then the system should reject the request with a clear error message
-    And no unauthorized state changes should occur
-
-  # ----------------------------------------------------------------------------
-  # ESCENARIO 3: Esquema del Escenario con Ejemplos (Data-Driven Testing)
-  # Permite probar múltiples combinaciones de datos con la misma lógica
-  # ----------------------------------------------------------------------------
-  Scenario Outline: Processing multiple input combinations
-    Given an input value of "<input_val>"
-    When the validation logic is executed
-    Then the resulting status should be "<expected_status>"
-
-    Examples:
-      | input_val | expected_status |
-      | valid_1   | success         |
-      | valid_2   | success         |
-      | invalid_0 | error           |
+  @auto
+  Scenario: Cada rival se enfrenta una sola vez
+    Given una liga de 20 clubes
+    When se arma el calendario
+    Then cada par de clubes se cruza exactamente una vez

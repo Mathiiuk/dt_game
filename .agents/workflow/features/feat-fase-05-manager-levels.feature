@@ -1,4 +1,5 @@
-Funcionalidad: Niveles y Progresión del Director Técnico
+# language: es
+Característica: Niveles y Progresión del Director Técnico
   Como entrenador en carrera
   Quiero ganar experiencia con las victorias y logros de mi equipo
   Para subir de nivel y desbloquear ventajas tácticas en mi perfil

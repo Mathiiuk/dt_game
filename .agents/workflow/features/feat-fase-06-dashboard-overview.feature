@@ -1,4 +1,5 @@
-Funcionalidad: Dashboard Central y Centro de Mando
+# language: es
+Característica: Dashboard Central y Centro de Mando
   Como director técnico del club
   Quiero visualizar el estado consolidado de mi institución, alertas y próximo partido
   Para tomar decisiones informadas y preparar el siguiente compromiso deportivo

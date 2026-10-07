@@ -1,0 +1,34 @@
+id: tooling-cucumber
+external_ref: ''
+title: Cucumber instalado y el gate BDD corre de verdad
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - Implementar Cucumber instalado y el gate BDD corre de verdad
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Cucumber instalado y el gate BDD corre de
+    verdad
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd

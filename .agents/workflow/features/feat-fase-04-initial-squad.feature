@@ -1,4 +1,5 @@
-Funcionalidad: Generación Procedural del Primer Plantel
+# language: es
+Característica: Generación Procedural del Primer Plantel
   Como director técnico
   Quiero que mi club cuente con un plantel equilibrado y completo de 20 futbolistas
   Para poder armar alineaciones tácticas y competir en la liga
