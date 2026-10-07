@@ -1,3 +1,4 @@
+import { evaluateBoardAfterMatch } from '../domain/boardConfidence'
 import { supabase } from './supabase'
 import { ensureRow } from '../utils/ensureRow'
 import { queryCache } from '../utils/cache'
@@ -102,69 +103,29 @@ export const boardApi = {
     if (!clubId) return null
 
     const board = await this.getBoardConfidence(clubId, managerId)
-    const pointsWon = isWin ? 3 : isDraw ? 1 : 0
-    const sportDelta = isWin ? 4 : isDraw ? -1 : -6
+    // La parte numérica es una función pura (domain/boardConfidence.js); acá solo se aplican sus consecuencias
+    const verdict = evaluateBoardAfterMatch(board, { isWin, isDraw })
+    const { sports, globalConfidence, isUnderUltimatum, pointsRequired, matchesRemaining, pointsGathered } = verdict
+    const ultimatumEvent = verdict.event
 
-    let sports = Math.min(100, Math.max(0, (board.sports_satisfaction || 70) + sportDelta))
-    const fin = board.financial_satisfaction || 70
-    const squad = board.squad_satisfaction || 70
-
-    // Ponderación de confianza global: Deportiva (50%), Financiera (30%), Plantel (20%)
-    let globalConfidence = Math.round((sports * 0.50) + (fin * 0.30) + (squad * 0.20))
-
-    let isUnderUltimatum = board.is_under_ultimatum
-    let pointsRequired = board.ultimatum_points_required
-    let matchesRemaining = board.ultimatum_matches_remaining
-    let pointsGathered = board.ultimatum_points_gathered
-    let ultimatumEvent = null
-
-    if (isUnderUltimatum) {
-      pointsGathered += pointsWon
-      matchesRemaining -= 1
-
-      if (pointsGathered >= pointsRequired) {
-        // ¡Ultimátum superado con éxito!
-        isUnderUltimatum = false
-        pointsRequired = 0
-        matchesRemaining = 0
-        pointsGathered = 0
-        globalConfidence = Math.min(100, globalConfidence + 20)
-        sports = Math.min(100, sports + 15)
-        ultimatumEvent = 'SURVIVED'
-
-        await supabase.from('board_meetings_log').insert({
-          club_id: clubId,
-          manager_id: managerId || null,
-          meeting_reason: 'ULTIMATUM_SURVIVED',
-          board_statement: 'La directiva reconoce la respuesta del equipo en los momentos decisivos y ratifica formalmente al DT.',
-          manager_response: 'El grupo demostró carácter y unión para salir adelante.'
-        })
-      } else if (matchesRemaining <= 0) {
-        // ¡Ultimátum fallido! Proceso de destitución
-        ultimatumEvent = 'FAILED'
-        await this.executeManagerDismissal(clubId, managerId, 'ULTIMATUM_FAILED', globalConfidence)
-      }
-    } else {
-      // Si la confianza cae a zona de crisis (<= 35), se activa el ultimátum
-      if (globalConfidence <= 35) {
-        isUnderUltimatum = true
-        pointsRequired = 4
-        matchesRemaining = 3
-        pointsGathered = 0
-        ultimatumEvent = 'ISSUED'
-
-        await supabase.from('board_meetings_log').insert({
-          club_id: clubId,
-          manager_id: managerId || null,
-          meeting_reason: 'ULTIMATUM_ISSUED',
-          board_statement: 'Cumbre de crisis urgente: La directiva exige conseguir al menos 4 puntos en los próximos 3 partidos o deberemos rescindir su contrato.',
-          manager_response: 'Asumo la responsabilidad. Buscaremos los resultados necesarios de inmediato.'
-        })
-      } else if (globalConfidence < 15) {
-        // Despido fulminante
-        await this.executeManagerDismissal(clubId, managerId, 'POOR_SPORTS_RESULTS', globalConfidence)
-      }
+    if (verdict.event === 'SURVIVED') {
+      await supabase.from('board_meetings_log').insert({
+        club_id: clubId,
+        manager_id: managerId || null,
+        meeting_reason: 'ULTIMATUM_SURVIVED',
+        board_statement: 'La directiva reconoce la respuesta del equipo en los momentos decisivos y ratifica formalmente al DT.',
+        manager_response: 'El grupo demostró carácter y unión para salir adelante.'
+      })
+    } else if (verdict.event === 'ISSUED') {
+      await supabase.from('board_meetings_log').insert({
+        club_id: clubId,
+        manager_id: managerId || null,
+        meeting_reason: 'ULTIMATUM_ISSUED',
+        board_statement: 'Cumbre de crisis urgente: La directiva exige conseguir al menos 4 puntos en los próximos 3 partidos o deberemos rescindir su contrato.',
+        manager_response: 'Asumo la responsabilidad. Buscaremos los resultados necesarios de inmediato.'
+      })
     }
+    if (verdict.dismissal) await this.executeManagerDismissal(clubId, managerId, verdict.dismissal, globalConfidence)
 
     const updates = {
       confidence_score: globalConfidence,
