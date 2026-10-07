@@ -223,9 +223,8 @@ export const scoutingApi = {
     if (reportErr) throw new Error(reportErr.message)
 
     // 6. Descontar los viáticos recién cuando el informe quedó guardado (si falla antes, no se cobra nada)
-    const newBudget = Math.max(0, (club.budget || 0) - cost)
-    const { error: chargeErr } = await supabase.from('clubs').update({ budget: newBudget }).eq('id', clubId)
-    if (chargeErr) throw new Error(chargeErr.message)
+    const { financesApi } = await import('./finances')
+    const { newBudget } = await financesApi.moveCash({ clubId, amount: -cost, category: 'SCOUTING', description: 'Viáticos de ojeo' })
 
     // 7. Registrar en auditoría de misiones
     try {

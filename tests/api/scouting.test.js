@@ -6,6 +6,7 @@ const state = { upsertError: null }
 
 vi.mock('../../src/api/supabase', () => ({
   supabase: {
+    rpc: async (fn, args) => { calls.push({ table: 'clubs', op: 'cash', payload: args }); return { data: { new_budget: 700, moved: true }, error: null } },
     from: (table) => {
       const b = {
         select: () => b,
@@ -39,9 +40,11 @@ describe('ojear jugadores', () => {
 
   it('cobra los viáticos después de guardar el informe', async () => {
     await scoutingApi.scoutPlayer('c1', 'p1', 'FULL')
-    const order = calls.filter(c => c.op === 'upsert' || (c.table === 'clubs' && c.op === 'update')).map(c => c.table)
+    const order = calls.filter(c => c.op === 'upsert' || c.op === 'cash').map(c => c.table)
     expect(order).toEqual(['scout_reports', 'clubs'])
-    expect(calls.find(c => c.table === 'clubs' && c.op === 'update').payload.budget).toBe(700)
+    // El cobro lo hace el servidor (no se escribe el presupuesto desde el navegador)
+    expect(calls.find(c => c.op === 'cash').payload).toMatchObject({ p_amount: -300, p_category: 'SCOUTING' })
+    expect(calls.some(c => c.table === 'clubs' && c.op === 'update')).toBe(false)
   })
 
   it('si el informe no se guarda, no se cobra nada', async () => {

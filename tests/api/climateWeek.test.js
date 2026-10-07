@@ -9,7 +9,7 @@ vi.mock('../../src/api/morale', () => ({
 }))
 
 vi.mock('../../src/api/finances', () => ({
-  financesApi: { recordLedgerTransaction: vi.fn(async () => {}), getFinances: vi.fn(async () => ({})) }
+  financesApi: { moveCash: vi.fn(async (a) => { (globalThis.__cash ||= []).push(a); return { newBudget: 0 } }), recordLedgerTransaction: vi.fn(async () => {}), getFinances: vi.fn(async () => ({})) }
 }))
 
 vi.mock('../../src/api/events', () => ({
@@ -105,7 +105,8 @@ describe('cierre semanal del clima', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
     await climateApi.advanceWeek({ clubId: 'c1', managerId: 'm1', week: 10 })
     expect(upsert()).toMatchObject({ scandals: 1, suspended_matches: 0 })
-    expect(writes.find(w => w.table === 'clubs' && w.row.budget === 1500)).toBeTruthy()
+    expect(globalThis.__cash.find(c => c.category === 'FINE' && c.amount === -1500)).toBeTruthy()
+    expect(writes.some(w => w.table === 'clubs' && 'budget' in w.row)).toBe(false)
     expect(dismissals).toHaveLength(0)
 
     writes.length = 0

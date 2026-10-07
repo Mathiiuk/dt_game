@@ -13,7 +13,7 @@ vi.mock('../../src/api/climate', () => ({
 }))
 
 vi.mock('../../src/api/finances', () => ({
-  financesApi: { recordLedgerTransaction: vi.fn(async (args) => { state.ledger = args }) }
+  financesApi: { moveCash: vi.fn(async (args) => { state.ledger = args; return { newBudget: 4600 } }) }
 }))
 
 vi.mock('../../src/api/player', () => ({
@@ -58,8 +58,8 @@ describe('omitir la rueda de prensa', () => {
   it('tras perder cobra multa, la anota en el libro y deja el rumor de la prensa', async () => {
     const res = await pressApi.skipConference({ conferenceId: 'k1', clubId: 'c1', results: lost, rng: () => 0.2 })
     expect(res).toMatchObject({ kind: 'RUMOR', fine: 400, outcome: 'L' })
-    expect(writes.find(w => w.table === 'clubs').row).toEqual({ budget: 4600 })
-    expect(state.ledger).toMatchObject({ category: 'FINE', amount: -400 })
+    expect(writes.some(w => w.table === 'clubs')).toBe(false)
+    expect(state.ledger).toMatchObject({ category: 'FINE', amount: -400, allowNegative: true })
     expect(writes.find(w => w.table === 'press_conferences').row.status).toBe('SKIPPED')
     expect(applied[0].effects).toMatchObject({ fans: -3, board: -3 })
   })

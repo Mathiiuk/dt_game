@@ -231,10 +231,7 @@ export const boardApi = {
     }
 
     const fundingAmount = 15000.00
-    const { data: club } = await supabase.from('clubs').select('budget').eq('id', clubId).single()
-    const newBudget = (club?.budget || 0) + fundingAmount
-
-    await supabase.from('clubs').update({ budget: newBudget }).eq('id', clubId)
+    await financesApi.moveCash({ clubId, amount: fundingAmount, category: 'SUBSIDY', description: 'Aporte extraordinario de tesorería concedido por la Comisión Directiva' })
 
     // Descuenta satisfacción financiera
     const newFin = Math.max(20, (board.financial_satisfaction || 70) - 15)
@@ -246,17 +243,6 @@ export const boardApi = {
         updated_at: new Date().toISOString() 
       })
       .eq('club_id', clubId)
-
-    try {
-      await financesApi.recordLedgerTransaction({
-        clubId,
-        category: 'SUBSIDY',
-        amount: fundingAmount,
-        description: 'Aporte extraordinario de tesorería concedido por la Comisión Directiva'
-      })
-    } catch (e) {
-      console.warn('Ledger error on funding:', e)
-    }
 
     await supabase.from('board_meetings_log').insert({
       club_id: clubId,

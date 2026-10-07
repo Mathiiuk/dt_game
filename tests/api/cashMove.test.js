@@ -4,12 +4,16 @@ const state = { rpc: [], writes: [], rpcResult: null }
 vi.mock('../../src/api/supabase', () => {
   const rows = {
     clubs: { id: 'c1', budget: 1000000, name: 'Potrero', board_confidence: 50, fans_confidence: 50 },
+    club_academies: { club_id: 'c1', academy_level: 1 },
+    club_board_confidence: { club_id: 'c1', confidence_score: 80, financial_satisfaction: 70 },
+    staff: { id: 's1', club_id: 'c1', role: 'COACH', wage_weekly: 100 },
     dynamic_events: { id: 'e1', club_id: 'c1', status: 'PENDING', event_type: 'DEMO', title: 'Reunión', options: [{ id: 'o1', cost: 1500, effects: { budget: -200 } }] }
   }
   const chain = (table) => {
     const q = {}
     for (const m of ['select', 'eq', 'order', 'limit', 'in', 'is', 'neq']) q[m] = () => q
     q.update = (row) => { state.writes.push({ table, op: 'update', row }); return q }
+    q.delete = () => { state.writes.push({ table, op: 'delete' }); return q }
     q.insert = (row) => { state.writes.push({ table, op: 'insert', row }); return q }
     q.upsert = (row) => { state.writes.push({ table, op: 'upsert', row }); return q }
     q.single = async () => ({ data: rows[table] || {}, error: null })
@@ -25,6 +29,9 @@ vi.mock('../../src/api/audit', () => ({ auditApi: { logAction: vi.fn() } }))
 import { financesApi } from '../../src/api/finances'
 import { stadiumApi } from '../../src/api/stadium'
 import { eventsApi } from '../../src/api/events'
+import { academyApi } from '../../src/api/academy'
+import { boardApi } from '../../src/api/board'
+import { staffApi } from '../../src/api/staff'
 
 const budgetWrites = () => state.writes.filter(w => w.table === 'clubs' && w.op === 'update' && 'budget' in w.row)
 
@@ -66,6 +73,26 @@ describe('movimiento de caja en el servidor', () => {
     await eventsApi.resolveEvent('e1', { id: 'o1' }, 'm1')
     const move = state.rpc.find(r => r.fn === 'club_cash_move')
     expect(move.args).toMatchObject({ p_amount: -1700, p_category: 'DECISION', p_allow_negative: true })
+    expect(budgetWrites()).toEqual([])
+  })
+
+  it('mejorar la cantera cobra en el servidor', async () => {
+    await academyApi.upgradeAcademy('c1')
+    expect(state.rpc[0].args).toMatchObject({ p_category: 'ACADEMY' })
+    expect(state.rpc[0].args.p_amount).toBeLessThan(0)
+    expect(budgetWrites()).toEqual([])
+  })
+
+  it('el aporte extraordinario de la directiva entra por el servidor', async () => {
+    await boardApi.requestEmergencyFunding('c1', 'm1')
+    expect(state.rpc[0].args).toMatchObject({ p_amount: 15000, p_category: 'SUBSIDY' })
+    expect(budgetWrites()).toEqual([])
+  })
+
+  it('el finiquito del personal se paga por el servidor', async () => {
+    await staffApi.dismissStaff('c1', 's1', 'm1')
+    expect(state.rpc[0].args).toMatchObject({ p_category: 'STAFF_SEVERANCE' })
+    expect(state.rpc[0].args.p_amount).toBeLessThan(0)
     expect(budgetWrites()).toEqual([])
   })
 })

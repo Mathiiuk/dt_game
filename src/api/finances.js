@@ -177,36 +177,12 @@ export const financesApi = {
   /**
    * Registrar una transacción inmutable en el libro mayor contable
    */
-  async recordTransaction(clubId, careerId, category, amount, description, seasonYear = 1, weekNumber = 1) {
+  async recordTransaction(clubId, careerId, category, amount, description) {
     if (!clubId) return
-
-    const { data: club } = await supabase.from('clubs').select('budget').eq('id', clubId).single()
-    const currentBalance = Number(club?.budget || 0)
-    const newBalance = currentBalance + Number(amount)
-
-    // Actualizar caja del club
-    await supabase.from('clubs').update({ budget: newBalance }).eq('id', clubId)
-
-    // Insertar en libro mayor
-    try {
-      await supabase.from('financial_transactions_ledger').insert({
-        career_id: careerId || null,
-        club_id: clubId,
-        season_year: seasonYear,
-        week_number: weekNumber,
-        category,
-        amount,
-        balance_after: newBalance,
-        description
-      })
-    } catch {
-      // Ignorar si tabla no lista
-    }
-
-    queryCache.invalidate(`finances:${clubId}`)
-    queryCache.invalidate(`club:${clubId}`)
+    // La caja y el asiento los mueve el servidor (la temporada y la semana salen de la fecha de juego del club)
+    return this.moveCash({ clubId, careerId, category, amount: Number(amount), description, allowNegative: true })
   },
-  
+
   /**
    * Registra un asiento en el libro mayor SIN modificar la caja del club.
    * Se usa cuando el llamador ya actualizó clubs.budget (obras, aportes extraordinarios...);

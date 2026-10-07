@@ -481,16 +481,8 @@ export const pressApi = {
       .eq('id', conferenceId)
 
     if (skip.fine > 0 && club) {
-      await supabase.from('clubs').update({ budget: Number(club.budget || 0) - skip.fine }).eq('id', clubId)
       const { financesApi } = await import('./finances')
-      await financesApi.recordLedgerTransaction({
-        clubId,
-        category: 'FINE',
-        amount: -skip.fine,
-        description: 'Multa por no presentarte a la conferencia de prensa',
-        seasonYear: gameDate ? seasonYearOf(gameDate) : 2026,
-        weekNumber: gameDate ? weekOfDate(gameDate) : 1
-      })
+      await financesApi.moveCash({ clubId, category: 'FINE', amount: -skip.fine, description: 'Multa por no presentarte a la conferencia de prensa', allowNegative: true })
     }
 
     await climateApi.applySquadConsequence({

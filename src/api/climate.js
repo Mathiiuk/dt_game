@@ -333,9 +333,8 @@ export const climateApi = {
       patch.scandals = scandals
       patch.suspended_matches = (state.suspended_matches || 0) + outcome.suspendMatches
       if (outcome.fine) {
-        await supabase.from('clubs').update({ budget: Number(club.budget || 0) - outcome.fine }).eq('id', clubId)
         const { financesApi } = await import('./finances')
-        await financesApi.recordLedgerTransaction({ clubId, careerId, category: 'FINE', amount: -outcome.fine, description: 'Multa por irregularidades detectadas en una auditoría', seasonYear: gameDate ? seasonYearOf(gameDate) : 2026, weekNumber: week })
+        await financesApi.moveCash({ clubId, careerId, category: 'FINE', amount: -outcome.fine, description: 'Multa por irregularidades detectadas en una auditoría', allowNegative: true })
       }
       await this.applySquadConsequence({ clubId, source: 'AUDIT', gameDate, effects: { board: outcome.board, notes: [outcome.note] } })
       if (managerId && outcome.reputation) {

@@ -349,22 +349,19 @@ export const postMatchApi = {
       netIncome = gate.net
 
       if (clubData && netIncome > 0) {
-        await supabase
-          .from('clubs')
-          .update({ budget: Number(clubData.budget || 0) + netIncome })
-          .eq('id', clubId)
-
-        // El libro mayor, la auditoría, la atmósfera de la tribuna y el desgaste del césped no dependen entre sí
+        // La taquilla entra por el servidor, una sola vez por partido (la referencia evita acreditarla dos veces).
+        // El cobro, la auditoría, la atmósfera de la tribuna y el desgaste del césped no dependen entre sí
         await Promise.all([
           (async () => {
             try {
               const { financesApi } = await import('./finances')
-              await financesApi.recordLedgerTransaction({
-                clubId, category: 'MATCH_DAY', amount: netIncome, seasonYear: clubData.game_date ? seasonYearOf(clubData.game_date) : 1, weekNumber: clubData.game_date ? weekOfDate(clubData.game_date) : 1,
-                description: `Taquilla: ${attendance} espectadores a $${ticketPrice} (neto de seguridad y logística)`
+              await financesApi.moveCash({
+                clubId, amount: netIncome, category: 'MATCH_DAY', allowNegative: true,
+                description: `Taquilla: ${attendance} espectadores a $${ticketPrice} (neto de seguridad y logística)`,
+                ref: fixtureId ? `gate:${fixtureId}` : null
               })
             } catch (ledgerErr) {
-              console.warn('Aviso: no se pudo registrar la taquilla en el libro mayor:', ledgerErr)
+              console.warn('Aviso: no se pudo acreditar la taquilla:', ledgerErr)
             }
           })(),
           Promise.resolve(auditApi.logAction({

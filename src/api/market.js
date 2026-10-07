@@ -143,11 +143,9 @@ export const marketApi = {
     if (cErr || !club) throw new Error('No se pudo verificar el presupuesto del club')
     if (club.budget < cost) throw new Error(`Presupuesto insuficiente: ojear cuesta $${cost.toLocaleString()} y dispones de $${(club.budget || 0).toLocaleString()}`)
 
-    // 2. Descontar costo del informe
-    await supabase
-      .from('clubs')
-      .update({ budget: club.budget - cost })
-      .eq('id', clubId)
+    // 2. Descontar costo del informe (en el servidor, con su asiento)
+    const { financesApi: finApi } = await import('./finances')
+    await finApi.moveCash({ clubId, amount: -cost, category: 'SCOUTING', description: 'Informe de ojeo' })
 
     // 3. Registrar o actualizar scout_reports con maybeSingle (evita PGRST116)
     try {

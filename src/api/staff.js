@@ -165,7 +165,8 @@ export const staffApi = {
         throw new Error(`Fondos insuficientes: rescindir al empleado actual requiere abonar $${severancePaid.toLocaleString()} de indemnización.`)
       }
 
-      await supabase.from('clubs').update({ budget: club.budget - severancePaid }).eq('id', clubId)
+      const { financesApi } = await import('./finances')
+      await financesApi.moveCash({ clubId, amount: -severancePaid, category: 'STAFF_SEVERANCE', description: 'Indemnización por rescindir al empleado actual' })
       await supabase.from('staff').delete().eq('id', existingStaff.id)
 
       try {
@@ -261,9 +262,9 @@ export const staffApi = {
       throw new Error(`Fondos insuficientes: el finiquito de 8 semanas requiere $${severance.toLocaleString()} pero la caja tiene $${Number(club?.budget || 0).toLocaleString()}.`)
     }
 
-    // Descontar indemnización
-    const newBudget = (club.budget || 0) - severance
-    await supabase.from('clubs').update({ budget: newBudget }).eq('id', clubId)
+    // Descontar indemnización (en el servidor, con su asiento)
+    const { financesApi } = await import('./finances')
+    const { newBudget } = await financesApi.moveCash({ clubId, amount: -severance, category: 'STAFF_SEVERANCE', description: 'Finiquito del integrante del cuerpo técnico' })
 
     // Eliminar de club_staff
     await supabase.from('staff').delete().eq('id', staffId)

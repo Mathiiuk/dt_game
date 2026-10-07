@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { clubApi } from '../../../api/club'
 import { staffApi, academyApi } from '../../../api/clubFeatures'
 import { clubHistoryApi } from '../../../api/clubHistory'
+import { financesApi } from '../../../api/finances'
 import { supabase } from '../../../api/supabase'
 import { useGameContext } from '../../../context/GameContext'
 import { queryCache } from '../../../utils/cache'
@@ -111,7 +112,7 @@ export default function ClubScreen() {
   const handleGenerateProspect = async () => {
     try {
       if (club.budget < PROSPECT_COST) return toast.error(`Presupuesto insuficiente (${formatMoney(PROSPECT_COST)} requeridos)`)
-      await clubApi.updateClub(club.id, { budget: club.budget - PROSPECT_COST })
+      await financesApi.moveCash({ clubId: club.id, amount: -PROSPECT_COST, category: 'ACADEMY', description: 'Ojeo de un juvenil para la cantera' })
       await academyApi.generateYouthProspect(club.id, club.academy_level || 1)
       toast.success('¡Nuevo juvenil oteado en la academia!')
       loadData(true)

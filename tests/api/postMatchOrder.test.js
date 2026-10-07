@@ -51,7 +51,7 @@ vi.mock('../../src/api/fanbase', () => ({
     recordMatchAtmosphere: step('atmosfera')
   }
 }))
-vi.mock('../../src/api/finances', () => ({ financesApi: { recordLedgerTransaction: step('libro') } }))
+vi.mock('../../src/api/finances', () => ({ financesApi: { moveCash: step('libro') } }))
 vi.mock('../../src/api/stadium', () => ({ stadiumApi: { degradePitchHomeMatch: step('cesped') } }))
 vi.mock('../../src/api/board', () => ({ boardApi: { updateConfidenceAfterMatch: step('directiva') } }))
 vi.mock('../../src/api/climate', () => ({

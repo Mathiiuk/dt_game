@@ -335,9 +335,9 @@ export const academyApi = {
       throw new Error(`Presupuesto insuficiente: la mejora a Nivel ${nextLevel} cuesta $${cost.toLocaleString()} y dispones de $${Number(club?.budget || 0).toLocaleString()}.`)
     }
 
-    // Descontar presupuesto
-    const newBudget = (club.budget || 0) - cost
-    await supabase.from('clubs').update({ budget: newBudget }).eq('id', clubId)
+    // Descontar presupuesto (el servidor verifica los fondos y escribe el asiento)
+    const { financesApi } = await import('./finances')
+    const { newBudget } = await financesApi.moveCash({ clubId, amount: -cost, category: 'ACADEMY', description: `Mejora de la cantera al nivel ${nextLevel}` })
 
     // Actualizar nivel de cantera
     const { data: updated } = await supabase
