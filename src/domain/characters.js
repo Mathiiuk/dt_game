@@ -141,8 +141,11 @@ export function renderText(text, characters) {
   let out = text
     .replaceAll('{Barra}', capitalize(barra))
     .replaceAll('{barra}', barra)
+    .replaceAll('{Presidente}', capitalize(president))
     .replaceAll('{presidente}', president)
+    .replaceAll('{Periodista}', capitalize(journalist))
     .replaceAll('{periodista}', journalist)
+    .replaceAll('{Medio}', capitalize(outlet))
     .replaceAll('{medio}', outlet)
 
   for (const key of Object.keys(FALLBACKS)) {

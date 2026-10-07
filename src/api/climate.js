@@ -388,11 +388,13 @@ export const climateApi = {
         climate,
         week,
         pendingEvents: (pendingEvents || []).length + eventTemplates.length,
-        chapterPending: (pendingEvents || []).some(p => parseArcCode(p.template_code))
+        chapterPending: (pendingEvents || []).some(p => parseArcCode(p.template_code)),
+        characters
       })
       patch.arcs = step.arcs
+      if (step.characters) patch.characters = step.characters
       if (step.deliver) {
-        eventTemplates.push({ template: chapterTemplate(step.deliver.arcId, step.deliver.index, step.deliver.flags, characters) })
+        eventTemplates.push({ template: chapterTemplate(step.deliver.arcId, step.deliver.index, step.deliver.flags, characters, step.deliver.memories) })
         if (step.started) storyLog = `Empieza una historia: ${arcById(step.deliver.arcId).title}. ${arcById(step.deliver.arcId).tagline}`
       }
     }
@@ -508,8 +510,10 @@ export const climateApi = {
     // El final depende también de cómo está el club cuando se cierra la historia (barra, dirigencia, favores)
     const { data: clubRow } = await supabase.from('clubs').select('board_confidence').eq('id', clubId).maybeSingle()
     const ctx = { barra: state.barra_stage, board: clubRow?.board_confidence ?? null, favors: state.favors || 0 }
-    const { arcs, finished } = resolveChapter(state.arcs, code, optionId, gameDate ? seasonYearOf(gameDate) : null, ctx)
-    await this.saveState(clubId, { arcs })
+    const { arcs, finished, characters: nextCharacters } = resolveChapter(state.arcs, code, optionId, gameDate ? seasonYearOf(gameDate) : null, ctx, state.characters)
+    const patch = { arcs }
+    if (nextCharacters) patch.characters = nextCharacters
+    await this.saveState(clubId, patch)
     if (finished) await this.log(clubId, gameDate, 'ARC', `Historia cerrada, ${finished.title}: ${finished.ending}`, {})
     queryCache.invalidate(`climate:${clubId}`)
     return finished
