@@ -101,10 +101,11 @@ export const generateAttributesForOverall = (targetOverall, position, rand = Mat
 }
 
 /** Franjas de media para la generación de jugadores de la división 5 (escala FIFA) */
-export const TIER_5_RATING_RANGES = {
-  prospect: [50, 54],
-  young: [52, 57],
-  prime: [54, 60],
-  star: [62, 68],
-  veteran: [56, 60]
+export const TIER_RATING_RANGES = {
+  1: { prospect: [70, 75], young: [73, 80], prime: [75, 87], star: [85, 92], veteran: [76, 85] },
+  2: { prospect: [62, 68], young: [65, 72], prime: [68, 77], star: [75, 82], veteran: [68, 75] },
+  3: { prospect: [57, 62], young: [60, 65], prime: [62, 70], star: [68, 75], veteran: [62, 68] },
+  4: { prospect: [52, 56], young: [54, 60], prime: [56, 64], star: [62, 70], veteran: [56, 62] },
+  5: { prospect: [50, 54], young: [52, 57], prime: [54, 60], star: [62, 68], veteran: [56, 60] }
 }
+

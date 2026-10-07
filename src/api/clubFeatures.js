@@ -49,11 +49,12 @@ export const academyApi = {
     // Dorsal libre y datos del club (nacionalidad y fecha de juego para el contrato)
     const [{ data: squad }, { data: club }] = await Promise.all([
       supabase.from('players').select('shirt_number').eq('club_id', clubId),
-      supabase.from('clubs').select('country, game_date').eq('id', clubId).maybeSingle()
+      supabase.from('clubs').select('country, game_date, league_tier').eq('id', clubId).maybeSingle()
     ])
     const prospect = buildYouthProspect({
       clubId,
       academyLevel,
+      tier: club?.league_tier || 5,
       shirtNumber: nextFreeShirtNumber((squad || []).map(p => p.shirt_number)),
       nationality: club?.country || 'Argentina',
       gameDate: club?.game_date || '2026-07-01'

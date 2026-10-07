@@ -30,6 +30,7 @@ const contentVariants = cva(
       placement: {
         center: 'left-1/2 top-1/2 w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl data-[state=open]:animate-rise-in',
         right: 'inset-y-0 right-0 max-h-none w-full rounded-l-xl border-r-0 data-[state=open]:animate-fade-in',
+        bottom: 'inset-x-0 bottom-0 max-h-[90dvh] w-full rounded-t-2xl border-b-0 pb-safe data-[state=open]:animate-rise-in mt-auto',
         // Página completa (móvil): ocupa toda la pantalla, sin bordes redondeados, respetando notch y barra de gestos
         page: 'inset-0 h-dvh max-h-none w-full rounded-none border-0 pt-safe pb-safe data-[state=open]:animate-rise-in'
       },
@@ -46,7 +47,8 @@ const contentVariants = cva(
       { placement: 'right', size: 'sm', class: 'max-w-sm' },
       { placement: 'right', size: 'md', class: 'max-w-lg' },
       { placement: 'right', size: 'lg', class: 'max-w-2xl' },
-      { placement: 'page', class: 'max-w-none' }
+      { placement: 'page', class: 'max-w-none' },
+      { placement: 'bottom', class: 'max-w-none' }
     ],
     defaultVariants: { placement: 'center', size: 'md' }
   }
@@ -113,3 +115,5 @@ export function DialogFooter({ className, ...props }) {
     />
   )
 }
+
+

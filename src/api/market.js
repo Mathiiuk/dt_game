@@ -50,20 +50,27 @@ export const marketApi = {
    * Repone los agentes libres del mercado. Los clubes rivales no tienen plantel propio: el mercado vive de los jugadores sin club
    * (los que se rescinden y un grupo que se repone cuando quedan pocos).
    */
-  async ensureFreeAgentPool(gameDate) {
+  async ensureFreeAgentPool(gameDate, clubId) {
     // Una sola reposición en vuelo: la pantalla puede pedir el mercado dos veces seguidas y se duplicaría el pozo
     if (poolInFlight) return poolInFlight
-    poolInFlight = this._ensureFreeAgentPool(gameDate).finally(() => { poolInFlight = null })
+    poolInFlight = this._ensureFreeAgentPool(gameDate, clubId).finally(() => { poolInFlight = null })
     return poolInFlight
   },
 
-  async _ensureFreeAgentPool(gameDate) {
+  async _ensureFreeAgentPool(gameDate, clubId) {
     try {
       const { count } = await supabase.from('players').select('id', { count: 'exact', head: true }).is('club_id', null).eq('is_retired', false)
       const need = freeAgentsNeeded(count || 0)
       if (!need) return 0
+
+      let tier = 5
+      if (clubId) {
+        const { data: clubRow } = await supabase.from('clubs').select('league_tier').eq('id', clubId).maybeSingle()
+        if (clubRow) tier = clubRow.league_tier || 5
+      }
+
       const { buildFreeAgentRows } = await import('./player')
-      const { error } = await supabase.from('players').insert(buildFreeAgentRows(freeAgentSpecs(need), gameDate))
+      const { error } = await supabase.from('players').insert(buildFreeAgentRows(freeAgentSpecs(need, tier), gameDate))
       if (error) throw new Error(error.message)
       return need
     } catch (e) {
@@ -77,7 +84,7 @@ export const marketApi = {
    */
   async getMarketPlayers(currentClubId, filters = {}) {
     try {
-      if (filters.gameDate) await this.ensureFreeAgentPool(filters.gameDate)
+      if (filters.gameDate) await this.ensureFreeAgentPool(filters.gameDate, currentClubId)
       let query = supabase
         .from('players')
         .select('*, clubs(name, short_name, primary_color, reputation)')

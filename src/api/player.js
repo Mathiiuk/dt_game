@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
 import { contractEndFor, pickInitialContractYears } from '../domain/contracts'
-import { generateAttributesForOverall, TIER_5_RATING_RANGES } from '../domain/ratings'
+import { generateAttributesForOverall, TIER_RATING_RANGES } from '../domain/ratings'
 import { POSITION_CODES, normalizePosition } from '../domain/positions'
 import { playerValue } from '../domain/valuation'
 
@@ -97,9 +97,12 @@ export const buildProspectRow = ({
   }
 }
 
-/** Juvenil de cantera al azar (botón "Otear" de la Academia): entre 50 y 58 de media, potencial según el nivel de la academia */
-export const buildYouthProspect = ({ clubId, academyLevel = 1, shirtNumber, nationality = 'Argentina', gameDate = '2026-07-01' }) => {
-  const overall = randomInt(50, 54) + Math.min(4, academyLevel)
+/** Juvenil de cantera al azar (botón "Otear" de la Academia): entre la base del tier y un poco más, potencial según el nivel de la academia */
+export const buildYouthProspect = ({ clubId, academyLevel = 1, tier = 5, shirtNumber, nationality = 'Argentina', gameDate = '2026-07-01' }) => {
+  const ranges = TIER_RATING_RANGES[tier] || TIER_RATING_RANGES[5]
+  const [minOvr, maxOvr] = ranges.prospect
+  const overall = randomInt(minOvr, maxOvr) + Math.min(4, academyLevel)
+  
   return buildProspectRow({
     clubId,
     firstName: pick(FIRST_NAMES),
@@ -107,7 +110,7 @@ export const buildYouthProspect = ({ clubId, academyLevel = 1, shirtNumber, nati
     age: randomInt(16, 17),
     position: pick(PROSPECT_POSITIONS),
     overall,
-    potential: Math.max(overall + 6, 66 + academyLevel * 5 + randomInt(0, 14)),
+    potential: Math.max(overall + 6, minOvr + 16 + academyLevel * 5 + randomInt(0, 14)),
     shirtNumber,
     nationality,
     gameDate
@@ -144,7 +147,7 @@ export const playerApi = {
   /**
    * Genera el arreglo oficial de 20 jugadores respetando cuotas posicionales y Tier 5
    */
-  generatePlayersArray(clubId, _reputation = 15, gameDate = '2026-07-01') {
+  generatePlayersArray(clubId, tier = 5, gameDate = '2026-07-01') {
     const usedNames = new Set()
 
     return INITIAL_SQUAD_STRUCTURE.map((slot) => {
@@ -153,7 +156,8 @@ export const playerApi = {
       let targetOvr
       let potential
 
-      const [minOvr, maxOvr] = TIER_5_RATING_RANGES[slot.ageCategory] || TIER_5_RATING_RANGES.prime
+      const ranges = TIER_RATING_RANGES[tier] || TIER_RATING_RANGES[5]
+      const [minOvr, maxOvr] = ranges[slot.ageCategory] || ranges.prime
       targetOvr = randomInt(minOvr, maxOvr)
       switch (slot.ageCategory) {
         case 'prospect':
@@ -246,8 +250,9 @@ export const playerApi = {
     }
 
     // 2. Generar nómina de 20 jugadores
-    const { data: clubRow } = await supabase.from('clubs').select('game_date').eq('id', clubId).maybeSingle()
-    const playersToInsert = this.generatePlayersArray(clubId, reputation, clubRow?.game_date || '2026-07-01')
+    const { data: clubRow } = await supabase.from('clubs').select('game_date, league_tier').eq('id', clubId).maybeSingle()
+    const tier = clubRow?.league_tier || 5
+    const playersToInsert = this.generatePlayersArray(clubId, tier, clubRow?.game_date || '2026-07-01')
 
     const { data, error } = await supabase
       .from('players')
