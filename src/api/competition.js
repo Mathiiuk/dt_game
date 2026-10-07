@@ -1,4 +1,6 @@
 import { roundRobinSchedule } from '../domain/leagueSchedule'
+import { movementOf, tierStrengthRange } from '../domain/pyramid'
+import { divisionName } from '../domain/divisions'
 import { seededRandom } from '../domain/cupMatch'
 import { pickRivalClubs } from '../domain/rivalClubs'
 import { supabase } from './supabase'
@@ -236,6 +238,75 @@ export const competitionApi = {
       console.warn('Error en initializeLeague:', e)
       return null
     }
+  },
+
+  /**
+   * Arma la liga de la temporada siguiente al cerrar el año. `standings`: tabla final ordenada (club_id e id de cada fila).
+   * - Si el club cambió de categoría: liga nueva con 19 rivales de la fuerza de esa división; el club pasa a ella.
+   * - Si se queda: los clubes de la IA que subieron o bajaron (según la pirámide) se reemplazan por recién llegados
+   *   (los que suben dejan su lugar a equipos más débiles de la categoría, los que bajan a equipos más fuertes).
+   * Devuelve la competición y los clubes que la juegan; los partidos los arma quien llama.
+   */
+  async prepareNextLeague({ clubId, competitionId, standings, oldTier, newTier, seasonYear, country = 'Argentina' }) {
+    const seed = `${clubId}:${seasonYear}`
+    const strengthRand = seededRandom(`strength:${seed}`)
+    const rivalRow = (c, i, [lo, hi]) => ({
+      name: c.name,
+      short_name: c.short_name,
+      city: 'Región Deportiva',
+      country,
+      founded_year: 1910 + i,
+      colors: '#10B981',
+      history_type: 'bot',
+      budget: 25000,
+      wage_budget: 3500,
+      reputation: 15,
+      strength: Math.round(lo + strengthRand() * (hi - lo)),
+      stadium_name: `Estadio ${c.name}`,
+      stadium_capacity: 1500
+    })
+
+    if (newTier !== oldTier) {
+      const { data: comp, error: compErr } = await supabase
+        .from('competitions')
+        .insert([{ name: `${divisionName(newTier)} (${country})`, level: newTier, teams_count: 20 }])
+        .select()
+        .single()
+      if (compErr || !comp) throw new Error(compErr?.message || 'No se pudo crear la liga de la nueva categoría.')
+
+      const rows = pickRivalClubs(seed, 19).map((c, i) => rivalRow(c, i, tierStrengthRange(newTier)))
+      const { data: aiClubs, error: clubsErr } = await supabase.from('clubs').insert(rows).select('id')
+      if (clubsErr) throw new Error(clubsErr.message)
+
+      const aiIds = (aiClubs || []).map(c => c.id)
+      const mine = standings.find(s => s.club_id === clubId)
+      if (mine) await supabase.from('standings').update({ competition_id: comp.id }).eq('id', mine.id)
+      const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
+      await supabase.from('standings').insert(aiIds.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
+      queryCache.invalidate(`standings:${clubId}`)
+      return { competitionId: comp.id, clubIds: [clubId, ...aiIds] }
+    }
+
+    const movers = standings
+      .map((s, i) => ({ ...s, position: i + 1 }))
+      .filter(s => s.club_id !== clubId && movementOf(s.position, oldTier) !== 'STAY')
+    const keep = standings.map(s => s.club_id).filter(id => !movers.some(m => m.club_id === id))
+    if (movers.length === 0) return { competitionId, clubIds: keep }
+
+    const names = standings.map(s => s.club?.name).filter(Boolean)
+    const [lo, hi] = tierStrengthRange(oldTier)
+    const mid = Math.round((lo + hi) / 2)
+    const picks = pickRivalClubs(seed, movers.length, names)
+    const rows = movers.map((m, i) => rivalRow(picks[i], i, movementOf(m.position, oldTier) === 'PROMOTED' ? [lo, mid] : [mid, hi]))
+    const { data: newClubs, error: newErr } = await supabase.from('clubs').insert(rows).select('id')
+    if (newErr) throw new Error(newErr.message)
+
+    await supabase.from('standings').delete().in('club_id', movers.map(m => m.club_id))
+    const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
+    const newIds = (newClubs || []).map(c => c.id)
+    await supabase.from('standings').insert(newIds.map(id => ({ competition_id: competitionId, club_id: id, ...zero })))
+    queryCache.invalidate(`standings:${clubId}`)
+    return { competitionId, clubIds: [...keep, ...newIds] }
   },
 
   /**

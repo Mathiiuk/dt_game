@@ -102,3 +102,12 @@ describe('premios de la temporada en la economía chica', () => {
     expect(TOP_SCORER_BONUS).toBe(1500)
   })
 })
+
+describe('historia de un descenso', () => {
+  it('el titular y el texto cuentan que el club bajó de categoría', async () => {
+    const { seasonStory } = await import('../../src/domain/seasonStory')
+    const story = seasonStory({ clubName: 'Potrero', position: 19, relegated: true })
+    expect(story.headline).toBe('Descenso: el club baja de categoría')
+    expect(story.lines[0]).toBe('Potrero terminó 19.º y descendió.')
+  })
+})

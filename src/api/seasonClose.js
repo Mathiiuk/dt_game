@@ -76,7 +76,7 @@ export const seasonCloseApi = {
       .insert({
         career_id: careerId || null,
         season_year: seasonYear,
-        division_tier: 5,
+        division_tier: prize.old_tier || 5,
         champion_club_id: championClub?.club_id || null,
         runner_up_club_id: runnerUpClub?.club_id || null,
         promoted_club_ids: promotedClubIds,
@@ -177,27 +177,26 @@ export const seasonCloseApi = {
       }
     }
 
-    // 8. Reseteo de Standings para la nueva liga
-    if (standings.length > 0) {
-      for (const s of standings) {
-        await supabase
-          .from('standings')
-          .update({
-            played: 0,
-            won: 0,
-            drawn: 0,
-            lost: 0,
-            goals_for: 0,
-            goals_against: 0,
-            goal_difference: 0,
-            points: 0
-          })
-          .eq('id', s.id)
-      }
+    // 8. Liga de la temporada siguiente: cambia de categoría o rota a los clubes que subieron y bajaron, y la tabla arranca en cero
+    let nextLeague = null
+    if (mine?.competition_id && standings.length > 1) {
+      nextLeague = await competitionApi.prepareNextLeague({
+        clubId,
+        competitionId: mine.competition_id,
+        standings,
+        oldTier: prize.old_tier ?? prize.new_tier,
+        newTier: prize.new_tier,
+        seasonYear: seasonYear + 1
+      })
+      await supabase
+        .from('standings')
+        .update({ played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, goal_difference: 0, points: 0, form: '' })
+        .eq('competition_id', nextLeague.competitionId)
     }
 
     // 9. Avanzar calendario del juego al nuevo año (Semana 1)
     const nextYear = seasonYear + 1
+    const nextGameDate = `${nextYear}-07-01`
 
     // Historial del club (puesto de la temporada) y partidos de la temporada que empieza, en la misma liga
     try {
@@ -205,10 +204,9 @@ export const seasonCloseApi = {
     } catch (e) {
       console.warn('Aviso: no se pudo guardar el historial de la temporada:', e)
     }
-    if (mine?.competition_id && standings.length > 1) {
-      await competitionApi.generateRoundRobinFixtures(mine.competition_id, standings.map(s => s.club_id), `${nextYear}-08-01`)
+    if (nextLeague) {
+      await competitionApi.generateRoundRobinFixtures(nextLeague.competitionId, nextLeague.clubIds, `${nextYear}-08-01`)
     }
-    const nextGameDate = `${nextYear}-07-01`
 
     // Actualizar fecha en clubs
     await supabase
@@ -265,6 +263,7 @@ export const seasonCloseApi = {
       runnerUpClub,
       userPosition,
       isPromoted,
+      isRelegated: Boolean(prize.relegated),
       totalPrizeAwarded,
       newBudget,
       newWageBudget,

@@ -31,7 +31,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
     let alive = true
     competitionApi.getStandings(club?.id).then(rows => {
       const mine = (rows || []).find(r => r.club_id === club?.id)
-      if (alive) setOutlook(seasonOutlook(mine?.position))
+      if (alive) setOutlook(seasonOutlook(mine?.position, club?.league_tier || 5))
     }).catch(() => {})
     return () => { alive = false }
   }, [club?.id])
@@ -49,6 +49,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
           position: res.userPosition,
           champion: res.championClub?.club_id === club.id,
           promoted: res.isPromoted,
+          relegated: res.isRelegated,
           prize: res.totalPrizeAwarded,
           cash: res.newBudget,
           state: data.state,
@@ -109,8 +110,8 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
           <Card as="div">
             <CardBody className="space-y-1.5">
               <p className="flex items-center gap-2 text-sm text-fg-muted"><Building2 className="size-4 text-accent" aria-hidden="true" />Presupuesto del próximo año</p>
-              <p className="num font-display text-3xl font-semibold text-fg">+{outlook ? outlook.wageRisePct : 10}% <span className="text-base font-medium text-fg-muted">de la masa salarial</span></p>
-              <p className="text-xs text-fg-subtle">{outlook?.promoted ? 'Ascendés: la presidencia aprueba un salto grande para la categoría nueva.' : 'Sin ascenso, la presidencia aprueba un ajuste chico (con los dos primeros puestos sube 80%).'}</p>
+              <p className="num font-display text-3xl font-semibold text-fg">{outlook ? (outlook.wageChangePct > 0 ? '+' : '') + outlook.wageChangePct : '+10'}% <span className="text-base font-medium text-fg-muted">de la masa salarial</span></p>
+              <p className="text-xs text-fg-subtle">{outlook?.promoted ? 'Ascendés: la presidencia aprueba un salto grande para la categoría nueva.' : outlook?.relegated ? 'Descendés: la presidencia recorta el presupuesto para la categoría de abajo.' : 'Te quedás en la categoría: ajuste chico (con los dos primeros puestos sube 80%; los tres últimos bajan de categoría).'}</p>
             </CardBody>
           </Card>
         </div>

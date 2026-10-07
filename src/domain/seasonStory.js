@@ -12,7 +12,8 @@ export function countBySource(logs = []) {
 
 const ordinal = (n) => `${n}.º`
 
-export function seasonHeadline({ position, champion = false, promoted = false }) {
+export function seasonHeadline({ position, champion = false, promoted = false, relegated = false }) {
+  if (relegated) return 'Descenso: el club baja de categoría'
   if (champion) return 'Campeones: el año que el club no va a olvidar'
   if (promoted) return 'Ascenso conseguido: el club sube de categoría'
   if (position <= 6) return 'Un año de pelea arriba, con gusto a poco'
@@ -23,9 +24,9 @@ export function seasonHeadline({ position, champion = false, promoted = false })
 /**
  * @returns {{ headline: string, lines: string[] }}
  */
-export function seasonStory({ clubName = 'El club', position = 10, champion = false, promoted = false, prize = 0, cash = 0, state = {}, counts = {}, fansDelta = null, arcs = [] }) {
+export function seasonStory({ clubName = 'El club', position = 10, champion = false, promoted = false, relegated = false, prize = 0, cash = 0, state = {}, counts = {}, fansDelta = null, arcs = [] }) {
   const lines = []
-  lines.push(`${clubName} terminó ${ordinal(position)}${champion ? ' y se quedó con el título' : promoted ? ' y ascendió' : ''}.`)
+  lines.push(`${clubName} terminó ${ordinal(position)}${champion ? ' y se quedó con el título' : promoted ? ' y ascendió' : relegated ? ' y descendió' : ''}.`)
 
   const barra = (counts.BARRA || 0)
   if (barra >= 4) lines.push(`La barra anduvo cerca durante ${barra} semanas y se hizo sentir en el vestuario.`)
@@ -46,5 +47,5 @@ export function seasonStory({ clubName = 'El club', position = 10, champion = fa
   lines.push(`La caja cierra en $${Math.round(cash).toLocaleString('es-AR')}${prize ? ` (incluye $${Math.round(prize).toLocaleString('es-AR')} de premios)` : ''}.`)
   if (fansDelta !== null && fansDelta !== 0) lines.push(`La hinchada terminó ${fansDelta > 0 ? 'más' : 'menos'} contenta que al empezar (${fansDelta > 0 ? '+' : ''}${fansDelta}).`)
 
-  return { headline: seasonHeadline({ position, champion, promoted }), lines }
+  return { headline: seasonHeadline({ position, champion, promoted, relegated }), lines }
 }

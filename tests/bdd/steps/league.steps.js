@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { Given, When, Then } from '@cucumber/cucumber'
 import { roundRobinSchedule } from '../../../src/domain/leagueSchedule.js'
 import { isSeasonEnded } from '../../../src/domain/gameWeek.js'
+import { movementOf } from '../../../src/domain/pyramid.js'
 
 Given('una liga de {int} clubes', function (n) {
   this.clubs = Array.from({ length: n }, (_, i) => `c${i}`)
@@ -49,4 +50,16 @@ Given('la fecha del juego es {word}', function (fecha) {
 
 Then('la temporada {word}', function (estado) {
   assert.equal(isSeasonEnded(this.fecha), estado === 'terminó')
+})
+
+Given('mi club está en la categoría {int}', function (tier) {
+  this.tier = tier
+})
+
+When('termina la temporada en el puesto {int}', function (position) {
+  this.position = position
+})
+
+Then('el resultado es {word}', function (movement) {
+  assert.equal(movementOf(this.position, this.tier), movement)
 })
