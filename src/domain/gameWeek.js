@@ -29,3 +29,14 @@ export const absoluteWeek = (dateString) => (seasonYearOf(dateString) - FIRST_SE
 
 /** La temporada terminó para el juego cuando se llega a la última semana: ahí se cierra desde la gala (no se avanza más) */
 export const isSeasonEnded = (dateString) => weekOfDate(dateString) >= WEEKS_PER_SEASON
+
+/**
+ * El avance de semana toma un candado (`is_advancing`) mientras corre. Si la pestaña se cierra o se recarga a mitad de camino el
+ * candado quedaba puesto para siempre; pasado este tiempo se considera abandonado y se puede volver a avanzar.
+ */
+export const ADVANCE_LOCK_SECONDS = 90
+export const isAdvanceLocked = (calendar, now = Date.now()) => {
+  if (!calendar?.is_advancing) return false
+  const since = calendar.updated_at ? new Date(calendar.updated_at).getTime() : now
+  return now - since < ADVANCE_LOCK_SECONDS * 1000
+}

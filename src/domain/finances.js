@@ -12,9 +12,9 @@ export const TICKET_PRICES = [6, 8, 10, 14, 18]
 export const ECONOMY = {
   members: 350,
   memberDue: 0.8,
-  sponsorBase: 350,
+  sponsorBase: 400,
   sponsorPerReputation: 8,
-  tvRights: 250,
+  tvRights: 330,
   storePerLevel: 150,
   stadiumMaintBase: 200,
   stadiumMaintPerLevel: 60,
