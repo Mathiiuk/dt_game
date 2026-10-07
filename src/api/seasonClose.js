@@ -275,6 +275,20 @@ export const seasonCloseApi = {
   },
 
   /**
+   * Jugadores del club cuyo contrato vence con esta temporada (quedan libres al cerrarla), los de mayor nivel primero.
+   * La gala los muestra antes de cerrar para que el DT renueve.
+   */
+  async getExpiringContracts(clubId, seasonYear) {
+    if (!clubId || !seasonYear) return []
+    const { data } = await supabase
+      .from('players')
+      .select('id, first_name, last_name, contract_end, overall')
+      .eq('club_id', clubId)
+      .lte('contract_end', `${seasonYear + 1}-06-30`)
+    return [...(data || [])].sort((a, b) => (b.overall || 0) - (a.overall || 0))
+  },
+
+  /**
    * Obtiene los snapshots históricos archivados de temporadas pasadas
    */
   async getSeasonSnapshots(careerId) {

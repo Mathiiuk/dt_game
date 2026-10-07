@@ -1,5 +1,5 @@
 // Fin de temporada: el premio (por puesto y goleador) lo calcula y cobra la base; el navegador no escribe la caja
-const state = { rpc: [], rpcResult: null, writes: [], standings: null }
+const state = { rpc: [], rpcResult: null, writes: [], standings: null, playersRows: [] }
 
 vi.mock('../../src/api/playerEvolution', () => ({ playerEvolutionApi: { processAnnualEvolution: vi.fn(async () => []) } }))
 vi.mock('../../src/api/clubHistory', () => ({ clubHistoryApi: { addMilestone: vi.fn(async () => {}), addHemerotecaArticle: vi.fn(async () => {}) } }))
@@ -9,7 +9,8 @@ vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
     const q = {}
     let inserted = null
-    for (const m of ['select', 'order', 'limit', 'lte']) q[m] = () => q
+    for (const m of ['select', 'order', 'limit']) q[m] = () => q
+    q.lte = (col, val) => { state.writes.push({ table, op: 'lte', col, val }); return q }
     q.eq = (col, val) => { state.writes.push({ table, op: 'filter', col, val }); return q }
     q.insert = (row) => { inserted = Array.isArray(row) ? row : [row]; state.writes.push({ table, op: 'insert', row }); return q }
     q.update = (row) => { state.writes.push({ table, op: 'update', row }); return q }
@@ -20,7 +21,7 @@ vi.mock('../../src/api/supabase', () => {
     q.maybeSingle = async () => ({ data: table === 'standings' ? { competition_id: 'comp' } : null })
     q.then = (resolve) => {
       if (table === 'clubs' && inserted) return resolve({ data: inserted.map((_, i) => ({ id: `new${i}` })), error: null })
-      return resolve({ data: table === 'standings' ? (state.standings || defaultTable()) : [], error: null })
+      return resolve({ data: table === 'standings' ? (state.standings || defaultTable()) : table === 'players' ? state.playersRows : [], error: null })
     }
     return q
   }
@@ -144,5 +145,18 @@ describe('liga de la temporada siguiente', () => {
     state.rpcResult = () => ({ data: { ...prize, position: 10, promoted: false, movement: 'STAY', old_tier: 5, new_tier: 5 }, error: null })
     await seasonCloseApi.executeSeasonClose({ careerId: 'k1', clubId: 'me', seasonYear: 2026 })
     expect(inserts('clubs')).toHaveLength(2) // solo suben los dos primeros
+  })
+})
+
+describe('contratos que vencen al cerrar la temporada', () => {
+  it('lista los jugadores del club con contrato hasta el 30 de junio, los mejores primero', async () => {
+    state.writes = []
+    state.playersRows = [
+      { id: 'p1', first_name: 'A', last_name: 'Uno', contract_end: '2027-06-30', overall: 55 },
+      { id: 'p2', first_name: 'B', last_name: 'Dos', contract_end: '2027-06-30', overall: 70 }
+    ]
+    const list = await seasonCloseApi.getExpiringContracts('me', 2026)
+    expect(list.map(p => p.id)).toEqual(['p2', 'p1'])
+    expect(state.writes.some(w => w.table === 'players' && w.op === 'filter' && w.col === 'club_id' && w.val === 'me')).toBe(true)
   })
 })

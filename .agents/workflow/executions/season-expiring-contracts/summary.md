@@ -1,0 +1,1 @@
+Aviso previo al cierre.

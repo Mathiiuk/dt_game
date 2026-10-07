@@ -10,7 +10,8 @@ const executeSeasonClose = vi.fn(async () => ({
 }))
 const getSeasonSummaryData = vi.fn(async () => ({ state: { favors: 2, scandals: 0 }, counts: { BARRA: 5, SALE: 1 } }))
 
-vi.mock('../../src/api/seasonClose', () => ({ seasonCloseApi: { executeSeasonClose: (...a) => executeSeasonClose(...a) } }))
+const getExpiringContracts = vi.fn(async () => [])
+vi.mock('../../src/api/seasonClose', () => ({ seasonCloseApi: { executeSeasonClose: (...a) => executeSeasonClose(...a), getExpiringContracts: (...a) => getExpiringContracts(...a) } }))
 vi.mock('../../src/api/competition', () => ({ competitionApi: { getStandings: vi.fn(async () => [{ club_id: 'c1', position: 2 }]) } }))
 vi.mock('../../src/api/climate', () => ({ climateApi: { getSeasonSummaryData: (...a) => getSeasonSummaryData(...a) } }))
 vi.mock('../../src/context/GameContext', () => ({ useGameContext: () => ({ refreshContext: vi.fn() }) }))
@@ -27,6 +28,13 @@ describe('gala de fin de temporada', () => {
     expect(await screen.findByText(/Por terminar 2\.º/)).toBeInTheDocument()
     expect(screen.getByText(/\+80%/)).toBeInTheDocument()
     expect(screen.getByText(/Ascendés/)).toBeInTheDocument()
+  })
+
+  it('avisa qué jugadores quedan libres antes de cerrar', async () => {
+    getExpiringContracts.mockResolvedValueOnce([{ id: 'p1', first_name: 'Juan', last_name: 'Pérez', overall: 64 }, { id: 'p2', first_name: 'Luis', last_name: 'Gómez', overall: 58 }])
+    render(<SeasonCloseModal club={club} careerId="k1" seasonYear={2026} onClose={() => {}} />)
+    expect(await screen.findByText(/Quedan libres 2 jugadores si cerrás ahora/)).toBeInTheDocument()
+    expect(screen.getByText(/Juan Pérez \(64\)/)).toBeInTheDocument()
   })
 
   it('al cerrar la temporada cuenta la historia del año con las consecuencias registradas', async () => {
