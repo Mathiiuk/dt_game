@@ -138,5 +138,19 @@
     "category": "BUG_FIX",
     "lesson": "Correr el juego de punta a punta en el navegador destapo 3 bugs que los tests no veian: calendario de liga sin localia pareja, gala de fin de temporada inalcanzable (leia clubs.current_week que no existe; la semana real sale de la fecha de juego con domain/gameWeek) y consulta de la tabla con clubs.logo_url inexistente que fallaba en silencio. Una consulta de Supabase con una columna inexistente devuelve error y data null: siempre chequear error.",
     "solution": ""
+  },
+  {
+    "id": "LES-4117",
+    "timestamp": "2026-10-07T15:28:04.117Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "Calibrar un balance con una simulacion fijada en un test (ej. la confianza de la directiva: 2000 temporadas por celda) evita ajustar numeros a ojo y deja el criterio documentado. Extraer la parte numerica a una funcion pura en domain/ la hace probable y reutilizable desde Cucumber.",
+    "solution": ""
+  },
+  {
+    "id": "LES-6685",
+    "timestamp": "2026-10-07T15:28:06.685Z",
+    "category": "ARCHITECTURE",
+    "lesson": "Toda escritura de plata pasa por funciones SQL (club_cash_move, settle_gate, close_week_finances...) y un trigger rechaza cambios directos de clubs.budget: una funcion nueva que toque la caja debe fijar app.server_result en su cuerpo (ALTER FUNCTION SET con parametro propio no esta permitido en Supabase). Las reglas del servidor se prueban en la base real con un bloque DO que termina en raise exception.",
+    "solution": ""
   }
 ]

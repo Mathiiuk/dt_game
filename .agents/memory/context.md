@@ -1,55 +1,67 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-07T11:33:13.999Z | **Nodos:** 481 | **Tareas:** 148
+> **Última sincronización:** 2026-10-07T15:28:06.971Z | **Nodos:** 546 | **Tareas:** 176
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
-| `src/domain/arcCatalog.js` | 907 | ninguna |
-| `src/api/career.js` | 757 | ./supabase, ./audit, ../utils/cache |
+| `src/domain/arcCatalog.js` | 908 | ninguna |
+| `src/api/career.js` | 783 | ../domain/vacancies, ../domain/jobNegotiation, ./supabase |
 | `src/features/match/MatchScreen.jsx` | 659 | react, react-router-dom, ../../api/auth |
 | `src/api/matchEngine.js` | 615 | ./supabase, ../domain/positions, ../domain/consequences |
+| `src/api/press.js` | 590 | ./supabase, ../domain/press, ../domain/characters |
+| `src/api/postMatch.js` | 581 | ./manager, ./morale, ./supabase |
 | `src/features/match/PostMatchScreen.jsx` | 575 | react, react-router-dom, ../../api/postMatch |
-| `src/api/postMatch.js` | 567 | ./manager, ./morale, ./supabase |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
-| `src/api/calendar.js` | 536 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
-| `src/api/climate.js` | 536 | ./supabase, ../utils/cache, ./morale |
-| `src/api/press.js` | 528 | ./supabase, ../domain/press, ../domain/characters |
-| `src/api/events.js` | 518 | ./supabase, ../utils/cache, ./audit |
+| `src/api/climate.js` | 548 | ./supabase, ../utils/cache, ./morale |
+| `src/api/calendar.js` | 538 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
+| `src/api/events.js` | 527 | ./supabase, ../utils/cache, ./audit |
+| `src/features/squad/SquadScreen.jsx` | 514 | react, lucide-react, sonner |
 | `src/api/nationalTeam.js` | 491 | ./supabase, ./manager, ./audit |
 | `src/api/auth.js` | 484 | ./supabase, ../utils/cache, ./audit |
 | `src/features/club/screens/LockerRoomTab.jsx` | 460 | react, lucide-react, ../../../api/lockerRoom |
-| `src/features/squad/SquadScreen.jsx` | 449 | react, lucide-react, sonner |
-| `src/features/manager/ManagerCareerScreen.jsx` | 436 | react, react-router-dom, lucide-react |
-| `src/features/dashboard/Dashboard.jsx` | 434 | react, react-router-dom, lucide-react |
+| `src/features/manager/ManagerCareerScreen.jsx` | 450 | react, react-router-dom, lucide-react |
+| `src/features/dashboard/Dashboard.jsx` | 435 | react, react-router-dom, lucide-react |
 | `src/api/clubHistory.js` | 423 | ./supabase |
 | `src/api/training.js` | 422 | ./supabase, ../domain/squadConsequences |
 | `src/api/injuries.js` | 407 | ./supabase, ../utils/cache |
+| `src/domain/climateEvents.js` | 397 | ninguna |
 | `src/api/lockerRoom.js` | 395 | ./supabase, ../utils/cache |
-| `src/api/stadium.js` | 393 | ./supabase, ../utils/ensureRow, ../utils/cache |
 | `src/features/tactics/TacticsScreen.jsx` | 393 | react, lucide-react, sonner |
 | `src/features/club/screens/StadiumManagementTab.jsx` | 389 | react, lucide-react, ../../../api/stadium |
 | `src/api/contracts.js` | 386 | ./supabase, ../utils/cache, ./audit |
 
-_(+177 módulos adicionales; consultar con `memory:query`)_
+_(+188 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
+- **advance-semaphore-recovery: El avance de semana se recupera si quedo trabado a medias** `[DONE]`
+- **arc-branching-endings: Los finales de las historias cambian segun el camino elegido y el estado del club** `[DONE]`
 - **auth-security-f5: Acceso seguro: reCAPTCHA v3, Google, Resend y base cerrada por dueño** `[DONE]`
 - **bench-complaints: Suplentes que reclaman minutos** `[DONE]`
+- **board-balance-calibration: La confianza de la directiva es una funcion pura calibrada con simulacion** `[DONE]`
+- **buyback-clause: Clausula de recompra: dejas una opcion al vender y la ejerces despues** `[DONE]`
+- **cash-server-migrate-rest: El resto de las escrituras de caja pasan al servidor** `[DONE]`
+- **cash-server-primitive: La caja se mueve en el servidor: primitiva club_cash_move y las primeras escrituras migradas** `[DONE]`
 - **characters: Personajes con nombre y memoria** `[DONE]`
 - **ci-auto-merge-retry: Auto-merge resistente a pushes concurrentes** `[DONE]`
+- **cleanup-orphans-multipass: El script de limpieza de filas sin dueño borra en pasadas y respeta las dependencias** `[DONE]`
 - **climate-feel: Combos, clima visible, resumen de temporada y premios escalados** `[DONE]`
+- **climate-stage-events: Eventos propios de cada etapa de la barra y de cada nivel de presion** `[DONE]`
 - **consequences-barra-t4: T4 barra, corrupcion y eventos por clima** `[DONE]`
 - **consequences-results-t2: T2 consecuencias de resultados, precio de entrada y ambiente** `[DONE]`
 - **consequences-squad-t3: T3 consecuencias de entrenamiento y plantel** `[DONE]`
 - **consequences-ui-t6: T6 avisos, feed, tarjeta de clima y dificultad** `[DONE]`
+- **contracts-countdown-alert: La alerta de contratos por vencer sube de prioridad al final de la temporada** `[DONE]`
 - **contracts-server: Contratos: renovaciones y rescisiones resueltas por el servidor** `[DONE]`
 - **cup-prizes-server: Premios de la copa liquidados por el servidor** `[DONE]`
 - **cup-two-legs: Copa continental con ida y vuelta** `[DONE]`
+- **db-function-search-path: Las funciones SQL del juego tienen el search_path fijo** `[DONE]`
 - **econ-climate-t1: T1 economia recalibrada y clima unificado** `[DONE]`
 - **econ-climate-t1b: T1b hinchada y dirigencia unificadas y rachas reales** `[DONE]`
+- **economy-by-tier: Los ingresos fijos del club crecen con la categoria** `[DONE]`
+- **economy-tuning: Economia semanal recalibrada con la corrida de una temporada** `[DONE]`
 - **endgame-tests: Epilogo probado y auditoria del retiro corregida** `[DONE]`
 - **f2-1-block-a-fundamentals: Fase 2.1: Bloque A - Contratos de Dominio Fundamentos (Fases 01 a 10)** `[DONE]`
 - **f2-1-block-b-management: Fase 2.1: Bloque B - Contratos de Dominio Gestion Deportiva y Economica (Fases 11 a 20)** `[DONE]`
@@ -152,10 +164,16 @@ _(+177 módulos adicionales; consultar con `memory:query`)_
 - **fix-ui-copy-and-errors: Textos en castellano coloquial y errores amigables en toda la app** `[DONE]`
 - **fix-youth-prospect-generator: Otear en la Academia: juvenil completo con todos los campos obligatorios** `[DONE]`
 - **free-lineup-m4: M4 alineacion libre en la pizarra** `[DONE]`
+- **gate-server: La taquilla la calcula y acredita el servidor** `[DONE]`
 - **home-landing: Home publica de Vestuario: portada, frases de DT, SEO y rutas de acceso** `[DONE]`
+- **job-market-real-tiers: La bolsa de trabajo ofrece clubes de todas las divisiones** `[DONE]`
+- **job-negotiation: Las ofertas de trabajo se negocian: pedis mas sueldo y el club acepta, contraoferta o retira** `[DONE]`
 - **league-home-away-balance: El calendario de liga reparte local y visitante parejo** `[DONE]`
+- **league-promotion-relegation: Ascensos y descensos reales: el club cambia de liga y los rivales de la IA rotan** `[DONE]`
 - **league-server: Liga con fuerza real de rivales y resultados en el servidor** `[DONE]`
 - **lineup-chemistry-m4: M4 quimica del equipo en la pizarra y el partido** `[DONE]`
+- **lint-warnings-cleanup: Menos avisos de lint: variables sin uso y asignaciones pisadas** `[DONE]`
+- **lint-warnings-cleanup-2: Menos avisos de lint: variables sin uso y asignaciones pisadas, segunda pasada** `[DONE]`
 - **market-agents: Mercado 2.0 etapa 4: representantes cobran comision en el servidor y los pedidos de salida dan drama** `[DONE]`
 - **market-consequences: Mercado 2.0 etapa 3: fichajes y ventas con consecuencias en sueldos, caja y vestuario** `[DONE]`
 - **market-negotiation: Mercado 2.0 etapa 2: negociacion con contraofertas y cuotas en el servidor** `[DONE]`
@@ -165,25 +183,35 @@ _(+177 módulos adicionales; consultar con `memory:query`)_
 - **match-experience-m5: M5 pausa, velocidades y saltear partido** `[DONE]`
 - **match-moments-2: Decisiones en partido: penales, arquero lesionado y rival que reacciona** `[DONE]`
 - **match-substitutions: Cambios de jugadores durante la pausa del partido** `[DONE]`
+- **memory-lessons-2: Lecciones de la tanda de contenido y calidad** `[PLANNED]`
 - **more-story-arcs: 12 historias nuevas escritas por el usuario** `[DONE]`
 - **performance-m2: M2 rendimiento del avance semanal, post-partido y Plantel** `[DONE]`
 - **performance-m2b: M2 segunda pasada: profundidad de consultas** `[DONE]`
+- **player-loans: Cesiones a prestamo: ahorras el sueldo y el jugador vuelve al cierre de la temporada** `[DONE]`
 - **preseason-arcade: Pretemporada arcade: aporte de la dirigencia y amistosos con riesgo** `[DONE]`
 - **press-flow: Flujo del final del partido y rueda de prensa relampago** `[DONE]`
 - **press-games: Prensa: Titular o fake y Bingo del DT** `[DONE]`
+- **press-situations: La prensa pregunta por la situacion y recuerda tus respuestas anteriores** `[DONE]`
 - **press-skip-t5: T5 rueda de prensa obligatoria omitible** `[DONE]`
 - **quick-decisions: Decisiones rapidas en el partido que cambian el resultado** `[DONE]`
 - **recaptcha-env-name: Clave del sitio de reCAPTCHA sin prefijo VITE** `[DONE]`
 - **rival-names: Rivales distintos en cada carrera** `[DONE]`
 - **rls-owner-nullable: La migracion RLS falla con filas existentes: owner_user_id nulo permitido** `[DONE]`
+- **scout-insights: El ojeo da una lectura: si mejora al titular, si el precio es justo y el perfil del jugador** `[DONE]`
 - **season-close-flow: La temporada se cierra desde la gala y arranca la siguiente con su calendario** `[DONE]`
+- **season-expiring-contracts: La gala avisa que jugadores quedan libres al cerrar la temporada** `[DONE]`
 - **season-league-isolation: Cierre de temporada solo de la liga del club** `[DONE]`
 - **season-prize-server: Premio de fin de temporada liquidado por el servidor** `[DONE]`
 - **server-results-f5: Resultados de copa y fechas FIFA decididos por el servidor** `[DONE]`
 - **stale-dashboard-after-actions: Pantallas desactualizadas tras resolver un evento o jugar un partido; texto de años del contrato** `[DONE]`
 - **story-arcs: Historias de 8 a 10 fechas con humor del futbol argentino** `[DONE]`
+- **supabase-errors-not-ignored: Los errores de consulta no se ignoran: no se duplican ligas ni planteles ni se saltea el chequeo de fondos** `[DONE]`
+- **tooling-cucumber: Cucumber instalado y el gate BDD corre de verdad** `[DONE]`
+- **tooling-eslint: ESLint instalado y corriendo en el CI** `[DONE]`
+- **ui-season-details: La pantalla muestra la division real y la gala el premio que corresponde** `[DONE]`
 - **vercel-spa-rewrites: Rewrites SPA en Vercel (404 en rutas profundas)** `[DONE]`
 - **weekly-finance-server: Cierre semanal de finanzas resuelto por el servidor** `[DONE]`
+- **year-in-review: El resumen del año cuenta fichajes y el ranking de decisiones** `[DONE]`
 
 ## 💡 Lecciones Aprendidas y Anti-Patrones a Evitar
 
@@ -207,3 +235,5 @@ _(+177 módulos adicionales; consultar con `memory:query`)_
 - **[BUG_FIX]** El premio de goleador del cierre de temporada leía players.goals_season, una columna que no existe: la consulta fallaba en silencio y el bono jamás se pagó. Un select con columna inexistente devuelve error, no datos. *(Solución: Verificar columnas contra information_schema antes de escribir consultas; contar goles del relato (match_events) y probar la función en la base real.)*
 - **[BEST_PRACTICE]** Al sumar eventos aleatorios nuevos a un motor determinista por semilla, usar un generador aparte (seed:pen) para no alterar el resto del partido ni los tests estadísticos existentes. *(Solución: createRNG con semilla derivada para cada fuente de azar nueva; subir el tamaño de muestra de los tests estadísticos si los totales se mueven.)*
 - **[BUG_FIX]** Correr el juego de punta a punta en el navegador destapo 3 bugs que los tests no veian: calendario de liga sin localia pareja, gala de fin de temporada inalcanzable (leia clubs.current_week que no existe; la semana real sale de la fecha de juego con domain/gameWeek) y consulta de la tabla con clubs.logo_url inexistente que fallaba en silencio. Una consulta de Supabase con una columna inexistente devuelve error y data null: siempre chequear error. *(Solución: )*
+- **[BEST_PRACTICE]** Calibrar un balance con una simulacion fijada en un test (ej. la confianza de la directiva: 2000 temporadas por celda) evita ajustar numeros a ojo y deja el criterio documentado. Extraer la parte numerica a una funcion pura en domain/ la hace probable y reutilizable desde Cucumber. *(Solución: )*
+- **[ARCHITECTURE]** Toda escritura de plata pasa por funciones SQL (club_cash_move, settle_gate, close_week_finances...) y un trigger rechaza cambios directos de clubs.budget: una funcion nueva que toque la caja debe fijar app.server_result en su cuerpo (ALTER FUNCTION SET con parametro propio no esta permitido en Supabase). Las reglas del servidor se prueban en la base real con un bloque DO que termina en raise exception. *(Solución: )*

@@ -1,18 +1,18 @@
 {
-  "updatedAt": "2026-10-07T11:33:13.999Z",
+  "updatedAt": "2026-10-07T15:28:06.971Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 481,
-    "totalEdges": 1332,
-    "totalTasks": 148,
-    "totalLessons": 20
+    "totalNodes": 546,
+    "totalEdges": 1439,
+    "totalTasks": 176,
+    "totalLessons": 22
   },
   "nodes": [
     {
       "id": "src/api/academy.js",
       "label": "academy.js",
       "type": "module",
-      "sizeBytes": 12280,
+      "sizeBytes": 12422,
       "lineCount": 365,
       "imports": [
         "./supabase",
@@ -39,11 +39,10 @@
       "id": "src/api/agents.js",
       "label": "agents.js",
       "type": "module",
-      "sizeBytes": 7008,
-      "lineCount": 213,
+      "sizeBytes": 6963,
+      "lineCount": 212,
       "imports": [
-        "./supabase",
-        "../utils/cache"
+        "./supabase"
       ]
     },
     {
@@ -73,9 +72,10 @@
       "id": "src/api/board.js",
       "label": "board.js",
       "type": "module",
-      "sizeBytes": 13144,
-      "lineCount": 357,
+      "sizeBytes": 11424,
+      "lineCount": 304,
       "imports": [
+        "../domain/boardConfidence",
         "./supabase",
         "../utils/ensureRow",
         "../utils/cache",
@@ -83,11 +83,22 @@
       ]
     },
     {
+      "id": "src/api/buyback.js",
+      "label": "buyback.js",
+      "type": "module",
+      "sizeBytes": 1470,
+      "lineCount": 36,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 24785,
-      "lineCount": 536,
+      "sizeBytes": 24950,
+      "lineCount": 538,
       "imports": [
         "./supabase",
         "../domain/fixtureStatus",
@@ -99,9 +110,11 @@
       "id": "src/api/career.js",
       "label": "career.js",
       "type": "module",
-      "sizeBytes": 25913,
-      "lineCount": 757,
+      "sizeBytes": 27535,
+      "lineCount": 783,
       "imports": [
+        "../domain/vacancies",
+        "../domain/jobNegotiation",
         "./supabase",
         "./audit",
         "../utils/cache"
@@ -122,8 +135,8 @@
       "id": "src/api/climate.js",
       "label": "climate.js",
       "type": "module",
-      "sizeBytes": 28626,
-      "lineCount": 536,
+      "sizeBytes": 29353,
+      "lineCount": 548,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -137,6 +150,7 @@
         "../domain/combos",
         "../domain/characters",
         "../domain/seasonStory",
+        "../domain/yearInReview",
         "../domain/arcs",
         "../domain/arcCatalog",
         "../domain/preseason"
@@ -179,10 +193,12 @@
       "id": "src/api/competition.js",
       "label": "competition.js",
       "type": "module",
-      "sizeBytes": 11111,
-      "lineCount": 293,
+      "sizeBytes": 15316,
+      "lineCount": 368,
       "imports": [
         "../domain/leagueSchedule",
+        "../domain/pyramid",
+        "../domain/divisions",
         "../domain/cupMatch",
         "../domain/rivalClubs",
         "./supabase",
@@ -193,7 +209,7 @@
       "id": "src/api/competitionTiers.js",
       "label": "competitionTiers.js",
       "type": "module",
-      "sizeBytes": 10579,
+      "sizeBytes": 10565,
       "lineCount": 300,
       "imports": [
         "./supabase",
@@ -218,8 +234,8 @@
       "id": "src/api/dashboard.js",
       "label": "dashboard.js",
       "type": "module",
-      "sizeBytes": 6221,
-      "lineCount": 163,
+      "sizeBytes": 5906,
+      "lineCount": 155,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -253,7 +269,7 @@
       "id": "src/api/endgame.js",
       "label": "endgame.js",
       "type": "module",
-      "sizeBytes": 8545,
+      "sizeBytes": 8535,
       "lineCount": 209,
       "imports": [
         "./supabase",
@@ -266,8 +282,8 @@
       "id": "src/api/events.js",
       "label": "events.js",
       "type": "module",
-      "sizeBytes": 18903,
-      "lineCount": 518,
+      "sizeBytes": 19528,
+      "lineCount": 527,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -281,10 +297,11 @@
       "id": "src/api/fanbase.js",
       "label": "fanbase.js",
       "type": "module",
-      "sizeBytes": 9979,
-      "lineCount": 305,
+      "sizeBytes": 9317,
+      "lineCount": 291,
       "imports": [
         "./supabase",
+        "../domain/attendance",
         "../utils/ensureRow",
         "../utils/cache"
       ]
@@ -293,8 +310,8 @@
       "id": "src/api/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 9532,
-      "lineCount": 252,
+      "sizeBytes": 10222,
+      "lineCount": 247,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -348,7 +365,7 @@
       "id": "src/api/internationalCup.js",
       "label": "internationalCup.js",
       "type": "module",
-      "sizeBytes": 14669,
+      "sizeBytes": 14646,
       "lineCount": 340,
       "imports": [
         "./supabase",
@@ -383,10 +400,21 @@
       ]
     },
     {
+      "id": "src/api/loans.js",
+      "label": "loans.js",
+      "type": "module",
+      "sizeBytes": 1695,
+      "lineCount": 37,
+      "imports": [
+        "./supabase",
+        "../utils/cache"
+      ]
+    },
+    {
       "id": "src/api/lockerRoom.js",
       "label": "lockerRoom.js",
       "type": "module",
-      "sizeBytes": 15302,
+      "sizeBytes": 15277,
       "lineCount": 395,
       "imports": [
         "./supabase",
@@ -408,8 +436,8 @@
       "id": "src/api/market.js",
       "label": "market.js",
       "type": "module",
-      "sizeBytes": 10925,
-      "lineCount": 266,
+      "sizeBytes": 11016,
+      "lineCount": 264,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -421,7 +449,7 @@
       "id": "src/api/matchEngine.js",
       "label": "matchEngine.js",
       "type": "module",
-      "sizeBytes": 26352,
+      "sizeBytes": 26354,
       "lineCount": 615,
       "imports": [
         "./supabase",
@@ -461,7 +489,7 @@
       "id": "src/api/personalities.js",
       "label": "personalities.js",
       "type": "module",
-      "sizeBytes": 11862,
+      "sizeBytes": 11841,
       "lineCount": 306,
       "imports": [
         "./supabase",
@@ -473,8 +501,8 @@
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 11741,
-      "lineCount": 311,
+      "sizeBytes": 11874,
+      "lineCount": 313,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -489,8 +517,8 @@
       "id": "src/api/playerEvolution.js",
       "label": "playerEvolution.js",
       "type": "module",
-      "sizeBytes": 10809,
-      "lineCount": 356,
+      "sizeBytes": 10767,
+      "lineCount": 355,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -500,8 +528,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 24085,
-      "lineCount": 567,
+      "sizeBytes": 24516,
+      "lineCount": 581,
       "imports": [
         "./manager",
         "./morale",
@@ -514,24 +542,23 @@
         "../utils/cache",
         "../domain/positions",
         "../domain/finances",
-        "../domain/squadConsequences",
-        "../domain/gameWeek"
+        "../domain/squadConsequences"
       ]
     },
     {
       "id": "src/api/press.js",
       "label": "press.js",
       "type": "module",
-      "sizeBytes": 21004,
-      "lineCount": 528,
+      "sizeBytes": 24513,
+      "lineCount": 590,
       "imports": [
         "./supabase",
         "../domain/press",
         "../domain/characters",
         "./climate",
         "../domain/gameWeek",
-        "../utils/cache",
-        "../domain/pressRoom"
+        "../domain/pressRoom",
+        "../domain/pressSituations"
       ]
     },
     {
@@ -550,33 +577,19 @@
       "id": "src/api/scouting.js",
       "label": "scouting.js",
       "type": "module",
-      "sizeBytes": 8329,
-      "lineCount": 253,
+      "sizeBytes": 8295,
+      "lineCount": 252,
       "imports": [
         "./supabase",
         "../utils/cache"
       ]
     },
     {
-      "id": "src/api/season.js",
-      "label": "season.js",
-      "type": "module",
-      "sizeBytes": 11133,
-      "lineCount": 309,
-      "imports": [
-        "./supabase",
-        "../domain/gameWeek",
-        "./competition",
-        "./audit",
-        "../domain/fixtureStatus"
-      ]
-    },
-    {
       "id": "src/api/seasonClose.js",
       "label": "seasonClose.js",
       "type": "module",
-      "sizeBytes": 11705,
-      "lineCount": 307,
+      "sizeBytes": 12916,
+      "lineCount": 324,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -590,8 +603,8 @@
       "id": "src/api/stadium.js",
       "label": "stadium.js",
       "type": "module",
-      "sizeBytes": 12641,
-      "lineCount": 393,
+      "sizeBytes": 12405,
+      "lineCount": 383,
       "imports": [
         "./supabase",
         "../utils/ensureRow",
@@ -603,12 +616,11 @@
       "id": "src/api/staff.js",
       "label": "staff.js",
       "type": "module",
-      "sizeBytes": 10500,
+      "sizeBytes": 10716,
       "lineCount": 295,
       "imports": [
         "./supabase",
-        "../utils/cache",
-        "./audit"
+        "../utils/cache"
       ]
     },
     {
@@ -637,7 +649,7 @@
       "id": "src/api/training.js",
       "label": "training.js",
       "type": "module",
-      "sizeBytes": 16869,
+      "sizeBytes": 16862,
       "lineCount": 422,
       "imports": [
         "./supabase",
@@ -969,20 +981,28 @@
       "id": "src/domain/arcCatalog.js",
       "label": "arcCatalog.js",
       "type": "module",
-      "sizeBytes": 81019,
-      "lineCount": 907,
+      "sizeBytes": 86403,
+      "lineCount": 908,
       "imports": []
     },
     {
       "id": "src/domain/arcs.js",
       "label": "arcs.js",
       "type": "module",
-      "sizeBytes": 5273,
-      "lineCount": 110,
+      "sizeBytes": 6484,
+      "lineCount": 134,
       "imports": [
         "./arcCatalog",
         "./characters"
       ]
+    },
+    {
+      "id": "src/domain/attendance.js",
+      "label": "attendance.js",
+      "type": "module",
+      "sizeBytes": 1446,
+      "lineCount": 24,
+      "imports": []
     },
     {
       "id": "src/domain/barra.js",
@@ -993,6 +1013,22 @@
       "imports": [
         "./consequences"
       ]
+    },
+    {
+      "id": "src/domain/boardConfidence.js",
+      "label": "boardConfidence.js",
+      "type": "module",
+      "sizeBytes": 2746,
+      "lineCount": 59,
+      "imports": []
+    },
+    {
+      "id": "src/domain/buyback.js",
+      "label": "buyback.js",
+      "type": "module",
+      "sizeBytes": 492,
+      "lineCount": 9,
+      "imports": []
     },
     {
       "id": "src/domain/calendarView.js",
@@ -1028,8 +1064,8 @@
       "id": "src/domain/climateEvents.js",
       "label": "climateEvents.js",
       "type": "module",
-      "sizeBytes": 16888,
-      "lineCount": 308,
+      "sizeBytes": 22401,
+      "lineCount": 397,
       "imports": []
     },
     {
@@ -1044,8 +1080,8 @@
       "id": "src/domain/combos.js",
       "label": "combos.js",
       "type": "module",
-      "sizeBytes": 2698,
-      "lineCount": 63,
+      "sizeBytes": 4257,
+      "lineCount": 96,
       "imports": [
         "./consequences"
       ]
@@ -1072,8 +1108,8 @@
       "id": "src/domain/contracts.js",
       "label": "contracts.js",
       "type": "module",
-      "sizeBytes": 3125,
-      "lineCount": 72,
+      "sizeBytes": 4519,
+      "lineCount": 103,
       "imports": []
     },
     {
@@ -1095,12 +1131,24 @@
       ]
     },
     {
+      "id": "src/domain/divisions.js",
+      "label": "divisions.js",
+      "type": "module",
+      "sizeBytes": 1072,
+      "lineCount": 32,
+      "imports": [
+        "./pyramid"
+      ]
+    },
+    {
       "id": "src/domain/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 4291,
-      "lineCount": 105,
-      "imports": []
+      "sizeBytes": 4449,
+      "lineCount": 108,
+      "imports": [
+        "./pyramid"
+      ]
     },
     {
       "id": "src/domain/fixtureStatus.js",
@@ -1132,8 +1180,8 @@
       "id": "src/domain/gameWeek.js",
       "label": "gameWeek.js",
       "type": "module",
-      "sizeBytes": 1464,
-      "lineCount": 32,
+      "sizeBytes": 2015,
+      "lineCount": 43,
       "imports": []
     },
     {
@@ -1142,6 +1190,14 @@
       "type": "module",
       "sizeBytes": 841,
       "lineCount": 27,
+      "imports": []
+    },
+    {
+      "id": "src/domain/jobNegotiation.js",
+      "label": "jobNegotiation.js",
+      "type": "module",
+      "sizeBytes": 1873,
+      "lineCount": 34,
       "imports": []
     },
     {
@@ -1237,6 +1293,22 @@
       ]
     },
     {
+      "id": "src/domain/pressSituations.js",
+      "label": "pressSituations.js",
+      "type": "module",
+      "sizeBytes": 10009,
+      "lineCount": 160,
+      "imports": []
+    },
+    {
+      "id": "src/domain/pyramid.js",
+      "label": "pyramid.js",
+      "type": "module",
+      "sizeBytes": 1403,
+      "lineCount": 26,
+      "imports": []
+    },
+    {
       "id": "src/domain/quickDecisions.js",
       "label": "quickDecisions.js",
       "type": "module",
@@ -1275,11 +1347,21 @@
       "imports": []
     },
     {
+      "id": "src/domain/scoutInsights.js",
+      "label": "scoutInsights.js",
+      "type": "module",
+      "sizeBytes": 2216,
+      "lineCount": 44,
+      "imports": [
+        "./valuation"
+      ]
+    },
+    {
       "id": "src/domain/seasonStory.js",
       "label": "seasonStory.js",
       "type": "module",
-      "sizeBytes": 2880,
-      "lineCount": 51,
+      "sizeBytes": 3797,
+      "lineCount": 63,
       "imports": []
     },
     {
@@ -1347,6 +1429,14 @@
       "imports": []
     },
     {
+      "id": "src/domain/vacancies.js",
+      "label": "vacancies.js",
+      "type": "module",
+      "sizeBytes": 816,
+      "lineCount": 19,
+      "imports": []
+    },
+    {
       "id": "src/domain/valuation.js",
       "label": "valuation.js",
       "type": "module",
@@ -1364,6 +1454,14 @@
         "./consequences",
         "./squadConsequences"
       ]
+    },
+    {
+      "id": "src/domain/yearInReview.js",
+      "label": "yearInReview.js",
+      "type": "module",
+      "sizeBytes": 1348,
+      "lineCount": 30,
+      "imports": []
     },
     {
       "id": "src/features/auth/AuthScreen.jsx",
@@ -1459,13 +1557,14 @@
       "id": "src/features/career/JobOfferBottomSheet.jsx",
       "label": "JobOfferBottomSheet.jsx",
       "type": "module",
-      "sizeBytes": 2879,
-      "lineCount": 59,
+      "sizeBytes": 5036,
+      "lineCount": 99,
       "imports": [
         "react",
         "lucide-react",
         "../../lib/format",
-        "../../components/ui"
+        "../../components/ui",
+        "../../domain/jobNegotiation"
       ]
     },
     {
@@ -1523,7 +1622,7 @@
       "id": "src/features/club/screens/ClubHistoryTab.jsx",
       "label": "ClubHistoryTab.jsx",
       "type": "module",
-      "sizeBytes": 15640,
+      "sizeBytes": 15611,
       "lineCount": 343,
       "imports": [
         "react",
@@ -1537,15 +1636,15 @@
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 12916,
+      "sizeBytes": 12993,
       "lineCount": 274,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
-        "../../../api/club",
         "../../../api/clubFeatures",
         "../../../api/clubHistory",
+        "../../../api/finances",
         "../../../api/supabase",
         "../../../context/GameContext",
         "../../../utils/cache",
@@ -1729,8 +1828,8 @@
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 9252,
-      "lineCount": 180,
+      "sizeBytes": 9303,
+      "lineCount": 181,
       "imports": [
         "react",
         "react-router-dom",
@@ -1739,6 +1838,7 @@
         "../../api/competition",
         "../../context/GameContext",
         "../../domain/gameWeek",
+        "../../domain/divisions",
         "../../utils/cache",
         "../../domain/standings",
         "../../lib/utils",
@@ -1770,8 +1870,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 21212,
-      "lineCount": 434,
+      "sizeBytes": 21276,
+      "lineCount": 435,
       "imports": [
         "react",
         "react-router-dom",
@@ -1784,6 +1884,7 @@
         "../../context/GameContext",
         "../../domain/fixtureStatus",
         "../../domain/gameWeek",
+        "../../domain/divisions",
         "../../domain/rivalLevel",
         "../../lib/format",
         "../../lib/utils",
@@ -2035,8 +2136,8 @@
       "id": "src/features/manager/ManagerCareerScreen.jsx",
       "label": "ManagerCareerScreen.jsx",
       "type": "module",
-      "sizeBytes": 24493,
-      "lineCount": 436,
+      "sizeBytes": 25259,
+      "lineCount": 450,
       "imports": [
         "react",
         "react-router-dom",
@@ -2076,14 +2177,16 @@
       "id": "src/features/market/MarketScreen.jsx",
       "label": "MarketScreen.jsx",
       "type": "module",
-      "sizeBytes": 12879,
-      "lineCount": 267,
+      "sizeBytes": 15932,
+      "lineCount": 328,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
         "../../api/market",
         "../../api/scouting",
+        "../../api/buyback",
+        "../../domain/scoutInsights",
         "../../api/supabase",
         "../../context/GameContext",
         "../../lib/format",
@@ -2196,7 +2299,7 @@
       "id": "src/features/match/PressRoom.jsx",
       "label": "PressRoom.jsx",
       "type": "module",
-      "sizeBytes": 16687,
+      "sizeBytes": 16636,
       "lineCount": 305,
       "imports": [
         "react",
@@ -2247,13 +2350,15 @@
       "id": "src/features/season/SeasonCloseModal.jsx",
       "label": "SeasonCloseModal.jsx",
       "type": "module",
-      "sizeBytes": 6556,
-      "lineCount": 134,
+      "sizeBytes": 9081,
+      "lineCount": 176,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
         "../../api/seasonClose",
+        "../../api/competition",
+        "../../domain/divisions",
         "../../api/climate",
         "../../domain/seasonStory",
         "../../context/GameContext",
@@ -2266,7 +2371,7 @@
       "id": "src/features/squad/AgentProfileCard.jsx",
       "label": "AgentProfileCard.jsx",
       "type": "module",
-      "sizeBytes": 3900,
+      "sizeBytes": 3882,
       "lineCount": 92,
       "imports": [
         "react",
@@ -2351,14 +2456,17 @@
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 23544,
-      "lineCount": 449,
+      "sizeBytes": 27142,
+      "lineCount": 514,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
         "../../api/player",
         "../../api/contracts",
+        "../../api/loans",
+        "../../api/buyback",
+        "../../domain/buyback",
         "../../api/climate",
         "../../domain/warnings",
         "../../lib/risk",
@@ -2558,7 +2666,7 @@
       "id": "src/lib/risk.js",
       "label": "risk.js",
       "type": "module",
-      "sizeBytes": 614,
+      "sizeBytes": 607,
       "lineCount": 17,
       "imports": []
     },
@@ -2650,8 +2758,8 @@
       "id": "tests/api/advanceAtSeasonEnd.test.js",
       "label": "advanceAtSeasonEnd.test.js",
       "type": "test",
-      "sizeBytes": 1072,
-      "lineCount": 15,
+      "sizeBytes": 2094,
+      "lineCount": 25,
       "imports": [
         "../../src/api/calendar"
       ]
@@ -2678,6 +2786,16 @@
       ]
     },
     {
+      "id": "tests/api/buyback.test.js",
+      "label": "buyback.test.js",
+      "type": "test",
+      "sizeBytes": 1999,
+      "lineCount": 43,
+      "imports": [
+        "../../src/api/buyback"
+      ]
+    },
+    {
       "id": "tests/api/calendarReconcile.test.js",
       "label": "calendarReconcile.test.js",
       "type": "test",
@@ -2685,6 +2803,21 @@
       "lineCount": 52,
       "imports": [
         "../../src/api/calendar"
+      ]
+    },
+    {
+      "id": "tests/api/cashMove.test.js",
+      "label": "cashMove.test.js",
+      "type": "test",
+      "sizeBytes": 5466,
+      "lineCount": 99,
+      "imports": [
+        "../../src/api/finances",
+        "../../src/api/stadium",
+        "../../src/api/events",
+        "../../src/api/academy",
+        "../../src/api/board",
+        "../../src/api/staff"
       ]
     },
     {
@@ -2713,8 +2846,8 @@
       "id": "tests/api/climateCombos.test.js",
       "label": "climateCombos.test.js",
       "type": "test",
-      "sizeBytes": 4372,
-      "lineCount": 83,
+      "sizeBytes": 5357,
+      "lineCount": 95,
       "imports": [
         "../../src/api/climate"
       ]
@@ -2723,8 +2856,8 @@
       "id": "tests/api/climateWeek.test.js",
       "label": "climateWeek.test.js",
       "type": "test",
-      "sizeBytes": 13627,
-      "lineCount": 282,
+      "sizeBytes": 13816,
+      "lineCount": 283,
       "imports": [
         "../../src/api/climate"
       ]
@@ -2792,6 +2925,18 @@
       ]
     },
     {
+      "id": "tests/api/ignoredErrors.test.js",
+      "label": "ignoredErrors.test.js",
+      "type": "test",
+      "sizeBytes": 2518,
+      "lineCount": 47,
+      "imports": [
+        "../../src/api/player",
+        "../../src/api/competition",
+        "../../src/api/calendar"
+      ]
+    },
+    {
       "id": "tests/api/injuriesWeek.test.js",
       "label": "injuriesWeek.test.js",
       "type": "test",
@@ -2799,6 +2944,16 @@
       "lineCount": 57,
       "imports": [
         "../../src/api/injuries"
+      ]
+    },
+    {
+      "id": "tests/api/jobNegotiationApi.test.js",
+      "label": "jobNegotiationApi.test.js",
+      "type": "test",
+      "sizeBytes": 2656,
+      "lineCount": 58,
+      "imports": [
+        "../../src/api/career"
       ]
     },
     {
@@ -2821,6 +2976,16 @@
       "imports": [
         "../../src/api/levels",
         "../../src/api/competition"
+      ]
+    },
+    {
+      "id": "tests/api/loans.test.js",
+      "label": "loans.test.js",
+      "type": "test",
+      "sizeBytes": 2317,
+      "lineCount": 50,
+      "imports": [
+        "../../src/api/loans"
       ]
     },
     {
@@ -2951,8 +3116,8 @@
       "id": "tests/api/postMatchOrder.test.js",
       "label": "postMatchOrder.test.js",
       "type": "test",
-      "sizeBytes": 5661,
-      "lineCount": 121,
+      "sizeBytes": 6390,
+      "lineCount": 136,
       "imports": [
         "../../src/api/postMatch"
       ]
@@ -2991,10 +3156,20 @@
       ]
     },
     {
+      "id": "tests/api/pressSituations.test.js",
+      "label": "pressSituations.test.js",
+      "type": "test",
+      "sizeBytes": 5022,
+      "lineCount": 98,
+      "imports": [
+        "../../src/api/press"
+      ]
+    },
+    {
       "id": "tests/api/pressSkip.test.js",
       "label": "pressSkip.test.js",
       "type": "test",
-      "sizeBytes": 6158,
+      "sizeBytes": 6174,
       "lineCount": 143,
       "imports": [
         "../../src/api/press"
@@ -3004,8 +3179,8 @@
       "id": "tests/api/scouting.test.js",
       "label": "scouting.test.js",
       "type": "test",
-      "sizeBytes": 2530,
-      "lineCount": 53,
+      "sizeBytes": 2846,
+      "lineCount": 56,
       "imports": [
         "../../src/api/scouting"
       ]
@@ -3024,8 +3199,8 @@
       "id": "tests/api/seasonPrize.test.js",
       "label": "seasonPrize.test.js",
       "type": "test",
-      "sizeBytes": 5167,
-      "lineCount": 86,
+      "sizeBytes": 11252,
+      "lineCount": 176,
       "imports": [
         "../../src/api/seasonClose"
       ]
@@ -3075,8 +3250,8 @@
       "id": "tests/api/weeklyFinance.test.js",
       "label": "weeklyFinance.test.js",
       "type": "test",
-      "sizeBytes": 4211,
-      "lineCount": 76,
+      "sizeBytes": 4969,
+      "lineCount": 86,
       "imports": [
         "../../src/api/finances",
         "../../src/domain/finances"
@@ -3093,15 +3268,138 @@
       ]
     },
     {
+      "id": "tests/bdd/steps/arcs.steps.js",
+      "label": "arcs.steps.js",
+      "type": "test",
+      "sizeBytes": 1266,
+      "lineCount": 35,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/arcCatalog.js",
+        "../../../src/domain/arcs.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/board.steps.js",
+      "label": "board.steps.js",
+      "type": "test",
+      "sizeBytes": 1758,
+      "lineCount": 36,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/boardConfidence.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/buyback.steps.js",
+      "label": "buyback.steps.js",
+      "type": "test",
+      "sizeBytes": 510,
+      "lineCount": 16,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/buyback.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/climate.steps.js",
+      "label": "climate.steps.js",
+      "type": "test",
+      "sizeBytes": 1576,
+      "lineCount": 45,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/climateEvents.js",
+        "../../../src/domain/barra.js",
+        "../../../src/domain/combos.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/job.steps.js",
+      "label": "job.steps.js",
+      "type": "test",
+      "sizeBytes": 764,
+      "lineCount": 22,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/jobNegotiation.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/league.steps.js",
+      "label": "league.steps.js",
+      "type": "test",
+      "sizeBytes": 2257,
+      "lineCount": 66,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/leagueSchedule.js",
+        "../../../src/domain/gameWeek.js",
+        "../../../src/domain/pyramid.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/press.steps.js",
+      "label": "press.steps.js",
+      "type": "test",
+      "sizeBytes": 1507,
+      "lineCount": 44,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/pressSituations.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/scout.steps.js",
+      "label": "scout.steps.js",
+      "type": "test",
+      "sizeBytes": 902,
+      "lineCount": 24,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/scoutInsights.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/yearInReview.steps.js",
+      "label": "yearInReview.steps.js",
+      "type": "test",
+      "sizeBytes": 1637,
+      "lineCount": 40,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/yearInReview.js"
+      ]
+    },
+    {
       "id": "tests/domain/arcs.test.js",
       "label": "arcs.test.js",
       "type": "test",
-      "sizeBytes": 7180,
-      "lineCount": 142,
+      "sizeBytes": 10190,
+      "lineCount": 192,
       "imports": [
         "../../src/domain/arcCatalog",
         "../../src/domain/arcs",
         "../../src/domain/seasonStory"
+      ]
+    },
+    {
+      "id": "tests/domain/attendance.test.js",
+      "label": "attendance.test.js",
+      "type": "test",
+      "sizeBytes": 2061,
+      "lineCount": 36,
+      "imports": [
+        "../../src/domain/attendance"
       ]
     },
     {
@@ -3125,6 +3423,27 @@
         "../../src/domain/consequences",
         "../../src/domain/climateEvents",
         "../../src/api/events"
+      ]
+    },
+    {
+      "id": "tests/domain/boardConfidence.test.js",
+      "label": "boardConfidence.test.js",
+      "type": "test",
+      "sizeBytes": 4612,
+      "lineCount": 78,
+      "imports": [
+        "../../src/domain/boardConfidence",
+        "../../src/domain/cupMatch"
+      ]
+    },
+    {
+      "id": "tests/domain/buyback.test.js",
+      "label": "buyback.test.js",
+      "type": "test",
+      "sizeBytes": 626,
+      "lineCount": 14,
+      "imports": [
+        "../../src/domain/buyback"
       ]
     },
     {
@@ -3173,8 +3492,8 @@
       "id": "tests/domain/combosAndStory.test.js",
       "label": "combosAndStory.test.js",
       "type": "test",
-      "sizeBytes": 5259,
-      "lineCount": 105,
+      "sizeBytes": 7115,
+      "lineCount": 138,
       "imports": [
         "../../src/domain/combos",
         "../../src/domain/seasonStory",
@@ -3206,9 +3525,10 @@
       "id": "tests/domain/contracts.test.js",
       "label": "contracts.test.js",
       "type": "test",
-      "sizeBytes": 2067,
-      "lineCount": 46,
+      "sizeBytes": 3108,
+      "lineCount": 71,
       "imports": [
+        "../../src/domain/contracts",
         "../../src/domain/contracts"
       ]
     },
@@ -3230,6 +3550,17 @@
       "lineCount": 160,
       "imports": [
         "../../src/domain/cupTournament"
+      ]
+    },
+    {
+      "id": "tests/domain/divisions.test.js",
+      "label": "divisions.test.js",
+      "type": "test",
+      "sizeBytes": 1729,
+      "lineCount": 34,
+      "imports": [
+        "../../src/domain/divisions",
+        "../../src/api/seasonClose"
       ]
     },
     {
@@ -3284,6 +3615,16 @@
       "imports": [
         "../../src/domain/freeLayout",
         "../../src/domain/formations"
+      ]
+    },
+    {
+      "id": "tests/domain/jobNegotiation.test.js",
+      "label": "jobNegotiation.test.js",
+      "type": "test",
+      "sizeBytes": 2330,
+      "lineCount": 44,
+      "imports": [
+        "../../src/domain/jobNegotiation"
       ]
     },
     {
@@ -3403,6 +3744,26 @@
       ]
     },
     {
+      "id": "tests/domain/pressSituations.test.js",
+      "label": "pressSituations.test.js",
+      "type": "test",
+      "sizeBytes": 4223,
+      "lineCount": 86,
+      "imports": [
+        "../../src/domain/pressSituations"
+      ]
+    },
+    {
+      "id": "tests/domain/pyramid.test.js",
+      "label": "pyramid.test.js",
+      "type": "test",
+      "sizeBytes": 1529,
+      "lineCount": 34,
+      "imports": [
+        "../../src/domain/pyramid"
+      ]
+    },
+    {
       "id": "tests/domain/quickDecisions.test.js",
       "label": "quickDecisions.test.js",
       "type": "test",
@@ -3455,12 +3816,24 @@
       ]
     },
     {
+      "id": "tests/domain/scoutInsights.test.js",
+      "label": "scoutInsights.test.js",
+      "type": "test",
+      "sizeBytes": 2633,
+      "lineCount": 44,
+      "imports": [
+        "../../src/domain/scoutInsights",
+        "../../src/domain/valuation"
+      ]
+    },
+    {
       "id": "tests/domain/seasonEnd.test.js",
       "label": "seasonEnd.test.js",
       "type": "test",
-      "sizeBytes": 460,
-      "lineCount": 13,
+      "sizeBytes": 1297,
+      "lineCount": 31,
       "imports": [
+        "../../src/domain/gameWeek",
         "../../src/domain/gameWeek"
       ]
     },
@@ -3482,6 +3855,17 @@
       "lineCount": 124,
       "imports": [
         "../../src/domain/squadConsequences"
+      ]
+    },
+    {
+      "id": "tests/domain/stageEvents.test.js",
+      "label": "stageEvents.test.js",
+      "type": "test",
+      "sizeBytes": 2497,
+      "lineCount": 39,
+      "imports": [
+        "../../src/domain/climateEvents",
+        "../../src/domain/barra"
       ]
     },
     {
@@ -3515,6 +3899,16 @@
       ]
     },
     {
+      "id": "tests/domain/vacancies.test.js",
+      "label": "vacancies.test.js",
+      "type": "test",
+      "sizeBytes": 1203,
+      "lineCount": 24,
+      "imports": [
+        "../../src/domain/vacancies"
+      ]
+    },
+    {
       "id": "tests/domain/valuation.test.js",
       "label": "valuation.test.js",
       "type": "test",
@@ -3532,6 +3926,17 @@
       "lineCount": 56,
       "imports": [
         "../../src/domain/warnings"
+      ]
+    },
+    {
+      "id": "tests/domain/yearInReview.test.js",
+      "label": "yearInReview.test.js",
+      "type": "test",
+      "sizeBytes": 3317,
+      "lineCount": 58,
+      "imports": [
+        "../../src/domain/yearInReview",
+        "../../src/domain/seasonStory"
       ]
     },
     {
@@ -3559,7 +3964,7 @@
       "id": "tests/static/clubColumns.test.js",
       "label": "clubColumns.test.js",
       "type": "test",
-      "sizeBytes": 709,
+      "sizeBytes": 726,
       "lineCount": 18,
       "imports": [
         "node:fs",
@@ -3849,8 +4254,8 @@
       "id": "tests/ui/marketScreen.test.jsx",
       "label": "marketScreen.test.jsx",
       "type": "test",
-      "sizeBytes": 4928,
-      "lineCount": 93,
+      "sizeBytes": 6529,
+      "lineCount": 116,
       "imports": [
         "react",
         "@testing-library/react",
@@ -3905,8 +4310,8 @@
       "id": "tests/ui/modals.test.jsx",
       "label": "modals.test.jsx",
       "type": "test",
-      "sizeBytes": 8169,
-      "lineCount": 142,
+      "sizeBytes": 10313,
+      "lineCount": 167,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4005,8 +4410,8 @@
       "id": "tests/ui/seasonStoryModal.test.jsx",
       "label": "seasonStoryModal.test.jsx",
       "type": "test",
-      "sizeBytes": 2819,
-      "lineCount": 48,
+      "sizeBytes": 3724,
+      "lineCount": 59,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4018,8 +4423,8 @@
       "id": "tests/ui/squadScreen.test.jsx",
       "label": "squadScreen.test.jsx",
       "type": "test",
-      "sizeBytes": 7398,
-      "lineCount": 133,
+      "sizeBytes": 9795,
+      "lineCount": 167,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4155,6 +4560,20 @@
       ]
     },
     {
+      "id": "task:advance-semaphore-recovery",
+      "label": "advance-semaphore-recovery: El avance de semana se recupera si quedo trabado a medias",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:arc-branching-endings",
+      "label": "arc-branching-endings: Los finales de las historias cambian segun el camino elegido y el estado del club",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:auth-security-f5",
       "label": "auth-security-f5: Acceso seguro: reCAPTCHA v3, Google, Resend y base cerrada por dueño",
       "type": "task",
@@ -4164,6 +4583,34 @@
     {
       "id": "task:bench-complaints",
       "label": "bench-complaints: Suplentes que reclaman minutos",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:board-balance-calibration",
+      "label": "board-balance-calibration: La confianza de la directiva es una funcion pura calibrada con simulacion",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:buyback-clause",
+      "label": "buyback-clause: Clausula de recompra: dejas una opcion al vender y la ejerces despues",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:cash-server-migrate-rest",
+      "label": "cash-server-migrate-rest: El resto de las escrituras de caja pasan al servidor",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:cash-server-primitive",
+      "label": "cash-server-primitive: La caja se mueve en el servidor: primitiva club_cash_move y las primeras escrituras migradas",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -4183,8 +4630,22 @@
       "taskType": "fix"
     },
     {
+      "id": "task:cleanup-orphans-multipass",
+      "label": "cleanup-orphans-multipass: El script de limpieza de filas sin dueño borra en pasadas y respeta las dependencias",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:climate-feel",
       "label": "climate-feel: Combos, clima visible, resumen de temporada y premios escalados",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:climate-stage-events",
+      "label": "climate-stage-events: Eventos propios de cada etapa de la barra y de cada nivel de presion",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -4218,6 +4679,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:contracts-countdown-alert",
+      "label": "contracts-countdown-alert: La alerta de contratos por vencer sube de prioridad al final de la temporada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:contracts-server",
       "label": "contracts-server: Contratos: renovaciones y rescisiones resueltas por el servidor",
       "type": "task",
@@ -4239,6 +4707,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:db-function-search-path",
+      "label": "db-function-search-path: Las funciones SQL del juego tienen el search_path fijo",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:econ-climate-t1",
       "label": "econ-climate-t1: T1 economia recalibrada y clima unificado",
       "type": "task",
@@ -4251,6 +4726,20 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:economy-by-tier",
+      "label": "economy-by-tier: Los ingresos fijos del club crecen con la categoria",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:economy-tuning",
+      "label": "economy-tuning: Economia semanal recalibrada con la corrida de una temporada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:endgame-tests",
@@ -4967,8 +5456,29 @@
       "taskType": "feat"
     },
     {
+      "id": "task:gate-server",
+      "label": "gate-server: La taquilla la calcula y acredita el servidor",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:home-landing",
       "label": "home-landing: Home publica de Vestuario: portada, frases de DT, SEO y rutas de acceso",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:job-market-real-tiers",
+      "label": "job-market-real-tiers: La bolsa de trabajo ofrece clubes de todas las divisiones",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:job-negotiation",
+      "label": "job-negotiation: Las ofertas de trabajo se negocian: pedis mas sueldo y el club acepta, contraoferta o retira",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -4979,6 +5489,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
+    },
+    {
+      "id": "task:league-promotion-relegation",
+      "label": "league-promotion-relegation: Ascensos y descensos reales: el club cambia de liga y los rivales de la IA rotan",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     },
     {
       "id": "task:league-server",
@@ -4993,6 +5510,20 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:lint-warnings-cleanup",
+      "label": "lint-warnings-cleanup: Menos avisos de lint: variables sin uso y asignaciones pisadas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:lint-warnings-cleanup-2",
+      "label": "lint-warnings-cleanup-2: Menos avisos de lint: variables sin uso y asignaciones pisadas, segunda pasada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:market-agents",
@@ -5058,6 +5589,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:memory-lessons-2",
+      "label": "memory-lessons-2: Lecciones de la tanda de contenido y calidad",
+      "type": "task",
+      "status": "PLANNED",
+      "taskType": "fix"
+    },
+    {
       "id": "task:more-story-arcs",
       "label": "more-story-arcs: 12 historias nuevas escritas por el usuario",
       "type": "task",
@@ -5079,6 +5617,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:player-loans",
+      "label": "player-loans: Cesiones a prestamo: ahorras el sueldo y el jugador vuelve al cierre de la temporada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:preseason-arcade",
       "label": "preseason-arcade: Pretemporada arcade: aporte de la dirigencia y amistosos con riesgo",
       "type": "task",
@@ -5095,6 +5640,13 @@
     {
       "id": "task:press-games",
       "label": "press-games: Prensa: Titular o fake y Bingo del DT",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:press-situations",
+      "label": "press-situations: La prensa pregunta por la situacion y recuerda tus respuestas anteriores",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -5135,11 +5687,25 @@
       "taskType": "fix"
     },
     {
+      "id": "task:scout-insights",
+      "label": "scout-insights: El ojeo da una lectura: si mejora al titular, si el precio es justo y el perfil del jugador",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
       "id": "task:season-close-flow",
       "label": "season-close-flow: La temporada se cierra desde la gala y arranca la siguiente con su calendario",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
+    },
+    {
+      "id": "task:season-expiring-contracts",
+      "label": "season-expiring-contracts: La gala avisa que jugadores quedan libres al cerrar la temporada",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
     },
     {
       "id": "task:season-league-isolation",
@@ -5177,6 +5743,34 @@
       "taskType": "feat"
     },
     {
+      "id": "task:supabase-errors-not-ignored",
+      "label": "supabase-errors-not-ignored: Los errores de consulta no se ignoran: no se duplican ligas ni planteles ni se saltea el chequeo de fondos",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:tooling-cucumber",
+      "label": "tooling-cucumber: Cucumber instalado y el gate BDD corre de verdad",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:tooling-eslint",
+      "label": "tooling-eslint: ESLint instalado y corriendo en el CI",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:ui-season-details",
+      "label": "ui-season-details: La pantalla muestra la division real y la gala el premio que corresponde",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:vercel-spa-rewrites",
       "label": "vercel-spa-rewrites: Rewrites SPA en Vercel (404 en rutas profundas)",
       "type": "task",
@@ -5186,6 +5780,13 @@
     {
       "id": "task:weekly-finance-server",
       "label": "weekly-finance-server: Cierre semanal de finanzas resuelto por el servidor",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:year-in-review",
+      "label": "year-in-review: El resumen del año cuenta fichajes y el ranking de decisiones",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -5243,11 +5844,6 @@
       "relation": "depends_on"
     },
     {
-      "from": "src/api/agents.js",
-      "to": "../utils/cache",
-      "relation": "depends_on"
-    },
-    {
       "from": "src/api/audit.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -5274,6 +5870,11 @@
     },
     {
       "from": "src/api/board.js",
+      "to": "../domain/boardConfidence",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/board.js",
       "to": "./supabase",
       "relation": "depends_on"
     },
@@ -5290,6 +5891,16 @@
     {
       "from": "src/api/board.js",
       "to": "./finances",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/buyback.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/buyback.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -5310,6 +5921,16 @@
     {
       "from": "src/api/calendar.js",
       "to": "../lib/perf",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/career.js",
+      "to": "../domain/vacancies",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/career.js",
+      "to": "../domain/jobNegotiation",
       "relation": "depends_on"
     },
     {
@@ -5399,6 +6020,11 @@
     },
     {
       "from": "src/api/climate.js",
+      "to": "../domain/yearInReview",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/climate.js",
       "to": "../domain/arcs",
       "relation": "depends_on"
     },
@@ -5445,6 +6071,16 @@
     {
       "from": "src/api/competition.js",
       "to": "../domain/leagueSchedule",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/competition.js",
+      "to": "../domain/pyramid",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/competition.js",
+      "to": "../domain/divisions",
       "relation": "depends_on"
     },
     {
@@ -5599,6 +6235,11 @@
     },
     {
       "from": "src/api/fanbase.js",
+      "to": "../domain/attendance",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/fanbase.js",
       "to": "../utils/ensureRow",
       "relation": "depends_on"
     },
@@ -5710,6 +6351,16 @@
     {
       "from": "src/api/levels.js",
       "to": "./audit",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/loans.js",
+      "to": "./supabase",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/loans.js",
+      "to": "../utils/cache",
       "relation": "depends_on"
     },
     {
@@ -5938,11 +6589,6 @@
       "relation": "depends_on"
     },
     {
-      "from": "src/api/postMatch.js",
-      "to": "../domain/gameWeek",
-      "relation": "depends_on"
-    },
-    {
       "from": "src/api/press.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -5969,15 +6615,15 @@
     },
     {
       "from": "src/api/press.js",
-      "to": "../utils/cache",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/press.js",
       "to": "../domain/pressRoom",
       "relation": "depends_on"
     },
     {
+      "from": "src/api/press.js",
+      "to": "../domain/pressSituations",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/api/reputation.js",
       "to": "./supabase",
       "relation": "depends_on"
@@ -6000,31 +6646,6 @@
     {
       "from": "src/api/scouting.js",
       "to": "../utils/cache",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/season.js",
-      "to": "./supabase",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/season.js",
-      "to": "../domain/gameWeek",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/season.js",
-      "to": "./competition",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/season.js",
-      "to": "./audit",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/season.js",
-      "to": "../domain/fixtureStatus",
       "relation": "depends_on"
     },
     {
@@ -6085,11 +6706,6 @@
     {
       "from": "src/api/staff.js",
       "to": "../utils/cache",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/staff.js",
-      "to": "./audit",
       "relation": "depends_on"
     },
     {
@@ -6583,6 +7199,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/domain/divisions.js",
+      "to": "./pyramid",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/finances.js",
+      "to": "./pyramid",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/domain/formations.js",
       "to": "./ratings",
       "relation": "depends_on"
@@ -6635,6 +7261,11 @@
     {
       "from": "src/domain/rivalClubs.js",
       "to": "./cupMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/scoutInsights.js",
+      "to": "./valuation",
       "relation": "depends_on"
     },
     {
@@ -6918,6 +7549,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/career/JobOfferBottomSheet.jsx",
+      "to": "../../domain/jobNegotiation",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/career/ReputationHistoryModal.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -7079,17 +7715,17 @@
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "../../../api/club",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "../../../api/clubFeatures",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "../../../api/clubHistory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "../../../api/finances",
       "relation": "depends_on"
     },
     {
@@ -7564,6 +8200,11 @@
     },
     {
       "from": "src/features/competition/StandingsScreen.jsx",
+      "to": "../../domain/divisions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/StandingsScreen.jsx",
       "to": "../../utils/cache",
       "relation": "depends_on"
     },
@@ -7695,6 +8336,11 @@
     {
       "from": "src/features/dashboard/Dashboard.jsx",
       "to": "../../domain/gameWeek",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../domain/divisions",
       "relation": "depends_on"
     },
     {
@@ -8344,6 +8990,16 @@
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../api/buyback",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "../../domain/scoutInsights",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
       "to": "../../api/supabase",
       "relation": "depends_on"
     },
@@ -8744,6 +9400,16 @@
     },
     {
       "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "../../api/competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
+      "to": "../../domain/divisions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/season/SeasonCloseModal.jsx",
       "to": "../../api/climate",
       "relation": "depends_on"
     },
@@ -8950,6 +9616,21 @@
     {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "../../api/contracts",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/loans",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/buyback",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../domain/buyback",
       "relation": "depends_on"
     },
     {
@@ -9488,8 +10169,43 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/buyback.test.js",
+      "to": "../../src/api/buyback",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/calendarReconcile.test.js",
       "to": "../../src/api/calendar",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/cashMove.test.js",
+      "to": "../../src/api/finances",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/cashMove.test.js",
+      "to": "../../src/api/stadium",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/cashMove.test.js",
+      "to": "../../src/api/events",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/cashMove.test.js",
+      "to": "../../src/api/academy",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/cashMove.test.js",
+      "to": "../../src/api/board",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/cashMove.test.js",
+      "to": "../../src/api/staff",
       "relation": "depends_on"
     },
     {
@@ -9563,8 +10279,28 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/ignoredErrors.test.js",
+      "to": "../../src/api/player",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/ignoredErrors.test.js",
+      "to": "../../src/api/competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/ignoredErrors.test.js",
+      "to": "../../src/api/calendar",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/injuriesWeek.test.js",
       "to": "../../src/api/injuries",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/jobNegotiationApi.test.js",
+      "to": "../../src/api/career",
       "relation": "depends_on"
     },
     {
@@ -9585,6 +10321,11 @@
     {
       "from": "tests/api/levels-competition.test.js",
       "to": "../../src/api/competition",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/loans.test.js",
+      "to": "../../src/api/loans",
       "relation": "depends_on"
     },
     {
@@ -9703,6 +10444,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/pressSituations.test.js",
+      "to": "../../src/api/press",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/pressSkip.test.js",
       "to": "../../src/api/press",
       "relation": "depends_on"
@@ -9763,6 +10509,166 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/bdd/steps/arcs.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/arcs.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/arcs.steps.js",
+      "to": "../../../src/domain/arcCatalog.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/arcs.steps.js",
+      "to": "../../../src/domain/arcs.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/board.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/board.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/board.steps.js",
+      "to": "../../../src/domain/boardConfidence.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/buyback.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/buyback.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/buyback.steps.js",
+      "to": "../../../src/domain/buyback.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/climate.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/climate.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/climate.steps.js",
+      "to": "../../../src/domain/climateEvents.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/climate.steps.js",
+      "to": "../../../src/domain/barra.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/climate.steps.js",
+      "to": "../../../src/domain/combos.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/job.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/job.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/job.steps.js",
+      "to": "../../../src/domain/jobNegotiation.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/league.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/league.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/league.steps.js",
+      "to": "../../../src/domain/leagueSchedule.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/league.steps.js",
+      "to": "../../../src/domain/gameWeek.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/league.steps.js",
+      "to": "../../../src/domain/pyramid.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/press.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/press.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/press.steps.js",
+      "to": "../../../src/domain/pressSituations.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/scout.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/scout.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/scout.steps.js",
+      "to": "../../../src/domain/scoutInsights.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/yearInReview.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/yearInReview.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/yearInReview.steps.js",
+      "to": "../../../src/domain/yearInReview.js",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/arcs.test.js",
       "to": "../../src/domain/arcCatalog",
       "relation": "depends_on"
@@ -9775,6 +10681,11 @@
     {
       "from": "tests/domain/arcs.test.js",
       "to": "../../src/domain/seasonStory",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/attendance.test.js",
+      "to": "../../src/domain/attendance",
       "relation": "depends_on"
     },
     {
@@ -9800,6 +10711,21 @@
     {
       "from": "tests/domain/barra.test.js",
       "to": "../../src/api/events",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/boardConfidence.test.js",
+      "to": "../../src/domain/boardConfidence",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/boardConfidence.test.js",
+      "to": "../../src/domain/cupMatch",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/buyback.test.js",
+      "to": "../../src/domain/buyback",
       "relation": "depends_on"
     },
     {
@@ -9868,6 +10794,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/contracts.test.js",
+      "to": "../../src/domain/contracts",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/cupMatch.test.js",
       "to": "../../src/domain/cupMatch",
       "relation": "depends_on"
@@ -9875,6 +10806,16 @@
     {
       "from": "tests/domain/cupTournament.test.js",
       "to": "../../src/domain/cupTournament",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/divisions.test.js",
+      "to": "../../src/domain/divisions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/divisions.test.js",
+      "to": "../../src/api/seasonClose",
       "relation": "depends_on"
     },
     {
@@ -9920,6 +10861,11 @@
     {
       "from": "tests/domain/freeLayout.test.js",
       "to": "../../src/domain/formations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/jobNegotiation.test.js",
+      "to": "../../src/domain/jobNegotiation",
       "relation": "depends_on"
     },
     {
@@ -10008,6 +10954,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/pressSituations.test.js",
+      "to": "../../src/domain/pressSituations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/pyramid.test.js",
+      "to": "../../src/domain/pyramid",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/quickDecisions.test.js",
       "to": "../../src/domain/quickDecisions",
       "relation": "depends_on"
@@ -10043,6 +10999,21 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/scoutInsights.test.js",
+      "to": "../../src/domain/scoutInsights",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/scoutInsights.test.js",
+      "to": "../../src/domain/valuation",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/seasonEnd.test.js",
+      "to": "../../src/domain/gameWeek",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/seasonEnd.test.js",
       "to": "../../src/domain/gameWeek",
       "relation": "depends_on"
@@ -10055,6 +11026,16 @@
     {
       "from": "tests/domain/squadConsequences.test.js",
       "to": "../../src/domain/squadConsequences",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/stageEvents.test.js",
+      "to": "../../src/domain/climateEvents",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/stageEvents.test.js",
+      "to": "../../src/domain/barra",
       "relation": "depends_on"
     },
     {
@@ -10073,6 +11054,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/vacancies.test.js",
+      "to": "../../src/domain/vacancies",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/valuation.test.js",
       "to": "../../src/domain/valuation",
       "relation": "depends_on"
@@ -10080,6 +11066,16 @@
     {
       "from": "tests/domain/warnings.test.js",
       "to": "../../src/domain/warnings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/yearInReview.test.js",
+      "to": "../../src/domain/yearInReview",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/yearInReview.test.js",
+      "to": "../../src/domain/seasonStory",
       "relation": "depends_on"
     },
     {
@@ -11113,6 +12109,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "task:advance-semaphore-recovery",
+      "to": ".agents/workflow/tasks/advance-semaphore-recovery.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:arc-branching-endings",
+      "to": ".agents/workflow/tasks/arc-branching-endings.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:auth-security-f5",
       "to": ".agents/workflow/tasks/auth-security-f5.yml",
       "relation": "manifested_by"
@@ -11120,6 +12126,26 @@
     {
       "from": "task:bench-complaints",
       "to": ".agents/workflow/tasks/bench-complaints.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:board-balance-calibration",
+      "to": ".agents/workflow/tasks/board-balance-calibration.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:buyback-clause",
+      "to": ".agents/workflow/tasks/buyback-clause.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:cash-server-migrate-rest",
+      "to": ".agents/workflow/tasks/cash-server-migrate-rest.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:cash-server-primitive",
+      "to": ".agents/workflow/tasks/cash-server-primitive.yml",
       "relation": "manifested_by"
     },
     {
@@ -11133,8 +12159,18 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:cleanup-orphans-multipass",
+      "to": ".agents/workflow/tasks/cleanup-orphans-multipass.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:climate-feel",
       "to": ".agents/workflow/tasks/climate-feel.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:climate-stage-events",
+      "to": ".agents/workflow/tasks/climate-stage-events.yml",
       "relation": "manifested_by"
     },
     {
@@ -11158,6 +12194,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:contracts-countdown-alert",
+      "to": ".agents/workflow/tasks/contracts-countdown-alert.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:contracts-server",
       "to": ".agents/workflow/tasks/contracts-server.yml",
       "relation": "manifested_by"
@@ -11173,6 +12214,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:db-function-search-path",
+      "to": ".agents/workflow/tasks/db-function-search-path.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:econ-climate-t1",
       "to": ".agents/workflow/tasks/econ-climate-t1.yml",
       "relation": "manifested_by"
@@ -11180,6 +12226,16 @@
     {
       "from": "task:econ-climate-t1b",
       "to": ".agents/workflow/tasks/econ-climate-t1b.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:economy-by-tier",
+      "to": ".agents/workflow/tasks/economy-by-tier.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:economy-tuning",
+      "to": ".agents/workflow/tasks/economy-tuning.yml",
       "relation": "manifested_by"
     },
     {
@@ -11693,13 +12749,33 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:gate-server",
+      "to": ".agents/workflow/tasks/gate-server.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:home-landing",
       "to": ".agents/workflow/tasks/home-landing.yml",
       "relation": "manifested_by"
     },
     {
+      "from": "task:job-market-real-tiers",
+      "to": ".agents/workflow/tasks/job-market-real-tiers.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:job-negotiation",
+      "to": ".agents/workflow/tasks/job-negotiation.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:league-home-away-balance",
       "to": ".agents/workflow/tasks/league-home-away-balance.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:league-promotion-relegation",
+      "to": ".agents/workflow/tasks/league-promotion-relegation.yml",
       "relation": "manifested_by"
     },
     {
@@ -11710,6 +12786,16 @@
     {
       "from": "task:lineup-chemistry-m4",
       "to": ".agents/workflow/tasks/lineup-chemistry-m4.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:lint-warnings-cleanup",
+      "to": ".agents/workflow/tasks/lint-warnings-cleanup.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:lint-warnings-cleanup-2",
+      "to": ".agents/workflow/tasks/lint-warnings-cleanup-2.yml",
       "relation": "manifested_by"
     },
     {
@@ -11758,6 +12844,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:memory-lessons-2",
+      "to": ".agents/workflow/tasks/memory-lessons-2.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:more-story-arcs",
       "to": ".agents/workflow/tasks/more-story-arcs.yml",
       "relation": "manifested_by"
@@ -11773,6 +12864,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:player-loans",
+      "to": ".agents/workflow/tasks/player-loans.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:preseason-arcade",
       "to": ".agents/workflow/tasks/preseason-arcade.yml",
       "relation": "manifested_by"
@@ -11785,6 +12881,11 @@
     {
       "from": "task:press-games",
       "to": ".agents/workflow/tasks/press-games.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:press-situations",
+      "to": ".agents/workflow/tasks/press-situations.yml",
       "relation": "manifested_by"
     },
     {
@@ -11813,8 +12914,18 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:scout-insights",
+      "to": ".agents/workflow/tasks/scout-insights.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:season-close-flow",
       "to": ".agents/workflow/tasks/season-close-flow.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:season-expiring-contracts",
+      "to": ".agents/workflow/tasks/season-expiring-contracts.yml",
       "relation": "manifested_by"
     },
     {
@@ -11843,6 +12954,26 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:supabase-errors-not-ignored",
+      "to": ".agents/workflow/tasks/supabase-errors-not-ignored.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:tooling-cucumber",
+      "to": ".agents/workflow/tasks/tooling-cucumber.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:tooling-eslint",
+      "to": ".agents/workflow/tasks/tooling-eslint.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:ui-season-details",
+      "to": ".agents/workflow/tasks/ui-season-details.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:vercel-spa-rewrites",
       "to": ".agents/workflow/tasks/vercel-spa-rewrites.yml",
       "relation": "manifested_by"
@@ -11850,6 +12981,11 @@
     {
       "from": "task:weekly-finance-server",
       "to": ".agents/workflow/tasks/weekly-finance-server.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:year-in-review",
+      "to": ".agents/workflow/tasks/year-in-review.yml",
       "relation": "manifested_by"
     }
   ],
@@ -11992,6 +13128,20 @@
       "timestamp": "2026-10-07T11:33:13.642Z",
       "category": "BUG_FIX",
       "lesson": "Correr el juego de punta a punta en el navegador destapo 3 bugs que los tests no veian: calendario de liga sin localia pareja, gala de fin de temporada inalcanzable (leia clubs.current_week que no existe; la semana real sale de la fecha de juego con domain/gameWeek) y consulta de la tabla con clubs.logo_url inexistente que fallaba en silencio. Una consulta de Supabase con una columna inexistente devuelve error y data null: siempre chequear error.",
+      "solution": ""
+    },
+    {
+      "id": "LES-4117",
+      "timestamp": "2026-10-07T15:28:04.117Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "Calibrar un balance con una simulacion fijada en un test (ej. la confianza de la directiva: 2000 temporadas por celda) evita ajustar numeros a ojo y deja el criterio documentado. Extraer la parte numerica a una funcion pura en domain/ la hace probable y reutilizable desde Cucumber.",
+      "solution": ""
+    },
+    {
+      "id": "LES-6685",
+      "timestamp": "2026-10-07T15:28:06.685Z",
+      "category": "ARCHITECTURE",
+      "lesson": "Toda escritura de plata pasa por funciones SQL (club_cash_move, settle_gate, close_week_finances...) y un trigger rechaza cambios directos de clubs.budget: una funcion nueva que toque la caja debe fijar app.server_result en su cuerpo (ALTER FUNCTION SET con parametro propio no esta permitido en Supabase). Las reglas del servidor se prueban en la base real con un bloque DO que termina en raise exception.",
       "solution": ""
     }
   ]
