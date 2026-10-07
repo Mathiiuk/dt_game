@@ -81,12 +81,12 @@ describe('partido en vivo con decisiones', () => {
     expect(screen.getByRole('button', { name: /¡Aseguren el resultado!/ })).not.toBeDisabled()
   })
 
-  it('una lesión propia pausa el partido y "Sacarlo ahora" abre los cambios con el lesionado marcado', async () => {
+  it('una lesión propia pausa el partido y "Elegí quién entra" abre los cambios con el lesionado marcado', async () => {
     mocks.start.mockResolvedValue(results([{ minute: 5, type: 'INJURY', team: 'home', playerId: 'p3', text: 'Atención médica para Juan Nro3.' }]))
     await startMatch()
     minutes(5)
-    expect(screen.getByRole('region', { name: 'Un lesionado en tu equipo' })).toBeInTheDocument()
-    click(screen.getByRole('button', { name: /Sacarlo ahora/ }))
+    expect(screen.getByRole('region', { name: /Se lesionó/ })).toBeInTheDocument()
+    click(screen.getByRole('button', { name: /Elegí quién entra/ }))
     expect(screen.getByText(/Sale/)).toHaveTextContent('Nro3')
     expect(screen.getByText(/¿Quién entra\?/)).toBeInTheDocument()
   })

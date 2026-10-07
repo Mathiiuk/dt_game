@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+const fs = require('fs')
+
+const content = `import React, { useState } from 'react'
 import { ArrowLeftRight } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { ratingAtSlot } from '../../domain/ratings'
 import { slotBase } from '../../domain/positions'
 
-const nameOf = (p) => `${p.first_name || ''} ${p.last_name || ''}`.trim()
+const nameOf = (p) => \`\${p.first_name || ''} \${p.last_name || ''}\`.trim()
 const ovr = (p) => p.attr_overall || p.overall || '-'
 
 /**
@@ -104,3 +106,6 @@ export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstit
     </section>
   )
 }
+`
+
+fs.writeFileSync('src/features/match/SubstitutionsPanel.jsx', content, 'utf8')

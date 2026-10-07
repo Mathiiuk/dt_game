@@ -120,12 +120,15 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
   if (hurt) {
     const key = `INJURY_${hurt.playerId}`
     if (!fired.has(key)) {
-      const keeper = isKeeper(onField.find(p => p.id === hurt.playerId))
+      const p = onField.find(pl => pl.id === hurt.playerId) || {}
+      const keeper = isKeeper(p)
+      const pName = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Un jugador'
+      const pPos = p.slot_base || p.position || '?'
       return {
-        key, id: keeper ? 'GK_INJURY' : 'INJURY', title: keeper ? 'Se lesionó el arquero' : 'Un lesionado en tu equipo', playerId: hurt.playerId,
-        text: hurt.text,
+        key, id: keeper ? 'GK_INJURY' : 'INJURY', title: `Se lesionó ${pName} (${pPos})`, playerId: hurt.playerId,
+        text: 'Elegí quién entra o pedile que aguante en la cancha.',
         options: [
-          { id: 'INJ_OUT', label: 'Sacarlo ahora', desc: 'Abre los cambios con él marcado para salir.', action: OPEN_SUBS },
+          { id: 'INJ_OUT', label: 'Elegí quién entra', desc: 'Abre los suplentes para que elijas.', action: OPEN_SUBS },
           { id: 'INJ_STAY', label: 'Que siga', desc: keeper ? 'Sigue en el arco con molestias: el equipo rinde -12% hasta que lo cambies.' : 'Sigue jugando con molestias: el equipo rinde -4% hasta que lo cambies.', buff: {}, duration: 0 }
         ]
       }
