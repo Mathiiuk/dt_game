@@ -47,7 +47,7 @@ export default function EventScreen() {
 
     loadData()
     return () => { isMounted = false }
-  }, [contextLoading, club?.id, manager?.id])
+  }, [contextLoading, club, manager])
 
   const currentEvent = events[0]
 
