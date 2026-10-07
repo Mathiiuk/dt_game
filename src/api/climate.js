@@ -10,6 +10,7 @@ import { wageInequities, benchComplainers, trainingLoad } from '../domain/squadC
 import { detectCombos } from '../domain/combos'
 import { ensureCharacters, rememberBarraVisit, adjustGrudge } from '../domain/characters'
 import { countBySource } from '../domain/seasonStory'
+import { signingsSummary, decisionRanking } from '../domain/yearInReview'
 import { stepArcs, chapterTemplate, resolveChapter, parseArcCode, normalizeArcs } from '../domain/arcs'
 import { arcById } from '../domain/arcCatalog'
 import { isPreseason, preseasonEvent, resolveFriendlyGamble, PRESEASON_EVENT_WEEKS } from '../domain/preseason'
@@ -512,13 +513,21 @@ export const climateApi = {
 
   /** Datos para el resumen de la temporada: el estado del clima y cuántas consecuencias hubo de cada tipo */
   async getSeasonSummaryData(clubId, seasonYear) {
-    const [state, { data: logs }] = await Promise.all([
+    const [state, { data: logs }, { data: transfers }] = await Promise.all([
       this.getState(clubId),
-      supabase.from('consequence_log').select('source').eq('club_id', clubId).eq('season_year', seasonYear)
+      supabase.from('consequence_log').select('source, message, fans, board, locker').eq('club_id', clubId).eq('season_year', seasonYear),
+      supabase.from('transfer_audit_log').select('player_id, from_club_id, to_club_id, transfer_fee')
+        .eq('season_year', seasonYear).or(`from_club_id.eq.${clubId},to_club_id.eq.${clubId}`)
     ])
     // Historias que se cerraron este año (las que no tienen año, de carreras viejas, no se cuentan)
     const arcsClosed = normalizeArcs(state.arcs).done.filter(d => d.season === seasonYear)
-    return { state, counts: countBySource(logs || []), arcsClosed }
+    return {
+      state,
+      counts: countBySource(logs || []),
+      arcsClosed,
+      signings: signingsSummary(transfers || [], clubId),
+      decisions: decisionRanking(logs || [])
+    }
   },
 
   /** Últimas consecuencias registradas del club */

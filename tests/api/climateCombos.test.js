@@ -13,12 +13,13 @@ vi.mock('../../src/api/supabase', () => {
     q.select = () => q
     q.eq = () => q
     q.in = () => q
+    q.or = () => q
     q.update = (row) => { writes.push({ table, op: 'update', row }); return q }
     q.insert = (row) => { writes.push({ table, op: 'insert', row }); return Promise.resolve({ error: null }) }
     const read = () => (table === 'clubs' ? state.club : table === 'club_board_confidence' ? state.board : null)
     q.single = async () => ({ data: read(), error: null })
     q.maybeSingle = async () => ({ data: read(), error: null })
-    q.then = (resolve) => resolve({ data: table === 'players' ? state.players : null, error: null })
+    q.then = (resolve) => resolve({ data: table === 'players' ? state.players : table === 'transfer_audit_log' ? state.transfers || [] : table === 'consequence_log' ? state.logsRead || [] : null, error: null })
     return q
   }
   return { supabase: { from: chain } }
@@ -78,5 +79,16 @@ describe('combos en el cierre semanal', () => {
     const data = await climateApi.getSeasonSummaryData('c1', 2026)
     expect(data.state).toBeTruthy()
     expect(data.counts).toEqual({})
+  })
+
+  it('el resumen suma los fichajes del club y elige la mejor y la peor decisión del año', async () => {
+    state.climate = { favors: 0, scandals: 0 }
+    state.transfers = [{ from_club_id: 'x', to_club_id: 'c1', transfer_fee: 4000, player_id: 'p1' }, { from_club_id: 'c1', to_club_id: 'z', transfer_fee: 1500, player_id: 'p2' }]
+    state.logsRead = [{ source: 'COMBO', message: 'Racha de campeón', fans: 4, board: 4, locker: 4 }, { source: 'BARRA', message: 'Cedieron', fans: -2, board: -3, locker: -4 }]
+    const data = await climateApi.getSeasonSummaryData('c1', 2026)
+    expect(data.signings).toMatchObject({ bought: 1, spent: 4000, sold: 1, earned: 1500 })
+    expect(data.decisions.best.message).toBe('Racha de campeón')
+    expect(data.decisions.worst.message).toBe('Cedieron')
+    state.transfers = []; state.logsRead = []
   })
 })

@@ -24,7 +24,7 @@ export function seasonHeadline({ position, champion = false, promoted = false, r
 /**
  * @returns {{ headline: string, lines: string[] }}
  */
-export function seasonStory({ clubName = 'El club', position = 10, champion = false, promoted = false, relegated = false, prize = 0, cash = 0, state = {}, counts = {}, fansDelta = null, arcs = [] }) {
+export function seasonStory({ clubName = 'El club', position = 10, champion = false, promoted = false, relegated = false, prize = 0, cash = 0, state = {}, counts = {}, fansDelta = null, arcs = [], signings = null, decisions = null }) {
   const lines = []
   lines.push(`${clubName} terminó ${ordinal(position)}${champion ? ' y se quedó con el título' : promoted ? ' y ascendió' : relegated ? ' y descendió' : ''}.`)
 
@@ -44,6 +44,17 @@ export function seasonStory({ clubName = 'El club', position = 10, champion = fa
   if (combos > 0) lines.push(`Se encadenaron ${combos} combinaciones de decisiones y resultados que quedaron en la memoria del club.`)
 
   for (const arc of arcs) lines.push(`${arc.title}: ${arc.ending}`)
+
+  const clean = (t) => String(t || '').replace(/[.\s]+$/, '')
+  const money = (n) => `$${Math.round(n).toLocaleString('es-AR')}`
+  if (signings && (signings.bought > 0 || signings.sold > 0)) {
+    const parts = []
+    if (signings.bought > 0) parts.push(`Compraste ${signings.bought} ${signings.bought === 1 ? 'jugador' : 'jugadores'} por ${money(signings.spent)}`)
+    if (signings.sold > 0) parts.push(`${parts.length ? 'y vendiste' : 'Vendiste'} ${signings.sold} por ${money(signings.earned)}`)
+    lines.push(`${parts.join(' ')}.`)
+  }
+  if (decisions?.best) lines.push(`Tu mejor decisión: ${clean(decisions.best.message)}.`)
+  if (decisions?.worst) lines.push(`La que más te costó: ${clean(decisions.worst.message)}.`)
   lines.push(`La caja cierra en $${Math.round(cash).toLocaleString('es-AR')}${prize ? ` (incluye $${Math.round(prize).toLocaleString('es-AR')} de premios)` : ''}.`)
   if (fansDelta !== null && fansDelta !== 0) lines.push(`La hinchada terminó ${fansDelta > 0 ? 'más' : 'menos'} contenta que al empezar (${fansDelta > 0 ? '+' : ''}${fansDelta}).`)
 
