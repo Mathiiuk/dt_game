@@ -1,5 +1,5 @@
 import { ARC_CATALOG } from '../../src/domain/arcCatalog'
-import { stepArcs, resolveChapter, chapterTemplate, parseArcCode, arcChapterCode, pickArc, normalizeArcs, ARC_GAP_WEEKS, ARC_COOLDOWN_WEEKS, ARC_FIRST_WEEK } from '../../src/domain/arcs'
+import { endingFor, closingTail, stepArcs, resolveChapter, chapterTemplate, parseArcCode, arcChapterCode, pickArc, normalizeArcs, ARC_GAP_WEEKS, ARC_COOLDOWN_WEEKS, ARC_FIRST_WEEK } from '../../src/domain/arcs'
 import { seasonStory } from '../../src/domain/seasonStory'
 
 const always = () => 0 // sortea siempre que sí y elige la primera historia
@@ -137,5 +137,55 @@ describe('resumen de la temporada', () => {
   it('cuenta los desenlaces de las historias cerradas', () => {
     const story = seasonStory({ clubName: 'Mi Club', position: 5, cash: 10000, arcs: [{ title: 'El pibe del potrero', ending: 'El pibe se quedó.' }] })
     expect(story.lines.some(l => l.includes('El pibe del potrero: El pibe se quedó.'))).toBe(true)
+  })
+})
+
+describe('finales con ramas', () => {
+  const option = { ending: 'Final base.', variants: [{ if: 'FICHADO', ending: 'Final del que lo trajo.' }, { if: 'PERDIDO', ending: 'Final del que lo dejó ir.' }] }
+
+  it('sin variantes ni contexto el final es el de siempre', () => {
+    expect(endingFor({ ending: 'Final base.' }, [], {})).toBe('Final base.')
+    expect(endingFor({ ending: 'Final base.' }, ['X'])).toBe('Final base.')
+  })
+  it('una marca del camino elegido cambia el final; si no coincide, queda el base; gana la primera que coincide', () => {
+    expect(endingFor(option, ['FICHADO'], {})).toBe('Final del que lo trajo.')
+    expect(endingFor(option, ['PERDIDO'], {})).toBe('Final del que lo dejó ir.')
+    expect(endingFor(option, ['OTRA'], {})).toBe('Final base.')
+    expect(endingFor(option, ['PERDIDO', 'FICHADO'], {})).toBe('Final del que lo trajo.')
+  })
+  it('el estado del club agrega una frase de cierre: la barra manda sobre la dirigencia y esta sobre los favores', () => {
+    expect(closingTail({ barra: 'INVASION', board: 90, favors: 5 })).toMatch(/barra/i)
+    expect(closingTail({ barra: 'SQUEEZES' })).toMatch(/barra/i)
+    expect(closingTail({ barra: 'CALM', board: 20 })).toMatch(/palco|continuidad/i)
+    expect(closingTail({ barra: 'CALM', board: 85 })).toMatch(/dirigencia/i)
+    expect(closingTail({ barra: 'CALM', board: 50, favors: 3 })).toMatch(/favores/i)
+    expect(closingTail({ barra: 'CALM', board: 50, favors: 1 })).toBe('')
+    expect(closingTail({})).toBe('')
+  })
+  it('el final con contexto suma la frase de cierre al texto de la variante', () => {
+    const text = endingFor(option, ['FICHADO'], { barra: 'PRESSURES', board: 80 })
+    expect(text.startsWith('Final del que lo trajo.')).toBe(true)
+    expect(text.length).toBeGreaterThan('Final del que lo trajo.'.length)
+  })
+  it('al cerrar la historia el desenlace guardado ya trae el camino y el estado del club', () => {
+    const arcs = { active: { id: 'pibe', chapter: 3, delivered: true, wait: 0, flags: ['PERDIDO'] }, cooldown: 0, done: [] }
+    const r = resolveChapter(arcs, 'ARC_PIBE_3', 'B', 2026, { barra: 'INVASION', board: 40, favors: 0 })
+    expect(r.finished.ending).toMatch(/barra/i)
+    const sinContexto = resolveChapter(arcs, 'ARC_PIBE_3', 'B', 2026)
+    expect(sinContexto.finished.ending).not.toMatch(/barra/i)
+  })
+  it('las variantes del catálogo apuntan a marcas que existen en capítulos anteriores y traen texto', () => {
+    let withVariants = 0
+    for (const arc of ARC_CATALOG) {
+      const earlier = new Set(arc.chapters.slice(0, -1).flatMap(c => c.options.map(o => o.flag)))
+      for (const o of arc.chapters[arc.chapters.length - 1].options) {
+        for (const v of o.variants || []) {
+          withVariants++
+          expect(earlier.has(v.if)).toBe(true)
+          expect(v.ending.length).toBeGreaterThan(20)
+        }
+      }
+    }
+    expect(withVariants).toBeGreaterThanOrEqual(12)
   })
 })
