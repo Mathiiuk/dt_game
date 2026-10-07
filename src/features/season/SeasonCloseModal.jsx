@@ -34,7 +34,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
       if (alive) setOutlook(seasonOutlook(mine?.position, club?.league_tier || 5))
     }).catch(() => {})
     return () => { alive = false }
-  }, [club?.id])
+  }, [club?.id, club?.league_tier])
 
   const handleExecuteClose = async () => {
     try {
