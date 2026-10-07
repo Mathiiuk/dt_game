@@ -3,6 +3,7 @@ import { Eye, Lock, Search, ShoppingCart, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { marketApi } from '../../api/market'
 import { scoutingApi } from '../../api/scouting'
+import { scoutInsights } from '../../domain/scoutInsights'
 import { supabase } from '../../api/supabase'
 import { useGameContext } from '../../context/GameContext'
 import { formatMoney } from '../../lib/format'
@@ -38,6 +39,7 @@ export default function MarketScreen() {
   const [sortKey, setSortKey] = useState('overall')
   const [onlyAffordable, setOnlyAffordable] = useState(false)
 
+  const [ownSquad, setOwnSquad] = useState([])
   const [offerPlayer, setOfferPlayer] = useState(null)
   // Sueldo que cobraría el jugador y cómo queda la masa salarial con él: se calcula al abrir la negociación
   const [wageInfo, setWageInfo] = useState(null)
@@ -51,7 +53,11 @@ export default function MarketScreen() {
       const list = await marketApi.getMarketPlayers(club.id, { gameDate: club.game_date })
       setMarketStatus(marketApi.getMarketStatus(club.game_date))
 
-      const { data: scouted } = await supabase.from('scout_reports').select('*').eq('club_id', club.id)
+      const [{ data: scouted }, { data: mine }] = await Promise.all([
+        supabase.from('scout_reports').select('*').eq('club_id', club.id),
+        supabase.from('players').select('position, attr_overall').eq('club_id', club.id)
+      ])
+      setOwnSquad(mine || [])
       const reports = new Map((scouted || []).map(s => [s.player_id, s]))
 
       setPlayers(list.map(p => {
@@ -245,6 +251,16 @@ export default function MarketScreen() {
                         <dd className="num font-display text-2xl font-semibold leading-tight"><Revealed scouted={scouted} value={p.attr_potential} hidden="?" /></dd>
                       </div>
                     </dl>
+
+                    {scouted && (
+                      <ul className="space-y-1 text-xs" aria-label="Lectura del ojeador">
+                        {scoutInsights({ player: p, squad: ownSquad, price: marketPrice(p) }).map(line => (
+                          <li key={line.text} className={line.tone === 'good' ? 'text-accent' : line.tone === 'warn' ? 'text-warning' : 'text-fg-muted'}>
+                            {line.text}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
 
                     <div className="mt-auto flex items-end justify-between gap-3 border-t border-line pt-3">
                       <Stat label="Cotización" value={scouted ? formatMoney(marketPrice(p)) : 'Desconocida'} valueClassName="text-lg" />

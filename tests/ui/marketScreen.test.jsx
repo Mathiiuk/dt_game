@@ -52,6 +52,17 @@ describe('pantalla Mercado', () => {
     expect(within(alvaro).getByText('80')).toBeInTheDocument()
   })
 
+  it('un jugador ojeado trae la lectura del ojeador y uno sin ojear no', async () => {
+    renderScreen()
+    const cards = await screen.findAllByRole('article')
+    const alvaro = cards.find(c => within(c).queryByText('Álvaro Medina'))
+    const lectura = within(alvaro).getByRole('list', { name: 'Lectura del ojeador' })
+    expect(within(lectura).getByText(/Cubre un puesto sin titular/)).toBeInTheDocument()
+    expect(within(lectura).getByText(/puede crecer hasta 80/)).toBeInTheDocument()
+    const hugo = cards.find(c => within(c).queryByText('Hugo Ríos'))
+    expect(within(hugo).queryByRole('list', { name: 'Lectura del ojeador' })).not.toBeInTheDocument()
+  })
+
   it('ojear pide confirmación y llama a la API', async () => {
     renderScreen()
     await userEvent.click(await screen.findByRole('button', { name: 'Ojear a Hugo Ríos' }))
