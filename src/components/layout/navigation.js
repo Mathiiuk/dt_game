@@ -1,6 +1,6 @@
 import {
   Home, Users, ClipboardList, Calendar, Trophy, Dumbbell, ArrowLeftRight, Building2, Wallet,
-  Briefcase, Flag, Globe, Award, Landmark, Menu
+  Briefcase, Flag, Globe, Menu
 } from 'lucide-react'
 
 /**
@@ -41,9 +41,7 @@ export const NAV_GROUPS = [
     id: 'career',
     label: 'Carrera',
     items: [
-      { to: '/manager', label: 'Carrera del DT', icon: Briefcase, description: 'Trayectoria, ofertas y banquillos' },
-      { to: '/achievements', label: 'Logros', icon: Award, description: 'Misiones y recompensas' },
-      { to: '/hall-of-fame', label: 'Salón de la Fama', icon: Landmark, description: 'Récords y leyendas del fútbol' }
+      { to: '/manager', label: 'Carrera del DT', icon: Briefcase, description: 'Trayectoria, logros y Salón de la Fama' }
     ]
   }
 ]
@@ -60,8 +58,16 @@ export const MOBILE_TABS = [
 /** Rutas cuyo ítem de menú debe quedar activo (incluye páginas hijas) */
 export const isActivePath = (pathname, to) => pathname === to || pathname.startsWith(`${to}/`)
 
+/** Pantallas que no están en el menú (se llega desde Carrera del DT) pero necesitan su título en la barra superior móvil */
+const EXTRA_TITLES = [
+  { to: '/achievements', label: 'Logros' },
+  { to: '/hall-of-fame', label: 'Salón de la Fama' }
+]
+
 /** Título de la sección actual (para la barra superior móvil) */
 export const titleForPath = (pathname) => {
+  const extra = EXTRA_TITLES.find(i => isActivePath(pathname, i.to))
+  if (extra) return extra.label
   for (const group of NAV_GROUPS) {
     const hit = group.items.find(i => isActivePath(pathname, i.to))
     if (hit) return hit.label

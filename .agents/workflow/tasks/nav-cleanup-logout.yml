@@ -1,0 +1,36 @@
+id: nav-cleanup-logout
+external_ref: ''
+title: Menu sin Logros ni Salon, con el nombre Vestuario y boton de cerrar sesion
+type: fix
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: main
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar Menu sin Logros ni Salon, con el nombre Vestuario y boton de
+    cerrar sesion
+acceptance_criteria:
+  - >-
+    Criterio de aceptación 1 para Menu sin Logros ni Salon, con el nombre
+    Vestuario y boton de cerrar sesion
+requires_approval: false
+quality_gates:
+  lint: true
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd

@@ -1,13 +1,21 @@
 import React from 'react'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
+
+const confirmAction = vi.fn(async () => true)
+const logout = vi.fn(async () => {})
+const hardRedirect = vi.fn()
 
 vi.mock('../../src/context/GameContext', () => ({
   useGameContext: () => ({
     club: { name: 'Club Atlético Potrero', game_date: '2026-08-12' },
-    manager: { first_name: 'Matías', last_name: 'Gallardo', level: 3 }
+    manager: { first_name: 'Matías', last_name: 'Gallardo', level: 3 },
+    confirmAction
   })
 }))
+vi.mock('../../src/api/auth', () => ({ authApi: { logout: (...a) => logout(...a) } }))
+vi.mock('../../src/lib/redirect', () => ({ hardRedirect: (...a) => hardRedirect(...a) }))
 
 import AppShell from '../../src/components/layout/AppShell'
 import MoreScreen from '../../src/features/more/MoreScreen'
@@ -38,9 +46,19 @@ describe('mapa de navegación', () => {
     expect(titleForPath('/finances')).toBe('Finanzas')
     expect(titleForPath('/more')).toBe('Más')
   })
+
+  it('Logros y Salón de la Fama salen del menú (se llega desde Carrera del DT) y conservan su título', () => {
+    const all = NAV_GROUPS.flatMap(g => g.items.map(i => i.to))
+    expect(all).not.toContain('/achievements')
+    expect(all).not.toContain('/hall-of-fame')
+    expect(titleForPath('/achievements')).toBe('Logros')
+    expect(titleForPath('/hall-of-fame')).toBe('Salón de la Fama')
+  })
 })
 
 describe('AppShell', () => {
+  beforeEach(() => { confirmAction.mockClear(); logout.mockClear(); hardRedirect.mockClear() })
+
   it('muestra contenido, menú lateral con todos los destinos y la fecha del juego', () => {
     renderAt('/dashboard')
     expect(screen.getByText('Pantalla inicio')).toBeInTheDocument()
@@ -60,6 +78,29 @@ describe('AppShell', () => {
     expect(within(bottom).getByRole('link', { name: 'Inicio' })).not.toHaveAttribute('aria-current')
   })
 
+  it('el menú lateral lleva el nombre del juego', () => {
+    renderAt('/dashboard')
+    expect(screen.getByText('VESTUARIO')).toBeInTheDocument()
+    expect(screen.queryByText(/PIZARRÓN/)).not.toBeInTheDocument()
+  })
+
+  it('cerrar sesión pide confirmación, cierra y vuelve a la portada', async () => {
+    renderAt('/dashboard')
+    await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
+    expect(confirmAction).toHaveBeenCalledWith(expect.objectContaining({ title: 'Cerrar sesión' }))
+    await waitFor(() => expect(hardRedirect).toHaveBeenCalledWith('/'))
+    expect(logout).toHaveBeenCalledTimes(1)
+  })
+
+  it('si cancelás la confirmación la sesión sigue abierta', async () => {
+    confirmAction.mockResolvedValueOnce(false)
+    renderAt('/dashboard')
+    await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
+    await waitFor(() => expect(confirmAction).toHaveBeenCalled())
+    expect(logout).not.toHaveBeenCalled()
+    expect(hardRedirect).not.toHaveBeenCalled()
+  })
+
   it('incluye un enlace para saltar al contenido principal', () => {
     renderAt('/dashboard')
     expect(screen.getByRole('link', { name: 'Saltar al contenido' })).toHaveAttribute('href', '#contenido')
@@ -72,7 +113,11 @@ describe('página Más', () => {
     renderAt('/more')
     const main = screen.getByRole('main')
     expect(within(main).getByRole('link', { name: /Finanzas/ })).toHaveAttribute('href', '/finances')
-    expect(within(main).getByRole('link', { name: /Salón de la Fama/ })).toHaveAttribute('href', '/hall-of-fame')
+    const hrefs = within(main).getAllByRole('link').map(l => l.getAttribute('href'))
+    expect(hrefs).not.toContain('/hall-of-fame')
+    expect(hrefs).not.toContain('/achievements')
+    // La sesión se cierra desde el final de la lista
+    expect(within(main).getByRole('button', { name: /Cerrar sesión/ })).toBeInTheDocument()
     // 'Plantel' está en la barra inferior: no se duplica en la lista de Más
     expect(within(main).queryByRole('link', { name: /Plantel/ })).not.toBeInTheDocument()
   })

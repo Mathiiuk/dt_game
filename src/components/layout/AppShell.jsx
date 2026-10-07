@@ -1,10 +1,11 @@
 import React from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { Shield } from 'lucide-react'
+import { LogOut, Shield } from 'lucide-react'
 import { useGameContext } from '../../context/GameContext'
 import { cn } from '../../lib/utils'
 import { formatGameDate } from '../../lib/format'
 import { NAV_GROUPS, MOBILE_TABS, isActivePath, titleForPath } from './navigation'
+import { useLogout } from './useLogout'
 
 function Brand() {
   return (
@@ -12,13 +13,15 @@ function Brand() {
       <span className="grid size-8 place-items-center rounded-md bg-accent text-accent-fg" aria-hidden="true">
         <Shield className="size-4.5" />
       </span>
-      <span className="font-display text-xl font-semibold leading-none tracking-wide text-fg">EL PIZARRÓN</span>
+      <span className="font-display text-xl font-semibold leading-none tracking-wide text-fg">VESTUARIO</span>
     </div>
   )
 }
 
 /** Menú lateral de escritorio: grupos con rótulo, ítem activo con barra de acento */
 function Sidebar({ club, manager }) {
+  const logout = useLogout()
+
   return (
     <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-surface lg:flex">
       <div className="px-5 pb-4 pt-6"><Brand /></div>
@@ -58,6 +61,14 @@ function Sidebar({ club, manager }) {
           {manager ? `${manager.first_name} ${manager.last_name} · Nv. ${manager.level ?? 1}` : ''}
         </p>
         {club?.game_date && <p className="num mt-2 text-xs capitalize text-fg-muted">{formatGameDate(club.game_date)}</p>}
+        <button
+          type="button"
+          onClick={logout}
+          className="-mx-2 mt-3 flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+        >
+          <LogOut className="size-4.5 shrink-0 text-fg-subtle" aria-hidden="true" />
+          Cerrar sesión
+        </button>
       </div>
     </aside>
   )
