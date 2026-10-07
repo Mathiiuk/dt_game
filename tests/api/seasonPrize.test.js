@@ -162,3 +162,14 @@ describe('contratos que vencen al cerrar la temporada', () => {
     expect(state.writes.some(w => w.table === 'players' && w.op === 'filter' && w.col === 'club_id' && w.val === 'me')).toBe(true)
   })
 })
+
+describe('cedidos al cerrar la temporada', () => {
+  it('los jugadores a préstamo vuelven al club antes de la evolución y de liberar contratos vencidos', async () => {
+    state.rpc = []
+    state.writes = []
+    state.rpcResult = (fn) => (fn === 'return_loans' ? { data: 2, error: null } : { data: { ...prize, promoted: false, movement: 'STAY', old_tier: 5, new_tier: 5 }, error: null })
+    await seasonCloseApi.executeSeasonClose({ careerId: 'k1', clubId: 'me', seasonYear: 2026 })
+    expect(state.rpc.map(r => r.fn)).toEqual(['settle_season_prize', 'return_loans'])
+    expect(state.rpc[1].args).toEqual({ p_club_id: 'me' })
+  })
+})

@@ -39,6 +39,8 @@ vi.mock('../../src/api/contracts', () => ({
     terminateContract: vi.fn()
   }
 }))
+const loanOut = vi.fn(async () => ({ borrowerName: 'Juventud Unida', wageSaved: 500 }))
+vi.mock('../../src/api/loans', () => ({ loansApi: { loanOut: (...a) => loanOut(...a), getLoans: vi.fn(async () => ({ players: [{ id: '9', first_name: 'Nico', last_name: 'Paz', contract_salary: 400, clubs: { name: 'Almagro Regional' } }], weeklySaving: 400 })) } }))
 vi.mock('../../src/api/personalities', () => ({
   personalitiesApi: { syncSquadPersonalities: vi.fn(async () => []) },
   PERSONALITY_ARCHETYPES: {}
@@ -96,6 +98,22 @@ describe('pantalla Plantel', () => {
     expect(await within(aside).findByText('De Racing')).toBeInTheDocument()
     await userEvent.click(within(aside).getByRole('button', { name: /Rechazar/ }))
     await waitFor(() => expect(resolveOffer).toHaveBeenCalledWith('o1', 'REJECTED', '3', 'x', 'c1', 10000, 'm1'))
+  })
+
+  it('ceder a préstamo pide confirmación, llama a la API y avisa cuánto se ahorra', async () => {
+    renderScreen()
+    const table = await screen.findByRole('table')
+    await userEvent.click(within(table).getByRole('button', { name: /Ceder a préstamo: Hugo Ríos/ }))
+    await waitFor(() => expect(loanOut).toHaveBeenCalledWith('c1', '1'))
+    expect(confirmAction).toHaveBeenCalled()
+  })
+
+  it('los jugadores a préstamo se listan aparte con el ahorro semanal', async () => {
+    renderScreen()
+    const section = await screen.findByRole('region', { name: 'Jugadores a préstamo' })
+    expect(within(section).getByText(/Nico Paz/)).toBeInTheDocument()
+    expect(within(section).getByText(/Almagro Regional/)).toBeInTheDocument()
+    expect(within(section).getByText(/\$400/)).toBeInTheDocument()
   })
 
   it('poner en venta abre el panel con precios sugeridos y guarda el estado', async () => {
