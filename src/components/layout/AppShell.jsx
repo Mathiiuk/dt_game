@@ -120,10 +120,14 @@ function MobileTabBar({ pathname }) {
  * - Escritorio (lg+): menú lateral fijo y contenido a la derecha.
  * - Móvil: barra superior + barra inferior; el contenido deja espacio para no quedar tapado.
  */
+/** Pantallas que ocupan exactamente el alto disponible en móvil (el scroll lo manejan ellas adentro) */
+const FIT_ROUTES = ['/post-match']
+
 export default function AppShell() {
   const { club, manager } = useGameContext()
   const { pathname } = useLocation()
   const scrollRef = useRef(null)
+  const fit = FIT_ROUTES.includes(pathname)
 
   // Al cambiar de pantalla se vuelve arriba (el scroll vive en este contenedor, no en la ventana)
   useEffect(() => { scrollRef.current?.scrollTo?.(0, 0) }, [pathname])
@@ -137,9 +141,9 @@ export default function AppShell() {
       </a>
       <Sidebar club={club} manager={manager} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain lg:overflow-visible">
+        <div ref={scrollRef} className={cn('min-h-0 flex-1 overscroll-contain lg:overflow-visible', fit ? 'flex flex-col overflow-hidden' : 'overflow-y-auto')}>
           <MobileTopBar club={club} title={titleForPath(pathname)} />
-          <main id="contenido" className="min-w-0 pb-6 lg:pb-0">
+          <main id="contenido" className={cn('min-w-0 lg:pb-0', fit ? 'flex min-h-0 flex-1 flex-col' : 'pb-6')}>
             <Outlet />
           </main>
         </div>

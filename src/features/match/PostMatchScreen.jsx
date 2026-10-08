@@ -258,7 +258,7 @@ export default function PostMatchScreen() {
   const keyEvents = (results.events || []).filter(e => ['GOAL', 'CARD_RED', 'CARD_YELLOW', 'INJURY'].includes(e.type))
 
   return (
-    <div className="min-h-full text-fg bg-bg p-3 sm:p-6 pb-6 lg:h-dvh lg:overflow-hidden lg:flex lg:flex-col lg:p-4">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-bg p-3 text-fg sm:p-6 lg:h-dvh lg:flex-none lg:p-4">
       {/* Top Header & Outcome Banner */}
       <div className="max-w-4xl mx-auto w-full space-y-3 mb-3 shrink-0">
         <div className="p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg">
@@ -311,7 +311,7 @@ export default function PostMatchScreen() {
         </div>
 
         {/* Pestañas del resumen */}
-        {step === 'SUMMARY' && <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-line text-xs">
+        {step === 'SUMMARY' && <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-line text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {[
             { id: 'CRONICA', label: 'Crónica y incidencias', icon: Trophy },
             { id: 'STATS', label: 'Estadísticas de equipo', icon: BarChart3 },
@@ -338,7 +338,7 @@ export default function PostMatchScreen() {
         </div>}
       </div>
 
-      <div className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col lg:overflow-y-auto lg:overscroll-contain">
+      <div className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain">
         {step === 'PRESS' && (
           <PressRoom
             questions={pressQuestions}
@@ -559,7 +559,7 @@ export default function PostMatchScreen() {
         )}
 
       </div>
-      <div className="sticky bottom-0 z-10 -mx-3 mt-4 shrink-0 border-t border-line bg-bg px-3 py-3 sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:mt-3 lg:px-0">
+      <div className="shrink-0 border-t border-line pt-3">
         {/* Acciones: del resumen se sigue a la prensa; al final se vuelve al inicio */}
         <div className="mx-auto flex w-full max-w-4xl flex-col sm:flex-row items-center justify-end gap-3">
           {step === 'SUMMARY' && (
