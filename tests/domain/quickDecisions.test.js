@@ -151,3 +151,33 @@ describe('defender pelotas paradas del rival', () => {
     expect(detectMoment({ minute: 40, events: [{ minute: 40, type: 'SETPIECE_FK', team: 'away' }], userSide: 'home', fired: new Set(['DEF_FK_40']) })).toBeNull()
   })
 })
+
+describe('especialistas en los momentos', () => {
+  const squad = [
+    { id: 'a', first_name: 'Ana', last_name: 'Cabeza', position: 'DFC', attr_overall: 75, attr_defending: 90, attr_passing: 40, attr_vision: 40, attr_finishing: 50, attr_shooting: 50 },
+    { id: 'b', first_name: 'Beto', last_name: 'Pie', position: 'MC', attr_overall: 70, attr_passing: 92, attr_vision: 90, attr_finishing: 60, attr_shooting: 88 },
+    { id: 'c', first_name: 'Cris', last_name: 'Gol', position: 'DC', attr_overall: 70, attr_finishing: 95, attr_shooting: 90, attr_passing: 50, attr_vision: 50 }
+  ]
+
+  it('el córner a favor nombra a quien lo cobra y a quien mejor define de cabeza', () => {
+    const m = detectMoment({ minute: 10, events: [{ minute: 10, type: 'SETPIECE_CORNER', team: 'home', hint: 'FAR' }], userSide: 'home', fired: new Set(), onField: squad })
+    expect(m.text).toContain('Beto Pie')
+    expect(m.text).toContain('Ana Cabeza')
+  })
+
+  it('el tiro libre y el penal ofrecen primero al especialista y lo marcan', () => {
+    const fk = detectMoment({ minute: 20, events: [{ minute: 20, type: 'SETPIECE_FK', team: 'home' }], userSide: 'home', fired: new Set(), onField: squad })
+    expect(fk.options[0].label).toContain('(especialista)')
+    expect(fk.options[0].playerId).toBe('b')
+    const pen = detectMoment({ minute: 30, events: [{ minute: 30, type: 'PENALTY', team: 'home' }], userSide: 'home', fired: new Set(), onField: squad })
+    expect(pen.options[0].label).toContain('Cris Gol (especialista)')
+  })
+
+  it('al defender se nombra al cobrador y al rematador rival', () => {
+    const m = detectMoment({ minute: 15, events: [{ minute: 15, type: 'SETPIECE_CORNER', team: 'away', defHint: 'MID', takerName: 'Lalo Rival', headerName: 'Tito Torre' }], userSide: 'home', fired: new Set() })
+    expect(m.hintText).toContain('Lalo Rival')
+    expect(m.hintText).toContain('Tito Torre')
+    const fk = detectMoment({ minute: 16, events: [{ minute: 16, type: 'SETPIECE_FK', team: 'away', defHint: 'R', takerName: 'Pepe Zurdo' }], userSide: 'home', fired: new Set() })
+    expect(fk.hintText).toContain('Pepe Zurdo mira el palo derecho')
+  })
+})

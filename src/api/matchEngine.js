@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { positionLine, normalizePosition } from '../domain/positions'
+import { specialistsOf } from '../domain/specialists'
 import { homeAdvantage } from '../domain/consequences'
 import { SUSPENSION_POWER_FACTOR } from '../domain/barra'
 
@@ -354,8 +355,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         const hint = kpRng() < 0.7 ? weak : ZONES[Math.floor(kpRng() * 3)]
         const target = ZONES[Math.floor(kpRng() * 3)]
         const defHint = kpRng() < 0.7 ? target : ZONES[Math.floor(kpRng() * 3)]
+        const sp = specialistsOf((isHome ? homeTeam : awayTeam).players)
         pendingSet = { kind: 'CORNER', team: teamId, minute: min + 1, weak, target }
-        events.push({ minute: min, type: 'SETPIECE_CORNER', team: teamId, hint, defHint, text: `Se prepara el córner para ${isHome ? 'el local' : 'la visita'}: todos al área.` })
+        events.push({ minute: min, type: 'SETPIECE_CORNER', team: teamId, hint, defHint, takerName: sp.CORNER?.name || null, headerName: sp.HEADER?.name || null, text: `Se prepara el córner para ${isHome ? 'el local' : 'la visita'}${sp.CORNER ? `: lo cobra ${sp.CORNER.name}` : ''}, todos al área.` })
       }
     } else {
       // Tiro desviado
@@ -404,7 +406,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const keepers = penTeam === 'home' ? awayTeam : homeTeam
       const skillOf = (p) => p.attr_finishing ?? p.attr_shooting ?? p.attr_overall ?? 50
       const chosen = shooters.players.find(p => p.id && p.id === shooters.penaltyTaker)
-      const taker = chosen || [...shooters.players].sort((a, b) => skillOf(b) - skillOf(a))[0] || { first_name: 'Futbolista', last_name: '' }
+      const taker = chosen || specialistsOf(shooters.players).PENALTY?.player || [...shooters.players].sort((a, b) => skillOf(b) - skillOf(a))[0] || { first_name: 'Futbolista', last_name: '' }
       const drawn = ['L', 'C', 'R'][Math.floor(penRng() * 3)]
       const aimed = shooters.penaltyAim
       // Con puntería del DT patea adonde apuntó; si no, la esquina se sortea
@@ -529,8 +531,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       }
 
       if (ps.kind === 'CORNER') {
-        const taker = [...att.players].sort((a, b) => skill(b, 'attr_passing', 'attr_vision') - skill(a, 'attr_passing', 'attr_vision'))[0] || { first_name: 'Futbolista', last_name: '' }
-        const header = getRandomPlayer(att.players, 'ATTACK')
+        const specialists = specialistsOf(att.players)
+        const taker = specialists.CORNER?.player || { first_name: 'Futbolista', last_name: '' }
+        const header = (specialists.HEADER && kpRng() < 0.6) ? specialists.HEADER.player : getRandomPlayer(att.players, 'ATTACK')
         let chance = 0.09 * (0.85 + skill(taker, 'attr_passing', 'attr_vision') / 333)
         // Si el centro va por donde la defensa está floja, es peligro; si va por donde está fuerte, casi nada
         if (mine) chance *= mine.zone === ps.weak ? 2.1 : 0.8
@@ -552,8 +555,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           }
         }
       } else {
-        const sorted = [...att.players].sort((a, b) => skill(b, 'attr_finishing', 'attr_shooting') - skill(a, 'attr_finishing', 'attr_shooting'))
-        const taker = (mine && att.players.find(p => p.id && p.id === mine.taker)) || sorted[0] || { first_name: 'Futbolista', last_name: '' }
+        const taker = (mine && att.players.find(p => p.id && p.id === mine.taker)) || specialistsOf(att.players).FREE_KICK?.player || { first_name: 'Futbolista', last_name: '' }
         let chance = 0.07
         let blocked = false
         if (mine) {
@@ -663,8 +665,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         const fkTeam = isHomeFoul ? 'away' : 'home'
         const fkAim = ['L', 'C', 'R'][Math.floor(kpRng() * 3)]
         const defHint = kpRng() < 0.7 ? fkAim : ['L', 'C', 'R'][Math.floor(kpRng() * 3)]
+        const fkSpecialist = specialistsOf((fkTeam === 'home' ? homeTeam : awayTeam).players).FREE_KICK
         pendingSet = { kind: 'FK', team: fkTeam, minute: min + 1, aim: fkAim }
-        events.push({ minute: min, type: 'SETPIECE_FK', team: fkTeam, defHint, text: `Tiro libre peligroso para ${fkTeam === 'home' ? 'el local' : 'la visita'}, a unos veinte metros del arco.` })
+        events.push({ minute: min, type: 'SETPIECE_FK', team: fkTeam, defHint, takerName: fkSpecialist?.name || null, text: `Tiro libre peligroso para ${fkTeam === 'home' ? 'el local' : 'la visita'}, a unos veinte metros del arco${fkSpecialist ? `: se perfila ${fkSpecialist.name}` : ''}.` })
       }
     }
 

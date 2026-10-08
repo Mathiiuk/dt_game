@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, within, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
@@ -94,5 +94,11 @@ describe('pizarra con alineación libre', () => {
     await userEvent.click(screen.getByRole('radio', { name: '5-3-2' }))
     expect(screen.getByRole('group', { name: /formación 5-3-2/ })).toBeInTheDocument()
     expect(screen.queryByRole('radio', { name: /Libre/ })).not.toBeInTheDocument()
+  })
+
+  it('muestra quién cobra cada pelota parada', async () => {
+    renderScreen()
+    const card = await screen.findByRole('region', { name: 'Especialistas de pelota parada' })
+    for (const label of ['Penales', 'Tiros libres', 'Córners', 'Cabezazos']) expect(within(card).getByText(label)).toBeInTheDocument()
   })
 })

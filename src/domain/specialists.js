@@ -1,0 +1,54 @@
+/**
+ * Especialistas de pelota parada: quién patea mejor los penales y los tiros libres, quién saca los córners y quién los define de cabeza.
+ * Se calculan con los atributos de cada jugador (los mismos para el motor del partido, las pantallas y el rival). Funciones puras.
+ */
+
+import { positionLine } from './positions'
+
+const num = (v, fallback) => (v == null || Number.isNaN(Number(v)) ? fallback : Number(v))
+
+const overall = (p) => num(p.attr_overall ?? p.overall, 50)
+const lineOf = (p) => positionLine(p.slot_base || p.position)
+const isKeeper = (p) => lineOf(p) === 'ARQ'
+const isDefender = (p) => lineOf(p) === 'DEF'
+const isForward = (p) => lineOf(p) === 'DEL'
+
+/** Puntaje de cada rol (0 a 100 aprox.): mezcla de los atributos que más pesan */
+export const ROLE_SCORES = {
+  PENALTY: (p) => 0.55 * num(p.attr_finishing ?? p.attr_shooting, overall(p)) + 0.25 * num(p.attr_shooting, overall(p)) + 0.2 * overall(p),
+  FREE_KICK: (p) => 0.45 * num(p.attr_shooting ?? p.attr_finishing, overall(p)) + 0.3 * num(p.attr_passing, overall(p)) + 0.25 * num(p.attr_vision, overall(p)),
+  CORNER: (p) => 0.55 * num(p.attr_passing, overall(p)) + 0.3 * num(p.attr_vision, overall(p)) + 0.15 * overall(p),
+  // Sin atributo de juego aéreo: pesan el nivel general, la fuerza defensiva y estar en puestos de área
+  HEADER: (p) => 0.5 * overall(p) + 0.3 * num(p.attr_defending, overall(p)) + 0.2 * num(p.attr_finishing, overall(p)) + (isDefender(p) ? 4 : 0) + (isForward(p) ? 3 : 0)
+}
+
+export const ROLE_LABELS = {
+  PENALTY: 'Penales',
+  FREE_KICK: 'Tiros libres',
+  CORNER: 'Córners',
+  HEADER: 'Cabezazos'
+}
+
+const fullName = (p) => `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Un jugador'
+
+/**
+ * El mejor de cada rol entre los jugadores disponibles (sin arqueros ni lesionados).
+ * @returns {{ [role: string]: { id, name, score, player } | null }}
+ */
+export function specialistsOf(players = []) {
+  const pool = players.filter(p => p && !isKeeper(p) && !p.is_injured)
+  const out = {}
+  for (const role of Object.keys(ROLE_SCORES)) {
+    const ranked = [...pool].sort((a, b) => ROLE_SCORES[role](b) - ROLE_SCORES[role](a))
+    const best = ranked[0]
+    out[role] = best ? { id: best.id ?? null, name: fullName(best), score: Math.round(ROLE_SCORES[role](best)), player: best } : null
+  }
+  return out
+}
+
+/** Los N mejores de un rol (para ofrecer pateadores): el especialista primero */
+export const topFor = (players = [], role, n = 3) =>
+  players.filter(p => p && !isKeeper(p) && !p.is_injured).sort((a, b) => ROLE_SCORES[role](b) - ROLE_SCORES[role](a)).slice(0, n)
+
+/** ¿Es este jugador el especialista del rol? */
+export const isSpecialist = (specialists, role, playerId) => !!playerId && specialists?.[role]?.id === playerId

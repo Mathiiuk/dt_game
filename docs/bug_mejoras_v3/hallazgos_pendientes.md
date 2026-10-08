@@ -104,3 +104,11 @@ Pendiente: defender los córners y tiros libres del rival (marca al hombre o en 
 - Tiro libre en contra: el banco avisa hacia dónde mira el pateador (7 de cada 10) y elegís: arquero al palo izquierdo, al medio o al palo derecho (si adivina la zona la saca casi siempre) o barrera de cinco (baja la chance a 0,7 veces sin depender de adivinar).
 - Cantidad de decisiones por partido: entre córners y tiros libres propios y ajenos, remates, manos a mano y penales, se pueden juntar varias pausas; si molesta, bajar la frecuencia en `matchEngine.js` (`kpRng() < 0.6` de córners, `< 0.3` de tiros libres, `< 0.2` de remates).
 Pendiente: que cada equipo tenga especialistas con nombre para las pelotas paradas.
+
+## Décima tanda (especialistas con nombre)
+- `domain/specialists.js`: el mejor de cada rol entre los disponibles (sin arqueros ni lesionados): penales, tiros libres, córners y cabezazos, según los atributos de cada jugador.
+- Motor: el penal y el tiro libre por defecto los patea el especialista; el córner lo saca el especialista y define de cabeza el especialista en 6 de cada 10 (el resto, un delantero al azar). Rige igual para el rival, con los nombres en el relato ("Se prepara el córner: lo cobra X", "se perfila Y").
+- Momentos: el córner a favor nombra a quien lo cobra y a quien mejor define; en penales y tiros libres el especialista va primero y marcado; al defender, el banco nombra al cobrador y al rematador del rival.
+- Pizarra táctica: tarjeta "Especialistas" con los cuatro roles, el nombre y su puntaje.
+- Test que se corrigió: "atacar con todo mete más goles y recibe más". Con 2000 partidos el rival recibe *menos* goles incluso en la versión anterior del motor (el atacante le deja menos ocasiones al rival): la afirmación solo pasaba por azar con 600 partidos. Ahora solo se afirma que mete más goles.
+Pendiente: poder fijar a mano quién cobra cada pelota parada (hoy se elige solo por atributos; requiere guardar la elección en la base).

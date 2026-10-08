@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Save, Wand2, ShieldAlert } from 'lucide-react'
+import { Save, Wand2, ShieldAlert, CircleDot, Target, Flag, ChevronsUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { useGameContext } from '../../context/GameContext'
 import {
@@ -12,6 +12,7 @@ import { teamChemistry, weakestLinks } from '../../domain/chemistry'
 import { reassignLineup, resolveLineup, getLayout } from '../../domain/formations'
 import { FREE_FORMATION, moveToPoint, normalizeLayout, shapeOf, slotsOfLayout } from '../../domain/freeLayout'
 import { fitLabel, positionName, slotBase } from '../../domain/positions'
+import { specialistsOf, ROLE_LABELS } from '../../domain/specialists'
 import { ratingAtSlot, playerOverall } from '../../domain/ratings'
 import {
   Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ChoiceChips, EmptyState,
@@ -23,6 +24,7 @@ import { lockerRoomApi } from '../../api/lockerRoom'
 import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
 
+const ROLE_ICONS = { PENALTY: CircleDot, FREE_KICK: Target, CORNER: Flag, HEADER: ChevronsUp }
 const AFFINITY_TONE = { NATURAL: 'accent', COMPATIBLE: 'warning', ADAPTED: 'warning', OUT_OF_POSITION: 'danger' }
 
 const toOptions = (list) => list.map(i => ({ value: i.id, label: i.label }))
@@ -145,6 +147,8 @@ export default function TacticsScreen() {
     [layout, lineup, squad, chemistryContext]
   )
   const weak = weakestLinks(chemistry.links.filter(l => l.tone !== 'GOOD'), 2)
+  // Quién cobra cada pelota parada (el mejor disponible de cada rol)
+  const specialists = useMemo(() => specialistsOf(squad), [squad])
 
   const handleFormationChange = (next) => {
     if (next === formation || next === FREE_FORMATION) return
@@ -311,6 +315,28 @@ export default function TacticsScreen() {
               <Stat label="Química" value={`${chemistry.score}%`} valueClassName={chemistry.score >= 70 ? 'text-accent' : chemistry.score < 40 ? 'text-danger' : 'text-warning'} />
               <Stat label="Fuera de puesto" value={summary.out} valueClassName={summary.out > 0 ? 'text-warning' : undefined} />
               <Stat label="Lesionados" value={summary.hurt} valueClassName={summary.hurt > 0 ? 'text-danger' : undefined} />
+            </CardBody>
+          </Card>
+
+          <Card as="section" aria-label="Especialistas de pelota parada">
+            <CardHeader><CardTitle className="text-lg">Especialistas</CardTitle></CardHeader>
+            <CardBody>
+              <ul className="space-y-2.5">
+                {Object.entries(ROLE_ICONS).map(([role, Icon]) => {
+                  const sp = specialists[role]
+                  return (
+                    <li key={role} className="flex items-center gap-3">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-3 text-accent"><Icon className="size-4" aria-hidden="true" /></span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-xs text-fg-subtle">{ROLE_LABELS[role]}</span>
+                        <span className="block truncate text-sm font-semibold text-fg">{sp ? sp.name : 'Sin especialista disponible'}</span>
+                      </span>
+                      {sp && <span className="num font-mono text-sm font-bold text-accent">{sp.score}</span>}
+                    </li>
+                  )
+                })}
+              </ul>
+              <p className="mt-3 text-xs text-fg-subtle">Se eligen solos con los atributos de cada jugador. En el partido, ellos cobran y definen las pelotas paradas.</p>
             </CardBody>
           </Card>
 
