@@ -67,3 +67,16 @@ Ideas para un partido más arcade (para elegir):
 4. Tiros libres y córners como momentos: elegir quién la cuelga y a quién apunta.
 5. Repetición de la jugada del partido en el resumen y titular generado con el gol.
 6. Festejos: animación y frase del relator al gol propio, y "silbidos" al gol en contra.
+
+## Quinta tanda (partido sin scroll, sin emojis, historias a pantalla completa)
+Hecho:
+- /match: pantalla de alto fijo sin scroll de página. Relato en vivo con la jugada de ahora en grande, íconos por tipo y las anteriores que se desvanecen hacia abajo. Estadísticas pegadas abajo: cerradas muestran solo la posesión; al tocar se abren hacia arriba y el relato se achica; al cerrar vuelve todo.
+- Pausa automática al abrir la pizarra de cambios o las órdenes y se retoma sola al salir (si ya estaba en pausa, queda como estaba).
+- Sin emojis: íconos vectoriales (`NamedIcon` con los de lucide) en prensa, jugadas clave, mercado, club y pizarras. Quedan solo las banderas de la Selección (`nationalRadar.js`): hacen falta banderas en SVG.
+- /post-match sin scroll: las listas (incidencias, puntajes, estadísticas, respuestas de prensa) se paginan solas según el alto de la pantalla (`Pager`). Excepción: el cierre de la prensa (minijuegos, bingo, transcripción) puede scrollear sin barra visible si no entra en teléfonos muy chicos.
+- Historias a pantalla completa (`StoryStage`): se leen de a un momento tocando, y cada capítulo se decide con una mecánica distinta (mantener apretado, moneda o reloj). Al terminar, pantalla de resultado con cargada y efectos. "Decidir más tarde" las deja en el inicio.
+
+Pendiente:
+- Más minijuegos para las historias (hoy son tres formas de decidir, no minijuegos con puntaje). Ideas: reflejos para "atajar" una noticia, arrastrar billetes en las crisis de caja, unir cables en las obras.
+- Banderas en SVG para reemplazar las últimas.
+- En pantallas muy bajas (iPhone SE) las listas muestran 1 o 2 elementos por página.

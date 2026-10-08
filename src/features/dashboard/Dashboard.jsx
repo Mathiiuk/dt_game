@@ -27,6 +27,7 @@ const EVENT_CATEGORY = {
 }
 
 import { ClubBadge } from '../../components/ui'
+import StoryStage from './StoryStage'
 import { splitBeats, reactionFor, effectChips } from '../../domain/storyFlavor'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
@@ -255,6 +256,10 @@ export default function Dashboard() {
   const [reloadTick, setReloadTick] = useState(0)
   // Texto del resultado de la última decisión tomada (se muestra hasta que el DT lo cierra)
   const [lastOutcome, setLastOutcome] = useState(null)
+  // Historia a pantalla completa: { event, result } y las que el DT dejó para más tarde
+  const [stage, setStage] = useState(null)
+  const [stageBusy, setStageBusy] = useState(false)
+  const [postponed, setPostponed] = useState(() => new Set())
 
   useEffect(() => {
     if (contextLoading || !club || !manager) return
@@ -303,16 +308,36 @@ export default function Dashboard() {
     }
   }
 
-  const handleResolveEvent = async (event, option) => {
+  /** Resuelve una decisión. Devuelve cómo quedó (o null si no se aplicó); con `silent` no muestra la tarjeta de resultado del inicio */
+  const handleResolveEvent = async (event, option, { silent = false } = {}) => {
     try {
       const outcome = await eventsApi.resolveEvent(event.id, option, manager?.id)
       await refreshContext()
       setReloadTick(t => t + 1)
       // Si el evento ya estaba resuelto (doble clic u otra pestaña) no se aplicó nada: solo se refresca la pantalla
-      if (!outcome?.alreadyResolved) setLastOutcome({ note: outcome?.outcomeNote || 'Decisión ejecutada.', choice: option.label, effects: option.effects || {}, reaction: reactionFor(option.effects || {}, `${event.id}:${option.id}`) })
+      if (outcome?.alreadyResolved) return null
+      const result = { note: outcome?.outcomeNote || 'Decisión ejecutada.', choice: option.label, effects: option.effects || {}, reaction: reactionFor(option.effects || {}, `${event.id}:${option.id}`) }
+      if (!silent) setLastOutcome(result)
+      return result
     } catch (err) {
       toast.error(friendlyError(err, 'Error al procesar la decisión.'))
+      return null
     }
+  }
+
+  // Las historias se abren solas a pantalla completa (una por vez); "decidir más tarde" las deja en el inicio
+  const nextStory = (dashboardData?.pendingEvents || []).find(e => isStoryEvent(e) && !postponed.has(e.id))
+  useEffect(() => {
+    if (!stage && nextStory) setStage({ event: nextStory, result: null })
+  }, [stage, nextStory?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const chooseInStage = async (option) => {
+    if (!stage || stageBusy) return
+    setStageBusy(true)
+    const result = await handleResolveEvent(stage.event, option, { silent: true })
+    setStageBusy(false)
+    if (result) setStage(st => st && { ...st, result })
+    else setStage(null)
   }
 
   if (loading || contextLoading || !dashboardData) return <DashboardSkeleton />
@@ -338,6 +363,18 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+      {stage && (
+        <StoryStage
+          event={stage.event}
+          budget={Number(club?.budget || 0)}
+          boardConfidence={Number(club?.board_confidence ?? 100)}
+          result={stage.result}
+          busy={stageBusy}
+          onChoose={chooseInStage}
+          onLater={() => { setPostponed(prev => new Set(prev).add(stage.event.id)); setStage(null) }}
+          onClose={() => setStage(null)}
+        />
+      )}
       <PageHeader
         eyebrow={`${formatLongDate(clubSummary.gameDate)} · ${divisionName(club?.league_tier)}`}
         title={clubSummary.name}
