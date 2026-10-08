@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight, LogOut } from 'lucide-react'
+import { ChevronRight, LogOut, Trash2 } from 'lucide-react'
 import { Card } from '../../components/ui'
 import { NAV_GROUPS, MOBILE_TABS } from '../../components/layout/navigation'
 import { useLogout } from '../../components/layout/useLogout'
+import DeleteAccountDialog from '../../components/layout/DeleteAccountDialog'
 import { useGameContext } from '../../context/GameContext'
 import DifficultySelector from '../dashboard/DifficultySelector'
 
@@ -13,6 +14,7 @@ const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
 /** Página "Más" (móvil): el resto de las secciones del juego, agrupadas, con descripción */
 export default function MoreScreen() {
   const logout = useLogout()
+  const [deleting, setDeleting] = useState(false)
   const { club } = useGameContext()
 
   return (
@@ -60,7 +62,17 @@ export default function MoreScreen() {
               <span className="block truncate text-xs text-fg-subtle">Tu carrera queda guardada</span>
             </span>
           </button>
+          <button type="button" onClick={() => setDeleting(true)} className="flex min-h-16 w-full items-center gap-3.5 border-t border-line px-4 py-3 text-left transition-colors hover:bg-danger-soft active:bg-danger-soft">
+            <span className="grid size-10 shrink-0 place-items-center rounded-md bg-danger-soft text-danger" aria-hidden="true">
+              <Trash2 className="size-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-danger">Eliminar mi cuenta</span>
+              <span className="block truncate text-xs text-fg-subtle">Borra tu cuenta y todos tus datos</span>
+            </span>
+          </button>
         </Card>
+        <DeleteAccountDialog open={deleting} onClose={() => setDeleting(false)} />
       </section>
     </div>
   )

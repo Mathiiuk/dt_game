@@ -537,6 +537,32 @@ export const authApi = {
   },
 
   /**
+   * Elimina la cuenta propia (correo o Google) con todos sus datos. Lo hace una función del servidor que verifica la sesión,
+   * borra los datos del juego y después el usuario de acceso. Al terminar limpia lo que quedó en este dispositivo.
+   */
+  async deleteAccount(confirm) {
+    const { data, error } = await supabase.functions.invoke('delete-account', { body: { confirm } })
+    if (error) {
+      // Las respuestas con error traen el motivo en el cuerpo
+      let message = ''
+      try { message = (await error.context?.json?.())?.message || '' } catch { /* sin detalle */ }
+      throw new Error(message || 'No pudimos eliminar la cuenta. Probá de nuevo.')
+    }
+    if (!data?.ok) throw new Error(data?.message || 'No pudimos eliminar la cuenta. Probá de nuevo.')
+
+    try {
+      localStorage.removeItem(DT_LAST_USER_KEY)
+      sessionStorage.clear()
+    } catch {
+      // Sin almacenamiento no hay nada que limpiar
+    }
+    queryCache.clear()
+    // La cuenta ya no existe: se cierra la sesión local (si el servidor ya la revocó, no pasa nada)
+    try { await supabase.auth.signOut({ scope: 'local' }) } catch { /* ya cerrada */ }
+    return data
+  },
+
+  /**
    * Solicitud de restablecimiento de contraseña con política anti-enumeración
    */
   async requestPasswordReset(email) {

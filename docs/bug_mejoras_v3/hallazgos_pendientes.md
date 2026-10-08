@@ -183,3 +183,10 @@ Pendiente: nada de esta línea. Posibles ideas: sonido de multitud en el partido
 - El escudo de cada club ya se ve con sus colores en el encabezado del partido (`MatchScreen` le pasaba el club a `MatchHeader` solo a medias).
 - El contenedor del juego usa los colores del sistema (`bg-bg`, `text-fg`) en vez de `zinc` sueltos; el comentario con la codificación rota en `MatchScreen` se corrigió; el titular del resumen pasó de "VICTORIA VICTORIOSA" a "¡GANAMOS!" y de "EMPATE DISPUTADO" a "EMPATE PELEADO".
 Queda a propósito: el `padding` de zona segura del `body` sigue, porque lo usan las pantallas que no están dentro del menú ni son marcos fijos (acceso, bienvenida, portada pública, epílogo).
+
+## Eliminar la cuenta (correo o Google) con todos sus datos
+- Pantalla: "Eliminar mi cuenta" en Más (celular) y en el menú lateral (escritorio). Pide escribir ELIMINAR y explica qué se borra; no se puede deshacer.
+- Servidor: Edge Function `delete-account` (con verificación de JWT, desplegada en dt_database): la identidad sale de la sesión, nunca del pedido. Llama a `purge_user_data(uid)` y recién después borra el usuario de acceso con la API de administración (esto también cierra todas las sesiones y sirve igual para Google).
+- Base: función `purge_user_data` (migración `scripts/db/migration_purge_user_data.sql`, aplicada el 2026-10-14; solo ejecutable por el servicio). Recorre todas las tablas de `public` y borra lo que tiene `owner_user_id` / `user_id` de esa persona y lo de sus clubes y DT; repite pasadas por las referencias entre tablas. Con `p_dry = true` cuenta sin borrar.
+- Prueba: sobre una cuenta real de la base (20 clubes, 259 filas) se corrió el borrado dentro de una transacción que se revirtió a propósito: borró todo en 2 pasadas sin errores y, tras revertir, los datos quedaron intactos (20 clubes, 245 en total). No se eliminó ninguna cuenta real.
+- Nota: la copia de la función en el repositorio tiene los mensajes con tildes; la desplegada los tiene sin tildes (mismo comportamiento). Conviene volver a desplegar el archivo del repo cuando se toque.

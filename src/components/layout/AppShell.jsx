@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { LogOut, Shield } from 'lucide-react'
+import { LogOut, Shield, Trash2 } from 'lucide-react'
 import { useGameContext } from '../../context/GameContext'
 import { cn } from '../../lib/utils'
 import { formatGameDate } from '../../lib/format'
@@ -8,6 +8,7 @@ import { usePageLock } from '../../hooks/usePageLock'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { NAV_GROUPS, MOBILE_TABS, isActivePath, titleForPath } from './navigation'
 import { useLogout } from './useLogout'
+import DeleteAccountDialog from './DeleteAccountDialog'
 
 function Brand() {
   return (
@@ -23,6 +24,7 @@ function Brand() {
 /** Menú lateral de escritorio: grupos con rótulo, ítem activo con barra de acento */
 function Sidebar({ club, manager }) {
   const logout = useLogout()
+  const [deleting, setDeleting] = useState(false)
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-surface lg:flex">
@@ -71,6 +73,15 @@ function Sidebar({ club, manager }) {
           <LogOut className="size-4.5 shrink-0 text-fg-subtle" aria-hidden="true" />
           Cerrar sesión
         </button>
+        <button
+          type="button"
+          onClick={() => setDeleting(true)}
+          className="-mx-2 flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-sm font-medium text-fg-subtle transition-colors hover:bg-danger-soft hover:text-danger"
+        >
+          <Trash2 className="size-4.5 shrink-0" aria-hidden="true" />
+          Eliminar mi cuenta
+        </button>
+        <DeleteAccountDialog open={deleting} onClose={() => setDeleting(false)} />
       </div>
     </aside>
   )
