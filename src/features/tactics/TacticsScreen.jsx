@@ -12,11 +12,11 @@ import { teamChemistry, weakestLinks } from '../../domain/chemistry'
 import { reassignLineup, resolveLineup, getLayout } from '../../domain/formations'
 import { FREE_FORMATION, moveToPoint, normalizeLayout, shapeOf, slotsOfLayout } from '../../domain/freeLayout'
 import { fitLabel, positionName, slotBase } from '../../domain/positions'
-import { specialistsOf, ROLE_LABELS } from '../../domain/specialists'
+import { specialistsOf, topFor, cleanTakers, ROLE_LABELS, ROLE_SCORES } from '../../domain/specialists'
 import { ratingAtSlot, playerOverall } from '../../domain/ratings'
 import {
   Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ChoiceChips, EmptyState,
-  PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
+  PageHeader, Select, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 import { cn } from '../../lib/utils'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
@@ -77,8 +77,10 @@ export default function TacticsScreen() {
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [tab, setTab] = useState('instructions')
   const [savedSnapshot, setSavedSnapshot] = useState('')
+  // Especialistas de pelota parada elegidos a mano ({ rol: idJugador }); vacío = automático
+  const [takers, setTakers] = useState({})
 
-  const snapshot = JSON.stringify({ formation, mentality, passingStyle, pressing, tempo, lineup, customLayout })
+  const snapshot = JSON.stringify({ formation, mentality, passingStyle, pressing, tempo, lineup, customLayout, takers })
   const dirty = !loading && snapshot !== savedSnapshot
 
   useEffect(() => {
@@ -108,11 +110,12 @@ export default function TacticsScreen() {
           pressing: tactic?.pressing_intensity || 'BALANCED',
           tempo: tactic?.tempo || 'NORMAL',
           lineup: map,
-          customLayout: custom
+          customLayout: custom,
+          takers: cleanTakers(tactic?.set_piece_takers) || {}
         }
         setTacticId(tactic?.id || null)
         setFormation(next.formation); setMentality(next.mentality); setPassingStyle(next.passingStyle)
-        setPressing(next.pressing); setTempo(next.tempo); setLineup(next.lineup); setCustomLayout(next.customLayout)
+        setPressing(next.pressing); setTempo(next.tempo); setLineup(next.lineup); setCustomLayout(next.customLayout); setTakers(next.takers)
         setSavedSnapshot(JSON.stringify(next))
       } catch (e) {
         console.error('Error cargando táctica:', e)
@@ -148,7 +151,13 @@ export default function TacticsScreen() {
   )
   const weak = weakestLinks(chemistry.links.filter(l => l.tone !== 'GOOD'), 2)
   // Quién cobra cada pelota parada (el mejor disponible de cada rol)
-  const specialists = useMemo(() => specialistsOf(squad), [squad])
+  const specialists = useMemo(() => specialistsOf(squad, takers), [squad, takers])
+  const chooseTaker = (role, id) => setTakers(prev => {
+    const next = { ...prev }
+    if (id) next[role] = id
+    else delete next[role]
+    return next
+  })
 
   const handleFormationChange = (next) => {
     if (next === formation || next === FREE_FORMATION) return
@@ -216,7 +225,7 @@ export default function TacticsScreen() {
       const saved = await tacticsApi.updateTactic(club.id, {
         id: tacticId, club_id: club.id, formation, mentality,
         passing_style: passingStyle, pressing_intensity: pressing, tempo,
-        customLayout, lineup: lineupArray, lineupDetails
+        customLayout, lineup: lineupArray, lineupDetails, setPieceTakers: takers
       })
       if (saved?.id) setTacticId(saved.id)
       setSavedSnapshot(snapshot)
@@ -324,19 +333,26 @@ export default function TacticsScreen() {
               <ul className="space-y-2.5">
                 {Object.entries(ROLE_ICONS).map(([role, Icon]) => {
                   const sp = specialists[role]
+                  const candidates = topFor(squad, role, 40)
                   return (
-                    <li key={role} className="flex items-center gap-3">
-                      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-3 text-accent"><Icon className="size-4" aria-hidden="true" /></span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-xs text-fg-subtle">{ROLE_LABELS[role]}</span>
-                        <span className="block truncate text-sm font-semibold text-fg">{sp ? sp.name : 'Sin especialista disponible'}</span>
-                      </span>
-                      {sp && <span className="num font-mono text-sm font-bold text-accent">{sp.score}</span>}
+                    <li key={role} className="space-y-1.5">
+                      <div className="flex items-center gap-3">
+                        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-3 text-accent"><Icon className="size-4" aria-hidden="true" /></span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xs text-fg-subtle">{ROLE_LABELS[role]}{sp?.manual ? ' · elegido por vos' : ' · automático'}</span>
+                          <span className="block truncate text-sm font-semibold text-fg">{sp ? sp.name : 'Sin especialista disponible'}</span>
+                        </span>
+                        {sp && <span className="num font-mono text-sm font-bold text-accent">{sp.score}</span>}
+                      </div>
+                      <Select aria-label={`Especialista de ${ROLE_LABELS[role].toLowerCase()}`} value={takers[role] || ''} onChange={(e) => chooseTaker(role, e.target.value)}>
+                        <option value="">Automático (el mejor por atributos)</option>
+                        {candidates.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name} · {Math.round(ROLE_SCORES[role](p))}</option>)}
+                      </Select>
                     </li>
                   )
                 })}
               </ul>
-              <p className="mt-3 text-xs text-fg-subtle">Se eligen solos con los atributos de cada jugador. En el partido, ellos cobran y definen las pelotas paradas.</p>
+              <p className="mt-3 text-xs text-fg-subtle">Si no elegís a nadie, cobra el mejor según sus atributos. En el partido, ellos cobran y definen las pelotas paradas; si el elegido se lesiona o sale, lo reemplaza el mejor disponible.</p>
             </CardBody>
           </Card>
 

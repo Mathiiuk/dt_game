@@ -96,9 +96,33 @@ describe('pizarra con alineación libre', () => {
     expect(screen.queryByRole('radio', { name: /Libre/ })).not.toBeInTheDocument()
   })
 
-  it('muestra quién cobra cada pelota parada', async () => {
+  it('muestra quién cobra cada pelota parada, solo por atributos', async () => {
     renderScreen()
     const card = await screen.findByRole('region', { name: 'Especialistas de pelota parada' })
-    for (const label of ['Penales', 'Tiros libres', 'Córners', 'Cabezazos']) expect(within(card).getByText(label)).toBeInTheDocument()
+    for (const label of ['Penales', 'Tiros libres', 'Córners', 'Cabezazos']) expect(within(card).getByText(new RegExp(`^${label} · automático`))).toBeInTheDocument()
+  })
+
+  it('el DT puede fijar a mano un especialista, se guarda y se recupera', async () => {
+    renderScreen()
+    const card = await screen.findByRole('region', { name: 'Especialistas de pelota parada' })
+    const select = within(card).getByRole('combobox', { name: 'Especialista de penales' })
+    const target = [...select.options].find(o => /Nombre5/.test(o.textContent))
+    await userEvent.selectOptions(select, target.value)
+    expect(within(card).getByText(/^Penales · elegido por vos/)).toBeInTheDocument()
+
+    await userEvent.click(screen.getAllByRole('button', { name: /Guardar cambios/ })[0])
+    await waitFor(() => expect(updateTactic).toHaveBeenCalledTimes(1))
+    expect(updateTactic.mock.calls[0][1].setPieceTakers).toEqual({ PENALTY: target.value })
+
+    // Al volver a "Automático" ya no queda nada guardado
+    await userEvent.selectOptions(select, '')
+    expect(within(card).getByText(/^Penales · automático/)).toBeInTheDocument()
+  })
+
+  it('una elección guardada se recupera al abrir la pizarra', async () => {
+    state.tactic = { id: 't1', formation: '4-4-2', mentality: 'BALANCED', lineup: lineup442, set_piece_takers: { CORNER: 'p3' } }
+    renderScreen()
+    const card = await screen.findByRole('region', { name: 'Especialistas de pelota parada' })
+    expect(within(card).getByText(/^Córners · elegido por vos/)).toBeInTheDocument()
   })
 })

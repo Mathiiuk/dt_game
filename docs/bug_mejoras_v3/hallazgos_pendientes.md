@@ -112,3 +112,9 @@ Pendiente: que cada equipo tenga especialistas con nombre para las pelotas parad
 - Pizarra táctica: tarjeta "Especialistas" con los cuatro roles, el nombre y su puntaje.
 - Test que se corrigió: "atacar con todo mete más goles y recibe más". Con 2000 partidos el rival recibe *menos* goles incluso en la versión anterior del motor (el atacante le deja menos ocasiones al rival): la afirmación solo pasaba por azar con 600 partidos. Ahora solo se afirma que mete más goles.
 Pendiente: poder fijar a mano quién cobra cada pelota parada (hoy se elige solo por atributos; requiere guardar la elección en la base).
+
+## Undécima tanda (especialistas elegidos a mano)
+- Base de datos: columna nueva `tactics.set_piece_takers` (jsonb, nullable), migración aditiva aplicada en dt_database el 2026-10-14 (`tactics_set_piece_takers`; archivo en `scripts/db/migration_tactics_set_piece_takers.sql`). Antes: 11 filas, ninguna con valor; después: igual, la columna vacía.
+- Pizarra táctica: cada rol (penales, tiros libres, córners, cabezazos) tiene un selector con el plantel ordenado por puntaje; "Automático" deja al mejor por atributos. Se guarda con "Guardar cambios".
+- Partido: lo elegido viaja al motor y a los momentos (primero y marcado en penales y tiros libres, nombrado en el córner). Si el elegido se lesiona, es expulsado o sale en un cambio, lo reemplaza el mejor disponible.
+Pendiente: elegir distinto cobrador de corners del lado izquierdo y derecho; "especialista de cabeza" con un atributo de juego aéreo propio (hoy se estima con nivel general y defensa).

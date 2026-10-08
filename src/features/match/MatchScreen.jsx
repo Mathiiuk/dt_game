@@ -42,6 +42,7 @@ import { resolveLineup, getLayout } from '../../domain/formations'
 import { chemistryApi } from '../../api/chemistry'
 import { teamChemistry } from '../../domain/chemistry'
 import { FREE_FORMATION, normalizeLayout, slotsOfLayout } from '../../domain/freeLayout'
+import { cleanTakers } from '../../domain/specialists'
 
 // Puestos de la formación activa (en el orden en que se guarda la alineación)
 const slotsOf = (tactic) => {
@@ -270,7 +271,7 @@ export default function MatchScreen() {
     } catch (chemErr) {
       console.warn('Aviso: no se pudo calcular la química del equipo:', chemErr)
     }
-    const options = { userPowerFactor, userIsHome: isHome }
+    const options = { userPowerFactor, userIsHome: isHome, userTakers: cleanTakers(data.tactic?.set_piece_takers) }
 
     const results = isHome
       ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, matchSquad.starters, awayTactic, awayPlayers, null, options)
@@ -484,7 +485,7 @@ export default function MatchScreen() {
         })
       }
       // ¿Hay algo para decidir? El partido se pausa solo
-      const found = detectMoment({ minute: nextMin, events: simResults.events, userSide, fired: firedRef.current, morale: data.club?.squad_morale ?? 60, onField })
+      const found = detectMoment({ minute: nextMin, events: simResults.events, userSide, fired: firedRef.current, morale: data.club?.squad_morale ?? 60, onField, takers: cleanTakers(data.tactic?.set_piece_takers) })
       if (found) {
         setPaused(true)
         setMoment(found)

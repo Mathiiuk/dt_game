@@ -47,8 +47,8 @@ export const penaltyChance = (skill) => Math.max(0.55, Math.min(0.9, 0.5 + skill
 const isKeeper = (p) => p && positionLine(p.slot_base || p.position) === 'ARQ'
 
 /** Frase con el cobrador y el rematador de tu equipo en un córner */
-const cornerNames = (onField) => {
-  const sp = specialistsOf(onField)
+const cornerNames = (onField, takers = null) => {
+  const sp = specialistsOf(onField, takers)
   const parts = []
   if (sp.CORNER) parts.push(` Lo cobra ${sp.CORNER.name}`)
   if (sp.HEADER) parts.push(`${parts.length ? ' y el' : ' El'} que mejor la define de cabeza es ${sp.HEADER.name}.`)
@@ -63,7 +63,7 @@ export const MOMENT_ACTION_OPEN_SUBS = OPEN_SUBS
  * @param {{ minute: number, events: Array, userSide: 'home'|'away', fired: Set<string>, morale?: number, isFinished?: boolean }} p
  * @returns {object|null} { id, key, title, text, options, playerId? }
  */
-export function detectMoment({ minute, events = [], userSide, fired = new Set(), morale = 60, onField = [] }) {
+export function detectMoment({ minute, events = [], userSide, fired = new Set(), morale = 60, onField = [], takers = null }) {
   if (minute >= 90) return null
   const rivalSide = userSide === 'home' ? 'away' : 'home'
 
@@ -103,13 +103,13 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
     const key = `PENALTY_${minute}`
     if (!fired.has(key)) {
       if (pen.team === userSide) {
-        const specialists = specialistsOf(onField)
-        const takers = topFor(onField.filter(p => p.id), 'PENALTY', 3)
+        const specialists = specialistsOf(onField, takers)
+        const takerList = topFor(onField.filter(p => p.id), 'PENALTY', 3, takers)
         return {
           key, id: 'PENALTY_FOR', title: '¡Penal a favor!',
           text: 'El árbitro señala el punto penal. El estadio contiene la respiración: ¿quién se anima?',
           options: [
-            ...takers.map(p => ({ id: `TAKER_${p.id}`, label: `Que patee ${`${p.first_name} ${p.last_name}`.trim()}${isSpecialist(specialists, 'PENALTY', p.id) ? ' (especialista)' : ''}`, desc: `Definición ${Math.round(skillOf(p))}: cerca de ${Math.round(penaltyChance(skillOf(p)) * 100)}% de gol.`, action: 'PENALTY_TAKER', playerId: p.id })),
+            ...takerList.map(p => ({ id: `TAKER_${p.id}`, label: `Que patee ${`${p.first_name} ${p.last_name}`.trim()}${isSpecialist(specialists, 'PENALTY', p.id) ? ' (especialista)' : ''}`, desc: `Definición ${Math.round(skillOf(p))}: cerca de ${Math.round(penaltyChance(skillOf(p)) * 100)}% de gol.`, action: 'PENALTY_TAKER', playerId: p.id })),
             { id: 'TAKER_DEFAULT', label: 'Que patee quien corresponde', desc: 'Lo patea el mejor definidor del equipo.', action: 'PENALTY_TAKER', playerId: null }
           ]
         }
@@ -133,7 +133,7 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
     if (!fired.has(key)) {
       return {
         key, id: 'CORNER_FOR', title: '¡Córner a favor!', hint: corner.hint,
-        text: `Tenés un córner.${cornerNames(onField)} ¿A dónde va el centro?`,
+        text: `Tenés un córner.${cornerNames(onField, takers)} ¿A dónde va el centro?`,
         options: [
           { id: 'CN_NEAR', zone: 'NEAR', label: 'Al primer palo', desc: 'Un centro cortado y rápido para que la peinen.', action: 'CORNER_ZONE' },
           { id: 'CN_MID', zone: 'MID', label: 'Al punto penal', desc: 'Al medio del área, donde cae el más alto.', action: 'CORNER_ZONE' },
@@ -146,13 +146,13 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
   if (freeKick) {
     const key = `FK_${minute}`
     if (!fired.has(key)) {
-      const specialists = specialistsOf(onField)
-      const takers = topFor(onField.filter(p => p.id), 'FREE_KICK', 3)
+      const specialists = specialistsOf(onField, takers)
+      const fkTakers = topFor(onField.filter(p => p.id), 'FREE_KICK', 3, takers)
       return {
         key, id: 'FREEKICK_FOR', title: '¡Tiro libre a favor!',
         text: 'Hay un tiro libre peligroso, a unos veinte metros. ¿Quién se anima a patearlo?',
         options: [
-          ...takers.map(p => ({ id: `FK_${p.id}`, label: `Que patee ${`${p.first_name} ${p.last_name}`.trim()}${isSpecialist(specialists, 'FREE_KICK', p.id) ? ' (especialista)' : ''}`, desc: `Pegada ${Math.round(p.attr_finishing ?? p.attr_shooting ?? p.attr_overall ?? 50)}: apuntás y frenás la barra.`, action: 'FK_TAKER', playerId: p.id })),
+          ...fkTakers.map(p => ({ id: `FK_${p.id}`, label: `Que patee ${`${p.first_name} ${p.last_name}`.trim()}${isSpecialist(specialists, 'FREE_KICK', p.id) ? ' (especialista)' : ''}`, desc: `Pegada ${Math.round(p.attr_finishing ?? p.attr_shooting ?? p.attr_overall ?? 50)}: apuntás y frenás la barra.`, action: 'FK_TAKER', playerId: p.id })),
           { id: 'FK_DEFAULT', label: 'Que patee quien corresponde', desc: 'Lo patea el mejor del equipo, sin apuntar.', action: 'FK_TAKER', playerId: null }
         ]
       }

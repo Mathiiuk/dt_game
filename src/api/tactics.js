@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { fitLabel, positionPenalty, slotBase } from '../domain/positions'
+import { cleanTakers } from '../domain/specialists'
 
 export const FORMATIONS = {
   '4-4-2': {
@@ -195,6 +196,8 @@ export const tacticsApi = {
       lineup: Array.isArray(tacticData.lineup) ? tacticData.lineup : [],
       // Alineación libre: posiciones de los 11 sobre la cancha (null con una formación fija)
       custom_layout: Array.isArray(tacticData.customLayout) ? tacticData.customLayout : null,
+      // Especialistas de pelota parada elegidos a mano ({ rol: idJugador }); null = automático
+      set_piece_takers: cleanTakers(tacticData.setPieceTakers),
       updated_at: new Date().toISOString()
     }
 

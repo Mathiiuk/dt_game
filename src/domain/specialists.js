@@ -35,20 +35,33 @@ const fullName = (p) => `${p.first_name || ''} ${p.last_name || ''}`.trim() || '
  * El mejor de cada rol entre los jugadores disponibles (sin arqueros ni lesionados).
  * @returns {{ [role: string]: { id, name, score, player } | null }}
  */
-export function specialistsOf(players = []) {
+export function specialistsOf(players = [], overrides = null) {
   const pool = players.filter(p => p && !isKeeper(p) && !p.is_injured)
   const out = {}
   for (const role of Object.keys(ROLE_SCORES)) {
     const ranked = [...pool].sort((a, b) => ROLE_SCORES[role](b) - ROLE_SCORES[role](a))
-    const best = ranked[0]
-    out[role] = best ? { id: best.id ?? null, name: fullName(best), score: Math.round(ROLE_SCORES[role](best)), player: best } : null
+    // Lo elegido a mano manda mientras ese jugador pueda jugar (si se lesionó, salió de la cancha o es arquero, vuelve el automático)
+    const manual = overrides?.[role] ? pool.find(p => p.id && p.id === overrides[role]) : null
+    const best = manual || ranked[0]
+    out[role] = best ? { id: best.id ?? null, name: fullName(best), score: Math.round(ROLE_SCORES[role](best)), player: best, manual: !!manual } : null
   }
   return out
 }
 
+/** Sólo las elecciones válidas (un id por rol conocido): lo que se guarda en la base */
+export function cleanTakers(raw) {
+  if (!raw || typeof raw !== 'object') return null
+  const clean = {}
+  for (const role of Object.keys(ROLE_SCORES)) if (typeof raw[role] === 'string' && raw[role]) clean[role] = raw[role]
+  return Object.keys(clean).length ? clean : null
+}
+
 /** Los N mejores de un rol (para ofrecer pateadores): el especialista primero */
-export const topFor = (players = [], role, n = 3) =>
-  players.filter(p => p && !isKeeper(p) && !p.is_injured).sort((a, b) => ROLE_SCORES[role](b) - ROLE_SCORES[role](a)).slice(0, n)
+export const topFor = (players = [], role, n = 3, overrides = null) => {
+  const ranked = players.filter(p => p && !isKeeper(p) && !p.is_injured).sort((a, b) => ROLE_SCORES[role](b) - ROLE_SCORES[role](a))
+  const manual = overrides?.[role] ? ranked.find(p => p.id && p.id === overrides[role]) : null
+  return (manual ? [manual, ...ranked.filter(p => p !== manual)] : ranked).slice(0, n)
+}
 
 /** ¿Es este jugador el especialista del rol? */
 export const isSpecialist = (specialists, role, playerId) => !!playerId && specialists?.[role]?.id === playerId

@@ -181,3 +181,22 @@ describe('especialistas en los momentos', () => {
     expect(fk.hintText).toContain('Pepe Zurdo mira el palo derecho')
   })
 })
+
+describe('especialistas fijados a mano en los momentos', () => {
+  const squad = [
+    { id: 'a', first_name: 'Ana', last_name: 'Cabeza', position: 'DFC', attr_overall: 75, attr_defending: 90, attr_passing: 40, attr_vision: 40, attr_finishing: 50, attr_shooting: 50 },
+    { id: 'b', first_name: 'Beto', last_name: 'Pie', position: 'MC', attr_overall: 70, attr_passing: 92, attr_vision: 90, attr_finishing: 60, attr_shooting: 88 },
+    { id: 'c', first_name: 'Cris', last_name: 'Gol', position: 'DC', attr_overall: 70, attr_finishing: 95, attr_shooting: 90, attr_passing: 50, attr_vision: 50 }
+  ]
+
+  it('el elegido va primero y marcado en el tiro libre y en el penal, y cobra el córner', () => {
+    const takers = { FREE_KICK: 'a', PENALTY: 'a', CORNER: 'c' }
+    const fk = detectMoment({ minute: 20, events: [{ minute: 20, type: 'SETPIECE_FK', team: 'home' }], userSide: 'home', fired: new Set(), onField: squad, takers })
+    expect(fk.options[0]).toMatchObject({ playerId: 'a' })
+    expect(fk.options[0].label).toContain('(especialista)')
+    const pen = detectMoment({ minute: 30, events: [{ minute: 30, type: 'PENALTY', team: 'home' }], userSide: 'home', fired: new Set(), onField: squad, takers })
+    expect(pen.options[0].label).toContain('Ana Cabeza (especialista)')
+    const corner = detectMoment({ minute: 10, events: [{ minute: 10, type: 'SETPIECE_CORNER', team: 'home', hint: 'MID' }], userSide: 'home', fired: new Set(), onField: squad, takers })
+    expect(corner.text).toContain('Lo cobra Cris Gol')
+  })
+})

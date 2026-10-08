@@ -377,6 +377,22 @@ describe('penales y rival que reacciona', () => {
     expect(corners).toBeGreaterThan(20)
   })
 
+  it('el especialista fijado a mano cobra los tiros libres de su equipo (y el rival sigue con el suyo)', () => {
+    const named = (prefix) => squad(60).map((p, i) => ({ ...p, first_name: prefix, last_name: `J${i}`, attr_shooting: 40 + i * 4, attr_finishing: 40 + i * 4, attr_passing: 40 + i * 5, attr_vision: 40 + i * 5 }))
+    const home = named('Local')
+    const chosen = home[3] // no es el mejor por atributos
+    let own = 0
+    let rival = 0
+    for (let i = 0; i < 3000 && (own < 25 || rival < 25); i++) {
+      const r = simulateMatch(tactic, home, tactic, named('Visita'), `manual-${i}`, { specialistOverrides: { home: { FREE_KICK: chosen.id } } })
+      for (const sp of r.events.filter(e => e.type === 'SETPIECE_FK')) {
+        if (sp.team === 'home') { expect(sp.takerName).toBe(`${chosen.first_name} ${chosen.last_name}`); own++ } else { expect(sp.takerName).not.toBe(`${chosen.first_name} ${chosen.last_name}`); rival++ }
+      }
+    }
+    expect(own).toBeGreaterThan(20)
+    expect(rival).toBeGreaterThan(20)
+  })
+
   it('el rival reacciona: si va perdiendo a los 60 se tira al ataque y si gana a los 75 se cierra', () => {
     let attacking = 0
     let closing = 0
