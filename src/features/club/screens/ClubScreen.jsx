@@ -98,7 +98,7 @@ export default function ClubScreen() {
     if (contextLoading || !club) return
     loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contextLoading, club])
+  }, [contextLoading, club?.id])
 
   const handleHireStaff = async (staffMember) => {
     try {
@@ -177,7 +177,7 @@ export default function ClubScreen() {
         <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
           <Stat label="Presupuesto" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl text-accent sm:text-3xl" />
           <Stat label="Sueldos" value={salaries === null ? '—' : formatMoney(salaries)} hint="plantel y staff por semana" valueClassName="text-2xl sm:text-3xl" />
-          <Stat label="Por semana" value={weeklyFlow === null ? '—' : `${weeklyFlow >= 0 ? '+' : ''}${formatMoney(weeklyFlow)}`} hint="lo que entra menos lo que sale" valueClassName={`text-2xl sm:text-3xl ${weeklyFlow === null ? '' : weeklyFlow >= 0 ? 'text-accent' : 'text-danger'}`} />
+          <Stat label="Por semana" value={weeklyFlow === null ? '—' : `${weeklyFlow >= 0 ? '+' : ''}${formatMoney(weeklyFlow)}`} hint="lo que entra menos lo que sale" valueClassName={`text-2xl sm:text-3xl`} />
           <Stat label="Academia" value={`Nv. ${club?.academy_level || 1}`} hint={`${data.youth.length} juveniles`} valueClassName="text-2xl sm:text-3xl" />
         </CardBody>
       </Card>
