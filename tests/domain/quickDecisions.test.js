@@ -111,3 +111,29 @@ describe('remate peligroso en contra', () => {
     expect(detectMoment({ minute: 20, events: [{ minute: 20, type: 'SHOT', team: 'home' }], userSide: 'home', fired: new Set() })).toBeNull()
   })
 })
+
+describe('pelotas paradas a favor', () => {
+  const players = [
+    { id: 'a', first_name: 'A', last_name: 'Uno', position: 'DC', attr_finishing: 70 },
+    { id: 'b', first_name: 'B', last_name: 'Dos', position: 'MC', attr_finishing: 80 },
+    { id: 'k', first_name: 'K', last_name: 'Arq', position: 'GK', slot_base: 'GK', attr_finishing: 99 }
+  ]
+
+  it('el córner trae las tres zonas y la pista del banco', () => {
+    const m = detectMoment({ minute: 12, events: [{ minute: 12, type: 'SETPIECE_CORNER', team: 'home', hint: 'MID' }], userSide: 'home', fired: new Set() })
+    expect(m).toMatchObject({ id: 'CORNER_FOR', hint: 'MID' })
+    expect(m.options.map(o => o.zone)).toEqual(['NEAR', 'MID', 'FAR'])
+  })
+
+  it('el tiro libre ofrece a los mejores pateadores (sin el arquero) y la opción automática', () => {
+    const m = detectMoment({ minute: 30, events: [{ minute: 30, type: 'SETPIECE_FK', team: 'home' }], userSide: 'home', fired: new Set(), onField: players })
+    expect(m.id).toBe('FREEKICK_FOR')
+    expect(m.options[0].playerId).toBe('b')
+    expect(m.options.some(o => o.playerId === 'k')).toBe(false)
+    expect(m.options.at(-1).playerId).toBeNull()
+  })
+
+  it('las pelotas paradas del rival no son un momento', () => {
+    expect(detectMoment({ minute: 12, events: [{ minute: 12, type: 'SETPIECE_CORNER', team: 'away', hint: 'MID' }], userSide: 'home', fired: new Set() })).toBeNull()
+  })
+})

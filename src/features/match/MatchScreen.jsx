@@ -373,6 +373,12 @@ export default function MatchScreen() {
       // Con puntería (minijuego): hacia dónde y qué tan bien le pegó
       if (option.aim) commitChange({ kind: 'PENALTY_AIM', aim: option.aim, quality: option.quality })
       logDirective(decisionText(option))
+    } else if (option.action === 'FK_TAKER' && option.playerId) {
+      commitChange({ kind: 'SETPIECE_FK', playerId: option.playerId, aim: option.aim, quality: option.quality })
+      logDirective(decisionText(option))
+    } else if (option.action === 'CORNER_ZONE') {
+      commitChange({ kind: 'SETPIECE_CORNER', zone: option.zone })
+      logDirective(decisionText(option))
     } else if (option.action === 'SAVE_REACT') {
       commitChange({ kind: 'SAVE_REACT', quality: option.quality })
       logDirective(decisionText(option))

@@ -92,3 +92,9 @@ Pendiente: reflejos (atajar una noticia), arrastrar billetes en crisis de caja, 
 - Tirarse antes de que patee o para el otro lado reacciona mal; no tocar a tiempo cuenta como llegar tarde.
 - Los remates propios también quedan "en el aire" un minuto (para que el relato tenga suspenso), pero se resuelven solos.
 Pendiente: que el rival reaccione igual de bien o mal según su arquero; tiros libres y córners como momentos.
+
+## Octava tanda (tiros libres y córners)
+- Córner a favor: aparece un momento con la zona de la defensa rival que el banco marca como floja (la pista acierta 7 de cada 10) y tres zonas para el centro (primer palo, punto penal, segundo palo). Centrar por la zona floja multiplica por 2,1 la chance de gol; por otra zona la baja a 0,8. Si no se interviene, queda a la suerte (9 %).
+- Tiro libre a favor (30 % de las faltas): se elige quién lo patea, se apunta al arco y se frena la barra, igual que el penal. Un buen golpe sube la chance (hasta cerca de 12 %), uno flojo la baja; el arquero rival adivina por azar la zona y, si acierta, la saca.
+- Las pelotas paradas del rival se resuelven solas. Nuevos tipos de jugada en el relato: córner a favor, tiro libre y despeje.
+Pendiente: defender los córners y tiros libres del rival (marca al hombre o en zona, barrera) y que cada equipo tenga especialistas con nombre.

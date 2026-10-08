@@ -171,6 +171,37 @@ describe('partido en vivo con decisiones', () => {
     expect(mocks.replay.mock.calls[0][1][0].quality).toBeLessThanOrEqual(0.2)
   })
 
+  it('un córner a favor da una pista del banco y manda el centro a la zona elegida', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SETPIECE_CORNER', team: 'home', hint: 'FAR', text: 'Se prepara el córner.' }]))
+    await startMatch()
+    minutes(5)
+    expect(screen.getByRole('region', { name: '¡Córner a favor!' })).toBeInTheDocument()
+    expect(screen.getByText(/Desde el banco te avisan/)).toHaveTextContent('al segundo palo')
+    click(screen.getByRole('button', { name: /Al segundo palo/ }))
+    act(() => { vi.advanceTimersByTime(700) })
+    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_CORNER', zone: 'FAR' })
+  })
+
+  it('un tiro libre a favor deja elegir quién lo patea, apuntar y frenar la barra', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SETPIECE_FK', team: 'home', text: 'Tiro libre peligroso.' }]))
+    await startMatch()
+    minutes(5)
+    expect(screen.getByRole('region', { name: '¡Tiro libre a favor!' })).toBeInTheDocument()
+    click(screen.getAllByRole('button').find(b => /Que patee Juan/.test(b.textContent)))
+    click(screen.getByRole('button', { name: /Apuntar a la derecha/ }))
+    click(screen.getByRole('button', { name: /Patear/ }))
+    act(() => { vi.advanceTimersByTime(800) })
+    expect(mocks.replay).toHaveBeenCalledTimes(1)
+    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_FK', aim: 'R' })
+  })
+
+  it('un tiro libre del rival no pide nada', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SETPIECE_FK', team: 'away', text: 'Tiro libre peligroso.' }]))
+    await startMatch()
+    minutes(6)
+    expect(screen.queryByRole('region', { name: /Tiro libre/ })).toBeNull()
+  })
+
   it('un penal en contra deja elegir hacia dónde se tira el arquero', async () => {
     mocks.start.mockResolvedValue(results([{ minute: 5, type: 'PENALTY', team: 'away', text: '¡PENAL para la visita!' }]))
     await startMatch()

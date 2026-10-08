@@ -225,6 +225,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     // Jugada clave: lo que decide el DT para el mano a mano (en ataque o en defensa)
     if (change.kind === 'KEYPLAY_CHOICE') { keyChoice = { side: change.team, choice: change.choice }; return }
     // Remate peligroso en contra: qué tan bien reaccionó el arquero (0 a 1, del minijuego)
+    // Córner a favor: a qué zona va el centro. Tiro libre a favor: quién lo patea, hacia dónde y qué tan bien le pegó
+    if (change.kind === 'SETPIECE_CORNER') { setChoice = { side: change.team, kind: 'CORNER', zone: change.zone }; return }
+    if (change.kind === 'SETPIECE_FK') { setChoice = { side: change.team, kind: 'FK', taker: change.playerId, aim: change.aim, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.6))) }; return }
     if (change.kind === 'SAVE_REACT') { saveReact = { side: change.team, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.5))) }; return }
     // Gritos y decisiones: un efecto sobre ataque, defensa y mediocampo que dura `duration` minutos
     if (!change.players) {
@@ -290,6 +293,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   // Remate peligroso anunciado (la jugada se resuelve al minuto siguiente) y la reacción del arquero del DT
   let pendingShot = null
   let saveReact = null
+  // Pelota parada (córner o tiro libre) anunciada, y lo que decidió el DT para cobrarla
+  let pendingSet = null
+  let setChoice = null
   const penaltyText = (team) => (team === 'home' ? 'el local' : 'la visita')
 
   // Resolución de una ocasión de gol: gol, atajada, córner o disparo desviado.
@@ -338,6 +344,14 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         team: teamId,
         text: `Tiro de esquina para ${isHome ? 'los locales' : 'la visita'}. Centro peligroso al área. ${quip('CORNER')}`
       })
+      if (!pendingSet && min < 90 && kpRng() < 0.6) {
+        const ZONES = ['NEAR', 'MID', 'FAR']
+        const weak = ZONES[Math.floor(kpRng() * 3)]
+        // La pista del banco acierta casi siempre (7 de cada 10); a veces confunde
+        const hint = kpRng() < 0.7 ? weak : ZONES[Math.floor(kpRng() * 3)]
+        pendingSet = { kind: 'CORNER', team: teamId, minute: min + 1, weak }
+        events.push({ minute: min, type: 'SETPIECE_CORNER', team: teamId, hint, text: `Se prepara el córner para ${isHome ? 'el local' : 'la visita'}: todos al área.` })
+      }
     } else {
       // Tiro desviado
       events.push({
@@ -492,6 +506,60 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       // Lo que se le quita al gol se reparte hacia la atajada (y al revés si reaccionó mal)
       resolveShot({ min, isHome: ps.isHome, teamId: ps.teamId, attacker: ps.attacker, assister: ps.assister, goalkeeper: ps.goalkeeper, goalChance: adjusted, shotRoll: ps.shotRoll, saveBonus: ps.goalChance - adjusted })
     }
+    // Resolución de la pelota parada pendiente: con la decisión del DT (si es su equipo) o a la suerte
+    if (pendingSet && pendingSet.minute === min) {
+      const ps = pendingSet
+      pendingSet = null
+      const mine = setChoice && setChoice.side === ps.team && setChoice.kind === ps.kind ? setChoice : null
+      setChoice = null
+      const isHomeSet = ps.team === 'home'
+      const att = isHomeSet ? homeTeam : awayTeam
+      const def = isHomeSet ? awayTeam : homeTeam
+      const skill = (p, ...keys) => { for (const k of keys) if (p[k] != null) return p[k]; return p.attr_overall ?? 50 }
+      const scoreGoal = (playerId, text) => {
+        if (isHomeSet) { homeScore++; homeShotsOnTarget++ } else { awayScore++; awayShotsOnTarget++ }
+        events.push({ minute: min, type: 'GOAL', team: ps.team, playerId, text })
+      }
+
+      if (ps.kind === 'CORNER') {
+        const taker = [...att.players].sort((a, b) => skill(b, 'attr_passing', 'attr_vision') - skill(a, 'attr_passing', 'attr_vision'))[0] || { first_name: 'Futbolista', last_name: '' }
+        const header = getRandomPlayer(att.players, 'ATTACK')
+        let chance = 0.09 * (0.85 + skill(taker, 'attr_passing', 'attr_vision') / 333)
+        // Si el centro va por donde la defensa está floja, es peligro; si va por donde está fuerte, casi nada
+        if (mine) chance *= mine.zone === ps.weak ? 2.1 : 0.8
+        if (isHomeSet) homeShots++
+        else awayShots++
+        if (kpRng() < Math.min(0.5, chance)) {
+          scoreGoal(header.id, `¡GOL DE ${isHomeSet ? 'LOCAL' : 'VISITA'}! Golazo de ${header.first_name} ${header.last_name} de cabeza, tras el córner de ${taker.first_name} ${taker.last_name}. ${quip('GOAL')}`)
+        } else {
+          events.push({ minute: min, type: 'CLEARED', team: ps.team, text: `El centro de ${taker.first_name} ${taker.last_name} lo despeja la defensa. ${quip('MISS')}` })
+        }
+      } else {
+        const sorted = [...att.players].sort((a, b) => skill(b, 'attr_finishing', 'attr_shooting') - skill(a, 'attr_finishing', 'attr_shooting'))
+        const taker = (mine && att.players.find(p => p.id && p.id === mine.taker)) || sorted[0] || { first_name: 'Futbolista', last_name: '' }
+        let chance = 0.07
+        let blocked = false
+        if (mine) {
+          chance = 0.11 * (0.55 + 0.9 * mine.quality) * (0.7 + skill(taker, 'attr_finishing', 'attr_shooting') / 200)
+          // El arquero rival adivina por azar hacia dónde va; si acierta, casi siempre la saca
+          const guess = ['L', 'C', 'R'][Math.floor(kpRng() * 3)]
+          if (guess === mine.aim) { chance *= 0.35; blocked = true }
+          if (mine.quality < 0.15) chance = 0.02
+        }
+        if (isHomeSet) homeShots++
+        else awayShots++
+        if (kpRng() < Math.min(0.5, chance)) {
+          scoreGoal(taker.id, `¡GOLAZO DE TIRO LIBRE! ${taker.first_name} ${taker.last_name} la pone en el ángulo. ${quip('GOAL')}`)
+        } else if (blocked) {
+          if (isHomeSet) homeShotsOnTarget++
+          else awayShotsOnTarget++
+          const gk = getRandomPlayer(def.players, 'GK')
+          events.push({ minute: min, type: 'SAVE', team: ps.team, text: `¡Atajadón de ${gk.first_name} ${gk.last_name} al tiro libre de ${taker.first_name} ${taker.last_name}! ${quip('SAVE')}` })
+        } else {
+          events.push({ minute: min, type: 'MISS', team: ps.team, text: `El tiro libre de ${taker.first_name} ${taker.last_name} se va por arriba del travesaño. ${quip('MISS')}` })
+        }
+      }
+    }
     // Una jugada clave nueva (poco frecuente): un mano a mano que se anuncia antes de resolverse
     if (min < 90 && !pendingPenalty && !pendingKeyPlay && kpRng() < 0.012) {
       const toHome = kpRng() < (curHomeAtt / (curHomeAtt + curAwayAtt))
@@ -565,6 +633,13 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           playerId: playerFoul.id,
           text: `Amonestado ${playerFoul.first_name} ${playerFoul.last_name} tras cometer falta táctica en la mitad de la cancha. ${quip('YELLOW')}`
         })
+      }
+
+      // Una falta cerca del área: tiro libre peligroso para el otro equipo
+      if (!pendingSet && min < 90 && kpRng() < 0.3) {
+        const fkTeam = isHomeFoul ? 'away' : 'home'
+        pendingSet = { kind: 'FK', team: fkTeam, minute: min + 1 }
+        events.push({ minute: min, type: 'SETPIECE_FK', team: fkTeam, text: `Tiro libre peligroso para ${fkTeam === 'home' ? 'el local' : 'la visita'}, a unos veinte metros del arco.` })
       }
     }
 

@@ -268,6 +268,49 @@ describe('penales y rival que reacciona', () => {
     expect(goalsGood).toBeLessThan(goalsBad)
   })
 
+  it('hay córners con pista y, si el DT manda el centro por la zona floja, convierte más que por la zona fuerte', () => {
+    let found = 0
+    let weakGoals = 0
+    let strongGoals = 0
+    let hintRight = 0
+    for (let i = 0; i < 6000 && found < 150; i++) {
+      const base = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `corner-${i}`)
+      const sp = base.events.find(e => e.type === 'SETPIECE_CORNER' && e.team === 'home')
+      if (!sp) continue
+      found++
+      const zones = ['NEAR', 'MID', 'FAR']
+      expect(zones).toContain(sp.hint)
+      const run = (zone) => simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `corner-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_CORNER', zone }] })
+      const goalAt = (r) => r.events.some(e => e.minute === sp.minute + 1 && e.team === 'home' && e.type === 'GOAL' && /córner/.test(e.text))
+      // La pista casi siempre marca la zona floja: se prueba la pista contra las otras dos
+      const others = zones.filter(z => z !== sp.hint)
+      if (goalAt(run(sp.hint))) weakGoals++
+      others.forEach(z => { if (goalAt(run(z))) strongGoals += 0.5 })
+      hintRight++
+    }
+    expect(found).toBeGreaterThan(50)
+    expect(hintRight).toBe(found)
+    expect(weakGoals).toBeGreaterThan(strongGoals)
+  })
+
+  it('un tiro libre bien pegado convierte más que uno flojo', () => {
+    let found = 0
+    let good = 0
+    let weak = 0
+    for (let i = 0; i < 8000 && found < 200; i++) {
+      const base = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `fk-${i}`)
+      const sp = base.events.find(e => e.type === 'SETPIECE_FK' && e.team === 'home')
+      if (!sp) continue
+      found++
+      const run = (quality) => simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `fk-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_FK', playerId: null, aim: 'L', quality }] })
+      const goalAt = (r) => r.events.some(e => e.minute === sp.minute + 1 && e.team === 'home' && e.type === 'GOAL' && /TIRO LIBRE/.test(e.text))
+      if (goalAt(run(1))) good++
+      if (goalAt(run(0.1))) weak++
+    }
+    expect(found).toBeGreaterThan(80)
+    expect(good).toBeGreaterThan(weak)
+  })
+
   it('el rival reacciona: si va perdiendo a los 60 se tira al ataque y si gana a los 75 se cierra', () => {
     let attacking = 0
     let closing = 0

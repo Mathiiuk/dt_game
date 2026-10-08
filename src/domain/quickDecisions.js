@@ -115,6 +115,38 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
     }
   }
 
+  // Pelotas paradas a favor: el córner se centra a una zona (con pista del banco) y el tiro libre lo patea quien elijas
+  const corner = here.find(e => e.type === 'SETPIECE_CORNER' && e.team === userSide)
+  if (corner) {
+    const key = `CORNER_${minute}`
+    if (!fired.has(key)) {
+      return {
+        key, id: 'CORNER_FOR', title: '¡Córner a favor!', hint: corner.hint,
+        text: 'Tenés un córner. ¿A dónde va el centro?',
+        options: [
+          { id: 'CN_NEAR', zone: 'NEAR', label: 'Al primer palo', desc: 'Un centro cortado y rápido para que la peinen.', action: 'CORNER_ZONE' },
+          { id: 'CN_MID', zone: 'MID', label: 'Al punto penal', desc: 'Al medio del área, donde cae el más alto.', action: 'CORNER_ZONE' },
+          { id: 'CN_FAR', zone: 'FAR', label: 'Al segundo palo', desc: 'Un centro bien cerrado para el que llega solo.', action: 'CORNER_ZONE' }
+        ]
+      }
+    }
+  }
+  const freeKick = here.find(e => e.type === 'SETPIECE_FK' && e.team === userSide)
+  if (freeKick) {
+    const key = `FK_${minute}`
+    if (!fired.has(key)) {
+      const takers = onField.filter(p => p.id && !isKeeper(p)).sort((a, b) => (b.attr_finishing ?? b.attr_shooting ?? b.attr_overall ?? 50) - (a.attr_finishing ?? a.attr_shooting ?? a.attr_overall ?? 50)).slice(0, 3)
+      return {
+        key, id: 'FREEKICK_FOR', title: '¡Tiro libre a favor!',
+        text: 'Hay un tiro libre peligroso, a unos veinte metros. ¿Quién se anima a patearlo?',
+        options: [
+          ...takers.map(p => ({ id: `FK_${p.id}`, label: `Que patee ${`${p.first_name} ${p.last_name}`.trim()}`, desc: `Pegada ${Math.round(p.attr_finishing ?? p.attr_shooting ?? p.attr_overall ?? 50)}: apuntás y frenás la barra.`, action: 'FK_TAKER', playerId: p.id })),
+          { id: 'FK_DEFAULT', label: 'Que patee quien corresponde', desc: 'Lo patea el mejor del equipo, sin apuntar.', action: 'FK_TAKER', playerId: null }
+        ]
+      }
+    }
+  }
+
   // Remate peligroso en contra: se reacciona con el arquero (minijuego de reflejos)
   const shot = here.find(e => e.type === 'SHOT' && e.team === rivalSide)
   if (shot) {

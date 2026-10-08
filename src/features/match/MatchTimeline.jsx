@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowLeftRight, Bandage, Crosshair, Flag, Goal, Hand, Megaphone, Radio, Siren, Swords, Target, Whistle } from 'lucide-react'
+import { ArrowLeftRight, Bandage, Crosshair, Flag, Goal, Hand, Megaphone, Radio, Siren, Shield, Swords, Target, Whistle } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 /** Cada tipo de jugada con su ícono y su color: el relato se lee de un vistazo */
@@ -14,6 +14,9 @@ const KINDS = {
   PENALTY: { icon: Siren, tone: 'warning', label: 'Penal' },
   KEYPLAY: { icon: Target, tone: 'warning', label: 'Mano a mano' },
   SHOT: { icon: Crosshair, tone: 'warning', label: 'Remate peligroso' },
+  SETPIECE_CORNER: { icon: Flag, tone: 'warning', label: 'Córner a favor' },
+  SETPIECE_FK: { icon: Target, tone: 'warning', label: 'Tiro libre' },
+  CLEARED: { icon: Shield, tone: 'muted', label: 'Despeje' },
   SUBSTITUTION: { icon: ArrowLeftRight, tone: 'info', label: 'Cambio' },
   TACTIC_SHOUT: { icon: Megaphone, tone: 'info', label: 'Tu orden' },
   RIVAL_TACTIC: { icon: Swords, tone: 'muted', label: 'El rival' },

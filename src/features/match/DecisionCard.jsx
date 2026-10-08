@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Megaphone } from 'lucide-react'
 import PenaltyGoal, { PenaltyShoot } from './PenaltyGoal'
 import SaveReflex from './SaveReflex'
+import CornerPick from './CornerPick'
 import { NamedIcon } from '../../components/ui/named-icon'
 
 /**
@@ -12,7 +13,7 @@ export default function DecisionCard({ moment, onChoose }) {
   // Penal a favor: primero se elige quién patea y, si es una persona, después apunta y le pega (minijuego)
   const [taker, setTaker] = useState(null)
   const pick = (option) => {
-    if (moment.id === 'PENALTY_FOR' && option.playerId) setTaker(option)
+    if ((moment.id === 'PENALTY_FOR' || moment.id === 'FREEKICK_FOR') && option.playerId) setTaker(option)
     else onChoose(option)
   }
   if (taker) {
@@ -29,7 +30,9 @@ export default function DecisionCard({ moment, onChoose }) {
         {moment.title}
       </h4>
       <p className="text-sm leading-relaxed text-fg">{moment.text}</p>
-      {moment.id === 'SHOT_AGAINST' ? (
+      {moment.id === 'CORNER_FOR' ? (
+        <CornerPick options={moment.options} hint={moment.hint} onChoose={onChoose} />
+      ) : moment.id === 'SHOT_AGAINST' ? (
         <SaveReflex onDone={({ quality, label }) => onChoose({ id: 'SAVE_REACT', label, action: 'SAVE_REACT', quality })} />
       ) : moment.id === 'PENALTY_AGAINST' ? (
         <PenaltyGoal options={moment.options} onChoose={onChoose} />
