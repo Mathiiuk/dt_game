@@ -1,6 +1,6 @@
 import { supabase } from './supabase'
 import { positionLine, normalizePosition } from '../domain/positions'
-import { specialistsOf } from '../domain/specialists'
+import { specialistsOf, aerialOf } from '../domain/specialists'
 import { homeAdvantage } from '../domain/consequences'
 import { SUSPENSION_POWER_FACTOR } from '../domain/barra'
 
@@ -539,6 +539,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         let chance = 0.09 * (0.85 + skill(taker, 'attr_passing', 'attr_vision') / 333)
         // Si el centro va por donde la defensa está floja, es peligro; si va por donde está fuerte, casi nada
         if (mine) chance *= mine.zone === ps.weak ? 2.1 : 0.8
+        // Quien remata: un buen cabeceador (juego aéreo) vale más que uno flojo
+        chance *= 0.8 + aerialOf(header) / 250
         // Quien defiende: reforzar la zona correcta la cierra casi del todo; reforzar otra la deja más expuesta
         if (dmine && dmine.zone !== 'COUNTER') chance *= dmine.zone === ps.target ? 0.45 : 1.1
         if (isHomeSet) homeShots++

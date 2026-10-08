@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { specialistsOf, topFor, isSpecialist, cleanTakers, ROLE_LABELS } from '../../src/domain/specialists'
+import { specialistsOf, topFor, isSpecialist, cleanTakers, aerialOf, ROLE_LABELS } from '../../src/domain/specialists'
 
 const p = (id, position, attrs = {}) => ({ id, first_name: id.toUpperCase(), last_name: 'Prueba', position, attr_overall: 60, ...attrs })
 
@@ -65,5 +65,23 @@ describe('especialistas elegidos a mano', () => {
     expect(cleanTakers({ PENALTY: 'a', CORNER: '', INVENTADO: 'x', HEADER: 5 })).toEqual({ PENALTY: 'a' })
     expect(cleanTakers({})).toBeNull()
     expect(cleanTakers(null)).toBeNull()
+  })
+})
+
+describe('juego aéreo del cabeceador', () => {
+  it('con el atributo de cabeceo, manda por sobre el nivel general y la posición', () => {
+    const squad = [
+      p('zaguero', 'DFC', { attr_overall: 80, attr_defending: 90, attr_heading: 50, attr_strength: 60 }),
+      p('torre', 'MC', { attr_overall: 55, attr_heading: 92, attr_strength: 85, attr_positioning: 60 }),
+      p('nueve', 'DC', { attr_overall: 70, attr_heading: 60, attr_strength: 60, attr_finishing: 80 })
+    ]
+    expect(specialistsOf(squad).HEADER.id).toBe('torre')
+    expect(aerialOf(squad[1])).toBe(92)
+  })
+
+  it('sin el atributo se estima como antes y el aéreo sigue dando un número', () => {
+    const rival = p('rival', 'DFC', { attr_overall: 70, attr_defending: 80 })
+    expect(aerialOf(rival)).toBeGreaterThan(50)
+    expect(specialistsOf([rival]).HEADER.id).toBe('rival')
   })
 })

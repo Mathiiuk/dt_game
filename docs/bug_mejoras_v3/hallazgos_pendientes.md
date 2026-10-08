@@ -118,3 +118,10 @@ Pendiente: poder fijar a mano quién cobra cada pelota parada (hoy se elige solo
 - Pizarra táctica: cada rol (penales, tiros libres, córners, cabezazos) tiene un selector con el plantel ordenado por puntaje; "Automático" deja al mejor por atributos. Se guarda con "Guardar cambios".
 - Partido: lo elegido viaja al motor y a los momentos (primero y marcado en penales y tiros libres, nombrado en el córner). Si el elegido se lesiona, es expulsado o sale en un cambio, lo reemplaza el mejor disponible.
 Pendiente: elegir distinto cobrador de corners del lado izquierdo y derecho; "especialista de cabeza" con un atributo de juego aéreo propio (hoy se estima con nivel general y defensa).
+
+## Duodécima tanda (cabeceador con juego aéreo)
+- Aclaración importante: el atributo ya existía. `players.attr_heading` está en la base para los 433 jugadores (promedio 55 en defensores y delanteros centro, 40 en el resto) y entra en las calificaciones por puesto del servidor. Por eso no hizo falta ninguna migración, aunque se había aprobado una columna nueva. No se tocó la base en esta tanda.
+- El especialista de cabezazos ahora se elige por `attr_heading` (60 %), fuerza (20 %), ubicación (10 %) y definición (10 %). Los once de relleno del rival no traen el atributo y siguen con la estimación anterior.
+- En el motor, quien remata el córner modifica la chance de gol: un cabeceador de 99 de juego aéreo la multiplica por 1,2 y uno de 20 por 0,88.
+- En el momento del córner se muestra el juego aéreo del mejor rematador.
+Pendiente: que el rival tenga atributos reales (hoy el once de relleno solo tiene nivel general).

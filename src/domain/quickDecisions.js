@@ -5,7 +5,7 @@
  */
 
 import { positionLine } from './positions'
-import { specialistsOf, topFor, isSpecialist } from './specialists'
+import { specialistsOf, topFor, isSpecialist, aerialOf } from './specialists'
 
 export const SHOUT_COOLDOWN_MINUTES = 15
 export const SHOUT_DURATION = 15
@@ -51,7 +51,7 @@ const cornerNames = (onField, takers = null) => {
   const sp = specialistsOf(onField, takers)
   const parts = []
   if (sp.CORNER) parts.push(` Lo cobra ${sp.CORNER.name}`)
-  if (sp.HEADER) parts.push(`${parts.length ? ' y el' : ' El'} que mejor la define de cabeza es ${sp.HEADER.name}.`)
+  if (sp.HEADER) parts.push(`${parts.length ? ' y el' : ' El'} que mejor la define de cabeza es ${sp.HEADER.name} (juego aéreo ${Math.round(aerialOf(sp.HEADER.player))}).`)
   return parts.join('') + (parts.length === 1 ? '.' : '')
 }
 

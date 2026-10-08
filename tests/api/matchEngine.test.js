@@ -393,6 +393,19 @@ describe('penales y rival que reacciona', () => {
     expect(rival).toBeGreaterThan(20)
   })
 
+  it('un cabeceador con mucho juego aéreo mete más goles de córner que uno flojo', () => {
+    const team = (heading) => squad(60).map((p, i) => ({ ...p, id: `h${i}`, first_name: 'H', last_name: `J${i}`, attr_heading: i === 9 ? heading : 45, attr_strength: 55, attr_passing: 60, attr_vision: 60 }))
+    let high = 0
+    let low = 0
+    for (let i = 0; i < 4000; i++) {
+      const goalsFrom = (heading) => simulateMatch(tactic, team(heading), tactic, squad(60), `aereo-${i}`).events.filter(e => e.type === 'GOAL' && e.team === 'home' && /de cabeza/.test(e.text)).length
+      high += goalsFrom(99)
+      low += goalsFrom(20)
+    }
+    expect(high + low).toBeGreaterThan(30)
+    expect(high).toBeGreaterThan(low)
+  })
+
   it('el rival reacciona: si va perdiendo a los 60 se tira al ataque y si gana a los 75 se cierra', () => {
     let attacking = 0
     let closing = 0

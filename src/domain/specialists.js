@@ -13,13 +13,19 @@ const isKeeper = (p) => lineOf(p) === 'ARQ'
 const isDefender = (p) => lineOf(p) === 'DEF'
 const isForward = (p) => lineOf(p) === 'DEL'
 
+/** Qué tan bueno es rematando de cabeza (0 a 100): lo usa el motor para dar más o menos peligro al córner */
+export const aerialOf = (p) => num(p?.attr_heading, ROLE_SCORES.HEADER(p || {}))
+
 /** Puntaje de cada rol (0 a 100 aprox.): mezcla de los atributos que más pesan */
 export const ROLE_SCORES = {
   PENALTY: (p) => 0.55 * num(p.attr_finishing ?? p.attr_shooting, overall(p)) + 0.25 * num(p.attr_shooting, overall(p)) + 0.2 * overall(p),
   FREE_KICK: (p) => 0.45 * num(p.attr_shooting ?? p.attr_finishing, overall(p)) + 0.3 * num(p.attr_passing, overall(p)) + 0.25 * num(p.attr_vision, overall(p)),
   CORNER: (p) => 0.55 * num(p.attr_passing, overall(p)) + 0.3 * num(p.attr_vision, overall(p)) + 0.15 * overall(p),
-  // Sin atributo de juego aéreo: pesan el nivel general, la fuerza defensiva y estar en puestos de área
-  HEADER: (p) => 0.5 * overall(p) + 0.3 * num(p.attr_defending, overall(p)) + 0.2 * num(p.attr_finishing, overall(p)) + (isDefender(p) ? 4 : 0) + (isForward(p) ? 3 : 0)
+  // Juego aéreo: el atributo de cabeceo manda, ayudado por la fuerza y el ubicarse en el área. Si el jugador no lo trae
+  // (por ejemplo, los once de relleno del rival), se estima con el nivel general y la defensa y se favorece a defensores y delanteros
+  HEADER: (p) => (p.attr_heading != null
+    ? 0.6 * num(p.attr_heading, 50) + 0.2 * num(p.attr_strength, overall(p)) + 0.1 * num(p.attr_positioning, overall(p)) + 0.1 * num(p.attr_finishing, overall(p))
+    : 0.5 * overall(p) + 0.3 * num(p.attr_defending, overall(p)) + 0.2 * num(p.attr_finishing, overall(p)) + (isDefender(p) ? 4 : 0) + (isForward(p) ? 3 : 0))
 }
 
 export const ROLE_LABELS = {
