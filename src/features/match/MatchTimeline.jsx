@@ -18,8 +18,8 @@ export default function MatchTimeline({ events, matchState }) {
       {events.length > 0 && (
         <div className="space-y-3 flex-1 flex flex-col justify-end">
           {events.map((e, idx) => {
-            const isGoal = e.text.includes('�GOL') || e.text.includes('anota')
-            const isCard = e.text.includes('amarilla') || e.text.includes('roja') || e.text.includes('lesiona')
+            const isGoal = e.type === 'GOAL' || e.text.includes('¡GOL') || e.text.includes('GOL') || e.text.includes('anota')
+            const isCard = e.type?.startsWith('CARD') || e.text.includes('amarilla') || e.text.includes('roja') || e.text.includes('lesiona')
             const isShout = e.text.startsWith('DT:')
             return (
               <div 
@@ -44,13 +44,13 @@ export default function MatchTimeline({ events, matchState }) {
 
       {events.length === 0 && matchState !== 'pre-match' && (
         <div className="h-full flex items-center justify-center text-center text-fg-subtle text-sm italic">
-          Bal�n en disputa, equipos midiendo fuerzas en el campo...
+          Balón en disputa, equipos midiendo fuerzas en el campo...
         </div>
       )}
 
       {events.length === 0 && matchState === 'pre-match' && (
         <div className="h-full flex items-center justify-center text-center text-fg-subtle text-sm italic">
-          Equipos en vestuarios finalizando la charla t�ctica.
+          Equipos en vestuarios finalizando la charla táctica.
         </div>
       )}
     </div>

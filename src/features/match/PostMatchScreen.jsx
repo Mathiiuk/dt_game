@@ -26,7 +26,7 @@ import {
   UserCheck
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { AsyncButton } from '../../components/ui'
+import { AsyncButton, ClubBadge } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
 import PressRoom from './PressRoom'
 
@@ -120,6 +120,7 @@ export default function PostMatchScreen() {
     }
     
     process()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [results, managerId, clubId, navigate])
 
   // Responde una pregunta: la sala reacciona y el DT sigue con "Siguiente" (ver PressRoom)
@@ -257,9 +258,9 @@ export default function PostMatchScreen() {
   const keyEvents = (results.events || []).filter(e => ['GOAL', 'CARD_RED', 'CARD_YELLOW', 'INJURY'].includes(e.type))
 
   return (
-    <div className="min-h-dvh p-3 sm:p-6 text-fg bg-bg pb-28 md:pb-12">
+    <div className="min-h-dvh text-fg bg-bg p-3 sm:p-6 pb-28 md:pb-12 lg:h-dvh lg:overflow-hidden lg:flex lg:flex-col lg:p-4">
       {/* Top Header & Outcome Banner */}
-      <div className="max-w-4xl mx-auto space-y-4 mb-6">
+      <div className="max-w-4xl mx-auto w-full space-y-3 mb-3 shrink-0">
         <div className="p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg">
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-fg-subtle">
             Resumen oficial • Pitazo final
@@ -337,7 +338,7 @@ export default function PostMatchScreen() {
         </div>}
       </div>
 
-      <main className="max-w-4xl mx-auto">
+      <main className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         {step === 'PRESS' && (
           <PressRoom
             questions={pressQuestions}

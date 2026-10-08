@@ -1,24 +1,25 @@
 import React from 'react'
-import { ResponsiveOverlay } from '../../components/ui/responsive-overlay'
+import { Dialog, DialogContent, DialogBody } from '../../components/ui/dialog'
 import { SHOUT_TYPES } from '../../api/matchEngine'
+import { Megaphone } from 'lucide-react'
 
 export default function ShoutsSheet({ 
   open, 
-  onClose,
-  shoutWait,
-  activeOrder,
-  onApplyOrder
+  onClose, 
+  shoutWait, 
+  activeOrder, 
+  onApplyOrder 
 }) {
   return (
-    <ResponsiveOverlay 
-      open={open} 
-      onClose={onClose} 
-      title="�rdenes al equipo" 
-      placement="bottom"
-      size="sm"
-    >
-      <div className="space-y-3 py-2">
-        {shoutWait > 0 && <p className="text-sm text-fg-subtle">Pod�s volver a gritar en {shoutWait} min.</p>}
+    <Dialog open={open} onOpenChange={(next) => { if (!next) onClose?.() }}>
+      <DialogContent
+        placement="center" 
+        size="sm"
+        title="Órdenes e Instrucciones desde el Banco" 
+        description={shoutWait > 0 ? `Enfriamiento activo: podés volver a gritar en ${shoutWait} min.` : 'Gritá a la banda para cambiar la actitud del equipo.'}
+      >
+        <DialogBody>
+          <div className="space-y-2.5 py-2 max-w-md mx-auto">
         {SHOUT_TYPES.map(order => {
           const isSelected = activeOrder === order.id
           return (
@@ -29,18 +30,23 @@ export default function ShoutsSheet({
                 onApplyOrder(order)
                 onClose()
               }}
-              className={`w-full p-4 text-left rounded-xl border transition-all ${
+              className={`w-full p-3 text-left rounded-xl border transition-all flex items-start gap-3 ${
                 isSelected 
-                  ? 'border-accent bg-accent-soft text-accent font-bold'
-                  : 'border-line bg-bg/60 text-fg hover:border-line hover:bg-surface-3'
+                  ? 'border-accent bg-accent-soft text-accent font-bold ring-1 ring-accent'
+                  : 'border-line bg-surface hover:border-line hover:bg-surface-2 text-fg disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
             >
-              <span className="block font-bold text-base">{order.label}</span>
-              <span className="text-sm text-fg-subtle">{order.desc}</span>
+              <Megaphone className={`size-5 shrink-0 mt-0.5 ${isSelected ? 'text-accent' : 'text-fg-subtle'}`} />
+              <div className="min-w-0 flex-1">
+                <span className="block font-bold text-sm text-fg">{order.label}</span>
+                <span className="text-xs text-fg-subtle block mt-0.5">{order.desc}</span>
+              </div>
             </button>
           )
         })}
-      </div>
-    </ResponsiveOverlay>
+          </div>
+        </DialogBody>
+      </DialogContent>
+    </Dialog>
   )
 }

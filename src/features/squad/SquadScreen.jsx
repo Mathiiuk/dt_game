@@ -362,7 +362,7 @@ export default function SquadScreen() {
   )
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8 lg:px-8">
       <PageHeader
         eyebrow="Gestión deportiva"
         title="Plantel"
@@ -391,7 +391,7 @@ export default function SquadScreen() {
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="min-w-0 space-y-4">
           {/* Móvil: pestañas que alternan jugadores / ofertas / vestuario (en escritorio todo es visible a la vez) */}
           <Tabs value={mobileTab} onValueChange={setMobileTab} className="lg:hidden">

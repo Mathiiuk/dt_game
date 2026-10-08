@@ -1,15 +1,23 @@
 import React from 'react'
-import { ArrowLeft, Clock, Activity, Timer } from 'lucide-react'
+import { ArrowLeft, Clock, Timer } from 'lucide-react'
+import { ClubBadge } from '../../components/ui'
 
 export default function MatchHeader({ 
   isHome, 
   clubName, 
   opponentName, 
+  homeClub,
+  awayClub,
   score, 
   minute, 
   matchState,
   onBack
 }) {
+  const homeName = isHome ? clubName : opponentName
+  const awayName = !isHome ? clubName : opponentName
+  const homeData = isHome ? homeClub : awayClub
+  const awayData = !isHome ? homeClub : awayClub
+
   return (
     <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-line shadow-sm pb-4 pt-4 px-4 sm:px-6 mb-4 lg:mb-6 rounded-b-2xl">
       <div className="flex items-center justify-between mb-2">
@@ -18,7 +26,7 @@ export default function MatchHeader({
           className="flex items-center gap-1.5 text-fg-muted hover:text-fg transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-semibold uppercase tracking-wider hidden sm:inline">Atr�s</span>
+          <span className="text-sm font-semibold uppercase tracking-wider hidden sm:inline">Atrás</span>
         </button>
         <div className="text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-2 border border-line">
@@ -28,29 +36,34 @@ export default function MatchHeader({
             </span>
           </div>
         </div>
-        <div className="w-8 sm:w-16"></div> {/* Spacer */}
+        <div className="w-8 sm:w-16" /> {/* Spacer */}
       </div>
 
-      <div className="flex items-center justify-center gap-4 sm:gap-8 mt-2">
-        <div className="text-right flex-1 min-w-0">
-          <h2 className="text-base sm:text-2xl font-black truncate text-fg">
-            {isHome ? clubName : opponentName}
+      <div className="flex items-center justify-center gap-3 sm:gap-6 mt-2">
+        {/* Local */}
+        <div className="flex items-center justify-end gap-3 flex-1 min-w-0">
+          <h2 className="text-sm sm:text-xl font-black truncate text-fg text-right">
+            {homeName}
           </h2>
+          <ClubBadge club={homeData} name={homeName} size="sm" />
         </div>
         
-        <div className="flex items-center justify-center bg-surface-3 border border-line rounded-2xl px-4 py-2 shadow-inner">
-          <span className="text-3xl sm:text-5xl font-mono font-black text-fg tracking-tighter">
+        {/* Marcador */}
+        <div className="flex items-center justify-center bg-surface-3 border border-line rounded-2xl px-3 sm:px-4 py-1.5 shadow-inner shrink-0">
+          <span className="text-2xl sm:text-4xl font-mono font-black text-fg tracking-tighter">
             {isHome ? score.home : score.away}
           </span>
-          <span className="mx-2 sm:mx-3 text-fg-subtle font-black text-xl">-</span>
-          <span className="text-3xl sm:text-5xl font-mono font-black text-fg tracking-tighter">
+          <span className="mx-2 sm:mx-3 text-fg-subtle font-black text-lg sm:text-xl">-</span>
+          <span className="text-2xl sm:text-4xl font-mono font-black text-fg tracking-tighter">
             {isHome ? score.away : score.home}
           </span>
         </div>
 
-        <div className="text-left flex-1 min-w-0">
-          <h2 className="text-base sm:text-2xl font-black truncate text-fg">
-            {!isHome ? clubName : opponentName}
+        {/* Visita */}
+        <div className="flex items-center justify-start gap-3 flex-1 min-w-0">
+          <ClubBadge club={awayData} name={awayName} size="sm" />
+          <h2 className="text-sm sm:text-xl font-black truncate text-fg text-left">
+            {awayName}
           </h2>
         </div>
       </div>

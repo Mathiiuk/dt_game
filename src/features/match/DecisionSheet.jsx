@@ -12,7 +12,7 @@ export default function DecisionSheet({
   return (
     <ResponsiveOverlay 
       open={open}
-      title="�Momento Cr�tico!" 
+      title="¡Momento Crítico!" 
       placement="bottom"
       size="sm"
     >

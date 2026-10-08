@@ -20,7 +20,7 @@ export default function MatchActions({
       "flex flex-wrap items-center justify-between gap-2",
       !isDesktop && "fixed bottom-0 inset-x-0 p-4 bg-surface/90 backdrop-blur-md border-t border-line z-40 pb-safe"
     )}>
-      {/* Controles de reproducci�n */}
+      {/* Controles de reproducción */}
       <div className="flex items-center gap-2">
         <button
           type="button"

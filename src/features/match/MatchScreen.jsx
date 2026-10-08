@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { managerApi } from '../../api/manager'
@@ -91,6 +91,59 @@ export default function MatchScreen() {
   const squadNotes = previewSquad?.notes || []
   const youthNotes = squadNotes.filter(n => n.type === 'YOUTH_CALLUP')
   const injuredNotes = squadNotes.filter(n => n.type === 'INJURED_PLAYING')
+  // Estadísticas en vivo que evolucionan minuto a minuto según los eventos reales simulados
+  const liveStats = useMemo(() => {
+    if (!simResults?.events) return simResults?.stats || null
+    const currentEvents = simResults.events.filter(e => e.minute <= minute)
+    
+    let homeShots = 0, awayShots = 0
+    let homeShotsOnTarget = 0, awayShotsOnTarget = 0
+    let homeFouls = 0, awayFouls = 0
+    let homeYellows = 0, awayYellows = 0
+    let homeReds = 0, awayReds = 0
+    let homeCorners = 0, awayCorners = 0
+
+    for (const ev of currentEvents) {
+      if (ev.type === 'GOAL') {
+        if (ev.team === 'home') { homeShots++; homeShotsOnTarget++ }
+        else if (ev.team === 'away') { awayShots++; awayShotsOnTarget++ }
+      } else if (ev.type === 'SAVE') {
+        if (ev.team === 'home') { homeShots++; homeShotsOnTarget++ }
+        else if (ev.team === 'away') { awayShots++; awayShotsOnTarget++ }
+      } else if (ev.type === 'MISS') {
+        if (ev.team === 'home') homeShots++
+        else if (ev.team === 'away') awayShots++
+      } else if (ev.type === 'CORNER') {
+        if (ev.team === 'home') homeCorners++
+        else if (ev.team === 'away') awayCorners++
+      } else if (ev.type === 'FOUL') {
+        if (ev.team === 'home') homeFouls++
+        else if (ev.team === 'away') awayFouls++
+      } else if (ev.type === 'CARD_YELLOW') {
+        if (ev.team === 'home') { homeYellows++; homeFouls++ }
+        else if (ev.team === 'away') { awayYellows++; awayFouls++ }
+      } else if (ev.type === 'CARD_RED') {
+        if (ev.team === 'home') { homeReds++; homeFouls++ }
+        else if (ev.team === 'away') { awayReds++; awayFouls++ }
+      }
+    }
+
+    const finalHomePoss = simResults.stats?.possession?.home ?? 50
+    const factor = Math.min(1, Math.max(0.05, minute / 90))
+    const homePoss = Math.round(50 * (1 - factor) + finalHomePoss * factor)
+    const awayPoss = 100 - homePoss
+
+    return {
+      possession: { home: homePoss, away: awayPoss },
+      shots: { home: homeShots, away: awayShots },
+      shotsOnTarget: { home: homeShotsOnTarget, away: awayShotsOnTarget },
+      fouls: { home: homeFouls, away: awayFouls },
+      yellowCards: { home: homeYellows, away: awayYellows },
+      redCards: { home: homeReds, away: awayReds },
+      corners: { home: homeCorners, away: awayCorners }
+    }
+  }, [simResults, minute])
+
 
   // Load initial club & fixture data
   useEffect(() => {
@@ -412,10 +465,10 @@ export default function MatchScreen() {
         
         <div className="flex-1 lg:grid lg:grid-cols-12 gap-6 p-4 pt-0 overflow-y-auto lg:overflow-hidden pb-32 lg:pb-4">
           
-          {/* Izquierda: Desktop (Tu Equipo) / Oculto en mA3vil (van a las Sheets) */}
+          {/* Izquierda: Desktop (Tu Equipo) / Oculto en móvil (van a las Sheets) */}
           <div className="hidden lg:flex lg:col-span-3 flex-col gap-4 overflow-y-auto custom-scrollbar h-full pr-2">
             <div className="p-4 rounded-xl bg-surface border border-line space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Direcci�n T�cnica</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Dirección técnica</h3>
               
               {matchState === 'pre-match' ? (
                 <button 
@@ -428,7 +481,7 @@ export default function MatchScreen() {
               ) : matchState === 'playing' ? (
                 <div className="space-y-4">
                   <div className="bg-surface-2 p-3 rounded-xl border border-line">
-                    <p className="text-xs text-fg-subtle mb-2">T�ctica y Gritos (Enfriamiento: {shoutWait}m)</p>
+                    <p className="text-xs text-fg-subtle mb-2">Táctica y Gritos (Enfriamiento: {shoutWait}m)</p>
                     {SHOUT_TYPES.map(order => (
                       <button 
                         key={order.id}
@@ -459,7 +512,7 @@ export default function MatchScreen() {
             {matchState === 'playing' && (
               <div className="flex-1 bg-surface border border-line rounded-xl overflow-hidden flex flex-col">
                  <div className="p-3 bg-surface-2 border-b border-line">
-                   <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Tu Equipo (Alineaci�n)</h3>
+                   <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Tu Equipo (Alineación)</h3>
                  </div>
                  <div className="flex-1 overflow-y-auto p-2">
                    <SubstitutionsPanel
@@ -481,7 +534,7 @@ export default function MatchScreen() {
               <div className="p-4 rounded-xl border border-gold/40 bg-gold/10 text-sm text-gold space-y-2 lg:hidden" role="status">
                 <p className="font-bold uppercase tracking-wider text-gold">Plantel incompleto</p>
                 {youthNotes.length > 0 && <p>Se convocan {youthNotes.length} juvenil(es).</p>}
-                {injuredNotes.length > 0 && <p>Jugar�n lesionados: {injuredNotes.map(n => n.name).join(', ')}.</p>}
+                {injuredNotes.length > 0 && <p>Jugarán lesionados: {injuredNotes.map(n => n.name).join(', ')}.</p>}
               </div>
             )}
 
@@ -530,7 +583,7 @@ export default function MatchScreen() {
           {/* Derecha: Stats (Desktop & Mobile) */}
           <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
              {matchState !== 'pre-match' && simResults?.stats && (
-                <MatchStats stats={simResults.stats} />
+                <MatchStats stats={liveStats || simResults.stats} homeName={data.club?.name || "Local"} awayName={oppDisplayName} />
              )}
           </div>
         </div>
@@ -547,6 +600,7 @@ export default function MatchScreen() {
         subsMade={subsMade}
         onSubstitute={handleSubstitute}
         sentOffIds={sentOffIds}
+        tactic={data.tactic}
       />
 
       <ShoutsSheet

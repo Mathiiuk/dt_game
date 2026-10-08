@@ -27,21 +27,16 @@ const EVENT_CATEGORY = {
 }
 
 // Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)"
+import { ClubBadge } from '../../components/ui'
+
 const isStoryEvent = (event) => String(event.template_code || '').startsWith('ARC_')
 
-/** Escudo provisional: iniciales del club sobre el color primario (hasta tener escudos reales) */
-function Crest({ name, highlight }) {
-  const initials = (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
+/** Escudo heráldico vectorial arcade con colores oficiales del club */
+function Crest({ club, name, highlight }) {
   return (
-    <span
-      className={cn(
-        'grid size-14 place-items-center rounded-lg border font-display text-xl font-semibold sm:size-16 sm:text-2xl',
-        highlight ? 'border-accent/50 bg-accent-soft text-accent' : 'border-line-strong bg-surface-2 text-fg-muted'
-      )}
-      aria-hidden="true"
-    >
-      {initials}
-    </span>
+    <div className={cn('relative p-1 rounded-xl transition-all flex items-center justify-center', highlight && 'ring-2 ring-accent/60 bg-accent-soft/20')}>
+      <ClubBadge club={club} name={name} size="lg" />
+    </div>
   )
 }
 
@@ -284,7 +279,7 @@ export default function Dashboard() {
                 <>
                   <div className="flex items-center justify-between gap-4 py-4">
                     <div className="flex min-w-0 flex-1 flex-col items-center gap-2 text-center">
-                      <Crest name={nextFixture.home?.name} highlight={nextFixture.home_team_id === club.id} />
+                      <Crest club={nextFixture.home} name={nextFixture.home?.name} highlight={nextFixture.home_team_id === club.id} />
                       <p className="max-w-full truncate text-sm font-semibold text-fg">{nextFixture.home?.name || 'Local'}</p>
                       <p className="eyebrow">{nextFixture.home_team_id === club.id ? 'Tu club' : 'Rival'}</p>
                     </div>
@@ -294,7 +289,7 @@ export default function Dashboard() {
                       <p className="mt-0.5 text-xs text-fg-subtle">{isHome ? 'De local' : 'De visitante'}</p>
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col items-center gap-2 text-center">
-                      <Crest name={nextFixture.away?.name} highlight={nextFixture.away_team_id === club.id} />
+                      <Crest club={nextFixture.away} name={nextFixture.away?.name} highlight={nextFixture.away_team_id === club.id} />
                       <p className="max-w-full truncate text-sm font-semibold text-fg">{nextFixture.away?.name || 'Visitante'}</p>
                       <p className="eyebrow">{nextFixture.away_team_id === club.id ? 'Tu club' : 'Rival'}</p>
                     </div>

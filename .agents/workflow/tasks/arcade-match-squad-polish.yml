@@ -1,0 +1,51 @@
+id: arcade-match-squad-polish
+external_ref: ''
+title: Escudos vectoriales arcade, fixes de encoding, mejoras interactivas en match, post-match desktop y rediseño de squad
+type: feat
+status: COMPLETED
+priority: high
+owner: team-agent
+base_branch: feat/historical-teams-agregar-clubes-historicos-de-promiedos-adaptados-por-categorias-desde-potrero
+scope:
+  project: dt_game
+  modules:
+    - components/ui/ClubBadge
+    - features/match
+    - features/squad
+  environments:
+    - local
+requirements:
+  - >-
+    Implementar escudos vectoriales arcade (Opción A), corregir textos con encoding corrupto,
+    hacer dinámicas las estadísticas de partido, optimizar gritos y cambios con cancha interactiva,
+    optimizar carga y layout sin scroll de post-match y rediseñar squad con espaciado amplio.
+acceptance_criteria:
+  - >-
+    Escudos vectoriales SVG dinámicos integrados en Dashboard, Match y PostMatch.
+  - >-
+    Eliminación de caracteres corruptos en features/match.
+  - >-
+    Estadísticas en vivo acumuladas en MatchScreen según el minuto actual.
+  - >-
+    Sustituciones con modal de cancha táctica interactiva.
+  - >-
+    PostMatchScreen optimizado en tiempo de carga y sin scroll en desktop.
+  - >-
+    SquadScreen rediseñado con layout desahogado.
+requires_approval: false
+quality_gates:
+  lint: true
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd
+  lint: pnpm lint
+  build: pnpm build

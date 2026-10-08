@@ -202,6 +202,14 @@ export const postMatchApi = {
     const participants = selectParticipants(players, result.starterIds)
 
     if (participants.length > 0) {
+      let injuriesApi = null
+      try {
+        const mod = await import('./injuries')
+        injuriesApi = mod.injuriesApi
+      } catch (err) {
+        console.warn('Aviso: no se pudo cargar módulo de lesiones:', err)
+      }
+
       for (const p of participants) {
         // Calificación de rendimiento (1.0 a 10.0)
         let rating = 6.0
@@ -245,8 +253,7 @@ export const postMatchApi = {
         const playedInjured = injuredPlayingSet.has(p.id)
         let playerInjured = false
         try {
-          if (playedInjured) throw new SkipInjuryRoll()
-          const { injuriesApi } = await import('./injuries')
+          if (playedInjured || !injuriesApi) throw new SkipInjuryRoll()
           const pitchQual = result.pitchQuality || 70
           const injuryRisk = injuriesApi.calculateInjuryRisk(p, pitchQual)
           // Probabilidad de sufrir percance en los 90 minutos
