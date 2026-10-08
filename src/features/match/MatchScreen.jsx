@@ -552,8 +552,8 @@ export default function MatchScreen() {
                   paused={paused} 
                   onTogglePause={() => setPaused(!paused)}
                   onSkip={handleSkipMatch}
-                  onOpenSubs={() => setSubsSheetOpen(true)}
-                  onOpenShouts={() => setShoutsSheetOpen(true)}
+                  onOpenSubs={() => { setPaused(true); setSubsSheetOpen(true) }}
+                  onOpenShouts={() => { setPaused(true); setShoutsSheetOpen(true) }}
                 />
               )}
             </div>
@@ -570,17 +570,6 @@ export default function MatchScreen() {
               </div>
             )}
 
-            {/* Si es dA3vil y terminA3 */}
-            {matchState === 'ended' && (
-              <div className="lg:hidden mt-auto">
-                 <button 
-                  onClick={goToSummary}
-                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent text-accent-fg flex justify-center items-center gap-2 shadow-lg shadow-accent/20"
-                >
-                  <CheckCircle className="w-5 h-5" /> Ver Resumen
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Derecha: Stats (Desktop & Mobile) */}
@@ -591,6 +580,20 @@ export default function MatchScreen() {
           </div>
         </div>
 
+        {/* Móvil, pitazo final: botón fijo abajo para seguir con el resumen y la prensa */}
+        {matchState === 'finished' && !isLg && (
+          <div className="shrink-0 border-t border-line bg-surface p-3">
+            <button
+              type="button"
+              onClick={goToSummary}
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong"
+            >
+              <CheckCircle className="size-5" aria-hidden="true" />
+              Siguiente: resumen y prensa
+            </button>
+          </div>
+        )}
+
         {/* Móvil: controles anclados abajo, fuera del área que scrollea */}
         {matchState === 'playing' && !isLg && (
           <MatchActions
@@ -600,8 +603,8 @@ export default function MatchScreen() {
             paused={paused}
             onTogglePause={() => setPaused(!paused)}
             onSkip={handleSkipMatch}
-            onOpenSubs={() => setSubsSheetOpen(true)}
-            onOpenShouts={() => setShoutsSheetOpen(true)}
+            onOpenSubs={() => { setPaused(true); setSubsSheetOpen(true) }}
+            onOpenShouts={() => { setPaused(true); setShoutsSheetOpen(true) }}
           />
         )}
       </div>

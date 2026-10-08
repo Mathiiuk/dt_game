@@ -14,3 +14,8 @@ Rama: `fix/bugs-mejoras-v3` (parte de la rama de auth/PWA, todavía sin mergear)
 - `vitest`: 1318/1319 en la corrida completa; el único fallo (`tacticsScreen`) se corrigió y `tests/ui` quedó 258/258.
 - `eslint` sin errores nuevos.
 - `vite build` no corre en este entorno (falta el binario nativo de `@swc/core`); no se pudo probar en navegador sin sesión.
+
+## Segunda tanda (partido)
+- Abrir Cambios o Gritos pausa el partido.
+- Bug: el botón de fin de partido en móvil miraba el estado `'ended'` pero el partido termina en `'finished'`; nunca aparecía (y el encabezado no decía "Final"). Ahora hay un botón fijo abajo "Siguiente: resumen y prensa".
+- Momento crítico: hoja compacta desde abajo en móvil (ya no página completa), diálogo angosto en desktop, sin cierre accidental. Penal en contra: arco con tres zonas tocables y arquero animado.

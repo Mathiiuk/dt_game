@@ -22,3 +22,6 @@ Cosas que se vieron mientras se arreglaba `bugs_mejoras_v3.md` y quedaron para u
 - Táctica: botón "Banco" que muestre los suplentes ordenados por rendimiento aun sin elegir una ficha.
 - Entrenamiento: mostrar el efecto esperado de la semana (qué atributos suben) antes de confirmar.
 - Partido: el panel de decisiones del DT en desktop podría mostrar el cronómetro de enfriamiento de los gritos como barra.
+
+## Minijuego de penales (idea siguiente)
+- Hoy el penal en contra se juega tocando una zona del arco (misma mecánica de antes). El penal a favor sigue eligiendo quién patea: el motor no recibe la dirección del remate, así que un "apuntá y pateá" sería solo estético. Para hacerlo real hay que sumar la dirección/potencia al motor de partido (`matchEngine`) y que la chance de gol dependa de eso.

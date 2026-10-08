@@ -32,7 +32,7 @@ export default function MatchHeader({
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-2 border border-line">
             {matchState === 'pre-match' ? <Clock className="w-4 h-4 text-fg-subtle" /> : <Timer className="w-4 h-4 text-accent" />}
             <span className="text-sm font-mono font-bold text-fg-muted">
-              {matchState === 'pre-match' ? 'Vestuarios' : matchState === 'ended' ? 'Final' : `${minute}'`}
+              {matchState === 'pre-match' ? 'Vestuarios' : matchState === 'finished' ? 'Final' : `${minute}'`}
             </span>
           </div>
         </div>

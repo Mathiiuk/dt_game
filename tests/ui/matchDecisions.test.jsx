@@ -111,6 +111,8 @@ describe('partido en vivo con decisiones', () => {
     minutes(5)
     expect(screen.getByRole('region', { name: 'Penal en contra' })).toBeInTheDocument()
     click(screen.getByRole('button', { name: /Que se tire a la derecha/ }))
+    // El arquero se tira en el arco y recién después se aplica la decisión
+    act(() => { vi.advanceTimersByTime(700) })
     expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'PENALTY_DIVE', dive: 'R' })
   })
 

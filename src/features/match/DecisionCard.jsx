@@ -1,5 +1,6 @@
 import React from 'react'
 import { Megaphone } from 'lucide-react'
+import PenaltyGoal from './PenaltyGoal'
 
 /**
  * Momento de decisión: el partido se pausa solo y el DT elige qué hacer.
@@ -13,6 +14,9 @@ export default function DecisionCard({ moment, onChoose }) {
         {moment.title}
       </h4>
       <p className="text-sm leading-relaxed text-fg">{moment.text}</p>
+      {moment.id === 'PENALTY_AGAINST' ? (
+        <PenaltyGoal options={moment.options} onChoose={onChoose} />
+      ) : (
       <ul className="space-y-1.5">
         {moment.options.map(option => (
           <li key={option.id}>
@@ -27,6 +31,7 @@ export default function DecisionCard({ moment, onChoose }) {
           </li>
         ))}
       </ul>
+      )}
     </section>
   )
 }
