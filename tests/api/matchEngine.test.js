@@ -455,6 +455,24 @@ describe('penales y rival que reacciona', () => {
       expect(flavored).toBeGreaterThan(40)
     })
 
+    it('las pelotas paradas y los penales del rival también llevan frases de su estilo', async () => {
+      const { STYLE_QUIPS } = await import('../../src/domain/rivalNarrative')
+      const kinds = ['SETPIECE_CORNER', 'SETPIECE_FK', 'PENALTY', 'PENALTY_GOAL', 'PENALTY_MISS', 'FK_GOAL', 'FK_SAVE', 'FK_MISS']
+      const phrases = kinds.flatMap(k => STYLE_QUIPS.ROUGH[k])
+      const mods = { att: 0.97, goal: 1, corner: 1, foul: 1.7, card: 1.5, mid: 1 }
+      let found = 0
+      let plainFound = 0
+      for (let i = 0; i < 1500; i++) {
+        const styled = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `pp-${i}`, { styles: { away: { ...mods, id: 'ROUGH' } } })
+        const plain = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `pp-${i}`, { styles: { away: mods } })
+        expect([styled.homeScore, styled.awayScore]).toEqual([plain.homeScore, plain.awayScore])
+        found += styled.events.filter(e => e.team === 'away' && phrases.some(f => e.text.includes(f))).length
+        plainFound += plain.events.filter(e => phrases.some(f => e.text.includes(f))).length
+      }
+      expect(found).toBeGreaterThan(10)
+      expect(plainFound).toBe(0)
+    })
+
     it('sin estilo no hay notas ni frases de estilo', () => {
       const r = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), 'sin-estilo')
       expect(r.events.some(e => e.type === 'RIVAL_TACTIC' && [20, 65].includes(e.minute))).toBe(false)

@@ -370,7 +370,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         const defHint = kpRng() < 0.7 ? target : ZONES[Math.floor(kpRng() * 3)]
         const sp = specOf((isHome ? homeTeam : awayTeam).players, isHome ? 'home' : 'away')
         pendingSet = { kind: 'CORNER', team: teamId, minute: min + 1, weak, target }
-        events.push({ minute: min, type: 'SETPIECE_CORNER', team: teamId, hint, defHint, takerName: sp.CORNER?.name || null, headerName: sp.HEADER?.name || null, text: `Se prepara el córner para ${isHome ? 'el local' : 'la visita'}${sp.CORNER ? `: lo cobra ${sp.CORNER.name}` : ''}, todos al área.` })
+        events.push({ minute: min, type: 'SETPIECE_CORNER', team: teamId, hint, defHint, takerName: sp.CORNER?.name || null, headerName: sp.HEADER?.name || null, text: `Se prepara el córner para ${isHome ? 'el local' : 'la visita'}${sp.CORNER ? `: lo cobra ${sp.CORNER.name}` : ''}, todos al área.${styleLine(teamId, 'SETPIECE_CORNER')}` })
       }
     } else {
       // Tiro desviado
@@ -450,13 +450,13 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const goes = penRng() < convert
       if (goes) {
         if (penTeam === 'home') { homeScore++; homeShotsOnTarget++ } else { awayScore++; awayShotsOnTarget++ }
-        events.push({ minute: min, type: 'GOAL', team: penTeam, playerId: taker.id, text: `¡GOL DE PENAL! ${taker.first_name} ${taker.last_name} la clava ${corner === 'L' ? 'a la izquierda' : corner === 'R' ? 'a la derecha' : 'al medio'}. ${quip('GOAL')}` })
+        events.push({ minute: min, type: 'GOAL', team: penTeam, playerId: taker.id, text: `¡GOL DE PENAL! ${taker.first_name} ${taker.last_name} la clava ${corner === 'L' ? 'a la izquierda' : corner === 'R' ? 'a la derecha' : 'al medio'}. ${quip('GOAL')}${styleLine(penTeam, 'PENALTY_GOAL')}` })
       } else {
         if (penTeam === 'home') homeShotsOnTarget++
         else awayShotsOnTarget++
         events.push({ minute: min, type: 'MISS', team: penTeam, text: aimed && aimed.quality < 0.15
-          ? `¡Penal a la tribuna! ${taker.first_name} ${taker.last_name} le pegó tan mal que la pelota no volvió. ${quip('MISS')}`
-          : `¡Penal ${dove === corner ? 'atajado' : 'fallado'}! ${taker.first_name} ${taker.last_name} no pudo. ${quip(dove === corner ? 'SAVE' : 'MISS')}` })
+          ? `¡Penal a la tribuna! ${taker.first_name} ${taker.last_name} le pegó tan mal que la pelota no volvió. ${quip('MISS')}${styleLine(penTeam, 'PENALTY_MISS')}`
+          : `¡Penal ${dove === corner ? 'atajado' : 'fallado'}! ${taker.first_name} ${taker.last_name} no pudo. ${quip(dove === corner ? 'SAVE' : 'MISS')}${styleLine(penTeam, 'PENALTY_MISS')}` })
       }
     }
     // Un penal nuevo (poco frecuente): lo pide el equipo que más ataca y se anuncia antes de patearse
@@ -464,7 +464,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const toHome = penRng() < (curHomeAtt / (curHomeAtt + curAwayAtt))
       const penTeam = toHome ? 'home' : 'away'
       pendingPenalty = { team: penTeam, minute: min + 1 }
-      events.push({ minute: min, type: 'PENALTY', team: penTeam, text: `¡PENAL para ${penaltyText(penTeam)}! El árbitro lo cobra y se arma la polémica.` })
+      events.push({ minute: min, type: 'PENALTY', team: penTeam, text: `¡PENAL para ${penaltyText(penTeam)}! El árbitro lo cobra y se arma la polémica.${styleLine(penTeam, 'PENALTY')}` })
     }
 
     // Resolución de la jugada clave pendiente: el DT eligió cómo jugarla (o la juega el piloto automático)
@@ -598,14 +598,14 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         if (isHomeSet) homeShots++
         else awayShots++
         if (kpRng() < Math.min(0.5, chance)) {
-          scoreGoal(taker.id, `¡GOLAZO DE TIRO LIBRE! ${taker.first_name} ${taker.last_name} la pone en el ángulo. ${quip('GOAL')}`)
+          scoreGoal(taker.id, `¡GOLAZO DE TIRO LIBRE! ${taker.first_name} ${taker.last_name} la pone en el ángulo. ${quip('GOAL')}${styleLine(ps.team, 'FK_GOAL')}`)
         } else if (blocked) {
           if (isHomeSet) homeShotsOnTarget++
           else awayShotsOnTarget++
           const gk = getRandomPlayer(def.players, 'GK')
-          events.push({ minute: min, type: 'SAVE', team: ps.team, text: `¡Atajadón de ${gk.first_name} ${gk.last_name} al tiro libre de ${taker.first_name} ${taker.last_name}! ${quip('SAVE')}` })
+          events.push({ minute: min, type: 'SAVE', team: ps.team, text: `¡Atajadón de ${gk.first_name} ${gk.last_name} al tiro libre de ${taker.first_name} ${taker.last_name}! ${quip('SAVE')}${styleLine(ps.team, 'FK_SAVE')}` })
         } else {
-          events.push({ minute: min, type: 'MISS', team: ps.team, text: `El tiro libre de ${taker.first_name} ${taker.last_name} se va por arriba del travesaño. ${quip('MISS')}` })
+          events.push({ minute: min, type: 'MISS', team: ps.team, text: `El tiro libre de ${taker.first_name} ${taker.last_name} se va por arriba del travesaño. ${quip('MISS')}${styleLine(ps.team, 'FK_MISS')}` })
         }
       }
     }
@@ -692,7 +692,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         const defHint = kpRng() < 0.7 ? fkAim : ['L', 'C', 'R'][Math.floor(kpRng() * 3)]
         const fkSpecialist = specOf((fkTeam === 'home' ? homeTeam : awayTeam).players, fkTeam).FREE_KICK
         pendingSet = { kind: 'FK', team: fkTeam, minute: min + 1, aim: fkAim }
-        events.push({ minute: min, type: 'SETPIECE_FK', team: fkTeam, defHint, takerName: fkSpecialist?.name || null, text: `Tiro libre peligroso para ${fkTeam === 'home' ? 'el local' : 'la visita'}, a unos veinte metros del arco${fkSpecialist ? `: se perfila ${fkSpecialist.name}` : ''}.` })
+        events.push({ minute: min, type: 'SETPIECE_FK', team: fkTeam, defHint, takerName: fkSpecialist?.name || null, text: `Tiro libre peligroso para ${fkTeam === 'home' ? 'el local' : 'la visita'}, a unos veinte metros del arco${fkSpecialist ? `: se perfila ${fkSpecialist.name}` : ''}.${styleLine(fkTeam, 'SETPIECE_FK')}` })
       }
     }
 

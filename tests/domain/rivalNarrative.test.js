@@ -25,4 +25,14 @@ describe('relato según el estilo del rival', () => {
     expect(styleNoteFor('COUNTER', 0)).not.toBe(styleNoteFor('COUNTER', 1))
     expect(styleNoteFor('INEXISTENTE', 0)).toBe('')
   })
+
+  it('todos los estilos tienen frases para pelotas paradas y penales', () => {
+    for (const s of RIVAL_STYLES) {
+      for (const kind of ['SETPIECE_CORNER', 'SETPIECE_FK', 'PENALTY', 'PENALTY_GOAL', 'PENALTY_MISS', 'FK_GOAL', 'FK_SAVE', 'FK_MISS']) {
+        expect(STYLE_QUIPS[s.id][kind]?.length, `${s.id} ${kind}`).toBeGreaterThan(0)
+      }
+      // y conservan las de las jugadas normales
+      expect(STYLE_QUIPS[s.id].GOAL.length).toBeGreaterThan(0)
+    }
+  })
 })

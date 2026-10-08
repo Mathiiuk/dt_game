@@ -38,6 +38,141 @@ export const STYLE_QUIPS = {
   }
 }
 
+// Pelotas paradas y penales: se suman a las frases de arriba
+const EXTRA_QUIPS = {
+  "CROSSERS": {
+    "SETPIECE_CORNER": [
+      "Ya se acomodan todos en el área: lo único que saben hacer es esto."
+    ],
+    "SETPIECE_FK": [
+      "Lo van a colgar al área, seguro: no tienen otro plan."
+    ],
+    "PENALTY": [
+      "Los centradores consiguen el penal por tanto insistir con el centro."
+    ],
+    "PENALTY_GOAL": [
+      "Penal convertido: para variar, vino de un centro al área."
+    ],
+    "PENALTY_MISS": [
+      "Se les escapó el penal: no es una pelota que puedan cruzar al área."
+    ],
+    "FK_GOAL": [
+      "Tiro libre colgado, desvío y gol: de manual de centradores."
+    ],
+    "FK_SAVE": [
+      "Otro envío al área que el arquero logra controlar."
+    ],
+    "FK_MISS": [
+      "El centro del tiro libre se va por encima de todos."
+    ]
+  },
+  "LONG_SHOTS": {
+    "SETPIECE_CORNER": [
+      "Ojo que si despejan, ya hay un par esperando para sacarle el cuero a la pelota."
+    ],
+    "SETPIECE_FK": [
+      "Para estos, un tiro libre es una excusa para pegarle con todo."
+    ],
+    "PENALTY": [
+      "Penal a favor de los pegadores: hasta acá llegaron remates de todos los colores."
+    ],
+    "PENALTY_GOAL": [
+      "Entró de pura potencia, como todo lo que hacen estos."
+    ],
+    "PENALTY_MISS": [
+      "Le pegó con tanta fuerza que se la llevó el viento."
+    ],
+    "FK_GOAL": [
+      "¡Zapatazo de tiro libre! Estos entrenan pegarle de lejos."
+    ],
+    "FK_SAVE": [
+      "El tiro libre llegó con una violencia bárbara y el arquero lo sacó."
+    ],
+    "FK_MISS": [
+      "Le pegó con toda y la mandó a la tercera bandeja."
+    ]
+  },
+  "COUNTER": {
+    "SETPIECE_CORNER": [
+      "Ojo con el despeje: dos de ellos se quedaron esperando afuera del área."
+    ],
+    "SETPIECE_FK": [
+      "Mucho cuidado: si pierden la pelota, los contragolpeadores ya saben dónde está el espacio."
+    ],
+    "PENALTY": [
+      "Del contragolpe, penal: a los contragolpeadores les alcanza con una sola jugada."
+    ],
+    "PENALTY_GOAL": [
+      "Una sola llegada, un solo penal y un solo gol: así de eficaces."
+    ],
+    "PENALTY_MISS": [
+      "Esperaron todo el partido y se les escapó el penal."
+    ],
+    "FK_GOAL": [
+      "Un tiro libre y a festejar: los contragolpeadores no necesitan más."
+    ],
+    "FK_SAVE": [
+      "Salvó el arquero: era la única que habían tenido en un rato largo."
+    ],
+    "FK_MISS": [
+      "Se queda sin recompensa la espera de los contragolpeadores."
+    ]
+  },
+  "POSSESSION": {
+    "SETPIECE_CORNER": [
+      "Lo cobran cortito, con calma: no tienen apuro, tienen la pelota."
+    ],
+    "SETPIECE_FK": [
+      "Se juntan a charlar la jugada: estos planean hasta los tiros libres."
+    ],
+    "PENALTY": [
+      "Tanto toque terminó en penal: la paciencia tiene premio."
+    ],
+    "PENALTY_GOAL": [
+      "Penal convertido sin apuro y con mucho estilo."
+    ],
+    "PENALTY_MISS": [
+      "Tanto trabajo para fallar el penal: se les nubla la cara."
+    ],
+    "FK_GOAL": [
+      "Tiro libre ensayado: tocaron dos veces y la metieron."
+    ],
+    "FK_SAVE": [
+      "Lo sacó el arquero: nada que se parezca a lo que habían ensayado."
+    ],
+    "FK_MISS": [
+      "La jugada ensayada se les desarmó al final."
+    ]
+  },
+  "ROUGH": {
+    "SETPIECE_CORNER": [
+      "Van todos al área con los codos afuera."
+    ],
+    "SETPIECE_FK": [
+      "Nada de sutilezas: el tiro libre lo cobra uno al que no se le tiembla el pulso."
+    ],
+    "PENALTY": [
+      "Los duros consiguen un penal de los que se protestan."
+    ],
+    "PENALTY_GOAL": [
+      "Penal convertido con la misma fuerza con la que juegan toda la tarde."
+    ],
+    "PENALTY_MISS": [
+      "Le pegó tan fuerte que la sacó del estadio."
+    ],
+    "FK_GOAL": [
+      "Tiro libre y gol: el que patea es tan duro como el resto."
+    ],
+    "FK_SAVE": [
+      "Paró el arquero: ni así lo pudieron abollar."
+    ],
+    "FK_MISS": [
+      "Se va por arriba: igual que las patadas que reparten."
+    ]
+  }
+}
+for (const [id, kinds] of Object.entries(EXTRA_QUIPS)) STYLE_QUIPS[id] = { ...STYLE_QUIPS[id], ...kinds }
+
 /** Una nota táctica sobre cómo juega el rival: una para el primer tiempo y otra para el segundo */
 export const STYLE_NOTES = {
   CROSSERS: ['El rival insiste con los centros: todo el equipo juega pensando en el área.', 'Siguen buscando por arriba: el que defiende el primer palo está ocupadísimo.'],

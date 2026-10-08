@@ -143,3 +143,6 @@ Pendiente: que los estilos también cambien el relato (por ejemplo, "otro centro
 - A los 20 y a los 65 minutos aparece una nota táctica del estilo ("El rival insiste con los centros...", "El rival se queda con la pelota y te hace correr...").
 - Todo el texto sale de un azar aparte: el resultado, las estadísticas y el orden de las jugadas son idénticos con o sin estilo (hay un test que lo comprueba con 200 partidos).
 Pendiente: frases de estilo para las pelotas paradas y los penales del rival, y variar las notas tácticas según el marcador.
+
+## Decimosexta tanda (frases de estilo para pelotas paradas y penales)
+- Cada estilo del rival suma frases propias al anunciar y resolver córners, tiros libres y penales (anuncio, gol, atajada y errado), en la mitad de las jugadas. El resultado del partido no cambia (azar aparte para el texto), y los tests lo comprueban con 1500 partidos.
