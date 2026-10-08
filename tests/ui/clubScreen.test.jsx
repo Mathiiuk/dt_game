@@ -79,10 +79,10 @@ describe('pantalla Club', () => {
   it('las pestañas cambian el contenido', async () => {
     renderScreen()
     const tabs = await screen.findByRole('tablist', { name: 'Secciones del club' })
-    await userEvent.click(within(tabs).getByRole('tab', { name: 'Enfermería' }))
-    expect(await screen.findByText('Enfermería tab')).toBeInTheDocument()
-    await userEvent.click(within(tabs).getByRole('tab', { name: 'Ídolos y leyendas' }))
-    expect(await screen.findByText('Ídolos tab')).toBeInTheDocument()
+    await userEvent.click(within(tabs).getByRole('tab', { name: 'La tribuna' }))
+    expect(await screen.findByText('Hinchada tab')).toBeInTheDocument()
+    await userEvent.click(within(tabs).getByRole('tab', { name: 'El vestuario' }))
+    expect(await screen.findByText('Vestuario tab')).toBeInTheDocument()
   })
 
   it('la dirección /club?tab=enfermeria abre directo la Enfermería (enlace de los avisos)', async () => {
@@ -90,7 +90,7 @@ describe('pantalla Club', () => {
     expect(await screen.findByText('Enfermería tab')).toBeInTheDocument()
   })
 
-  it('una pestaña desconocida en la dirección cae en Gestión', async () => {
+  it('una pestaña desconocida en la dirección cae en Mística', async () => {
     renderScreen('/club?tab=cualquiera')
     expect(await screen.findByText('Marcos Peña')).toBeInTheDocument()
   })
