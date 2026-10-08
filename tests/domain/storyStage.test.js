@@ -29,7 +29,7 @@ describe('escenario de historias', () => {
   })
 })
 
-import { challengeFor, CHALLENGES, buildSequence, pickRumors, rumorWon, optionAtPosition, RUMORS } from '../../src/domain/storyStage'
+import { challengeFor, CHALLENGES, buildSequence, pickRumors, rumorWon, optionAtPosition, RUMORS, buildReflexTargets, buildBills, reflexWon, billsWon } from '../../src/domain/storyStage'
 
 describe('desafíos de pista', () => {
   it('cada capítulo tiene siempre el mismo desafío (o ninguno)', () => {
@@ -64,5 +64,31 @@ describe('desafíos de pista', () => {
     expect(optionAtPosition(0.5, 3)).toBe(1)
     expect(optionAtPosition(1, 3)).toBe(2)
     expect(optionAtPosition(0.34, 3)).toBe(1)
+  })
+})
+
+describe('reflejos y billetes', () => {
+  it('las noticias aparecen dentro del área y con tiempo para tocarlas', () => {
+    const t = buildReflexTargets(() => 0.99)
+    expect(t).toHaveLength(5)
+    expect(t.every(n => n.x <= 90 && n.y <= 90 && n.life >= 1000 && n.wait >= 350)).toBe(true)
+  })
+
+  it('hay seis billetes sueltos arriba y se gana salvando cinco', () => {
+    const b = buildBills(() => 0.5)
+    expect(b).toHaveLength(6)
+    expect(b.every(x => x.y < 50)).toBe(true)
+    expect(billsWon(5)).toBe(true)
+    expect(billsWon(4)).toBe(false)
+    expect(reflexWon(3)).toBe(true)
+    expect(reflexWon(2)).toBe(false)
+  })
+
+  it('el desafío de billetes sólo sale en las crisis de plata', () => {
+    const fin = new Set(Array.from({ length: 80 }, (_, i) => challengeFor({ category: 'FINANCIAL_CRISIS', template_code: `ARC_F_${i}` })))
+    const other = new Set(Array.from({ length: 80 }, (_, i) => challengeFor({ category: 'COMMUNITY', template_code: `ARC_C_${i}` })))
+    expect(fin.has('BILLS')).toBe(true)
+    expect(other.has('BILLS')).toBe(false)
+    expect(other.has('REFLEX')).toBe(true)
   })
 })

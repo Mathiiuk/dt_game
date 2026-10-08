@@ -5,6 +5,7 @@ import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
 import { HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
 import { RumorChallenge, SequenceChallenge, TapsChallenge, TargetPick } from './StoryMinigames'
+import { BillsChallenge, ReflexChallenge } from './StoryActionGames'
 import { formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
 import { Badge, Button } from '../../components/ui'
@@ -14,7 +15,9 @@ const LETTERS = ['A', 'B', 'C', 'D', 'E']
 const CHALLENGE_INFO = {
   SEQUENCE: { title: 'Desafío de memoria', text: 'Repetí el orden en que se prenden los símbolos.', Game: SequenceChallenge },
   TAPS: { title: 'Desafío de insistencia', text: 'Convencelo tocando el botón lo más rápido que puedas.', Game: TapsChallenge },
-  RUMOR: { title: 'Verdadero o falso', text: 'Contestá bien dos de tres preguntas de fútbol.', Game: RumorChallenge }
+  RUMOR: { title: 'Verdadero o falso', text: 'Contestá bien dos de tres preguntas de fútbol.', Game: RumorChallenge },
+  REFLEX: { title: 'Desafío de reflejos', text: 'Atrapá las noticias antes de que se escapen.', Game: ReflexChallenge },
+  BILLS: { title: 'Desafío de billetes', text: 'Juntá los billetes sueltos en la caja del club.', Game: BillsChallenge }
 }
 
 const chapterOf = (title) => {

@@ -51,15 +51,43 @@ export function randomOption(options = [], ctx = {}, rng = Math.random) {
 // (se ven los efectos de cada opción); si se pierde, se decide a ciegas como siempre. Perder no cuesta nada.
 // ---------------------------------------------------------------------------------------------
 
-export const CHALLENGES = ['SEQUENCE', 'TAPS', 'RUMOR']
+export const CHALLENGES = ['SEQUENCE', 'TAPS', 'RUMOR', 'REFLEX', 'BILLS']
 export const TAP_GOAL = 18
 export const TAP_SECONDS = 5
+export const REFLEX_TARGETS = 5
+export const REFLEX_NEEDED = 3
+export const BILLS_COUNT = 6
+export const BILLS_NEEDED = 5
+export const BILLS_SECONDS = 9
 
-/** Desafío del capítulo (o ninguno): estable para el mismo evento */
+/**
+ * Desafío del capítulo (o ninguno): estable para el mismo evento.
+ * El de billetes sólo sale en las crisis de plata; el resto elige entre los demás.
+ */
 export const challengeFor = (event) => {
-  const n = hash(`${event?.template_code || event?.id || ''}:desafio`) % (CHALLENGES.length + 1)
-  return CHALLENGES[n] || null
+  const money = event?.category === 'FINANCIAL_CRISIS'
+  const pool = CHALLENGES.filter(c => money || c !== 'BILLS')
+  const n = hash(`${event?.template_code || event?.id || ''}:desafio`) % (pool.length + 1)
+  return pool[n] || null
 }
+
+/** Noticias que aparecen una a una: lugar (en %), espera previa y cuánto duran a la vista (ms) */
+export const buildReflexTargets = (rng = Math.random, count = REFLEX_TARGETS) => Array.from({ length: count }, () => ({
+  x: 12 + Math.floor(rng() * 76),
+  y: 12 + Math.floor(rng() * 70),
+  wait: 350 + Math.floor(rng() * 650),
+  life: 1100
+}))
+
+/** Billetes sueltos: lugar de arranque (en %) en la parte alta del área */
+export const buildBills = (rng = Math.random, count = BILLS_COUNT) => Array.from({ length: count }, (_, i) => ({
+  id: i,
+  x: 10 + Math.floor(rng() * 80),
+  y: 6 + Math.floor(rng() * 38)
+}))
+
+export const reflexWon = (hits) => hits >= REFLEX_NEEDED
+export const billsWon = (saved) => saved >= BILLS_NEEDED
 
 /** Secuencia de símbolos para memorizar: números del 0 al `symbols - 1`, de largo `length` */
 export const buildSequence = (rng = Math.random, length = 4, symbols = 6) => Array.from({ length }, () => Math.floor(rng() * symbols))
