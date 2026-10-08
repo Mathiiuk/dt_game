@@ -338,7 +338,7 @@ export default function PostMatchScreen() {
         </div>}
       </div>
 
-      <div className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col lg:overflow-y-auto lg:overscroll-contain">
         {step === 'PRESS' && (
           <PressRoom
             questions={pressQuestions}
@@ -558,8 +558,10 @@ export default function PostMatchScreen() {
           </div>
         )}
 
+      </div>
+      <div className="sticky bottom-0 z-10 -mx-3 mt-4 shrink-0 border-t border-line bg-bg px-3 py-3 sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:mt-3 lg:px-0">
         {/* Acciones: del resumen se sigue a la prensa; al final se vuelve al inicio */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3">
+        <div className="mx-auto flex w-full max-w-4xl flex-col sm:flex-row items-center justify-end gap-3">
           {step === 'SUMMARY' && (
             <button
               onClick={() => leaveTo('/standings')}
