@@ -20,6 +20,7 @@ import DecisionCard from './DecisionCard'
 import { detectMoment, shoutBuff, shoutWaitMinutes, SHOUT_DURATION, MOMENT_ACTION_OPEN_SUBS, decisionText } from '../../domain/quickDecisions'
 import { benchOf, makeSubstitution, substitutionsLeft, substitutionText } from '../../domain/substitutions'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { usePageLock } from '../../hooks/usePageLock'
 import { useMatchClock } from './useMatchClock'
 import { DEFAULT_SPEED, MATCH_MINUTES } from '../../domain/matchClock'
 import { 
@@ -63,6 +64,8 @@ export default function MatchScreen() {
   const navigate = useNavigate()
   // Mismo corte que el grid de la pantalla (lg): por debajo, los controles van anclados abajo
   const isLg = useMediaQuery('(min-width: 1024px)')
+  // Pantalla de alto fijo: la página no se mueve (en iPhone se podía "tirar" de todo el documento)
+  usePageLock()
   const location = useLocation()
   const fixtureId = location.state?.fixtureId
 
@@ -516,7 +519,7 @@ export default function MatchScreen() {
     : 'Equipo Rival'
 
   return (
-    <div className="flex h-[calc(100dvh_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] flex-col overflow-hidden text-fg bg-bg">
+    <div className="fixed inset-0 flex flex-col overflow-hidden bg-bg pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] text-fg">
       <div className="max-w-[1400px] mx-auto w-full flex-1 min-h-0 flex flex-col relative">
         <MatchHeader 
           isHome={isHome}

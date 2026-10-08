@@ -4,6 +4,8 @@ import { LogOut, Shield } from 'lucide-react'
 import { useGameContext } from '../../context/GameContext'
 import { cn } from '../../lib/utils'
 import { formatGameDate } from '../../lib/format'
+import { usePageLock } from '../../hooks/usePageLock'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { NAV_GROUPS, MOBILE_TABS, isActivePath, titleForPath } from './navigation'
 import { useLogout } from './useLogout'
 
@@ -128,14 +130,17 @@ export default function AppShell() {
   const { pathname } = useLocation()
   const scrollRef = useRef(null)
   const fit = FIT_ROUTES.includes(pathname)
+  // En el celular el menú es de alto fijo: la página no se mueve (en escritorio la página scrollea normal)
+  const isLg = useMediaQuery('(min-width: 1024px)')
+  usePageLock(!isLg)
 
   // Al cambiar de pantalla se vuelve arriba (el scroll vive en este contenedor, no en la ventana)
   useEffect(() => { scrollRef.current?.scrollTo?.(0, 0) }, [pathname])
 
   return (
     // Móvil: altura fija de pantalla; el contenido scrollea adentro y la barra inferior queda siempre abajo.
-    // Los márgenes negativos anulan el padding de seguridad del body (la barra y el encabezado ya lo aplican).
-    <div className="-mb-[env(safe-area-inset-bottom)] -mt-[env(safe-area-inset-top)] flex h-dvh overflow-hidden lg:m-0 lg:min-h-dvh lg:h-auto lg:overflow-visible">
+    // En el celular la pantalla es un marco fijo (`fixed inset-0`): la barra y el encabezado ya aplican las zonas seguras.
+    <div className="fixed inset-0 flex overflow-hidden lg:static lg:min-h-dvh lg:overflow-visible">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-fg">
         Saltar al contenido
       </a>
