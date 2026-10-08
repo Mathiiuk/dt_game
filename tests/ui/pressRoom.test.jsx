@@ -37,7 +37,9 @@ describe('sala de prensa relámpago', () => {
     expect(screen.getByRole('timer')).toBeInTheDocument()
     await click(screen.getByRole('button', { name: /Partido a partido/ }))
     expect(h.onAnswer).toHaveBeenCalledWith(questions[0], options[1], { timedOut: false })
-    expect(screen.getByText('Reacción de la sala')).toBeInTheDocument()
+    expect(screen.getByText(/^Reacción de la sala/)).toBeInTheDocument()
+    // Lo que dijo el DT queda a la vista junto a la reacción
+    expect(screen.getByText(/Vos dijiste/)).toBeInTheDocument()
     await click(screen.getByRole('button', { name: /Siguiente pregunta/ }))
     expect(h.onNext).toHaveBeenCalledTimes(1)
   })

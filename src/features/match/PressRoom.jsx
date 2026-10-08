@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowRight, CheckCircle2, Mic, ThumbsDown, ThumbsUp, Timer, UserCheck, Zap } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Mic, Newspaper, PenLine, ThumbsDown, ThumbsUp, Timer, TimerOff, UserCheck, UserX, Zap } from 'lucide-react'
 import { AsyncButton } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import { toneLabel } from '../../domain/press'
 import { NamedIcon } from '../../components/ui/named-icon'
-import { Pager } from '../../components/ui/pager'
 import { reporterOf, roomFace, nextRoomMood, TONE_ICON, lightningRound, lightningTotal, LIGHTNING_TIMEOUT } from '../../domain/pressScene'
 import { BINGO_CLICHES, PRESS_SECONDS, headlineResult, headlineRound, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
 
@@ -68,7 +67,7 @@ function useTypewriter(text, onDone) {
 }
 
 /** Humor de la sala: una barra que sube y baja con cada respuesta */
-function RoomMeter({ mood }) {
+function RoomMeter({ mood, compact = false }) {
   const face = mood >= 66 ? 'Smile' : mood >= 40 ? 'Meh' : 'Angry'
   return (
     <div className="flex items-center gap-2 text-xs" role="meter" aria-label="Humor de la sala" aria-valuemin={0} aria-valuemax={100} aria-valuenow={mood}>
@@ -76,7 +75,7 @@ function RoomMeter({ mood }) {
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-3">
         <div className={`h-full transition-all duration-700 ${mood >= 66 ? 'bg-accent' : mood >= 40 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${mood}%` }} />
       </div>
-      <span className="text-fg-subtle">Humor de la sala</span>
+      {!compact && <span className="text-fg-subtle">Humor de la sala</span>}
     </div>
   )
 }
@@ -147,7 +146,7 @@ function ReporterBubble({ question, index }) {
         <span className="rounded-full bg-surface-3 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-fg-muted">{reporter.label}</span>
       </div>
       <button type="button" onClick={skip} disabled={done} aria-label="Pregunta del periodista" className="min-w-0 flex-1 rounded-xl rounded-tl-none border border-line bg-bg p-3 text-left disabled:cursor-default">
-        <p className="mb-1 text-[11px] text-fg-subtle"><span className="font-semibold text-fg-muted">{question.journalist_name}</span><span className="[@media(max-height:740px)]:hidden"> {reporter.intro}</span></p>
+        <p className="mb-1 text-[11px] text-fg-subtle"><span className="font-semibold text-fg-muted">{question.journalist_name}</span><span> · {question.media_outlet}</span><span className="[@media(max-height:740px)]:hidden"> {reporter.intro}</span></p>
         {done ? (
           <p className="text-sm font-medium italic text-fg [@media(max-height:740px)]:text-xs">“{question.question_text}”</p>
         ) : (
@@ -218,7 +217,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
     await onAnswer(question, option, { timedOut })
     const r = roomReaction({ tone: option.tone, outcome })
     setMood(m => nextRoomMood(m, r))
-    setReaction({ ...r, timedOut, tone: option.tone })
+    setReaction({ ...r, timedOut, tone: option.tone, said: option.text })
   }
 
   const next = () => {
@@ -254,26 +253,32 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
     await onHeadline?.(result)
   }
 
-  const header = (
-    <div className="flex flex-col justify-between gap-3 border-b border-line pb-4 sm:flex-row sm:items-center">
-      <div className="flex items-center gap-2">
-        <span className="rounded-xl border border-gold/20 bg-gold/10 p-2 text-gold"><Mic className="size-5" aria-hidden="true" /></span>
-        <div>
-          <h2 className="text-sm font-bold text-fg sm:text-base">Rueda de prensa</h2>
-          <p className="text-xs text-fg-muted [@media(max-height:740px)]:hidden">Preguntas relámpago: contestá antes de que se acabe el tiempo</p>
-        </div>
-      </div>
-      {!finished && !reaction && answeredAny && (
-        <AsyncButton onClick={onFinishEarly} className="rounded-xl border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-fg transition-colors hover:bg-surface-3">Terminar acá</AsyncButton>
-      )}
-      {!finished && !reaction && !answeredAny && (
-        <div className="flex flex-wrap gap-2">
-          <AsyncButton onClick={onSkip} className="rounded-xl border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-danger transition-colors hover:bg-surface-3">No presentarme</AsyncButton>
-          <AsyncButton onClick={onDelegate} className="flex items-center gap-1.5 rounded-xl border border-line bg-bg px-3 py-1.5 text-xs font-semibold text-fg transition-colors hover:bg-surface-3">
-            <UserCheck className="size-3.5 text-fg-muted" aria-hidden="true" />
-            <span>Delegar en 2º Entrenador</span>
+  // Barra superior: avance de la conferencia, humor de la sala y las acciones a mano (faltar, delegar o cortar)
+  const showTop = !finished && !skipResult && !delegated && !!question
+  const topBar = showTop && (
+    <div className="flex shrink-0 items-center gap-2">
+      <span className="flex items-center gap-1" role="img" aria-label={`Pregunta ${currentIndex + 1} de ${activeQuestions.length}`}>
+        {activeQuestions.map((_, i) => <span key={i} className={`h-2 w-6 rounded-full transition-colors ${i < currentIndex ? 'bg-accent' : i === currentIndex ? 'bg-gold' : 'bg-surface-3'}`} />)}
+      </span>
+      <div className="min-w-0 flex-1">{(answeredAny || reaction) && <RoomMeter mood={mood} compact />}</div>
+      {!reaction && !answeredAny && (
+        <>
+          <AsyncButton onClick={onSkip} aria-label="No presentarme" title="No presentarme (te multan)" className="grid size-11 place-items-center rounded-xl border border-line bg-bg text-danger transition-colors hover:bg-surface-3">
+            <UserX className="size-5" aria-hidden="true" />
           </AsyncButton>
-        </div>
+          <AsyncButton onClick={onDelegate} aria-label="Delegar en 2º Entrenador" title="Delegar en el 2º entrenador" className="grid size-11 place-items-center rounded-xl border border-line bg-bg text-fg transition-colors hover:bg-surface-3">
+            <UserCheck className="size-5" aria-hidden="true" />
+          </AsyncButton>
+        </>
+      )}
+      {!reaction && answeredAny && !finished && (
+        <AsyncButton onClick={onFinishEarly} className="flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-bg px-3 text-xs font-semibold text-fg transition-colors hover:bg-surface-3">Terminar acá</AsyncButton>
+      )}
+      {!reaction && (
+        <label title="Sin cuenta regresiva" className={`grid size-11 cursor-pointer place-items-center rounded-xl border transition-colors ${noTimer ? 'border-gold/60 bg-gold-soft text-gold' : 'border-line bg-bg text-fg-subtle hover:bg-surface-3'}`}>
+          <input type="checkbox" className="sr-only" checked={noTimer} onChange={toggleTimer} aria-label="Sin cuenta regresiva" />
+          {noTimer ? <TimerOff className="size-5" aria-hidden="true" /> : <Timer className="size-5" aria-hidden="true" />}
+        </label>
       )}
     </div>
   )
@@ -302,17 +307,23 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
     )
   } else if (reaction) {
     body = (
-      <div className="space-y-4" aria-live="polite">
+      <div className="flex min-h-0 flex-1 flex-col justify-center gap-3" aria-live="polite">
         {reaction.timedOut && <p className="rounded-xl border border-warning/40 bg-warning-soft p-2.5 text-xs font-semibold text-warning">Se te acabó el tiempo: contestaste nervioso.</p>}
-        <div className="space-y-2 rounded-xl border border-line bg-bg p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-fg-subtle">Reacción de la sala</p>
-          <p className="flex items-center gap-2" aria-hidden="true"><NamedIcon name={roomFace(reaction).icon} className="size-7 text-accent" /><span className="text-xs font-semibold text-fg-muted">{roomFace(reaction).label}</span></p>
-          <p className="text-sm font-medium text-fg">{reaction.line}</p>
-          <p className="text-xs text-fg-muted">
-            Hinchada {signed(reaction.fans)} • Dirigencia {signed(reaction.board)}
-          </p>
+        {reaction.said && (
+          <div className="ml-6 animate-rise-in rounded-2xl rounded-br-none border border-accent/40 bg-accent-soft p-3">
+            <p className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-accent"><Mic className="size-3.5" aria-hidden="true" />Vos dijiste</p>
+            <p className="text-sm italic leading-snug text-fg">“{reaction.said}”</p>
+          </div>
+        )}
+        <div className="flex items-center gap-3 rounded-xl border border-line bg-bg p-3">
+          <span className="grid size-14 shrink-0 place-items-center rounded-full bg-surface-2 text-accent" aria-hidden="true"><NamedIcon name={roomFace(reaction).icon} className="size-9" /></span>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-fg-subtle">Reacción de la sala · {roomFace(reaction).label}</p>
+            <p className="text-sm font-medium leading-snug text-fg">{reaction.line}</p>
+            <p className="mt-0.5 text-xs text-fg-muted">Hinchada {signed(reaction.fans)} • Dirigencia {signed(reaction.board)}</p>
+          </div>
         </div>
-        <button type="button" onClick={next} className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-xs font-semibold uppercase tracking-wider text-accent-fg transition-all hover:bg-accent-strong active:scale-95">
+        <button type="button" onClick={next} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-xs font-semibold uppercase tracking-wider text-accent-fg transition-all hover:bg-accent-strong active:scale-95">
           <span>{currentIndex + 1 >= activeQuestions.length ? 'Terminar la conferencia' : 'Siguiente pregunta'}</span>
           <ArrowRight className="size-4" aria-hidden="true" />
         </button>
@@ -334,8 +345,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
             <ul className="space-y-2">
               {round.options.map(option => (
                 <li key={option.key}>
-                  <AsyncButton onClick={() => pickPhrase(option)} className="w-full rounded-xl border border-line bg-bg/70 p-3 text-left text-xs text-fg transition-all hover:border-gold/60 hover:bg-surface">
-                    {option.text}
+                  <AsyncButton onClick={() => pickPhrase(option)} className="flex w-full items-center gap-3 rounded-xl border border-line bg-bg/70 p-3 text-left text-sm text-fg transition-all hover:border-gold/60 hover:bg-surface active:scale-[0.98]"><PenLine className="size-5 shrink-0 text-gold" aria-hidden="true" /><span>
+                    {option.text}</span>
                   </AsyncButton>
                 </li>
               ))}
@@ -362,8 +373,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
             <ul className="space-y-2">
               {headlines.options.map(option => (
                 <li key={option.key}>
-                  <AsyncButton onClick={() => pickHeadline(option)} className="w-full rounded-xl border border-line bg-bg/70 p-3 text-left text-xs text-fg transition-all hover:border-gold/60 hover:bg-surface">
-                    {option.text}
+                  <AsyncButton onClick={() => pickHeadline(option)} className="flex w-full items-center gap-3 rounded-xl border border-line bg-bg/70 p-3 text-left text-sm font-semibold text-fg transition-all hover:border-gold/60 hover:bg-surface active:scale-[0.98]"><Newspaper className="size-5 shrink-0 text-gold" aria-hidden="true" /><span>
+                    {option.text}</span>
                   </AsyncButton>
                 </li>
               ))}
@@ -435,38 +446,26 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
       </div>
     )
   } else if (question) {
+    const options = question.options || []
     body = (
       <div className="flex min-h-0 flex-1 flex-col gap-3">
-        <div className="flex items-center justify-between text-xs text-fg-muted">
-          <span className="font-semibold text-accent">{question.media_outlet}</span>
-          <span className="font-mono text-fg-subtle">Pregunta {currentIndex + 1} de {activeQuestions.length}</span>
-        </div>
-
         <ReporterBubble key={question.id || currentIndex} question={question} index={currentIndex} />
 
         {noTimer ? null : <Countdown key={question.id || currentIndex} seconds={PRESS_SECONDS} onExpire={() => answer(timeoutOption(question.options), true)} />}
 
-        <div className="flex min-h-0 flex-1 flex-col gap-2">
-          <p className="shrink-0 text-xs font-semibold text-fg-muted">Elegí tu postura y respuesta:</p>
-          <Pager
-            items={question.options || []}
-            label="Respuestas posibles"
-            render={(opt, optIdx) => (
-              <AsyncButton key={optIdx} onClick={() => answer(opt)} className="group w-full rounded-xl border border-line bg-bg/70 p-3 text-left text-xs transition-all hover:border-accent/60 hover:bg-surface">
-                <div className="mb-1 flex items-center justify-between">
-                  <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted'}`}><NamedIcon name={TONE_ICON[opt.tone] || 'Mic'} className="mr-1 inline size-3 align-[-1px]" />{toneLabel(opt.tone, 'Respuesta')}</span>
-                  <span className="text-[10px] text-fg-subtle">Impacto moral: {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
-                </div>
-                <p className="leading-snug text-fg">"{opt.text}"</p>
-              </AsyncButton>
-            )}
-          />
+        {/* Las cuatro posturas a la vista: tocá la que querés decir */}
+        <div role="group" aria-label="Elegí tu postura y respuesta" className={`grid min-h-0 flex-1 grid-cols-2 gap-2.5 ${options.length > 2 ? 'grid-rows-2' : ''}`}>
+          {options.map((opt, optIdx) => (
+            <AsyncButton key={optIdx} onClick={() => answer(opt)} className={`group flex min-h-0 flex-col gap-1.5 overflow-hidden rounded-2xl border-2 p-3 text-left transition-all active:scale-[0.97] ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted bg-surface'}`}>
+              <span className="flex w-full items-center justify-between gap-1">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-bg/50"><NamedIcon name={TONE_ICON[opt.tone] || 'Mic'} className="size-5" /></span>
+                <span className="rounded-full bg-bg/50 px-2 py-0.5 text-[10px] font-bold text-fg">Moral {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wider">{toneLabel(opt.tone, 'Respuesta')}</span>
+              <span className="line-clamp-4 text-xs italic leading-snug text-fg">“{opt.text}”</span>
+            </AsyncButton>
+          ))}
         </div>
-
-        <label className="flex shrink-0 items-center gap-2 text-[11px] text-fg-subtle [@media(max-height:740px)]:hidden">
-          <input type="checkbox" checked={noTimer} onChange={toggleTimer} />
-          Sin cuenta regresiva
-        </label>
       </div>
     )
   } else {
@@ -474,9 +473,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 rounded-lg border border-line bg-surface/60 p-3 sm:p-6">
-      {header}
-      {!finished && !skipResult && !delegated && answeredAny || reaction ? <RoomMeter mood={mood} /> : null}
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      {topBar}
       {body}
     </div>
   )

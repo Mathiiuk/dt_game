@@ -160,3 +160,10 @@ Decisión del DT: se queda con el once generado (estable por club en nombres y a
 
 ## Bug del iPhone: la página se movía en /match
 - Causa: aunque la pantalla era de alto fijo, el documento seguía pudiendo "tirarse" (rebote de iOS) y se movía todo. Ahora el partido y el menú del celular son un marco fijo (`fixed inset-0`) y `usePageLock` bloquea el scroll y el rebote del documento mientras están montados; solo scrollean los contenedores internos. En escritorio no cambia nada.
+
+## Rediseño de la rueda de prensa
+- Se quitó el encabezado con el micrófono y el texto "Rueda de prensa", y también las flechas para pasar de respuesta (el `Pager`): ahora las cuatro posturas están siempre a la vista, como fichas de tono en una grilla de 2×2 (ícono, nombre del tono, impacto en la moral y las primeras líneas de lo que dirías). Un toque responde.
+- Barra superior nueva: avance de la conferencia (barritas), humor de la sala y, a la derecha, tres botones de ícono: no presentarme, delegar en el 2º entrenador y apagar la cuenta regresiva. Después de la primera respuesta quedan "Terminar acá" y el cronómetro.
+- La reacción muestra lo que dijiste (globo "Vos dijiste"), la cara de la sala y el efecto en hinchada y dirigencia, y pasa sola a la siguiente.
+- Los minijuegos de cierre (frase del DT, titular o fake, relámpago) suman íconos en cada opción.
+Pendiente: que las fichas de tono sean arrastrables hacia el micrófono, y sonidos o vibración al responder.
