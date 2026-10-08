@@ -86,3 +86,9 @@ Pendiente:
 - Tres desafíos de pista antes de decidir (o ninguno, según el capítulo): **memoria** (repetir una secuencia de símbolos), **insistencia** (tocar 18 veces en 5 segundos) y **verdadero o falso** de reglas de fútbol (dos de tres). Si se gana, se ven los efectos de cada opción; si se pierde, se decide a ciegas, sin costo. Se puede saltear.
 - La combinación de decisión y desafío se reparte pareja entre los capítulos.
 Pendiente: reflejos (atajar una noticia), arrastrar billetes en crisis de caja, y que los desafíos puedan dar premios más allá de la pista.
+
+## Séptima tanda (atajadas interactivas)
+- Algunos remates rivales (1 de cada 5 ocasiones) quedan "en el aire" un minuto: aparece un momento con un arco y la pelota viaja hacia una de tres zonas; hay que tirar al arquero ahí lo más rápido posible. La calidad de la reacción (0 a 1) cambia la chance de gol: reacción perfecta la deja en 0,4 veces, reacción nula en 1,4 veces; si no se interviene, queda igual que antes.
+- Tirarse antes de que patee o para el otro lado reacciona mal; no tocar a tiempo cuenta como llegar tarde.
+- Los remates propios también quedan "en el aire" un minuto (para que el relato tenga suspenso), pero se resuelven solos.
+Pendiente: que el rival reaccione igual de bien o mal según su arquero; tiros libres y córners como momentos.

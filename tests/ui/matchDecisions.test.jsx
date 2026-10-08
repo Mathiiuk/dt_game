@@ -143,6 +143,34 @@ describe('partido en vivo con decisiones', () => {
     expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ kind: 'KEYPLAY_CHOICE', choice: 'OUT' })
   })
 
+  it('un remate peligroso en contra pide reaccionar con el arquero y manda la calidad al motor', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SHOT', team: 'away', text: '¡Remate peligroso!' }]))
+    await startMatch()
+    // Con el azar fijo en cero el remate va a la izquierda y arranca a los 600 ms
+    const rnd = vi.spyOn(Math, 'random').mockReturnValue(0)
+    minutes(5)
+    expect(screen.getByRole('region', { name: '¡Remate peligroso!' })).toBeInTheDocument()
+    act(() => { vi.advanceTimersByTime(700) })
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Tirarse a izquierda' }))
+    act(() => { vi.advanceTimersByTime(1000) })
+    rnd.mockRestore()
+    expect(mocks.replay).toHaveBeenCalledTimes(1)
+    const change = mocks.replay.mock.calls[0][1][0]
+    expect(change).toMatchObject({ minute: 5, team: 'home', kind: 'SAVE_REACT' })
+    expect(change.quality).toBeGreaterThanOrEqual(0.55)
+  })
+
+  it('tirarse antes de que patee o para el otro lado reacciona mal', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SHOT', team: 'away', text: '¡Remate peligroso!' }]))
+    await startMatch()
+    const rnd = vi.spyOn(Math, 'random').mockReturnValue(0)
+    minutes(5)
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Tirarse a derecha' }))
+    act(() => { vi.advanceTimersByTime(1000) })
+    rnd.mockRestore()
+    expect(mocks.replay.mock.calls[0][1][0].quality).toBeLessThanOrEqual(0.2)
+  })
+
   it('un penal en contra deja elegir hacia dónde se tira el arquero', async () => {
     mocks.start.mockResolvedValue(results([{ minute: 5, type: 'PENALTY', team: 'away', text: '¡PENAL para la visita!' }]))
     await startMatch()

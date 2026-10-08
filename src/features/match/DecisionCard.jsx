@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Megaphone } from 'lucide-react'
 import PenaltyGoal, { PenaltyShoot } from './PenaltyGoal'
+import SaveReflex from './SaveReflex'
 import { NamedIcon } from '../../components/ui/named-icon'
 
 /**
@@ -28,7 +29,9 @@ export default function DecisionCard({ moment, onChoose }) {
         {moment.title}
       </h4>
       <p className="text-sm leading-relaxed text-fg">{moment.text}</p>
-      {moment.id === 'PENALTY_AGAINST' ? (
+      {moment.id === 'SHOT_AGAINST' ? (
+        <SaveReflex onDone={({ quality, label }) => onChoose({ id: 'SAVE_REACT', label, action: 'SAVE_REACT', quality })} />
+      ) : moment.id === 'PENALTY_AGAINST' ? (
         <PenaltyGoal options={moment.options} onChoose={onChoose} />
       ) : (
       <ul className="space-y-1.5">

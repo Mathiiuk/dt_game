@@ -224,6 +224,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     if (change.kind === 'PENALTY_AIM') { team.penaltyAim = { aim: change.aim, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.7))) }; return }
     // Jugada clave: lo que decide el DT para el mano a mano (en ataque o en defensa)
     if (change.kind === 'KEYPLAY_CHOICE') { keyChoice = { side: change.team, choice: change.choice }; return }
+    // Remate peligroso en contra: qué tan bien reaccionó el arquero (0 a 1, del minijuego)
+    if (change.kind === 'SAVE_REACT') { saveReact = { side: change.team, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.5))) }; return }
     // Gritos y decisiones: un efecto sobre ataque, defensa y mediocampo que dura `duration` minutos
     if (!change.players) {
       const { att = 1, def = 1, mid = 1 } = change.buff || {}
@@ -285,7 +287,67 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   // Jugada clave anunciada (mano a mano) a la espera de lo que decida el DT; se resuelve al minuto siguiente
   let pendingKeyPlay = null
   let keyChoice = null
+  // Remate peligroso anunciado (la jugada se resuelve al minuto siguiente) y la reacción del arquero del DT
+  let pendingShot = null
+  let saveReact = null
   const penaltyText = (team) => (team === 'home' ? 'el local' : 'la visita')
+
+  // Resolución de una ocasión de gol: gol, atajada, córner o disparo desviado.
+  // `goalChance` ya viene ajustada (por ejemplo por la reacción del arquero).
+  const resolveShot = ({ min, isHome, teamId, attacker, assister, goalkeeper, goalChance, shotRoll, saveBonus = 0 }) => {
+    if (isHome) homeShots++
+    else awayShots++
+    if (shotRoll < goalChance) {
+      // GOL!
+      if (isHome) {
+        homeScore++
+        homeShotsOnTarget++
+      } else {
+        awayScore++
+        awayShotsOnTarget++
+      }
+
+      const assistText = assister && assister.id !== attacker.id ? ` tras asistencia de ${assister.first_name} ${assister.last_name}` : ''
+      events.push({
+        minute: min,
+        type: 'GOAL',
+        team: teamId,
+        playerId: attacker.id,
+        assistId: assister?.id,
+        text: `¡GOL DE ${isHome ? 'LOCAL' : 'VISITA'}! Golazo de ${attacker.first_name} ${attacker.last_name}${assistText}. ${quip('GOAL')}`
+      })
+    } else if (shotRoll < goalChance + 0.35 + saveBonus) {
+      // Atajada
+      if (isHome) homeShotsOnTarget++
+      else awayShotsOnTarget++
+
+      events.push({
+        minute: min,
+        type: 'SAVE',
+        team: teamId,
+        text: `¡Gran atajada de ${goalkeeper.first_name} ${goalkeeper.last_name}! Evita el remate de ${attacker.first_name} ${attacker.last_name}. ${quip('SAVE')}`
+      })
+    } else if (shotRoll < goalChance + 0.50 + saveBonus) {
+      // Tiro de esquina
+      if (isHome) homeCorners++
+      else awayCorners++
+
+      events.push({
+        minute: min,
+        type: 'CORNER',
+        team: teamId,
+        text: `Tiro de esquina para ${isHome ? 'los locales' : 'la visita'}. Centro peligroso al área. ${quip('CORNER')}`
+      })
+    } else {
+      // Tiro desviado
+      events.push({
+        minute: min,
+        type: 'MISS',
+        team: teamId,
+        text: `Disparo potente de ${attacker.first_name} ${attacker.last_name} que se va apenas desviado por el poste. ${quip('MISS')}`
+      })
+    }
+  }
 
   // 3. Simular los 90 minutos
   for (let min = 1; min <= 90; min++) {
@@ -419,6 +481,17 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         }
       }
     }
+    // Resolución del remate peligroso pendiente: si el DT dirigió a su arquero, la reacción cambia la chance de gol
+    if (pendingShot && pendingShot.minute === min) {
+      const ps = pendingShot
+      pendingShot = null
+      const defends = saveReact && saveReact.side !== ps.teamId
+      const factor = defends ? Math.max(0.4, 1.4 - saveReact.quality) : 1
+      saveReact = null
+      const adjusted = Math.max(0.03, Math.min(0.6, ps.goalChance * factor))
+      // Lo que se le quita al gol se reparte hacia la atajada (y al revés si reaccionó mal)
+      resolveShot({ min, isHome: ps.isHome, teamId: ps.teamId, attacker: ps.attacker, assister: ps.assister, goalkeeper: ps.goalkeeper, goalChance: adjusted, shotRoll: ps.shotRoll, saveBonus: ps.goalChance - adjusted })
+    }
     // Una jugada clave nueva (poco frecuente): un mano a mano que se anuncia antes de resolverse
     if (min < 90 && !pendingPenalty && !pendingKeyPlay && kpRng() < 0.012) {
       const toHome = kpRng() < (curHomeAtt / (curHomeAtt + curAwayAtt))
@@ -441,61 +514,15 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const assister = getRandomPlayer(attTeam.players, 'MID')
       const goalkeeper = getRandomPlayer(defTeam.players, 'GK')
 
-      if (isHome) homeShots++
-      else awayShots++
-
       const goalChance = Math.max(0.06, Math.min(0.42, ((isHome ? curHomeAtt : curAwayAtt) / ((isHome ? curHomeAtt : curAwayAtt) + (isHome ? curAwayDef : curHomeDef))) * 0.40))
       const shotRoll = rng()
 
-      if (shotRoll < goalChance) {
-        // GOL!
-        if (isHome) {
-          homeScore++
-          homeShotsOnTarget++
-        } else {
-          awayScore++
-          awayShotsOnTarget++
-        }
-
-        const assistText = assister && assister.id !== attacker.id ? ` tras asistencia de ${assister.first_name} ${assister.last_name}` : ''
-        events.push({
-          minute: min,
-          type: 'GOAL',
-          team: teamId,
-          playerId: attacker.id,
-          assistId: assister?.id,
-          text: `¡GOL DE ${isHome ? 'LOCAL' : 'VISITA'}! Golazo de ${attacker.first_name} ${attacker.last_name}${assistText}. ${quip('GOAL')}`
-        })
-      } else if (shotRoll < goalChance + 0.35) {
-        // Atajada
-        if (isHome) homeShotsOnTarget++
-        else awayShotsOnTarget++
-
-        events.push({
-          minute: min,
-          type: 'SAVE',
-          team: teamId,
-          text: `¡Gran atajada de ${goalkeeper.first_name} ${goalkeeper.last_name}! Evita el remate de ${attacker.first_name} ${attacker.last_name}. ${quip('SAVE')}`
-        })
-      } else if (shotRoll < goalChance + 0.50) {
-        // Tiro de esquina
-        if (isHome) homeCorners++
-        else awayCorners++
-
-        events.push({
-          minute: min,
-          type: 'CORNER',
-          team: teamId,
-          text: `Tiro de esquina para ${isHome ? 'los locales' : 'la visita'}. Centro peligroso al área. ${quip('CORNER')}`
-        })
+      // Algunos remates quedan "en el aire" un minuto para que el DT reaccione con su arquero
+      if (!pendingShot && min < 90 && kpRng() < 0.2) {
+        pendingShot = { minute: min + 1, isHome, teamId, attacker, assister, goalkeeper, goalChance, shotRoll }
+        events.push({ minute: min, type: 'SHOT', team: teamId, text: `¡Remate peligroso de ${attacker.first_name} ${attacker.last_name}! La pelota viaja hacia el arco...` })
       } else {
-        // Tiro desviado
-        events.push({
-          minute: min,
-          type: 'MISS',
-          team: teamId,
-          text: `Disparo potente de ${attacker.first_name} ${attacker.last_name} que se va apenas desviado por el poste. ${quip('MISS')}`
-        })
+        resolveShot({ min, isHome, teamId, attacker, assister, goalkeeper, goalChance, shotRoll })
       }
     }
 

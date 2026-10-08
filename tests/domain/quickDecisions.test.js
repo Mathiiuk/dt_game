@@ -101,3 +101,13 @@ describe('momentos de penal y arquero lesionado', () => {
     expect(other.options.find(o => o.id === 'INJ_STAY').desc).toMatch(/4%/)
   })
 })
+
+describe('remate peligroso en contra', () => {
+  it('sólo es un momento si el remate es del rival y sale una vez', () => {
+    const events = [{ minute: 20, type: 'SHOT', team: 'away', text: 'Remate' }]
+    const m = detectMoment({ minute: 20, events, userSide: 'home', fired: new Set() })
+    expect(m).toMatchObject({ id: 'SHOT_AGAINST', key: 'SHOT_20' })
+    expect(detectMoment({ minute: 20, events, userSide: 'home', fired: new Set(['SHOT_20']) })).toBeNull()
+    expect(detectMoment({ minute: 20, events: [{ minute: 20, type: 'SHOT', team: 'home' }], userSide: 'home', fired: new Set() })).toBeNull()
+  })
+})

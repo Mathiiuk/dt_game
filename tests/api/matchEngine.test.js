@@ -248,6 +248,26 @@ describe('penales y rival que reacciona', () => {
     expect(changed).toBeGreaterThan(0)
   })
 
+  it('hay remates peligrosos que se resuelven al minuto siguiente y la reacción del arquero cambia el resultado', () => {
+    let found = 0
+    let goalsGood = 0
+    let goalsBad = 0
+    for (let i = 0; i < 4000 && found < 120; i++) {
+      const base = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `shot-${i}`)
+      const shot = base.events.find(e => e.type === 'SHOT' && e.team === 'away')
+      if (!shot) continue
+      found++
+      const res = (r) => r.events.find(e => e.minute === shot.minute + 1 && e.team === 'away' && /atajada|GOL|desviado|esquina/i.test(e.text) && ['GOAL', 'SAVE', 'MISS', 'CORNER'].includes(e.type))
+      expect(res(base)).toBeTruthy()
+      const run = (quality) => simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `shot-${i}`, { changes: [{ minute: shot.minute, team: 'home', kind: 'SAVE_REACT', quality }] })
+      if (res(run(1))?.type === 'GOAL') goalsGood++
+      if (res(run(0))?.type === 'GOAL') goalsBad++
+    }
+    expect(found).toBeGreaterThan(60)
+    // Una reacción perfecta deja entrar menos goles que una reacción nula
+    expect(goalsGood).toBeLessThan(goalsBad)
+  })
+
   it('el rival reacciona: si va perdiendo a los 60 se tira al ataque y si gana a los 75 se cierra', () => {
     let attacking = 0
     let closing = 0

@@ -373,6 +373,9 @@ export default function MatchScreen() {
       // Con puntería (minijuego): hacia dónde y qué tan bien le pegó
       if (option.aim) commitChange({ kind: 'PENALTY_AIM', aim: option.aim, quality: option.quality })
       logDirective(decisionText(option))
+    } else if (option.action === 'SAVE_REACT') {
+      commitChange({ kind: 'SAVE_REACT', quality: option.quality })
+      logDirective(decisionText(option))
     } else if (option.action === 'KEYPLAY') {
       commitChange({ kind: 'KEYPLAY_CHOICE', choice: option.choice })
       logDirective(decisionText(option))

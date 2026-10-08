@@ -13,6 +13,7 @@ const KINDS = {
   INJURY: { icon: Bandage, tone: 'danger', label: 'Lesión' },
   PENALTY: { icon: Siren, tone: 'warning', label: 'Penal' },
   KEYPLAY: { icon: Target, tone: 'warning', label: 'Mano a mano' },
+  SHOT: { icon: Crosshair, tone: 'warning', label: 'Remate peligroso' },
   SUBSTITUTION: { icon: ArrowLeftRight, tone: 'info', label: 'Cambio' },
   TACTIC_SHOUT: { icon: Megaphone, tone: 'info', label: 'Tu orden' },
   RIVAL_TACTIC: { icon: Swords, tone: 'muted', label: 'El rival' },

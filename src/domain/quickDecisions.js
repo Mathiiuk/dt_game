@@ -115,6 +115,19 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
     }
   }
 
+  // Remate peligroso en contra: se reacciona con el arquero (minijuego de reflejos)
+  const shot = here.find(e => e.type === 'SHOT' && e.team === rivalSide)
+  if (shot) {
+    const key = `SHOT_${minute}`
+    if (!fired.has(key)) {
+      return {
+        key, id: 'SHOT_AGAINST', title: '¡Remate peligroso!',
+        text: 'Te patean al arco. Tu arquero espera una señal tuya: tirate hacia donde va la pelota.',
+        options: []
+      }
+    }
+  }
+
   // Mano a mano: a favor decidís cómo definir; en contra, cómo sale tu arquero
   const keyPlay = here.find(e => e.type === 'KEYPLAY' && (e.team === userSide || e.team === rivalSide))
   if (keyPlay) {
