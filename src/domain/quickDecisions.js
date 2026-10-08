@@ -147,6 +147,44 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
     }
   }
 
+  // Pelotas paradas del rival: se defiende eligiendo dónde reforzar (córner) o cómo ordenarse (tiro libre)
+  const ZONE_NAMES = { NEAR: 'el primer palo', MID: 'el punto penal', FAR: 'el segundo palo' }
+  const AIM_NAMES = { L: 'el palo izquierdo', C: 'el medio del arco', R: 'el palo derecho' }
+  const rivalCorner = here.find(e => e.type === 'SETPIECE_CORNER' && e.team === rivalSide)
+  if (rivalCorner) {
+    const key = `DEF_CORNER_${minute}`
+    if (!fired.has(key)) {
+      return {
+        key, id: 'CORNER_AGAINST', title: 'Córner en contra',
+        text: 'El rival cobra un córner y carga el área. ¿Dónde ponés el refuerzo?',
+        hintText: `Desde el banco te avisan: el rival cargaría ${ZONE_NAMES[rivalCorner.defHint] || 'el área'}. Casi siempre aciertan, pero no siempre.`,
+        options: [
+          { id: 'DC_NEAR', zone: 'NEAR', icon: 'Shield', label: 'Reforzar el primer palo', desc: 'Un hombre más pegado al primer palo.', action: 'DEF_CORNER' },
+          { id: 'DC_MID', zone: 'MID', icon: 'Shield', label: 'Reforzar el punto penal', desc: 'Un hombre más al medio del área.', action: 'DEF_CORNER' },
+          { id: 'DC_FAR', zone: 'FAR', icon: 'Shield', label: 'Reforzar el segundo palo', desc: 'Un hombre más al segundo palo.', action: 'DEF_CORNER' },
+          { id: 'DC_COUNTER', zone: 'COUNTER', icon: 'Footprints', label: 'Dejar dos arriba para la contra', desc: 'Defendés igual que siempre, pero si despejan puede salir un contragolpe.', action: 'DEF_CORNER' }
+        ]
+      }
+    }
+  }
+  const rivalFk = here.find(e => e.type === 'SETPIECE_FK' && e.team === rivalSide)
+  if (rivalFk) {
+    const key = `DEF_FK_${minute}`
+    if (!fired.has(key)) {
+      return {
+        key, id: 'FREEKICK_AGAINST', title: 'Tiro libre en contra',
+        text: 'El rival tiene un tiro libre peligroso. ¿Cómo se para tu equipo?',
+        hintText: `Desde el banco te avisan: el pateador mira ${AIM_NAMES[rivalFk.defHint] || 'el arco'}. Casi siempre aciertan, pero no siempre.`,
+        options: [
+          { id: 'DF_L', mode: 'L', icon: 'Hand', label: 'Que el arquero cubra el palo izquierdo', desc: 'Si adivina, casi siempre la saca.', action: 'DEF_FK' },
+          { id: 'DF_C', mode: 'C', icon: 'Hand', label: 'Que el arquero se quede al medio', desc: 'Si adivina, casi siempre la saca.', action: 'DEF_FK' },
+          { id: 'DF_R', mode: 'R', icon: 'Hand', label: 'Que el arquero cubra el palo derecho', desc: 'Si adivina, casi siempre la saca.', action: 'DEF_FK' },
+          { id: 'DF_WALL', mode: 'WALL', icon: 'Shield', label: 'Barrera de cinco', desc: 'Cierra bastante el tiro sin depender de adivinar.', action: 'DEF_FK' }
+        ]
+      }
+    }
+  }
+
   // Remate peligroso en contra: se reacciona con el arquero (minijuego de reflejos)
   const shot = here.find(e => e.type === 'SHOT' && e.team === rivalSide)
   if (shot) {

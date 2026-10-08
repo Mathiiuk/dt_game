@@ -195,11 +195,23 @@ describe('partido en vivo con decisiones', () => {
     expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_FK', aim: 'R' })
   })
 
-  it('un tiro libre del rival no pide nada', async () => {
-    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SETPIECE_FK', team: 'away', text: 'Tiro libre peligroso.' }]))
+  it('un córner del rival deja elegir dónde reforzar y manda la decisión al motor', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SETPIECE_CORNER', team: 'away', defHint: 'NEAR', text: 'Se prepara el córner.' }]))
     await startMatch()
-    minutes(6)
-    expect(screen.queryByRole('region', { name: /Tiro libre/ })).toBeNull()
+    minutes(5)
+    expect(screen.getByRole('region', { name: 'Córner en contra' })).toBeInTheDocument()
+    expect(screen.getByText(/Desde el banco te avisan/)).toHaveTextContent('primer palo')
+    click(screen.getByRole('button', { name: /Dejar dos arriba/ }))
+    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_DEF_CORNER', zone: 'COUNTER' })
+  })
+
+  it('un tiro libre del rival deja armar la barrera', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SETPIECE_FK', team: 'away', defHint: 'C', text: 'Tiro libre peligroso.' }]))
+    await startMatch()
+    minutes(5)
+    expect(screen.getByRole('region', { name: 'Tiro libre en contra' })).toBeInTheDocument()
+    click(screen.getByRole('button', { name: /Barrera de cinco/ }))
+    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ kind: 'SETPIECE_DEF_FK', mode: 'WALL' })
   })
 
   it('un penal en contra deja elegir hacia dónde se tira el arquero', async () => {

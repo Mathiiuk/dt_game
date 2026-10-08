@@ -98,3 +98,9 @@ Pendiente: que el rival reaccione igual de bien o mal según su arquero; tiros l
 - Tiro libre a favor (30 % de las faltas): se elige quién lo patea, se apunta al arco y se frena la barra, igual que el penal. Un buen golpe sube la chance (hasta cerca de 12 %), uno flojo la baja; el arquero rival adivina por azar la zona y, si acierta, la saca.
 - Las pelotas paradas del rival se resuelven solas. Nuevos tipos de jugada en el relato: córner a favor, tiro libre y despeje.
 Pendiente: defender los córners y tiros libres del rival (marca al hombre o en zona, barrera) y que cada equipo tenga especialistas con nombre.
+
+## Novena tanda (defender pelotas paradas)
+- Córner en contra: el banco avisa a qué zona va a cargar el rival (acierta 7 de cada 10) y elegís dónde poner el refuerzo (primer palo, punto penal, segundo palo) o dejar dos arriba para la contra. Reforzar la zona correcta baja la chance de gol del rival a 0,45 veces; otra zona la sube a 1,1. Con dos arriba, si despejan hay 4 de cada 10 de que salga un contragolpe propio (relato "Contragolpe").
+- Tiro libre en contra: el banco avisa hacia dónde mira el pateador (7 de cada 10) y elegís: arquero al palo izquierdo, al medio o al palo derecho (si adivina la zona la saca casi siempre) o barrera de cinco (baja la chance a 0,7 veces sin depender de adivinar).
+- Cantidad de decisiones por partido: entre córners y tiros libres propios y ajenos, remates, manos a mano y penales, se pueden juntar varias pausas; si molesta, bajar la frecuencia en `matchEngine.js` (`kpRng() < 0.6` de córners, `< 0.3` de tiros libres, `< 0.2` de remates).
+Pendiente: que cada equipo tenga especialistas con nombre para las pelotas paradas.

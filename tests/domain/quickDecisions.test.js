@@ -132,8 +132,22 @@ describe('pelotas paradas a favor', () => {
     expect(m.options.some(o => o.playerId === 'k')).toBe(false)
     expect(m.options.at(-1).playerId).toBeNull()
   })
+})
 
-  it('las pelotas paradas del rival no son un momento', () => {
-    expect(detectMoment({ minute: 12, events: [{ minute: 12, type: 'SETPIECE_CORNER', team: 'away', hint: 'MID' }], userSide: 'home', fired: new Set() })).toBeNull()
+describe('defender pelotas paradas del rival', () => {
+  it('el córner en contra ofrece reforzar una zona o dejar dos arriba, con la pista del banco', () => {
+    const m = detectMoment({ minute: 15, events: [{ minute: 15, type: 'SETPIECE_CORNER', team: 'away', defHint: 'FAR' }], userSide: 'home', fired: new Set() })
+    expect(m).toMatchObject({ id: 'CORNER_AGAINST' })
+    expect(m.hintText).toContain('segundo palo')
+    expect(m.options.map(o => o.zone)).toEqual(['NEAR', 'MID', 'FAR', 'COUNTER'])
+    expect(m.options.every(o => o.action === 'DEF_CORNER')).toBe(true)
+  })
+
+  it('el tiro libre en contra ofrece cubrir cada zona o armar la barrera', () => {
+    const m = detectMoment({ minute: 40, events: [{ minute: 40, type: 'SETPIECE_FK', team: 'away', defHint: 'L' }], userSide: 'home', fired: new Set() })
+    expect(m).toMatchObject({ id: 'FREEKICK_AGAINST' })
+    expect(m.hintText).toContain('izquierdo')
+    expect(m.options.map(o => o.mode)).toEqual(['L', 'C', 'R', 'WALL'])
+    expect(detectMoment({ minute: 40, events: [{ minute: 40, type: 'SETPIECE_FK', team: 'away' }], userSide: 'home', fired: new Set(['DEF_FK_40']) })).toBeNull()
   })
 })

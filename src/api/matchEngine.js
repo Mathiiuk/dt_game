@@ -227,6 +227,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     // Remate peligroso en contra: qué tan bien reaccionó el arquero (0 a 1, del minijuego)
     // Córner a favor: a qué zona va el centro. Tiro libre a favor: quién lo patea, hacia dónde y qué tan bien le pegó
     if (change.kind === 'SETPIECE_CORNER') { setChoice = { side: change.team, kind: 'CORNER', zone: change.zone }; return }
+    // Defender la pelota parada del rival: a qué zona refuerza (o deja dos arriba para la contra) y cómo se ordena ante el tiro libre
+    if (change.kind === 'SETPIECE_DEF_CORNER') { setChoice = { side: change.team, kind: 'DEF_CORNER', zone: change.zone }; return }
+    if (change.kind === 'SETPIECE_DEF_FK') { setChoice = { side: change.team, kind: 'DEF_FK', mode: change.mode }; return }
     if (change.kind === 'SETPIECE_FK') { setChoice = { side: change.team, kind: 'FK', taker: change.playerId, aim: change.aim, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.6))) }; return }
     if (change.kind === 'SAVE_REACT') { saveReact = { side: change.team, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.5))) }; return }
     // Gritos y decisiones: un efecto sobre ataque, defensa y mediocampo que dura `duration` minutos
@@ -349,8 +352,10 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         const weak = ZONES[Math.floor(kpRng() * 3)]
         // La pista del banco acierta casi siempre (7 de cada 10); a veces confunde
         const hint = kpRng() < 0.7 ? weak : ZONES[Math.floor(kpRng() * 3)]
-        pendingSet = { kind: 'CORNER', team: teamId, minute: min + 1, weak }
-        events.push({ minute: min, type: 'SETPIECE_CORNER', team: teamId, hint, text: `Se prepara el córner para ${isHome ? 'el local' : 'la visita'}: todos al área.` })
+        const target = ZONES[Math.floor(kpRng() * 3)]
+        const defHint = kpRng() < 0.7 ? target : ZONES[Math.floor(kpRng() * 3)]
+        pendingSet = { kind: 'CORNER', team: teamId, minute: min + 1, weak, target }
+        events.push({ minute: min, type: 'SETPIECE_CORNER', team: teamId, hint, defHint, text: `Se prepara el córner para ${isHome ? 'el local' : 'la visita'}: todos al área.` })
       }
     } else {
       // Tiro desviado
@@ -511,6 +516,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const ps = pendingSet
       pendingSet = null
       const mine = setChoice && setChoice.side === ps.team && setChoice.kind === ps.kind ? setChoice : null
+      // La decisión de quien defiende (el otro equipo)
+      const dmine = setChoice && setChoice.side !== ps.team && setChoice.kind === (ps.kind === 'CORNER' ? 'DEF_CORNER' : 'DEF_FK') ? setChoice : null
       setChoice = null
       const isHomeSet = ps.team === 'home'
       const att = isHomeSet ? homeTeam : awayTeam
@@ -527,12 +534,22 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         let chance = 0.09 * (0.85 + skill(taker, 'attr_passing', 'attr_vision') / 333)
         // Si el centro va por donde la defensa está floja, es peligro; si va por donde está fuerte, casi nada
         if (mine) chance *= mine.zone === ps.weak ? 2.1 : 0.8
+        // Quien defiende: reforzar la zona correcta la cierra casi del todo; reforzar otra la deja más expuesta
+        if (dmine && dmine.zone !== 'COUNTER') chance *= dmine.zone === ps.target ? 0.45 : 1.1
         if (isHomeSet) homeShots++
         else awayShots++
         if (kpRng() < Math.min(0.5, chance)) {
           scoreGoal(header.id, `¡GOL DE ${isHomeSet ? 'LOCAL' : 'VISITA'}! Golazo de ${header.first_name} ${header.last_name} de cabeza, tras el córner de ${taker.first_name} ${taker.last_name}. ${quip('GOAL')}`)
         } else {
           events.push({ minute: min, type: 'CLEARED', team: ps.team, text: `El centro de ${taker.first_name} ${taker.last_name} lo despeja la defensa. ${quip('MISS')}` })
+          // Con dos hombres esperando arriba, un despeje puede ser el comienzo de un contraataque
+          if (dmine && dmine.zone === 'COUNTER' && kpRng() < 0.4) {
+            const counterTeam = isHomeSet ? 'away' : 'home'
+            const runner = getRandomPlayer(def.players, 'ATTACK')
+            const keeperAgainst = getRandomPlayer(att.players, 'GK')
+            events.push({ minute: min, type: 'COUNTER', team: counterTeam, text: `¡Contragolpe! ${runner.first_name} ${runner.last_name} se escapa con espacio de sobra.` })
+            resolveShot({ min, isHome: !isHomeSet, teamId: counterTeam, attacker: runner, assister: null, goalkeeper: keeperAgainst, goalChance: 0.3, shotRoll: kpRng() })
+          }
         }
       } else {
         const sorted = [...att.players].sort((a, b) => skill(b, 'attr_finishing', 'attr_shooting') - skill(a, 'attr_finishing', 'attr_shooting'))
@@ -545,6 +562,12 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           const guess = ['L', 'C', 'R'][Math.floor(kpRng() * 3)]
           if (guess === mine.aim) { chance *= 0.35; blocked = true }
           if (mine.quality < 0.15) chance = 0.02
+        }
+        // Quien defiende: la barrera de cinco baja la chance; si el arquero cubre la zona correcta, casi siempre la saca
+        if (dmine) {
+          if (dmine.mode === 'WALL') chance *= 0.7
+          else if (dmine.mode === ps.aim) { chance *= 0.35; blocked = true }
+          else chance *= 1.05
         }
         if (isHomeSet) homeShots++
         else awayShots++
@@ -638,8 +661,10 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       // Una falta cerca del área: tiro libre peligroso para el otro equipo
       if (!pendingSet && min < 90 && kpRng() < 0.3) {
         const fkTeam = isHomeFoul ? 'away' : 'home'
-        pendingSet = { kind: 'FK', team: fkTeam, minute: min + 1 }
-        events.push({ minute: min, type: 'SETPIECE_FK', team: fkTeam, text: `Tiro libre peligroso para ${fkTeam === 'home' ? 'el local' : 'la visita'}, a unos veinte metros del arco.` })
+        const fkAim = ['L', 'C', 'R'][Math.floor(kpRng() * 3)]
+        const defHint = kpRng() < 0.7 ? fkAim : ['L', 'C', 'R'][Math.floor(kpRng() * 3)]
+        pendingSet = { kind: 'FK', team: fkTeam, minute: min + 1, aim: fkAim }
+        events.push({ minute: min, type: 'SETPIECE_FK', team: fkTeam, defHint, text: `Tiro libre peligroso para ${fkTeam === 'home' ? 'el local' : 'la visita'}, a unos veinte metros del arco.` })
       }
     }
 

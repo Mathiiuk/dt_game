@@ -376,6 +376,12 @@ export default function MatchScreen() {
     } else if (option.action === 'FK_TAKER' && option.playerId) {
       commitChange({ kind: 'SETPIECE_FK', playerId: option.playerId, aim: option.aim, quality: option.quality })
       logDirective(decisionText(option))
+    } else if (option.action === 'DEF_CORNER') {
+      commitChange({ kind: 'SETPIECE_DEF_CORNER', zone: option.zone })
+      logDirective(decisionText(option))
+    } else if (option.action === 'DEF_FK') {
+      commitChange({ kind: 'SETPIECE_DEF_FK', mode: option.mode })
+      logDirective(decisionText(option))
     } else if (option.action === 'CORNER_ZONE') {
       commitChange({ kind: 'SETPIECE_CORNER', zone: option.zone })
       logDirective(decisionText(option))

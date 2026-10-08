@@ -311,6 +311,48 @@ describe('penales y rival que reacciona', () => {
     expect(good).toBeGreaterThan(weak)
   })
 
+  it('defender un córner del rival: reforzar la zona que marca la pista baja los goles, y dejar dos arriba puede dar un contragolpe', () => {
+    let found = 0
+    let right = 0
+    let wrong = 0
+    let counters = 0
+    for (let i = 0; i < 8000 && found < 150; i++) {
+      const base = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `defc-${i}`)
+      const sp = base.events.find(e => e.type === 'SETPIECE_CORNER' && e.team === 'away')
+      if (!sp) continue
+      found++
+      expect(['NEAR', 'MID', 'FAR']).toContain(sp.defHint)
+      const run = (zone) => simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `defc-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_DEF_CORNER', zone }] })
+      const goalAt = (r) => r.events.some(e => e.minute === sp.minute + 1 && e.team === 'away' && e.type === 'GOAL' && /córner/.test(e.text))
+      if (goalAt(run(sp.defHint))) right++
+      const other = ['NEAR', 'MID', 'FAR'].find(z => z !== sp.defHint)
+      if (goalAt(run(other))) wrong++
+      if (run('COUNTER').events.some(e => e.type === 'COUNTER' && e.minute === sp.minute + 1)) counters++
+    }
+    expect(found).toBeGreaterThan(50)
+    expect(right).toBeLessThan(wrong + 1)
+    expect(counters).toBeGreaterThan(0)
+  })
+
+  it('defender un tiro libre del rival: cubrir la zona que marca la pista lo ataja más que cubrir otra', () => {
+    let found = 0
+    let covered = 0
+    let uncovered = 0
+    for (let i = 0; i < 8000 && found < 200; i++) {
+      const base = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `deff-${i}`)
+      const sp = base.events.find(e => e.type === 'SETPIECE_FK' && e.team === 'away')
+      if (!sp) continue
+      found++
+      const run = (mode) => simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `deff-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_DEF_FK', mode }] })
+      const saved = (r) => r.events.some(e => e.minute === sp.minute + 1 && e.team === 'away' && e.type === 'SAVE' && /tiro libre/.test(e.text))
+      if (saved(run(sp.defHint))) covered++
+      const other = ['L', 'C', 'R'].find(z => z !== sp.defHint)
+      if (saved(run(other))) uncovered++
+    }
+    expect(found).toBeGreaterThan(80)
+    expect(covered).toBeGreaterThanOrEqual(uncovered)
+  })
+
   it('el rival reacciona: si va perdiendo a los 60 se tira al ataque y si gana a los 75 se cierra', () => {
     let attacking = 0
     let closing = 0

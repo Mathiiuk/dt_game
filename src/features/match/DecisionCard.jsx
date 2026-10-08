@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Megaphone } from 'lucide-react'
+import { Lightbulb, Megaphone } from 'lucide-react'
 import PenaltyGoal, { PenaltyShoot } from './PenaltyGoal'
 import SaveReflex from './SaveReflex'
 import CornerPick from './CornerPick'
@@ -30,6 +30,9 @@ export default function DecisionCard({ moment, onChoose }) {
         {moment.title}
       </h4>
       <p className="text-sm leading-relaxed text-fg">{moment.text}</p>
+      {moment.hintText && (
+        <p className="flex items-start gap-2 rounded-lg border border-gold/40 bg-gold-soft px-3 py-2 text-xs text-fg"><Lightbulb className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden="true" />{moment.hintText}</p>
+      )}
       {moment.id === 'CORNER_FOR' ? (
         <CornerPick options={moment.options} hint={moment.hint} onChoose={onChoose} />
       ) : moment.id === 'SHOT_AGAINST' ? (
