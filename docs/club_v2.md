@@ -1,69 +1,116 @@
-# Rediseño de la Sección Club (Club v2)
+# Plan de Rediseño: El Club (`/club`)
 
-Este documento analiza la sección `/club`, que actualmente concentra 8 pestañas y 3 paneles en más de 3.300 líneas de código, y propone una reorganización para hacerla más intuitiva y escalable.
+> **Objetivo de Diseño:** Desarmar el monstruo actual de 8 pestañas y más de 3.300 líneas de código, podando lo redundante y trasladando lo que pertenece a otras áreas, para dejar una sección de **Club institucional, íntima, con mística futbolera y sólo 3 pestañas ultra claras**.
 
-## 1. Qué hay hoy y los problemas principales
+---
 
-Actualmente `/club` es un "cajón de sastre" donde conviven:
-- **Resumen:** Muestra información general del club.
-- **Vestuario:** Moral, cohesión, elección de capitán (escondido).
-- **Entrenamiento:** Planes de práctica.
-- **Enfermería:** Lista de lesionados y opciones de tratamiento.
-- **Estadio y Obras:** Mejoras de infraestructura (se pisa con la pestaña Instalaciones de Finanzas).
-- **Empleados:** Contratación de cuerpo técnico y ojeadores (costos desactualizados).
-- **Historia / Sala de Trofeos:** Archivo de la partida.
-- **Directiva:** Confianza y exigencias.
+## 1. Auditoría del Estado Actual
 
-### Problemas:
-- Sobrecarga cognitiva: Demasiadas pestañas en una sola vista.
-- Costos rotos (B8): Otear cuesta $5.000 fijos (un cuarto de la caja inicial), y el resumen muestra sueldos anuales divididos por 52 de manera incorrecta.
-- Redundancia: Obras e Instalaciones están duplicadas en concepto entre Club y Finanzas.
-- Capitanía oculta (B19): Elegir al capitán está enterrado en una sub-tarjeta del Vestuario.
+### 1.1 Diagnóstico de Código y UX
+* **Archivo principal:** `src/features/club/screens/ClubScreen.jsx` (278 líneas) + 8 sub-componentes de pestañas (`StadiumManagementTab`, `StaffManagementModal`, `FanbaseManagementTab`, `BoardManagementTab`, `LockerRoomTab`, `InfirmaryTab`, `ClubHistoryTab`, `IdolsLegendsTab`) sumando **más de 3.300 líneas de código**.
+* **Problema clave (El Cajón de Sastre):**
+  - Actualmente `/club` contiene TODO lo que no supo dónde ponerse:
+    1. `Gestión y staff` (empleados y scouts).
+    2. `Vestuario` (moral y cohesión).
+    3. `Enfermería` (lesionados e infiltraciones).
+    4. `Estadio y obras` (ampliación de tribunas, se duplica con Finanzas).
+    5. `Hinchada` (barra brava y socios).
+    6. `Directiva` (confianza del presidente).
+    7. `Historia y récords` (palmarés histórico).
+    8. `Ídolos y leyendas` (figuras históricas).
+* **Fatiga visual y laberinto:**
+  - En móvil, la barra de pestañas requiere un scroll horizontal larguísimo para encontrar una pestaña.
+  - El usuario no sabe si mejorar el estadio en `/club` o en `/finances`.
+  - No sabe si ver a los lesionados en `/squad` o en `/club`.
+  - **El Capitán está enterrado (B19):** Para cambiar la cinta de capitán hay que entrar a Club, ir a Vestuario, scrollear hasta una tarjeta secundaria y presionar un enlace diminuto.
 
-## 2. Propuesta de Reorganización (Qué se saca y qué cambia)
+---
 
-### 2.1 Desacoplamiento de Pestañas (Split)
+## 2. Qué Quitamos y Qué Trasladamos (La Gran Poda)
 
-Se propone desarmar `/club` en secciones más enfocadas, elevando algunas al menú principal o moviéndolas a áreas más afines:
+1. ❌ **Enfermería y Entrenamiento se van a `/squad` (Plantel):**
+   - El estado físico, los lesionados y los entrenamientos son asuntos diarios del plantel de futbolistas.
+   - `/squad` absorberá la vista de *Enfermería* (curaciones e infiltraciones) y *Entrenamiento*, quedando centralizado el cuidado de los jugadores.
+2. ❌ **Estadio, Obras y Cuerpo Técnico se van a `/finances` (Finanzas):**
+   - Construir una tribuna o contratar a un preparador físico son egresos de dinero.
+   - Se eliminan las pestañas duplicadas de Obras y Staff en `/club`; ahora vivirán bajo la pestaña *Inversiones e Infraestructura* en `/finances`.
+3. ❌ **Directiva pasa a `/manager` (Carrera del DT):**
+   - La directiva no evalúa al club; evalúa la gestión y continuidad del DT.
+4. ❌ **Eliminación de las 8 pestañas:** La barra horizontal de 8 botones desaparece para siempre.
 
-1. **Entrenamiento y Enfermería -> Plantel (`/squad`)**
-   - La salud y el entrenamiento físico son asuntos del plantel.
-   - `/squad` tendrá tres vistas: *Alineación*, *Entrenamiento*, *Enfermería*.
-   - Esto soluciona de raíz el flujo de los avisos médicos (B6).
+---
 
-2. **Estadio, Obras y Empleados -> Finanzas (`/finances`)**
-   - Son centros de costo. Deben evaluarse junto con la caja disponible y el flujo semanal.
-   - En `/finances` se crea la vista *Inversiones*, consolidando Obras y Empleados, resolviendo la duplicación actual (D4).
+## 3. Qué Queda en el Nuevo `/club` (3 Pestañas Puras y Dinámicas)
 
-3. **Directiva y Sala de Trofeos -> Carrera del DT (`/manager`)**
-   - La evaluación de la directiva y los logros históricos son la evaluación del usuario como DT.
+El nuevo `/club` pasa a ser el santuario de la **identidad, la pasión y el vestuario**:
 
-### 2.2 El Nuevo `/club` (Identidad Institucional)
+```
+[ Pestaña 1: Mística & Vitrina ]   [ Pestaña 2: La Tribuna ]   [ Pestaña 3: El Vestuario ]
+```
 
-La ruta `/club` quedará puramente para la gestión institucional y social. Solo tendrá **3 pestañas claras**:
+### 3.1 Pestaña 1: Mística & Vitrina (La Institución)
+* **Identidad barrial:** Escudo grande, año de fundación, apodo del club, cantidad de socios y categoría actual.
+* **La Vitrina de Copas:** Estante virtual con trofeos brillantes ganados en tu ciclo y en la historia del club. Cada copa se puede tocar para ver el año del campeonato y el goleador del torneo.
+* **Ídolos de la Casa:** Tarjetas doradas con las 3 máximas glorias del club.
 
-- **Resumen:**
-  - Información básica, reputación, cantidad de socios.
-  - Corrección de números (B8): mostrará el balance exacto que provee el motor financiero.
-- **Hinchada y Clima:**
-  - Relación con la barra brava, presiones sociales, exigencias de los simpatizantes.
-- **Vestuario (Gestión de Egos):**
-  - Moral, cohesión grupal.
-  - **Capitanía (B19):** Interfaz dedicada y visible para nombrar Capitán y Subcapitán, con advertencias claras sobre el impacto moral de cambiar los brazaletes.
+### 3.2 Pestaña 2: La Tribuna (Hinchada & Clima Social)
+* **El Termómetro Popular:**
+  - Estado de la hinchada: *"Enamorada del equipo"* / *"Impaciente"* / *"En pie de guerra"*.
+  - Influencia directa en los partidos como local (bonus de aliento o presión en contra).
+* **Relación con la Barra Brava:**
+  - Micro-decisiones con la hinchada (asados de camaradería, banderas, entradas).
+  - Tono criollo y humorístico que da color al club.
 
-## 3. Revisión de Costos (Otear y Staff)
+### 3.3 Pestaña 3: El Vestuario & El Brazalete (Gestión de Egos)
+* **Clima del Grupo:** Barra de cohesión general y estado anímico del plantel.
+* **La Capitanía Destacada (Solución a B19):**
+  - Una tarjeta visual de alto impacto con **La Cinta de Capitán**.
+  - Muestra al Capitán y Subcapitán actuales con sus fotos/iniciales, liderazgo y efecto en el equipo.
+  - Botón prominente: **[Asignar Nuevo Capitán]**.
+  - Al cambiarlo, un diálogo directo advierte las consecuencias de vestuario: *"Sacarle la cinta a Nahuel bajará su moral un -15%, pero dársela a Juan inspirará a los pibes (+10% liderazgo)"*.
 
-- **Ojeo:** Pasa de costar $5.000 fijos a un sistema escalonado. Un ojeo "Barrial" costará $500, uno "Regional" $2.000 y uno "Nacional" $5.000.
-- **Empleados:** Los sueldos del cuerpo técnico se ajustarán al nivel de la división actual (M5), asegurando que un club de 5ta División no quiebre por contratar a un preparador físico.
+---
 
-## 4. Tareas Estimadas (Esfuerzo M/L)
+## 4. Estructura Visual Propuesta (Layout)
 
-1. **Migración de Vistas:** Mover los componentes de Entrenamiento y Enfermería a `SquadScreen`. Mover Empleados y Obras a `FinancesScreen`.
-2. **Limpieza de ClubScreen:** Eliminar las 5 pestañas extraídas y refactorizar el código sobrante (de 3.300 líneas a menos de 800).
-3. **Refactorización de Capitanía (B19):** Crear el panel explícito de Brazaletes en la nueva pestaña Vestuario.
-4. **Fix de Números (B8):** Conectar el Resumen a `finances.js` para usar el flujo real.
-5. **Nuevos Costos:** Actualizar la tabla de precios en `staff.js` y `scouting.js`.
+```
++-------------------------------------------------------------+
+|  HEADER: Mi Club Atlético | 5ª División | Fundado en 1928   |
++-------------------------------------------------------------+
+|  TABS:  [ 🏆 Mística ]   [ 🥁 La Tribuna ]   [ 👕 Vestuario ]|
++-------------------------------------------------------------+
+|  (Si está en pestaña VESTUARIO):                            |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  |  BRAZALETE DE CAPITÁN OFICIAL                         |  |
+|  |  Capitán: Juan Pérez (32 años) - Líder del plantel    |  |
+|  |  Efecto: +12% Temple en partidos difíciles            |  |
+|  |  [ Cambiar Capitán / Subcapitán ]                     |  |
+|  +-------------------------------------------------------+  |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  |  CLIMA DEL VESTUARIO: 84% (Unión total)               |  |
+|  |  "Los referentes bancan a muerte la idea táctica"     |  |
+|  |  Moral media: Alta | Egos controlados                 |  |
+|  +-------------------------------------------------------+  |
++-------------------------------------------------------------+
+```
 
-## 5. Criterio de Aprobación
+---
 
-Por favor, validá si estás de acuerdo con mover Enfermería al Plantel y las Obras a Finanzas. Si es así, esta reorganización será la base para las próximas mejoras de UI.
+## 5. Arquitectura de Componentes
+
+* `ClubScreen.jsx` (Contenedor reducido a menos de 300 líneas).
+* `ClubIdentityTab.jsx` (Escudo, socios, vitrina de copas y leyendas).
+* `ClubFanbaseTab.jsx` (Termómetro de la tribuna y relación social).
+* `ClubLockerRoomTab.jsx` (Moral, grupos de afinidad y selector visual de capitán).
+* `CaptainSelectorSheet.jsx` (Modal deslizable para elegir capitán con preview de consecuencias).
+
+---
+
+## 6. Plan de Implementación
+
+1. **Paso 1 (Reubicación de código):** Mover el acceso de Enfermería a `/squad` y Obras/Staff a `/finances`.
+2. **Paso 2 (Rediseño de Pestañas de Club):** Reducir el selector a 3 pestañas principales.
+3. **Paso 3 (Selector de Capitanía):** Crear `CaptainSelectorSheet` con botón prominente y badges de liderazgo.
+4. **Paso 4 (Tests y Quality Gates):** Actualizar las pruebas de interfaz (`tests/ui/clubScreen.test.jsx`) para reflejar la nueva distribución de 3 pestañas.
