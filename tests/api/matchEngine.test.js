@@ -437,6 +437,29 @@ describe('penales y rival que reacciona', () => {
       expect(count({ mid: 1.1, foul: 0.75, card: 0.8 }, r => r.stats.possession.away)).toBeGreaterThan(count(null, r => r.stats.possession.away))
     })
 
+    it('el relato refleja el estilo del rival sin cambiar el resultado del partido', () => {
+      const mods = { att: 1, goal: 1, corner: 1.8, foul: 1, card: 1, mid: 1 }
+      let notes = 0
+      let flavored = 0
+      for (let i = 0; i < 200; i++) {
+        const plain = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `relato-${i}`, { styles: { away: mods } })
+        const styled = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `relato-${i}`, { styles: { away: { ...mods, id: 'CROSSERS' } } })
+        expect([styled.homeScore, styled.awayScore]).toEqual([plain.homeScore, plain.awayScore])
+        expect(styled.stats).toEqual(plain.stats)
+        const real = styled.events.filter(e => !(e.type === 'RIVAL_TACTIC' && [20, 65].includes(e.minute) && e.team === 'away'))
+        expect(real.map(e => e.type)).toEqual(plain.events.map(e => e.type))
+        notes += styled.events.filter(e => e.type === 'RIVAL_TACTIC' && [20, 65].includes(e.minute)).length
+        flavored += styled.events.filter(e => /centro|área|cabezazo|por arriba/i.test(e.text) && e.team === 'away' && ['CORNER', 'GOAL', 'SAVE', 'MISS'].includes(e.type)).length
+      }
+      expect(notes).toBe(400)
+      expect(flavored).toBeGreaterThan(40)
+    })
+
+    it('sin estilo no hay notas ni frases de estilo', () => {
+      const r = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), 'sin-estilo')
+      expect(r.events.some(e => e.type === 'RIVAL_TACTIC' && [20, 65].includes(e.minute))).toBe(false)
+    })
+
     it('sin personalidad el partido es el de siempre', () => {
       const a = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), 'neutro')
       const b = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), 'neutro', { styles: { away: { att: 1, goal: 1, corner: 1, foul: 1, card: 1, mid: 1 } } })

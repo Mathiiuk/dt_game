@@ -137,3 +137,9 @@ Pendiente: que el rival también tenga personalidad de juego (por ejemplo, equip
 - Se aplican en el motor solo al lado rival (`options.styles`); sin estilo el partido es idéntico al de antes (hay un test que lo comprueba).
 - La ficha de scouting previa al partido muestra el estilo con su descripción y un consejo para jugarle.
 Pendiente: que los estilos también cambien el relato (por ejemplo, "otro centro más al área") y que los rivales con plantel real tengan estilo según sus jugadores.
+
+## Decimoquinta tanda (el relato refleja el estilo del rival)
+- `domain/rivalNarrative.js`: frases propias de cada estilo para goles, atajadas, errados y córners del rival (y amarillas/roja de los Duros). Se suman en la mitad de las jugadas, así que no se repiten todo el tiempo.
+- A los 20 y a los 65 minutos aparece una nota táctica del estilo ("El rival insiste con los centros...", "El rival se queda con la pelota y te hace correr...").
+- Todo el texto sale de un azar aparte: el resultado, las estadísticas y el orden de las jugadas son idénticos con o sin estilo (hay un test que lo comprueba con 200 partidos).
+Pendiente: frases de estilo para las pelotas paradas y los penales del rival, y variar las notas tácticas según el marcador.

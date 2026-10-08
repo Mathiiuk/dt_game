@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { specialistsOf, aerialOf } from '../domain/specialists'
 import { stylesToMods } from '../domain/rivalStyle'
+import { styleQuipFor, styleNoteFor } from '../domain/rivalNarrative'
 import { homeAdvantage } from '../domain/consequences'
 import { SUSPENSION_POWER_FACTOR } from '../domain/barra'
 
@@ -105,6 +106,13 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   const penRng = createRNG(`${seed}:pen`)
   // Personalidad de juego de cada lado (solo el rival la tiene; el lado del DT queda neutro)
   const styleOf = (side) => stylesToMods(styles?.[side])
+  // Frase del relato que refleja cómo juega ese lado (en la mitad de las jugadas, para no repetirse); no afecta el resultado
+  const styleLine = (side, kind) => {
+    const id = styles?.[side]?.id
+    if (!id || flavorRng() > 0.5) return ''
+    const line = styleQuipFor(id, kind, flavorRng)
+    return line ? ` ${line}` : ''
+  }
   // Especialistas elegidos a mano por el DT: { home, away } con { rol: idJugador }
   const specOf = (players, side) => specialistsOf(players, specialistOverrides?.[side] || null)
   // Jugadas clave y chistes del relato: también con azar propio, así el resto del partido queda igual
@@ -329,7 +337,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         team: teamId,
         playerId: attacker.id,
         assistId: assister?.id,
-        text: `¡GOL DE ${isHome ? 'LOCAL' : 'VISITA'}! Golazo de ${attacker.first_name} ${attacker.last_name}${assistText}. ${quip('GOAL')}`
+        text: `¡GOL DE ${isHome ? 'LOCAL' : 'VISITA'}! Golazo de ${attacker.first_name} ${attacker.last_name}${assistText}. ${quip('GOAL')}${styleLine(teamId, 'GOAL')}`
       })
     } else if (shotRoll < goalChance + 0.35 + saveBonus) {
       // Atajada
@@ -340,7 +348,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         minute: min,
         type: 'SAVE',
         team: teamId,
-        text: `¡Gran atajada de ${goalkeeper.first_name} ${goalkeeper.last_name}! Evita el remate de ${attacker.first_name} ${attacker.last_name}. ${quip('SAVE')}`
+        text: `¡Gran atajada de ${goalkeeper.first_name} ${goalkeeper.last_name}! Evita el remate de ${attacker.first_name} ${attacker.last_name}. ${quip('SAVE')}${styleLine(teamId, 'SAVE')}`
       })
     } else if (shotRoll < goalChance + 0.35 + 0.15 * styleOf(teamId).corner + saveBonus) {
       // Tiro de esquina
@@ -351,7 +359,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         minute: min,
         type: 'CORNER',
         team: teamId,
-        text: `Tiro de esquina para ${isHome ? 'los locales' : 'la visita'}. Centro peligroso al área. ${quip('CORNER')}`
+        text: `Tiro de esquina para ${isHome ? 'los locales' : 'la visita'}. Centro peligroso al área. ${quip('CORNER')}${styleLine(teamId, 'CORNER')}`
       })
       if (!pendingSet && min < 90 && kpRng() < 0.6) {
         const ZONES = ['NEAR', 'MID', 'FAR']
@@ -370,7 +378,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         minute: min,
         type: 'MISS',
         team: teamId,
-        text: `Disparo potente de ${attacker.first_name} ${attacker.last_name} que se va apenas desviado por el poste. ${quip('MISS')}`
+        text: `Disparo potente de ${attacker.first_name} ${attacker.last_name} que se va apenas desviado por el poste. ${quip('MISS')}${styleLine(teamId, 'MISS')}`
       })
     }
   }
@@ -378,6 +386,15 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   // 3. Simular los 90 minutos
   for (let min = 1; min <= 90; min++) {
     for (const change of changes) if (change.minute + 1 === min) applyChange(change, min)
+
+    // Nota sobre cómo juega el rival (según su personalidad), a los 20 y a los 65 minutos
+    for (const side of ['home', 'away']) {
+      const styleId = styles?.[side]?.id
+      if (styleId && (min === 20 || min === 65)) {
+        const note = styleNoteFor(styleId, min === 20 ? 0 : 1)
+        if (note) events.push({ minute: min, type: 'RIVAL_TACTIC', team: side, text: note })
+      }
+    }
 
     // El rival (IA) reacciona al marcador: a los 60 si pierde se tira al ataque y a los 75 si gana se cierra
     if (aiSide && (min === 60 || min === 75)) {
@@ -549,9 +566,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         if (isHomeSet) homeShots++
         else awayShots++
         if (kpRng() < Math.min(0.5, chance)) {
-          scoreGoal(header.id, `¡GOL DE ${isHomeSet ? 'LOCAL' : 'VISITA'}! Golazo de ${header.first_name} ${header.last_name} de cabeza, tras el córner de ${taker.first_name} ${taker.last_name}. ${quip('GOAL')}`)
+          scoreGoal(header.id, `¡GOL DE ${isHomeSet ? 'LOCAL' : 'VISITA'}! Golazo de ${header.first_name} ${header.last_name} de cabeza, tras el córner de ${taker.first_name} ${taker.last_name}. ${quip('GOAL')}${styleLine(ps.team, 'GOAL')}`)
         } else {
-          events.push({ minute: min, type: 'CLEARED', team: ps.team, text: `El centro de ${taker.first_name} ${taker.last_name} lo despeja la defensa. ${quip('MISS')}` })
+          events.push({ minute: min, type: 'CLEARED', team: ps.team, text: `El centro de ${taker.first_name} ${taker.last_name} lo despeja la defensa. ${quip('MISS')}${styleLine(ps.team, 'MISS')}` })
           // Con dos hombres esperando arriba, un despeje puede ser el comienzo de un contraataque
           if (dmine && dmine.zone === 'COUNTER' && kpRng() < 0.4) {
             const counterTeam = isHomeSet ? 'away' : 'home'
@@ -647,7 +664,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           type: 'CARD_RED',
           team: isHomeFoul ? 'home' : 'away',
           playerId: playerFoul.id,
-          text: `¡TARJETA ROJA! Expulsado ${playerFoul.first_name} ${playerFoul.last_name} por una falta temeraria. ${quip('RED')}`
+          text: `¡TARJETA ROJA! Expulsado ${playerFoul.first_name} ${playerFoul.last_name} por una falta temeraria. ${quip('RED')}${styleLine(isHomeFoul ? 'home' : 'away', 'RED')}`
         })
         foulTeam.reds++
         if (playerFoul.id) {
@@ -664,7 +681,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           type: 'CARD_YELLOW',
           team: isHomeFoul ? 'home' : 'away',
           playerId: playerFoul.id,
-          text: `Amonestado ${playerFoul.first_name} ${playerFoul.last_name} tras cometer falta táctica en la mitad de la cancha. ${quip('YELLOW')}`
+          text: `Amonestado ${playerFoul.first_name} ${playerFoul.last_name} tras cometer falta táctica en la mitad de la cancha. ${quip('YELLOW')}${styleLine(isHomeFoul ? 'home' : 'away', 'YELLOW')}`
         })
       }
 

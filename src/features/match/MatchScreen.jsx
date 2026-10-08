@@ -273,7 +273,7 @@ export default function MatchScreen() {
     } catch (chemErr) {
       console.warn('Aviso: no se pudo calcular la química del equipo:', chemErr)
     }
-    const options = { userPowerFactor, userIsHome: isHome, userTakers: cleanTakers(data.tactic?.set_piece_takers), rivalStyle: rivalStyleFor(rival?.id || rival?.name || 'rival').mods }
+    const options = { userPowerFactor, userIsHome: isHome, userTakers: cleanTakers(data.tactic?.set_piece_takers), rivalStyle: (() => { const st = rivalStyleFor(rival?.id || rival?.name || 'rival'); return { id: st.id, ...st.mods } })() }
 
     const results = isHome
       ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, matchSquad.starters, awayTactic, awayPlayers, null, options)
