@@ -99,24 +99,26 @@ export const competitionApi = {
       }
 
       // 2. Crear 19 clubes IA
-      // Los rivales se sortean por carrera (no son siempre los mismos 19 clubes)
+      // Los rivales se sortean por carrera desde la división 5 (Potrero / Torneo Regional Amateur)
       // Cada rival tiene su fuerza (46 a 66, media 56): el plantel del usuario (~58) pelea arriba sin ganar siempre
+      const { data: myClub } = await supabase.from('clubs').select('name').eq('id', playerClubId).maybeSingle()
+      const exclude = myClub?.name ? [myClub.name] : []
       const strengthRand = seededRandom(`strength:${playerClubId}`)
-      const aiClubsData = pickRivalClubs(playerClubId, 19).map((c, i) => ({
+      const aiClubsData = pickRivalClubs(playerClubId, 19, { tier: 5, exclude }).map((c, i) => ({
         name: c.name,
         short_name: c.short_name,
-        city: 'Región Deportiva',
+        city: c.city || 'Región Deportiva',
         country: country,
-        founded_year: 1910 + i,
-        colors: '#10B981',
+        founded_year: c.founded_year || (1910 + i),
+        colors: c.primary_color || c.colors || '#10B981',
         history_type: 'bot',
         league_tier: 5,
         budget: 25000,
         wage_budget: 3500,
         reputation: 15,
         strength: Math.round(46 + strengthRand() * 20),
-        stadium_name: `Estadio ${c.name}`,
-        stadium_capacity: 1500
+        stadium_name: c.stadium_name || `Estadio ${c.name}`,
+        stadium_capacity: c.stadium_capacity || 1500
       }))
 
       const { data: aiClubs, error: clubsErr } = await supabase
@@ -171,18 +173,18 @@ export const competitionApi = {
     const rivalRow = (c, i, [lo, hi], tier) => ({
       name: c.name,
       short_name: c.short_name,
-      city: 'Región Deportiva',
+      city: c.city || 'Región Deportiva',
       country,
-      founded_year: 1910 + i,
-      colors: '#10B981',
+      founded_year: c.founded_year || (1910 + i),
+      colors: c.primary_color || c.colors || '#10B981',
       history_type: 'bot',
       league_tier: tier,
       budget: 25000,
       wage_budget: 3500,
       reputation: 15,
       strength: Math.round(lo + strengthRand() * (hi - lo)),
-      stadium_name: `Estadio ${c.name}`,
-      stadium_capacity: 1500
+      stadium_name: c.stadium_name || `Estadio ${c.name}`,
+      stadium_capacity: c.stadium_capacity || 1500
     })
 
     if (newTier !== oldTier) {
@@ -193,7 +195,9 @@ export const competitionApi = {
         .single()
       if (compErr || !comp) throw new Error(compErr?.message || 'No se pudo crear la liga de la nueva categoría.')
 
-      const rows = pickRivalClubs(seed, 19).map((c, i) => rivalRow(c, i, tierStrengthRange(newTier), newTier))
+      const myClubName = standings.find(s => s.club_id === clubId)?.club?.name
+      const exclude = myClubName ? [myClubName] : []
+      const rows = pickRivalClubs(seed, 19, { tier: newTier, exclude }).map((c, i) => rivalRow(c, i, tierStrengthRange(newTier), newTier))
       const { data: aiClubs, error: clubsErr } = await supabase.from('clubs').insert(rows).select('id')
       if (clubsErr) throw new Error(clubsErr.message)
 
@@ -215,7 +219,7 @@ export const competitionApi = {
     const names = standings.map(s => s.club?.name).filter(Boolean)
     const [lo, hi] = tierStrengthRange(oldTier)
     const mid = Math.round((lo + hi) / 2)
-    const picks = pickRivalClubs(seed, movers.length, names)
+    const picks = pickRivalClubs(seed, movers.length, { tier: oldTier, exclude: names })
     const rows = movers.map((m, i) => rivalRow(picks[i], i, movementOf(m.position, oldTier) === 'PROMOTED' ? [lo, mid] : [mid, hi], oldTier))
     const { data: newClubs, error: newErr } = await supabase.from('clubs').insert(rows).select('id')
     if (newErr) throw new Error(newErr.message)

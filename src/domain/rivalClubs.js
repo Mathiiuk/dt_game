@@ -1,36 +1,64 @@
 /**
- * Rivales de cada liga: se sortean de un pozo grande de nombres de clubes barriales, de forma determinista por carrera,
- * así cada carrera tiene sus propios rivales (antes todas las ligas tenían los mismos 19 clubes).
+ * Rivales de cada liga: se sortean de la tabla histórica de clubes argentinos por categoría (o del pozo general)
+ * de forma determinista por carrera, para que cada carrera y cada división tenga sus propios rivales reales
+ * con sus nombres, siglas, estadios, capacidades y colores tradicionales.
  */
 import { seededRandom } from './cupMatch'
+import { HISTORICAL_CLUBS_BY_TIER, ALL_HISTORICAL_CLUBS } from './historicalClubs'
 
-export const RIVAL_POOL = [
-  ['Deportivo Central', 'DCE'], ['Atlético Belgrano', 'ATB'], ['Defensores del Valle', 'DDV'], ['Juventud Unida', 'JUN'],
-  ['Social y Deportivo Rivadavia', 'SDR'], ['Estudiantes del Norte', 'EDN'], ['Unión Ferroviaria', 'UFE'], ['Club Náutico Costanera', 'CNC'],
-  ['San Martín Social', 'SMS'], ['Sportivo Balcarce', 'SPB'], ['Club Atlético Mitre', 'CAM'], ['Racing de la Pampa', 'RLP'],
-  ['Tiro Federal Argentino', 'TFA'], ['Huracán del Sur', 'HDS'], ['Almagro Regional', 'ALM'], ['Independiente de la Ribera', 'IDR'],
-  ['Talleres del Parque', 'TDP'], ['Club Barrio Jardín', 'CBJ'], ['Deportivo Sarmiento', 'DSA'],
-  ['Villa Dálmine Unida', 'VDU'], ['Ferro del Oeste', 'FDO'], ['Argentino de la Costa', 'ADC'], ['Atlético Los Andes', 'ALA'],
-  ['Club Social La Cantera', 'CSC'], ['Defensores de Belgrano Sur', 'DBS'], ['Excursionistas del Bajo', 'EDB'], ['Estrella Roja Barrial', 'ERB'],
-  ['Sportivo Italiano Norte', 'SIN'], ['Midland Regional', 'MID'], ['Atlas de Villa Real', 'AVR'], ['Club Deportivo Armenio', 'CDA'],
-  ['Juventud Antoniana', 'JAN'], ['San Telmo Atlético', 'STA'], ['Dock Sud Unido', 'DSU'], ['Laferrere Social', 'LAF'],
-  ['Central Córdoba del Bajo', 'CCB'], ['Gimnasia del Sur', 'GDS'], ['Platense del Puerto', 'PDP'], ['Comunicaciones Unidas', 'COM'],
-  ['Barracas del Riachuelo', 'BDR'], ['Victoriano Arenas FC', 'VAF'], ['Club Atlético Brown de Rosario', 'CBR'], ['Sacachispas del Pueblo', 'SDP'],
-  ['Deportivo Merlo Oeste', 'DMO'], ['Fénix de Pilar', 'FEP'], ['Alvarado del Mar', 'ADM'], ['Crucero del Norte Chico', 'CNC2'],
-  ['Defensa y Justicia Vecinal', 'DJV'], ['Sol de América Barrial', 'SAB'], ['Cañuelas Fútbol Club', 'CFC'], ['Juventud de Las Piedras', 'JLP'],
-  ['Atlético Tembleque', 'TEM'], ['Club Los Sauces', 'SAU'], ['Unión de Sunchales', 'UDS'], ['General Lamadrid Social', 'GLS'],
-  ['Estudiantes de Río Cuarto', 'ERC'], ['Belgrano de Zárate', 'BDZ'], ['Peñarol del Bajo Flores', 'PBF'], ['Racing de Olavarría Sur', 'ROS']
-].map(([name, short_name]) => ({ name, short_name }))
+export { HISTORICAL_CLUBS_BY_TIER, ALL_HISTORICAL_CLUBS }
 
-/** `count` rivales distintos, siempre los mismos para la misma semilla y sin repetir nombres ni siglas */
-export function pickRivalClubs(seed, count = 19, exclude = []) {
-  const taken = new Set(exclude.map(n => String(n).toLowerCase()))
-  const pool = RIVAL_POOL.filter(c => !taken.has(c.name.toLowerCase()))
+/** Pozo de todos los clubes rivales disponibles en la pirámide */
+export const RIVAL_POOL = ALL_HISTORICAL_CLUBS
+
+/** Pozos categorizados por nivel (1 = Primera División, 5 = Torneo Regional / Potrero) */
+export const TIER_RIVAL_POOLS = HISTORICAL_CLUBS_BY_TIER
+
+/** Obtiene la lista completa de clubes de una categoría específica */
+export function getClubsForTier(tier) {
+  return HISTORICAL_CLUBS_BY_TIER[tier] || []
+}
+
+/**
+ * `count` rivales distintos, siempre los mismos para la misma semilla y sin repetir nombres ni siglas.
+ * Soporta opciones como objeto `{ tier, exclude }` o como argumentos posicionales `(seed, count, exclude, tier)`.
+ * Si se especifica `tier`, prioriza los clubes de esa división.
+ */
+export function pickRivalClubs(seed, count = 19, excludeOrOptions = [], maybeTier = null) {
+  let exclude = []
+  let tier = maybeTier
+
+  if (Array.isArray(excludeOrOptions)) {
+    exclude = excludeOrOptions
+  } else if (excludeOrOptions && typeof excludeOrOptions === 'object') {
+    exclude = excludeOrOptions.exclude || []
+    tier = excludeOrOptions.tier ?? maybeTier
+  }
+
+  const taken = new Set(exclude.map(n => String(n).toLowerCase().trim()))
+
+  // Clonamos los objetos para evitar mutaciones accidentales en llamadas sucesivas
+  let pool = []
+  if (tier && HISTORICAL_CLUBS_BY_TIER[tier]) {
+    pool = HISTORICAL_CLUBS_BY_TIER[tier]
+      .filter(c => !taken.has(c.name.toLowerCase().trim()))
+      .map(c => ({ ...c }))
+  }
+
+  // Si no se pasó categoría o el pozo de la categoría no alcanza para la cantidad pedida, completamos con el pozo general
+  if (pool.length < count) {
+    const extra = ALL_HISTORICAL_CLUBS
+      .filter(c => !taken.has(c.name.toLowerCase().trim()) && !pool.some(p => p.name === c.name))
+      .map(c => ({ ...c }))
+    pool = [...pool, ...extra]
+  }
+
   const rand = seededRandom(`rivals:${seed}`)
-  // Fisher-Yates con semilla
+  // Fisher-Yates determinista con semilla
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1))
     ;[pool[i], pool[j]] = [pool[j], pool[i]]
   }
+
   return pool.slice(0, count)
 }

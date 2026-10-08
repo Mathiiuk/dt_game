@@ -1,0 +1,48 @@
+id: historical-teams
+external_ref: ''
+title: Agregar clubes históricos de Promiedos adaptados por categorías desde potrero
+type: feat
+status: DONE
+priority: medium
+owner: team-agent
+base_branch: >-
+  feat/finances-v2-d4-rediseno-arcade-tycoon-de-finanzas-con-billetera-roi-y-balance-semanal
+scope:
+  project: dt_game
+  modules:
+    - domain/rivalClubs
+    - domain/historicalClubs
+    - api/competition
+  environments:
+    - local
+requirements:
+  - >-
+    Incorporar los clubes históricos de la tabla de Promiedos distribuidos en
+    las 5 categorías del juego con nombres, siglas, colores, ciudades y estadios
+    reales.
+acceptance_criteria:
+  - >-
+    RIVAL_POOL cuenta con más de 120 clubes reales sin nombres ni siglas
+    duplicadas.
+  - Cada una de las 5 categorías tiene al menos 25 clubes reales.
+  - >-
+    pickRivalClubs soporta selección por tier y exclusión de nombres de forma
+    determinista.
+  - competition.js asigna estadio, ciudad y colores reales a los clubes rivales.
+requires_approval: false
+quality_gates:
+  lint: true
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd
+  lint: pnpm lint
+  build: pnpm build
