@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { AsyncButton, ClubBadge } from '../../components/ui'
+import { Pager } from '../../components/ui/pager'
 import { friendlyError } from '../../lib/errors'
 import PressRoom from './PressRoom'
 
@@ -269,8 +270,8 @@ export default function PostMatchScreen() {
             <span className="truncate text-fg-muted">vs {oppName}</span>
           </p>
         )}
-        <div className={`p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg ${step === 'PRESS' ? 'hidden' : ''}`}>
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-fg-subtle">
+        <div className={`p-3 sm:p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg ${step === 'PRESS' ? 'hidden' : ''}`}>
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-fg-subtle [@media(max-height:740px)]:hidden">
             Resumen oficial • Pitazo final
           </span>
           <h1 className={`text-2xl sm:text-4xl font-semibold mt-1 ${isWin ? 'text-accent' : isDraw ? 'text-gold' : 'text-danger'}`}>
@@ -278,7 +279,7 @@ export default function PostMatchScreen() {
           </h1>
 
           {/* Marcador */}
-          <div className="flex items-center justify-center gap-4 sm:gap-8 my-4">
+          <div className="flex items-center justify-center gap-4 sm:gap-8 my-2 sm:my-4">
             <div className="text-right flex-1 min-w-0">
               <span className="text-xs text-fg-muted block font-semibold">Local</span>
               <span className="text-base sm:text-xl font-semibold text-fg truncate block">
@@ -300,7 +301,7 @@ export default function PostMatchScreen() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-fg-muted">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-fg-muted [@media(max-height:740px)]:hidden">
             <span className="px-2.5 py-0.5 rounded-full bg-surface-3 border border-line font-medium">
               +{processedData?.xpAward || 50} XP DT
             </span>
@@ -346,7 +347,7 @@ export default function PostMatchScreen() {
         </div>}
       </div>
 
-      <div className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain">
+      <div className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         {step === 'PRESS' && (
           <PressRoom
             questions={pressQuestions}
@@ -370,39 +371,43 @@ export default function PostMatchScreen() {
 
         {/* Tab 1: Crónica & Goles */}
         {step === 'SUMMARY' && activeTab === 'CRONICA' && (
-          <div className="space-y-4">
-            <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-3">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-1 flex-col gap-3 rounded-lg border border-line bg-surface/60 p-3 sm:p-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-accent" />
                 Hitos y minuto a minuto clave
               </h3>
 
-              <div className="space-y-2">
-                {keyEvents.map((ev, idx) => {
-                  const isGoal = ev.type === 'GOAL'
-                  const isRed = ev.type === 'CARD_RED'
-                  const isYellow = ev.type === 'CARD_YELLOW'
+              <div className="flex min-h-0 flex-1 flex-col">
+                <Pager
+                  items={keyEvents}
+                  label="Páginas de incidencias"
+                  render={(ev, idx) => {
+                    const isGoal = ev.type === 'GOAL'
+                    const isRed = ev.type === 'CARD_RED'
+                    const isYellow = ev.type === 'CARD_YELLOW'
 
-                  return (
-                    <div 
-                      key={idx}
-                      className={`p-3 rounded-xl border flex items-center gap-3 text-xs ${
-                        isGoal 
-                          ? 'border-accent/50 bg-accent-soft text-accent font-bold'
-                          : isRed
-                          ? 'border-danger/50 bg-danger-soft text-danger'
-                          : isYellow
-                          ? 'border-gold/40 bg-gold-soft text-gold'
-                          : 'border-line bg-bg/60 text-fg'
-                      }`}
-                    >
-                      <span className="w-8 h-8 rounded-lg bg-surface-3 flex items-center justify-center font-mono font-bold text-fg shrink-0">
-                        {ev.minute}'
-                      </span>
-                      <p className="leading-snug flex-1">{ev.text}</p>
-                    </div>
-                  )
-                })}
+                    return (
+                      <div
+                        key={idx}
+                        className={`p-2.5 rounded-xl border flex items-center gap-3 text-xs ${
+                          isGoal
+                            ? 'border-accent/50 bg-accent-soft text-accent font-bold'
+                            : isRed
+                            ? 'border-danger/50 bg-danger-soft text-danger'
+                            : isYellow
+                            ? 'border-gold/40 bg-gold-soft text-gold'
+                            : 'border-line bg-bg/60 text-fg'
+                        }`}
+                      >
+                        <span className="w-8 h-8 rounded-lg bg-surface-3 flex items-center justify-center font-mono font-bold text-fg shrink-0">
+                          {ev.minute}'
+                        </span>
+                        <p className="leading-snug flex-1">{ev.text}</p>
+                      </div>
+                    )
+                  }}
+                />
 
                 {keyEvents.length === 0 && (
                   <p className="text-fg-subtle text-xs text-center py-6">
@@ -416,14 +421,14 @@ export default function PostMatchScreen() {
 
         {/* Tab 2: Estadísticas de Equipo */}
         {step === 'SUMMARY' && activeTab === 'STATS' && (
-          <div className="space-y-4">
-            <div className="p-5 rounded-lg border border-line bg-surface/60 space-y-4">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-1 flex-col gap-3 rounded-lg border border-line bg-surface/60 p-3 sm:p-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-accent" />
                 Comparativa de rendimiento colectivo
               </h3>
 
-              <div className="space-y-3 text-xs">
+              <div className="flex min-h-0 flex-1 flex-col gap-3 text-xs">
                 {/* Posesión */}
                 <div>
                   <div className="flex justify-between text-fg-muted mb-1 font-semibold">
@@ -438,19 +443,19 @@ export default function PostMatchScreen() {
                 </div>
 
                 {/* Métricas */}
-                {[
+                <Pager items={[
                   { label: 'Disparos totales', home: stats.shots?.home || 0, away: stats.shots?.away || 0 },
                   { label: 'Tiros al arco', home: stats.shotsOnTarget?.home || 0, away: stats.shotsOnTarget?.away || 0 },
                   { label: 'Faltas cometidas', home: stats.fouls?.home || 0, away: stats.fouls?.away || 0 },
                   { label: 'Tiros de esquina', home: stats.corners?.home || 0, away: stats.corners?.away || 0 },
                   { label: 'Tarjetas amarillas', home: stats.yellowCards?.home || 0, away: stats.yellowCards?.away || 0 }
-                ].map((row, idx) => (
+                ]} label="Páginas de estadísticas" render={(row, idx) => (
                   <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-bg border border-line/80">
                     <span className="font-bold text-fg w-12 text-left">{row.home}</span>
                     <span className="text-fg-muted font-medium">{row.label}</span>
                     <span className="font-bold text-fg w-12 text-right">{row.away}</span>
                   </div>
-                ))}
+                )} />
               </div>
             </div>
           </div>
@@ -458,10 +463,10 @@ export default function PostMatchScreen() {
 
         {/* Tab 3: Calificaciones Individuales */}
         {step === 'SUMMARY' && activeTab === 'RATINGS' && (
-          <div className="space-y-4">
+          <div className="flex min-h-0 flex-1 flex-col gap-3">
             {/* MVP Card */}
             {mvp && (
-              <div className="p-4 rounded-lg border border-gold/50 bg-gradient-to-r from-gold/30 to-surface/60 flex items-center justify-between">
+              <div className="shrink-0 p-3 rounded-lg border border-gold/50 bg-gradient-to-r from-gold/30 to-surface/60 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-gold font-semibold">
                     <Star className="w-5 h-5 fill-amber-400" />
@@ -480,14 +485,14 @@ export default function PostMatchScreen() {
             )}
 
             {/* Listado de Calificaciones */}
-            <div className="p-4 sm:p-5 rounded-lg border border-line bg-surface/60 space-y-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted mb-3 flex items-center gap-2">
+            <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-line bg-surface/60 p-3 sm:p-5">
+              <h3 className="mb-2 flex shrink-0 items-center gap-2 text-xs font-bold uppercase tracking-wider text-fg-muted">
                 <Users className="w-4 h-4 text-accent" />
                 Puntajes del plantel
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                {ratings.map(p => {
+              <div className="flex min-h-0 flex-1 flex-col text-xs">
+                <Pager items={ratings} label="Páginas de puntajes" render={(p) => {
                   const ratingColor = p.rating >= 7.0 
                     ? 'bg-accent/10 text-accent border-accent/30'
                     : p.rating >= 6.0 
@@ -523,7 +528,7 @@ export default function PostMatchScreen() {
                       </div>
                     </div>
                   )
-                })}
+                }} />
               </div>
             </div>
           </div>
@@ -569,11 +574,11 @@ export default function PostMatchScreen() {
       </div>
       {(step === 'SUMMARY' || isPressFinished || isPressDelegated || skipResult) && <div className="shrink-0 border-t border-line pt-3">
         {/* Acciones: del resumen se sigue a la prensa; al final se vuelve al inicio */}
-        <div className="mx-auto flex w-full max-w-4xl flex-col sm:flex-row items-center justify-end gap-3">
+        <div className="mx-auto flex w-full max-w-4xl flex-row items-stretch justify-end gap-2 sm:gap-3">
           {step === 'SUMMARY' && (
             <button
               onClick={() => leaveTo('/standings')}
-              className="w-full sm:w-auto px-5 py-3 rounded-xl border border-line bg-surface hover:bg-surface-3 text-xs font-bold text-fg transition-colors"
+              className="flex-1 sm:flex-none px-3 sm:px-5 py-3 rounded-xl border border-line bg-surface hover:bg-surface-3 text-xs font-bold text-fg transition-colors"
             >
               Ver tabla de posiciones
             </button>
@@ -582,7 +587,7 @@ export default function PostMatchScreen() {
           {step === 'SUMMARY' && pressConference && !isPressFinished && !isPressDelegated ? (
             <button
               onClick={openPress}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none px-3 sm:px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
             >
               <Mic className="w-4 h-4" />
               <span>Continuar a la rueda de prensa</span>
@@ -591,7 +596,7 @@ export default function PostMatchScreen() {
           ) : (
             <button
               onClick={() => leaveTo('/dashboard')}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none px-3 sm:px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
             >
               <Home className="w-4 h-4" />
               <span>Volver al inicio</span>
