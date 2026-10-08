@@ -19,6 +19,7 @@ import SubstitutionsPanel from './SubstitutionsPanel'
 import DecisionCard from './DecisionCard'
 import { detectMoment, shoutBuff, shoutWaitMinutes, SHOUT_DURATION, MOMENT_ACTION_OPEN_SUBS, decisionText } from '../../domain/quickDecisions'
 import { benchOf, makeSubstitution, substitutionsLeft, substitutionText } from '../../domain/substitutions'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { useMatchClock } from './useMatchClock'
 import { DEFAULT_SPEED, MATCH_MINUTES } from '../../domain/matchClock'
 import { 
@@ -57,6 +58,8 @@ const lineupIdsOf = (tactic, players) => {
 
 export default function MatchScreen() {
   const navigate = useNavigate()
+  // Mismo corte que el grid de la pantalla (lg): por debajo, los controles van anclados abajo
+  const isLg = useMediaQuery('(min-width: 1024px)')
   const location = useLocation()
   const fixtureId = location.state?.fixtureId
 
@@ -451,8 +454,8 @@ export default function MatchScreen() {
     : 'Equipo Rival'
 
   return (
-    <div className="min-h-dvh text-fg bg-bg lg:overflow-hidden lg:h-dvh lg:flex lg:flex-col">
-      <div className="max-w-[1400px] mx-auto w-full flex-1 flex flex-col h-full relative">
+    <div className="flex h-[calc(100dvh_-_env(safe-area-inset-top)_-_env(safe-area-inset-bottom))] flex-col overflow-hidden text-fg bg-bg">
+      <div className="max-w-[1400px] mx-auto w-full flex-1 min-h-0 flex flex-col relative">
         <MatchHeader 
           isHome={isHome}
           clubName={data.club?.name || 'Local'}
@@ -463,7 +466,7 @@ export default function MatchScreen() {
           onBack={() => navigate('/dashboard')}
         />
         
-        <div className="flex-1 lg:grid lg:grid-cols-12 gap-6 p-4 pt-0 overflow-y-auto lg:overflow-hidden pb-32 lg:pb-4">
+        <div className="flex-1 lg:grid lg:grid-cols-12 gap-6 p-4 pt-0 overflow-y-auto overscroll-contain lg:overflow-hidden pb-4">
           
           {/* Izquierda: Desktop (Tu Equipo) / Oculto en móvil (van a las Sheets) */}
           <div className="hidden lg:flex lg:col-span-3 flex-col gap-4 overflow-y-auto custom-scrollbar h-full pr-2">
@@ -528,7 +531,7 @@ export default function MatchScreen() {
           </div>
 
           {/* Centro: Relato */}
-          <div className="col-span-12 lg:col-span-6 flex flex-col gap-4 h-[65vh] lg:h-full">
+          <div className="col-span-12 lg:col-span-6 flex flex-col gap-4 h-[60dvh] lg:h-full">
             
             {matchState === 'pre-match' && squadNotes.length > 0 && (
               <div className="p-4 rounded-xl border border-gold/40 bg-gold/10 text-sm text-gold space-y-2 lg:hidden" role="status">
@@ -542,7 +545,7 @@ export default function MatchScreen() {
 
             {/* Controles */}
             <div className="">
-              {matchState === 'playing' && (
+              {matchState === 'playing' && isLg && (
                 <MatchActions 
                   speed={speed} 
                   onSpeed={setSpeed} 
@@ -587,8 +590,21 @@ export default function MatchScreen() {
              )}
           </div>
         </div>
+
+        {/* Móvil: controles anclados abajo, fuera del área que scrollea */}
+        {matchState === 'playing' && !isLg && (
+          <MatchActions
+            docked
+            speed={speed}
+            onSpeed={setSpeed}
+            paused={paused}
+            onTogglePause={() => setPaused(!paused)}
+            onSkip={handleSkipMatch}
+            onOpenSubs={() => setSubsSheetOpen(true)}
+            onOpenShouts={() => setShoutsSheetOpen(true)}
+          />
+        )}
       </div>
-      
 
       {/* Mobile Sheets */}
       <SubstitutionsSheet 

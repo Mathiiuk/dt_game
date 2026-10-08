@@ -13,7 +13,7 @@ export default function DecisionSheet({
     <ResponsiveOverlay 
       open={open}
       title="¡Momento Crítico!" 
-      placement="bottom"
+      placement="center"
       size="sm"
     >
       <div className="py-2">

@@ -18,6 +18,7 @@ import {
   PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 import { cn } from '../../lib/utils'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { lockerRoomApi } from '../../api/lockerRoom'
 import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
@@ -55,6 +56,8 @@ function Labeled({ label, children }) {
 
 export default function TacticsScreen() {
   const { club, loading: contextLoading } = useGameContext()
+  // En pantallas chicas los suplentes se despliegan en una hoja sobre la cancha, sin bajar hasta la pestaña de jugadores
+  const isLg = useMediaQuery('(min-width: 1024px)')
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -176,7 +179,7 @@ export default function TacticsScreen() {
       return
     }
     setSelectedSlot(selectedSlot === slot ? null : slot)
-    setTab('players')
+    if (isLg) setTab('players')
   }
 
   /** Asigna un jugador del plantel al puesto seleccionado (si ya era titular en otro puesto, se intercambian) */
@@ -247,6 +250,40 @@ export default function TacticsScreen() {
         return rb - ra || ovr(b) - ovr(a)
       })
     : []
+
+  const candidateList = selectedSlot && (
+    <ul className="space-y-1.5" aria-label={`Candidatos para ${slotBase(selectedSlot)}`}>
+      {candidates.map(p => {
+        const aff = fitLabel(p.position, selectedSlot)
+        const current = lineup[selectedSlot] === p.id
+        const startsAt = starterSlotById[p.id]
+        return (
+          <li key={p.id}>
+            <button
+              type="button"
+              disabled={p.is_injured}
+              onClick={() => handleAssign(p.id)}
+              className={cn(
+                'flex min-h-14 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors',
+                current ? 'border-accent bg-accent-soft' : 'border-line bg-surface hover:bg-surface-2',
+                'disabled:cursor-not-allowed disabled:opacity-50'
+              )}
+            >
+              <span className="num grid size-9 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-base font-semibold">{p.shirt_number ?? '·'}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold text-fg">{p.first_name} {p.last_name}</span>
+                <span className="block text-xs text-fg-subtle">
+                  <abbr title={positionName(p.position)} className="no-underline">{p.position}</abbr> · Nivel <span className="num">{ovr(p)}</span> · En el puesto <span className="num">{ratingAtSlot(p, selectedSlot)}</span> · Cond. <span className="num">{p.state_fitness ?? 75}%</span>
+                  {startsAt && !current ? ` · Titular (${startsAt})` : ''}
+                </span>
+              </span>
+              {p.is_injured ? <Badge tone="danger" dot>Lesionado</Badge> : <Badge tone={AFFINITY_TONE[aff.code]}>{aff.label}</Badge>}
+            </button>
+          </li>
+        )
+      })}
+    </ul>
+  )
 
   const saveButton = (
     <Button onClick={handleSave} loading={saving} disabled={!dirty}>
@@ -345,46 +382,33 @@ export default function TacticsScreen() {
                   </CardBody>
                 </Card>
 
-                <ul className="space-y-1.5" aria-label={`Candidatos para ${slotBase(selectedSlot)}`}>
-                  {candidates.map(p => {
-                    const aff = fitLabel(p.position, selectedSlot)
-                    const current = lineup[selectedSlot] === p.id
-                    const startsAt = starterSlotById[p.id]
-                    return (
-                      <li key={p.id}>
-                        <button
-                          type="button"
-                          disabled={p.is_injured}
-                          onClick={() => handleAssign(p.id)}
-                          className={cn(
-                            'flex min-h-14 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors',
-                            current ? 'border-accent bg-accent-soft' : 'border-line bg-surface hover:bg-surface-2',
-                            'disabled:cursor-not-allowed disabled:opacity-50'
-                          )}
-                        >
-                          <span className="num grid size-9 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-base font-semibold">{p.shirt_number ?? '·'}</span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-semibold text-fg">{p.first_name} {p.last_name}</span>
-                            <span className="block text-xs text-fg-subtle">
-                              <abbr title={positionName(p.position)} className="no-underline">{p.position}</abbr> · Nivel <span className="num">{ovr(p)}</span> · En el puesto <span className="num">{ratingAtSlot(p, selectedSlot)}</span> · Cond. <span className="num">{p.state_fitness ?? 75}%</span>
-                              {startsAt && !current ? ` · Titular (${startsAt})` : ''}
-                            </span>
-                          </span>
-                          {p.is_injured ? <Badge tone="danger" dot>Lesionado</Badge> : <Badge tone={AFFINITY_TONE[aff.code]}>{aff.label}</Badge>}
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
+                {candidateList}
               </div>
             )}
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Barra de guardado fija en móvil, sólo si hay cambios */}
+      {/* Móvil: al tocar una ficha se despliegan los suplentes en una bandeja pegada abajo. No es modal: la pizarra
+          sigue activa para mover la ficha o intercambiarla con otra sin perder la selección */}
+      {!isLg && selectedSlot && (
+        <section aria-label={`Suplentes para ${slotBase(selectedSlot)}`} className="sticky bottom-0 z-30 -mx-4 mt-4 border-t border-line-strong bg-surface shadow-overlay sm:-mx-6">
+          <div className="flex items-center justify-between gap-3 px-4 py-2 sm:px-6">
+            <div className="min-w-0">
+              <p className="eyebrow">Puesto {slotBase(selectedSlot)}</p>
+              <p className="truncate text-sm font-semibold text-fg">
+                {selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'Vacío'} · elegí quién entra
+              </p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedSlot(null)}>Cerrar</Button>
+          </div>
+          <div className="max-h-[36dvh] overflow-y-auto overscroll-contain px-3 pb-3">{candidateList}</div>
+        </section>
+      )}
+
+      {/* Barra de guardado pegada abajo en móvil, sólo si hay cambios (dentro del flujo: no tapa ni se superpone con el menú) */}
       {dirty && (
-        <div className="fixed inset-x-0 bottom-14 z-30 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-line bg-surface px-4 py-3 sm:-mx-6 sm:px-6 lg:hidden">
           <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
             <p className="flex items-center gap-2 text-sm text-fg-muted"><ShieldAlert className="size-4 text-warning" aria-hidden="true" />Cambios sin guardar</p>
             {saveButton}

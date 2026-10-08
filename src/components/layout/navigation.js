@@ -62,7 +62,8 @@ export const isActivePath = (pathname, to) => pathname === to || pathname.starts
 const EXTRA_TITLES = [
   { to: '/achievements', label: 'Logros' },
   { to: '/hall-of-fame', label: 'Salón de la Fama' },
-  { to: '/events', label: 'Eventos' }
+  { to: '/events', label: 'Eventos' },
+  { to: '/post-match', label: 'Resumen del partido' }
 ]
 
 /** Título de la sección actual (para la barra superior móvil) */

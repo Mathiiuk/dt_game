@@ -2,7 +2,6 @@ import React from 'react'
 import { FastForward, Pause, Play, Users, MessageCircle } from 'lucide-react'
 import { MATCH_SPEEDS } from '../../domain/matchClock'
 import { cn } from '../../lib/utils'
-import { useIsDesktop } from '../../hooks/useMediaQuery'
 
 export default function MatchActions({ 
   speed, 
@@ -11,14 +10,15 @@ export default function MatchActions({
   onTogglePause, 
   onOpenSubs, 
   onOpenShouts,
-  onSkip
+  onSkip,
+  docked = false
 }) {
-  const isDesktop = useIsDesktop()
 
   return (
     <div className={cn(
       "flex flex-wrap items-center justify-between gap-2",
-      !isDesktop && "fixed bottom-0 inset-x-0 p-4 bg-surface/90 backdrop-blur-md border-t border-line z-40 pb-safe"
+      // Móvil: barra inferior dentro del flujo (la pantalla es una columna de alto fijo), no `fixed`
+      docked && "shrink-0 p-3 bg-surface border-t border-line"
     )}>
       {/* Controles de reproducción */}
       <div className="flex items-center gap-2">
@@ -76,7 +76,7 @@ export default function MatchActions({
           <span className="hidden sm:inline">Gritos</span>
         </button>
 
-        {onSkip && isDesktop && (
+        {onSkip && !docked && (
           <button
             type="button"
             onClick={onSkip}

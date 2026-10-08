@@ -163,9 +163,9 @@ export default function EventScreen() {
                     : "border-line/50 bg-surface/50 opacity-60 cursor-not-allowed"
                 )}
               >
-                <div className="flex w-full items-start justify-between gap-4">
-                  <span className="font-semibold text-fg group-hover:text-accent">{opt.label}</span>
-                  <div className="flex shrink-0 items-center gap-2">
+                <div className="flex w-full min-w-0 flex-wrap items-start justify-between gap-x-4 gap-y-1.5">
+                  <span className="min-w-0 break-words font-semibold text-fg group-hover:text-accent">{opt.label}</span>
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
                     {cost > 0 && <Badge tone={canAfford ? 'warning' : 'danger'} className="num">-{formatMoney(cost)}</Badge>}
                     {!hasBackup && <Badge tone="danger">Sin respaldo</Badge>}
                   </div>

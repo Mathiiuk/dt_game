@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  AlertTriangle, AlertCircle, Bell, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered
+  AlertTriangle, AlertCircle, BookOpen, Bell, Sparkles, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { dashboardApi } from '../../api/dashboard'
@@ -26,7 +26,6 @@ const EVENT_CATEGORY = {
   FINANCIAL_CRISIS: { label: 'Economía y crisis', tone: 'warning' }
 }
 
-// Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)"
 import { ClubBadge } from '../../components/ui'
 
 const isStoryEvent = (event) => String(event.template_code || '').startsWith('ARC_')
@@ -85,55 +84,116 @@ function AlertList({ alerts }) {
   )
 }
 
+/** Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)" */
+function chapterOf(title) {
+  const m = String(title || '').match(/\((\d+)\s*\/\s*(\d+)\)\s*$/)
+  return m ? { current: Number(m[1]), total: Number(m[2]), clean: String(title).replace(m[0], '').trim() } : null
+}
+
+const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E']
+
 /** Dilema del DT (evento dinámico) con sus opciones */
 function EventCard({ event, budget, boardConfidence, onResolve }) {
   const critical = event.severity === 'CRITICAL'
+  const story = isStoryEvent(event)
+  const chapter = story ? chapterOf(event.title) : null
   const category = EVENT_CATEGORY[event.category] || { label: event.category, tone: 'neutral' }
   const options = Array.isArray(event.options) ? event.options : []
   // Una sola elección por evento: al apretar una opción se bloquean todas hasta que termine
-  const [choosing, setChoosing] = useState(false)
+  const [choosing, setChoosing] = useState(null)
   const choose = async (opt) => {
     if (choosing) return
-    setChoosing(true)
+    setChoosing(opt.id)
     try {
       await onResolve(event, opt)
     } finally {
-      setChoosing(false)
+      setChoosing(null)
     }
   }
 
   return (
-    <Card className={cn(critical && 'border-danger/50')}>
-      <CardBody className="space-y-3">
+    <Card className={cn('min-w-0 overflow-hidden', critical && 'border-danger/50', story && !critical && 'border-gold/40')}>
+      <CardBody className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          {isStoryEvent(event) && <Badge tone="gold">Historia</Badge>}
+          {story && <Badge tone="gold"><BookOpen className="size-3" aria-hidden="true" />Historia</Badge>}
           <Badge tone={category.tone}>{category.label}</Badge>
           {critical && <Badge tone="danger" dot>Decisión urgente</Badge>}
         </div>
+        {chapter && (
+          <div className="flex items-center gap-2" aria-label={`Capítulo ${chapter.current} de ${chapter.total}`}>
+            <span className="flex gap-1" aria-hidden="true">
+              {Array.from({ length: chapter.total }, (_, i) => (
+                <span key={i} className={cn('h-1.5 w-6 rounded-full', i < chapter.current ? 'bg-gold' : 'bg-surface-3', i === chapter.current - 1 && 'animate-pulse')} />
+              ))}
+            </span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-gold">Capítulo {chapter.current} de {chapter.total}</span>
+          </div>
+        )}
         <div>
-          <h3 className="flex items-center gap-2 font-display text-xl font-semibold text-fg">
-            <Bell className={cn('size-4.5', critical ? 'text-danger' : 'text-fg-subtle')} aria-hidden="true" />
-            {event.title}
+          <h3 className="flex items-start gap-2 font-display text-xl font-semibold text-fg">
+            {story ? <Sparkles className="mt-1 size-4.5 shrink-0 text-gold" aria-hidden="true" /> : <Bell className={cn('mt-1 size-4.5 shrink-0', critical ? 'text-danger' : 'text-fg-subtle')} aria-hidden="true" />}
+            <span className="min-w-0 break-words">{chapter ? chapter.clean : event.title}</span>
           </h3>
           <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{event.description}</p>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          {options.map(opt => {
-            const cost = Number(opt.cost || 0)
-            const canAfford = cost === 0 || budget >= cost
-            const needsBoard = Number(opt.requires?.board || 0)
-            const hasBackup = !needsBoard || boardConfidence >= needsBoard
-            return (
-              <Button key={opt.id} variant="outline" disabled={choosing || !canAfford || !hasBackup} onClick={() => choose(opt)} className="justify-between" title={opt.description}>
-                <span>{opt.label}</span>
-                {cost > 0 && <Badge tone={canAfford ? 'warning' : 'danger'} className="num">-{formatMoney(cost)}</Badge>}
-                {!hasBackup && <Badge tone="danger">Sin respaldo de la dirigencia</Badge>}
-              </Button>
-            )
-          })}
+        <div>
+          {story && <p className="eyebrow mb-2">¿Qué hacés?</p>}
+          <div className="flex flex-col gap-2">
+            {options.map((opt, index) => {
+              const cost = Number(opt.cost || 0)
+              const canAfford = cost === 0 || budget >= cost
+              const needsBoard = Number(opt.requires?.board || 0)
+              const hasBackup = !needsBoard || boardConfidence >= needsBoard
+              const disabled = !!choosing || !canAfford || !hasBackup
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => choose(opt)}
+                  className={cn(
+                    'group flex w-full min-w-0 items-start gap-3 rounded-lg border p-3 text-left transition-all',
+                    'border-line-strong bg-surface-2 hover:border-accent hover:bg-accent-soft active:scale-[0.99]',
+                    'disabled:pointer-events-none disabled:opacity-50',
+                    choosing === opt.id && 'border-accent bg-accent-soft'
+                  )}
+                >
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-sm font-semibold text-fg-muted transition-colors group-hover:bg-accent group-hover:text-accent-fg" aria-hidden="true">
+                    {OPTION_LETTERS[index] || index + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block break-words text-sm font-semibold text-fg">{opt.label}</span>
+                    {opt.description && <span className="mt-0.5 block break-words text-xs leading-relaxed text-fg-muted">{opt.description}</span>}
+                    {(cost > 0 || !hasBackup) && (
+                      <span className="mt-1.5 flex flex-wrap gap-1.5">
+                        {cost > 0 && <Badge tone={canAfford ? 'warning' : 'danger'} className="num">-{formatMoney(cost)}</Badge>}
+                        {!hasBackup && <Badge tone="danger">Sin respaldo de la dirigencia</Badge>}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </CardBody>
     </Card>
+  )
+}
+
+/** Resultado de la última decisión: se queda a la vista hasta que el DT lo cierra */
+function OutcomeCard({ outcome, onClose }) {
+  return (
+    <div role="status" className="animate-rise-in rounded-xl border border-accent/50 bg-accent-soft p-4">
+      <div className="flex items-start gap-3">
+        <Sparkles className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <p className="eyebrow text-accent">Así quedó la cosa</p>
+          <p className="mt-1 break-words text-sm leading-relaxed text-fg">{outcome}</p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0">Seguir</Button>
+      </div>
+    </div>
   )
 }
 
@@ -146,6 +206,8 @@ export default function Dashboard() {
   const [showSeasonCloseModal, setShowSeasonCloseModal] = useState(false)
   // Se sube al resolver una decisión: el club puede quedar igual (caja y fecha) y aun así hay que recargar eventos, clima y bitácora
   const [reloadTick, setReloadTick] = useState(0)
+  // Texto del resultado de la última decisión tomada (se muestra hasta que el DT lo cierra)
+  const [lastOutcome, setLastOutcome] = useState(null)
 
   useEffect(() => {
     if (contextLoading || !club || !manager) return
@@ -200,7 +262,7 @@ export default function Dashboard() {
       await refreshContext()
       setReloadTick(t => t + 1)
       // Si el evento ya estaba resuelto (doble clic u otra pestaña) no se aplicó nada: solo se refresca la pantalla
-      if (!outcome?.alreadyResolved) toast.success(outcome?.outcomeNote || 'Decisión ejecutada.')
+      if (!outcome?.alreadyResolved) setLastOutcome(outcome?.outcomeNote || 'Decisión ejecutada.')
     } catch (err) {
       toast.error(friendlyError(err, 'Error al procesar la decisión.'))
     }
@@ -250,6 +312,8 @@ export default function Dashboard() {
 
       <div className="min-w-0 space-y-6">
         <AlertList alerts={urgentAlerts} />
+
+        {lastOutcome && <OutcomeCard outcome={lastOutcome} onClose={() => setLastOutcome(null)} />}
 
         {pendingEvents?.length > 0 && (
           <section aria-label="Decisiones pendientes" className="space-y-3">

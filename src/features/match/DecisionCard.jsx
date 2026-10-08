@@ -8,21 +8,21 @@ import { Megaphone } from 'lucide-react'
 export default function DecisionCard({ moment, onChoose }) {
   return (
     <section aria-label={moment.title} className="space-y-2 rounded-xl border border-accent/50 bg-accent-soft/40 p-3">
-      <h4 className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-accent">
+      <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-accent">
         <Megaphone className="size-3.5" aria-hidden="true" />
         {moment.title}
       </h4>
-      <p className="text-[11px] leading-relaxed text-fg">{moment.text}</p>
+      <p className="text-sm leading-relaxed text-fg">{moment.text}</p>
       <ul className="space-y-1.5">
         {moment.options.map(option => (
           <li key={option.id}>
             <button
               type="button"
               onClick={() => onChoose(option)}
-              className="w-full rounded-lg border border-line bg-surface p-2 text-left text-xs text-fg transition-colors hover:border-accent"
+              className="w-full rounded-lg border border-line bg-surface p-3 text-left text-sm text-fg transition-colors hover:border-accent"
             >
               <span className="block font-bold">{option.label}</span>
-              <span className="text-[10px] text-fg-subtle">{option.desc}</span>
+              <span className="text-xs text-fg-subtle">{option.desc}</span>
             </button>
           </li>
         ))}

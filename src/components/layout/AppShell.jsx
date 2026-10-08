@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { LogOut, Shield } from 'lucide-react'
 import { useGameContext } from '../../context/GameContext'
@@ -87,10 +87,10 @@ function MobileTopBar({ club, title }) {
   )
 }
 
-/** Barra inferior móvil con 5 destinos y áreas táctiles de 56 px */
+/** Barra inferior móvil con 5 destinos y áreas táctiles de 56 px. Es parte del flujo (no `fixed`): en iOS las barras fijas se descolocaban al hacer scroll */
 function MobileTabBar({ pathname }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 backdrop-blur lg:hidden pb-safe" aria-label="Navegación principal">
+    <nav className="shrink-0 border-t border-line bg-surface lg:hidden pb-safe" aria-label="Navegación principal">
       <ul className="mx-auto grid h-14 max-w-xl grid-cols-5">
         {MOBILE_TABS.map(({ to, label, icon: Icon }) => {
           const active = isActivePath(pathname, to)
@@ -123,20 +123,28 @@ function MobileTabBar({ pathname }) {
 export default function AppShell() {
   const { club, manager } = useGameContext()
   const { pathname } = useLocation()
+  const scrollRef = useRef(null)
+
+  // Al cambiar de pantalla se vuelve arriba (el scroll vive en este contenedor, no en la ventana)
+  useEffect(() => { scrollRef.current?.scrollTo?.(0, 0) }, [pathname])
 
   return (
-    <div className="flex min-h-dvh">
+    // Móvil: altura fija de pantalla; el contenido scrollea adentro y la barra inferior queda siempre abajo.
+    // Los márgenes negativos anulan el padding de seguridad del body (la barra y el encabezado ya lo aplican).
+    <div className="-mb-[env(safe-area-inset-bottom)] -mt-[env(safe-area-inset-top)] flex h-dvh overflow-hidden lg:m-0 lg:min-h-dvh lg:h-auto lg:overflow-visible">
       <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-fg">
         Saltar al contenido
       </a>
       <Sidebar club={club} manager={manager} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <MobileTopBar club={club} title={titleForPath(pathname)} />
-        <main id="contenido" className="min-w-0 flex-1 pb-20 lg:pb-0">
-          <Outlet />
-        </main>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain lg:overflow-visible">
+          <MobileTopBar club={club} title={titleForPath(pathname)} />
+          <main id="contenido" className="min-w-0 pb-6 lg:pb-0">
+            <Outlet />
+          </main>
+        </div>
+        <MobileTabBar pathname={pathname} />
       </div>
-      <MobileTabBar pathname={pathname} />
     </div>
   )
 }

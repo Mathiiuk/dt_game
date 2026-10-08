@@ -48,7 +48,7 @@ function GameApp() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
+      <div className="min-h-dvh text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
         <GameProvider>
           <Routes>
             <Route path="/auth" element={<AuthScreen />} />
@@ -59,9 +59,8 @@ function GameApp() {
             <Route path="/create-club" element={<CreateClubWizard />} />
             <Route path="/design" element={<DesignSystemScreen />} />
 
-            {/* Partido en vivo y resumen: pantalla inmersiva, sin menú */}
+            {/* Partido en vivo: pantalla inmersiva, sin menú (el resumen sí lleva menú para poder ir a otras secciones) */}
             <Route path="/match" element={<RequireCareer><MatchScreen /></RequireCareer>} />
-            <Route path="/post-match" element={<RequireCareer><PostMatchScreen /></RequireCareer>} />
 
             {/* Epílogo del DT retirado: sin menú (no hay a dónde volver) */}
             <Route path="/endgame" element={<EndgameScreen />} />
@@ -69,6 +68,7 @@ function GameApp() {
             {/* Pantallas de juego dentro del AppShell (menú lateral en escritorio, barra inferior en móvil) */}
             <Route element={<RequireCareer><AppShell /></RequireCareer>}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/post-match" element={<PostMatchScreen />} />
               <Route path="/events" element={<EventScreen />} />
               <Route path="/calendar" element={<CalendarScreen />} />
               <Route path="/tactics" element={<TacticsScreen />} />

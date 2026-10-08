@@ -26,6 +26,8 @@ export default function TrainingScreen() {
   const [intensity, setIntensity] = useState('MEDIUM')
   const [players, setPlayers] = useState([])
   const [assignments, setAssignments] = useState({})
+  // Plan que está en vigor (el último guardado o cargado): sirve para avisar si hay cambios sin confirmar
+  const [savedPlan, setSavedPlan] = useState(null)
   const [savingPlayerId, setSavingPlayerId] = useState(null)
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export default function TrainingScreen() {
           setFocus(plan.general_focus || 'BALANCED')
           setIntensity(plan.intensity_level || 'MEDIUM')
         }
+        setSavedPlan({ focus: plan?.general_focus || 'BALANCED', intensity: plan?.intensity_level || 'MEDIUM' })
         if (squadRes.data) setPlayers(squadRes.data)
         setAssignments(Object.fromEntries(assigned.map(a => [a.player_id, a.focus_attribute])))
       } catch (e) {
@@ -60,6 +63,7 @@ export default function TrainingScreen() {
   const recovery = focus === 'RECOVERY_REST'
   const selectedIntensity = INTENSITY_CONFIG[intensity] || INTENSITY_CONFIG.MEDIUM
   const selectedFocus = FOCUS_OPTIONS.find(o => o.id === focus)
+  const planChanged = !!savedPlan && (savedPlan.focus !== focus || savedPlan.intensity !== intensity)
 
   const savePlan = async () => {
     setSaving(true)
@@ -72,6 +76,7 @@ export default function TrainingScreen() {
       })
       if (!proceed) return
       await trainingApi.updateClubTrainingPlan(club.id, focus, intensity)
+      setSavedPlan({ focus, intensity })
       await refreshContext()
       toast.success('Plan general de entrenamiento actualizado y en vigor.')
     } catch (e) {
@@ -168,9 +173,6 @@ export default function TrainingScreen() {
                   </div>
                 </CardBody>
               </Card>
-              <Button className="w-full" size="lg" loading={saving} onClick={savePlan}>
-                {!saving && <CheckCircle2 />}Confirmar plan de trabajo
-              </Button>
             </div>
 
             <div className="space-y-4">
@@ -213,6 +215,21 @@ export default function TrainingScreen() {
                   </ul>
                 </CardBody>
               </Card>
+            </div>
+          </div>
+
+          {/* Barra de confirmación siempre a mano: queda pegada abajo mientras se recorre la pantalla */}
+          <div className="sticky bottom-0 z-10 -mx-4 mt-6 border-t border-line bg-bg px-4 py-3 sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-xl lg:border lg:bg-surface lg:px-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <p className="min-w-0 text-xs text-fg-muted sm:text-sm">
+                <span className="font-semibold text-fg">{selectedFocus?.label || 'Enfoque'}</span>
+                {' · '}
+                {recovery ? 'Regenerativo' : `Intensidad ${selectedIntensity.label.toLowerCase()}`}
+                {planChanged && <span className="ml-1.5 font-semibold text-warning">· Cambios sin confirmar</span>}
+              </p>
+              <Button className="w-full sm:w-auto" size="lg" loading={saving} onClick={savePlan}>
+                {!saving && <CheckCircle2 />}Confirmar plan de trabajo
+              </Button>
             </div>
           </div>
         </TabsContent>

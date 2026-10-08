@@ -237,7 +237,7 @@ export default function PostMatchScreen() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-dvh bg-bg text-fg gap-3 p-4">
+      <div className="flex flex-col items-center justify-center min-h-[60dvh] bg-bg text-fg gap-3 p-4">
         <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
         <p className="text-accent font-medium text-sm animate-pulse">Consolidando estadísticas oficiales del encuentro...</p>
       </div>
@@ -258,7 +258,7 @@ export default function PostMatchScreen() {
   const keyEvents = (results.events || []).filter(e => ['GOAL', 'CARD_RED', 'CARD_YELLOW', 'INJURY'].includes(e.type))
 
   return (
-    <div className="min-h-dvh text-fg bg-bg p-3 sm:p-6 pb-28 md:pb-12 lg:h-dvh lg:overflow-hidden lg:flex lg:flex-col lg:p-4">
+    <div className="min-h-full text-fg bg-bg p-3 sm:p-6 pb-6 lg:h-dvh lg:overflow-hidden lg:flex lg:flex-col lg:p-4">
       {/* Top Header & Outcome Banner */}
       <div className="max-w-4xl mx-auto w-full space-y-3 mb-3 shrink-0">
         <div className="p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg">
@@ -338,7 +338,7 @@ export default function PostMatchScreen() {
         </div>}
       </div>
 
-      <main className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="max-w-4xl mx-auto w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         {step === 'PRESS' && (
           <PressRoom
             questions={pressQuestions}
@@ -588,7 +588,7 @@ export default function PostMatchScreen() {
             </button>
           )}
         </div>
-      </main>
+      </div>
     </div>
   )
 }
