@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
+vi.mock('../../src/api/player', () => ({
+  playerApi: {
+    getSquad: vi.fn(async () => [])
+  }
+}))
 
 const state = { team: null }
 const acceptOffer = vi.fn(async () => ({}))

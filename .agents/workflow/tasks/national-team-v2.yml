@@ -1,0 +1,33 @@
+id: national-team-v2
+external_ref: ''
+title: 'D1: Rediseño arcade de Selección Nacional'
+type: feat
+status: COMPLETED
+priority: medium
+owner: team-agent
+base_branch: >-
+  feat/compact-screens-phase3-pantallas-compactas-dificultad-b9-titulo-b11-botones-wizard-b12-auth-b13-calendario-m4-y-prensa-post-partido-m8
+scope:
+  project: dt_game
+  modules: []
+  environments:
+    - local
+requirements:
+  - 'Implementar D1: Rediseño arcade de Selección Nacional'
+acceptance_criteria:
+  - 'Criterio de aceptación 1 para D1: Rediseño arcade de Selección Nacional'
+requires_approval: false
+quality_gates:
+  lint: false
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: false
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd
