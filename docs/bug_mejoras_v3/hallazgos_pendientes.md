@@ -44,3 +44,26 @@ Riesgos que quedan (no se tocaron):
 - Mano a mano ("jugada clave"): nuevo momento, a favor (definir / gambetear / ceder) y en contra (achicar / quedarse / tirarse a los pies). Tiene efecto real en el motor.
 - Relato con humor: remates del relator en goles, atajadas, errados, córners, tarjetas y lesiones (azar propio: no cambia el resultado del partido).
 - Historias contadas de a poco: momentos, diálogos en globo, opciones al terminar de leer, y al elegir una cargada del narrador con chips de lo que cambió.
+
+## Auditoría del partido (tercera pasada)
+Corregido en esta tanda:
+- Barra del penal que se trababa: iba con `requestAnimationFrame` + `setState` en cada cuadro. Ahora es una animación de CSS (suave) y se lee dónde quedó el marcador al patear. Con "reducir movimiento" activo en el sistema la barra seguía la regla global (animaciones casi instantáneas): se la exceptuó, va más lenta pero se mueve.
+- Lesión → "Elegí quién entra" no abría el banco en pantallas chicas (solo dejaba el jugador preseleccionado). Ahora abre la hoja de cambios.
+- Pizarra de cambios: las fichas se ubicaban por índice de la lista, así que con una expulsión (o con alineación libre) quedaban en lugares equivocados o amontonadas. Ahora van en el puesto que ocupa cada jugador y respetan la alineación libre.
+- Pizarra de cambios: se ven amarillas, lesionados y la leyenda; en la pizarra táctica las bajas llevan una etiqueta visible ("Lesionado" / "Suspendido").
+- Once rival con nombres propios (antes "Jugador Rival #n").
+- Prensa: periodista con carácter y frase de entrada, pregunta que se "escribe" en vivo, humor de la sala, cara de la sala tras cada respuesta, emoji por tono y una tercera ronda posible: relámpago de sí o no. El marcador se achica en la prensa para que entren las preguntas, y "Volver al inicio" ya no aparece mientras se responde.
+
+Pendiente (match):
+- Recargar a mitad de partido salta directo al final ("completado automáticamente") en vez de retomar el minuto.
+- El rival nunca hace cambios ni tiene decisiones: es el mismo equipo de relleno todo el partido.
+- Las amarillas del partido no se acumulan entre fechas (no hay suspensión por amarillas): la tabla de jugadores solo marca `is_suspended` en falso.
+- La prensa sigue en 2 preguntas por decisión previa ("prensa corta"); si se quiere más variedad, rotar cuál se hace en vez de alargar.
+
+Ideas para un partido más arcade (para elegir):
+1. Atajadas interactivas: cuando el rival patea al arco, un toque rápido en la zona correcta para que el arquero la saque (efecto real sobre la chance).
+2. Medidor de impulso ("momentum"): sube con jugadas buenas y, lleno, se activa un "arrebato" de 5 minutos (+ataque).
+3. Una carta por partido ("pizarrazo"): repetir un grito sin esperar la espera de 15 minutos, o forzar un córner.
+4. Tiros libres y córners como momentos: elegir quién la cuelga y a quién apunta.
+5. Repetición de la jugada del partido en el resumen y titular generado con el gol.
+6. Festejos: animación y frase del relator al gol propio, y "silbidos" al gol en contra.

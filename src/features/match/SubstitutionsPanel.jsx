@@ -11,7 +11,7 @@ const ovr = (p) => p.attr_overall || p.overall || '-'
  * Cambios durante la pausa: se elige quién sale de la cancha y quién entra del banco.
  * El que entra ocupa el puesto del que sale (la media que se muestra es la que tiene en ese puesto).
  */
-export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstitute, preselectOutId = null }) {
+export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstitute, preselectOutId = null, statusById = {} }) {
   const [pickedId, setOutId] = useState(null)
   // El lesionado queda marcado para salir hasta que el DT elija a otro
   const outId = pickedId ?? (onField.some(p => p.id === preselectOutId) ? preselectOutId : null)
@@ -58,7 +58,8 @@ export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstit
                   <span className="truncate font-semibold">{nameOf(p)}</span>
                   <span className={cn("text-xs font-medium", p.id === preselectOutId ? "text-red-400" : "text-fg-subtle")}>
                     {p.slot_base || p.position} · {Math.round(p.slot_rating ?? 0) || ovr(p)}
-                    {p.id === preselectOutId && " (Lesionado)"}
+                    {(p.id === preselectOutId || statusById[p.id]?.hurt) && ' · 🩹 Lesionado'}
+                    {statusById[p.id]?.yellow > 0 && ' · 🟨 Amarilla'}
                   </span>
                 </button>
               </li>

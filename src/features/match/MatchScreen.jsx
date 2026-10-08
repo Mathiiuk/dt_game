@@ -94,6 +94,19 @@ export default function MatchScreen() {
   const squadNotes = previewSquad?.notes || []
   const youthNotes = squadNotes.filter(n => n.type === 'YOUTH_CALLUP')
   const injuredNotes = squadNotes.filter(n => n.type === 'INJURED_PLAYING')
+  // Estado de cada jugador en el partido (amarillas, roja, molestias) para marcarlo en la pizarra de cambios
+  const statusById = useMemo(() => {
+    const map = {}
+    for (const e of simResults?.events || []) {
+      if (e.minute > minute || !e.playerId) continue
+      const st = (map[e.playerId] ||= { yellow: 0, red: false, hurt: false })
+      if (e.type === 'CARD_YELLOW') st.yellow++
+      else if (e.type === 'CARD_RED') st.red = true
+      else if (e.type === 'INJURY') st.hurt = true
+    }
+    return map
+  }, [simResults, minute])
+
   // Estadísticas en vivo que evolucionan minuto a minuto según los eventos reales simulados
   const liveStats = useMemo(() => {
     if (!simResults?.events) return simResults?.stats || null
@@ -236,7 +249,7 @@ export default function MatchScreen() {
     
     const rival = data.fixture ? (data.fixture.home_team_id === data.club.id ? data.fixture.away : data.fixture.home) : null
     // El rival juega con su fuerza real (si no la tiene, con la de su reputación)
-    const awayPlayers = buildRivalLineup(rival?.reputation || 10, rival?.strength ?? null)
+    const awayPlayers = buildRivalLineup(rival?.reputation || 10, rival?.strength ?? null, rival?.id || rival?.name || 'rival')
     
     const isHome = data.fixture ? data.fixture.home_team_id === data.club.id : true
     const oppName = data.fixture 
@@ -296,6 +309,12 @@ export default function MatchScreen() {
     }))
   }
 
+  // Posiciones de la pizarra del DT (formación fija o alineación libre)
+  const pitchLayout = (() => {
+    const custom = data.tactic?.formation === FREE_FORMATION ? normalizeLayout(data.tactic?.custom_layout) : null
+    return custom || getLayout(data.tactic?.formation)
+  })()
+
   const userSide = (data.fixture ? data.fixture.home_team_id === data.club?.id : true) ? 'home' : 'away'
 
   // Todo cambio del DT (jugadores, gritos, decisiones) rejuega el resto del partido con la misma semilla:
@@ -351,6 +370,8 @@ export default function MatchScreen() {
     }
     if (option.action === MOMENT_ACTION_OPEN_SUBS) {
       setPreselectOut(wasMoment.playerId || null)
+      // En pantallas chicas el banco vive en una hoja: se abre sola para elegir quién entra
+      if (!isLg) setSubsSheetOpen(true)
       return // sigue en pausa para hacer el cambio
     }
     setPaused(false)
@@ -526,6 +547,7 @@ export default function MatchScreen() {
                    <SubstitutionsPanel
                       preselectOutId={preselectOut}
                       onField={onField.filter(p => !sentOffIds.has(p.id))}
+                      statusById={statusById}
                       bench={benchOf(data.players, onField, subsMade)}
                       subsLeft={substitutionsLeft(subsMade)}
                       onSubstitute={handleSubstitute}
@@ -625,6 +647,8 @@ export default function MatchScreen() {
         onSubstitute={handleSubstitute}
         sentOffIds={sentOffIds}
         tactic={data.tactic}
+        layout={pitchLayout}
+        statusById={statusById}
       />
 
       <ShoutsSheet

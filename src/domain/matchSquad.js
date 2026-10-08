@@ -154,13 +154,19 @@ const RIVAL_SLOTS = ['PO', 'LI', 'DFC1', 'DFC2', 'LD', 'MI', 'MC1', 'MC2', 'MD',
  * Once rival genérico para una liga sin planteles de IA: 4-4-2 donde todos rinden `50 + reputación / 2` en su puesto
  * (con reputación 15, 57: un poco por debajo de un plantel inicial del usuario, que ronda 60).
  */
-export const buildRivalLineup = (reputation = 10, strength = null) => {
+const RIVAL_FIRST = ['Lucas', 'Matías', 'Nicolás', 'Facundo', 'Joaquín', 'Franco', 'Gonzalo', 'Ezequiel', 'Brian', 'Maxi', 'Tomás', 'Agustín', 'Leandro', 'Cristian', 'Emanuel']
+const RIVAL_LAST = ['Acuña', 'Barrios', 'Cabral', 'Domínguez', 'Escobar', 'Figueroa', 'Godoy', 'Herrera', 'Ibarra', 'Juárez', 'Luna', 'Medina', 'Núñez', 'Ojeda', 'Paredes', 'Quiroga', 'Rojas', 'Sandoval', 'Toledo', 'Vera']
+const seedNumber = (seed) => { let h = 7; for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h }
+
+export const buildRivalLineup = (reputation = 10, strength = null, seed = 'rival') => {
   // Con fuerza propia el rival rinde exactamente eso; si no la tiene, se estima por reputación
   const level = strength != null ? Math.round(strength) : Math.round(50 + reputation * 0.5)
+  const base = seedNumber(seed)
   return RIVAL_SLOTS.map((slot, idx) => ({
     id: `rival_${idx}`,
-    first_name: 'Jugador',
-    last_name: `Rival #${idx + 1}`,
+    // Nombres de relleno (siempre los mismos para el mismo club) en vez de "Jugador Rival #n"
+    first_name: RIVAL_FIRST[(base + idx * 7) % RIVAL_FIRST.length],
+    last_name: RIVAL_LAST[(base + idx * 11 + (idx >> 1)) % RIVAL_LAST.length],
     position: slotBase(slot),
     slot,
     slot_base: slotBase(slot),

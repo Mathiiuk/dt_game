@@ -136,3 +136,13 @@ describe('puestos del once (B7)', () => {
     expect(rival[0].slot_base).toBe('PO')
   })
 })
+
+describe('nombres del once rival', () => {
+  it('tiene nombres propios y siempre los mismos para el mismo club', () => {
+    const a = buildRivalLineup(15, 60, 'club-1')
+    expect(a.map(p => `${p.first_name} ${p.last_name}`)).toEqual(buildRivalLineup(15, 60, 'club-1').map(p => `${p.first_name} ${p.last_name}`))
+    expect(a.every(p => !/Rival #/.test(p.last_name))).toBe(true)
+    expect(new Set(a.map(p => `${p.first_name} ${p.last_name}`)).size).toBeGreaterThan(8)
+    expect(a.map(p => p.last_name)).not.toEqual(buildRivalLineup(15, 60, 'club-2').map(p => p.last_name))
+  })
+})

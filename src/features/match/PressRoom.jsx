@@ -3,6 +3,7 @@ import { ArrowRight, CheckCircle2, Mic, Timer, UserCheck } from 'lucide-react'
 import { AsyncButton } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import { toneLabel } from '../../domain/press'
+import { reporterOf, roomFace, nextRoomMood, TONE_EMOJI, lightningRound, lightningTotal, LIGHTNING_TIMEOUT } from '../../domain/pressScene'
 import { BINGO_CLICHES, PRESS_SECONDS, headlineResult, headlineRound, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
 
 const TONE_COLORS = {
@@ -48,6 +49,116 @@ function Countdown({ seconds, onExpire }) {
   )
 }
 
+/** Escribe el texto de a poco, como si el periodista lo dijera en vivo. Tocar el globo lo muestra completo. */
+function useTypewriter(text, onDone) {
+  const [count, setCount] = useState(0)
+  const done = useRef(onDone)
+  done.current = onDone
+  useEffect(() => {
+    setCount(0)
+  }, [text])
+  useEffect(() => {
+    if (count >= text.length) { done.current?.(); return undefined }
+    const id = setTimeout(() => setCount(c => Math.min(text.length, c + 2)), 22)
+    return () => clearTimeout(id)
+  }, [count, text])
+  return [text.slice(0, count), count >= text.length, () => setCount(text.length)]
+}
+
+/** Humor de la sala: una barra que sube y baja con cada respuesta */
+function RoomMeter({ mood }) {
+  const face = mood >= 66 ? '😄' : mood >= 40 ? '😐' : '😠'
+  return (
+    <div className="flex items-center gap-2 text-xs" role="meter" aria-label="Humor de la sala" aria-valuemin={0} aria-valuemax={100} aria-valuenow={mood}>
+      <span aria-hidden="true">{face}</span>
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-3">
+        <div className={`h-full transition-all duration-700 ${mood >= 66 ? 'bg-accent' : mood >= 40 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${mood}%` }} />
+      </div>
+      <span className="text-fg-subtle">Humor de la sala</span>
+    </div>
+  )
+}
+
+/** Ronda relámpago: tres preguntas de sí o no con poco tiempo; cada respuesta tiene su comentario y el total mueve la hinchada */
+function LightningRound({ onFinish }) {
+  const round = useMemo(() => lightningRound(), [])
+  const [index, setIndex] = useState(0)
+  const [answers, setAnswers] = useState([])
+  const [shown, setShown] = useState(null) // respuesta recién dada, a la vista un momento
+  const current = round[index]
+  const finished = index >= round.length
+
+  const pick = (answer) => {
+    if (shown) return
+    setShown(answer)
+    setAnswers(prev => [...prev, answer])
+  }
+  const advance = () => {
+    const total = answers.length
+    setShown(null)
+    setIndex(i => i + 1)
+    if (total >= round.length) onFinish(lightningTotal(answers))
+  }
+
+  if (finished) {
+    const total = lightningTotal(answers)
+    return (
+      <p role="status" className="rounded-xl border border-line bg-bg p-3 text-xs text-fg">
+        Ronda terminada. {total > 0 ? 'La sala se fue sonriendo.' : total < 0 ? 'Algunas respuestas cayeron mal.' : 'Quedó todo parejo.'} {total !== 0 && <strong>Hinchada {total > 0 ? `+${total}` : total}.</strong>}
+      </p>
+    )
+  }
+
+  return (
+    <section aria-label="Ronda relámpago" className="space-y-3 rounded-xl border border-gold/40 bg-gold/5 p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-gold">⚡ Ronda relámpago</p>
+        <span className="font-mono text-[11px] text-fg-subtle">{Math.min(index + 1, round.length)} de {round.length}</span>
+      </div>
+      {!shown && <Countdown key={index} seconds={7} onExpire={() => pick(LIGHTNING_TIMEOUT)} />}
+      <p className="text-sm font-medium text-fg">{current.prompt}</p>
+      {shown ? (
+        <div className="space-y-3">
+          <p role="status" className="rounded-lg border border-line bg-bg p-3 text-xs text-fg">{shown.line}</p>
+          <button type="button" onClick={advance} className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-2.5 text-xs font-semibold uppercase tracking-wider text-accent-fg hover:bg-accent-strong">
+            {index + 1 >= round.length ? 'Terminar la ronda' : 'Otra más'} <ArrowRight className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => pick(current.yes)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95"><span aria-hidden="true">👍</span> Sí</button>
+          <button type="button" onClick={() => pick(current.no)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95"><span aria-hidden="true">👎</span> No</button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** El periodista con su carácter y la pregunta que va saliendo de a poco */
+function ReporterBubble({ question, index }) {
+  const reporter = useMemo(() => reporterOf(question.journalist_name, index), [question.journalist_name, index])
+  const [text, done, skip] = useTypewriter(question.question_text || '')
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex shrink-0 flex-col items-center gap-0.5">
+        <span className="grid size-12 place-items-center rounded-full border border-line bg-bg text-2xl" aria-hidden="true">{reporter.emoji}</span>
+        <span className="rounded-full bg-surface-3 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-fg-muted">{reporter.label}</span>
+      </div>
+      <button type="button" onClick={skip} disabled={done} aria-label="Pregunta del periodista" className="min-w-0 flex-1 rounded-xl rounded-tl-none border border-line bg-bg p-3 text-left disabled:cursor-default">
+        <p className="mb-1 text-[11px] text-fg-subtle"><span className="font-semibold text-fg-muted">{question.journalist_name}</span> {reporter.intro}</p>
+        {done ? (
+          <p className="text-sm font-medium italic text-fg">“{question.question_text}”</p>
+        ) : (
+          <>
+            <span className="sr-only">{question.question_text}</span>
+            <p className="text-sm font-medium italic text-fg" aria-hidden="true">“{text}▍</p>
+          </>
+        )}
+      </button>
+    </div>
+  )
+}
+
 /**
  * Sala de conferencias: preguntas relámpago con cuenta regresiva, reacción de la sala tras cada respuesta,
  * y al final la ronda de "Completá la frase del DT".
@@ -56,6 +167,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const [noTimer, setNoTimer] = useState(readNoTimer)
   const [reaction, setReaction] = useState(null) // { line, fans, board, timedOut, tone } tras responder
   const [phrase, setPhrase] = useState(null) // resultado de la frase elegida
+  const [mood, setMood] = useState(50) // humor de la sala
+  const [lightning, setLightning] = useState(null) // total de la ronda relámpago cuando termina
   const [phraseDone, setPhraseDone] = useState(() => phraseDoneBefore(conferenceId))
   const round = useMemo(() => phraseRound(outcome), [outcome])
   // Titular o fake y Bingo del DT
@@ -83,7 +196,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const activeMinigame = useMemo(() => {
     if (!headlines) return 'PHRASE'
     const code = String(conferenceId || '').charCodeAt(String(conferenceId || '').length - 1) || 0
-    return code % 2 === 1 ? 'HEADLINE' : 'PHRASE'
+    const options = headlines ? ['PHRASE', 'HEADLINE', 'LIGHTNING'] : ['PHRASE', 'LIGHTNING']
+    return options[code % options.length]
   }, [conferenceId, headlines])
 
   // M8: Conferencia corta de 2 preguntas máximo
@@ -100,7 +214,9 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
 
   const answer = async (option, timedOut = false) => {
     await onAnswer(question, option, { timedOut })
-    setReaction({ ...roomReaction({ tone: option.tone, outcome }), timedOut, tone: option.tone })
+    const r = roomReaction({ tone: option.tone, outcome })
+    setMood(m => nextRoomMood(m, r))
+    setReaction({ ...r, timedOut, tone: option.tone })
   }
 
   const next = () => {
@@ -120,6 +236,12 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
       else if (updated.newLines > 0) setBingoNote('¡Línea! Completaste una línea del Bingo del DT.')
       else if (result.cliche) setBingoNote('Tachaste un cliché del Bingo del DT.')
     }
+  }
+
+  const finishLightning = async (total) => {
+    setLightning(total)
+    try { sessionStorage.setItem(phraseKey(conferenceId), '1') } catch { /* sin almacenamiento sigue funcionando */ }
+    if (total) await onPhrase?.({ fans: total, line: '', cliche: null })
   }
 
   const pickHeadline = async (option) => {
@@ -182,6 +304,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
         {reaction.timedOut && <p className="rounded-xl border border-warning/40 bg-warning-soft p-2.5 text-xs font-semibold text-warning">Se te acabó el tiempo: contestaste nervioso.</p>}
         <div className="space-y-2 rounded-xl border border-line bg-bg p-4">
           <p className="text-[11px] font-bold uppercase tracking-wider text-fg-subtle">Reacción de la sala</p>
+          <p className="flex items-center gap-2 text-2xl" aria-hidden="true">{roomFace(reaction).emoji}<span className="text-xs font-semibold text-fg-muted">{roomFace(reaction).label}</span></p>
           <p className="text-sm font-medium text-fg">{reaction.line}</p>
           <p className="text-xs text-fg-muted">
             Hinchada {signed(reaction.fans)} • Dirigencia {signed(reaction.board)}
@@ -216,6 +339,12 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
               ))}
             </ul>
           </section>
+        )}
+        {activeMinigame === 'LIGHTNING' && !phraseDone && lightning === null && <LightningRound onFinish={finishLightning} />}
+        {lightning !== null && (
+          <p role="status" className="rounded-xl border border-line bg-bg p-3 text-xs text-fg">
+            Ronda relámpago terminada. {lightning !== 0 && <strong>Hinchada {lightning > 0 ? `+${lightning}` : lightning}.</strong>}
+          </p>
         )}
         {phrase && (
           <p role="status" className="rounded-xl border border-line bg-bg p-3 text-xs text-fg">
@@ -311,19 +440,16 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           <span className="font-mono text-fg-subtle">Pregunta {currentIndex + 1} de {activeQuestions.length}</span>
         </div>
 
-        {noTimer ? null : <Countdown key={question.id || currentIndex} seconds={PRESS_SECONDS} onExpire={() => answer(timeoutOption(question.options), true)} />}
+        <ReporterBubble key={question.id || currentIndex} question={question} index={currentIndex} />
 
-        <div className="rounded-xl border border-line bg-bg p-4">
-          <p className="mb-1 text-xs font-semibold text-fg-muted">{question.journalist_name}:</p>
-          <p className="text-sm font-medium italic text-fg">"{question.question_text}"</p>
-        </div>
+        {noTimer ? null : <Countdown key={question.id || currentIndex} seconds={PRESS_SECONDS} onExpire={() => answer(timeoutOption(question.options), true)} />}
 
         <div className="space-y-2 pt-2">
           <p className="text-xs font-semibold text-fg-muted">Elegí tu postura y respuesta:</p>
           {(question.options || []).map((opt, optIdx) => (
             <AsyncButton key={optIdx} onClick={() => answer(opt)} className="group w-full rounded-xl border border-line bg-bg/70 p-3 text-left text-xs transition-all hover:border-accent/60 hover:bg-surface">
               <div className="mb-1 flex items-center justify-between">
-                <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted'}`}>{toneLabel(opt.tone, 'Respuesta')}</span>
+                <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted'}`}><span aria-hidden="true">{TONE_EMOJI[opt.tone] || '🎤'} </span>{toneLabel(opt.tone, 'Respuesta')}</span>
                 <span className="text-[10px] text-fg-subtle">Impacto moral: {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
               </div>
               <p className="leading-snug text-fg">"{opt.text}"</p>
@@ -344,6 +470,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   return (
     <div className="space-y-4 rounded-lg border border-line bg-surface/60 p-4 sm:p-6">
       {header}
+      {!finished && !skipResult && !delegated && answeredAny || reaction ? <RoomMeter mood={mood} /> : null}
       {body}
     </div>
   )

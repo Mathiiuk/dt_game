@@ -24,3 +24,8 @@ Rama: `fix/bugs-mejoras-v3` (parte de la rama de auth/PWA, todavía sin mergear)
 - Motor (`matchEngine.js`): `PENALTY_AIM`, jugada clave `KEYPLAY` + `KEYPLAY_CHOICE`, chistes del relato con azar propio (`flavor`, `kp`).
 - UI: `PenaltyShoot` (apuntar + barra), opciones de mano a mano, `StoryText` y `OutcomeCard` con cargada y chips.
 - Dominio nuevo: `storyFlavor.js` (+ tests). Tests de motor y de pantalla nuevos. Suite completa: 1330/1330.
+
+## Cuarta tanda (audit de partido)
+- Penal: barra con animación de CSS; banco abierto desde la lesión; fichas de cambios por puesto con amarillas/lesión; etiquetas de baja en la pizarra; once rival con nombres.
+- Prensa: `domain/pressScene.js` (periodistas con carácter, humor de la sala, ronda relámpago) + PressRoom interactivo (verificado en navegador con datos de prueba).
+- Suite: 1336/1336.

@@ -11,7 +11,9 @@ export default function SubstitutionsSheet({
   players = [],
   subsMade = [],
   onSubstitute,
-  tactic
+  tactic,
+  layout = null,
+  statusById = {}
 }) {
   const eligibleOnField = onField.filter(p => !sentOffIds.has(p.id))
   const bench = benchOf(players, onField, subsMade)
@@ -27,6 +29,8 @@ export default function SubstitutionsSheet({
       onSubstitute={onSubstitute}
       preselectOutId={preselectOutId}
       tactic={tactic}
+      layout={layout}
+      statusById={statusById}
     />
   )
 }

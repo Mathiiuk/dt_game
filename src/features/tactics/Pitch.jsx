@@ -81,7 +81,7 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
   const rating = player ? ratingAtSlot(player, slot) : null
   const lastName = player ? (player.last_name || '').split(' ').slice(-1)[0] : ''
   const label = player
-    ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${captain ? ', capitán' : ''}${player.is_injured ? ', lesionado' : ''}${selected ? ', seleccionado' : ''}`
+    ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${captain ? ', capitán' : ''}${player.is_injured ? ', lesionado' : ''}${player.is_suspended ? ', suspendido' : ''}${selected ? ', seleccionado' : ''}`
     : `${base}: puesto vacío${selected ? ', seleccionado' : ''}`
 
   const handleKeyDown = (e) => {
@@ -123,7 +123,8 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
           )}
         >
           {player ? (player.shirt_number ?? '·') : '+'}
-          {player?.is_injured && <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-bg bg-danger" aria-hidden="true" />}
+          {player?.is_injured && <span className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full border-2 border-bg bg-danger text-xs font-bold leading-none text-white" aria-hidden="true">+</span>}
+          {player?.is_suspended && !player?.is_injured && <span className="absolute -right-1 -top-1.5 h-4 w-3 rounded-[2px] border border-bg bg-danger" aria-hidden="true" />}
           {captain && <span className="absolute -left-1 -top-1 grid size-4 place-items-center rounded-full bg-gold text-[0.5625rem] font-bold leading-none text-bg" aria-hidden="true">C</span>}
         </span>
         {player && (
@@ -135,6 +136,9 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
         )}>
           {player ? lastName : base}
         </span>
+        {/* Bajas a simple vista: no hace falta tocar la ficha para saber quién no puede jugar */}
+        {player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><span>🩹</span> Lesionado</span>}
+        {player?.is_suspended && !player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><span>🟥</span> Suspendido</span>}
       </button>
     </motion.div>
   )

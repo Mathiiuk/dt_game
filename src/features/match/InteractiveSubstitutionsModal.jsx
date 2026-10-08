@@ -47,12 +47,14 @@ export default function InteractiveSubstitutionsModal({
   subsLeft = 5,
   onSubstitute,
   preselectOutId = null,
-  tactic
+  tactic,
+  layout: layoutProp = null,
+  statusById = {}
 }) {
   const [selectedOutId, setSelectedOutId] = useState(preselectOutId)
 
   // Asignar coordenadas en la cancha según la formación o 4-4-2 por defecto
-  const layout = getLayout(tactic?.formation || '4-4-2')
+  const layout = layoutProp || getLayout(tactic?.formation || '4-4-2')
   const outPlayer = onField.find(p => p.id === (selectedOutId || preselectOutId))
 
   // Ordenar suplentes según rendimiento en el puesto del jugador seleccionado para salir
@@ -98,9 +100,16 @@ export default function InteractiveSubstitutionsModal({
             )}
           </div>
 
+          <p className="mb-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[10px] text-fg-subtle" aria-label="Referencias">
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-2 rounded-[2px] bg-yellow-300" />Amarilla</span>
+            <span className="flex items-center gap-1"><span className="inline-block size-3 rounded-full bg-red-500 text-center text-[8px] leading-3 text-white">+</span>Lesionado</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-2 rounded-[2px] bg-red-500" />Expulsado (ya no está)</span>
+          </p>
           <MiniPitch>
             {onField.map((player, idx) => {
-              const coords = layout[idx] || { x: 50, y: 50 }
+              // Cada ficha va en el puesto que ocupa (si hubo una expulsión los índices ya no coinciden con la formación)
+              const coords = layout.find(l => l.slot === player.slot) || layout[idx] || { x: 50, y: 50 }
+              const st = statusById[player.id] || {}
               const isSelected = player.id === (selectedOutId || preselectOutId)
               const isInjured = player.is_injured || player.fitness_after_match <= 30
 
@@ -118,7 +127,7 @@ export default function InteractiveSubstitutionsModal({
                 >
                   <div
                     className={cn(
-                      'size-8 rounded-full flex items-center justify-center font-bold text-xs shadow-lg border-2 transition-all',
+                      'relative size-8 rounded-full flex items-center justify-center font-bold text-xs shadow-lg border-2 transition-all',
                       isSelected
                         ? 'border-amber-400 bg-amber-500 text-zinc-950 ring-4 ring-amber-400/50 animate-pulse'
                         : isInjured
@@ -127,6 +136,8 @@ export default function InteractiveSubstitutionsModal({
                     )}
                   >
                     {player.shirt_number || idx + 1}
+                    {st.hurt && <span className="absolute -right-1.5 -top-1.5 grid size-4 place-items-center rounded-full border border-zinc-950 bg-red-500 text-[10px] font-bold leading-none text-white" aria-label="Lesionado">+</span>}
+                    {!st.hurt && st.yellow > 0 && <span className="absolute -right-1 -top-1.5 h-3.5 w-2.5 rounded-[2px] border border-zinc-950 bg-yellow-300" aria-label={`${st.yellow} amarilla`} />}
                   </div>
                   <span
                     className={cn(

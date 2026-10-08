@@ -261,7 +261,15 @@ export default function PostMatchScreen() {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-bg p-3 text-fg sm:p-6 lg:h-dvh lg:flex-none lg:p-4">
       {/* Top Header & Outcome Banner */}
       <div className="max-w-4xl mx-auto w-full space-y-3 mb-3 shrink-0">
-        <div className="p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg">
+        {/* En la prensa el marcador se achica a una línea para dejar lugar a las preguntas */}
+        {step === 'PRESS' && (
+          <p className="flex items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-fg">
+            <span className={isWin ? 'text-accent' : isDraw ? 'text-gold' : 'text-danger'}>{isWin ? 'Victoria' : isDraw ? 'Empate' : 'Derrota'}</span>
+            <span className="num">{results.homeScore} - {results.awayScore}</span>
+            <span className="truncate text-fg-muted">vs {oppName}</span>
+          </p>
+        )}
+        <div className={`p-5 rounded-lg border border-line bg-gradient-to-br from-surface via-surface/90 to-bg text-center shadow-lg ${step === 'PRESS' ? 'hidden' : ''}`}>
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-fg-subtle">
             Resumen oficial • Pitazo final
           </span>
@@ -559,7 +567,7 @@ export default function PostMatchScreen() {
         )}
 
       </div>
-      <div className="shrink-0 border-t border-line pt-3">
+      {(step === 'SUMMARY' || isPressFinished || isPressDelegated || skipResult) && <div className="shrink-0 border-t border-line pt-3">
         {/* Acciones: del resumen se sigue a la prensa; al final se vuelve al inicio */}
         <div className="mx-auto flex w-full max-w-4xl flex-col sm:flex-row items-center justify-end gap-3">
           {step === 'SUMMARY' && (
@@ -590,7 +598,7 @@ export default function PostMatchScreen() {
             </button>
           )}
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

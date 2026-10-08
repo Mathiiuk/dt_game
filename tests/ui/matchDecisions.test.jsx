@@ -86,8 +86,10 @@ describe('partido en vivo con decisiones', () => {
     minutes(5)
     expect(screen.getByRole('region', { name: /Se lesionó/ })).toBeInTheDocument()
     click(screen.getByRole('button', { name: /Elegí quién entra/ }))
-    expect(screen.getByText(/Sale/)).toHaveTextContent('Nro3')
-    expect(screen.getByText(/¿Quién entra\?/)).toBeInTheDocument()
+    // En pantallas chicas se abre sola la hoja del banco con el lesionado marcado para salir
+    expect(screen.getByRole('dialog', { name: /Cambios y Pizarra/ })).toBeInTheDocument()
+    expect(screen.getAllByText(/Sale/)[0]).toHaveTextContent('Nro3')
+    expect(screen.getByText(/Banco de Suplentes/)).toBeInTheDocument()
   })
 
   it('un penal a favor pausa el partido, deja elegir quién patea y rejuega el resto con esa decisión', async () => {

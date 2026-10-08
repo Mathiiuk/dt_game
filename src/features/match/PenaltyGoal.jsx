@@ -67,37 +67,22 @@ export default function PenaltyGoal({ options, onChoose }) {
  */
 export function PenaltyShoot({ takerName, onDone }) {
   const [aim, setAim] = useState(null)
-  const [pos, setPos] = useState(0) // posición de la barra, 0 a 1
   const [shot, setShot] = useState(false)
-  const posRef = useRef(0)
-
-  // La barra va y viene sola mientras se apunta; al patear se congela
-  useEffect(() => {
-    if (!aim || shot) return undefined
-    let raf
-    const start = performance.now()
-    const tick = (now) => {
-      const t = ((now - start) / 900) % 2 // una ida y vuelta cada 1,8 segundos
-      posRef.current = t < 1 ? t : 2 - t
-      setPos(posRef.current)
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [aim, shot])
-
-  // Si la pantalla se cierra antes del disparo no queda nada pendiente
+  // La barra se mueve con una animación de CSS (suave, sin re-renderizar nada); al patear se lee dónde quedó el marcador
+  const trackRef = useRef(null)
+  const markerRef = useRef(null)
   const timer = useRef(null)
   useEffect(() => () => clearTimeout(timer.current), [])
 
   const kick = () => {
     if (shot) return
+    const track = trackRef.current?.getBoundingClientRect()
+    const marker = markerRef.current?.getBoundingClientRect()
+    const pos = track && marker && track.width > 0 ? Math.max(0, Math.min(1, (marker.left + marker.width / 2 - track.left) / track.width)) : 0.5
+    const quality = Math.max(0, 1 - Math.abs(pos - 0.5) * 2)
     setShot(true)
-    const quality = Math.max(0, 1 - Math.abs(posRef.current - 0.5) * 2)
     timer.current = setTimeout(() => onDone({ aim, quality }), 700)
   }
-
-  const inGreen = Math.abs(pos - 0.5) <= 0.15
 
   return (
     <div className="space-y-3">
@@ -124,9 +109,9 @@ export function PenaltyShoot({ takerName, onDone }) {
 
       {aim && (
         <>
-          <div className="relative mx-auto h-5 w-full max-w-xs overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
+          <div ref={trackRef} className="relative mx-auto h-5 w-full max-w-xs overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
             <div className="absolute inset-y-0 left-[35%] w-[30%] bg-accent/40" />
-            <div className={cn('absolute inset-y-0 w-1.5 -translate-x-1/2 rounded-full', inGreen ? 'bg-accent' : 'bg-fg')} style={{ left: `${pos * 100}%` }} />
+            <div ref={markerRef} className={cn('penalty-marker absolute inset-y-0 w-1.5 -translate-x-1/2 rounded-full bg-fg', shot && 'penalty-marker-paused')} />
           </div>
           <button
             type="button"

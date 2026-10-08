@@ -111,7 +111,8 @@
 
   /* Respeta a quien pide menos movimiento */
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+    /* La barra de potencia del penal es el juego en sí: se mueve igual, solo más lento (ver .penalty-marker) */
+    *:not(.penalty-marker), *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -121,6 +122,20 @@
 }
 
 @layer components {
+  /* Barra de potencia del penal: va y viene sola (animación de CSS, no depende de renders de React) */
+  .penalty-marker {
+    left: 0;
+    animation: penalty-sweep 0.8s linear infinite alternate;
+  }
+  .penalty-marker-paused { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    .penalty-marker { animation-duration: 1.4s; }
+  }
+  @keyframes penalty-sweep {
+    from { left: 0%; }
+    to { left: 100%; }
+  }
+
   /* Cifras tabulares: los números no "bailan" al cambiar */
   .num {
     font-variant-numeric: tabular-nums;
