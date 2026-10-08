@@ -55,7 +55,7 @@ export function Pager({ items, perPage: fixed = null, render, className, label =
           onClick={() => setPage(p => Math.max(0, p - 1))}
           disabled={page === 0}
           aria-label="Página anterior"
-          className="grid size-9 place-items-center rounded-lg border border-line bg-surface text-fg transition-colors hover:bg-surface-3 disabled:opacity-30"
+          className="grid size-11 place-items-center rounded-lg border border-line bg-surface text-fg transition-colors hover:bg-surface-3 disabled:opacity-30"
         >
           <ChevronLeft className="size-4" aria-hidden="true" />
         </button>
@@ -70,7 +70,7 @@ export function Pager({ items, perPage: fixed = null, render, className, label =
           onClick={() => setPage(p => Math.min(pages - 1, p + 1))}
           disabled={page >= pages - 1}
           aria-label="Página siguiente"
-          className="grid size-9 place-items-center rounded-lg border border-line bg-surface text-fg transition-colors hover:bg-surface-3 disabled:opacity-30"
+          className="grid size-11 place-items-center rounded-lg border border-line bg-surface text-fg transition-colors hover:bg-surface-3 disabled:opacity-30"
         >
           <ChevronRight className="size-4" aria-hidden="true" />
         </button>

@@ -99,12 +99,12 @@ export function BillsChallenge({ onDone }) {
     setTimeout(() => onDone(won), 500)
   }
 
+  const leftRef = useRef(BILLS_SECONDS)
   useEffect(() => {
     const id = setInterval(() => {
-      setLeft(l => {
-        if (l <= 1) { clearInterval(id); finish(billsWon(savedRef.current)); return 0 }
-        return l - 1
-      })
+      leftRef.current -= 1
+      setLeft(leftRef.current)
+      if (leftRef.current <= 0) { clearInterval(id); finish(billsWon(savedRef.current)) }
     }, 1000)
     return () => clearInterval(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps

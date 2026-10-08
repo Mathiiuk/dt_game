@@ -78,17 +78,16 @@ export function TapsChallenge({ onDone }) {
 
   const countRef = useRef(0)
   // El reloj corre con un intervalo propio: los toques rápidos no lo reinician
+  const leftRef = useRef(TAP_SECONDS * 10)
   useEffect(() => {
     if (!started) return undefined
     const id = setInterval(() => {
-      setLeft(l => {
-        if (l <= 1) {
-          clearInterval(id)
-          if (!done.current) { done.current = true; setTimeout(() => onDone(countRef.current >= TAP_GOAL), 0) }
-          return 0
-        }
-        return l - 1
-      })
+      leftRef.current -= 1
+      setLeft(leftRef.current)
+      if (leftRef.current <= 0) {
+        clearInterval(id)
+        if (!done.current) { done.current = true; onDone(countRef.current >= TAP_GOAL) }
+      }
     }, 100)
     return () => clearInterval(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps

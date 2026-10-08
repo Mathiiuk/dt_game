@@ -1,11 +1,11 @@
 {
-  "updatedAt": "2026-10-07T15:28:06.971Z",
+  "updatedAt": "2026-10-08T19:53:27.487Z",
   "project": "dt_game",
   "metrics": {
-    "totalNodes": 546,
-    "totalEdges": 1439,
-    "totalTasks": 176,
-    "totalLessons": 22
+    "totalNodes": 629,
+    "totalEdges": 1724,
+    "totalTasks": 198,
+    "totalLessons": 25
   },
   "nodes": [
     {
@@ -59,8 +59,8 @@
       "id": "src/api/auth.js",
       "label": "auth.js",
       "type": "module",
-      "sizeBytes": 15655,
-      "lineCount": 484,
+      "sizeBytes": 18299,
+      "lineCount": 561,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -97,8 +97,8 @@
       "id": "src/api/calendar.js",
       "label": "calendar.js",
       "type": "module",
-      "sizeBytes": 24950,
-      "lineCount": 538,
+      "sizeBytes": 26119,
+      "lineCount": 567,
       "imports": [
         "./supabase",
         "../domain/fixtureStatus",
@@ -135,8 +135,8 @@
       "id": "src/api/climate.js",
       "label": "climate.js",
       "type": "module",
-      "sizeBytes": 29353,
-      "lineCount": 548,
+      "sizeBytes": 29590,
+      "lineCount": 552,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -172,8 +172,8 @@
       "id": "src/api/clubFeatures.js",
       "label": "clubFeatures.js",
       "type": "module",
-      "sizeBytes": 2598,
-      "lineCount": 66,
+      "sizeBytes": 2648,
+      "lineCount": 67,
       "imports": [
         "./supabase",
         "./player"
@@ -193,8 +193,8 @@
       "id": "src/api/competition.js",
       "label": "competition.js",
       "type": "module",
-      "sizeBytes": 15316,
-      "lineCount": 368,
+      "sizeBytes": 12424,
+      "lineCount": 287,
       "imports": [
         "../domain/leagueSchedule",
         "../domain/pyramid",
@@ -234,13 +234,14 @@
       "id": "src/api/dashboard.js",
       "label": "dashboard.js",
       "type": "module",
-      "sizeBytes": 5906,
-      "lineCount": 155,
+      "sizeBytes": 6167,
+      "lineCount": 154,
       "imports": [
         "./supabase",
         "../utils/cache",
         "./levels",
         "./events",
+        "./competition",
         "../domain/contracts",
         "../domain/fixtureStatus"
       ]
@@ -282,8 +283,8 @@
       "id": "src/api/events.js",
       "label": "events.js",
       "type": "module",
-      "sizeBytes": 19528,
-      "lineCount": 527,
+      "sizeBytes": 20377,
+      "lineCount": 537,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -310,8 +311,8 @@
       "id": "src/api/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 10222,
-      "lineCount": 247,
+      "sizeBytes": 10873,
+      "lineCount": 266,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -354,7 +355,7 @@
       "id": "src/api/injuries.js",
       "label": "injuries.js",
       "type": "module",
-      "sizeBytes": 13392,
+      "sizeBytes": 13217,
       "lineCount": 407,
       "imports": [
         "./supabase",
@@ -414,8 +415,8 @@
       "id": "src/api/lockerRoom.js",
       "label": "lockerRoom.js",
       "type": "module",
-      "sizeBytes": 15277,
-      "lineCount": 395,
+      "sizeBytes": 15863,
+      "lineCount": 409,
       "imports": [
         "./supabase",
         "../utils/cache"
@@ -436,8 +437,8 @@
       "id": "src/api/market.js",
       "label": "market.js",
       "type": "module",
-      "sizeBytes": 11016,
-      "lineCount": 264,
+      "sizeBytes": 11286,
+      "lineCount": 271,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -449,8 +450,8 @@
       "id": "src/api/matchEngine.js",
       "label": "matchEngine.js",
       "type": "module",
-      "sizeBytes": 26354,
-      "lineCount": 615,
+      "sizeBytes": 33094,
+      "lineCount": 714,
       "imports": [
         "./supabase",
         "../domain/positions",
@@ -501,8 +502,8 @@
       "id": "src/api/player.js",
       "label": "player.js",
       "type": "module",
-      "sizeBytes": 11874,
-      "lineCount": 313,
+      "sizeBytes": 12118,
+      "lineCount": 318,
       "imports": [
         "./supabase",
         "../utils/cache",
@@ -528,8 +529,8 @@
       "id": "src/api/postMatch.js",
       "label": "postMatch.js",
       "type": "module",
-      "sizeBytes": 24516,
-      "lineCount": 581,
+      "sizeBytes": 24710,
+      "lineCount": 588,
       "imports": [
         "./manager",
         "./morale",
@@ -549,8 +550,8 @@
       "id": "src/api/press.js",
       "label": "press.js",
       "type": "module",
-      "sizeBytes": 24513,
-      "lineCount": 590,
+      "sizeBytes": 25478,
+      "lineCount": 607,
       "imports": [
         "./supabase",
         "../domain/press",
@@ -588,14 +589,12 @@
       "id": "src/api/seasonClose.js",
       "label": "seasonClose.js",
       "type": "module",
-      "sizeBytes": 12916,
-      "lineCount": 324,
+      "sizeBytes": 5301,
+      "lineCount": 149,
       "imports": [
         "./supabase",
         "../utils/cache",
         "./playerEvolution",
-        "./clubHistory",
-        "../domain/contracts",
         "./competition"
       ]
     },
@@ -627,8 +626,8 @@
       "id": "src/api/supabase.js",
       "label": "supabase.js",
       "type": "module",
-      "sizeBytes": 343,
-      "lineCount": 7,
+      "sizeBytes": 806,
+      "lineCount": 22,
       "imports": [
         "@supabase/supabase-js"
       ]
@@ -649,7 +648,7 @@
       "id": "src/api/training.js",
       "label": "training.js",
       "type": "module",
-      "sizeBytes": 16862,
+      "sizeBytes": 16852,
       "lineCount": 422,
       "imports": [
         "./supabase",
@@ -689,8 +688,8 @@
       "id": "src/components/layout/AppShell.jsx",
       "label": "AppShell.jsx",
       "type": "module",
-      "sizeBytes": 5638,
-      "lineCount": 132,
+      "sizeBytes": 7167,
+      "lineCount": 155,
       "imports": [
         "react",
         "react-router-dom",
@@ -698,17 +697,32 @@
         "../../context/GameContext",
         "../../lib/utils",
         "../../lib/format",
-        "./navigation"
+        "./navigation",
+        "./useLogout"
       ]
     },
     {
       "id": "src/components/layout/navigation.js",
       "label": "navigation.js",
       "type": "module",
-      "sizeBytes": 3203,
-      "lineCount": 71,
+      "sizeBytes": 3425,
+      "lineCount": 79,
       "imports": [
         "lucide-react"
+      ]
+    },
+    {
+      "id": "src/components/layout/useLogout.js",
+      "label": "useLogout.js",
+      "type": "module",
+      "sizeBytes": 1017,
+      "lineCount": 30,
+      "imports": [
+        "sonner",
+        "../../api/auth",
+        "../../context/GameContext",
+        "../../lib/errors",
+        "../../lib/redirect"
       ]
     },
     {
@@ -785,11 +799,23 @@
       ]
     },
     {
+      "id": "src/components/ui/ClubBadge.jsx",
+      "label": "ClubBadge.jsx",
+      "type": "module",
+      "sizeBytes": 4983,
+      "lineCount": 150,
+      "imports": [
+        "react",
+        "../../lib/utils",
+        "../../domain/clubBadges"
+      ]
+    },
+    {
       "id": "src/components/ui/dialog.jsx",
       "label": "dialog.jsx",
       "type": "module",
-      "sizeBytes": 4956,
-      "lineCount": 116,
+      "sizeBytes": 5146,
+      "lineCount": 120,
       "imports": [
         "react",
         "@radix-ui/react-dialog",
@@ -813,8 +839,8 @@
       "id": "src/components/ui/index.js",
       "label": "index.js",
       "type": "module",
-      "sizeBytes": 899,
-      "lineCount": 16,
+      "sizeBytes": 981,
+      "lineCount": 18,
       "imports": []
     },
     {
@@ -831,15 +857,38 @@
       ]
     },
     {
+      "id": "src/components/ui/named-icon.jsx",
+      "label": "named-icon.jsx",
+      "type": "module",
+      "sizeBytes": 1011,
+      "lineCount": 19,
+      "imports": [
+        "react",
+        "lucide-react"
+      ]
+    },
+    {
       "id": "src/components/ui/page-header.jsx",
       "label": "page-header.jsx",
       "type": "module",
-      "sizeBytes": 1905,
-      "lineCount": 46,
+      "sizeBytes": 2461,
+      "lineCount": 63,
       "imports": [
         "react",
         "lucide-react",
         "react-router-dom",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/components/ui/pager.jsx",
+      "label": "pager.jsx",
+      "type": "module",
+      "sizeBytes": 3927,
+      "lineCount": 81,
+      "imports": [
+        "react",
+        "lucide-react",
         "../../lib/utils"
       ]
     },
@@ -872,8 +921,8 @@
       "id": "src/components/ui/segmented.jsx",
       "label": "segmented.jsx",
       "type": "module",
-      "sizeBytes": 1906,
-      "lineCount": 52,
+      "sizeBytes": 2135,
+      "lineCount": 55,
       "imports": [
         "react",
         "../../lib/utils"
@@ -883,7 +932,7 @@
       "id": "src/components/ui/stat.jsx",
       "label": "stat.jsx",
       "type": "module",
-      "sizeBytes": 1373,
+      "sizeBytes": 1443,
       "lineCount": 32,
       "imports": [
         "react",
@@ -907,7 +956,7 @@
       "id": "src/components/ui/wizard.jsx",
       "label": "wizard.jsx",
       "type": "module",
-      "sizeBytes": 5386,
+      "sizeBytes": 5398,
       "lineCount": 114,
       "imports": [
         "react",
@@ -920,8 +969,8 @@
       "id": "src/context/GameContext.jsx",
       "label": "GameContext.jsx",
       "type": "module",
-      "sizeBytes": 7075,
-      "lineCount": 195,
+      "sizeBytes": 8504,
+      "lineCount": 234,
       "imports": [
         "react",
         "react-router-dom",
@@ -981,16 +1030,16 @@
       "id": "src/domain/arcCatalog.js",
       "label": "arcCatalog.js",
       "type": "module",
-      "sizeBytes": 86403,
-      "lineCount": 908,
+      "sizeBytes": 150738,
+      "lineCount": 1562,
       "imports": []
     },
     {
       "id": "src/domain/arcs.js",
       "label": "arcs.js",
       "type": "module",
-      "sizeBytes": 6484,
-      "lineCount": 134,
+      "sizeBytes": 14239,
+      "lineCount": 383,
       "imports": [
         "./arcCatalog",
         "./characters"
@@ -1034,8 +1083,8 @@
       "id": "src/domain/calendarView.js",
       "label": "calendarView.js",
       "type": "module",
-      "sizeBytes": 1270,
-      "lineCount": 31,
+      "sizeBytes": 3058,
+      "lineCount": 88,
       "imports": [
         "./fixtureStatus"
       ]
@@ -1044,8 +1093,8 @@
       "id": "src/domain/characters.js",
       "label": "characters.js",
       "type": "module",
-      "sizeBytes": 4524,
-      "lineCount": 91,
+      "sizeBytes": 10870,
+      "lineCount": 226,
       "imports": [
         "./cupMatch"
       ]
@@ -1066,6 +1115,22 @@
       "type": "module",
       "sizeBytes": 22401,
       "lineCount": 397,
+      "imports": []
+    },
+    {
+      "id": "src/domain/clubBadges.js",
+      "label": "clubBadges.js",
+      "type": "module",
+      "sizeBytes": 2532,
+      "lineCount": 62,
+      "imports": []
+    },
+    {
+      "id": "src/domain/clubDna.js",
+      "label": "clubDna.js",
+      "type": "module",
+      "sizeBytes": 6018,
+      "lineCount": 160,
       "imports": []
     },
     {
@@ -1108,8 +1173,8 @@
       "id": "src/domain/contracts.js",
       "label": "contracts.js",
       "type": "module",
-      "sizeBytes": 4519,
-      "lineCount": 103,
+      "sizeBytes": 4694,
+      "lineCount": 105,
       "imports": []
     },
     {
@@ -1144,8 +1209,8 @@
       "id": "src/domain/finances.js",
       "label": "finances.js",
       "type": "module",
-      "sizeBytes": 4449,
-      "lineCount": 108,
+      "sizeBytes": 6525,
+      "lineCount": 170,
       "imports": [
         "./pyramid"
       ]
@@ -1193,6 +1258,14 @@
       "imports": []
     },
     {
+      "id": "src/domain/historicalClubs.js",
+      "label": "historicalClubs.js",
+      "type": "module",
+      "sizeBytes": 44044,
+      "lineCount": 1614,
+      "imports": []
+    },
+    {
       "id": "src/domain/jobNegotiation.js",
       "label": "jobNegotiation.js",
       "type": "module",
@@ -1204,8 +1277,8 @@
       "id": "src/domain/leagueSchedule.js",
       "label": "leagueSchedule.js",
       "type": "module",
-      "sizeBytes": 1607,
-      "lineCount": 34,
+      "sizeBytes": 1775,
+      "lineCount": 42,
       "imports": []
     },
     {
@@ -1220,8 +1293,8 @@
       "id": "src/domain/market.js",
       "label": "market.js",
       "type": "module",
-      "sizeBytes": 4024,
-      "lineCount": 91,
+      "sizeBytes": 10797,
+      "lineCount": 275,
       "imports": [
         "./squad"
       ]
@@ -1230,9 +1303,10 @@
       "id": "src/domain/marketPool.js",
       "label": "marketPool.js",
       "type": "module",
-      "sizeBytes": 1578,
-      "lineCount": 31,
+      "sizeBytes": 1153,
+      "lineCount": 26,
       "imports": [
+        "./ratings",
         "./positions"
       ]
     },
@@ -1248,12 +1322,20 @@
       "id": "src/domain/matchSquad.js",
       "label": "matchSquad.js",
       "type": "module",
-      "sizeBytes": 7806,
-      "lineCount": 181,
+      "sizeBytes": 8571,
+      "lineCount": 187,
       "imports": [
         "./ratings",
         "./positions"
       ]
+    },
+    {
+      "id": "src/domain/nationalRadar.js",
+      "label": "nationalRadar.js",
+      "type": "module",
+      "sizeBytes": 6335,
+      "lineCount": 196,
+      "imports": []
     },
     {
       "id": "src/domain/positions.js",
@@ -1275,8 +1357,8 @@
       "id": "src/domain/press.js",
       "label": "press.js",
       "type": "module",
-      "sizeBytes": 3824,
-      "lineCount": 86,
+      "sizeBytes": 4169,
+      "lineCount": 95,
       "imports": [
         "./consequences"
       ]
@@ -1291,6 +1373,14 @@
         "./press",
         "./cupMatch"
       ]
+    },
+    {
+      "id": "src/domain/pressScene.js",
+      "label": "pressScene.js",
+      "type": "module",
+      "sizeBytes": 4956,
+      "lineCount": 62,
+      "imports": []
     },
     {
       "id": "src/domain/pressSituations.js",
@@ -1312,8 +1402,8 @@
       "id": "src/domain/quickDecisions.js",
       "label": "quickDecisions.js",
       "type": "module",
-      "sizeBytes": 9044,
-      "lineCount": 166,
+      "sizeBytes": 11075,
+      "lineCount": 197,
       "imports": [
         "./positions"
       ]
@@ -1322,8 +1412,8 @@
       "id": "src/domain/ratings.js",
       "label": "ratings.js",
       "type": "module",
-      "sizeBytes": 6416,
-      "lineCount": 111,
+      "sizeBytes": 6807,
+      "lineCount": 112,
       "imports": [
         "./positions.js"
       ]
@@ -1332,10 +1422,11 @@
       "id": "src/domain/rivalClubs.js",
       "label": "rivalClubs.js",
       "type": "module",
-      "sizeBytes": 2943,
-      "lineCount": 37,
+      "sizeBytes": 2565,
+      "lineCount": 65,
       "imports": [
-        "./cupMatch"
+        "./cupMatch",
+        "./historicalClubs"
       ]
     },
     {
@@ -1368,8 +1459,8 @@
       "id": "src/domain/squad.js",
       "label": "squad.js",
       "type": "module",
-      "sizeBytes": 3187,
-      "lineCount": 75,
+      "sizeBytes": 3397,
+      "lineCount": 77,
       "imports": [
         "./positions"
       ]
@@ -1388,8 +1479,26 @@
       "id": "src/domain/standings.js",
       "label": "standings.js",
       "type": "module",
-      "sizeBytes": 1253,
-      "lineCount": 28,
+      "sizeBytes": 2010,
+      "lineCount": 43,
+      "imports": [
+        "./pyramid"
+      ]
+    },
+    {
+      "id": "src/domain/storyFlavor.js",
+      "label": "storyFlavor.js",
+      "type": "module",
+      "sizeBytes": 3862,
+      "lineCount": 72,
+      "imports": []
+    },
+    {
+      "id": "src/domain/storyStage.js",
+      "label": "storyStage.js",
+      "type": "module",
+      "sizeBytes": 6255,
+      "lineCount": 124,
       "imports": []
     },
     {
@@ -1448,11 +1557,12 @@
       "id": "src/domain/warnings.js",
       "label": "warnings.js",
       "type": "module",
-      "sizeBytes": 4099,
-      "lineCount": 95,
+      "sizeBytes": 4956,
+      "lineCount": 117,
       "imports": [
         "./consequences",
-        "./squadConsequences"
+        "./squadConsequences",
+        "./gameWeek"
       ]
     },
     {
@@ -1467,8 +1577,8 @@
       "id": "src/features/auth/AuthScreen.jsx",
       "label": "AuthScreen.jsx",
       "type": "module",
-      "sizeBytes": 14940,
-      "lineCount": 295,
+      "sizeBytes": 15481,
+      "lineCount": 309,
       "imports": [
         "react",
         "react-router-dom",
@@ -1485,7 +1595,7 @@
       "id": "src/features/auth/WelcomeScreen.jsx",
       "label": "WelcomeScreen.jsx",
       "type": "module",
-      "sizeBytes": 2761,
+      "sizeBytes": 2837,
       "lineCount": 79,
       "imports": [
         "react",
@@ -1500,8 +1610,8 @@
       "id": "src/features/calendar/CalendarScreen.jsx",
       "label": "CalendarScreen.jsx",
       "type": "module",
-      "sizeBytes": 8777,
-      "lineCount": 183,
+      "sizeBytes": 19353,
+      "lineCount": 392,
       "imports": [
         "react",
         "react-router-dom",
@@ -1557,7 +1667,7 @@
       "id": "src/features/career/JobOfferBottomSheet.jsx",
       "label": "JobOfferBottomSheet.jsx",
       "type": "module",
-      "sizeBytes": 5036,
+      "sizeBytes": 5044,
       "lineCount": 99,
       "imports": [
         "react",
@@ -1571,7 +1681,7 @@
       "id": "src/features/career/ReputationHistoryModal.jsx",
       "label": "ReputationHistoryModal.jsx",
       "type": "module",
-      "sizeBytes": 6295,
+      "sizeBytes": 6289,
       "lineCount": 122,
       "imports": [
         "react",
@@ -1585,8 +1695,8 @@
       "id": "src/features/club/CreateClubWizard.jsx",
       "label": "CreateClubWizard.jsx",
       "type": "module",
-      "sizeBytes": 12294,
-      "lineCount": 210,
+      "sizeBytes": 13451,
+      "lineCount": 234,
       "imports": [
         "react",
         "react-router-dom",
@@ -1595,6 +1705,7 @@
         "../../api/auth",
         "../../api/manager",
         "../../api/club",
+        "../../api/climate",
         "../../context/GameContext",
         "../../domain/clubIdentity",
         "../../lib/format",
@@ -1607,7 +1718,7 @@
       "id": "src/features/club/screens/BoardManagementTab.jsx",
       "label": "BoardManagementTab.jsx",
       "type": "module",
-      "sizeBytes": 15739,
+      "sizeBytes": 15729,
       "lineCount": 337,
       "imports": [
         "react",
@@ -1633,13 +1744,28 @@
       ]
     },
     {
+      "id": "src/features/club/screens/ClubIdentityTab.jsx",
+      "label": "ClubIdentityTab.jsx",
+      "type": "module",
+      "sizeBytes": 14070,
+      "lineCount": 294,
+      "imports": [
+        "react",
+        "lucide-react",
+        "react-router-dom",
+        "../../../components/ui",
+        "../../../domain/clubDna"
+      ]
+    },
+    {
       "id": "src/features/club/screens/ClubScreen.jsx",
       "label": "ClubScreen.jsx",
       "type": "module",
-      "sizeBytes": 12993,
-      "lineCount": 274,
+      "sizeBytes": 12816,
+      "lineCount": 321,
       "imports": [
         "react",
+        "react-router-dom",
         "lucide-react",
         "sonner",
         "../../../api/clubFeatures",
@@ -1652,15 +1778,27 @@
         "../../../components/ui",
         "./YouthAcademyModal",
         "./StaffManagementModal",
-        "./StadiumManagementTab",
-        "./FanbaseManagementTab",
-        "./BoardManagementTab",
-        "./LockerRoomTab",
         "./PressRoomModal",
+        "./ClubIdentityTab",
+        "./ClubTribuneTab",
+        "./LockerRoomTab",
         "./InfirmaryTab",
-        "./ClubHistoryTab",
-        "./IdolsLegendsTab",
+        "./BoardManagementTab",
         "../../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/features/club/screens/ClubTribuneTab.jsx",
+      "label": "ClubTribuneTab.jsx",
+      "type": "module",
+      "sizeBytes": 7291,
+      "lineCount": 148,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../components/ui",
+        "../../../domain/clubDna",
+        "./FanbaseManagementTab"
       ]
     },
     {
@@ -1695,7 +1833,7 @@
       "id": "src/features/club/screens/InfirmaryTab.jsx",
       "label": "InfirmaryTab.jsx",
       "type": "module",
-      "sizeBytes": 15486,
+      "sizeBytes": 15456,
       "lineCount": 312,
       "imports": [
         "react",
@@ -1712,10 +1850,11 @@
       "id": "src/features/club/screens/LockerRoomTab.jsx",
       "label": "LockerRoomTab.jsx",
       "type": "module",
-      "sizeBytes": 21181,
-      "lineCount": 460,
+      "sizeBytes": 21992,
+      "lineCount": 470,
       "imports": [
         "react",
+        "react-router-dom",
         "lucide-react",
         "../../../api/lockerRoom",
         "sonner",
@@ -1729,14 +1868,15 @@
       "id": "src/features/club/screens/PressRoomModal.jsx",
       "label": "PressRoomModal.jsx",
       "type": "module",
-      "sizeBytes": 3599,
-      "lineCount": 84,
+      "sizeBytes": 3649,
+      "lineCount": 85,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
         "../../../api/press",
-        "../../../components/ui"
+        "../../../components/ui",
+        "../../../domain/press"
       ]
     },
     {
@@ -1812,14 +1952,15 @@
       "id": "src/features/competition/LeaguePyramidModal.jsx",
       "label": "LeaguePyramidModal.jsx",
       "type": "module",
-      "sizeBytes": 7704,
-      "lineCount": 135,
+      "sizeBytes": 4442,
+      "lineCount": 87,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
         "../../api/competitionTiers",
         "../../lib/format",
+        "../../domain/pyramid",
         "../../components/ui",
         "../../lib/utils"
       ]
@@ -1828,8 +1969,8 @@
       "id": "src/features/competition/StandingsScreen.jsx",
       "label": "StandingsScreen.jsx",
       "type": "module",
-      "sizeBytes": 9303,
-      "lineCount": 181,
+      "sizeBytes": 9850,
+      "lineCount": 189,
       "imports": [
         "react",
         "react-router-dom",
@@ -1850,8 +1991,8 @@
       "id": "src/features/dashboard/ClimatePanel.jsx",
       "label": "ClimatePanel.jsx",
       "type": "module",
-      "sizeBytes": 6673,
-      "lineCount": 156,
+      "sizeBytes": 7539,
+      "lineCount": 165,
       "imports": [
         "react",
         "lucide-react",
@@ -1870,8 +2011,8 @@
       "id": "src/features/dashboard/Dashboard.jsx",
       "label": "Dashboard.jsx",
       "type": "module",
-      "sizeBytes": 21276,
-      "lineCount": 435,
+      "sizeBytes": 30255,
+      "lineCount": 595,
       "imports": [
         "react",
         "react-router-dom",
@@ -1890,7 +2031,87 @@
         "../../lib/utils",
         "../../components/ui",
         "../season/SeasonCloseModal",
-        "./ClimatePanel"
+        "./ClimatePanel",
+        "../../components/ui",
+        "./StoryStage",
+        "../../domain/storyFlavor",
+        "../../domain/arcs",
+        "../../domain/arcCatalog"
+      ]
+    },
+    {
+      "id": "src/features/dashboard/DifficultySelector.jsx",
+      "label": "DifficultySelector.jsx",
+      "type": "module",
+      "sizeBytes": 2217,
+      "lineCount": 69,
+      "imports": [
+        "react",
+        "sonner",
+        "../../components/ui",
+        "../../domain/consequences",
+        "../../api/climate",
+        "../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/features/dashboard/LogbookScreen.jsx",
+      "label": "LogbookScreen.jsx",
+      "type": "module",
+      "sizeBytes": 4076,
+      "lineCount": 99,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../api/climate",
+        "../../context/GameContext",
+        "../../components/ui"
+      ]
+    },
+    {
+      "id": "src/features/dashboard/StoryActionGames.jsx",
+      "label": "StoryActionGames.jsx",
+      "type": "module",
+      "sizeBytes": 7340,
+      "lineCount": 161,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../domain/storyStage",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/features/dashboard/StoryMinigames.jsx",
+      "label": "StoryMinigames.jsx",
+      "type": "module",
+      "sizeBytes": 9977,
+      "lineCount": 205,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../domain/storyStage",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/features/dashboard/StoryStage.jsx",
+      "label": "StoryStage.jsx",
+      "type": "module",
+      "sizeBytes": 17468,
+      "lineCount": 286,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../domain/storyFlavor",
+        "../../domain/arcs",
+        "../../domain/arcCatalog",
+        "../../domain/storyStage",
+        "./StoryMinigames",
+        "./StoryActionGames",
+        "../../lib/format",
+        "../../lib/utils",
+        "../../components/ui"
       ]
     },
     {
@@ -1906,11 +2127,46 @@
       ]
     },
     {
+      "id": "src/features/events/EventScreen.jsx",
+      "label": "EventScreen.jsx",
+      "type": "module",
+      "sizeBytes": 7310,
+      "lineCount": 185,
+      "imports": [
+        "react",
+        "react-router-dom",
+        "lucide-react",
+        "sonner",
+        "../../context/GameContext",
+        "../../api/dashboard",
+        "../../api/events",
+        "../../lib/errors",
+        "../../lib/format",
+        "../../lib/utils",
+        "../../components/ui",
+        "../../components/layout/AppShell"
+      ]
+    },
+    {
+      "id": "src/features/finances/FinancesFacilityCard.jsx",
+      "label": "FinancesFacilityCard.jsx",
+      "type": "module",
+      "sizeBytes": 3095,
+      "lineCount": 79,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui",
+        "../../lib/format",
+        "../../domain/finances"
+      ]
+    },
+    {
       "id": "src/features/finances/FinancesScreen.jsx",
       "label": "FinancesScreen.jsx",
       "type": "module",
-      "sizeBytes": 15178,
-      "lineCount": 328,
+      "sizeBytes": 10410,
+      "lineCount": 263,
       "imports": [
         "react",
         "lucide-react",
@@ -1925,7 +2181,37 @@
         "../../lib/format",
         "../../domain/finances",
         "../../components/ui",
+        "./FinancesWalletCard",
+        "./FinancesFacilityCard",
+        "./FinancesTransactionFeed",
         "../../lib/errors"
+      ]
+    },
+    {
+      "id": "src/features/finances/FinancesTransactionFeed.jsx",
+      "label": "FinancesTransactionFeed.jsx",
+      "type": "module",
+      "sizeBytes": 4178,
+      "lineCount": 84,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui",
+        "../../lib/format"
+      ]
+    },
+    {
+      "id": "src/features/finances/FinancesWalletCard.jsx",
+      "label": "FinancesWalletCard.jsx",
+      "type": "module",
+      "sizeBytes": 4142,
+      "lineCount": 88,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui",
+        "../../lib/format",
+        "../../domain/finances"
       ]
     },
     {
@@ -2155,30 +2441,153 @@
       ]
     },
     {
+      "id": "src/features/manager/national/NationalCareerGauge.jsx",
+      "label": "NationalCareerGauge.jsx",
+      "type": "module",
+      "sizeBytes": 4693,
+      "lineCount": 102,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../components/ui",
+        "../../../domain/nationalRadar"
+      ]
+    },
+    {
+      "id": "src/features/manager/national/NationalHeadlinesTicker.jsx",
+      "label": "NationalHeadlinesTicker.jsx",
+      "type": "module",
+      "sizeBytes": 996,
+      "lineCount": 25,
+      "imports": [
+        "react",
+        "lucide-react"
+      ]
+    },
+    {
+      "id": "src/features/manager/national/NationalMatchModal.jsx",
+      "label": "NationalMatchModal.jsx",
+      "type": "module",
+      "sizeBytes": 4129,
+      "lineCount": 104,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../components/ui"
+      ]
+    },
+    {
+      "id": "src/features/manager/national/NationalRadarCard.jsx",
+      "label": "NationalRadarCard.jsx",
+      "type": "module",
+      "sizeBytes": 6120,
+      "lineCount": 128,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../../components/ui",
+        "../../../lib/format"
+      ]
+    },
+    {
       "id": "src/features/manager/NationalTeamScreen.jsx",
       "label": "NationalTeamScreen.jsx",
       "type": "module",
-      "sizeBytes": 12190,
-      "lineCount": 254,
+      "sizeBytes": 16611,
+      "lineCount": 388,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
         "../../api/nationalTeam",
+        "../../api/player",
         "../../context/GameContext",
         "../../lib/format",
         "../../lib/errors",
         "../../lib/utils",
         "../../domain/positions",
+        "../../domain/nationalRadar",
+        "../../components/ui",
+        "./national/NationalCareerGauge",
+        "./national/NationalRadarCard",
+        "./national/NationalHeadlinesTicker",
+        "./national/NationalMatchModal"
+      ]
+    },
+    {
+      "id": "src/features/market/MarketEmptyState.jsx",
+      "label": "MarketEmptyState.jsx",
+      "type": "module",
+      "sizeBytes": 763,
+      "lineCount": 27,
+      "imports": [
+        "react",
+        "lucide-react",
         "../../components/ui"
+      ]
+    },
+    {
+      "id": "src/features/market/MarketFilterBar.jsx",
+      "label": "MarketFilterBar.jsx",
+      "type": "module",
+      "sizeBytes": 3931,
+      "lineCount": 123,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui",
+        "../../domain/squad",
+        "../../domain/market"
+      ]
+    },
+    {
+      "id": "src/features/market/MarketHeader.jsx",
+      "label": "MarketHeader.jsx",
+      "type": "module",
+      "sizeBytes": 2099,
+      "lineCount": 58,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui",
+        "../../lib/format"
+      ]
+    },
+    {
+      "id": "src/features/market/MarketHistory.jsx",
+      "label": "MarketHistory.jsx",
+      "type": "module",
+      "sizeBytes": 2129,
+      "lineCount": 53,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui",
+        "../../lib/format"
+      ]
+    },
+    {
+      "id": "src/features/market/MarketPlayerCard.jsx",
+      "label": "MarketPlayerCard.jsx",
+      "type": "module",
+      "sizeBytes": 9440,
+      "lineCount": 242,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui",
+        "../../lib/format",
+        "../../domain/market",
+        "../../domain/scoutInsights",
+        "../../domain/contractDemands"
       ]
     },
     {
       "id": "src/features/market/MarketScreen.jsx",
       "label": "MarketScreen.jsx",
       "type": "module",
-      "sizeBytes": 15932,
-      "lineCount": 328,
+      "sizeBytes": 14334,
+      "lineCount": 396,
       "imports": [
         "react",
         "lucide-react",
@@ -2186,14 +2595,17 @@
         "../../api/market",
         "../../api/scouting",
         "../../api/buyback",
-        "../../domain/scoutInsights",
         "../../api/supabase",
         "../../context/GameContext",
         "../../lib/format",
-        "../../domain/squad",
         "../../domain/market",
         "../../components/ui",
         "./OfferModal",
+        "./MarketHeader",
+        "./MarketFilterBar",
+        "./MarketPlayerCard",
+        "./MarketEmptyState",
+        "./MarketHistory",
         "../../lib/errors",
         "../../api/finances",
         "../../api/climate",
@@ -2206,8 +2618,8 @@
       "id": "src/features/market/OfferModal.jsx",
       "label": "OfferModal.jsx",
       "type": "module",
-      "sizeBytes": 8395,
-      "lineCount": 171,
+      "sizeBytes": 13246,
+      "lineCount": 314,
       "imports": [
         "react",
         "lucide-react",
@@ -2220,11 +2632,55 @@
       "id": "src/features/match/DecisionCard.jsx",
       "label": "DecisionCard.jsx",
       "type": "module",
-      "sizeBytes": 1302,
+      "sizeBytes": 2283,
+      "lineCount": 52,
+      "imports": [
+        "react",
+        "lucide-react",
+        "./PenaltyGoal",
+        "../../components/ui/named-icon"
+      ]
+    },
+    {
+      "id": "src/features/match/DecisionSheet.jsx",
+      "label": "DecisionSheet.jsx",
+      "type": "module",
+      "sizeBytes": 1114,
       "lineCount": 33,
       "imports": [
         "react",
-        "lucide-react"
+        "../../components/ui/dialog",
+        "../../hooks/useMediaQuery",
+        "./DecisionCard"
+      ]
+    },
+    {
+      "id": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "label": "InteractiveSubstitutionsModal.jsx",
+      "type": "module",
+      "sizeBytes": 11836,
+      "lineCount": 240,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui/dialog",
+        "../../domain/ratings",
+        "../../domain/positions",
+        "../../domain/formations",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/features/match/MatchActions.jsx",
+      "label": "MatchActions.jsx",
+      "type": "module",
+      "sizeBytes": 3578,
+      "lineCount": 93,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../domain/matchClock",
+        "../../lib/utils"
       ]
     },
     {
@@ -2241,11 +2697,23 @@
       ]
     },
     {
+      "id": "src/features/match/MatchHeader.jsx",
+      "label": "MatchHeader.jsx",
+      "type": "module",
+      "sizeBytes": 2986,
+      "lineCount": 73,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../components/ui"
+      ]
+    },
+    {
       "id": "src/features/match/MatchScreen.jsx",
       "label": "MatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 30880,
-      "lineCount": 659,
+      "sizeBytes": 30776,
+      "lineCount": 689,
       "imports": [
         "react",
         "react-router-dom",
@@ -2257,11 +2725,18 @@
         "../../api/matchEngine",
         "../../api/supabase",
         "../../context/GameContext",
-        "./MatchControls",
+        "./MatchHeader",
+        "./MatchTimeline",
+        "./MatchActions",
+        "./MatchStats",
+        "./SubstitutionsSheet",
+        "./ShoutsSheet",
+        "./DecisionSheet",
         "./SubstitutionsPanel",
         "./DecisionCard",
         "../../domain/quickDecisions",
         "../../domain/substitutions",
+        "../../hooks/useMediaQuery",
         "./useMatchClock",
         "../../domain/matchClock",
         "lucide-react",
@@ -2275,11 +2750,47 @@
       ]
     },
     {
+      "id": "src/features/match/MatchStats.jsx",
+      "label": "MatchStats.jsx",
+      "type": "module",
+      "sizeBytes": 4804,
+      "lineCount": 81,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/features/match/MatchTimeline.jsx",
+      "label": "MatchTimeline.jsx",
+      "type": "module",
+      "sizeBytes": 4765,
+      "lineCount": 87,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/utils"
+      ]
+    },
+    {
+      "id": "src/features/match/PenaltyGoal.jsx",
+      "label": "PenaltyGoal.jsx",
+      "type": "module",
+      "sizeBytes": 6399,
+      "lineCount": 130,
+      "imports": [
+        "react",
+        "lucide-react",
+        "../../lib/utils"
+      ]
+    },
+    {
       "id": "src/features/match/PostMatchScreen.jsx",
       "label": "PostMatchScreen.jsx",
       "type": "module",
-      "sizeBytes": 26272,
-      "lineCount": 575,
+      "sizeBytes": 29060,
+      "lineCount": 610,
       "imports": [
         "react",
         "react-router-dom",
@@ -2291,6 +2802,7 @@
         "lucide-react",
         "sonner",
         "../../components/ui",
+        "../../components/ui/pager",
         "../../lib/errors",
         "./PressRoom"
       ]
@@ -2299,26 +2811,57 @@
       "id": "src/features/match/PressRoom.jsx",
       "label": "PressRoom.jsx",
       "type": "module",
-      "sizeBytes": 16636,
-      "lineCount": 305,
+      "sizeBytes": 27492,
+      "lineCount": 484,
       "imports": [
         "react",
         "lucide-react",
         "../../components/ui",
         "../../lib/format",
+        "../../domain/press",
+        "../../components/ui/named-icon",
+        "../../components/ui/pager",
+        "../../domain/pressScene",
         "../../domain/pressRoom"
+      ]
+    },
+    {
+      "id": "src/features/match/ShoutsSheet.jsx",
+      "label": "ShoutsSheet.jsx",
+      "type": "module",
+      "sizeBytes": 1967,
+      "lineCount": 53,
+      "imports": [
+        "react",
+        "../../components/ui/dialog",
+        "../../api/matchEngine",
+        "lucide-react"
       ]
     },
     {
       "id": "src/features/match/SubstitutionsPanel.jsx",
       "label": "SubstitutionsPanel.jsx",
       "type": "module",
-      "sizeBytes": 3466,
-      "lineCount": 79,
+      "sizeBytes": 4902,
+      "lineCount": 108,
       "imports": [
         "react",
         "lucide-react",
-        "../../lib/utils"
+        "../../lib/utils",
+        "../../domain/ratings",
+        "../../domain/positions"
+      ]
+    },
+    {
+      "id": "src/features/match/SubstitutionsSheet.jsx",
+      "label": "SubstitutionsSheet.jsx",
+      "type": "module",
+      "sizeBytes": 930,
+      "lineCount": 37,
+      "imports": [
+        "react",
+        "./InteractiveSubstitutionsModal",
+        "../../domain/substitutions"
       ]
     },
     {
@@ -2336,14 +2879,17 @@
       "id": "src/features/more/MoreScreen.jsx",
       "label": "MoreScreen.jsx",
       "type": "module",
-      "sizeBytes": 1918,
-      "lineCount": 40,
+      "sizeBytes": 3322,
+      "lineCount": 68,
       "imports": [
         "react",
         "react-router-dom",
         "lucide-react",
         "../../components/ui",
-        "../../components/layout/navigation"
+        "../../components/layout/navigation",
+        "../../components/layout/useLogout",
+        "../../context/GameContext",
+        "../dashboard/DifficultySelector"
       ]
     },
     {
@@ -2456,15 +3002,17 @@
       "id": "src/features/squad/SquadScreen.jsx",
       "label": "SquadScreen.jsx",
       "type": "module",
-      "sizeBytes": 27142,
-      "lineCount": 514,
+      "sizeBytes": 29131,
+      "lineCount": 535,
       "imports": [
         "react",
         "lucide-react",
         "sonner",
+        "react-router-dom",
         "../../api/player",
         "../../api/contracts",
         "../../api/loans",
+        "../../api/lockerRoom",
         "../../api/buyback",
         "../../domain/buyback",
         "../../api/climate",
@@ -2489,11 +3037,12 @@
       "id": "src/features/tactics/Pitch.jsx",
       "label": "Pitch.jsx",
       "type": "module",
-      "sizeBytes": 11336,
-      "lineCount": 252,
+      "sizeBytes": 12407,
+      "lineCount": 259,
       "imports": [
         "react",
         "motion/react",
+        "lucide-react",
         "../../lib/utils",
         "../../domain/formations",
         "../../domain/freeLayout",
@@ -2505,8 +3054,8 @@
       "id": "src/features/tactics/TacticsScreen.jsx",
       "label": "TacticsScreen.jsx",
       "type": "module",
-      "sizeBytes": 20662,
-      "lineCount": 393,
+      "sizeBytes": 22147,
+      "lineCount": 421,
       "imports": [
         "react",
         "lucide-react",
@@ -2522,6 +3071,8 @@
         "../../domain/ratings",
         "../../components/ui",
         "../../lib/utils",
+        "../../hooks/useMediaQuery",
+        "../../api/lockerRoom",
         "./Pitch",
         "../../lib/errors"
       ]
@@ -2530,8 +3081,8 @@
       "id": "src/features/training/TrainingScreen.jsx",
       "label": "TrainingScreen.jsx",
       "type": "module",
-      "sizeBytes": 13951,
-      "lineCount": 267,
+      "sizeBytes": 15244,
+      "lineCount": 284,
       "imports": [
         "react",
         "lucide-react",
@@ -2552,8 +3103,8 @@
       "id": "src/GameApp.jsx",
       "label": "GameApp.jsx",
       "type": "module",
-      "sizeBytes": 5342,
-      "lineCount": 102,
+      "sizeBytes": 5648,
+      "lineCount": 106,
       "imports": [
         "react",
         "react-router-dom",
@@ -2565,6 +3116,7 @@
         "./features/manager/CreateManagerWizard",
         "./features/club/CreateClubWizard",
         "./features/dashboard/Dashboard",
+        "./features/events/EventScreen",
         "./features/auth/WelcomeScreen",
         "./features/calendar/CalendarScreen",
         "./features/tactics/TacticsScreen",
@@ -2582,6 +3134,7 @@
         "./features/manager/HallOfFameScreen",
         "./features/career/AchievementsScreen",
         "./features/career/EndgameScreen",
+        "./features/dashboard/LogbookScreen",
         "./components/ReloadPrompt",
         "./context/GameContext",
         "./components/layout/AppShell",
@@ -2660,6 +3213,14 @@
       "type": "module",
       "sizeBytes": 1967,
       "lineCount": 49,
+      "imports": []
+    },
+    {
+      "id": "src/lib/redirect.js",
+      "label": "redirect.js",
+      "type": "module",
+      "sizeBytes": 190,
+      "lineCount": 3,
       "imports": []
     },
     {
@@ -2765,6 +3326,17 @@
       ]
     },
     {
+      "id": "tests/api/alertLinks.test.js",
+      "label": "alertLinks.test.js",
+      "type": "test",
+      "sizeBytes": 2293,
+      "lineCount": 42,
+      "imports": [
+        "../../src/api/dashboard",
+        "../../src/utils/cache"
+      ]
+    },
+    {
       "id": "tests/api/arcsWeek.test.js",
       "label": "arcsWeek.test.js",
       "type": "test",
@@ -2809,8 +3381,8 @@
       "id": "tests/api/cashMove.test.js",
       "label": "cashMove.test.js",
       "type": "test",
-      "sizeBytes": 5466,
-      "lineCount": 99,
+      "sizeBytes": 5607,
+      "lineCount": 100,
       "imports": [
         "../../src/api/finances",
         "../../src/api/stadium",
@@ -2895,6 +3467,17 @@
       ]
     },
     {
+      "id": "tests/api/dashboardRank.test.js",
+      "label": "dashboardRank.test.js",
+      "type": "test",
+      "sizeBytes": 2094,
+      "lineCount": 46,
+      "imports": [
+        "../../src/api/dashboard",
+        "../../src/utils/cache"
+      ]
+    },
+    {
       "id": "tests/api/email.test.js",
       "label": "email.test.js",
       "type": "test",
@@ -2915,6 +3498,18 @@
       ]
     },
     {
+      "id": "tests/api/eventSingleChoice.test.js",
+      "label": "eventSingleChoice.test.js",
+      "type": "test",
+      "sizeBytes": 4498,
+      "lineCount": 90,
+      "imports": [
+        "../../src/api/events",
+        "../../src/api/climate",
+        "../../src/api/reputation"
+      ]
+    },
+    {
       "id": "tests/api/finalizeMatch.test.js",
       "label": "finalizeMatch.test.js",
       "type": "test",
@@ -2928,8 +3523,8 @@
       "id": "tests/api/ignoredErrors.test.js",
       "label": "ignoredErrors.test.js",
       "type": "test",
-      "sizeBytes": 2518,
-      "lineCount": 47,
+      "sizeBytes": 2643,
+      "lineCount": 48,
       "imports": [
         "../../src/api/player",
         "../../src/api/competition",
@@ -2971,11 +3566,11 @@
       "id": "tests/api/levels-competition.test.js",
       "label": "levels-competition.test.js",
       "type": "test",
-      "sizeBytes": 1246,
+      "sizeBytes": 1236,
       "lineCount": 34,
       "imports": [
         "../../src/api/levels",
-        "../../src/api/competition"
+        "../../src/domain/standings"
       ]
     },
     {
@@ -3023,8 +3618,8 @@
       "id": "tests/api/matchEngine.test.js",
       "label": "matchEngine.test.js",
       "type": "test",
-      "sizeBytes": 11495,
-      "lineCount": 235,
+      "sizeBytes": 13592,
+      "lineCount": 275,
       "imports": [
         "../../src/api/matchEngine"
       ]
@@ -3137,7 +3732,7 @@
       "id": "tests/api/preseasonWeek.test.js",
       "label": "preseasonWeek.test.js",
       "type": "test",
-      "sizeBytes": 5278,
+      "sizeBytes": 5296,
       "lineCount": 98,
       "imports": [
         "../../src/api/finances",
@@ -3153,6 +3748,16 @@
       "imports": [
         "../../src/api/press",
         "../../src/domain/pressRoom"
+      ]
+    },
+    {
+      "id": "tests/api/pressDelegate.test.js",
+      "label": "pressDelegate.test.js",
+      "type": "test",
+      "sizeBytes": 4040,
+      "lineCount": 80,
+      "imports": [
+        "../../src/api/press"
       ]
     },
     {
@@ -3189,8 +3794,8 @@
       "id": "tests/api/seasonIsolation.test.js",
       "label": "seasonIsolation.test.js",
       "type": "test",
-      "sizeBytes": 2732,
-      "lineCount": 58,
+      "sizeBytes": 1473,
+      "lineCount": 37,
       "imports": [
         "../../src/api/seasonClose"
       ]
@@ -3199,8 +3804,8 @@
       "id": "tests/api/seasonPrize.test.js",
       "label": "seasonPrize.test.js",
       "type": "test",
-      "sizeBytes": 11252,
-      "lineCount": 176,
+      "sizeBytes": 8532,
+      "lineCount": 149,
       "imports": [
         "../../src/api/seasonClose"
       ]
@@ -3268,6 +3873,19 @@
       ]
     },
     {
+      "id": "tests/bdd/steps/arcade-match-squad-polish.steps.js",
+      "label": "arcade-match-squad-polish.steps.js",
+      "type": "test",
+      "sizeBytes": 1195,
+      "lineCount": 35,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/clubBadges.js",
+        "../../../src/domain/squad.js"
+      ]
+    },
+    {
       "id": "tests/bdd/steps/arcs.steps.js",
       "label": "arcs.steps.js",
       "type": "test",
@@ -3278,6 +3896,19 @@
         "@cucumber/cucumber",
         "../../../src/domain/arcCatalog.js",
         "../../../src/domain/arcs.js"
+      ]
+    },
+    {
+      "id": "tests/bdd/steps/auth-pwa-session-security.steps.js",
+      "label": "auth-pwa-session-security.steps.js",
+      "type": "test",
+      "sizeBytes": 2271,
+      "lineCount": 73,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/api/supabase.js",
+        "../../../src/api/auth.js"
       ]
     },
     {
@@ -3319,6 +3950,18 @@
       ]
     },
     {
+      "id": "tests/bdd/steps/historical-teams.steps.js",
+      "label": "historical-teams.steps.js",
+      "type": "test",
+      "sizeBytes": 1684,
+      "lineCount": 42,
+      "imports": [
+        "node:assert/strict",
+        "@cucumber/cucumber",
+        "../../../src/domain/rivalClubs.js"
+      ]
+    },
+    {
       "id": "tests/bdd/steps/job.steps.js",
       "label": "job.steps.js",
       "type": "test",
@@ -3334,8 +3977,8 @@
       "id": "tests/bdd/steps/league.steps.js",
       "label": "league.steps.js",
       "type": "test",
-      "sizeBytes": 2257,
-      "lineCount": 66,
+      "sizeBytes": 2390,
+      "lineCount": 70,
       "imports": [
         "node:assert/strict",
         "@cucumber/cucumber",
@@ -3450,8 +4093,8 @@
       "id": "tests/domain/calendarView.test.js",
       "label": "calendarView.test.js",
       "type": "test",
-      "sizeBytes": 1515,
-      "lineCount": 29,
+      "sizeBytes": 3050,
+      "lineCount": 63,
       "imports": [
         "../../src/domain/calendarView"
       ]
@@ -3476,6 +4119,17 @@
       "imports": [
         "../../src/domain/chemistry",
         "../../src/domain/formations"
+      ]
+    },
+    {
+      "id": "tests/domain/clubDna.test.js",
+      "label": "clubDna.test.js",
+      "type": "test",
+      "sizeBytes": 2394,
+      "lineCount": 66,
+      "imports": [
+        "vitest",
+        "../../src/domain/clubDna"
       ]
     },
     {
@@ -3584,6 +4238,17 @@
       ]
     },
     {
+      "id": "tests/domain/financesArcade.test.js",
+      "label": "financesArcade.test.js",
+      "type": "test",
+      "sizeBytes": 1453,
+      "lineCount": 38,
+      "imports": [
+        "vitest",
+        "../../src/domain/finances"
+      ]
+    },
+    {
       "id": "tests/domain/fixtureStatus.test.js",
       "label": "fixtureStatus.test.js",
       "type": "test",
@@ -3631,8 +4296,8 @@
       "id": "tests/domain/leagueSchedule.test.js",
       "label": "leagueSchedule.test.js",
       "type": "test",
-      "sizeBytes": 2114,
-      "lineCount": 60,
+      "sizeBytes": 1807,
+      "lineCount": 50,
       "imports": [
         "../../src/domain/leagueSchedule"
       ]
@@ -3669,6 +4334,17 @@
       ]
     },
     {
+      "id": "tests/domain/marketArcade.test.js",
+      "label": "marketArcade.test.js",
+      "type": "test",
+      "sizeBytes": 3809,
+      "lineCount": 101,
+      "imports": [
+        "vitest",
+        "../../src/domain/market"
+      ]
+    },
+    {
       "id": "tests/domain/marketPool.test.js",
       "label": "marketPool.test.js",
       "type": "test",
@@ -3693,12 +4369,23 @@
       "id": "tests/domain/matchSquad.test.js",
       "label": "matchSquad.test.js",
       "type": "test",
-      "sizeBytes": 6541,
-      "lineCount": 139,
+      "sizeBytes": 7126,
+      "lineCount": 149,
       "imports": [
         "../../src/domain/matchSquad",
         "../../src/domain/matchSquad",
         "../../src/domain/ratings"
+      ]
+    },
+    {
+      "id": "tests/domain/nationalRadar.test.js",
+      "label": "nationalRadar.test.js",
+      "type": "test",
+      "sizeBytes": 3068,
+      "lineCount": 72,
+      "imports": [
+        "vitest",
+        "../../src/domain/nationalRadar"
       ]
     },
     {
@@ -3715,7 +4402,7 @@
       "id": "tests/domain/preseason.test.js",
       "label": "preseason.test.js",
       "type": "test",
-      "sizeBytes": 2621,
+      "sizeBytes": 2614,
       "lineCount": 56,
       "imports": [
         "../../src/domain/preseason"
@@ -3741,6 +4428,17 @@
       "imports": [
         "../../src/domain/pressRoom",
         "../../src/domain/pressRoom"
+      ]
+    },
+    {
+      "id": "tests/domain/pressScene.test.js",
+      "label": "pressScene.test.js",
+      "type": "test",
+      "sizeBytes": 1504,
+      "lineCount": 33,
+      "imports": [
+        "vitest",
+        "../../src/domain/pressScene"
       ]
     },
     {
@@ -3799,9 +4497,10 @@
       "id": "tests/domain/rivalClubs.test.js",
       "label": "rivalClubs.test.js",
       "type": "test",
-      "sizeBytes": 1366,
-      "lineCount": 33,
+      "sizeBytes": 3854,
+      "lineCount": 91,
       "imports": [
+        "vitest",
         "../../src/domain/rivalClubs"
       ]
     },
@@ -3841,8 +4540,8 @@
       "id": "tests/domain/squad.test.js",
       "label": "squad.test.js",
       "type": "test",
-      "sizeBytes": 3417,
-      "lineCount": 71,
+      "sizeBytes": 3758,
+      "lineCount": 76,
       "imports": [
         "../../src/domain/squad"
       ]
@@ -3869,6 +4568,29 @@
       ]
     },
     {
+      "id": "tests/domain/storyFlavor.test.js",
+      "label": "storyFlavor.test.js",
+      "type": "test",
+      "sizeBytes": 1760,
+      "lineCount": 37,
+      "imports": [
+        "vitest",
+        "../../src/domain/storyFlavor"
+      ]
+    },
+    {
+      "id": "tests/domain/storyStage.test.js",
+      "label": "storyStage.test.js",
+      "type": "test",
+      "sizeBytes": 4141,
+      "lineCount": 95,
+      "imports": [
+        "vitest",
+        "../../src/domain/storyStage",
+        "../../src/domain/storyStage"
+      ]
+    },
+    {
       "id": "tests/domain/streaks.test.js",
       "label": "streaks.test.js",
       "type": "test",
@@ -3886,6 +4608,16 @@
       "lineCount": 50,
       "imports": [
         "../../src/domain/substitutions"
+      ]
+    },
+    {
+      "id": "tests/domain/toneLabels.test.js",
+      "label": "toneLabels.test.js",
+      "type": "test",
+      "sizeBytes": 666,
+      "lineCount": 15,
+      "imports": [
+        "../../src/domain/press"
       ]
     },
     {
@@ -3975,8 +4707,8 @@
       "id": "tests/static/copy.test.js",
       "label": "copy.test.js",
       "type": "test",
-      "sizeBytes": 2078,
-      "lineCount": 44,
+      "sizeBytes": 3335,
+      "lineCount": 67,
       "imports": [
         "node:fs",
         "node:path",
@@ -4079,11 +4811,12 @@
       "id": "tests/ui/appShell.test.jsx",
       "label": "appShell.test.jsx",
       "type": "test",
-      "sizeBytes": 3654,
-      "lineCount": 80,
+      "sizeBytes": 5820,
+      "lineCount": 125,
       "imports": [
         "react",
         "@testing-library/react",
+        "@testing-library/user-event",
         "react-router-dom",
         "../../src/components/layout/AppShell",
         "../../src/features/more/MoreScreen",
@@ -4119,6 +4852,21 @@
       ]
     },
     {
+      "id": "tests/ui/authPersistence.test.jsx",
+      "label": "authPersistence.test.jsx",
+      "type": "test",
+      "sizeBytes": 5313,
+      "lineCount": 164,
+      "imports": [
+        "vitest",
+        "react",
+        "@testing-library/react",
+        "react-router-dom",
+        "../../src/api/auth",
+        "../../src/features/auth/AuthScreen"
+      ]
+    },
+    {
       "id": "tests/ui/authScreen.test.jsx",
       "label": "authScreen.test.jsx",
       "type": "test",
@@ -4136,8 +4884,8 @@
       "id": "tests/ui/calendarScreen.test.jsx",
       "label": "calendarScreen.test.jsx",
       "type": "test",
-      "sizeBytes": 3389,
-      "lineCount": 66,
+      "sizeBytes": 3706,
+      "lineCount": 73,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4150,8 +4898,8 @@
       "id": "tests/ui/climatePanel.test.jsx",
       "label": "climatePanel.test.jsx",
       "type": "test",
-      "sizeBytes": 6217,
-      "lineCount": 131,
+      "sizeBytes": 6313,
+      "lineCount": 132,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4165,8 +4913,8 @@
       "id": "tests/ui/clubScreen.test.jsx",
       "label": "clubScreen.test.jsx",
       "type": "test",
-      "sizeBytes": 4577,
-      "lineCount": 81,
+      "sizeBytes": 5581,
+      "lineCount": 98,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4207,7 +4955,7 @@
       "id": "tests/ui/financesScreen.test.jsx",
       "label": "financesScreen.test.jsx",
       "type": "test",
-      "sizeBytes": 3361,
+      "sizeBytes": 3370,
       "lineCount": 66,
       "imports": [
         "react",
@@ -4283,13 +5031,28 @@
       "id": "tests/ui/matchDecisions.test.jsx",
       "label": "matchDecisions.test.jsx",
       "type": "test",
-      "sizeBytes": 7232,
-      "lineCount": 128,
+      "sizeBytes": 9643,
+      "lineCount": 168,
       "imports": [
         "react",
         "@testing-library/react",
         "react-router-dom",
         "../../src/features/match/MatchScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/matchPanels.test.jsx",
+      "label": "matchPanels.test.jsx",
+      "type": "test",
+      "sizeBytes": 3868,
+      "lineCount": 89,
+      "imports": [
+        "react",
+        "vitest",
+        "@testing-library/react",
+        "../../src/features/match/MatchStats",
+        "../../src/features/match/MatchTimeline",
+        "../../src/components/ui/pager"
       ]
     },
     {
@@ -4310,8 +5073,8 @@
       "id": "tests/ui/modals.test.jsx",
       "label": "modals.test.jsx",
       "type": "test",
-      "sizeBytes": 10313,
-      "lineCount": 167,
+      "sizeBytes": 10408,
+      "lineCount": 168,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4329,8 +5092,8 @@
       "id": "tests/ui/nationalAndCupScreens.test.jsx",
       "label": "nationalAndCupScreens.test.jsx",
       "type": "test",
-      "sizeBytes": 10335,
-      "lineCount": 177,
+      "sizeBytes": 10440,
+      "lineCount": 182,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4357,8 +5120,8 @@
       "id": "tests/ui/pitch.test.jsx",
       "label": "pitch.test.jsx",
       "type": "test",
-      "sizeBytes": 7724,
-      "lineCount": 134,
+      "sizeBytes": 8180,
+      "lineCount": 140,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4394,6 +5157,19 @@
       ]
     },
     {
+      "id": "tests/ui/pressRoomDelegate.test.jsx",
+      "label": "pressRoomDelegate.test.jsx",
+      "type": "test",
+      "sizeBytes": 2383,
+      "lineCount": 39,
+      "imports": [
+        "react",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "../../src/features/match/PressRoom"
+      ]
+    },
+    {
       "id": "tests/ui/responsiveOverlay.test.jsx",
       "label": "responsiveOverlay.test.jsx",
       "type": "test",
@@ -4423,8 +5199,8 @@
       "id": "tests/ui/squadScreen.test.jsx",
       "label": "squadScreen.test.jsx",
       "type": "test",
-      "sizeBytes": 9795,
-      "lineCount": 167,
+      "sizeBytes": 11337,
+      "lineCount": 192,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4437,8 +5213,8 @@
       "id": "tests/ui/standingsScreen.test.jsx",
       "label": "standingsScreen.test.jsx",
       "type": "test",
-      "sizeBytes": 2875,
-      "lineCount": 55,
+      "sizeBytes": 4897,
+      "lineCount": 90,
       "imports": [
         "react",
         "@testing-library/react",
@@ -4446,6 +5222,35 @@
         "react-router-dom",
         "../../src/domain/standings",
         "../../src/features/competition/StandingsScreen"
+      ]
+    },
+    {
+      "id": "tests/ui/storyMinigames.test.jsx",
+      "label": "storyMinigames.test.jsx",
+      "type": "test",
+      "sizeBytes": 4243,
+      "lineCount": 97,
+      "imports": [
+        "react",
+        "vitest",
+        "@testing-library/react",
+        "../../src/features/dashboard/StoryMinigames",
+        "../../src/features/dashboard/StoryActionGames",
+        "../../src/domain/storyStage"
+      ]
+    },
+    {
+      "id": "tests/ui/storyStage.test.jsx",
+      "label": "storyStage.test.jsx",
+      "type": "test",
+      "sizeBytes": 4679,
+      "lineCount": 106,
+      "imports": [
+        "react",
+        "vitest",
+        "@testing-library/react",
+        "../../src/features/dashboard/StoryStage",
+        "../../src/domain/storyStage"
       ]
     },
     {
@@ -4574,6 +5379,20 @@
       "taskType": "feat"
     },
     {
+      "id": "task:arcade-match-squad-polish",
+      "label": "arcade-match-squad-polish: Escudos vectoriales arcade, fixes de encoding, mejoras interactivas en match, post-match desktop y rediseño de squad",
+      "type": "task",
+      "status": "COMPLETED",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:auth-pwa-session-security",
+      "label": "auth-pwa-session-security: Seguridad robusta, persistencia PWA de sesión y navegación con retroceso seguro",
+      "type": "task",
+      "status": "COMPLETED",
+      "taskType": "feat"
+    },
+    {
       "id": "task:auth-security-f5",
       "label": "auth-security-f5: Acceso seguro: reCAPTCHA v3, Google, Resend y base cerrada por dueño",
       "type": "task",
@@ -4595,11 +5414,25 @@
       "taskType": "feat"
     },
     {
+      "id": "task:bugs-mejoras-v3",
+      "label": "bugs-mejoras-v3: Bugs y mejoras v3: partido, prensa e historias",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:buyback-clause",
       "label": "buyback-clause: Clausula de recompra: dejas una opcion al vender y la ejerces despues",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:captain-discoverable",
+      "label": "captain-discoverable: Elegir capitan y subcapitan se encuentra facil",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:cash-server-migrate-rest",
@@ -4651,6 +5484,27 @@
       "taskType": "feat"
     },
     {
+      "id": "task:club-summary-numbers",
+      "label": "club-summary-numbers: El resumen del club usa los mismos numeros que finanzas",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:club-v2",
+      "label": "club-v2: D3: Rediseño vivo de Club con Mística, Tribuna y Vestuario",
+      "type": "task",
+      "status": "COMPLETED",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:compact-screens-phase3",
+      "label": "compact-screens-phase3: Pantallas compactas: dificultad (B9), titulo (B11), botones wizard (B12), auth (B13), calendario (M4) y prensa post-partido (M8)",
+      "type": "task",
+      "status": "PLANNED",
+      "taskType": "feat"
+    },
+    {
       "id": "task:consequences-barra-t4",
       "label": "consequences-barra-t4: T4 barra, corrupcion y eventos por clima",
       "type": "task",
@@ -4693,6 +5547,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:cross-links",
+      "label": "cross-links: Cada aviso abre el lugar exacto donde se resuelve",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:cup-prizes-server",
       "label": "cup-prizes-server: Premios de la copa liquidados por el servidor",
       "type": "task",
@@ -4704,6 +5565,20 @@
       "label": "cup-two-legs: Copa continental con ida y vuelta",
       "type": "task",
       "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:dashboard-league-position",
+      "label": "dashboard-league-position: El inicio muestra el mismo puesto que la tabla",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:dashboard-priorities",
+      "label": "dashboard-priorities: M1: Inicio reordenado y M2: Eventos",
+      "type": "task",
+      "status": "PLANNED",
       "taskType": "feat"
     },
     {
@@ -4744,6 +5619,13 @@
     {
       "id": "task:endgame-tests",
       "label": "endgame-tests: Epilogo probado y auditoria del retiro corregida",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
+      "id": "task:event-single-choice",
+      "label": "event-single-choice: Los eventos aleatorios aplican una sola opcion aunque se aprieten dos",
       "type": "task",
       "status": "DONE",
       "taskType": "fix"
@@ -5372,6 +6254,20 @@
       "taskType": "feat"
     },
     {
+      "id": "task:finance-safety-net",
+      "label": "finance-safety-net: M11 - Red de contencion financiera",
+      "type": "task",
+      "status": "PLANNED",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:finances-v2",
+      "label": "finances-v2: D4: Rediseño arcade/tycoon de Finanzas con billetera, ROI y balance semanal",
+      "type": "task",
+      "status": "COMPLETED",
+      "taskType": "feat"
+    },
+    {
       "id": "task:fix-cup-match-dates",
       "label": "fix-cup-match-dates: Copa Internacional: llaves en fechas fijas del calendario",
       "type": "task",
@@ -5458,6 +6354,13 @@
     {
       "id": "task:gate-server",
       "label": "gate-server: La taquilla la calcula y acredita el servidor",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:historical-teams",
+      "label": "historical-teams: Agregar clubes históricos de Promiedos adaptados por categorías desde potrero",
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
@@ -5561,6 +6464,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:market-v3",
+      "label": "market-v3: D2: Rediseño arcade de Mercado de Pases con figuritas Panini y chat de negociación",
+      "type": "task",
+      "status": "COMPLETED",
+      "taskType": "feat"
+    },
+    {
       "id": "task:market-window-and-pool",
       "label": "market-window-and-pool: Mercado: ventana mal calculada por zona horaria y sin candidatos (los rivales no tienen plantel)",
       "type": "task",
@@ -5573,6 +6483,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:match-injury-sub",
+      "label": "match-injury-sub: B18: cambios por lesion",
+      "type": "task",
+      "status": "PLANNED",
+      "taskType": "fix"
     },
     {
       "id": "task:match-moments-2",
@@ -5592,7 +6509,7 @@
       "id": "task:memory-lessons-2",
       "label": "memory-lessons-2: Lecciones de la tanda de contenido y calidad",
       "type": "task",
-      "status": "PLANNED",
+      "status": "DONE",
       "taskType": "fix"
     },
     {
@@ -5601,6 +6518,20 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:national-team-v2",
+      "label": "national-team-v2: D1: Rediseño arcade de Selección Nacional",
+      "type": "task",
+      "status": "COMPLETED",
+      "taskType": "feat"
+    },
+    {
+      "id": "task:nav-cleanup-logout",
+      "label": "nav-cleanup-logout: Menu sin Logros ni Salon, con el nombre Vestuario y boton de cerrar sesion",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:performance-m2",
@@ -5629,6 +6560,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:press-delegate-first-only",
+      "label": "press-delegate-first-only: En la prensa solo se delega o se falta antes de contestar la primera pregunta",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:press-flow",
@@ -5694,6 +6632,13 @@
       "taskType": "feat"
     },
     {
+      "id": "task:season-38-matches",
+      "label": "season-38-matches: Temporada 38 fechas y cierre en servidor",
+      "type": "task",
+      "status": "PLANNED",
+      "taskType": "feat"
+    },
+    {
       "id": "task:season-close-flow",
       "label": "season-close-flow: La temporada se cierra desde la gala y arranca la siguiente con su calendario",
       "type": "task",
@@ -5736,6 +6681,13 @@
       "taskType": "fix"
     },
     {
+      "id": "task:standings-zones-by-tier",
+      "label": "standings-zones-by-tier: La tabla marca las zonas reales de la division y no inventa datos si falla la carga",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
+    },
+    {
       "id": "task:story-arcs",
       "label": "story-arcs: Historias de 8 a 10 fechas con humor del futbol argentino",
       "type": "task",
@@ -5762,6 +6714,13 @@
       "type": "task",
       "status": "DONE",
       "taskType": "feat"
+    },
+    {
+      "id": "task:ui-copy-round2",
+      "label": "ui-copy-round2: Textos claros en prensa, finanzas y enfermeria",
+      "type": "task",
+      "status": "DONE",
+      "taskType": "fix"
     },
     {
       "id": "task:ui-season-details",
@@ -6156,6 +7115,11 @@
     {
       "from": "src/api/dashboard.js",
       "to": "./events",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/api/dashboard.js",
+      "to": "./competition",
       "relation": "depends_on"
     },
     {
@@ -6665,16 +7629,6 @@
     },
     {
       "from": "src/api/seasonClose.js",
-      "to": "./clubHistory",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/seasonClose.js",
-      "to": "../domain/contracts",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/api/seasonClose.js",
       "to": "./competition",
       "relation": "depends_on"
     },
@@ -6829,8 +7783,38 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/components/layout/AppShell.jsx",
+      "to": "./useLogout",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/components/layout/navigation.js",
       "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/useLogout.js",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/useLogout.js",
+      "to": "../../api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/useLogout.js",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/useLogout.js",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/layout/useLogout.js",
+      "to": "../../lib/redirect",
       "relation": "depends_on"
     },
     {
@@ -6929,6 +7913,21 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/components/ui/ClubBadge.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/ClubBadge.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/ClubBadge.jsx",
+      "to": "../../domain/clubBadges",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/components/ui/dialog.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -6984,6 +7983,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/components/ui/named-icon.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/named-icon.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/components/ui/page-header.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -7000,6 +8009,21 @@
     },
     {
       "from": "src/components/ui/page-header.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/pager.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/pager.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/components/ui/pager.jsx",
       "to": "../../lib/utils",
       "relation": "depends_on"
     },
@@ -7220,6 +8244,11 @@
     },
     {
       "from": "src/domain/marketPool.js",
+      "to": "./ratings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/marketPool.js",
       "to": "./positions",
       "relation": "depends_on"
     },
@@ -7264,6 +8293,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/domain/rivalClubs.js",
+      "to": "./historicalClubs",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/domain/scoutInsights.js",
       "to": "./valuation",
       "relation": "depends_on"
@@ -7276,6 +8310,11 @@
     {
       "from": "src/domain/squadConsequences.js",
       "to": "./consequences",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/standings.js",
+      "to": "./pyramid",
       "relation": "depends_on"
     },
     {
@@ -7301,6 +8340,11 @@
     {
       "from": "src/domain/warnings.js",
       "to": "./squadConsequences",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/domain/warnings.js",
+      "to": "./gameWeek",
       "relation": "depends_on"
     },
     {
@@ -7615,6 +8659,11 @@
     },
     {
       "from": "src/features/club/CreateClubWizard.jsx",
+      "to": "../../api/climate",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/CreateClubWizard.jsx",
       "to": "../../context/GameContext",
       "relation": "depends_on"
     },
@@ -7699,8 +8748,38 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/club/screens/ClubIdentityTab.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubIdentityTab.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubIdentityTab.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubIdentityTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubIdentityTab.jsx",
+      "to": "../../../domain/clubDna",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubScreen.jsx",
+      "to": "react-router-dom",
       "relation": "depends_on"
     },
     {
@@ -7765,17 +8844,17 @@
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "./StadiumManagementTab",
+      "to": "./PressRoomModal",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "./FanbaseManagementTab",
+      "to": "./ClubIdentityTab",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "./BoardManagementTab",
+      "to": "./ClubTribuneTab",
       "relation": "depends_on"
     },
     {
@@ -7785,27 +8864,42 @@
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "./PressRoomModal",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "./InfirmaryTab",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "./ClubHistoryTab",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/club/screens/ClubScreen.jsx",
-      "to": "./IdolsLegendsTab",
+      "to": "./BoardManagementTab",
       "relation": "depends_on"
     },
     {
       "from": "src/features/club/screens/ClubScreen.jsx",
       "to": "../../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubTribuneTab.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubTribuneTab.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubTribuneTab.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubTribuneTab.jsx",
+      "to": "../../../domain/clubDna",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/ClubTribuneTab.jsx",
+      "to": "./FanbaseManagementTab",
       "relation": "depends_on"
     },
     {
@@ -7905,6 +8999,11 @@
     },
     {
       "from": "src/features/club/screens/LockerRoomTab.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/LockerRoomTab.jsx",
       "to": "lucide-react",
       "relation": "depends_on"
     },
@@ -7961,6 +9060,11 @@
     {
       "from": "src/features/club/screens/PressRoomModal.jsx",
       "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/club/screens/PressRoomModal.jsx",
+      "to": "../../../domain/press",
       "relation": "depends_on"
     },
     {
@@ -8151,6 +9255,11 @@
     {
       "from": "src/features/competition/LeaguePyramidModal.jsx",
       "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/competition/LeaguePyramidModal.jsx",
+      "to": "../../domain/pyramid",
       "relation": "depends_on"
     },
     {
@@ -8374,6 +9483,181 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "./StoryStage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../domain/storyFlavor",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../domain/arcs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/Dashboard.jsx",
+      "to": "../../domain/arcCatalog",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/DifficultySelector.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/DifficultySelector.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/DifficultySelector.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/DifficultySelector.jsx",
+      "to": "../../domain/consequences",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/DifficultySelector.jsx",
+      "to": "../../api/climate",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/DifficultySelector.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/LogbookScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/LogbookScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/LogbookScreen.jsx",
+      "to": "../../api/climate",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/LogbookScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/LogbookScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryActionGames.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryActionGames.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryActionGames.jsx",
+      "to": "../../domain/storyStage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryActionGames.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryMinigames.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryMinigames.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryMinigames.jsx",
+      "to": "../../domain/storyStage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryMinigames.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "../../domain/storyFlavor",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "../../domain/arcs",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "../../domain/arcCatalog",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "../../domain/storyStage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "./StoryMinigames",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "./StoryActionGames",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/dashboard/StoryStage.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/design/DesignSystemScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -8386,6 +9670,91 @@
     {
       "from": "src/features/design/DesignSystemScreen.jsx",
       "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../api/dashboard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../api/events",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/events/EventScreen.jsx",
+      "to": "../../components/layout/AppShell",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesFacilityCard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesFacilityCard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesFacilityCard.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesFacilityCard.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesFacilityCard.jsx",
+      "to": "../../domain/finances",
       "relation": "depends_on"
     },
     {
@@ -8455,7 +9824,67 @@
     },
     {
       "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "./FinancesWalletCard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "./FinancesFacilityCard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
+      "to": "./FinancesTransactionFeed",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesScreen.jsx",
       "to": "../../lib/errors",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesTransactionFeed.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesTransactionFeed.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesTransactionFeed.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesTransactionFeed.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesWalletCard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesWalletCard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesWalletCard.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesWalletCard.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/finances/FinancesWalletCard.jsx",
+      "to": "../../domain/finances",
       "relation": "depends_on"
     },
     {
@@ -8914,6 +10343,71 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/manager/national/NationalCareerGauge.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalCareerGauge.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalCareerGauge.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalCareerGauge.jsx",
+      "to": "../../../domain/nationalRadar",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalHeadlinesTicker.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalHeadlinesTicker.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalMatchModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalMatchModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalMatchModal.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalRadarCard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalRadarCard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalRadarCard.jsx",
+      "to": "../../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/national/NationalRadarCard.jsx",
+      "to": "../../../lib/format",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/manager/NationalTeamScreen.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -8931,6 +10425,11 @@
     {
       "from": "src/features/manager/NationalTeamScreen.jsx",
       "to": "../../api/nationalTeam",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "../../api/player",
       "relation": "depends_on"
     },
     {
@@ -8960,7 +10459,147 @@
     },
     {
       "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "../../domain/nationalRadar",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
       "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "./national/NationalCareerGauge",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "./national/NationalRadarCard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "./national/NationalHeadlinesTicker",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/manager/NationalTeamScreen.jsx",
+      "to": "./national/NationalMatchModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketEmptyState.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketEmptyState.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketEmptyState.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketFilterBar.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketFilterBar.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketFilterBar.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketFilterBar.jsx",
+      "to": "../../domain/squad",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketFilterBar.jsx",
+      "to": "../../domain/market",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHeader.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHeader.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHeader.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHeader.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHistory.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHistory.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHistory.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketHistory.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketPlayerCard.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketPlayerCard.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketPlayerCard.jsx",
+      "to": "../../components/ui",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketPlayerCard.jsx",
+      "to": "../../lib/format",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketPlayerCard.jsx",
+      "to": "../../domain/market",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketPlayerCard.jsx",
+      "to": "../../domain/scoutInsights",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketPlayerCard.jsx",
+      "to": "../../domain/contractDemands",
       "relation": "depends_on"
     },
     {
@@ -8995,11 +10634,6 @@
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
-      "to": "../../domain/scoutInsights",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/market/MarketScreen.jsx",
       "to": "../../api/supabase",
       "relation": "depends_on"
     },
@@ -9015,11 +10649,6 @@
     },
     {
       "from": "src/features/market/MarketScreen.jsx",
-      "to": "../../domain/squad",
-      "relation": "depends_on"
-    },
-    {
-      "from": "src/features/market/MarketScreen.jsx",
       "to": "../../domain/market",
       "relation": "depends_on"
     },
@@ -9031,6 +10660,31 @@
     {
       "from": "src/features/market/MarketScreen.jsx",
       "to": "./OfferModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "./MarketHeader",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "./MarketFilterBar",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "./MarketPlayerCard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "./MarketEmptyState",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/market/MarketScreen.jsx",
+      "to": "./MarketHistory",
       "relation": "depends_on"
     },
     {
@@ -9099,6 +10753,91 @@
       "relation": "depends_on"
     },
     {
+      "from": "src/features/match/DecisionCard.jsx",
+      "to": "./PenaltyGoal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/DecisionCard.jsx",
+      "to": "../../components/ui/named-icon",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/DecisionSheet.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/DecisionSheet.jsx",
+      "to": "../../components/ui/dialog",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/DecisionSheet.jsx",
+      "to": "../../hooks/useMediaQuery",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/DecisionSheet.jsx",
+      "to": "./DecisionCard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "to": "../../components/ui/dialog",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "to": "../../domain/ratings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "to": "../../domain/positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "to": "../../domain/formations",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/InteractiveSubstitutionsModal.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchActions.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchActions.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchActions.jsx",
+      "to": "../../domain/matchClock",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchActions.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
       "from": "src/features/match/MatchControls.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -9116,6 +10855,21 @@
     {
       "from": "src/features/match/MatchControls.jsx",
       "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchHeader.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchHeader.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchHeader.jsx",
+      "to": "../../components/ui",
       "relation": "depends_on"
     },
     {
@@ -9170,7 +10924,37 @@
     },
     {
       "from": "src/features/match/MatchScreen.jsx",
-      "to": "./MatchControls",
+      "to": "./MatchHeader",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "./MatchTimeline",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "./MatchActions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "./MatchStats",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "./SubstitutionsSheet",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "./ShoutsSheet",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "./DecisionSheet",
       "relation": "depends_on"
     },
     {
@@ -9191,6 +10975,11 @@
     {
       "from": "src/features/match/MatchScreen.jsx",
       "to": "../../domain/substitutions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchScreen.jsx",
+      "to": "../../hooks/useMediaQuery",
       "relation": "depends_on"
     },
     {
@@ -9241,6 +11030,51 @@
     {
       "from": "src/features/match/MatchScreen.jsx",
       "to": "../../domain/freeLayout",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchStats.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchStats.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchStats.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchTimeline.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchTimeline.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/MatchTimeline.jsx",
+      "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PenaltyGoal.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PenaltyGoal.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PenaltyGoal.jsx",
+      "to": "../../lib/utils",
       "relation": "depends_on"
     },
     {
@@ -9295,6 +11129,11 @@
     },
     {
       "from": "src/features/match/PostMatchScreen.jsx",
+      "to": "../../components/ui/pager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PostMatchScreen.jsx",
       "to": "../../lib/errors",
       "relation": "depends_on"
     },
@@ -9325,7 +11164,47 @@
     },
     {
       "from": "src/features/match/PressRoom.jsx",
+      "to": "../../domain/press",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PressRoom.jsx",
+      "to": "../../components/ui/named-icon",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PressRoom.jsx",
+      "to": "../../components/ui/pager",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PressRoom.jsx",
+      "to": "../../domain/pressScene",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/PressRoom.jsx",
       "to": "../../domain/pressRoom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/ShoutsSheet.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/ShoutsSheet.jsx",
+      "to": "../../components/ui/dialog",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/ShoutsSheet.jsx",
+      "to": "../../api/matchEngine",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/ShoutsSheet.jsx",
+      "to": "lucide-react",
       "relation": "depends_on"
     },
     {
@@ -9341,6 +11220,31 @@
     {
       "from": "src/features/match/SubstitutionsPanel.jsx",
       "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/SubstitutionsPanel.jsx",
+      "to": "../../domain/ratings",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/SubstitutionsPanel.jsx",
+      "to": "../../domain/positions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/SubstitutionsSheet.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/SubstitutionsSheet.jsx",
+      "to": "./InteractiveSubstitutionsModal",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/match/SubstitutionsSheet.jsx",
+      "to": "../../domain/substitutions",
       "relation": "depends_on"
     },
     {
@@ -9376,6 +11280,21 @@
     {
       "from": "src/features/more/MoreScreen.jsx",
       "to": "../../components/layout/navigation",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "../../components/layout/useLogout",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "../../context/GameContext",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/more/MoreScreen.jsx",
+      "to": "../dashboard/DifficultySelector",
       "relation": "depends_on"
     },
     {
@@ -9610,6 +11529,11 @@
     },
     {
       "from": "src/features/squad/SquadScreen.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
       "to": "../../api/player",
       "relation": "depends_on"
     },
@@ -9621,6 +11545,11 @@
     {
       "from": "src/features/squad/SquadScreen.jsx",
       "to": "../../api/loans",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/squad/SquadScreen.jsx",
+      "to": "../../api/lockerRoom",
       "relation": "depends_on"
     },
     {
@@ -9725,6 +11654,11 @@
     },
     {
       "from": "src/features/tactics/Pitch.jsx",
+      "to": "lucide-react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/Pitch.jsx",
       "to": "../../lib/utils",
       "relation": "depends_on"
     },
@@ -9816,6 +11750,16 @@
     {
       "from": "src/features/tactics/TacticsScreen.jsx",
       "to": "../../lib/utils",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../hooks/useMediaQuery",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/features/tactics/TacticsScreen.jsx",
+      "to": "../../api/lockerRoom",
       "relation": "depends_on"
     },
     {
@@ -9945,6 +11889,11 @@
     },
     {
       "from": "src/GameApp.jsx",
+      "to": "./features/events/EventScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/GameApp.jsx",
       "to": "./features/auth/WelcomeScreen",
       "relation": "depends_on"
     },
@@ -10026,6 +11975,11 @@
     {
       "from": "src/GameApp.jsx",
       "to": "./features/career/EndgameScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "src/GameApp.jsx",
+      "to": "./features/dashboard/LogbookScreen",
       "relation": "depends_on"
     },
     {
@@ -10154,6 +12108,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/alertLinks.test.js",
+      "to": "../../src/api/dashboard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/alertLinks.test.js",
+      "to": "../../src/utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/arcsWeek.test.js",
       "to": "../../src/api/climate",
       "relation": "depends_on"
@@ -10264,6 +12228,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/dashboardRank.test.js",
+      "to": "../../src/api/dashboard",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/dashboardRank.test.js",
+      "to": "../../src/utils/cache",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/email.test.js",
       "to": "../../src/api/email",
       "relation": "depends_on"
@@ -10271,6 +12245,21 @@
     {
       "from": "tests/api/endgame.test.js",
       "to": "../../src/api/endgame",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/eventSingleChoice.test.js",
+      "to": "../../src/api/events",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/eventSingleChoice.test.js",
+      "to": "../../src/api/climate",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/api/eventSingleChoice.test.js",
+      "to": "../../src/api/reputation",
       "relation": "depends_on"
     },
     {
@@ -10320,7 +12309,7 @@
     },
     {
       "from": "tests/api/levels-competition.test.js",
-      "to": "../../src/api/competition",
+      "to": "../../src/domain/standings",
       "relation": "depends_on"
     },
     {
@@ -10444,6 +12433,11 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/api/pressDelegate.test.js",
+      "to": "../../src/api/press",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/api/pressSituations.test.js",
       "to": "../../src/api/press",
       "relation": "depends_on"
@@ -10509,6 +12503,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/bdd/steps/arcade-match-squad-polish.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/arcade-match-squad-polish.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/arcade-match-squad-polish.steps.js",
+      "to": "../../../src/domain/clubBadges.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/arcade-match-squad-polish.steps.js",
+      "to": "../../../src/domain/squad.js",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/bdd/steps/arcs.steps.js",
       "to": "node:assert/strict",
       "relation": "depends_on"
@@ -10526,6 +12540,26 @@
     {
       "from": "tests/bdd/steps/arcs.steps.js",
       "to": "../../../src/domain/arcs.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/auth-pwa-session-security.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/auth-pwa-session-security.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/auth-pwa-session-security.steps.js",
+      "to": "../../../src/api/supabase.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/auth-pwa-session-security.steps.js",
+      "to": "../../../src/api/auth.js",
       "relation": "depends_on"
     },
     {
@@ -10581,6 +12615,21 @@
     {
       "from": "tests/bdd/steps/climate.steps.js",
       "to": "../../../src/domain/combos.js",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/historical-teams.steps.js",
+      "to": "node:assert/strict",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/historical-teams.steps.js",
+      "to": "@cucumber/cucumber",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/bdd/steps/historical-teams.steps.js",
+      "to": "../../../src/domain/rivalClubs.js",
       "relation": "depends_on"
     },
     {
@@ -10754,6 +12803,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/clubDna.test.js",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/clubDna.test.js",
+      "to": "../../src/domain/clubDna",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/clubIdentity.test.js",
       "to": "../../src/domain/clubIdentity",
       "relation": "depends_on"
@@ -10829,6 +12888,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/financesArcade.test.js",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/financesArcade.test.js",
+      "to": "../../src/domain/finances",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/fixtureStatus.test.js",
       "to": "../../src/domain/fixtureStatus",
       "relation": "depends_on"
@@ -10894,6 +12963,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/marketArcade.test.js",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/marketArcade.test.js",
+      "to": "../../src/domain/market",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/marketPool.test.js",
       "to": "../../src/domain/marketPool",
       "relation": "depends_on"
@@ -10924,6 +13003,16 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/nationalRadar.test.js",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/nationalRadar.test.js",
+      "to": "../../src/domain/nationalRadar",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/positions.test.js",
       "to": "../../src/domain/positions",
       "relation": "depends_on"
@@ -10951,6 +13040,16 @@
     {
       "from": "tests/domain/pressRoom.test.js",
       "to": "../../src/domain/pressRoom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/pressScene.test.js",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/pressScene.test.js",
+      "to": "../../src/domain/pressScene",
       "relation": "depends_on"
     },
     {
@@ -10986,6 +13085,11 @@
     {
       "from": "tests/domain/risk.test.js",
       "to": "../../src/lib/risk",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/rivalClubs.test.js",
+      "to": "vitest",
       "relation": "depends_on"
     },
     {
@@ -11039,6 +13143,31 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/domain/storyFlavor.test.js",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/storyFlavor.test.js",
+      "to": "../../src/domain/storyFlavor",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/storyStage.test.js",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/storyStage.test.js",
+      "to": "../../src/domain/storyStage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/storyStage.test.js",
+      "to": "../../src/domain/storyStage",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/domain/streaks.test.js",
       "to": "../../src/domain/streaks",
       "relation": "depends_on"
@@ -11046,6 +13175,11 @@
     {
       "from": "tests/domain/substitutions.test.js",
       "to": "../../src/domain/substitutions",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/domain/toneLabels.test.js",
+      "to": "../../src/domain/press",
       "relation": "depends_on"
     },
     {
@@ -11275,6 +13409,11 @@
     },
     {
       "from": "tests/ui/appShell.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/appShell.test.jsx",
       "to": "react-router-dom",
       "relation": "depends_on"
     },
@@ -11341,6 +13480,36 @@
     {
       "from": "tests/ui/authGoogle.test.jsx",
       "to": "sonner",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authPersistence.test.jsx",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authPersistence.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authPersistence.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authPersistence.test.jsx",
+      "to": "react-router-dom",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authPersistence.test.jsx",
+      "to": "../../src/api/auth",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/authPersistence.test.jsx",
+      "to": "../../src/features/auth/AuthScreen",
       "relation": "depends_on"
     },
     {
@@ -11674,6 +13843,36 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/ui/matchPanels.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/matchPanels.test.jsx",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/matchPanels.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/matchPanels.test.jsx",
+      "to": "../../src/features/match/MatchStats",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/matchPanels.test.jsx",
+      "to": "../../src/features/match/MatchTimeline",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/matchPanels.test.jsx",
+      "to": "../../src/components/ui/pager",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/ui/modals-squad.test.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -11864,6 +14063,26 @@
       "relation": "depends_on"
     },
     {
+      "from": "tests/ui/pressRoomDelegate.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pressRoomDelegate.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pressRoomDelegate.test.jsx",
+      "to": "@testing-library/user-event",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/pressRoomDelegate.test.jsx",
+      "to": "../../src/features/match/PressRoom",
+      "relation": "depends_on"
+    },
+    {
       "from": "tests/ui/responsiveOverlay.test.jsx",
       "to": "react",
       "relation": "depends_on"
@@ -11956,6 +14175,61 @@
     {
       "from": "tests/ui/standingsScreen.test.jsx",
       "to": "../../src/features/competition/StandingsScreen",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyMinigames.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyMinigames.test.jsx",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyMinigames.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyMinigames.test.jsx",
+      "to": "../../src/features/dashboard/StoryMinigames",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyMinigames.test.jsx",
+      "to": "../../src/features/dashboard/StoryActionGames",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyMinigames.test.jsx",
+      "to": "../../src/domain/storyStage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyStage.test.jsx",
+      "to": "react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyStage.test.jsx",
+      "to": "vitest",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyStage.test.jsx",
+      "to": "@testing-library/react",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyStage.test.jsx",
+      "to": "../../src/features/dashboard/StoryStage",
+      "relation": "depends_on"
+    },
+    {
+      "from": "tests/ui/storyStage.test.jsx",
+      "to": "../../src/domain/storyStage",
       "relation": "depends_on"
     },
     {
@@ -12119,6 +14393,16 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:arcade-match-squad-polish",
+      "to": ".agents/workflow/tasks/arcade-match-squad-polish.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:auth-pwa-session-security",
+      "to": ".agents/workflow/tasks/auth-pwa-session-security.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:auth-security-f5",
       "to": ".agents/workflow/tasks/auth-security-f5.yml",
       "relation": "manifested_by"
@@ -12134,8 +14418,18 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:bugs-mejoras-v3",
+      "to": ".agents/workflow/tasks/bugs-mejoras-v3.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:buyback-clause",
       "to": ".agents/workflow/tasks/buyback-clause.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:captain-discoverable",
+      "to": ".agents/workflow/tasks/captain-discoverable.yml",
       "relation": "manifested_by"
     },
     {
@@ -12174,6 +14468,21 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:club-summary-numbers",
+      "to": ".agents/workflow/tasks/club-summary-numbers.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:club-v2",
+      "to": ".agents/workflow/tasks/club-v2.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:compact-screens-phase3",
+      "to": ".agents/workflow/tasks/compact-screens-phase3.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:consequences-barra-t4",
       "to": ".agents/workflow/tasks/consequences-barra-t4.yml",
       "relation": "manifested_by"
@@ -12204,6 +14513,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:cross-links",
+      "to": ".agents/workflow/tasks/cross-links.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:cup-prizes-server",
       "to": ".agents/workflow/tasks/cup-prizes-server.yml",
       "relation": "manifested_by"
@@ -12211,6 +14525,16 @@
     {
       "from": "task:cup-two-legs",
       "to": ".agents/workflow/tasks/cup-two-legs.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:dashboard-league-position",
+      "to": ".agents/workflow/tasks/dashboard-league-position.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:dashboard-priorities",
+      "to": ".agents/workflow/tasks/dashboard-priorities.yml",
       "relation": "manifested_by"
     },
     {
@@ -12241,6 +14565,11 @@
     {
       "from": "task:endgame-tests",
       "to": ".agents/workflow/tasks/endgame-tests.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:event-single-choice",
+      "to": ".agents/workflow/tasks/event-single-choice.yml",
       "relation": "manifested_by"
     },
     {
@@ -12689,6 +15018,16 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:finance-safety-net",
+      "to": ".agents/workflow/tasks/finance-safety-net.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:finances-v2",
+      "to": ".agents/workflow/tasks/finances-v2.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:fix-cup-match-dates",
       "to": ".agents/workflow/tasks/fix-cup-match-dates.yml",
       "relation": "manifested_by"
@@ -12751,6 +15090,11 @@
     {
       "from": "task:gate-server",
       "to": ".agents/workflow/tasks/gate-server.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:historical-teams",
+      "to": ".agents/workflow/tasks/historical-teams.yml",
       "relation": "manifested_by"
     },
     {
@@ -12824,6 +15168,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:market-v3",
+      "to": ".agents/workflow/tasks/market-v3.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:market-window-and-pool",
       "to": ".agents/workflow/tasks/market-window-and-pool.yml",
       "relation": "manifested_by"
@@ -12831,6 +15180,11 @@
     {
       "from": "task:match-experience-m5",
       "to": ".agents/workflow/tasks/match-experience-m5.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:match-injury-sub",
+      "to": ".agents/workflow/tasks/match-injury-sub.yml",
       "relation": "manifested_by"
     },
     {
@@ -12854,6 +15208,16 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:national-team-v2",
+      "to": ".agents/workflow/tasks/national-team-v2.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:nav-cleanup-logout",
+      "to": ".agents/workflow/tasks/nav-cleanup-logout.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:performance-m2",
       "to": ".agents/workflow/tasks/performance-m2.yml",
       "relation": "manifested_by"
@@ -12871,6 +15235,11 @@
     {
       "from": "task:preseason-arcade",
       "to": ".agents/workflow/tasks/preseason-arcade.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:press-delegate-first-only",
+      "to": ".agents/workflow/tasks/press-delegate-first-only.yml",
       "relation": "manifested_by"
     },
     {
@@ -12919,6 +15288,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:season-38-matches",
+      "to": ".agents/workflow/tasks/season-38-matches.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:season-close-flow",
       "to": ".agents/workflow/tasks/season-close-flow.yml",
       "relation": "manifested_by"
@@ -12949,6 +15323,11 @@
       "relation": "manifested_by"
     },
     {
+      "from": "task:standings-zones-by-tier",
+      "to": ".agents/workflow/tasks/standings-zones-by-tier.yml",
+      "relation": "manifested_by"
+    },
+    {
       "from": "task:story-arcs",
       "to": ".agents/workflow/tasks/story-arcs.yml",
       "relation": "manifested_by"
@@ -12966,6 +15345,11 @@
     {
       "from": "task:tooling-eslint",
       "to": ".agents/workflow/tasks/tooling-eslint.yml",
+      "relation": "manifested_by"
+    },
+    {
+      "from": "task:ui-copy-round2",
+      "to": ".agents/workflow/tasks/ui-copy-round2.yml",
       "relation": "manifested_by"
     },
     {
@@ -13143,6 +15527,27 @@
       "category": "ARCHITECTURE",
       "lesson": "Toda escritura de plata pasa por funciones SQL (club_cash_move, settle_gate, close_week_finances...) y un trigger rechaza cambios directos de clubs.budget: una funcion nueva que toque la caja debe fijar app.server_result en su cuerpo (ALTER FUNCTION SET con parametro propio no esta permitido en Supabase). Las reglas del servidor se prueban en la base real con un bloque DO que termina en raise exception.",
       "solution": ""
+    },
+    {
+      "id": "LES-9451",
+      "timestamp": "2026-10-08T19:53:19.451Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "Servidor de desarrollo de Vite en Windows a veces no toma cambios escritos por scripts (sirve el archivo viejo)",
+      "solution": "Hacer touch al archivo o reiniciar npm run dev antes de verificar en el navegador"
+    },
+    {
+      "id": "LES-2149",
+      "timestamp": "2026-10-08T19:53:22.149Z",
+      "category": "BUG_FIX",
+      "lesson": "Efectos secundarios dentro de updaters de setState (timeouts, onDone) no corren bien con varios cambios en un mismo lote ni en StrictMode",
+      "solution": "Usar refs y ejecutar el efecto en el callback del intervalo o del evento, no dentro del updater"
+    },
+    {
+      "id": "LES-4750",
+      "timestamp": "2026-10-08T19:53:24.750Z",
+      "category": "BEST_PRACTICE",
+      "lesson": "Barras fijas (position fixed) se descolocan en iOS PWA y las animaciones por requestAnimationFrame con setState se traban",
+      "solution": "Layout de alto fijo con scroll interno y barra en el flujo; animar con CSS y leer la posicion con getBoundingClientRect"
     }
   ]
 }

@@ -152,5 +152,26 @@
     "category": "ARCHITECTURE",
     "lesson": "Toda escritura de plata pasa por funciones SQL (club_cash_move, settle_gate, close_week_finances...) y un trigger rechaza cambios directos de clubs.budget: una funcion nueva que toque la caja debe fijar app.server_result en su cuerpo (ALTER FUNCTION SET con parametro propio no esta permitido en Supabase). Las reglas del servidor se prueban en la base real con un bloque DO que termina en raise exception.",
     "solution": ""
+  },
+  {
+    "id": "LES-9451",
+    "timestamp": "2026-10-08T19:53:19.451Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "Servidor de desarrollo de Vite en Windows a veces no toma cambios escritos por scripts (sirve el archivo viejo)",
+    "solution": "Hacer touch al archivo o reiniciar npm run dev antes de verificar en el navegador"
+  },
+  {
+    "id": "LES-2149",
+    "timestamp": "2026-10-08T19:53:22.149Z",
+    "category": "BUG_FIX",
+    "lesson": "Efectos secundarios dentro de updaters de setState (timeouts, onDone) no corren bien con varios cambios en un mismo lote ni en StrictMode",
+    "solution": "Usar refs y ejecutar el efecto en el callback del intervalo o del evento, no dentro del updater"
+  },
+  {
+    "id": "LES-4750",
+    "timestamp": "2026-10-08T19:53:24.750Z",
+    "category": "BEST_PRACTICE",
+    "lesson": "Barras fijas (position fixed) se descolocan en iOS PWA y las animaciones por requestAnimationFrame con setState se traban",
+    "solution": "Layout de alto fijo con scroll interno y barra en el flujo; animar con CSS y leer la posicion con getBoundingClientRect"
   }
 ]

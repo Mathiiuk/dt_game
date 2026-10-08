@@ -29,3 +29,8 @@ Rama: `fix/bugs-mejoras-v3` (parte de la rama de auth/PWA, todavía sin mergear)
 - Penal: barra con animación de CSS; banco abierto desde la lesión; fichas de cambios por puesto con amarillas/lesión; etiquetas de baja en la pizarra; once rival con nombres.
 - Prensa: `domain/pressScene.js` (periodistas con carácter, humor de la sala, ronda relámpago) + PressRoom interactivo (verificado en navegador con datos de prueba).
 - Suite: 1336/1336.
+
+## Cierre (agt)
+- `agt task:verify bugs-mejoras-v3`: unit_tests y bdd_tests en PASS. Tarea en DONE.
+- Revision con los roles qa-engineer, security-guardian y product-designer: tests nuevos de UI (historias, minijuegos, estadisticas, relato, lista paginada), botones de paginas a 44 px, sin HTML inyectado (todo texto pasa por React) y sin secretos nuevos.
+- Bugs hallados en la revision y corregidos: efectos secundarios dentro de updaters de setState en los desafios de insistencia y billetes (el tiempo no cerraba el desafio con varios cambios en lote).

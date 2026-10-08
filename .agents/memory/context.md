@@ -1,48 +1,51 @@
 # 🧠 Contexto y Memoria del Proyecto: dt_game
 
-> **Última sincronización:** 2026-10-07T15:28:06.971Z | **Nodos:** 546 | **Tareas:** 176
+> **Última sincronización:** 2026-10-08T19:53:27.487Z | **Nodos:** 629 | **Tareas:** 198
 
 ## 📦 Mapa de Módulos y Dependencias
 
 | Módulo | Líneas | Dependencias Principales |
 |---|---|---|
-| `src/domain/arcCatalog.js` | 908 | ninguna |
+| `src/domain/historicalClubs.js` | 1614 | ninguna |
+| `src/domain/arcCatalog.js` | 1562 | ninguna |
 | `src/api/career.js` | 783 | ../domain/vacancies, ../domain/jobNegotiation, ./supabase |
-| `src/features/match/MatchScreen.jsx` | 659 | react, react-router-dom, ../../api/auth |
-| `src/api/matchEngine.js` | 615 | ./supabase, ../domain/positions, ../domain/consequences |
-| `src/api/press.js` | 590 | ./supabase, ../domain/press, ../domain/characters |
-| `src/api/postMatch.js` | 581 | ./manager, ./morale, ./supabase |
-| `src/features/match/PostMatchScreen.jsx` | 575 | react, react-router-dom, ../../api/postMatch |
+| `src/api/matchEngine.js` | 714 | ./supabase, ../domain/positions, ../domain/consequences |
+| `src/features/match/MatchScreen.jsx` | 689 | react, react-router-dom, ../../api/auth |
+| `src/features/match/PostMatchScreen.jsx` | 610 | react, react-router-dom, ../../api/postMatch |
+| `src/api/press.js` | 607 | ./supabase, ../domain/press, ../domain/characters |
+| `src/features/dashboard/Dashboard.jsx` | 595 | react, react-router-dom, lucide-react |
+| `src/api/postMatch.js` | 588 | ./manager, ./morale, ./supabase |
+| `src/api/calendar.js` | 567 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
 | `src/api/achievements.js` | 566 | ./supabase, ./career, ./hallOfFame |
-| `src/api/climate.js` | 548 | ./supabase, ../utils/cache, ./morale |
-| `src/api/calendar.js` | 538 | ./supabase, ../domain/fixtureStatus, ../domain/gameWeek |
-| `src/api/events.js` | 527 | ./supabase, ../utils/cache, ./audit |
-| `src/features/squad/SquadScreen.jsx` | 514 | react, lucide-react, sonner |
+| `src/api/auth.js` | 561 | ./supabase, ../utils/cache, ./audit |
+| `src/api/climate.js` | 552 | ./supabase, ../utils/cache, ./morale |
+| `src/api/events.js` | 537 | ./supabase, ../utils/cache, ./audit |
+| `src/features/squad/SquadScreen.jsx` | 535 | react, lucide-react, sonner |
 | `src/api/nationalTeam.js` | 491 | ./supabase, ./manager, ./audit |
-| `src/api/auth.js` | 484 | ./supabase, ../utils/cache, ./audit |
-| `src/features/club/screens/LockerRoomTab.jsx` | 460 | react, lucide-react, ../../../api/lockerRoom |
+| `src/features/match/PressRoom.jsx` | 484 | react, lucide-react, ../../components/ui |
+| `src/features/club/screens/LockerRoomTab.jsx` | 470 | react, react-router-dom, lucide-react |
 | `src/features/manager/ManagerCareerScreen.jsx` | 450 | react, react-router-dom, lucide-react |
-| `src/features/dashboard/Dashboard.jsx` | 435 | react, react-router-dom, lucide-react |
 | `src/api/clubHistory.js` | 423 | ./supabase |
 | `src/api/training.js` | 422 | ./supabase, ../domain/squadConsequences |
+| `src/features/tactics/TacticsScreen.jsx` | 421 | react, lucide-react, sonner |
+| `src/api/lockerRoom.js` | 409 | ./supabase, ../utils/cache |
 | `src/api/injuries.js` | 407 | ./supabase, ../utils/cache |
 | `src/domain/climateEvents.js` | 397 | ninguna |
-| `src/api/lockerRoom.js` | 395 | ./supabase, ../utils/cache |
-| `src/features/tactics/TacticsScreen.jsx` | 393 | react, lucide-react, sonner |
-| `src/features/club/screens/StadiumManagementTab.jsx` | 389 | react, lucide-react, ../../../api/stadium |
-| `src/api/contracts.js` | 386 | ./supabase, ../utils/cache, ./audit |
 
-_(+188 módulos adicionales; consultar con `memory:query`)_
+_(+229 módulos adicionales; consultar con `memory:query`)_
 
 ## 📋 Tareas Registradas
 
 - **advance-semaphore-recovery: El avance de semana se recupera si quedo trabado a medias** `[DONE]`
 - **arc-branching-endings: Los finales de las historias cambian segun el camino elegido y el estado del club** `[DONE]`
-- **auth-pwa-session-security: Seguridad robusta, persistencia PWA de sesión y navegación con retroceso seguro** `[DONE]`
+- **arcade-match-squad-polish: Escudos vectoriales arcade, fixes de encoding, mejoras interactivas en match, post-match desktop y rediseño de squad** `[COMPLETED]`
+- **auth-pwa-session-security: Seguridad robusta, persistencia PWA de sesión y navegación con retroceso seguro** `[COMPLETED]`
 - **auth-security-f5: Acceso seguro: reCAPTCHA v3, Google, Resend y base cerrada por dueño** `[DONE]`
 - **bench-complaints: Suplentes que reclaman minutos** `[DONE]`
 - **board-balance-calibration: La confianza de la directiva es una funcion pura calibrada con simulacion** `[DONE]`
+- **bugs-mejoras-v3: Bugs y mejoras v3: partido, prensa e historias** `[DONE]`
 - **buyback-clause: Clausula de recompra: dejas una opcion al vender y la ejerces despues** `[DONE]`
+- **captain-discoverable: Elegir capitan y subcapitan se encuentra facil** `[DONE]`
 - **cash-server-migrate-rest: El resto de las escrituras de caja pasan al servidor** `[DONE]`
 - **cash-server-primitive: La caja se mueve en el servidor: primitiva club_cash_move y las primeras escrituras migradas** `[DONE]`
 - **characters: Personajes con nombre y memoria** `[DONE]`
@@ -50,20 +53,27 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 - **cleanup-orphans-multipass: El script de limpieza de filas sin dueño borra en pasadas y respeta las dependencias** `[DONE]`
 - **climate-feel: Combos, clima visible, resumen de temporada y premios escalados** `[DONE]`
 - **climate-stage-events: Eventos propios de cada etapa de la barra y de cada nivel de presion** `[DONE]`
+- **club-summary-numbers: El resumen del club usa los mismos numeros que finanzas** `[DONE]`
+- **club-v2: D3: Rediseño vivo de Club con Mística, Tribuna y Vestuario** `[COMPLETED]`
+- **compact-screens-phase3: Pantallas compactas: dificultad (B9), titulo (B11), botones wizard (B12), auth (B13), calendario (M4) y prensa post-partido (M8)** `[PLANNED]`
 - **consequences-barra-t4: T4 barra, corrupcion y eventos por clima** `[DONE]`
 - **consequences-results-t2: T2 consecuencias de resultados, precio de entrada y ambiente** `[DONE]`
 - **consequences-squad-t3: T3 consecuencias de entrenamiento y plantel** `[DONE]`
 - **consequences-ui-t6: T6 avisos, feed, tarjeta de clima y dificultad** `[DONE]`
 - **contracts-countdown-alert: La alerta de contratos por vencer sube de prioridad al final de la temporada** `[DONE]`
 - **contracts-server: Contratos: renovaciones y rescisiones resueltas por el servidor** `[DONE]`
+- **cross-links: Cada aviso abre el lugar exacto donde se resuelve** `[DONE]`
 - **cup-prizes-server: Premios de la copa liquidados por el servidor** `[DONE]`
 - **cup-two-legs: Copa continental con ida y vuelta** `[DONE]`
+- **dashboard-league-position: El inicio muestra el mismo puesto que la tabla** `[DONE]`
+- **dashboard-priorities: M1: Inicio reordenado y M2: Eventos** `[PLANNED]`
 - **db-function-search-path: Las funciones SQL del juego tienen el search_path fijo** `[DONE]`
 - **econ-climate-t1: T1 economia recalibrada y clima unificado** `[DONE]`
 - **econ-climate-t1b: T1b hinchada y dirigencia unificadas y rachas reales** `[DONE]`
 - **economy-by-tier: Los ingresos fijos del club crecen con la categoria** `[DONE]`
 - **economy-tuning: Economia semanal recalibrada con la corrida de una temporada** `[DONE]`
 - **endgame-tests: Epilogo probado y auditoria del retiro corregida** `[DONE]`
+- **event-single-choice: Los eventos aleatorios aplican una sola opcion aunque se aprieten dos** `[DONE]`
 - **f2-1-block-a-fundamentals: Fase 2.1: Bloque A - Contratos de Dominio Fundamentos (Fases 01 a 10)** `[DONE]`
 - **f2-1-block-b-management: Fase 2.1: Bloque B - Contratos de Dominio Gestion Deportiva y Economica (Fases 11 a 20)** `[DONE]`
 - **f2-1-block-c-human-environment: Fase 2.1: Bloque C - Contratos de Dominio Entorno y Simulacion Humana (Fases 21 a 30)** `[DONE]`
@@ -153,6 +163,8 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 - **feat-fase-39-achievements-career-challenges: Fase 39 - Sistema de Logros y Desafios de Carrera** `[DONE]`
 - **feat-fase-40-endgame-epilogue-dynasty: Fase 40 - Endgame, Epilogo de Carrera y Legado Dinastico** `[DONE]`
 - **feat-positions-and-ratings: Posiciones unificadas (PO DFC LI LD MCD MC MCO MI MD EI ED DC) y medias estilo FIFA por posicion** `[DONE]`
+- **finance-safety-net: M11 - Red de contencion financiera** `[PLANNED]`
+- **finances-v2: D4: Rediseño arcade/tycoon de Finanzas con billetera, ROI y balance semanal** `[COMPLETED]`
 - **fix-cup-match-dates: Copa Internacional: llaves en fechas fijas del calendario** `[DONE]`
 - **fix-dashboard-stale-fixture: Inicio: no mostrar el partido ya jugado tras volver del post-partido** `[DONE]`
 - **fix-goals-scored: Sumar los goles de cada jugador al consolidar el partido** `[DONE]`
@@ -166,6 +178,7 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 - **fix-youth-prospect-generator: Otear en la Academia: juvenil completo con todos los campos obligatorios** `[DONE]`
 - **free-lineup-m4: M4 alineacion libre en la pizarra** `[DONE]`
 - **gate-server: La taquilla la calcula y acredita el servidor** `[DONE]`
+- **historical-teams: Agregar clubes históricos de Promiedos adaptados por categorías desde potrero** `[DONE]`
 - **home-landing: Home publica de Vestuario: portada, frases de DT, SEO y rutas de acceso** `[DONE]`
 - **job-market-real-tiers: La bolsa de trabajo ofrece clubes de todas las divisiones** `[DONE]`
 - **job-negotiation: Las ofertas de trabajo se negocian: pedis mas sueldo y el club acepta, contraoferta o retira** `[DONE]`
@@ -180,16 +193,21 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 - **market-negotiation: Mercado 2.0 etapa 2: negociacion con contraofertas y cuotas en el servidor** `[DONE]`
 - **market-sales: Mercado 2.0 etapa 2b: las ventas las resuelve el servidor** `[DONE]`
 - **market-server-prices: Mercado 2.0 etapa 1: precios a escala y fichajes resueltos por el servidor** `[DONE]`
+- **market-v3: D2: Rediseño arcade de Mercado de Pases con figuritas Panini y chat de negociación** `[COMPLETED]`
 - **market-window-and-pool: Mercado: ventana mal calculada por zona horaria y sin candidatos (los rivales no tienen plantel)** `[DONE]`
 - **match-experience-m5: M5 pausa, velocidades y saltear partido** `[DONE]`
+- **match-injury-sub: B18: cambios por lesion** `[PLANNED]`
 - **match-moments-2: Decisiones en partido: penales, arquero lesionado y rival que reacciona** `[DONE]`
 - **match-substitutions: Cambios de jugadores durante la pausa del partido** `[DONE]`
-- **memory-lessons-2: Lecciones de la tanda de contenido y calidad** `[PLANNED]`
+- **memory-lessons-2: Lecciones de la tanda de contenido y calidad** `[DONE]`
 - **more-story-arcs: 12 historias nuevas escritas por el usuario** `[DONE]`
+- **national-team-v2: D1: Rediseño arcade de Selección Nacional** `[COMPLETED]`
+- **nav-cleanup-logout: Menu sin Logros ni Salon, con el nombre Vestuario y boton de cerrar sesion** `[DONE]`
 - **performance-m2: M2 rendimiento del avance semanal, post-partido y Plantel** `[DONE]`
 - **performance-m2b: M2 segunda pasada: profundidad de consultas** `[DONE]`
 - **player-loans: Cesiones a prestamo: ahorras el sueldo y el jugador vuelve al cierre de la temporada** `[DONE]`
 - **preseason-arcade: Pretemporada arcade: aporte de la dirigencia y amistosos con riesgo** `[DONE]`
+- **press-delegate-first-only: En la prensa solo se delega o se falta antes de contestar la primera pregunta** `[DONE]`
 - **press-flow: Flujo del final del partido y rueda de prensa relampago** `[DONE]`
 - **press-games: Prensa: Titular o fake y Bingo del DT** `[DONE]`
 - **press-situations: La prensa pregunta por la situacion y recuerda tus respuestas anteriores** `[DONE]`
@@ -199,16 +217,19 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 - **rival-names: Rivales distintos en cada carrera** `[DONE]`
 - **rls-owner-nullable: La migracion RLS falla con filas existentes: owner_user_id nulo permitido** `[DONE]`
 - **scout-insights: El ojeo da una lectura: si mejora al titular, si el precio es justo y el perfil del jugador** `[DONE]`
+- **season-38-matches: Temporada 38 fechas y cierre en servidor** `[PLANNED]`
 - **season-close-flow: La temporada se cierra desde la gala y arranca la siguiente con su calendario** `[DONE]`
 - **season-expiring-contracts: La gala avisa que jugadores quedan libres al cerrar la temporada** `[DONE]`
 - **season-league-isolation: Cierre de temporada solo de la liga del club** `[DONE]`
 - **season-prize-server: Premio de fin de temporada liquidado por el servidor** `[DONE]`
 - **server-results-f5: Resultados de copa y fechas FIFA decididos por el servidor** `[DONE]`
 - **stale-dashboard-after-actions: Pantallas desactualizadas tras resolver un evento o jugar un partido; texto de años del contrato** `[DONE]`
+- **standings-zones-by-tier: La tabla marca las zonas reales de la division y no inventa datos si falla la carga** `[DONE]`
 - **story-arcs: Historias de 8 a 10 fechas con humor del futbol argentino** `[DONE]`
 - **supabase-errors-not-ignored: Los errores de consulta no se ignoran: no se duplican ligas ni planteles ni se saltea el chequeo de fondos** `[DONE]`
 - **tooling-cucumber: Cucumber instalado y el gate BDD corre de verdad** `[DONE]`
 - **tooling-eslint: ESLint instalado y corriendo en el CI** `[DONE]`
+- **ui-copy-round2: Textos claros en prensa, finanzas y enfermeria** `[DONE]`
 - **ui-season-details: La pantalla muestra la division real y la gala el premio que corresponde** `[DONE]`
 - **vercel-spa-rewrites: Rewrites SPA en Vercel (404 en rutas profundas)** `[DONE]`
 - **weekly-finance-server: Cierre semanal de finanzas resuelto por el servidor** `[DONE]`
@@ -238,5 +259,6 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 - **[BUG_FIX]** Correr el juego de punta a punta en el navegador destapo 3 bugs que los tests no veian: calendario de liga sin localia pareja, gala de fin de temporada inalcanzable (leia clubs.current_week que no existe; la semana real sale de la fecha de juego con domain/gameWeek) y consulta de la tabla con clubs.logo_url inexistente que fallaba en silencio. Una consulta de Supabase con una columna inexistente devuelve error y data null: siempre chequear error. *(Solución: )*
 - **[BEST_PRACTICE]** Calibrar un balance con una simulacion fijada en un test (ej. la confianza de la directiva: 2000 temporadas por celda) evita ajustar numeros a ojo y deja el criterio documentado. Extraer la parte numerica a una funcion pura en domain/ la hace probable y reutilizable desde Cucumber. *(Solución: )*
 - **[ARCHITECTURE]** Toda escritura de plata pasa por funciones SQL (club_cash_move, settle_gate, close_week_finances...) y un trigger rechaza cambios directos de clubs.budget: una funcion nueva que toque la caja debe fijar app.server_result en su cuerpo (ALTER FUNCTION SET con parametro propio no esta permitido en Supabase). Las reglas del servidor se prueban en la base real con un bloque DO que termina en raise exception. *(Solución: )*
-- **[SECURITY]** En PWA y navegadores móviles los temporizadores en background se suspenden, provocando tokens vencidos al volver a la app. Al retroceder desde el dashboard, rutas de autenticación sin replace: true atrapaban al usuario en formularios de login con sesión activa *(Solución: Configurar flowType: 'pkce', storageKey aislado, setupSessionVisibilityListener para despertar auto-refresh y renovar sesiones en visibilitychange/focus/pageshow, auto-redirección a dashboard con replace: true en AuthScreen si hay sesión activa, y uso de replace: true en todas las redirecciones de inicio de sesión)*
-
+- **[BEST_PRACTICE]** Servidor de desarrollo de Vite en Windows a veces no toma cambios escritos por scripts (sirve el archivo viejo) *(Solución: Hacer touch al archivo o reiniciar npm run dev antes de verificar en el navegador)*
+- **[BUG_FIX]** Efectos secundarios dentro de updaters de setState (timeouts, onDone) no corren bien con varios cambios en un mismo lote ni en StrictMode *(Solución: Usar refs y ejecutar el efecto en el callback del intervalo o del evento, no dentro del updater)*
+- **[BEST_PRACTICE]** Barras fijas (position fixed) se descolocan en iOS PWA y las animaciones por requestAnimationFrame con setState se traban *(Solución: Layout de alto fijo con scroll interno y barra en el flujo; animar con CSS y leer la posicion con getBoundingClientRect)*
