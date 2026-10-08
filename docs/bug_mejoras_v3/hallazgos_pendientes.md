@@ -146,3 +146,9 @@ Pendiente: frases de estilo para las pelotas paradas y los penales del rival, y 
 
 ## Decimosexta tanda (frases de estilo para pelotas paradas y penales)
 - Cada estilo del rival suma frases propias al anunciar y resolver córners, tiros libres y penales (anuncio, gol, atajada y errado), en la mitad de las jugadas. El resultado del partido no cambia (azar aparte para el texto), y los tests lo comprueban con 1500 partidos.
+
+## Decimoséptima tanda (notas tácticas según el marcador)
+- `domain/rivalNotes.js`: la nota del rival ahora depende de si su equipo va ganando, perdiendo o empatando, con una línea distinta a los 20, 65 y 80 minutos (5 estilos × 3 situaciones × 3 momentos).
+- Ejemplos: un rival de contragolpe que gana "se encierra y espera el error para liquidarlo", y si pierde "se juega el todo por el todo y deja espacios atrás".
+- Se agregó la nota de los 80 minutos (el resto del relato y el resultado no cambian; los tests lo comprueban).
+Pendiente: que los clubes con plantel real usen a sus jugadores en vez del once armado.

@@ -2,7 +2,8 @@ import { supabase } from './supabase'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { specialistsOf, aerialOf } from '../domain/specialists'
 import { stylesToMods } from '../domain/rivalStyle'
-import { styleQuipFor, styleNoteFor } from '../domain/rivalNarrative'
+import { styleQuipFor } from '../domain/rivalNarrative'
+import { NOTE_MINUTES, tacticalNote } from '../domain/rivalNotes'
 import { homeAdvantage } from '../domain/consequences'
 import { SUSPENSION_POWER_FACTOR } from '../domain/barra'
 
@@ -387,11 +388,12 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   for (let min = 1; min <= 90; min++) {
     for (const change of changes) if (change.minute + 1 === min) applyChange(change, min)
 
-    // Nota sobre cómo juega el rival (según su personalidad), a los 20 y a los 65 minutos
-    for (const side of ['home', 'away']) {
-      const styleId = styles?.[side]?.id
-      if (styleId && (min === 20 || min === 65)) {
-        const note = styleNoteFor(styleId, min === 20 ? 0 : 1)
+    // Nota sobre cómo juega el rival (según su personalidad y el marcador), a los 20, 65 y 80 minutos
+    if (NOTE_MINUTES.includes(min)) {
+      for (const side of ['home', 'away']) {
+        const styleId = styles?.[side]?.id
+        if (!styleId) continue
+        const note = tacticalNote(styleId, min, side === 'home' ? homeScore : awayScore, side === 'home' ? awayScore : homeScore)
         if (note) events.push({ minute: min, type: 'RIVAL_TACTIC', team: side, text: note })
       }
     }

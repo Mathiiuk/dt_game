@@ -173,23 +173,8 @@ const EXTRA_QUIPS = {
 }
 for (const [id, kinds] of Object.entries(EXTRA_QUIPS)) STYLE_QUIPS[id] = { ...STYLE_QUIPS[id], ...kinds }
 
-/** Una nota táctica sobre cómo juega el rival: una para el primer tiempo y otra para el segundo */
-export const STYLE_NOTES = {
-  CROSSERS: ['El rival insiste con los centros: todo el equipo juega pensando en el área.', 'Siguen buscando por arriba: el que defiende el primer palo está ocupadísimo.'],
-  LONG_SHOTS: ['El rival patea apenas puede, aunque esté lejos del arco.', 'Siguen probando desde afuera del área: hay que achicar al que va a pegar.'],
-  COUNTER: ['El rival se mete atrás y espera el error para salir de contra.', 'Cada pelota perdida es una salida rápida del rival: ojo con la espalda de los laterales.'],
-  POSSESSION: ['El rival se queda con la pelota y te hace correr.', 'El toque del rival no se corta: hay que tener paciencia para recuperarla.'],
-  ROUGH: ['El rival juega fuerte: cada pelota dividida es una pelea.', 'El árbitro ya tiene la libreta a mano: el rival no afloja en los cruces.']
-}
-
 /** Frase para una jugada ('' si el estilo no tiene para ese tipo de jugada) */
 export const styleQuipFor = (styleId, kind, rng = Math.random) => {
   const list = STYLE_QUIPS[styleId]?.[kind]
   return list?.length ? list[Math.floor(rng() * list.length)] : ''
-}
-
-/** Nota táctica del estilo: `half` 0 = primer tiempo, 1 = segundo */
-export const styleNoteFor = (styleId, half = 0) => {
-  const list = STYLE_NOTES[styleId] || []
-  return list[Math.min(half, list.length - 1)] || ''
 }

@@ -446,12 +446,12 @@ describe('penales y rival que reacciona', () => {
         const styled = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `relato-${i}`, { styles: { away: { ...mods, id: 'CROSSERS' } } })
         expect([styled.homeScore, styled.awayScore]).toEqual([plain.homeScore, plain.awayScore])
         expect(styled.stats).toEqual(plain.stats)
-        const real = styled.events.filter(e => !(e.type === 'RIVAL_TACTIC' && [20, 65].includes(e.minute) && e.team === 'away'))
+        const real = styled.events.filter(e => !(e.type === 'RIVAL_TACTIC' && [20, 65, 80].includes(e.minute) && e.team === 'away'))
         expect(real.map(e => e.type)).toEqual(plain.events.map(e => e.type))
-        notes += styled.events.filter(e => e.type === 'RIVAL_TACTIC' && [20, 65].includes(e.minute)).length
+        notes += styled.events.filter(e => e.type === 'RIVAL_TACTIC' && [20, 65, 80].includes(e.minute)).length
         flavored += styled.events.filter(e => /centro|área|cabezazo|por arriba/i.test(e.text) && e.team === 'away' && ['CORNER', 'GOAL', 'SAVE', 'MISS'].includes(e.type)).length
       }
-      expect(notes).toBe(400)
+      expect(notes).toBe(600)
       expect(flavored).toBeGreaterThan(40)
     })
 
@@ -473,9 +473,27 @@ describe('penales y rival que reacciona', () => {
       expect(plainFound).toBe(0)
     })
 
+    it('la nota táctica del rival cambia con el marcador del momento', async () => {
+      const { tacticalNote } = await import('../../src/domain/rivalNotes')
+      const mods = { att: 0.9, goal: 1.22, corner: 0.9, foul: 1, card: 1, mid: 0.95 }
+      const situations = new Set()
+      for (let i = 0; i < 400; i++) {
+        const r = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `marcador-${i}`, { styles: { away: { ...mods, id: 'COUNTER' } } })
+        for (const minute of [20, 65, 80]) {
+          const goalsUntil = (team) => r.events.filter(e => e.type === 'GOAL' && e.team === team && e.minute < minute).length
+          const own = goalsUntil('away')
+          const other = goalsUntil('home')
+          const note = r.events.find(e => e.type === 'RIVAL_TACTIC' && e.minute === minute && e.team === 'away')
+          expect(note?.text).toBe(tacticalNote('COUNTER', minute, own, other))
+          situations.add(own > other ? 'LEADING' : own < other ? 'TRAILING' : 'LEVEL')
+        }
+      }
+      expect(situations.size).toBe(3)
+    })
+
     it('sin estilo no hay notas ni frases de estilo', () => {
       const r = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), 'sin-estilo')
-      expect(r.events.some(e => e.type === 'RIVAL_TACTIC' && [20, 65].includes(e.minute))).toBe(false)
+      expect(r.events.some(e => e.type === 'RIVAL_TACTIC' && [20, 65, 80].includes(e.minute))).toBe(false)
     })
 
     it('sin personalidad el partido es el de siempre', () => {
