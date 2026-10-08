@@ -15,19 +15,19 @@ export default function WelcomeScreen() {
       try {
         const user = await authApi.getSession()
         if (!user) {
-          navigate('/auth')
+          navigate('/auth', { replace: true })
           return
         }
 
         const manager = await managerApi.getManager(user.id)
         if (!manager) {
-          navigate('/create-manager')
+          navigate('/create-manager', { replace: true })
           return
         }
 
         const club = await clubApi.getClubByManager(manager.id)
         if (!club) {
-          navigate('/create-club')
+          navigate('/create-club', { replace: true })
           return
         }
 
@@ -67,7 +67,7 @@ export default function WelcomeScreen() {
         </div>
 
         <button 
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/dashboard', { replace: true })}
           className="flex items-center justify-center w-full gap-2 py-4 font-bold text-black transition-transform bg-accent rounded-xl hover:bg-accent-strong hover:scale-105"
         >
           <Play className="w-5 h-5" /> Retomar Carrera

@@ -72,6 +72,20 @@ export default function AuthScreen({ initialMode = 'splash' }) {
     if (email) setRateLimitInfo(checkRateLimit(email))
   }, [email, mode])
 
+  // Si el usuario ya cuenta con sesión activa (por ejemplo, presionó Atrás en PWA/navegador),
+  // se le reingresa al juego directamente sin ciclar en el formulario de inicio de sesión
+  useEffect(() => {
+    let isMounted = true
+    if (typeof authApi?.getSession === 'function') {
+      authApi.getSession().then((activeUser) => {
+        if (isMounted && activeUser) {
+          navigate('/dashboard', { replace: true })
+        }
+      }).catch(() => {})
+    }
+    return () => { isMounted = false }
+  }, [navigate])
+
   const passwordStats = validatePasswordStrength(password)
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
   const mismatch = confirmPassword.length > 0 && !passwordsMatch

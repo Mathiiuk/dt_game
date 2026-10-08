@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { authApi } from '../api/auth'
+import { authApi, setupSessionVisibilityListener } from '../api/auth'
 import { managerApi } from '../api/manager'
 import { supabase } from '../api/supabase'
 import { clubApi } from '../api/club'
@@ -37,7 +37,9 @@ export const GameProvider = ({ children }) => {
       try {
         const user = await authApi.getSession()
         if (!user) {
-          if (!['/auth', '/login', '/registro', '/welcome'].includes(location.pathname)) navigate('/auth')
+          if (!['/auth', '/login', '/registro', '/welcome'].includes(location.pathname)) {
+            navigate('/auth', { replace: true })
+          }
           setGameState(prev => ({ ...prev, loading: false }))
           return
         }
@@ -79,11 +81,11 @@ export const GameProvider = ({ children }) => {
 
         if (!club) {
           if (manager.employment_status === 'UNEMPLOYED') {
-            if (location.pathname !== '/manager') navigate('/manager')
+            if (location.pathname !== '/manager') navigate('/manager', { replace: true })
             setGameState({ user, manager, club: null, retiredManager: null, loading: false })
             return
           }
-          if (location.pathname !== '/create-club') navigate('/create-club')
+          if (location.pathname !== '/create-club') navigate('/create-club', { replace: true })
           setGameState(prev => ({ ...prev, loading: false }))
           return
         }
@@ -105,6 +107,42 @@ export const GameProvider = ({ children }) => {
 
     return inFlightContextPromise
   }
+
+  // Sincronización reactiva de sesión con Supabase y eventos de visibilidad en PWA
+  useEffect(() => {
+    let authSubscription = null
+    try {
+      if (typeof supabase?.auth?.onAuthStateChange === 'function') {
+        const { data } = supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_OUT') {
+            setGameState({ user: null, manager: null, club: null, retiredManager: null, loading: false })
+            if (!['/auth', '/login', '/registro', '/welcome'].includes(location.pathname)) {
+              navigate('/auth', { replace: true })
+            }
+          } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            if (session?.user) {
+              loadData()
+            }
+          }
+        })
+        authSubscription = data?.subscription
+      }
+    } catch {
+      // Ignorar si el cliente supabase no tiene auth activa en pruebas
+    }
+
+    const cleanupVisibility = setupSessionVisibilityListener((session) => {
+      if (session?.user) {
+        loadData()
+      }
+    })
+
+    return () => {
+      authSubscription?.unsubscribe?.()
+      cleanupVisibility?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
 
   useEffect(() => {
     // Only load if we are on a game route

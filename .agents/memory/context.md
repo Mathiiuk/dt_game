@@ -38,6 +38,7 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 
 - **advance-semaphore-recovery: El avance de semana se recupera si quedo trabado a medias** `[DONE]`
 - **arc-branching-endings: Los finales de las historias cambian segun el camino elegido y el estado del club** `[DONE]`
+- **auth-pwa-session-security: Seguridad robusta, persistencia PWA de sesión y navegación con retroceso seguro** `[DONE]`
 - **auth-security-f5: Acceso seguro: reCAPTCHA v3, Google, Resend y base cerrada por dueño** `[DONE]`
 - **bench-complaints: Suplentes que reclaman minutos** `[DONE]`
 - **board-balance-calibration: La confianza de la directiva es una funcion pura calibrada con simulacion** `[DONE]`
@@ -237,3 +238,5 @@ _(+188 módulos adicionales; consultar con `memory:query`)_
 - **[BUG_FIX]** Correr el juego de punta a punta en el navegador destapo 3 bugs que los tests no veian: calendario de liga sin localia pareja, gala de fin de temporada inalcanzable (leia clubs.current_week que no existe; la semana real sale de la fecha de juego con domain/gameWeek) y consulta de la tabla con clubs.logo_url inexistente que fallaba en silencio. Una consulta de Supabase con una columna inexistente devuelve error y data null: siempre chequear error. *(Solución: )*
 - **[BEST_PRACTICE]** Calibrar un balance con una simulacion fijada en un test (ej. la confianza de la directiva: 2000 temporadas por celda) evita ajustar numeros a ojo y deja el criterio documentado. Extraer la parte numerica a una funcion pura en domain/ la hace probable y reutilizable desde Cucumber. *(Solución: )*
 - **[ARCHITECTURE]** Toda escritura de plata pasa por funciones SQL (club_cash_move, settle_gate, close_week_finances...) y un trigger rechaza cambios directos de clubs.budget: una funcion nueva que toque la caja debe fijar app.server_result en su cuerpo (ALTER FUNCTION SET con parametro propio no esta permitido en Supabase). Las reglas del servidor se prueban en la base real con un bloque DO que termina en raise exception. *(Solución: )*
+- **[SECURITY]** En PWA y navegadores móviles los temporizadores en background se suspenden, provocando tokens vencidos al volver a la app. Al retroceder desde el dashboard, rutas de autenticación sin replace: true atrapaban al usuario en formularios de login con sesión activa *(Solución: Configurar flowType: 'pkce', storageKey aislado, setupSessionVisibilityListener para despertar auto-refresh y renovar sesiones en visibilitychange/focus/pageshow, auto-redirección a dashboard con replace: true en AuthScreen si hay sesión activa, y uso de replace: true en todas las redirecciones de inicio de sesión)*
+

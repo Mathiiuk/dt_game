@@ -1,0 +1,53 @@
+id: auth-pwa-session-security
+external_ref: ''
+title: Seguridad robusta, persistencia PWA de sesión y navegación con retroceso seguro
+type: feat
+status: COMPLETED
+priority: high
+owner: team-agent
+base_branch: feat/arcade-match-squad-polish-escudos-vectoriales-arcade-fixes-de-encoding-mejoras-interactivas-en-match-post-match-desktop-y-rediseno-de-squad
+scope:
+  project: dt_game
+  modules:
+    - api/supabase
+    - api/auth
+    - context/GameContext
+    - features/auth
+    - components/layout/AppShell
+  environments:
+    - local
+requirements:
+  - >-
+    Configurar cliente Supabase con PKCE y storageKey persistente.
+  - >-
+    Integrar listener reactivo onAuthStateChange en GameContext y refresco de tokens al volver del background.
+  - >-
+    Resolver navegación de retroceso (Back button) para reingresar al juego automáticamente sin mostrar formulario de login si la sesión está activa.
+  - >-
+    Reemplazar historial con replace: true en ingresos para no ciclar en la pantalla de autenticación.
+acceptance_criteria:
+  - >-
+    Sesión PWA persistente que no se desloguea al salir o suspender la app.
+  - >-
+    Navegación de retroceso fluida sin atrapar al usuario en /auth.
+  - >-
+    Refresco proactivo de credenciales al recuperar foco o visibilidad.
+  - >-
+    Todos los quality gates aprobados (lint, unit tests, bdd, build).
+requires_approval: false
+quality_gates:
+  lint: true
+  typecheck: false
+  unit_tests: true
+  bdd_tests: true
+  integration_tests: false
+  e2e: false
+  build: true
+  security: false
+  smoke_tests: false
+commands:
+  install: pnpm install
+  unit_tests: pnpm test
+  bdd_tests: pnpm test:bdd
+  lint: pnpm lint
+  build: pnpm build

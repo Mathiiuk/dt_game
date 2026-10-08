@@ -1,7 +1,51 @@
-import { supabase } from './supabase'
+import { supabase, AUTH_STORAGE_KEY } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
 import { getRecaptchaToken, isRecaptchaEnabled } from '../lib/recaptcha'
+
+export const DT_LAST_USER_KEY = 'dt_last_active_user'
+
+/**
+ * Escucha la recuperación de visibilidad y foco en PWA y navegadores móviles.
+ * Al volver tras suspensión, fuerza la comprobación y auto-refresco del token de Supabase.
+ */
+export function setupSessionVisibilityListener(callback) {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return () => {}
+  }
+
+  const handleVisibility = async () => {
+    if (document.visibilityState === 'visible') {
+      try {
+        if (typeof supabase.auth?.startAutoRefresh === 'function') {
+          supabase.auth.startAutoRefresh()
+        }
+        let { data: { session }, error } = await supabase.auth.getSession()
+        if ((!session || error) && typeof supabase.auth?.refreshSession === 'function') {
+          const refreshRes = await supabase.auth.refreshSession()
+          if (refreshRes.data?.session && !refreshRes.error) {
+            session = refreshRes.data.session
+          }
+        }
+        if (session && typeof callback === 'function') {
+          callback(session)
+        }
+      } catch (err) {
+        console.warn('Error refrescando sesión al recuperar visibilidad:', err)
+      }
+    }
+  }
+
+  document.addEventListener('visibilitychange', handleVisibility)
+  window.addEventListener('focus', handleVisibility)
+  window.addEventListener('pageshow', handleVisibility)
+
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibility)
+    window.removeEventListener('focus', handleVisibility)
+    window.removeEventListener('pageshow', handleVisibility)
+  }
+}
 
 const RATE_LIMIT_STORAGE_KEY = 'dt_auth_rate_limit'
 const MAX_FAILED_ATTEMPTS = 5
@@ -407,10 +451,25 @@ export const authApi = {
   },
 
   /**
-   * Obtiene la sesión activa actual con metadatos de carrera y DT
+   * Obtiene la sesión activa actual con metadatos de carrera y DT.
+   * En caso de token expirado o suspensión en PWA, intenta refrescar proactivamente.
    */
   async getSession() {
-    const { data: { session }, error } = await supabase.auth.getSession()
+    let { data: { session }, error } = await supabase.auth.getSession()
+
+    // Si la sesión no vino o hubo error, intentar refresh proactivo antes de dar por cerrada la sesión
+    if ((!session || error) && typeof supabase.auth?.refreshSession === 'function') {
+      try {
+        const refreshRes = await supabase.auth.refreshSession()
+        if (refreshRes.data?.session && !refreshRes.error) {
+          session = refreshRes.data.session
+          error = null
+        }
+      } catch {
+        // Fallback silencioso ante falla de conectividad
+      }
+    }
+
     if (error || !session) return null
 
     const user = session.user
@@ -422,19 +481,37 @@ export const authApi = {
       // Ignorar si la tabla no está creada
     }
 
-    return {
+    const userData = {
       id: user.id,
       name: user.user_metadata?.display_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Director Técnico',
       email: user.email,
       careerId,
       expiresAt: session.expires_at ? new Date(session.expires_at * 1000).toISOString() : null
     }
+
+    try {
+      localStorage.setItem(DT_LAST_USER_KEY, JSON.stringify({
+        id: userData.id,
+        email: userData.email,
+        name: userData.name
+      }))
+    } catch {
+      // Ignorar si el almacenamiento local está restringido
+    }
+
+    return userData
   },
 
   /**
    * Cierre de sesión y revocación en cascada de sesiones activas
    */
   async logout() {
+    try {
+      localStorage.removeItem(DT_LAST_USER_KEY)
+    } catch {
+      // Ignorar
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user?.id) {
