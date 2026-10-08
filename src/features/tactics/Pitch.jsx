@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
+import { Bandage } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { getLayout } from '../../domain/formations'
 import { clampPoint } from '../../domain/freeLayout'
@@ -137,8 +138,8 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
           {player ? lastName : base}
         </span>
         {/* Bajas a simple vista: no hace falta tocar la ficha para saber quién no puede jugar */}
-        {player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><span>🩹</span> Lesionado</span>}
-        {player?.is_suspended && !player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><span>🟥</span> Suspendido</span>}
+        {player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><Bandage className="mr-0.5 inline size-2.5 align-[-1px]" />Lesionado</span>}
+        {player?.is_suspended && !player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><span className="mr-0.5 inline-block h-2.5 w-2 rounded-[1px] bg-white align-[-1px]" />Suspendido</span>}
       </button>
     </motion.div>
   )

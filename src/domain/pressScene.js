@@ -6,31 +6,31 @@
 const hash = (str) => { let h = 0; for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h }
 
 const MOODS = [
-  { id: 'AMABLE', emoji: '😊', label: 'Amable', intros: ['se acomoda el micrófono y sonríe', 'te saluda con la mano antes de preguntar', 'te guiña un ojo: "tranquilo, es una fácil"'] },
-  { id: 'PICANTE', emoji: '😏', label: 'Picante', intros: ['levanta una ceja y afila el lápiz', 'se inclina hacia adelante con cara de "ahora sí"', 'tose fuerte para que todos presten atención'] },
-  { id: 'CHISMOSO', emoji: '🧐', label: 'Chismoso', intros: ['mira su libreta y baja la voz', 'dice "no es por meterme, pero..."', 'susurra algo al de al lado y te apunta con el dedo'] }
+  { id: 'AMABLE', icon: 'Smile', label: 'Amable', intros: ['se acomoda el micrófono y sonríe', 'te saluda con la mano antes de preguntar', 'te guiña un ojo: "tranquilo, es una fácil"'] },
+  { id: 'PICANTE', icon: 'Flame', label: 'Picante', intros: ['levanta una ceja y afila el lápiz', 'se inclina hacia adelante con cara de "ahora sí"', 'tose fuerte para que todos presten atención'] },
+  { id: 'CHISMOSO', icon: 'Search', label: 'Chismoso', intros: ['mira su libreta y baja la voz', 'dice "no es por meterme, pero..."', 'susurra algo al de al lado y te apunta con el dedo'] }
 ]
 
 /** Carácter del periodista (estable para el mismo nombre) y una frase de entrada */
 export function reporterOf(name = '', salt = 0) {
   const mood = MOODS[hash(name) % MOODS.length]
-  return { mood: mood.id, label: mood.label, emoji: mood.emoji, intro: mood.intros[(hash(name) + salt) % mood.intros.length] }
+  return { mood: mood.id, label: mood.label, icon: mood.icon, intro: mood.intros[(hash(name) + salt) % mood.intros.length] }
 }
 
 /** Cara y gesto de la sala tras una respuesta, según cómo cayó (fans/board en -1, 0 o 1) */
 export function roomFace({ fans = 0, board = 0 } = {}) {
   const score = fans + board
-  if (score >= 2) return { emoji: '👏', label: 'Aplausos' }
-  if (score === 1) return { emoji: '🙂', label: 'Asienten' }
-  if (score === 0) return { emoji: '😐', label: 'Silencio' }
-  if (score === -1) return { emoji: '😬', label: 'Murmullos' }
-  return { emoji: '🤨', label: 'Abucheo' }
+  if (score >= 2) return { icon: 'PartyPopper', label: 'Aplausos' }
+  if (score === 1) return { icon: 'Smile', label: 'Asienten' }
+  if (score === 0) return { icon: 'Meh', label: 'Silencio' }
+  if (score === -1) return { icon: 'Annoyed', label: 'Murmullos' }
+  return { icon: 'Angry', label: 'Abucheo' }
 }
 
 /** Humor de la sala (0 a 100): arranca neutro y se mueve con cada reacción */
 export const nextRoomMood = (mood, { fans = 0, board = 0 } = {}) => Math.max(0, Math.min(100, mood + fans * 14 + board * 9))
 
-export const TONE_EMOJI = { PRAISING: '🙌', COMBATIVE: '🔥', SELF_CRITICAL: '🪞', PRAGMATIC: '🧠' }
+export const TONE_ICON = { PRAISING: 'ThumbsUp', COMBATIVE: 'Flame', SELF_CRITICAL: 'ScanFace', PRAGMATIC: 'Brain' }
 
 const Q = (prompt, yes, no) => ({ prompt, yes, no })
 const POOL = [

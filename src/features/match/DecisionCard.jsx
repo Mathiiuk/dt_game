@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Megaphone } from 'lucide-react'
 import PenaltyGoal, { PenaltyShoot } from './PenaltyGoal'
+import { NamedIcon } from '../../components/ui/named-icon'
 
 /**
  * Momento de decisión: el partido se pausa solo y el DT elige qué hacer.
@@ -38,7 +39,7 @@ export default function DecisionCard({ moment, onChoose }) {
               onClick={() => pick(option)}
               className="w-full rounded-lg border border-line bg-surface p-3 text-left text-sm text-fg transition-colors hover:border-accent"
             >
-              <span className="block font-bold">{option.label}</span>
+              <span className="flex items-center gap-2 font-bold">{option.icon && <NamedIcon name={option.icon} className="size-4 shrink-0 text-accent" />}{option.label}</span>
               <span className="text-xs text-fg-subtle">{option.desc}</span>
             </button>
           </li>

@@ -26,16 +26,16 @@ describe('dominio arcade del mercado (Panini y negociación)', () => {
       { id: '2', position: 'DC', attr_overall: 65, age: 19, attr_potential: 82, market_value: 25000 },
       { id: '3', position: 'DC', attr_overall: 60, age: 25, market_value: 8000 }
     ]
-    expect(getMarketHierarchyTag(list[0], list)?.label).toBe('⭐ Estrella')
-    expect(getMarketHierarchyTag(list[1], list)?.label).toBe('💎 Joya')
-    expect(getMarketHierarchyTag(list[2], list)?.label).toBe('🔥 Ganga')
+    expect(getMarketHierarchyTag(list[0], list)?.label).toBe('Estrella')
+    expect(getMarketHierarchyTag(list[1], list)?.label).toBe('Joya')
+    expect(getMarketHierarchyTag(list[2], list)?.label).toBe('Ganga')
   })
 
   it('asigna un rasgo de personalidad cómico y memorable por jugador', () => {
     const fast = { attr_pace: 85, age: 24 }
     const veteran = { attr_pace: 50, age: 34 }
-    expect(getMarketPlayerTrait(fast).icon).toBe('⚡')
-    expect(getMarketPlayerTrait(veteran).icon).toBe('🦁')
+    expect(getMarketPlayerTrait(fast).icon).toBe('Zap')
+    expect(getMarketPlayerTrait(veteran).icon).toBe('Crown')
   })
 
   it('compara el jugador con el titular actual del plantel', () => {

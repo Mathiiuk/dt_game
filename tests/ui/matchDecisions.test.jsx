@@ -72,11 +72,21 @@ describe('partido en vivo con decisiones', () => {
   it('un grito rejuega el partido y no se puede repetir hasta pasados 15 minutos', async () => {
     await startMatch()
     minutes(10)
+    // Abrir las órdenes pausa el partido solo
+    click(screen.getByRole('button', { name: /Gritos/ }))
+    expect(screen.getByRole('button', { name: 'Reanudar', hidden: true })).toBeInTheDocument()
     click(screen.getByRole('button', { name: /¡Todos al ataque!/ }))
+    // Al salir de las órdenes el partido se retoma solo
+    expect(screen.getByRole('button', { name: 'Pausa' })).toBeInTheDocument()
     expect(mocks.replay).toHaveBeenCalledTimes(1)
     expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 10, team: 'home', buff: { att: 1.2, def: 0.85 }, duration: 15 })
+    // Las órdenes quedan en enfriamiento: se vuelve a abrir la hoja y salir sin elegir (también retoma solo)
+    click(screen.getByRole('button', { name: /Gritos/ }))
     expect(screen.getByRole('button', { name: /¡Aseguren el resultado!/ })).toBeDisabled()
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+    expect(screen.getByRole('button', { name: 'Pausa' })).toBeInTheDocument()
     minutes(15)
+    click(screen.getByRole('button', { name: /Gritos/ }))
     expect(screen.getByRole('button', { name: /¡Aseguren el resultado!/ })).not.toBeDisabled()
   })
 

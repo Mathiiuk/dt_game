@@ -158,7 +158,7 @@ export default function ClubIdentityTab({
                 {history.filter(h => h.champions).map(trophy => (
                   <li key={trophy.id || trophy.season_year} className="flex items-center justify-between p-2.5 rounded-lg bg-surface-2 border border-line">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">🏆</span>
+                      <Trophy className="size-4 text-gold" aria-hidden="true" />
                       <span className="font-bold text-fg">{trophy.competition_name || 'Torneo de Liga'}</span>
                     </div>
                     <Badge tone="accent">Temporada {trophy.season_year}</Badge>

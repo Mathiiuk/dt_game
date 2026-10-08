@@ -58,8 +58,8 @@ export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstit
                   <span className="truncate font-semibold">{nameOf(p)}</span>
                   <span className={cn("text-xs font-medium", p.id === preselectOutId ? "text-red-400" : "text-fg-subtle")}>
                     {p.slot_base || p.position} · {Math.round(p.slot_rating ?? 0) || ovr(p)}
-                    {(p.id === preselectOutId || statusById[p.id]?.hurt) && ' · 🩹 Lesionado'}
-                    {statusById[p.id]?.yellow > 0 && ' · 🟨 Amarilla'}
+                    {(p.id === preselectOutId || statusById[p.id]?.hurt) && ' · Lesionado'}
+                    {statusById[p.id]?.yellow > 0 && ' · Amarilla'}
                   </span>
                 </button>
               </li>

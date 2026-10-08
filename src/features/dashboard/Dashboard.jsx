@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  AlertTriangle, AlertCircle, BookOpen, Bell, Sparkles, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered
+  AlertTriangle, AlertCircle, BookOpen, Bell, ChevronRight, MessageSquareQuote, Sparkles, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { dashboardApi } from '../../api/dashboard'
@@ -99,7 +99,7 @@ function StoryText({ text, onDone }) {
       {beats.slice(0, shown).map((beat, i) => (
         beat.type === 'say' ? (
           <p key={i} className="animate-rise-in ml-2 rounded-lg rounded-tl-none border-l-2 border-gold bg-gold-soft px-3 py-2 text-sm italic leading-relaxed text-fg">
-            <span aria-hidden="true">💬 </span>“{beat.text}”
+            <MessageSquareQuote className="mr-1.5 inline size-3.5 align-[-2px] text-gold" aria-hidden="true" />“{beat.text}”
           </p>
         ) : (
           <p key={i} className="animate-rise-in text-sm leading-relaxed text-fg-muted">{beat.text}</p>
@@ -107,7 +107,7 @@ function StoryText({ text, onDone }) {
       ))}
       {!done && (
         <div className="flex items-center gap-3 pt-1">
-          <Button size="sm" variant="outline" onClick={() => setShown(n => n + 1)}>Seguir leyendo ▸</Button>
+          <Button size="sm" variant="outline" onClick={() => setShown(n => n + 1)}>Seguir leyendo<ChevronRight /></Button>
           <button type="button" onClick={() => setShown(beats.length)} className="text-xs text-fg-subtle underline-offset-2 hover:text-fg hover:underline">Leer todo</button>
         </div>
       )}

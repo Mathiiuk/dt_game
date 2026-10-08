@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowRight, CheckCircle2, Mic, Timer, UserCheck } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Mic, ThumbsDown, ThumbsUp, Timer, UserCheck, Zap } from 'lucide-react'
 import { AsyncButton } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import { toneLabel } from '../../domain/press'
-import { reporterOf, roomFace, nextRoomMood, TONE_EMOJI, lightningRound, lightningTotal, LIGHTNING_TIMEOUT } from '../../domain/pressScene'
+import { NamedIcon } from '../../components/ui/named-icon'
+import { reporterOf, roomFace, nextRoomMood, TONE_ICON, lightningRound, lightningTotal, LIGHTNING_TIMEOUT } from '../../domain/pressScene'
 import { BINGO_CLICHES, PRESS_SECONDS, headlineResult, headlineRound, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
 
 const TONE_COLORS = {
@@ -67,10 +68,10 @@ function useTypewriter(text, onDone) {
 
 /** Humor de la sala: una barra que sube y baja con cada respuesta */
 function RoomMeter({ mood }) {
-  const face = mood >= 66 ? '😄' : mood >= 40 ? '😐' : '😠'
+  const face = mood >= 66 ? 'Smile' : mood >= 40 ? 'Meh' : 'Angry'
   return (
     <div className="flex items-center gap-2 text-xs" role="meter" aria-label="Humor de la sala" aria-valuemin={0} aria-valuemax={100} aria-valuenow={mood}>
-      <span aria-hidden="true">{face}</span>
+      <NamedIcon name={face} className={`size-5 ${mood >= 66 ? 'text-accent' : mood >= 40 ? 'text-warning' : 'text-danger'}`} />
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-3">
         <div className={`h-full transition-all duration-700 ${mood >= 66 ? 'bg-accent' : mood >= 40 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${mood}%` }} />
       </div>
@@ -112,7 +113,7 @@ function LightningRound({ onFinish }) {
   return (
     <section aria-label="Ronda relámpago" className="space-y-3 rounded-xl border border-gold/40 bg-gold/5 p-4">
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-gold">⚡ Ronda relámpago</p>
+        <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-gold"><Zap className="size-3.5" aria-hidden="true" />Ronda relámpago</p>
         <span className="font-mono text-[11px] text-fg-subtle">{Math.min(index + 1, round.length)} de {round.length}</span>
       </div>
       {!shown && <Countdown key={index} seconds={7} onExpire={() => pick(LIGHTNING_TIMEOUT)} />}
@@ -126,8 +127,8 @@ function LightningRound({ onFinish }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => pick(current.yes)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95"><span aria-hidden="true">👍</span> Sí</button>
-          <button type="button" onClick={() => pick(current.no)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95"><span aria-hidden="true">👎</span> No</button>
+          <button type="button" onClick={() => pick(current.yes)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95" ><ThumbsUp className="mr-1.5 inline size-4" aria-hidden="true" />Sí</button>
+          <button type="button" onClick={() => pick(current.no)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95" ><ThumbsDown className="mr-1.5 inline size-4" aria-hidden="true" />No</button>
         </div>
       )}
     </section>
@@ -141,7 +142,7 @@ function ReporterBubble({ question, index }) {
   return (
     <div className="flex items-start gap-3">
       <div className="flex shrink-0 flex-col items-center gap-0.5">
-        <span className="grid size-12 place-items-center rounded-full border border-line bg-bg text-2xl" aria-hidden="true">{reporter.emoji}</span>
+        <span className="grid size-12 place-items-center rounded-full border border-line bg-bg text-fg-muted" aria-hidden="true"><NamedIcon name={reporter.icon} className="size-6" /></span>
         <span className="rounded-full bg-surface-3 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-fg-muted">{reporter.label}</span>
       </div>
       <button type="button" onClick={skip} disabled={done} aria-label="Pregunta del periodista" className="min-w-0 flex-1 rounded-xl rounded-tl-none border border-line bg-bg p-3 text-left disabled:cursor-default">
@@ -304,7 +305,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
         {reaction.timedOut && <p className="rounded-xl border border-warning/40 bg-warning-soft p-2.5 text-xs font-semibold text-warning">Se te acabó el tiempo: contestaste nervioso.</p>}
         <div className="space-y-2 rounded-xl border border-line bg-bg p-4">
           <p className="text-[11px] font-bold uppercase tracking-wider text-fg-subtle">Reacción de la sala</p>
-          <p className="flex items-center gap-2 text-2xl" aria-hidden="true">{roomFace(reaction).emoji}<span className="text-xs font-semibold text-fg-muted">{roomFace(reaction).label}</span></p>
+          <p className="flex items-center gap-2" aria-hidden="true"><NamedIcon name={roomFace(reaction).icon} className="size-7 text-accent" /><span className="text-xs font-semibold text-fg-muted">{roomFace(reaction).label}</span></p>
           <p className="text-sm font-medium text-fg">{reaction.line}</p>
           <p className="text-xs text-fg-muted">
             Hinchada {signed(reaction.fans)} • Dirigencia {signed(reaction.board)}
@@ -449,7 +450,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           {(question.options || []).map((opt, optIdx) => (
             <AsyncButton key={optIdx} onClick={() => answer(opt)} className="group w-full rounded-xl border border-line bg-bg/70 p-3 text-left text-xs transition-all hover:border-accent/60 hover:bg-surface">
               <div className="mb-1 flex items-center justify-between">
-                <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted'}`}><span aria-hidden="true">{TONE_EMOJI[opt.tone] || '🎤'} </span>{toneLabel(opt.tone, 'Respuesta')}</span>
+                <span className={`rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted'}`}><NamedIcon name={TONE_ICON[opt.tone] || 'Mic'} className="mr-1 inline size-3 align-[-1px]" />{toneLabel(opt.tone, 'Respuesta')}</span>
                 <span className="text-[10px] text-fg-subtle">Impacto moral: {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
               </div>
               <p className="leading-snug text-fg">"{opt.text}"</p>

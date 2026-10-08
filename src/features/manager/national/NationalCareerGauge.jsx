@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Award, ChevronDown, ChevronUp, Flame, Info, ShieldAlert, Sparkles, TrendingUp } from 'lucide-react'
+import { Award, ChevronDown, ChevronUp, Flame, Info, ShieldAlert, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { Card, CardBody, Badge, Button } from '../../../components/ui'
 import { calculateNationalGauge } from '../../../domain/nationalRadar'
 
@@ -60,7 +60,7 @@ export default function NationalCareerGauge({ manager, country }) {
             />
           </div>
           <div className="flex justify-between items-center text-[11px] text-fg-muted px-1">
-            <span>🎯 Próximo objetivo: <strong className="text-fg">{gauge.nextMilestone}</strong></span>
+            <span className="inline-flex items-center gap-1"><Target className="size-3.5 text-accent" aria-hidden="true" />Próximo objetivo: <strong className="text-fg">{gauge.nextMilestone}</strong></span>
             <button 
               type="button"
               onClick={() => setShowRules(!showRules)}

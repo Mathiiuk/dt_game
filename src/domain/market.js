@@ -140,13 +140,13 @@ export const getMarketHierarchyTag = (player, allPlayers = []) => {
   const maxOvrInPos = Math.max(...samePos.map(p => Number(p.attr_overall || p.overall || 0)), ovr)
 
   if (ovr >= maxOvrInPos && ovr >= 65) {
-    return { label: '⭐ Estrella', tone: 'gold', className: 'border-amber-400/80 bg-amber-500/10 text-amber-300' }
+    return { icon: 'Star', label: 'Estrella', tone: 'gold', className: 'border-amber-400/80 bg-amber-500/10 text-amber-300' }
   }
   if (age <= 21 && potential >= 75) {
-    return { label: '💎 Joya', tone: 'cyan', className: 'border-cyan-400/80 bg-cyan-500/10 text-cyan-300' }
+    return { icon: 'Gem', label: 'Joya', tone: 'cyan', className: 'border-cyan-400/80 bg-cyan-500/10 text-cyan-300' }
   }
   if (price > 0 && price <= 10000 && ovr >= 55) {
-    return { label: '🔥 Ganga', tone: 'orange', className: 'border-orange-400/80 bg-orange-500/10 text-orange-300' }
+    return { icon: 'Flame', label: 'Ganga', tone: 'orange', className: 'border-orange-400/80 bg-orange-500/10 text-orange-300' }
   }
   return null
 }
@@ -155,17 +155,17 @@ export const getMarketHierarchyTag = (player, allPlayers = []) => {
  * 1 rasgo de personalidad cómico y memorable por jugador (arcade)
  */
 export const getMarketPlayerTrait = (player) => {
-  if (!player) return { label: 'Cumplidor', desc: 'Rinde 6 puntos sin fisuras', icon: '⚙️' }
+  if (!player) return { label: 'Cumplidor', desc: 'Rinde 6 puntos sin fisuras', icon: 'Wrench' }
   const pace = Number(player.attr_pace || 50)
   const age = Number(player.age || 24)
   const ovr = Number(player.attr_overall || player.overall || 50)
 
-  if (pace >= 75) return { label: 'Correcaminos', desc: 'Imparable en velocidad y contraataques', icon: '⚡' }
-  if (age >= 32) return { label: 'Líder de Vestuario', desc: 'Voz de mando y experiencia de mil batallas', icon: '🦁' }
-  if (age <= 20) return { label: 'Pibe con Hambre', desc: 'Presiona y muerde cada pelota', icon: '🔥' }
-  if (ovr >= 70) return { label: 'Distinto', desc: 'Tiene pinceladas de potrero y jerarquía', icon: '🎩' }
-  if (player.position === 'GK' || player.position === 'PO') return { label: 'Muralla', desc: 'Vuela de palo a palo', icon: '🧤' }
-  return { label: 'Especialista', desc: 'Cumplidor táctico y disciplinado', icon: '🎯' }
+  if (pace >= 75) return { label: 'Correcaminos', desc: 'Imparable en velocidad y contraataques', icon: 'Zap' }
+  if (age >= 32) return { label: 'Líder de Vestuario', desc: 'Voz de mando y experiencia de mil batallas', icon: 'Crown' }
+  if (age <= 20) return { label: 'Pibe con Hambre', desc: 'Presiona y muerde cada pelota', icon: 'Flame' }
+  if (ovr >= 70) return { label: 'Distinto', desc: 'Tiene pinceladas de potrero y jerarquía', icon: 'Sparkles' }
+  if (player.position === 'GK' || player.position === 'PO') return { label: 'Muralla', desc: 'Vuela de palo a palo', icon: 'Hand' }
+  return { label: 'Especialista', desc: 'Cumplidor táctico y disciplinado', icon: 'Target' }
 }
 
 /**
@@ -181,7 +181,7 @@ export const compareWithStarter = (candidate, ownSquad = []) => {
     return {
       status: 'uncovered',
       diff: 0,
-      text: '🟢 Cubre un puesto sin titular',
+      text: 'Cubre un puesto sin titular',
       starterName: null
     }
   }
@@ -200,7 +200,7 @@ export const compareWithStarter = (candidate, ownSquad = []) => {
     return {
       status: 'improves',
       diff,
-      text: `🟢 Mejora el puesto (+${diff} vs ${starterName})`,
+      text: `Mejora el puesto (+${diff} vs ${starterName})`,
       starterName
     }
   }
@@ -208,14 +208,14 @@ export const compareWithStarter = (candidate, ownSquad = []) => {
     return {
       status: 'rotates',
       diff,
-      text: `🟡 Rota el puesto (a la par de ${starterName})`,
+      text: `Rota el puesto (a la par de ${starterName})`,
       starterName
     }
   }
   return {
     status: 'below',
     diff,
-    text: `🔴 Suplente (${diff} vs ${starterName})`,
+    text: `Suplente (${diff} vs ${starterName})`,
     starterName
   }
 }
@@ -252,11 +252,11 @@ export const calculateSigningImpact = ({
 }
 
 const AGENTS = [
-  { name: 'Coco Martínez', avatar: '👔', quote: 'Mirá que tengo tres clubes preguntando por él... pero me caés bien, DT.' },
-  { name: 'Paco Casal', avatar: '💼', quote: 'El muchacho quiere gloria y minutos. Si la propuesta es seria, cerramos hoy.' },
-  { name: 'Guille Cóppola', avatar: '🕶️', quote: '¡Piedra libre para los talentos! Este pibe te llena la cancha él solo.' },
-  { name: 'Mino Bertoni', avatar: '🎩', quote: 'Calidad asegurada de primera línea. Hablemos de números y firmamos.' },
-  { name: 'El Turco Mohamed', avatar: '🚬', quote: 'Te traigo una máquina. Ponele la camiseta el domingo que no te deja a pata.' }
+  { name: 'Coco Martínez', avatar: 'Briefcase', quote: 'Mirá que tengo tres clubes preguntando por él... pero me caés bien, DT.' },
+  { name: 'Paco Casal', avatar: 'Handshake', quote: 'El muchacho quiere gloria y minutos. Si la propuesta es seria, cerramos hoy.' },
+  { name: 'Guille Cóppola', avatar: 'Glasses', quote: '¡Piedra libre para los talentos! Este pibe te llena la cancha él solo.' },
+  { name: 'Mino Bertoni', avatar: 'Star', quote: 'Calidad asegurada de primera línea. Hablemos de números y firmamos.' },
+  { name: 'El Turco Mohamed', avatar: 'Cigarette', quote: 'Te traigo una máquina. Ponele la camiseta el domingo que no te deja a pata.' }
 ]
 
 /**

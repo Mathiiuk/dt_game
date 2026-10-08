@@ -9,7 +9,7 @@ import {
   validateOffer,
   getRepresentativeProfile
 } from '../../domain/market'
-import { Button, Card, CardBody, Field, Input, ResponsiveOverlay, Stat } from '../../components/ui'
+import { Button, Card, CardBody, Field, Input, NamedIcon, ResponsiveOverlay, Stat } from '../../components/ui'
 
 const PLANS = [
   { id: 1, label: 'De contado' },
@@ -76,7 +76,7 @@ export default function OfferModal({
 
         {/* Cita de cierre del representante */}
         <div className="rounded-xl bg-surface-2/80 border border-line p-3 text-xs text-left flex items-start gap-2.5">
-          <span className="text-xl" aria-hidden="true">{rep.avatar}</span>
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent"><NamedIcon name={rep.avatar} className="size-4.5" /></span>
           <div>
             <span className="font-bold text-fg">{rep.name}:</span>
             <p className="text-fg-subtle italic mt-0.5">
@@ -107,7 +107,7 @@ export default function OfferModal({
         </div>
 
         <div className="rounded-xl bg-surface-2/80 border border-line p-3 text-xs text-left flex items-start gap-2.5">
-          <span className="text-xl" aria-hidden="true">{rep.avatar}</span>
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent"><NamedIcon name={rep.avatar} className="size-4.5" /></span>
           <div>
             <span className="font-bold text-fg">{rep.name}:</span>
             <p className="text-fg-subtle italic mt-0.5">
@@ -124,7 +124,7 @@ export default function OfferModal({
         {/* Burbuja de contraoferta del representante */}
         <div className="rounded-2xl bg-surface-2 border border-line p-3.5 space-y-2">
           <div className="flex items-center gap-2">
-            <span className="text-xl" aria-hidden="true">{rep.avatar}</span>
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent"><NamedIcon name={rep.avatar} className="size-4.5" /></span>
             <div>
               <p className="text-xs font-bold text-fg">{rep.name} <span className="text-fg-subtle font-normal">(Representante)</span></p>
               <p className="text-[10px] uppercase font-bold text-accent tracking-wider">Ronda {reply.round} de 2</p>
@@ -188,7 +188,7 @@ export default function OfferModal({
         {/* 1. Burbuja de Diálogo Arcade del Representante */}
         <div className="rounded-2xl bg-surface-2/90 border border-line p-3.5 flex items-start gap-3 shadow-xs">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 border border-accent/25 text-xl">
-            {rep.avatar}
+            <NamedIcon name={rep.avatar} className="size-5 text-accent" />
           </div>
           <div className="space-y-0.5 min-w-0">
             <div className="flex items-center gap-1.5">

@@ -19,7 +19,7 @@ export default function MatchHeader({
   const awayData = !isHome ? homeClub : awayClub
 
   return (
-    <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-line shadow-sm pb-4 pt-4 px-4 sm:px-6 mb-4 lg:mb-6 rounded-b-2xl">
+    <header className="shrink-0 border-b border-line bg-surface pb-3 pt-3 px-4 sm:px-6 mb-3 lg:mb-4 rounded-b-2xl">
       <div className="flex items-center justify-between mb-2">
         <button
           onClick={onBack}

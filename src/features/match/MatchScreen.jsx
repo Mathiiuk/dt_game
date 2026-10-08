@@ -331,6 +331,17 @@ export default function MatchScreen() {
     return next
   }
 
+  // Abrir la pizarra de cambios o las órdenes pausa el partido solo; al salir se retoma solo (si ya estaba en pausa, queda como estaba)
+  const autoPausedRef = useRef(false)
+  const openSheet = (setOpen) => {
+    if (!paused) { autoPausedRef.current = true; setPaused(true) }
+    setOpen(true)
+  }
+  const closeSheet = (setOpen) => {
+    setOpen(false)
+    if (autoPausedRef.current && !moment) { autoPausedRef.current = false; setPaused(false) }
+  }
+
   const logDirective = (text) => setEvents(prev => [{ minute: Math.max(1, minute), type: 'TACTIC_SHOUT', text, team: userSide }, ...prev])
 
   // Cambio en la pausa: entra un suplente en el puesto del que sale
@@ -341,6 +352,7 @@ export default function MatchScreen() {
     setOnField(made.onField)
     setSubsMade(prev => [...prev, made.sub])
     setPreselectOut(null)
+    if (isLg && autoPausedRef.current) { autoPausedRef.current = false; setPaused(false) }
     setEvents(prev => [{ minute: Math.max(1, minute), type: 'SUBSTITUTION', text: substitutionText(made.sub), team: userSide }, ...prev])
     toast.success(`Cambio: entra ${made.sub.inName}`)
   }
@@ -370,6 +382,8 @@ export default function MatchScreen() {
     }
     if (option.action === MOMENT_ACTION_OPEN_SUBS) {
       setPreselectOut(wasMoment.playerId || null)
+      // El partido ya está en pausa por el momento: se retoma solo al cerrar el banco
+      autoPausedRef.current = true
       // En pantallas chicas el banco vive en una hoja: se abre sola para elegir quién entra
       if (!isLg) setSubsSheetOpen(true)
       return // sigue en pausa para hacer el cambio
@@ -492,10 +506,11 @@ export default function MatchScreen() {
           onBack={() => navigate('/dashboard')}
         />
         
-        <div className="flex-1 lg:grid lg:grid-cols-12 gap-6 p-4 pt-0 overflow-y-auto overscroll-contain lg:overflow-hidden pb-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 pt-0 lg:grid lg:grid-cols-12 lg:gap-6 lg:p-4 lg:pt-0">
           
           {/* Izquierda: Desktop (Tu Equipo) / Oculto en móvil (van a las Sheets) */}
-          <div className="hidden lg:flex lg:col-span-3 flex-col gap-4 overflow-y-auto custom-scrollbar h-full pr-2">
+          {isLg && (
+          <div className="hidden min-h-0 flex-col gap-4 overflow-y-auto pr-2 lg:col-span-4 lg:flex xl:col-span-3">
             <div className="p-4 rounded-xl bg-surface border border-line space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Dirección técnica</h3>
               
@@ -556,12 +571,12 @@ export default function MatchScreen() {
               </div>
             )}
           </div>
+          )}
 
-          {/* Centro: Relato */}
-          <div className="col-span-12 lg:col-span-6 flex flex-col gap-4 h-[60dvh] lg:h-full">
-            
+          {/* Centro: relato en vivo, estadísticas (la posesión se despliega hacia arriba) y controles */}
+          <div className="flex min-h-0 flex-1 flex-col gap-3 lg:col-span-8 lg:h-full xl:col-span-9">
             {matchState === 'pre-match' && squadNotes.length > 0 && (
-              <div className="p-4 rounded-xl border border-gold/40 bg-gold/10 text-sm text-gold space-y-2 lg:hidden" role="status">
+              <div className="shrink-0 space-y-1 rounded-xl border border-gold/40 bg-gold/10 p-3 text-sm text-gold lg:hidden" role="status">
                 <p className="font-bold uppercase tracking-wider text-gold">Plantel incompleto</p>
                 {youthNotes.length > 0 && <p>Se convocan {youthNotes.length} juvenil(es).</p>}
                 {injuredNotes.length > 0 && <p>Jugarán lesionados: {injuredNotes.map(n => n.name).join(', ')}.</p>}
@@ -570,42 +585,37 @@ export default function MatchScreen() {
 
             <MatchTimeline events={events} matchState={matchState} />
 
-            {/* Controles */}
-            <div className="">
-              {matchState === 'playing' && isLg && (
-                <MatchActions 
-                  speed={speed} 
-                  onSpeed={setSpeed} 
-                  paused={paused} 
-                  onTogglePause={() => setPaused(!paused)}
-                  onSkip={handleSkipMatch}
-                  onOpenSubs={() => { setPaused(true); setSubsSheetOpen(true) }}
-                  onOpenShouts={() => { setPaused(true); setShoutsSheetOpen(true) }}
-                />
-              )}
-            </div>
-            
-            {/* Si es dA3vil y estA en pre-match */}
-            {matchState === 'pre-match' && (
-              <div className="lg:hidden mt-auto">
-                 <button 
-                  onClick={handleStartMatch}
-                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent text-accent-fg flex justify-center items-center gap-2 shadow-lg shadow-accent/20"
-                >
-                  <Play className="w-5 h-5 fill-zinc-950" /> Comenzar Partido
-                </button>
-              </div>
+            {matchState !== 'pre-match' && simResults?.stats && (
+              <MatchStats stats={liveStats || simResults.stats} homeName={data.club?.name || 'Local'} awayName={oppDisplayName} />
             )}
 
-          </div>
-
-          {/* Derecha: Stats (Desktop & Mobile) */}
-          <div className="col-span-12 lg:col-span-3 flex flex-col gap-4">
-             {matchState !== 'pre-match' && simResults?.stats && (
-                <MatchStats stats={liveStats || simResults.stats} homeName={data.club?.name || "Local"} awayName={oppDisplayName} />
-             )}
+            {matchState === 'playing' && isLg && (
+              <MatchActions
+                speed={speed}
+                onSpeed={setSpeed}
+                paused={paused}
+                onTogglePause={() => setPaused(!paused)}
+                onSkip={handleSkipMatch}
+                onOpenSubs={() => openSheet(setSubsSheetOpen)}
+                onOpenShouts={() => openSheet(setShoutsSheetOpen)}
+              />
+            )}
           </div>
         </div>
+
+        {/* Móvil, antes del pitazo: botón fijo abajo para comenzar */}
+        {matchState === 'pre-match' && !isLg && (
+          <div className="shrink-0 border-t border-line bg-surface p-3">
+            <button
+              type="button"
+              onClick={handleStartMatch}
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong"
+            >
+              <Play className="size-5" aria-hidden="true" />
+              Comenzar partido
+            </button>
+          </div>
+        )}
 
         {/* Móvil, pitazo final: botón fijo abajo para seguir con el resumen y la prensa */}
         {matchState === 'finished' && !isLg && (
@@ -630,8 +640,8 @@ export default function MatchScreen() {
             paused={paused}
             onTogglePause={() => setPaused(!paused)}
             onSkip={handleSkipMatch}
-            onOpenSubs={() => { setPaused(true); setSubsSheetOpen(true) }}
-            onOpenShouts={() => { setPaused(true); setShoutsSheetOpen(true) }}
+            onOpenSubs={() => openSheet(setSubsSheetOpen)}
+            onOpenShouts={() => openSheet(setShoutsSheetOpen)}
           />
         )}
       </div>
@@ -639,7 +649,7 @@ export default function MatchScreen() {
       {/* Mobile Sheets */}
       <SubstitutionsSheet 
         open={subsSheetOpen}
-        onClose={() => setSubsSheetOpen(false)}
+        onClose={() => closeSheet(setSubsSheetOpen)}
         preselectOutId={preselectOut}
         onField={onField.filter(p => !sentOffIds.has(p.id))}
         players={data.players}
@@ -653,7 +663,7 @@ export default function MatchScreen() {
 
       <ShoutsSheet
         open={shoutsSheetOpen}
-        onClose={() => setShoutsSheetOpen(false)}
+        onClose={() => closeSheet(setShoutsSheetOpen)}
         shoutWait={shoutWait}
         activeOrder={activeOrder}
         onApplyOrder={handleApplyOrder}

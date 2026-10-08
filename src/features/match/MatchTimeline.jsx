@@ -1,58 +1,86 @@
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
+import { ArrowLeftRight, Bandage, Crosshair, Flag, Goal, Hand, Megaphone, Radio, Siren, Swords, Target, Whistle } from 'lucide-react'
+import { cn } from '../../lib/utils'
 
+/** Cada tipo de jugada con su ícono y su color: el relato se lee de un vistazo */
+const KINDS = {
+  GOAL: { icon: Goal, tone: 'accent', label: 'Gol' },
+  SAVE: { icon: Hand, tone: 'gold', label: 'Atajada' },
+  MISS: { icon: Crosshair, tone: 'muted', label: 'Erró' },
+  CORNER: { icon: Flag, tone: 'muted', label: 'Córner' },
+  CARD_YELLOW: { card: 'bg-yellow-300', tone: 'warning', label: 'Amarilla' },
+  CARD_RED: { card: 'bg-red-500', tone: 'danger', label: 'Roja' },
+  INJURY: { icon: Bandage, tone: 'danger', label: 'Lesión' },
+  PENALTY: { icon: Siren, tone: 'warning', label: 'Penal' },
+  KEYPLAY: { icon: Target, tone: 'warning', label: 'Mano a mano' },
+  SUBSTITUTION: { icon: ArrowLeftRight, tone: 'info', label: 'Cambio' },
+  TACTIC_SHOUT: { icon: Megaphone, tone: 'info', label: 'Tu orden' },
+  RIVAL_TACTIC: { icon: Swords, tone: 'muted', label: 'El rival' },
+  END: { icon: Whistle, tone: 'accent', label: 'Final' }
+}
+const FALLBACK = { icon: Radio, tone: 'muted', label: 'Juego' }
+
+const TONES = {
+  accent: { box: 'border-accent/50 bg-accent-soft', icon: 'text-accent', text: 'text-fg' },
+  gold: { box: 'border-gold/40 bg-gold-soft', icon: 'text-gold', text: 'text-fg' },
+  warning: { box: 'border-warning/40 bg-warning-soft', icon: 'text-warning', text: 'text-fg' },
+  danger: { box: 'border-danger/40 bg-danger-soft', icon: 'text-danger', text: 'text-fg' },
+  info: { box: 'border-line-strong bg-surface-3', icon: 'text-fg-muted', text: 'text-fg-muted' },
+  muted: { box: 'border-line bg-bg/60', icon: 'text-fg-subtle', text: 'text-fg-muted' }
+}
+
+function KindIcon({ kind, className }) {
+  if (kind.card) return <span className={cn('inline-block h-4 w-3 rounded-[2px]', kind.card)} aria-hidden="true" />
+  const Icon = kind.icon
+  return <Icon className={className} aria-hidden="true" />
+}
+
+/**
+ * Relato en vivo: arriba la jugada de ahora en grande y debajo las anteriores, de la más nueva a la más vieja.
+ * No tiene scroll: lo que no entra en el alto disponible se desvanece hacia abajo (si el cuadro se achica o crece, se ven menos o más jugadas).
+ */
 export default function MatchTimeline({ events, matchState }) {
-  const scrollRef = useRef(null)
+  const ordered = [...events].sort((a, b) => b.minute - a.minute)
+  const [now, ...past] = ordered
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [events])
+  if (!now) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-line bg-surface-2 p-4 text-center text-sm italic text-fg-subtle">
+        <Radio className="size-6 text-fg-subtle" aria-hidden="true" />
+        {matchState === 'pre-match' ? 'Equipos en vestuarios finalizando la charla táctica.' : 'Balón en disputa, equipos midiendo fuerzas en el campo...'}
+      </div>
+    )
+  }
+
+  const kind = KINDS[now.type] || FALLBACK
+  const tone = TONES[kind.tone]
 
   return (
-    <div 
-      className="flex-1 bg-surface-2 border border-line rounded-xl p-4 overflow-y-auto min-h-[300px] flex flex-col custom-scrollbar shadow-inner"
-      ref={scrollRef}
-      aria-live="polite"
-    >
-      {events.length > 0 && (
-        <div className="space-y-3 flex-1 flex flex-col justify-end">
-          {events.map((e, idx) => {
-            const isGoal = e.type === 'GOAL' || e.text.includes('¡GOL') || e.text.includes('GOL') || e.text.includes('anota')
-            const isCard = e.type?.startsWith('CARD') || e.text.includes('amarilla') || e.text.includes('roja') || e.text.includes('lesiona')
-            const isShout = e.text.startsWith('DT:')
-            return (
-              <div 
-                key={idx} 
-                className={`p-3 rounded-xl border flex items-start gap-3 transition-all ${
-                  isGoal 
-                    ? 'bg-accent-soft border-accent/50 text-accent font-bold'
-                    : isCard
-                    ? 'bg-danger-soft border-danger/40 text-danger'
-                    : isShout
-                    ? 'bg-indigo-950/30 border-indigo-500/30 text-indigo-300 italic'
-                    : 'bg-bg/60 border-line text-fg'
-                }`}
-              >
-                <span className="text-fg-subtle font-mono font-bold shrink-0 text-sm">{e.minute}'</span>
-                <span className="leading-relaxed text-sm">{e.text}</span>
-              </div>
-            )
-          })}
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-xl border border-line bg-surface-2 p-3" aria-live="polite">
+      {/* La jugada de ahora */}
+      <div key={`${now.minute}-${now.text}`} className={cn('animate-rise-in shrink-0 rounded-xl border p-3', tone.box)}>
+        <div className="flex items-center gap-2">
+          <span className={cn('grid size-8 shrink-0 place-items-center rounded-lg bg-bg/60', tone.icon)}><KindIcon kind={kind} className="size-5" /></span>
+          <span className={cn('text-[11px] font-bold uppercase tracking-wider', tone.icon)}>{kind.label}</span>
+          <span className="num ml-auto rounded-md bg-bg/60 px-2 py-0.5 font-mono text-xs font-bold text-fg-muted">{now.minute}'</span>
         </div>
-      )}
+        <p className={cn('mt-2 text-sm leading-relaxed sm:text-base', now.type === 'GOAL' ? 'font-bold' : 'font-medium', tone.text)}>{now.text}</p>
+      </div>
 
-      {events.length === 0 && matchState !== 'pre-match' && (
-        <div className="h-full flex items-center justify-center text-center text-fg-subtle text-sm italic">
-          Balón en disputa, equipos midiendo fuerzas en el campo...
-        </div>
-      )}
-
-      {events.length === 0 && matchState === 'pre-match' && (
-        <div className="h-full flex items-center justify-center text-center text-fg-subtle text-sm italic">
-          Equipos en vestuarios finalizando la charla táctica.
-        </div>
-      )}
+      {/* Lo que pasó antes: se desvanece hacia abajo en vez de scrollear */}
+      <ol className="relative min-h-0 flex-1 space-y-1.5 overflow-hidden [mask-image:linear-gradient(to_bottom,black_55%,transparent)]" aria-label="Jugadas anteriores">
+        {past.map((e, idx) => {
+          const k = KINDS[e.type] || FALLBACK
+          const t = TONES[k.tone]
+          return (
+            <li key={idx} className={cn('flex items-start gap-2.5 rounded-lg border px-2.5 py-2 text-xs leading-snug', t.box, t.text)}>
+              <span className={cn('mt-0.5 shrink-0', t.icon)}><KindIcon kind={k} className="size-4" /></span>
+              <span className="num w-7 shrink-0 font-mono font-bold text-fg-subtle">{e.minute}'</span>
+              <span className="min-w-0">{e.text}</span>
+            </li>
+          )
+        })}
+      </ol>
     </div>
   )
 }

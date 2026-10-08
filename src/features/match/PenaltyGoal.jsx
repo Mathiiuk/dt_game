@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { Hand, CircleDot } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 const ZONES = { L: 'Izquierda', C: 'Centro', R: 'Derecha' }
@@ -52,7 +53,7 @@ export default function PenaltyGoal({ options, onChoose }) {
             !picked && '-translate-x-1/2'
           )}
         >
-          🧤
+          <Hand className="size-8 text-gold" />
         </span>
       </div>
       <p className="mt-2 text-center text-xs text-fg-subtle">Tocá la zona hacia donde se tira tu arquero. Si adivina, casi siempre la ataja.</p>
@@ -103,7 +104,7 @@ export function PenaltyShoot({ takerName, onDone }) {
           ))}
         </div>
         {shot && (
-          <span aria-hidden="true" className={cn('pointer-events-none absolute bottom-4 left-1/2 text-2xl transition-all duration-500 ease-out', aim === 'L' && '-translate-x-[260%] -translate-y-14', aim === 'R' && 'translate-x-[160%] -translate-y-14', aim === 'C' && '-translate-x-1/2 -translate-y-16')}>⚽</span>
+          <span aria-hidden="true" className={cn('pointer-events-none absolute bottom-4 left-1/2 text-fg transition-all duration-500 ease-out', aim === 'L' && '-translate-x-[260%] -translate-y-14', aim === 'R' && 'translate-x-[160%] -translate-y-14', aim === 'C' && '-translate-x-1/2 -translate-y-16')}><CircleDot className="size-6" /></span>
         )}
       </div>
 

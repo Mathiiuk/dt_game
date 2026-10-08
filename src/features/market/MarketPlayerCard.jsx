@@ -1,6 +1,6 @@
 import React from 'react'
 import { Eye, Handshake, Lock, ShoppingCart, Sparkles, TrendingUp } from 'lucide-react'
-import { Card, CardBody, Badge, Button, Stat } from '../../components/ui'
+import { Card, CardBody, Badge, Button, NamedIcon, Stat } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import {
   getPositionColorTheme,
@@ -71,7 +71,7 @@ export default function MarketPlayerCard({
           </span>
           {hierarchy && (
             <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shadow-xs ${hierarchy.className}`}>
-              {hierarchy.label}
+              {hierarchy.icon && <NamedIcon name={hierarchy.icon} className="mr-1 inline size-3 align-[-1px]" />}{hierarchy.label}
             </span>
           )}
         </div>
@@ -101,7 +101,7 @@ export default function MarketPlayerCard({
 
           {/* Micro-badge de rasgo de personalidad cómico */}
           <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-2 border border-line text-xs font-medium text-fg">
-            <span aria-hidden="true">{trait.icon}</span>
+            <NamedIcon name={trait.icon} className="size-3.5 shrink-0 text-accent" />
             <span className="font-semibold">{trait.label}:</span>
             <span className="text-fg-subtle truncate max-w-[190px]">{trait.desc}</span>
           </div>
