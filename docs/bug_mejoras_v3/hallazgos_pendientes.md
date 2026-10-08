@@ -25,3 +25,22 @@ Cosas que se vieron mientras se arreglaba `bugs_mejoras_v3.md` y quedaron para u
 
 ## Minijuego de penales (idea siguiente)
 - Hoy el penal en contra se juega tocando una zona del arco (misma mecánica de antes). El penal a favor sigue eligiendo quién patea: el motor no recibe la dirección del remate, así que un "apuntá y pateá" sería solo estético. Para hacerlo real hay que sumar la dirección/potencia al motor de partido (`matchEngine`) y que la chance de gol dependa de eso.
+
+## Auditoría del día (segunda pasada)
+Errores encontrados y corregidos:
+- Penal: el texto del relato decía siempre "fallado" porque la dirección del arquero se borraba antes de armar el mensaje. Ahora dice "atajado" cuando el arquero adivina.
+- `PenaltyGoal`: el temporizador del arquero no se limpiaba si la hoja se cerraba antes de tiempo.
+- El botón de resumen en móvil esperaba el estado `'ended'` (nunca ocurre): ver tanda anterior.
+
+Riesgos que quedan (no se tocaron):
+- Al recargar la página a mitad de partido se restaura el resultado, pero no qué momentos ya se decidieron (`firedRef` no se guarda): un momento podría volver a aparecer.
+- Saltear el partido ("Saltear") se salta también las jugadas clave y penales: juegan en piloto automático. Es lo esperado, pero conviene avisarlo en el cartel de confirmación.
+- `EventScreen` (`/events`) no usa la lectura de historias de a poco: quedó con el diseño viejo.
+- Los chistes del relato (`QUIPS` en `matchEngine.js`) son pocos por tipo; en partidos largos se repiten. Ampliar el pool o sumar chistes según el marcador/minuto.
+- Las historias ya traen buen humor en `arcCatalog.js`; lo que cambió es cómo se muestran. Falta revisar los eventos "sueltos" (no ARC_) que son más secos.
+
+## Hecho en esta tanda
+- Penal a favor: apuntar al arco + frenar la barra (afecta la chance de gol: bien pegado sube, mal pegado baja, malísimo se va a la tribuna).
+- Mano a mano ("jugada clave"): nuevo momento, a favor (definir / gambetear / ceder) y en contra (achicar / quedarse / tirarse a los pies). Tiene efecto real en el motor.
+- Relato con humor: remates del relator en goles, atajadas, errados, córners, tarjetas y lesiones (azar propio: no cambia el resultado del partido).
+- Historias contadas de a poco: momentos, diálogos en globo, opciones al terminar de leer, y al elegir una cargada del narrador con chips de lo que cambió.

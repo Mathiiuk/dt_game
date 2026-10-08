@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { cn } from '../../lib/utils'
 
 const ZONES = { L: 'Izquierda', C: 'Centro', R: 'Derecha' }
@@ -10,13 +10,15 @@ const ZONES = { L: 'Izquierda', C: 'Centro', R: 'Derecha' }
  */
 export default function PenaltyGoal({ options, onChoose }) {
   const [picked, setPicked] = useState(null)
+  const timer = useRef(null)
+  useEffect(() => () => clearTimeout(timer.current), [])
   const byDive = Object.fromEntries(options.filter(o => o.dive).map(o => [o.dive, o]))
 
   const choose = (dive) => {
     if (picked || !byDive[dive]) return
     setPicked(dive)
     // Un instante para ver al arquero tirarse antes de seguir
-    setTimeout(() => onChoose(byDive[dive]), 650)
+    timer.current = setTimeout(() => onChoose(byDive[dive]), 650)
   }
 
   return (
@@ -54,6 +56,88 @@ export default function PenaltyGoal({ options, onChoose }) {
         </span>
       </div>
       <p className="mt-2 text-center text-xs text-fg-subtle">Tocá la zona hacia donde se tira tu arquero. Si adivina, casi siempre la ataja.</p>
+    </div>
+  )
+}
+
+/**
+ * Penal a favor: dos toques. Primero se apunta a una zona del arco y después se frena la barra de potencia
+ * en el verde. Una barra bien frenada sube la chance de gol; una mal frenada la baja (y si es muy mala, se va a la tribuna).
+ * Devuelve `{ aim: 'L'|'C'|'R', quality: 0..1 }`.
+ */
+export function PenaltyShoot({ takerName, onDone }) {
+  const [aim, setAim] = useState(null)
+  const [pos, setPos] = useState(0) // posición de la barra, 0 a 1
+  const [shot, setShot] = useState(false)
+  const posRef = useRef(0)
+
+  // La barra va y viene sola mientras se apunta; al patear se congela
+  useEffect(() => {
+    if (!aim || shot) return undefined
+    let raf
+    const start = performance.now()
+    const tick = (now) => {
+      const t = ((now - start) / 900) % 2 // una ida y vuelta cada 1,8 segundos
+      posRef.current = t < 1 ? t : 2 - t
+      setPos(posRef.current)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [aim, shot])
+
+  // Si la pantalla se cierra antes del disparo no queda nada pendiente
+  const timer = useRef(null)
+  useEffect(() => () => clearTimeout(timer.current), [])
+
+  const kick = () => {
+    if (shot) return
+    setShot(true)
+    const quality = Math.max(0, 1 - Math.abs(posRef.current - 0.5) * 2)
+    timer.current = setTimeout(() => onDone({ aim, quality }), 700)
+  }
+
+  const inGreen = Math.abs(pos - 0.5) <= 0.15
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm font-semibold text-fg">{aim ? `${takerName} está listo. Frená la barra en el verde.` : `${takerName} agarra la pelota. ¿Adónde la manda?`}</p>
+      <div className="relative mx-auto h-32 w-full max-w-xs overflow-hidden rounded-t-md border-x-4 border-t-4 border-fg bg-[repeating-linear-gradient(45deg,transparent_0_6px,oklch(100%_0_0/0.06)_6px_7px)]">
+        <div className="grid h-full grid-cols-3">
+          {Object.keys(ZONES).map(zone => (
+            <button
+              key={zone}
+              type="button"
+              onClick={() => !aim && setAim(zone)}
+              disabled={!!aim}
+              aria-label={`Apuntar a la ${ZONES[zone].toLowerCase()}`}
+              className={cn('border-l border-line/40 first:border-l-0 transition-colors', aim === zone ? 'bg-accent/30' : !aim && 'hover:bg-accent-soft active:bg-accent/30', 'disabled:cursor-default')}
+            >
+              <span className="text-[0.6875rem] font-bold uppercase tracking-wider text-fg-muted">{ZONES[zone]}</span>
+            </button>
+          ))}
+        </div>
+        {shot && (
+          <span aria-hidden="true" className={cn('pointer-events-none absolute bottom-4 left-1/2 text-2xl transition-all duration-500 ease-out', aim === 'L' && '-translate-x-[260%] -translate-y-14', aim === 'R' && 'translate-x-[160%] -translate-y-14', aim === 'C' && '-translate-x-1/2 -translate-y-16')}>⚽</span>
+        )}
+      </div>
+
+      {aim && (
+        <>
+          <div className="relative mx-auto h-5 w-full max-w-xs overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
+            <div className="absolute inset-y-0 left-[35%] w-[30%] bg-accent/40" />
+            <div className={cn('absolute inset-y-0 w-1.5 -translate-x-1/2 rounded-full', inGreen ? 'bg-accent' : 'bg-fg')} style={{ left: `${pos * 100}%` }} />
+          </div>
+          <button
+            type="button"
+            onClick={kick}
+            disabled={shot}
+            className="min-h-12 w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong disabled:opacity-60"
+          >
+            {shot ? '¡Pateó!' : '¡Patear!'}
+          </button>
+        </>
+      )}
     </div>
   )
 }

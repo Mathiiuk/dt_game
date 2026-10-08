@@ -19,3 +19,8 @@ Rama: `fix/bugs-mejoras-v3` (parte de la rama de auth/PWA, todavía sin mergear)
 - Abrir Cambios o Gritos pausa el partido.
 - Bug: el botón de fin de partido en móvil miraba el estado `'ended'` pero el partido termina en `'finished'`; nunca aparecía (y el encabezado no decía "Final"). Ahora hay un botón fijo abajo "Siguiente: resumen y prensa".
 - Momento crítico: hoja compacta desde abajo en móvil (ya no página completa), diálogo angosto en desktop, sin cierre accidental. Penal en contra: arco con tres zonas tocables y arquero animado.
+
+## Tercera tanda (interactivo + humor)
+- Motor (`matchEngine.js`): `PENALTY_AIM`, jugada clave `KEYPLAY` + `KEYPLAY_CHOICE`, chistes del relato con azar propio (`flavor`, `kp`).
+- UI: `PenaltyShoot` (apuntar + barra), opciones de mano a mano, `StoryText` y `OutcomeCard` con cargada y chips.
+- Dominio nuevo: `storyFlavor.js` (+ tests). Tests de motor y de pantalla nuevos. Suite completa: 1330/1330.

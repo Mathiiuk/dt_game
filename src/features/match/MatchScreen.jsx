@@ -339,6 +339,11 @@ export default function MatchScreen() {
     // Penal: quién lo patea (a favor) o hacia dónde se tira el arquero (en contra); se resuelve al minuto siguiente
     if (option.action === 'PENALTY_TAKER' && option.playerId) {
       commitChange({ kind: 'PENALTY_TAKER', playerId: option.playerId })
+      // Con puntería (minijuego): hacia dónde y qué tan bien le pegó
+      if (option.aim) commitChange({ kind: 'PENALTY_AIM', aim: option.aim, quality: option.quality })
+      logDirective(decisionText(option))
+    } else if (option.action === 'KEYPLAY') {
+      commitChange({ kind: 'KEYPLAY_CHOICE', choice: option.choice })
       logDirective(decisionText(option))
     } else if (option.action === 'PENALTY_DIVE') {
       commitChange({ kind: 'PENALTY_DIVE', dive: option.dive })

@@ -208,6 +208,46 @@ describe('penales y rival que reacciona', () => {
     expect(saved / (tries * 3)).toBeGreaterThan(blind / tries)
   })
 
+  it('un penal bien pegado convierte más que uno mal pegado, y uno malísimo se va a la tribuna', () => {
+    const home = sq(60, 'h')
+    const away = sq(60, 'a')
+    let good = 0
+    let bad = 0
+    let stand = 0
+    let tries = 0
+    for (let i = 0; i < 6000 && tries < 150; i++) {
+      const base = simulateMatch(tactic, home, tactic, away, `pen-aim-${i}`)
+      const pen = base.events.find(e => e.type === 'PENALTY' && e.team === 'home')
+      if (!pen) continue
+      tries++
+      const run = (quality) => simulateMatch(tactic, home, tactic, away, `pen-aim-${i}`, { changes: [{ minute: pen.minute, team: 'home', kind: 'PENALTY_AIM', aim: 'L', quality }] })
+      const resolved = (r) => r.events.find(e => e.minute === pen.minute + 1 && e.team === 'home' && /penal/i.test(e.text) && (e.type === 'GOAL' || e.type === 'MISS'))
+      if (resolved(run(1)).type === 'GOAL') good++
+      if (resolved(run(0.3)).type === 'GOAL') bad++
+      if (/tribuna/.test(resolved(run(0)).text)) stand++
+    }
+    expect(tries).toBeGreaterThan(60)
+    expect(good).toBeGreaterThan(bad)
+    expect(stand).toBeGreaterThan(tries * 0.8)
+  })
+
+  it('hay manos a mano y, si el DT elige cómo definir, el resultado cambia sin romper el resto del partido', () => {
+    let found = 0
+    let changed = 0
+    for (let i = 0; i < 3000 && found < 40; i++) {
+      const base = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `kp-${i}`)
+      const kp = base.events.find(e => e.type === 'KEYPLAY')
+      if (!kp) continue
+      found++
+      const res = (r) => r.events.find(e => e.minute === kp.minute + 1 && /mano a mano/i.test(e.text) && (e.type === 'GOAL' || e.type === 'SAVE' || e.type === 'MISS'))
+      expect(res(base)).toBeTruthy()
+      const r = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `kp-${i}`, { changes: [{ minute: kp.minute, team: kp.team, kind: 'KEYPLAY_CHOICE', choice: 'DRIBBLE' }] })
+      if (res(r) && res(r).type !== res(base).type) changed++
+    }
+    expect(found).toBeGreaterThan(20)
+    expect(changed).toBeGreaterThan(0)
+  })
+
   it('el rival reacciona: si va perdiendo a los 60 se tira al ataque y si gana a los 75 se cierra', () => {
     let attacking = 0
     let closing = 0

@@ -83,6 +83,17 @@ export function createRNG(seedValue) {
   }
 }
 
+/** Remates de humor del relator: se suman al final de la línea del relato (el texto base no cambia) */
+const QUIPS = {
+  GOAL: ['Se la dedica a la abuela, que no vino pero escucha por la radio.', 'El que vende choripán en la popular dejó todo para gritarlo.', 'Los vecinos de la cuadra creyeron que había temblor.', 'El arquero todavía está buscando la pelota.', 'En la platea, un señor tiró el sándwich al aire.'],
+  SAVE: ['El arquero pidió aplausos; se los dieron igual.', 'Ese guante tiene seguro contra todo riesgo.', 'La pelota quedó pidiendo disculpas.', 'Atajó con la cara, pero atajó.'],
+  MISS: ['Se la perdió y todavía se pregunta cómo.', 'La pelota se fue a hacerle compañía a las nubes.', 'En el banco alguien se tapó la cara con la campera.', 'Ese se lo comía hasta el utilero.'],
+  CORNER: ['El del banderín ya se acomodó el sombrero.', 'En el área se reparten empujones con mucha educación.'],
+  YELLOW: ['El árbitro sacó la tarjeta con ganas de cantar bingo.', 'Protestó tanto que casi le dan dos.'],
+  RED: ['Se va con la cabeza gacha y el sándwich de la cancha lo espera.', 'El vestuario va a quedar silencioso, y el del rival, con música.'],
+  INJURY: ['El de la camilla hizo el trote más largo de su carrera.', 'Se oyó un "ay" que llegó hasta la tribuna visitante.']
+}
+
 /**
  * Simulación autoritativa minuto a minuto con semilla reproducible.
  */
@@ -90,6 +101,10 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
   const rng = createRNG(seed)
   // Penales y reacciones del rival tienen su propio azar: no alteran el resto del partido
   const penRng = createRNG(`${seed}:pen`)
+  // Jugadas clave y chistes del relato: también con azar propio, así el resto del partido queda igual
+  const kpRng = createRNG(`${seed}:kp`)
+  const flavorRng = createRNG(`${seed}:flavor`)
+  const quip = (kind) => { const list = QUIPS[kind]; return list[Math.floor(flavorRng() * list.length)] }
 
   // 1. Calcular poder base de cada equipo
   const calcBasePower = (players) => {
@@ -205,6 +220,10 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     // Penal pendiente: quién lo patea (equipo con el penal) o hacia dónde se tira el arquero (equipo que defiende)
     if (change.kind === 'PENALTY_TAKER') { team.penaltyTaker = change.playerId; return }
     if (change.kind === 'PENALTY_DIVE') { team.penaltyDive = change.dive; return }
+    // Penal a favor con puntería: hacia dónde patea y qué tan bien le pegó (0 a 1, del minijuego)
+    if (change.kind === 'PENALTY_AIM') { team.penaltyAim = { aim: change.aim, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.7))) }; return }
+    // Jugada clave: lo que decide el DT para el mano a mano (en ataque o en defensa)
+    if (change.kind === 'KEYPLAY_CHOICE') { keyChoice = { side: change.team, choice: change.choice }; return }
     // Gritos y decisiones: un efecto sobre ataque, defensa y mediocampo que dura `duration` minutos
     if (!change.players) {
       const { att = 1, def = 1, mid = 1 } = change.buff || {}
@@ -263,6 +282,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
   // Penal anunciado a la espera de que se patee (se resuelve al minuto siguiente, después de las decisiones del DT)
   let pendingPenalty = null
+  // Jugada clave anunciada (mano a mano) a la espera de lo que decida el DT; se resuelve al minuto siguiente
+  let pendingKeyPlay = null
+  let keyChoice = null
   const penaltyText = (team) => (team === 'home' ? 'el local' : 'la visita')
 
   // 3. Simular los 90 minutos
@@ -302,22 +324,34 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const skillOf = (p) => p.attr_finishing ?? p.attr_shooting ?? p.attr_overall ?? 50
       const chosen = shooters.players.find(p => p.id && p.id === shooters.penaltyTaker)
       const taker = chosen || [...shooters.players].sort((a, b) => skillOf(b) - skillOf(a))[0] || { first_name: 'Futbolista', last_name: '' }
-      const corner = ['L', 'C', 'R'][Math.floor(penRng() * 3)]
+      const drawn = ['L', 'C', 'R'][Math.floor(penRng() * 3)]
+      const aimed = shooters.penaltyAim
+      // Con puntería del DT patea adonde apuntó; si no, la esquina se sortea
+      const corner = aimed ? aimed.aim : drawn
       let convert = Math.max(0.55, Math.min(0.9, 0.5 + skillOf(taker) / 200))
-      // Si el arquero adivina la esquina, casi siempre la ataja
-      if (keepers.penaltyDive && keepers.penaltyDive === corner) convert = 0.15
+      if (aimed) {
+        // Un buen golpe (barra en la zona verde) sube la chance; uno flojo la baja, y uno malo se va a la tribuna
+        convert = aimed.quality < 0.15 ? 0.05 : Math.min(0.95, convert * (0.6 + 0.45 * aimed.quality))
+      }
+      const dove = keepers.penaltyDive
+      // Si el arquero adivina la esquina, casi siempre la ataja (si no lo dirige nadie, el arquero rival adivina por azar)
+      if (dove && dove === corner) convert = 0.15
+      else if (!dove && aimed && ['L', 'C', 'R'][Math.floor(penRng() * 3)] === corner) convert *= 0.5
       shooters.penaltyTaker = null
+      shooters.penaltyAim = null
       keepers.penaltyDive = null
       if (penTeam === 'home') homeShots++
       else awayShots++
       const goes = penRng() < convert
       if (goes) {
         if (penTeam === 'home') { homeScore++; homeShotsOnTarget++ } else { awayScore++; awayShotsOnTarget++ }
-        events.push({ minute: min, type: 'GOAL', team: penTeam, playerId: taker.id, text: `¡GOL DE PENAL! ${taker.first_name} ${taker.last_name} la clava ${corner === 'L' ? 'a la izquierda' : corner === 'R' ? 'a la derecha' : 'al medio'}.` })
+        events.push({ minute: min, type: 'GOAL', team: penTeam, playerId: taker.id, text: `¡GOL DE PENAL! ${taker.first_name} ${taker.last_name} la clava ${corner === 'L' ? 'a la izquierda' : corner === 'R' ? 'a la derecha' : 'al medio'}. ${quip('GOAL')}` })
       } else {
         if (penTeam === 'home') homeShotsOnTarget++
         else awayShotsOnTarget++
-        events.push({ minute: min, type: 'MISS', team: penTeam, text: `¡Penal ${keepers.penaltyDive === corner ? 'atajado' : 'fallado'}! ${taker.first_name} ${taker.last_name} no pudo.` })
+        events.push({ minute: min, type: 'MISS', team: penTeam, text: aimed && aimed.quality < 0.15
+          ? `¡Penal a la tribuna! ${taker.first_name} ${taker.last_name} le pegó tan mal que la pelota no volvió. ${quip('MISS')}`
+          : `¡Penal ${dove === corner ? 'atajado' : 'fallado'}! ${taker.first_name} ${taker.last_name} no pudo. ${quip(dove === corner ? 'SAVE' : 'MISS')}` })
       }
     }
     // Un penal nuevo (poco frecuente): lo pide el equipo que más ataca y se anuncia antes de patearse
@@ -326,6 +360,71 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const penTeam = toHome ? 'home' : 'away'
       pendingPenalty = { team: penTeam, minute: min + 1 }
       events.push({ minute: min, type: 'PENALTY', team: penTeam, text: `¡PENAL para ${penaltyText(penTeam)}! El árbitro lo cobra y se arma la polémica.` })
+    }
+
+    // Resolución de la jugada clave pendiente: el DT eligió cómo jugarla (o la juega el piloto automático)
+    if (pendingKeyPlay && pendingKeyPlay.minute === min) {
+      const { team: kpTeam } = pendingKeyPlay
+      pendingKeyPlay = null
+      const kpAtt = kpTeam === 'home' ? homeTeam : awayTeam
+      const kpDef = kpTeam === 'home' ? awayTeam : homeTeam
+      const attacker = getRandomPlayer(kpAtt.players, 'ATTACK')
+      const keeper = getRandomPlayer(kpDef.players, 'GK')
+      const attackerName = `${attacker.first_name} ${attacker.last_name}`
+      const keeperName = `${keeper.first_name} ${keeper.last_name}`
+      const attPower = kpTeam === 'home' ? curHomeAtt : curAwayAtt
+      const defPower = kpTeam === 'home' ? curAwayDef : curHomeDef
+      const edge = Math.max(0.85, Math.min(1.15, (attPower / (attPower + defPower)) * 2))
+      const attacking = keyChoice && keyChoice.side === kpTeam
+      const choice = keyChoice ? keyChoice.choice : null
+      keyChoice = null
+
+      let goalP = 0.32
+      let lostBall = false
+      let foul = false
+      if (attacking && choice === 'DRIBBLE') {
+        // Gambeta: si se la saca al arquero, casi seguro es gol; si no, pierde la pelota
+        lostBall = kpRng() > 0.55
+        goalP = 0.72
+      } else if (attacking && choice === 'PASS') {
+        goalP = 0.4
+      } else if (attacking && choice === 'SHOOT') {
+        goalP = 0.34
+      } else if (!attacking && choice === 'OUT') {
+        goalP = 0.26
+      } else if (!attacking && choice === 'STAY') {
+        goalP = 0.34
+      } else if (!attacking && choice === 'SLIDE') {
+        goalP = 0.2
+        foul = kpRng() < 0.2
+      }
+      goalP = Math.min(0.85, goalP * edge)
+
+      if (kpTeam === 'home') homeShots++
+      else awayShots++
+      if (lostBall) {
+        events.push({ minute: min, type: 'MISS', team: kpTeam, text: `${attackerName} la quiso gambetear y el defensor se la sacó limpia. ${quip('MISS')}` })
+      } else if (kpRng() < goalP) {
+        if (kpTeam === 'home') { homeScore++; homeShotsOnTarget++ } else { awayScore++; awayShotsOnTarget++ }
+        events.push({ minute: min, type: 'GOAL', team: kpTeam, playerId: attacker.id, text: `¡GOL DE ${kpTeam === 'home' ? 'LOCAL' : 'VISITA'}! Golazo de ${attackerName} en el mano a mano. ${quip('GOAL')}` })
+      } else {
+        if (kpTeam === 'home') homeShotsOnTarget++
+        else awayShotsOnTarget++
+        events.push({ minute: min, type: 'SAVE', team: kpTeam, text: `¡Tremenda atajada de ${keeperName} en el mano a mano! ${quip('SAVE')}` })
+        if (foul) {
+          const defTeamIsHome = kpTeam !== 'home'
+          if (defTeamIsHome) homeYellows++
+          else awayYellows++
+          events.push({ minute: min, type: 'CARD_YELLOW', team: defTeamIsHome ? 'home' : 'away', text: 'Se tiró a los pies, no llegó a la pelota y se llevó la amarilla de regalo.' })
+        }
+      }
+    }
+    // Una jugada clave nueva (poco frecuente): un mano a mano que se anuncia antes de resolverse
+    if (min < 90 && !pendingPenalty && !pendingKeyPlay && kpRng() < 0.012) {
+      const toHome = kpRng() < (curHomeAtt / (curHomeAtt + curAwayAtt))
+      const kpTeam = toHome ? 'home' : 'away'
+      pendingKeyPlay = { team: kpTeam, minute: min + 1 }
+      events.push({ minute: min, type: 'KEYPLAY', team: kpTeam, text: `¡Mano a mano! ${toHome ? 'El local' : 'La visita'} se escapa solo contra el arquero y el estadio se queda sin aire.` })
     }
 
     const roll = rng()
@@ -365,7 +464,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           team: teamId,
           playerId: attacker.id,
           assistId: assister?.id,
-          text: `¡GOL DE ${isHome ? 'LOCAL' : 'VISITA'}! Golazo de ${attacker.first_name} ${attacker.last_name}${assistText}.`
+          text: `¡GOL DE ${isHome ? 'LOCAL' : 'VISITA'}! Golazo de ${attacker.first_name} ${attacker.last_name}${assistText}. ${quip('GOAL')}`
         })
       } else if (shotRoll < goalChance + 0.35) {
         // Atajada
@@ -376,7 +475,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           minute: min,
           type: 'SAVE',
           team: teamId,
-          text: `¡Gran atajada de ${goalkeeper.first_name} ${goalkeeper.last_name}! Evita el remate de ${attacker.first_name} ${attacker.last_name}.`
+          text: `¡Gran atajada de ${goalkeeper.first_name} ${goalkeeper.last_name}! Evita el remate de ${attacker.first_name} ${attacker.last_name}. ${quip('SAVE')}`
         })
       } else if (shotRoll < goalChance + 0.50) {
         // Tiro de esquina
@@ -387,7 +486,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           minute: min,
           type: 'CORNER',
           team: teamId,
-          text: `Tiro de esquina para ${isHome ? 'los locales' : 'la visita'}. Centro peligroso al área.`
+          text: `Tiro de esquina para ${isHome ? 'los locales' : 'la visita'}. Centro peligroso al área. ${quip('CORNER')}`
         })
       } else {
         // Tiro desviado
@@ -395,7 +494,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           minute: min,
           type: 'MISS',
           team: teamId,
-          text: `Disparo potente de ${attacker.first_name} ${attacker.last_name} que se va apenas desviado por el poste.`
+          text: `Disparo potente de ${attacker.first_name} ${attacker.last_name} que se va apenas desviado por el poste. ${quip('MISS')}`
         })
       }
     }
@@ -420,7 +519,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           type: 'CARD_RED',
           team: isHomeFoul ? 'home' : 'away',
           playerId: playerFoul.id,
-          text: `¡TARJETA ROJA! Expulsado ${playerFoul.first_name} ${playerFoul.last_name} por una falta temeraria.`
+          text: `¡TARJETA ROJA! Expulsado ${playerFoul.first_name} ${playerFoul.last_name} por una falta temeraria. ${quip('RED')}`
         })
         foulTeam.reds++
         if (playerFoul.id) {
@@ -437,7 +536,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           type: 'CARD_YELLOW',
           team: isHomeFoul ? 'home' : 'away',
           playerId: playerFoul.id,
-          text: `Amonestado ${playerFoul.first_name} ${playerFoul.last_name} tras cometer falta táctica en la mitad de la cancha.`
+          text: `Amonestado ${playerFoul.first_name} ${playerFoul.last_name} tras cometer falta táctica en la mitad de la cancha. ${quip('YELLOW')}`
         })
       }
     }
@@ -453,7 +552,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         type: 'INJURY',
         team: isHomeInj ? 'home' : 'away',
         playerId: injuredPlayer.id,
-        text: `Atención médica para ${injuredPlayer.first_name} ${injuredPlayer.last_name}. Presenta molestias físicas.`
+        text: `Atención médica para ${injuredPlayer.first_name} ${injuredPlayer.last_name}. Presenta molestias físicas. ${quip('INJURY')}`
       })
       if (injuredPlayer.id) injTeam.hurtIds.add(injuredPlayer.id)
     }

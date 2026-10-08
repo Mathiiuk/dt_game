@@ -27,6 +27,9 @@ const EVENT_CATEGORY = {
 }
 
 import { ClubBadge } from '../../components/ui'
+import { splitBeats, reactionFor, effectChips } from '../../domain/storyFlavor'
+import { parseArcCode } from '../../domain/arcs'
+import { arcById } from '../../domain/arcCatalog'
 
 const isStoryEvent = (event) => String(event.template_code || '').startsWith('ARC_')
 
@@ -84,6 +87,34 @@ function AlertList({ alerts }) {
   )
 }
 
+/** Historia contada de a poco: cada toque muestra el siguiente momento; los diálogos van en globo */
+function StoryText({ text, onDone }) {
+  const beats = React.useMemo(() => splitBeats(text), [text])
+  const [shown, setShown] = useState(1)
+  const done = shown >= beats.length
+  React.useEffect(() => { if (done) onDone?.() }, [done]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="space-y-2.5">
+      {beats.slice(0, shown).map((beat, i) => (
+        beat.type === 'say' ? (
+          <p key={i} className="animate-rise-in ml-2 rounded-lg rounded-tl-none border-l-2 border-gold bg-gold-soft px-3 py-2 text-sm italic leading-relaxed text-fg">
+            <span aria-hidden="true">💬 </span>“{beat.text}”
+          </p>
+        ) : (
+          <p key={i} className="animate-rise-in text-sm leading-relaxed text-fg-muted">{beat.text}</p>
+        )
+      ))}
+      {!done && (
+        <div className="flex items-center gap-3 pt-1">
+          <Button size="sm" variant="outline" onClick={() => setShown(n => n + 1)}>Seguir leyendo ▸</Button>
+          <button type="button" onClick={() => setShown(beats.length)} className="text-xs text-fg-subtle underline-offset-2 hover:text-fg hover:underline">Leer todo</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /** Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)" */
 function chapterOf(title) {
   const m = String(title || '').match(/\((\d+)\s*\/\s*(\d+)\)\s*$/)
@@ -101,6 +132,9 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
   const options = Array.isArray(event.options) ? event.options : []
   // Una sola elección por evento: al apretar una opción se bloquean todas hasta que termine
   const [choosing, setChoosing] = useState(null)
+  // En las historias las opciones aparecen cuando terminás de leer el capítulo
+  const [read, setRead] = useState(!story)
+  const arc = story ? arcById(parseArcCode(event.template_code)?.arcId) : null
   const choose = async (opt) => {
     if (choosing) return
     setChoosing(opt.id)
@@ -134,9 +168,12 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
             {story ? <Sparkles className="mt-1 size-4.5 shrink-0 text-gold" aria-hidden="true" /> : <Bell className={cn('mt-1 size-4.5 shrink-0', critical ? 'text-danger' : 'text-fg-subtle')} aria-hidden="true" />}
             <span className="min-w-0 break-words">{chapter ? chapter.clean : event.title}</span>
           </h3>
-          <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{event.description}</p>
+          {arc?.title && <p className="mt-0.5 text-xs italic text-fg-subtle">{arc.title} — {arc.tagline}</p>}
+          {story
+            ? <div className="mt-3"><StoryText text={event.description} onDone={() => setRead(true)} /></div>
+            : <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{event.description}</p>}
         </div>
-        <div>
+        {read && <div className={story ? 'animate-rise-in' : undefined}>
           {story && <p className="eyebrow mb-2">¿Qué hacés?</p>}
           <div className="flex flex-col gap-2">
             {options.map((opt, index) => {
@@ -175,7 +212,7 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
               )
             })}
           </div>
-        </div>
+        </div>}
       </CardBody>
     </Card>
   )
@@ -183,13 +220,23 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
 
 /** Resultado de la última decisión: se queda a la vista hasta que el DT lo cierra */
 function OutcomeCard({ outcome, onClose }) {
+  const chips = effectChips(outcome.effects)
   return (
     <div role="status" className="animate-rise-in rounded-xl border border-accent/50 bg-accent-soft p-4">
       <div className="flex items-start gap-3">
         <Sparkles className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 space-y-2">
           <p className="eyebrow text-accent">Así quedó la cosa</p>
-          <p className="mt-1 break-words text-sm leading-relaxed text-fg">{outcome}</p>
+          {outcome.choice && <p className="break-words text-xs text-fg-subtle">Elegiste: <span className="font-semibold text-fg-muted">{outcome.choice}</span></p>}
+          <p className="break-words text-sm leading-relaxed text-fg">{outcome.note}</p>
+          <p className="break-words text-sm italic leading-relaxed text-fg-muted">{outcome.reaction}</p>
+          {chips.length > 0 && (
+            <ul className="flex flex-wrap gap-1.5" aria-label="Lo que cambió">
+              {chips.map(c => (
+                <li key={c.key}><Badge tone={c.value > 0 ? 'accent' : 'danger'} className="num">{c.label} {c.value > 0 ? '+' : ''}{c.value}</Badge></li>
+              ))}
+            </ul>
+          )}
         </div>
         <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0">Seguir</Button>
       </div>
@@ -262,7 +309,7 @@ export default function Dashboard() {
       await refreshContext()
       setReloadTick(t => t + 1)
       // Si el evento ya estaba resuelto (doble clic u otra pestaña) no se aplicó nada: solo se refresca la pantalla
-      if (!outcome?.alreadyResolved) setLastOutcome(outcome?.outcomeNote || 'Decisión ejecutada.')
+      if (!outcome?.alreadyResolved) setLastOutcome({ note: outcome?.outcomeNote || 'Decisión ejecutada.', choice: option.label, effects: option.effects || {}, reaction: reactionFor(option.effects || {}, `${event.id}:${option.id}`) })
     } catch (err) {
       toast.error(friendlyError(err, 'Error al procesar la decisión.'))
     }

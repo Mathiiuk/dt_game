@@ -1,12 +1,25 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Megaphone } from 'lucide-react'
-import PenaltyGoal from './PenaltyGoal'
+import PenaltyGoal, { PenaltyShoot } from './PenaltyGoal'
 
 /**
  * Momento de decisión: el partido se pausa solo y el DT elige qué hacer.
  * Cada opción muestra su efecto real sobre el partido.
  */
 export default function DecisionCard({ moment, onChoose }) {
+  // Penal a favor: primero se elige quién patea y, si es una persona, después apunta y le pega (minijuego)
+  const [taker, setTaker] = useState(null)
+  const pick = (option) => {
+    if (moment.id === 'PENALTY_FOR' && option.playerId) setTaker(option)
+    else onChoose(option)
+  }
+  if (taker) {
+    return (
+      <section aria-label="Patear el penal" className="space-y-2 rounded-xl border border-accent/50 bg-accent-soft/40 p-3">
+        <PenaltyShoot takerName={taker.label.replace('Que patee ', '')} onDone={({ aim, quality }) => onChoose({ ...taker, aim, quality })} />
+      </section>
+    )
+  }
   return (
     <section aria-label={moment.title} className="space-y-2 rounded-xl border border-accent/50 bg-accent-soft/40 p-3">
       <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-accent">
@@ -22,7 +35,7 @@ export default function DecisionCard({ moment, onChoose }) {
           <li key={option.id}>
             <button
               type="button"
-              onClick={() => onChoose(option)}
+              onClick={() => pick(option)}
               className="w-full rounded-lg border border-line bg-surface p-3 text-left text-sm text-fg transition-colors hover:border-accent"
             >
               <span className="block font-bold">{option.label}</span>

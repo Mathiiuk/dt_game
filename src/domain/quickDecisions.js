@@ -115,6 +115,34 @@ export function detectMoment({ minute, events = [], userSide, fired = new Set(),
     }
   }
 
+  // Mano a mano: a favor decidís cómo definir; en contra, cómo sale tu arquero
+  const keyPlay = here.find(e => e.type === 'KEYPLAY' && (e.team === userSide || e.team === rivalSide))
+  if (keyPlay) {
+    const key = `KEYPLAY_${minute}`
+    if (!fired.has(key)) {
+      if (keyPlay.team === userSide) {
+        return {
+          key, id: 'KEYPLAY_FOR', title: '¡Mano a mano!',
+          text: 'Se te escapa uno solo contra el arquero. Elegí cómo la juega.',
+          options: [
+            { id: 'KP_SHOOT', label: '🚀 Que la defina de primera', desc: 'Chance pareja: cerca de 1 de cada 3 es gol.', action: 'KEYPLAY', choice: 'SHOOT' },
+            { id: 'KP_DRIBBLE', label: '🕺 Que gambetee al arquero', desc: 'Arriesgado: si se lo saca, es gol casi seguro; si no, pierde la pelota.', action: 'KEYPLAY', choice: 'DRIBBLE' },
+            { id: 'KP_PASS', label: '🤝 Que se la ceda al compañero', desc: 'El más seguro: un poco más de chance y no hace falta ser héroe.', action: 'KEYPLAY', choice: 'PASS' }
+          ]
+        }
+      }
+      return {
+        key, id: 'KEYPLAY_AGAINST', title: '¡Mano a mano en contra!',
+        text: 'El delantero rival se escapa solo y tu arquero te mira. ¿Cómo sale?',
+        options: [
+          { id: 'KP_OUT', label: '🧤 Que achique y salga', desc: 'Le tapa el ángulo: es la mejor chance de pararlo.', action: 'KEYPLAY', choice: 'OUT' },
+          { id: 'KP_STAY', label: '🧱 Que se quede en el arco', desc: 'Espera el remate. Ni bien ni mal.', action: 'KEYPLAY', choice: 'STAY' },
+          { id: 'KP_SLIDE', label: '🦵 Que se tire a los pies', desc: 'Lo frena más veces, pero puede comerse una amarilla.', action: 'KEYPLAY', choice: 'SLIDE' }
+        ]
+      }
+    }
+  }
+
   // Una lesión de uno de los tuyos en este minuto (si es el arquero, es peor)
   const hurt = here.find(e => e.type === 'INJURY' && e.team === userSide && e.playerId)
   if (hurt) {

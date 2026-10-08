@@ -98,11 +98,37 @@ describe('partido en vivo con decisiones', () => {
 
     const taker = screen.getAllByRole('button').find(b => /Que patee Juan/.test(b.textContent))
     click(taker)
-    expect(mocks.replay).toHaveBeenCalledTimes(1)
+    // Minijuego: apuntar al arco y frenar la barra
+    expect(screen.getByRole('region', { name: 'Patear el penal' })).toBeInTheDocument()
+    click(screen.getByRole('button', { name: /Apuntar a la izquierda/ }))
+    click(screen.getByRole('button', { name: /Patear/ }))
+    act(() => { vi.advanceTimersByTime(800) })
+    expect(mocks.replay).toHaveBeenCalledTimes(2)
     const change = mocks.replay.mock.calls[0][1][0]
     expect(change).toMatchObject({ minute: 5, team: 'home', kind: 'PENALTY_TAKER' })
     expect(change.playerId).toMatch(/^p\d+$/)
+    const aim = mocks.replay.mock.calls[1][1][1]
+    expect(aim).toMatchObject({ minute: 5, team: 'home', kind: 'PENALTY_AIM', aim: 'L' })
+    expect(aim.quality).toBeGreaterThanOrEqual(0)
+    expect(aim.quality).toBeLessThanOrEqual(1)
     expect(screen.queryByRole('region', { name: '¡Penal a favor!' })).toBeNull()
+  })
+
+  it('un mano a mano a favor deja elegir cómo definir y lo manda al motor', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'KEYPLAY', team: 'home', text: '¡Mano a mano!' }]))
+    await startMatch()
+    minutes(5)
+    expect(screen.getByRole('region', { name: '¡Mano a mano!' })).toBeInTheDocument()
+    click(screen.getByRole('button', { name: /gambetee al arquero/ }))
+    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'KEYPLAY_CHOICE', choice: 'DRIBBLE' })
+  })
+
+  it('un mano a mano en contra deja elegir cómo sale el arquero', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'KEYPLAY', team: 'away', text: '¡Mano a mano!' }]))
+    await startMatch()
+    minutes(5)
+    click(screen.getByRole('button', { name: /achique y salga/ }))
+    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ kind: 'KEYPLAY_CHOICE', choice: 'OUT' })
   })
 
   it('un penal en contra deja elegir hacia dónde se tira el arquero', async () => {
