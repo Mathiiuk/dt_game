@@ -125,3 +125,9 @@ Pendiente: elegir distinto cobrador de corners del lado izquierdo y derecho; "es
 - En el motor, quien remata el córner modifica la chance de gol: un cabeceador de 99 de juego aéreo la multiplica por 1,2 y uno de 20 por 0,88.
 - En el momento del córner se muestra el juego aéreo del mejor rematador.
 Pendiente: que el rival tenga atributos reales (hoy el once de relleno solo tiene nivel general).
+
+## Decimotercera tanda (atributos reales del rival)
+- 231 de los 245 clubs de la base no tienen plantel, así que el rival siempre sale con un once armado al empezar (`buildRivalLineup`). Ahora cada jugador rival trae atributos: ritmo, fuerza, pase, visión, definición, remate, cabeceo, defensa y ubicación, según el perfil de su línea (arquero, defensor, mediocampista, delantero) más un carácter propio fijo por club (±9). Lo que rinde el equipo no cambió (sigue mandando `slot_rating`).
+- Resultado: cada rival tiene sus propios especialistas de penales, tiros libres, córners y cabezazos, y el juego aéreo del córner rival ya es real.
+- Antes del pitazo aparece una ficha de scouting con los cuatro especialistas del rival (mismos nombres y atributos que en el partido).
+Pendiente: que el rival también tenga personalidad de juego (por ejemplo, equipos que centran más o patean de afuera) y que los clubs con plantel real usen sus jugadores en vez del once armado.

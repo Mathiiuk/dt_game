@@ -9,7 +9,7 @@
  */
 
 import { ratingAtSlot } from './ratings'
-import { slotBase } from './positions'
+import { positionLine, slotBase } from './positions'
 
 export const MATCH_SQUAD_SIZE = 11
 export const MAX_YOUTH_CALLUPS = 4
@@ -158,6 +158,27 @@ const RIVAL_FIRST = ['Lucas', 'Matías', 'Nicolás', 'Facundo', 'Joaquín', 'Fra
 const RIVAL_LAST = ['Acuña', 'Barrios', 'Cabral', 'Domínguez', 'Escobar', 'Figueroa', 'Godoy', 'Herrera', 'Ibarra', 'Juárez', 'Luna', 'Medina', 'Núñez', 'Ojeda', 'Paredes', 'Quiroga', 'Rojas', 'Sandoval', 'Toledo', 'Vera']
 const seedNumber = (seed) => { let h = 7; for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h }
 
+// Perfil de atributos por línea: cuánto se suma o resta al nivel del equipo en cada atributo (un delantero define mejor, un zaguero cabecea y marca)
+const RIVAL_PROFILE = {
+  ARQ: { attr_pace: -12, attr_strength: 0, attr_passing: -10, attr_vision: -10, attr_finishing: -30, attr_shooting: -30, attr_heading: -10, attr_defending: 6, attr_positioning: 8 },
+  DEF: { attr_pace: -2, attr_strength: 7, attr_passing: -3, attr_vision: -6, attr_finishing: -14, attr_shooting: -12, attr_heading: 8, attr_defending: 10, attr_positioning: 4 },
+  MED: { attr_pace: 0, attr_strength: -2, attr_passing: 8, attr_vision: 8, attr_finishing: -4, attr_shooting: 0, attr_heading: -6, attr_defending: -2, attr_positioning: 2 },
+  DEL: { attr_pace: 6, attr_strength: 2, attr_passing: -4, attr_vision: -2, attr_finishing: 10, attr_shooting: 9, attr_heading: 4, attr_defending: -16, attr_positioning: 6 }
+}
+const clampAttr = (n) => Math.max(20, Math.min(95, Math.round(n)))
+
+/**
+ * Atributos del once rival: salen del perfil de su línea y de un "carácter" propio de cada jugador (±9 de ruido fijo por club),
+ * así cada rival tiene sus especialistas de pelota parada. No cambian lo que rinde el equipo (eso lo marca `slot_rating`).
+ */
+export const rivalAttributes = (level, line, base, idx) => {
+  const profile = RIVAL_PROFILE[line] || RIVAL_PROFILE.MED
+  return Object.fromEntries(Object.entries(profile).map(([key, offset]) => {
+    const noise = ((seedNumber(`${base}:${idx}:${key}`) % 19) - 9)
+    return [key, clampAttr(level + offset + noise)]
+  }))
+}
+
 export const buildRivalLineup = (reputation = 10, strength = null, seed = 'rival') => {
   // Con fuerza propia el rival rinde exactamente eso; si no la tiene, se estima por reputación
   const level = strength != null ? Math.round(strength) : Math.round(50 + reputation * 0.5)
@@ -167,11 +188,13 @@ export const buildRivalLineup = (reputation = 10, strength = null, seed = 'rival
     // Nombres de relleno (siempre los mismos para el mismo club) en vez de "Jugador Rival #n"
     first_name: RIVAL_FIRST[(base + idx * 7) % RIVAL_FIRST.length],
     last_name: RIVAL_LAST[(base + idx * 11 + (idx >> 1)) % RIVAL_LAST.length],
+    shirt_number: idx + 1,
     position: slotBase(slot),
     slot,
     slot_base: slotBase(slot),
     slot_rating: level,
     attr_overall: level,
+    ...rivalAttributes(level, positionLine(slotBase(slot)), base, idx),
     state_fitness: 90
   }))
 }

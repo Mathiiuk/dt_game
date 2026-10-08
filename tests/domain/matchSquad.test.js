@@ -146,3 +146,36 @@ describe('nombres del once rival', () => {
     expect(a.map(p => p.last_name)).not.toEqual(buildRivalLineup(15, 60, 'club-2').map(p => p.last_name))
   })
 })
+
+describe('atributos del once rival', () => {
+  const avg = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length
+
+  it('cada rival trae atributos de juego sin cambiar lo que rinde', () => {
+    const lineup = buildRivalLineup(15, 62, 'club-1')
+    expect(lineup.every(p => p.slot_rating === 62 && p.attr_overall === 62)).toBe(true)
+    for (const p of lineup) for (const key of ['attr_pace', 'attr_strength', 'attr_passing', 'attr_vision', 'attr_finishing', 'attr_shooting', 'attr_heading', 'attr_defending', 'attr_positioning']) {
+      expect(p[key]).toBeGreaterThanOrEqual(20)
+      expect(p[key]).toBeLessThanOrEqual(95)
+    }
+  })
+
+  it('son siempre los mismos para el mismo club y cambian de un club a otro', () => {
+    const a = buildRivalLineup(15, 60, 'club-1').map(p => p.attr_finishing)
+    expect(a).toEqual(buildRivalLineup(15, 60, 'club-1').map(p => p.attr_finishing))
+    expect(a).not.toEqual(buildRivalLineup(15, 60, 'club-2').map(p => p.attr_finishing))
+  })
+
+  it('los delanteros definen mejor que los defensores y los defensores cabecean mejor que los mediocampistas', () => {
+    const lineups = Array.from({ length: 40 }, (_, i) => buildRivalLineup(15, 60, `c-${i}`))
+    const by = (line, key) => avg(lineups.flatMap(l => l.filter(p => p.slot_base.startsWith(line)).map(p => p[key])))
+    expect(by('DC', 'attr_finishing')).toBeGreaterThan(by('DFC', 'attr_finishing') + 10)
+    expect(by('DFC', 'attr_heading')).toBeGreaterThan(by('MC', 'attr_heading'))
+    expect(by('MC', 'attr_passing')).toBeGreaterThan(by('DC', 'attr_passing'))
+  })
+
+  it('cada rival tiene especialistas distintos de pelota parada', async () => {
+    const { specialistsOf } = await import('../../src/domain/specialists')
+    const names = new Set(Array.from({ length: 30 }, (_, i) => specialistsOf(buildRivalLineup(15, 60, `s-${i}`)).FREE_KICK.name))
+    expect(names.size).toBeGreaterThan(10)
+  })
+})

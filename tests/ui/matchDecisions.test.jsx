@@ -1,6 +1,6 @@
 // Partido en vivo: el entretiempo pausa solo, cada decisión rejuega el resto del partido y los gritos tienen enfriamiento
 import React from 'react'
-import { render, screen, act, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, act, waitFor, fireEvent, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
@@ -141,6 +141,12 @@ describe('partido en vivo con decisiones', () => {
     minutes(5)
     click(screen.getByRole('button', { name: /achique y salga/ }))
     expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ kind: 'KEYPLAY_CHOICE', choice: 'OUT' })
+  })
+
+  it('antes del pitazo muestra el scouting con los especialistas del rival', async () => {
+    render(<MemoryRouter><MatchScreen /></MemoryRouter>)
+    const scout = await screen.findByRole('region', { name: 'Especialistas del rival' })
+    for (const label of ['Penales', 'Tiros libres', 'Córners', 'Cabezazos']) expect(within(scout).getByText(label)).toBeInTheDocument()
   })
 
   it('un remate peligroso en contra pide reaccionar con el arquero y manda la calidad al motor', async () => {

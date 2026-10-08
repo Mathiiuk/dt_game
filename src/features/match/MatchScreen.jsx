@@ -43,6 +43,7 @@ import { chemistryApi } from '../../api/chemistry'
 import { teamChemistry } from '../../domain/chemistry'
 import { FREE_FORMATION, normalizeLayout, slotsOfLayout } from '../../domain/freeLayout'
 import { cleanTakers } from '../../domain/specialists'
+import RivalScout from './RivalScout'
 
 // Puestos de la formación activa (en el orden en que se guarda la alineación)
 const slotsOf = (tactic) => {
@@ -315,6 +316,10 @@ export default function MatchScreen() {
     const custom = data.tactic?.formation === FREE_FORMATION ? normalizeLayout(data.tactic?.custom_layout) : null
     return custom || getLayout(data.tactic?.formation)
   })()
+
+  // El once del rival se arma igual que al comenzar (mismos nombres y atributos), para mostrar su scouting antes del pitazo
+  const rivalClub = data.fixture ? (data.fixture.home_team_id === data.club?.id ? data.fixture.away : data.fixture.home) : null
+  const rivalPreview = useMemo(() => buildRivalLineup(rivalClub?.reputation || 10, rivalClub?.strength ?? null, rivalClub?.id || rivalClub?.name || 'rival'), [rivalClub?.reputation, rivalClub?.strength, rivalClub?.id, rivalClub?.name])
 
   const userSide = (data.fixture ? data.fixture.home_team_id === data.club?.id : true) ? 'home' : 'away'
 
@@ -599,7 +604,9 @@ export default function MatchScreen() {
               </div>
             )}
 
-            <MatchTimeline events={events} matchState={matchState} />
+            {matchState === 'pre-match'
+              ? <RivalScout lineup={rivalPreview} rivalName={oppDisplayName} />
+              : <MatchTimeline events={events} matchState={matchState} />}
 
             {matchState !== 'pre-match' && simResults?.stats && (
               <MatchStats stats={liveStats || simResults.stats} homeName={data.club?.name || 'Local'} awayName={oppDisplayName} />
