@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Hand, CircleDot } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { feel } from '../../lib/feedback'
 
 const ZONES = { L: 'Izquierda', C: 'Centro', R: 'Derecha' }
 
@@ -77,6 +78,7 @@ export function PenaltyShoot({ takerName, onDone }) {
 
   const kick = () => {
     if (shot) return
+    feel('pick')
     const track = trackRef.current?.getBoundingClientRect()
     const marker = markerRef.current?.getBoundingClientRect()
     const pos = track && marker && track.width > 0 ? Math.max(0, Math.min(1, (marker.left + marker.width / 2 - track.left) / track.width)) : 0.5

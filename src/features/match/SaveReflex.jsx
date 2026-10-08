@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CircleDot, Hand } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { feel } from '../../lib/feedback'
 
 const ZONES = ['L', 'C', 'R']
 const NAMES = { L: 'izquierda', C: 'el medio', R: 'derecha' }
@@ -37,6 +38,7 @@ export default function SaveReflex({ onDone }) {
     setTapped(zone)
     setPhase('done')
     const quality = early ? 0.2 : reactionQuality({ tapped: zone, target, elapsed })
+    feel(quality >= 0.55 ? 'good' : 'bad')
     const label = early ? 'Tu arquero se adelantó y lo engañaron' : zone === null ? 'Tu arquero no alcanzó a reaccionar' : reactionLabel(quality)
     timers.current.push(setTimeout(() => onDone({ quality, label }), 900))
   }

@@ -7,6 +7,7 @@ import { HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, randomOption, safestOp
 import { RumorChallenge, SequenceChallenge, TapsChallenge, TargetPick } from './StoryMinigames'
 import { BillsChallenge, ReflexChallenge } from './StoryActionGames'
 import { formatMoney } from '../../lib/format'
+import { feel } from '../../lib/feedback'
 import { cn } from '../../lib/utils'
 import { Badge, Button } from '../../components/ui'
 
@@ -137,7 +138,7 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
     return () => window.removeEventListener('keydown', onKey)
   }, [result, onLater])
 
-  const choose = (opt) => { if (opt && !busy) onChoose(opt) }
+  const choose = (opt) => { if (opt && !busy) { feel('pick'); onChoose(opt) } }
 
   return (
     <div role="dialog" aria-modal="true" aria-label={chapter?.clean || event.title} className="fixed inset-0 z-[70] flex h-dvh flex-col bg-bg [background-image:radial-gradient(ellipse_at_top,oklch(30%_0.05_150/0.55),transparent_60%)]">
@@ -207,7 +208,7 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
               <p className="text-sm text-fg-muted">{CHALLENGE_INFO[challengeKind].text} Si lo lográs, te muestro lo que cambia cada opción. Si no, decidís a ciegas.</p>
             </div>
             {clue === 'playing' ? (
-              (() => { const Game = CHALLENGE_INFO[challengeKind].Game; return <Game onDone={(won) => setClue(won ? 'won' : 'lost')} /> })()
+              (() => { const Game = CHALLENGE_INFO[challengeKind].Game; return <Game onDone={(won) => { feel(won ? 'win' : 'lose'); setClue(won ? 'won' : 'lost') }} /> })()
             ) : (
               <div className="space-y-2">
                 <Button size="lg" className="w-full" onClick={() => setClue('playing')}>Jugar el desafío</Button>

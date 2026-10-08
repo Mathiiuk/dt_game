@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowRight, CheckCircle2, Mic, Newspaper, PenLine, ThumbsDown, ThumbsUp, Timer, TimerOff, UserCheck, UserX, Zap } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Mic, Newspaper, PenLine, ThumbsDown, ThumbsUp, Timer, TimerOff, UserCheck, UserX, Volume2, VolumeX, Zap } from 'lucide-react'
 import { AsyncButton } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
+import { feel, setSoundEnabled, soundEnabled } from '../../lib/feedback'
 import { toneLabel } from '../../domain/press'
 import { NamedIcon } from '../../components/ui/named-icon'
 import { reporterOf, roomFace, nextRoomMood, TONE_ICON, lightningRound, lightningTotal, LIGHTNING_TIMEOUT } from '../../domain/pressScene'
@@ -161,6 +162,71 @@ function ReporterBubble({ question, index }) {
 }
 
 /**
+ * Ficha de tono: se toca para responder o se arrastra hasta el micrófono y se suelta ahí.
+ * Si se suelta en cualquier otro lado, vuelve a su lugar sin responder.
+ */
+function ToneTile({ opt, micRef, onPick, onHover, disabled }) {
+  const [offset, setOffset] = useState(null)
+  const start = useRef(null)
+  const moved = useRef(false)
+  const over = useRef(false)
+  const justDragged = useRef(false)
+
+  const overMic = (e) => {
+    const r = micRef.current?.getBoundingClientRect()
+    return !!r && e.clientX >= r.left - 14 && e.clientX <= r.right + 14 && e.clientY >= r.top - 14 && e.clientY <= r.bottom + 14
+  }
+  const reset = () => { start.current = null; moved.current = false; over.current = false; setOffset(null); onHover(null) }
+
+  const down = (e) => {
+    if (disabled) return
+    start.current = { x: e.clientX, y: e.clientY }
+    moved.current = false
+    // Si el puntero ya no está activo (pasa con algunos gestos) se sigue sin capturarlo
+    try { e.currentTarget.setPointerCapture?.(e.pointerId) } catch { /* sin captura el arrastre funciona igual dentro de la ficha */ }
+  }
+  const move = (e) => {
+    if (!start.current) return
+    const dx = e.clientX - start.current.x
+    const dy = e.clientY - start.current.y
+    if (!moved.current && Math.hypot(dx, dy) > 10) { moved.current = true; feel('tap'); onHover('drag') }
+    if (!moved.current) return
+    setOffset({ x: dx, y: dy })
+    const now = overMic(e)
+    if (now !== over.current) { over.current = now; onHover(now ? 'over' : 'drag'); if (now) feel('tap') }
+  }
+  const up = (e) => {
+    if (!start.current) return
+    const dropped = moved.current && overMic(e)
+    const wasDrag = moved.current
+    reset()
+    if (wasDrag) { justDragged.current = true; setTimeout(() => { justDragged.current = false }, 0) }
+    if (dropped) onPick(opt)
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onPointerDown={down}
+      onPointerMove={move}
+      onPointerUp={up}
+      onPointerCancel={reset}
+      onClick={() => { if (!justDragged.current) onPick(opt) }}
+      style={offset ? { transform: `translate(${offset.x}px, ${offset.y}px) scale(1.06) rotate(${Math.max(-6, Math.min(6, offset.x / 20))}deg)`, zIndex: 30 } : undefined}
+      className={`group relative flex min-h-0 touch-none select-none flex-col gap-1.5 overflow-hidden rounded-2xl border-2 p-3 text-left active:scale-[0.97] disabled:opacity-60 ${offset ? 'shadow-overlay transition-none' : 'transition-all'} ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted bg-surface'}`}
+    >
+      <span className="flex w-full items-center justify-between gap-1">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-bg/50"><NamedIcon name={TONE_ICON[opt.tone] || 'Mic'} className="size-5" /></span>
+        <span className="rounded-full bg-bg/50 px-2 py-0.5 text-[10px] font-bold text-fg">Moral {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
+      </span>
+      <span className="text-xs font-bold uppercase tracking-wider">{toneLabel(opt.tone, 'Respuesta')}</span>
+      <span className="line-clamp-4 text-xs italic leading-snug text-fg">“{opt.text}”</span>
+    </button>
+  )
+}
+
+/**
  * Sala de conferencias: preguntas relámpago con cuenta regresiva, reacción de la sala tras cada respuesta,
  * y al final la ronda de "Completá la frase del DT".
  */
@@ -169,6 +235,10 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const [reaction, setReaction] = useState(null) // { line, fans, board, timedOut, tone } tras responder
   const [phrase, setPhrase] = useState(null) // resultado de la frase elegida
   const [mood, setMood] = useState(50) // humor de la sala
+  const [sound, setSound] = useState(soundEnabled)
+  const [hover, setHover] = useState(null) // null | 'drag' | 'over': estado del arrastre hacia el micrófono
+  const [answering, setAnswering] = useState(false)
+  const micRef = useRef(null)
   const [lightning, setLightning] = useState(null) // total de la ronda relámpago cuando termina
   const [phraseDone, setPhraseDone] = useState(() => phraseDoneBefore(conferenceId))
   const round = useMemo(() => phraseRound(outcome), [outcome])
@@ -216,6 +286,9 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const answer = async (option, timedOut = false) => {
     await onAnswer(question, option, { timedOut })
     const r = roomReaction({ tone: option.tone, outcome })
+    // La respuesta se siente: vibra y suena distinto si cayó bien o mal en la sala
+    const sign = r.fans + r.board
+    feel(timedOut || sign < 0 ? 'bad' : sign > 0 ? 'good' : 'tap')
     setMood(m => nextRoomMood(m, r))
     setReaction({ ...r, timedOut, tone: option.tone, said: option.text })
   }
@@ -223,6 +296,21 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const next = () => {
     setReaction(null)
     onNext()
+  }
+
+  // Responde una sola vez aunque se toque, se arrastre o se suelte dos veces
+  const pick = async (option) => {
+    if (answering) return
+    setAnswering(true)
+    feel('pick')
+    try { await answer(option) } finally { setAnswering(false) }
+  }
+
+  const toggleSound = () => {
+    const next = !sound
+    setSound(next)
+    setSoundEnabled(next)
+    if (next) feel('good')
   }
 
   const pickPhrase = async (option) => {
@@ -274,6 +362,9 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
       {!reaction && answeredAny && !finished && (
         <AsyncButton onClick={onFinishEarly} className="flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-bg px-3 text-xs font-semibold text-fg transition-colors hover:bg-surface-3">Terminar acá</AsyncButton>
       )}
+      <button type="button" onClick={toggleSound} aria-pressed={sound} aria-label="Sonido" title={sound ? 'Apagar el sonido' : 'Encender el sonido'} className={`grid size-11 place-items-center rounded-xl border transition-colors ${sound ? 'border-accent/60 bg-accent-soft text-accent' : 'border-line bg-bg text-fg-subtle hover:bg-surface-3'}`}>
+        {sound ? <Volume2 className="size-5" aria-hidden="true" /> : <VolumeX className="size-5" aria-hidden="true" />}
+      </button>
       {!reaction && (
         <label title="Sin cuenta regresiva" className={`grid size-11 cursor-pointer place-items-center rounded-xl border transition-colors ${noTimer ? 'border-gold/60 bg-gold-soft text-gold' : 'border-line bg-bg text-fg-subtle hover:bg-surface-3'}`}>
           <input type="checkbox" className="sr-only" checked={noTimer} onChange={toggleTimer} aria-label="Sin cuenta regresiva" />
@@ -456,15 +547,20 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
         {/* Las cuatro posturas a la vista: tocá la que querés decir */}
         <div role="group" aria-label="Elegí tu postura y respuesta" className={`grid min-h-0 flex-1 grid-cols-2 gap-2.5 ${options.length > 2 ? 'grid-rows-2' : ''}`}>
           {options.map((opt, optIdx) => (
-            <AsyncButton key={optIdx} onClick={() => answer(opt)} className={`group flex min-h-0 flex-col gap-1.5 overflow-hidden rounded-2xl border-2 p-3 text-left transition-all active:scale-[0.97] ${TONE_COLORS[opt.tone] || 'border-line text-fg-muted bg-surface'}`}>
-              <span className="flex w-full items-center justify-between gap-1">
-                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-bg/50"><NamedIcon name={TONE_ICON[opt.tone] || 'Mic'} className="size-5" /></span>
-                <span className="rounded-full bg-bg/50 px-2 py-0.5 text-[10px] font-bold text-fg">Moral {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider">{toneLabel(opt.tone, 'Respuesta')}</span>
-              <span className="line-clamp-4 text-xs italic leading-snug text-fg">“{opt.text}”</span>
-            </AsyncButton>
+            <ToneTile key={optIdx} opt={opt} micRef={micRef} onPick={pick} onHover={setHover} disabled={answering} />
           ))}
+        </div>
+
+        {/* El micrófono: se puede arrastrar una ficha hasta acá para decirla */}
+        <div className="flex shrink-0 flex-col items-center gap-1">
+          <div
+            ref={micRef}
+            aria-hidden="true"
+            className={`grid size-16 place-items-center rounded-full border-2 transition-all [@media(max-height:740px)]:size-12 ${hover === 'over' ? 'scale-125 border-accent bg-accent/30 text-accent' : hover === 'drag' ? 'animate-pulse border-gold bg-gold-soft text-gold' : 'border-line-strong bg-surface text-fg-muted'}`}
+          >
+            <Mic className="size-7 [@media(max-height:740px)]:size-5" />
+          </div>
+          <p className="text-[11px] text-fg-subtle [@media(max-height:740px)]:hidden" aria-live="polite">{hover === 'over' ? 'Soltá la ficha para decirlo' : 'Tocá una ficha o arrastrala al micrófono'}</p>
         </div>
       </div>
     )

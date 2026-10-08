@@ -21,6 +21,7 @@ import { detectMoment, shoutBuff, shoutWaitMinutes, SHOUT_DURATION, MOMENT_ACTIO
 import { benchOf, makeSubstitution, substitutionsLeft, substitutionText } from '../../domain/substitutions'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { usePageLock } from '../../hooks/usePageLock'
+import { feel } from '../../lib/feedback'
 import { useMatchClock } from './useMatchClock'
 import { DEFAULT_SPEED, MATCH_MINUTES } from '../../domain/matchClock'
 import { 
@@ -488,6 +489,8 @@ export default function MatchScreen() {
         setEvents(prev => [...eventsAtThisMinute, ...prev])
         eventsAtThisMinute.forEach(e => {
           if (e.type === 'GOAL') {
+            // El gol se siente: festejo si es tuyo, golpe si es del rival
+            feel(e.team === userSide ? 'win' : 'lose')
             if (e.team === 'home') setScore(sc => ({ ...sc, home: sc.home + 1 }))
             else if (e.team === 'away') setScore(sc => ({ ...sc, away: sc.away + 1 }))
           }

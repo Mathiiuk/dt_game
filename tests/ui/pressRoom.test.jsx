@@ -132,5 +132,49 @@ describe('sala de prensa relámpago', () => {
     expect(h).toBeTruthy()
     expect(await screen.findByText(/Línea! Completaste una línea/)).toBeInTheDocument()
   })
-})
 
+  describe('fichas arrastrables hasta el micrófono', () => {
+    const drag = async (tile, { from = [200, 200], to = [0, 0] } = {}) => {
+      await act(async () => { fireEvent.pointerDown(tile, { pointerId: 1, clientX: from[0], clientY: from[1] }) })
+      await act(async () => { fireEvent.pointerMove(tile, { pointerId: 1, clientX: (from[0] + to[0]) / 2, clientY: (from[1] + to[1]) / 2 }) })
+      await act(async () => { fireEvent.pointerMove(tile, { pointerId: 1, clientX: to[0], clientY: to[1] }) })
+      await act(async () => { fireEvent.pointerUp(tile, { pointerId: 1, clientX: to[0], clientY: to[1] }) })
+    }
+
+    it('soltar una ficha sobre el micrófono la responde, una sola vez', async () => {
+      const { onAnswer } = setup()
+      // En pruebas el micrófono no tiene medidas: está en el origen
+      await drag(screen.getByRole('button', { name: /Partido a partido/ }))
+      expect(onAnswer).toHaveBeenCalledTimes(1)
+      expect(onAnswer.mock.calls[0][1]).toMatchObject({ tone: 'PRAGMATIC' })
+      expect(await screen.findByText(/Vos dijiste/)).toBeInTheDocument()
+    })
+
+    it('soltarla lejos del micrófono no responde y la ficha se puede tocar después', async () => {
+      const { onAnswer } = setup()
+      const tile = screen.getByRole('button', { name: /Partido a partido/ })
+      await drag(tile, { from: [200, 200], to: [150, 120] })
+      expect(onAnswer).not.toHaveBeenCalled()
+      await click(tile)
+      expect(onAnswer).toHaveBeenCalledTimes(1)
+    })
+
+    it('un toque común sigue respondiendo (sin arrastrar)', async () => {
+      const { onAnswer } = setup()
+      await click(screen.getByRole('button', { name: /Les voy a decir cuatro cosas/ }))
+      expect(onAnswer).toHaveBeenCalledTimes(1)
+      expect(onAnswer.mock.calls[0][1]).toMatchObject({ tone: 'COMBATIVE' })
+    })
+
+    it('el botón de sonido se enciende y apaga y queda guardado', async () => {
+      setup()
+      const sound = screen.getByRole('button', { name: 'Sonido' })
+      expect(sound).toHaveAttribute('aria-pressed', 'false')
+      await click(sound)
+      expect(sound).toHaveAttribute('aria-pressed', 'true')
+      expect(localStorage.getItem('game_sound')).toBe('1')
+      await click(sound)
+      expect(localStorage.getItem('game_sound')).toBe('0')
+    })
+  })
+})

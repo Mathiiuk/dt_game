@@ -167,3 +167,8 @@ Decisión del DT: se queda con el once generado (estable por club en nombres y a
 - La reacción muestra lo que dijiste (globo "Vos dijiste"), la cara de la sala y el efecto en hinchada y dirigencia, y pasa sola a la siguiente.
 - Los minijuegos de cierre (frase del DT, titular o fake, relámpago) suman íconos en cada opción.
 Pendiente: que las fichas de tono sean arrastrables hacia el micrófono, y sonidos o vibración al responder.
+
+## Fichas de la prensa arrastrables al micrófono, y sonido y vibración
+- Las fichas de tono se pueden tocar (como antes) o arrastrar hasta el micrófono de abajo; al llegar, el micrófono se agranda y dice "Soltá la ficha para decirlo". Si se suelta lejos, la ficha vuelve a su lugar sin responder. Una respuesta se cuenta una sola vez aunque se toque y se arrastre.
+- `lib/feedback.js`: vibración (Android; el iPhone no vibra desde el navegador) y tonos cortos con WebAudio. El sonido arranca apagado y se enciende con el botón de la barra superior de la prensa; la vibración suena en: responder en la prensa, goles del partido (festejo si es tuyo, golpe si es del rival), el remate y la atajada, y los desafíos de las historias.
+Pendiente: nada de esta línea. Posibles ideas: sonido de multitud en el partido y vibración al fallar un desafío por poco.
