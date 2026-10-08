@@ -2,6 +2,8 @@ import React, { useRef } from 'react'
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { Button } from './button'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { usePageLock } from '../../hooks/usePageLock'
 
 /** Indicador de pasos: lista ordenada con `aria-current="step"`; en móvil sólo muestra el paso actual con su nombre */
 export function Stepper({ steps, step }) {
@@ -38,32 +40,44 @@ export function Stepper({ steps, step }) {
   )
 }
 
-/** Marco del asistente: encabezado, pasos, contenido y barra de navegación pegada al borde inferior en móvil */
+/**
+ * Marco del asistente: encabezado, pasos, contenido y barra de navegación.
+ * En el celular es un marco fijo (`fixed inset-0`): el contenido scrollea adentro y la barra de pasos queda en el flujo, abajo,
+ * sin `position: fixed` propio (en iOS las barras fijas se descolocan al scrollear). En escritorio es una página normal.
+ */
 export function Wizard({ eyebrow, title, steps, step, onBack, onNext, nextLabel, finalLabel, isLast, loading, nextDisabled, children }) {
+  const isLg = useMediaQuery('(min-width: 1024px)')
+  usePageLock(!isLg)
+
+  const bar = (
+    <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
+      {step > 1 ? <Button variant="outline" onClick={onBack}><ChevronLeft />Atrás</Button> : <span />}
+      {isLast ? (
+        <Button size="lg" loading={loading} disabled={nextDisabled} onClick={onNext}>{finalLabel}</Button>
+      ) : (
+        <Button disabled={nextDisabled} onClick={onNext}>{nextLabel || 'Siguiente'}<ChevronRight /></Button>
+      )}
+    </div>
+  )
+
   return (
-    <main className="min-h-dvh bg-bg px-4 pb-28 pt-8 lg:pb-10">
-      <div className="mx-auto w-full max-w-2xl">
-        <header className="mb-6">
-          {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-          <h1 className="font-display text-3xl font-semibold leading-none text-fg sm:text-4xl break-words">{title}</h1>
-        </header>
-        <div className="mb-6"><Stepper steps={steps} step={step} /></div>
+    <main className="fixed inset-0 flex flex-col bg-bg lg:static lg:block lg:min-h-dvh">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-[max(2rem,env(safe-area-inset-top))] lg:overflow-visible lg:pb-10 lg:pt-8">
+        <div className="mx-auto w-full max-w-2xl">
+          <header className="mb-6">
+            {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
+            <h1 className="font-display text-3xl font-semibold leading-none text-fg sm:text-4xl break-words">{title}</h1>
+          </header>
+          <div className="mb-6"><Stepper steps={steps} step={step} /></div>
 
-        <section aria-label={steps[step - 1]} className="rounded-xl border border-line bg-surface p-5 shadow-raised sm:p-7">
-          {children}
-        </section>
+          <section aria-label={steps[step - 1]} className="rounded-xl border border-line bg-surface p-5 shadow-raised sm:p-7">
+            {children}
+          </section>
 
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur lg:static lg:mt-5 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
-            {step > 1 ? <Button variant="outline" onClick={onBack}><ChevronLeft />Atrás</Button> : <span />}
-            {isLast ? (
-              <Button size="lg" loading={loading} disabled={nextDisabled} onClick={onNext}>{finalLabel}</Button>
-            ) : (
-              <Button disabled={nextDisabled} onClick={onNext}>{nextLabel || 'Siguiente'}<ChevronRight /></Button>
-            )}
-          </div>
+          {isLg && <div className="mt-5">{bar}</div>}
         </div>
       </div>
+      {!isLg && <div className="shrink-0 border-t border-line bg-bg px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">{bar}</div>}
     </main>
   )
 }

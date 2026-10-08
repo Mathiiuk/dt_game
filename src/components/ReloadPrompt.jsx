@@ -22,8 +22,10 @@ export default function ReloadPrompt() {
 
   if (!offlineReady && !needRefresh) return null
 
+  // En el celular queda arriba del menú inferior (56 px más la zona segura) para no taparlo; en escritorio, abajo a la derecha
+
   return (
-    <div className="fixed bottom-0 right-0 z-50 p-4 m-4 border shadow-2xl bg-surface border-line rounded-xl max-w-sm">
+    <div role="status" className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-[60] rounded-xl border border-line bg-surface p-4 shadow-2xl lg:inset-x-auto lg:bottom-4 lg:right-4 lg:max-w-sm">
       <div className="mb-4 text-sm font-medium text-fg">
         {offlineReady
           ? <span>El juego está listo para usarse offline.</span>
