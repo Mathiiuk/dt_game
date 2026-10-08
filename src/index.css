@@ -128,8 +128,11 @@
     animation: penalty-sweep 0.8s linear infinite alternate;
   }
   .penalty-marker-paused { animation-play-state: paused; }
+  /* Versión lenta para elegir entre varias opciones (historias) */
+  .penalty-marker.sweep-slow { animation-duration: 1.8s; }
   @media (prefers-reduced-motion: reduce) {
     .penalty-marker { animation-duration: 1.4s; }
+    .penalty-marker.sweep-slow { animation-duration: 2.4s; }
   }
   @keyframes penalty-sweep {
     from { left: 0%; }

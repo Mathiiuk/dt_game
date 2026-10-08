@@ -3,13 +3,19 @@ import { BookOpen, ChevronRight, Coins, Hourglass, MessageSquareQuote, Newspaper
 import { splitBeats, effectChips } from '../../domain/storyFlavor'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
-import { HOLD_MS, TIMER_SECONDS, canChoose, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
+import { HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
+import { RumorChallenge, SequenceChallenge, TapsChallenge, TargetPick } from './StoryMinigames'
 import { formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
 import { Badge, Button } from '../../components/ui'
 
 const CATEGORY_ICON = { COMMUNITY: Users, LOCKER_ROOM: Shirt, BOARD_PRESS: Newspaper, FINANCIAL_CRISIS: Wallet }
 const LETTERS = ['A', 'B', 'C', 'D', 'E']
+const CHALLENGE_INFO = {
+  SEQUENCE: { title: 'Desafío de memoria', text: 'Repetí el orden en que se prenden los símbolos.', Game: SequenceChallenge },
+  TAPS: { title: 'Desafío de insistencia', text: 'Convencelo tocando el botón lo más rápido que puedas.', Game: TapsChallenge },
+  RUMOR: { title: 'Verdadero o falso', text: 'Contestá bien dos de tres preguntas de fútbol.', Game: RumorChallenge }
+}
 
 const chapterOf = (title) => {
   const m = String(title || '').match(/\((\d+)\s*\/\s*(\d+)\)\s*$/)
@@ -113,7 +119,12 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
   const [beat, setBeat] = useState(0)
   const [selected, setSelected] = useState(null)
   const [timedOut, setTimedOut] = useState(false)
+  // Desafío de pista: null = todavía no se jugó; 'playing' = en juego; 'won' | 'lost' | 'skipped' = terminado
+  const challengeKind = useMemo(() => challengeFor(event), [event])
+  const [clue, setClue] = useState(challengeKind ? null : 'skipped')
+  const peek = clue === 'won'
   const reading = beat < beats.length && !result
+  const inChallenge = !reading && !result && clue !== 'won' && clue !== 'lost' && clue !== 'skipped'
   const current = beats[Math.min(beat, beats.length - 1)]
 
   // Esc: dejarlo para más tarde (la historia queda pendiente en el inicio)
@@ -184,12 +195,31 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
               <span className="flex items-center gap-1 font-semibold text-fg-muted">Tocá para seguir<ChevronRight className="size-4" aria-hidden="true" /></span>
             </span>
           </button>
+        ) : inChallenge ? (
+          /* ---------- Desafío de pista ---------- */
+          <div className="flex min-h-0 flex-1 flex-col justify-center gap-5 animate-rise-in">
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-gold">Pista para decidir</p>
+              <h2 className="font-display text-2xl font-semibold text-fg">{CHALLENGE_INFO[challengeKind].title}</h2>
+              <p className="text-sm text-fg-muted">{CHALLENGE_INFO[challengeKind].text} Si lo lográs, te muestro lo que cambia cada opción. Si no, decidís a ciegas.</p>
+            </div>
+            {clue === 'playing' ? (
+              (() => { const Game = CHALLENGE_INFO[challengeKind].Game; return <Game onDone={(won) => setClue(won ? 'won' : 'lost')} /> })()
+            ) : (
+              <div className="space-y-2">
+                <Button size="lg" className="w-full" onClick={() => setClue('playing')}>Jugar el desafío</Button>
+                <button type="button" onClick={() => setClue('skipped')} className="w-full py-2 text-xs font-semibold text-fg-subtle underline-offset-2 hover:text-fg hover:underline">Paso, decido a ciegas</button>
+              </div>
+            )}
+          </div>
         ) : (
           /* ---------- Decidir ---------- */
           <div className="flex min-h-0 flex-1 flex-col gap-3 animate-rise-in">
             <div className="shrink-0 space-y-2">
               <p className="text-xs font-bold uppercase tracking-widest text-fg-subtle">¿Qué hacés?</p>
               {mode === 'TIMER' && !timedOut && <DecisionTimer seconds={TIMER_SECONDS} onExpire={() => { setTimedOut(true); choose(safestOption(options, ctx)) }} />}
+              {peek && <p className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent-soft px-3 py-2 text-xs font-semibold text-accent"><Sparkles className="size-4" aria-hidden="true" />Pista ganada: ves lo que cambia cada opción.</p>}
+              {clue === 'lost' && <p className="rounded-lg border border-line bg-surface px-3 py-2 text-xs text-fg-muted">No salió la pista. Decidís a ciegas.</p>}
               {timedOut && <p className="rounded-lg border border-warning/40 bg-warning-soft px-3 py-2 text-xs font-semibold text-warning">Se te acabó el tiempo: decidió el narrador.</p>}
             </div>
 
@@ -202,17 +232,23 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
                   <li key={opt.id}>
                     <button
                       type="button"
-                      disabled={!ok || busy}
+                      disabled={!ok || busy || mode === 'TARGET'}
                       onClick={() => (mode === 'HOLD' ? setSelected(opt) : choose(opt))}
                       className={cn(
                         'flex w-full items-start gap-3 rounded-xl border p-3.5 text-left transition-all active:scale-[0.99] disabled:opacity-45',
-                        active ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent hover:bg-surface-2'
+                        active ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent hover:bg-surface-2',
+                        mode === 'TARGET' && ok && 'disabled:opacity-100'
                       )}
                     >
                       <span className={cn('grid size-8 shrink-0 place-items-center rounded-full font-display text-base font-semibold', active ? 'bg-accent text-accent-fg' : 'bg-surface-3 text-fg-muted')} aria-hidden="true">{LETTERS[i] || i + 1}</span>
                       <span className="min-w-0 flex-1">
                         <span className="block break-words text-base font-semibold text-fg">{opt.label}</span>
                         {opt.description && <span className="mt-0.5 block break-words text-sm leading-relaxed text-fg-muted">{opt.description}</span>}
+                        {peek && effectChips(opt.effects).length > 0 && (
+                          <span className="mt-1.5 flex flex-wrap gap-1.5">
+                            {effectChips(opt.effects).map(c => <Badge key={c.key} tone={c.value > 0 ? 'accent' : 'danger'} className="num">{c.label} {c.value > 0 ? '+' : ''}{c.value}</Badge>)}
+                          </span>
+                        )}
                         {(cost > 0 || !ok) && (
                           <span className="mt-1.5 flex flex-wrap gap-1.5">
                             {cost > 0 && <Badge tone={budget >= cost ? 'warning' : 'danger'} className="num">-{formatMoney(cost)}</Badge>}
@@ -234,6 +270,7 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
                   onComplete={() => choose(selected)}
                 />
               )}
+              {mode === 'TARGET' && <TargetPick options={options} enabled={options.map(o => canChoose(o, ctx))} busy={busy} onPick={choose} />}
               {mode === 'COIN' && <CoinFlip options={options} ctx={ctx} disabled={busy} onResult={choose} />}
               <button type="button" onClick={onLater} className="w-full py-2 text-xs font-semibold text-fg-subtle underline-offset-2 hover:text-fg hover:underline">Decidir más tarde</button>
             </div>

@@ -80,3 +80,9 @@ Pendiente:
 - Más minijuegos para las historias (hoy son tres formas de decidir, no minijuegos con puntaje). Ideas: reflejos para "atajar" una noticia, arrastrar billetes en las crisis de caja, unir cables en las obras.
 - Banderas en SVG para reemplazar las últimas.
 - En pantallas muy bajas (iPhone SE) las listas muestran 1 o 2 elementos por página.
+
+## Sexta tanda (más minijuegos en las historias)
+- Cuatro formas de decidir: mantener apretado, moneda, reloj y **puntería** (una barra recorre las opciones y se la frena sobre la elegida).
+- Tres desafíos de pista antes de decidir (o ninguno, según el capítulo): **memoria** (repetir una secuencia de símbolos), **insistencia** (tocar 18 veces en 5 segundos) y **verdadero o falso** de reglas de fútbol (dos de tres). Si se gana, se ven los efectos de cada opción; si se pierde, se decide a ciegas, sin costo. Se puede saltear.
+- La combinación de decisión y desafío se reparte pareja entre los capítulos.
+Pendiente: reflejos (atajar una noticia), arrastrar billetes en crisis de caja, y que los desafíos puedan dar premios más allá de la pista.
