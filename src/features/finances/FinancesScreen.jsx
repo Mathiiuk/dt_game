@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Building, Clock, Receipt, ShieldPlus, ShoppingBag, Ticket, TrendingDown, TrendingUp } from 'lucide-react'
+import { Building, Receipt, Ticket, TrendingDown, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { financesApi } from '../../api/finances'
 import { moraleApi } from '../../api/morale'
@@ -9,31 +9,34 @@ import { askRisk } from '../../lib/risk'
 import { useGameContext } from '../../context/GameContext'
 import { queryCache } from '../../utils/cache'
 import { formatMoney } from '../../lib/format'
-import { FACILITIES, TICKET_PRICES, healthInfo, levelOf, storeWeeklyIncome, upgradeCost } from '../../domain/finances'
+import { FACILITIES, TICKET_PRICES, healthInfo, levelOf, upgradeCost } from '../../domain/finances'
 import {
-  Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageHeader, Skeleton, Stat,
+  Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageHeader, Skeleton,
   Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
+import FinancesWalletCard from './FinancesWalletCard'
+import FinancesFacilityCard from './FinancesFacilityCard'
+import FinancesTransactionFeed from './FinancesTransactionFeed'
 import { friendlyError } from '../../lib/errors'
 
-const FACILITY_ICONS = { stadium_level: Building, medical_level: ShieldPlus, store_level: ShoppingBag }
-
-/** Lista de conceptos con su monto; el total va resaltado al pie */
+/** Desglose de ingresos y gastos */
 function Breakdown({ title, total, tone, rows, sign }) {
   return (
-    <Card as="section">
-      <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
-        <p className={`num font-display text-xl font-semibold ${tone === 'accent' ? 'text-accent' : 'text-danger'}`}>
-          {sign}{formatMoney(total)}
-        </p>
+    <Card as="section" className="border border-line bg-surface/90">
+      <CardHeader className="pb-3 border-b border-line/60">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-bold font-display text-fg">{title}</CardTitle>
+          <p className={`num font-display text-lg font-bold ${tone === 'accent' ? 'text-accent' : 'text-danger'}`}>
+            {sign}{formatMoney(total)}
+          </p>
+        </div>
       </CardHeader>
-      <CardBody>
-        <dl className="divide-y divide-line text-sm">
+      <CardBody className="p-4">
+        <dl className="divide-y divide-line/60 text-xs">
           {rows.map(([label, value, highlight]) => (
-            <div key={label} className={`flex items-center justify-between gap-3 py-2.5 ${highlight ? 'font-semibold text-fg' : ''}`}>
+            <div key={label} className={`flex items-center justify-between gap-3 py-2 ${highlight ? 'font-semibold text-fg' : ''}`}>
               <dt className={highlight ? 'text-fg' : 'text-fg-muted'}>{label}</dt>
-              <dd className="num font-medium text-fg">{sign}{formatMoney(value)}</dd>
+              <dd className="num font-semibold text-fg">{sign}{formatMoney(value)}</dd>
             </div>
           ))}
         </dl>
@@ -79,7 +82,6 @@ export default function FinancesScreen() {
   const handleTicketPrice = async (price) => {
     try {
       setUpdatingTicket(true)
-      // Cobrar caro con el equipo sin ganar enoja a la hinchada: se avisa antes de fijar el precio
       const proceed = await askRisk(confirmRisk, async () => {
         const streaks = await moraleApi.getStreaks(club.id)
         return ticketPriceWarning({ price, streaks }, climateApi.difficulty)
@@ -97,10 +99,10 @@ export default function FinancesScreen() {
     }
   }
 
-    const handleUpgrade = async (facility) => {
+  const handleUpgrade = async (facility) => {
     const level = levelOf(club, facility.key)
     const cost = upgradeCost(facility, level)
-    
+
     const safetyWarning = financeSafetyWarning({
       cost,
       balance: finances?.balance,
@@ -142,12 +144,10 @@ export default function FinancesScreen() {
   }
 
   const f = finances
-  const net = f?.netWeeklyFlow || 0
-  const profitable = net >= 0
   const health = healthInfo(f?.healthStatus)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8 space-y-6">
       <PageHeader
         eyebrow="Tesorería"
         title="Finanzas"
@@ -155,6 +155,10 @@ export default function FinancesScreen() {
         actions={<Badge tone={health.tone} dot>{health.label}</Badge>}
       />
 
+      {/* 1. Billetera del Club (Caja, Salud Tycoon y Balance Semanal) */}
+      <FinancesWalletCard finances={f} />
+
+      {/* 2. Pestañas de Gestión Financiera e Inversiones */}
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList aria-label="Secciones de finanzas" className="mb-6">
           <TabsTrigger value="balance">Flujo semanal</TabsTrigger>
@@ -162,24 +166,8 @@ export default function FinancesScreen() {
           <TabsTrigger value="ledger">Movimientos</TabsTrigger>
         </TabsList>
 
+        {/* Tab 1: Desglose de Ingresos, Gastos y Política de Entradas */}
         <TabsContent value="balance" className="space-y-6">
-          <Card>
-            <CardBody className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-              <Stat label="Caja" value={formatMoney(f?.balance || 0)} hint="Plata disponible hoy" valueClassName="text-accent" />
-              <Stat
-                label="Por semana"
-                value={<span className="inline-flex items-center gap-2">{profitable ? <TrendingUp className="size-6 text-accent" aria-hidden="true" /> : <TrendingDown className="size-6 text-danger" aria-hidden="true" />}{profitable ? '+' : ''}{formatMoney(net)}</span>}
-                hint="Lo que entra menos lo que sale"
-                valueClassName={profitable ? 'text-accent' : 'text-danger'}
-              />
-              <Stat
-                label="Cuánto te dura la caja"
-                value={<span className="inline-flex items-center gap-2"><Clock className="size-6 text-fg-muted" aria-hidden="true" />{f?.liquidityWeeks}</span>}
-                hint="Si todo sigue como esta semana"
-              />
-            </CardBody>
-          </Card>
-
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Breakdown
               title="Ingresos recurrentes"
@@ -208,29 +196,36 @@ export default function FinancesScreen() {
             />
           </div>
 
-          <Card as="section" aria-label="Política de entradas">
-            <CardHeader className="flex-wrap items-center">
+          {/* Política de Entradas */}
+          <Card as="section" aria-label="Política de entradas" className="border border-line bg-surface/90">
+            <CardHeader className="flex-wrap items-center justify-between pb-3 border-b border-line/60">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-md bg-gold-soft text-gold"><Ticket className="size-5" aria-hidden="true" /></span>
+                <span className="grid size-10 place-items-center rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                  <Ticket className="size-5" aria-hidden="true" />
+                </span>
                 <div>
-                  <CardTitle className="text-lg">Política de entradas</CardTitle>
-                  <CardDescription>Precio general de la entrada: más caro rinde más, pero puede espantar a la hinchada.</CardDescription>
+                  <CardTitle className="text-base font-bold font-display text-fg">Política de entradas</CardTitle>
+                  <CardDescription className="text-xs">
+                    Precio general: una entrada más cara recauda más pero puede mermar la asistencia.
+                  </CardDescription>
                 </div>
               </div>
-              <p className="num font-display text-2xl font-semibold text-gold">{formatMoney(ticketPrice)}</p>
+              <p className="num font-display text-2xl font-bold text-amber-400">{formatMoney(ticketPrice)}</p>
             </CardHeader>
-            <CardBody>
+            <CardBody className="p-4">
               <div role="radiogroup" aria-label="Precio de la entrada" className="grid grid-cols-5 gap-2">
-                {TICKET_PRICES.map(price => {
+                {TICKET_PRICES.map((price) => {
                   const active = Math.abs(ticketPrice - price) < 0.1
                   return (
                     <Button
                       key={price}
+                      type="button"
                       role="radio"
                       aria-checked={active}
                       variant={active ? 'primary' : 'outline'}
                       disabled={updatingTicket}
                       onClick={() => handleTicketPrice(price)}
+                      className="text-xs font-semibold"
                     >
                       ${price}
                     </Button>
@@ -241,98 +236,25 @@ export default function FinancesScreen() {
           </Card>
         </TabsContent>
 
+        {/* Tab 2: Instalaciones y Obras Estratégicas (Tycoon) */}
         <TabsContent value="facilities">
           <ul className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {FACILITIES.map(facility => {
-              const Icon = FACILITY_ICONS[facility.key]
-              const level = levelOf(club, facility.key)
-              const cost = upgradeCost(facility, level)
-              const extra = facility.key === 'stadium_level'
-                ? `Capacidad ${Number(club?.stadium_capacity || 1000).toLocaleString('es-AR')}`
-                : facility.key === 'store_level' ? `+${formatMoney(storeWeeklyIncome(level))}/sem` : 'Recuperación pasiva'
-              return (
-                <li key={facility.key}>
-                  <Card as="article" className="flex h-full flex-col">
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <span className="grid size-10 place-items-center rounded-md bg-surface-3 text-fg-muted"><Icon className="size-5" aria-hidden="true" /></span>
-                        <div>
-                          <CardTitle as="h3" className="text-lg">{facility.name}</CardTitle>
-                          <CardDescription>Nivel {level} · {extra}</CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardBody className="flex-1">
-                      <p className="text-sm text-fg-muted">{facility.description}</p>
-                    </CardBody>
-                    <CardFooter>
-                      <Button className="w-full" variant="outline" onClick={() => handleUpgrade(facility)}>
-                        {facility.action} · {formatMoney(cost)}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </li>
-              )
-            })}
+            {FACILITIES.map((facility) => (
+              <li key={facility.key}>
+                <FinancesFacilityCard
+                  facility={facility}
+                  club={club}
+                  onUpgrade={handleUpgrade}
+                  budget={f?.balance || 0}
+                />
+              </li>
+            ))}
           </ul>
         </TabsContent>
 
+        {/* Tab 3: Registro de Movimientos */}
         <TabsContent value="ledger">
-          <Card as="section" aria-label="Movimientos">
-            <CardHeader className="items-center">
-              <div>
-                <CardTitle className="text-lg">Movimientos</CardTitle>
-                <CardDescription>Registro inmutable de movimientos financieros</CardDescription>
-              </div>
-              <span className="text-xs text-fg-subtle">{transactions.length} registros</span>
-            </CardHeader>
-            <CardBody>
-              {transactions.length === 0 ? (
-                <EmptyState icon={Receipt} title="Sin movimientos" description="Los débitos y créditos se anotan durante los avances semanales y traspasos." className="py-8" />
-              ) : (
-                <>
-                  {/* Móvil: una fila por movimiento */}
-                  <ul className="divide-y divide-line md:hidden">
-                    {transactions.map(tx => {
-                      const income = Number(tx.amount) >= 0
-                      return (
-                        <li key={tx.id} className="flex items-start justify-between gap-3 py-3">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-fg">{tx.description}</p>
-                            <p className="text-xs text-fg-subtle">Semana {tx.week_number} · Saldo {formatMoney(tx.balance_after)}</p>
-                          </div>
-                          <p className={`num shrink-0 font-semibold ${income ? 'text-accent' : 'text-danger'}`}>{income ? '+' : ''}{formatMoney(tx.amount)}</p>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                  <table className="hidden w-full text-left text-sm md:table" aria-label="Movimientos contables">
-                    <thead>
-                      <tr className="border-b border-line text-fg-subtle">
-                        <th scope="col" className="eyebrow pb-2.5">Semana</th>
-                        <th scope="col" className="eyebrow pb-2.5">Descripción</th>
-                        <th scope="col" className="eyebrow pb-2.5 text-right">Monto</th>
-                        <th scope="col" className="eyebrow pb-2.5 text-right">Saldo posterior</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-line">
-                      {transactions.map(tx => {
-                        const income = Number(tx.amount) >= 0
-                        return (
-                          <tr key={tx.id}>
-                            <td className="num py-2.5 text-fg-muted">Sem {tx.week_number}</td>
-                            <td className="py-2.5 font-medium text-fg">{tx.description}</td>
-                            <td className={`num py-2.5 text-right font-semibold ${income ? 'text-accent' : 'text-danger'}`}>{income ? '+' : ''}{formatMoney(tx.amount)}</td>
-                            <td className="num py-2.5 text-right text-fg-muted">{formatMoney(tx.balance_after)}</td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </>
-              )}
-            </CardBody>
-          </Card>
+          <FinancesTransactionFeed transactions={transactions} />
         </TabsContent>
       </Tabs>
     </div>

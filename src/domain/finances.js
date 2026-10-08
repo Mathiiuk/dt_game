@@ -105,3 +105,65 @@ export const healthInfo = (status) => {
 }
 
 export const canAfford = (budget, cost) => Number(budget || 0) >= cost
+
+/**
+ * Retorno de inversión estimado (ROI) para la mejora de infraestructura
+ */
+export function getFacilityROI(facilityKey, _currentLevel = 1, cost = 10000) {
+  if (facilityKey === 'stadium_level') {
+    const estimatedExtraGate = 700
+    const paybackMatches = Math.max(1, Math.ceil(cost / estimatedExtraGate))
+    return {
+      gainText: '+1.000 lugares de capacidad y +$700 potenciales por partido',
+      paybackText: `Recuperás la inversión en aprox. ~${paybackMatches} partidos de local`
+    }
+  }
+
+  if (facilityKey === 'store_level') {
+    const extraPerWeek = ECONOMY.storePerLevel
+    const paybackWeeks = Math.max(1, Math.ceil(cost / extraPerWeek))
+    return {
+      gainText: `+$${extraPerWeek}/sem en ventas de camisetas y merchandising`,
+      paybackText: `Recuperás la inversión en aprox. ~${paybackWeeks} semanas`
+    }
+  }
+
+  return {
+    gainText: 'Reduce recaídas y baja un 30% los tiempos de recuperación médica',
+    paybackText: 'Retorno deportivo directo: tenés a tus mejores titulares siempre listos'
+  }
+}
+
+/**
+ * Semáforo dinámico y lema arcade de salud financiera
+ */
+export function getTycoonHealth(status, balance = 0, expensesTotal = 3000) {
+  const runway = expensesTotal > 0 ? Math.floor(Number(balance || 0) / expensesTotal) : 52
+  const baseHealth = healthInfo(status)
+
+  if (status === 'HEALTHY' || runway >= 16) {
+    return {
+      ...baseHealth,
+      slogan: 'Estamos dulces',
+      runwayWeeks: `${runway} semanas de margen`,
+      badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+    }
+  }
+
+  if (status === 'CAUTION' || runway >= 5) {
+    return {
+      ...baseHealth,
+      slogan: 'Cuidá los gastos',
+      runwayWeeks: `${runway} semanas de margen`,
+      badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+    }
+  }
+
+  return {
+    ...baseHealth,
+    slogan: 'Hay que levantarla',
+    runwayWeeks: `${Math.max(1, runway)} semanas de margen`,
+    badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+  }
+}
+
