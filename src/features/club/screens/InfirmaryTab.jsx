@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Stethoscope, 
   Activity, 
@@ -30,7 +30,7 @@ export default function InfirmaryTab({ club }) {
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [processingInfiltration, setProcessingInfiltration] = useState(null)
 
-  const loadInfirmary = async () => {
+  const loadInfirmary = useCallback(async () => {
     if (!club?.id) return
     try {
       setLoading(true)
@@ -42,11 +42,11 @@ export default function InfirmaryTab({ club }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [club?.id])
 
   useEffect(() => {
     loadInfirmary()
-  }, [club?.id])
+  }, [loadInfirmary])
 
   const handleOpenHistory = async (player) => {
     setSelectedPlayerHistory(player)

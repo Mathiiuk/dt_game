@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Trophy, 
   History, 
@@ -30,7 +30,7 @@ export default function ClubHistoryTab({ club }) {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [subTab, setSubTab] = useState('timeline') // 'timeline' | 'hemeroteca' | 'temporadas'
 
-  const loadHistoryData = async () => {
+  const loadHistoryData = useCallback(async () => {
     try {
       setLoading(true)
       if (!club?.id) return
@@ -52,11 +52,11 @@ export default function ClubHistoryTab({ club }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [club?.id, categoryFilter])
 
   useEffect(() => {
     loadHistoryData()
-  }, [club?.id, categoryFilter])
+  }, [loadHistoryData])
 
   const getRecordIcon = (type) => {
     switch (type) {

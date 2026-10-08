@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Crown, 
   Sparkles, 
@@ -35,7 +35,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
   const [customReason, setCustomReason] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const loadFigures = async () => {
+  const loadFigures = useCallback(async () => {
     try {
       setLoading(true)
       if (!club?.id) return
@@ -47,11 +47,11 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
     } finally {
       setLoading(false)
     }
-  }
+  }, [club?.id])
 
   useEffect(() => {
     loadFigures()
-  }, [club?.id])
+  }, [loadFigures])
 
   const handleRetireClick = (figure) => {
     setSelectedFigure(figure)

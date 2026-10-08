@@ -8,7 +8,6 @@ import AuthScreen from './features/auth/AuthScreen'
 import CreateManagerWizard from './features/manager/CreateManagerWizard'
 import CreateClubWizard from './features/club/CreateClubWizard'
 import Dashboard from './features/dashboard/Dashboard'
-import EventScreen from './features/events/EventScreen'
 import WelcomeScreen from './features/auth/WelcomeScreen'
 import CalendarScreen from './features/calendar/CalendarScreen'
 import TacticsScreen from './features/tactics/TacticsScreen'
@@ -48,7 +47,7 @@ function GameApp() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-dvh text-zinc-100 bg-zinc-950 font-sans selection:bg-emerald-500/30">
+      <div className="min-h-dvh bg-bg font-sans text-fg">
         <GameProvider>
           <Routes>
             <Route path="/auth" element={<AuthScreen />} />
@@ -69,7 +68,8 @@ function GameApp() {
             <Route element={<RequireCareer><AppShell /></RequireCareer>}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/post-match" element={<PostMatchScreen />} />
-              <Route path="/events" element={<EventScreen />} />
+              {/* Las decisiones viven en el inicio (tarjetas y pantalla completa de historias); la ruta vieja redirige */}
+              <Route path="/events" element={<Navigate to="/dashboard" replace />} />
               <Route path="/calendar" element={<CalendarScreen />} />
               <Route path="/tactics" element={<TacticsScreen />} />
               <Route path="/standings" element={<StandingsScreen />} />

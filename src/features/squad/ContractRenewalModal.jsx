@@ -59,7 +59,7 @@ export default function ContractRenewalModal({ player, club, manager, currentWee
       }
     }
     init()
-  }, [player, club, currentWeek])
+  }, [player, club, currentWeek, manager?.id])
 
   const handleSubmitOffer = async () => {
     const wage = parseInt(wageInput, 10)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Briefcase, 
   ShieldAlert, 
@@ -25,7 +25,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
 
-  const loadBoardData = async () => {
+  const loadBoardData = useCallback(async () => {
     if (!club?.id) return
     try {
       setLoading(true)
@@ -41,11 +41,11 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
     } finally {
       setLoading(false)
     }
-  }
+  }, [club?.id, manager?.id])
 
   useEffect(() => {
     loadBoardData()
-  }, [club?.id, manager?.id])
+  }, [loadBoardData])
 
   const handleRequestFunding = async () => {
     const confirmed = await confirmAction({

@@ -275,7 +275,7 @@ export default function PostMatchScreen() {
             Resumen oficial • Pitazo final
           </span>
           <h1 className={`text-2xl sm:text-4xl font-semibold mt-1 ${isWin ? 'text-accent' : isDraw ? 'text-gold' : 'text-danger'}`}>
-            {isWin ? '¡VICTORIA VICTORIOSA!' : isDraw ? 'EMPATE DISPUTADO' : 'DERROTA DOLOROSA'}
+            {isWin ? '¡GANAMOS!' : isDraw ? 'EMPATE PELEADO' : 'DERROTA DOLOROSA'}
           </h1>
 
           {/* Marcador */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Building2, 
   Hammer, 
@@ -27,7 +27,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
 
-  const loadStadiumData = async () => {
+  const loadStadiumData = useCallback(async () => {
     if (!club?.id) return
     try {
       setLoading(true)
@@ -45,11 +45,11 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
     } finally {
       setLoading(false)
     }
-  }
+  }, [club?.id])
 
   useEffect(() => {
     loadStadiumData()
-  }, [club?.id])
+  }, [loadStadiumData])
 
   const handleStartProject = async (projectKey) => {
     const project = STADIUM_CATALOG[projectKey]

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { 
   Users, 
@@ -40,7 +40,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   const [selectedCaptain, setSelectedCaptain] = useState('')
   const [selectedViceCaptain, setSelectedViceCaptain] = useState('')
 
-  const loadLockerData = async ({ silent = false } = {}) => {
+  const loadLockerData = useCallback(async ({ silent = false } = {}) => {
     if (!club?.id) return
     try {
       if (!silent) setLoading(true)
@@ -64,11 +64,11 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [club?.id, proposedCaptain])
 
   useEffect(() => {
     loadLockerData()
-  }, [club?.id])
+  }, [loadLockerData])
 
   const handleHoldTeamMeeting = async (tone) => {
     const toneTitles = {

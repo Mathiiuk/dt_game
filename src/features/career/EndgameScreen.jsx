@@ -49,6 +49,7 @@ export default function EndgameScreen() {
     }
 
     loadEndgame()
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- el epílogo se pide una vez por DT y club; `manager` y `navigate` cambian de identidad sin que cambie su contenido
   }, [manager?.id, club?.id, contextLoading])
 
   const handleStartDynasty = async () => {

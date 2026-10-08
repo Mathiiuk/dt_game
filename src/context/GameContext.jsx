@@ -155,6 +155,7 @@ export const GameProvider = ({ children }) => {
     } else {
       setGameState(prev => ({ ...prev, loading: false }))
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- se carga una sola vez por ruta de juego: sumar `loadData` o el usuario en las dependencias lo dispararía en cada cambio de sesión
   }, [location.pathname])
 
   // La dificultad elegida se guarda por club: se carga apenas hay club

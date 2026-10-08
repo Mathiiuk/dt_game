@@ -176,3 +176,10 @@ Pendiente: nada de esta línea. Posibles ideas: sonido de multitud en el partido
 ## Arreglos de iOS: asistentes y aviso de actualización
 - `Wizard` (creación de DT y de club): en el celular es un marco fijo (`fixed inset-0`) con el contenido que scrollea adentro y la barra "Atrás / Siguiente" en el flujo, abajo, sin `position: fixed` propio; la página no se mueve (`usePageLock`). En escritorio sigue siendo una página normal con la barra debajo del formulario. Verificado en el navegador: barra a 743-812 px de 812 y la página bloqueada.
 - `ReloadPrompt` (aviso de actualización): en el celular se despega del borde (`bottom: 4,75 rem + zona segura`) para no tapar el menú inferior y ocupa el ancho; en escritorio queda abajo a la derecha. Ahora es `role="status"` y tiene tests (con un sustituto del módulo virtual de la PWA para las pruebas).
+
+## Limpieza técnica
+- ESLint en cero advertencias (antes 12, con tope de 13): `npm run lint` ahora usa `--max-warnings=0`. Los siete cargadores de las pestañas del club pasaron a `useCallback` con sus dependencias reales; `ContractRenewalModal` sumó la dependencia que le faltaba; y en cuatro efectos que se disparan a propósito con menos dependencias (`GameContext`, `EndgameScreen`, `Dashboard`, `MatchScreen`) quedó una excepción puntual con el motivo escrito al lado.
+- Se eliminó `EventScreen` (código duplicado de la tarjeta del inicio y sin ningún enlace): `/events` ahora redirige al inicio.
+- El escudo de cada club ya se ve con sus colores en el encabezado del partido (`MatchScreen` le pasaba el club a `MatchHeader` solo a medias).
+- El contenedor del juego usa los colores del sistema (`bg-bg`, `text-fg`) en vez de `zinc` sueltos; el comentario con la codificación rota en `MatchScreen` se corrigió; el titular del resumen pasó de "VICTORIA VICTORIOSA" a "¡GANAMOS!" y de "EMPATE DISPUTADO" a "EMPATE PELEADO".
+Queda a propósito: el `padding` de zona segura del `body` sigue, porque lo usan las pantallas que no están dentro del menú ni son marcos fijos (acceso, bienvenida, portada pública, epílogo).

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Users, 
   Flame, 
@@ -25,7 +25,7 @@ export default function FanbaseManagementTab({ club }) {
   const [newChant, setNewChant] = useState('')
   const [addingChant, setAddingChant] = useState(false)
 
-  const loadFanbaseData = async () => {
+  const loadFanbaseData = useCallback(async () => {
     if (!club?.id) return
     try {
       setLoading(true)
@@ -43,11 +43,11 @@ export default function FanbaseManagementTab({ club }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [club?.id])
 
   useEffect(() => {
     loadFanbaseData()
-  }, [club?.id])
+  }, [loadFanbaseData])
 
   const handleAddChant = async (e) => {
     e.preventDefault()

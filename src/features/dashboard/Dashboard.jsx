@@ -277,6 +277,7 @@ export default function Dashboard() {
 
     loadData()
     return () => { isMounted = false }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- la proyección se recarga solo con estos datos del club y del DT; `club` y `manager` completos cambian en cada refresco
   }, [contextLoading, club?.id, club?.game_date, club?.budget, manager?.id, manager?.xp, reloadTick])
 
   const handleAdvanceWeek = async () => {

@@ -473,6 +473,7 @@ export default function MatchScreen() {
       setScore({ home: simResults.homeScore, away: simResults.awayScore })
       persistMatchResults(simResults)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- el resultado se guarda una sola vez al terminar (`savedToDb` lo protege); `persistMatchResults` cambia en cada render
   }, [matchState, minute, simResults])
 
   // Cada minuto simulado: eventos y marcador (el reloj respeta la pausa y la velocidad)
@@ -528,6 +529,8 @@ export default function MatchScreen() {
           isHome={isHome}
           clubName={data.club?.name || 'Local'}
           opponentName={oppDisplayName}
+          homeClub={data.club}
+          awayClub={rivalClub}
           score={score}
           minute={minute}
           matchState={matchState}
@@ -704,7 +707,7 @@ export default function MatchScreen() {
         moment={moment}
         onChoose={(...args) => {
           handleDecision(...args)
-          // La decisiA3n sola cierra el sheet al limpiar el moment (hace trigger de null)
+          // La decisión sola cierra la hoja al limpiar el momento (queda en null)
         }}
       />
     </div>
