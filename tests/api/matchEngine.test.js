@@ -406,6 +406,44 @@ describe('penales y rival que reacciona', () => {
     expect(high).toBeGreaterThan(low)
   })
 
+  describe('personalidad de juego del rival', () => {
+    const count = (style, pick, n = 500) => {
+      let total = 0
+      for (let i = 0; i < n; i++) {
+        const r = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), `estilo-${i}`, { styles: style ? { away: style } : null })
+        total += pick(r)
+      }
+      return total
+    }
+    const ev = (r, type) => r.events.filter(e => e.type === type && e.team === 'away').length
+
+    it('los centradores provocan más córners', () => {
+      expect(count({ corner: 1.8 }, r => ev(r, 'CORNER'))).toBeGreaterThan(count(null, r => ev(r, 'CORNER')) * 1.2)
+    })
+
+    it('los pegadores de media distancia generan más tiros y los contragolpeadores menos', () => {
+      const base = count(null, r => r.stats.shots.away)
+      expect(count({ att: 1.12, goal: 0.88 }, r => r.stats.shots.away)).toBeGreaterThan(base)
+      expect(count({ att: 0.9, goal: 1.22 }, r => r.stats.shots.away)).toBeLessThan(base)
+    })
+
+    it('los duros hacen más faltas y reciben más amarillas', () => {
+      const rough = { foul: 1.7, card: 1.5 }
+      expect(count(rough, r => r.stats.fouls.away)).toBeGreaterThan(count(null, r => r.stats.fouls.away) * 1.15)
+      expect(count(rough, r => r.stats.yellowCards.away)).toBeGreaterThan(count(null, r => r.stats.yellowCards.away))
+    })
+
+    it('el toque y la posesión suben la posesión del rival', () => {
+      expect(count({ mid: 1.1, foul: 0.75, card: 0.8 }, r => r.stats.possession.away)).toBeGreaterThan(count(null, r => r.stats.possession.away))
+    })
+
+    it('sin personalidad el partido es el de siempre', () => {
+      const a = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), 'neutro')
+      const b = simulateMatch(tactic, sq(60, 'h'), tactic, sq(60, 'a'), 'neutro', { styles: { away: { att: 1, goal: 1, corner: 1, foul: 1, card: 1, mid: 1 } } })
+      expect(b).toEqual(a)
+    })
+  })
+
   it('el rival reacciona: si va perdiendo a los 60 se tira al ataque y si gana a los 75 se cierra', () => {
     let attacking = 0
     let closing = 0

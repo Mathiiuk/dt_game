@@ -131,3 +131,9 @@ Pendiente: que el rival tenga atributos reales (hoy el once de relleno solo tien
 - Resultado: cada rival tiene sus propios especialistas de penales, tiros libres, córners y cabezazos, y el juego aéreo del córner rival ya es real.
 - Antes del pitazo aparece una ficha de scouting con los cuatro especialistas del rival (mismos nombres y atributos que en el partido).
 Pendiente: que el rival también tenga personalidad de juego (por ejemplo, equipos que centran más o patean de afuera) y que los clubs con plantel real usen sus jugadores en vez del once armado.
+
+## Decimocuarta tanda (personalidad de juego del rival)
+- Cinco estilos (`domain/rivalStyle.js`), uno fijo por club: Centradores (1,8 veces más córners), Pegadores de media distancia (12 % más ocasiones, 12 % menos certeras), Contragolpeadores (10 % menos ocasiones, 22 % más certeras), Toque y posesión (más mediocampo, menos faltas) y Duros (1,7 veces más faltas y 1,5 de amarillas).
+- Se aplican en el motor solo al lado rival (`options.styles`); sin estilo el partido es idéntico al de antes (hay un test que lo comprueba).
+- La ficha de scouting previa al partido muestra el estilo con su descripción y un consejo para jugarle.
+Pendiente: que los estilos también cambien el relato (por ejemplo, "otro centro más al área") y que los rivales con plantel real tengan estilo según sus jugadores.

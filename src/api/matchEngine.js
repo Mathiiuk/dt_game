@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { specialistsOf, aerialOf } from '../domain/specialists'
+import { stylesToMods } from '../domain/rivalStyle'
 import { homeAdvantage } from '../domain/consequences'
 import { SUSPENSION_POWER_FACTOR } from '../domain/barra'
 
@@ -98,10 +99,12 @@ const QUIPS = {
 /**
  * Simulación autoritativa minuto a minuto con semilla reproducible.
  */
-export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08, homePowerFactor = 1, awayPowerFactor = 1, changes = [], aiSide = null, specialistOverrides = null } = {}) => {
+export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlayers = [], seed = 'default-seed', { homeAdvantage = 1.08, homePowerFactor = 1, awayPowerFactor = 1, changes = [], aiSide = null, specialistOverrides = null, styles = null } = {}) => {
   const rng = createRNG(seed)
   // Penales y reacciones del rival tienen su propio azar: no alteran el resto del partido
   const penRng = createRNG(`${seed}:pen`)
+  // Personalidad de juego de cada lado (solo el rival la tiene; el lado del DT queda neutro)
+  const styleOf = (side) => stylesToMods(styles?.[side])
   // Especialistas elegidos a mano por el DT: { home, away } con { rol: idJugador }
   const specOf = (players, side) => specialistsOf(players, specialistOverrides?.[side] || null)
   // Jugadas clave y chistes del relato: también con azar propio, así el resto del partido queda igual
@@ -339,7 +342,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         team: teamId,
         text: `¡Gran atajada de ${goalkeeper.first_name} ${goalkeeper.last_name}! Evita el remate de ${attacker.first_name} ${attacker.last_name}. ${quip('SAVE')}`
       })
-    } else if (shotRoll < goalChance + 0.50 + saveBonus) {
+    } else if (shotRoll < goalChance + 0.35 + 0.15 * styleOf(teamId).corner + saveBonus) {
       // Tiro de esquina
       if (isHome) homeCorners++
       else awayCorners++
@@ -393,12 +396,12 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
     const homeSit = situation(homeTeam)
     const awaySit = situation(awayTeam)
-    const curHomeAtt = homeTeam.attack * (0.6 + (homeTeam.fitness / 250)) * buffOf(homeTeam, min, 'att') * homeSit
+    const curHomeAtt = homeTeam.attack * (0.6 + (homeTeam.fitness / 250)) * buffOf(homeTeam, min, 'att') * homeSit * styleOf('home').att
     const curHomeDef = homeTeam.defense * (0.6 + (homeTeam.fitness / 250)) * buffOf(homeTeam, min, 'def') * homeSit
-    const curAwayAtt = awayTeam.attack * (0.6 + (awayTeam.fitness / 250)) * buffOf(awayTeam, min, 'att') * awaySit
+    const curAwayAtt = awayTeam.attack * (0.6 + (awayTeam.fitness / 250)) * buffOf(awayTeam, min, 'att') * awaySit * styleOf('away').att
     const curAwayDef = awayTeam.defense * (0.6 + (awayTeam.fitness / 250)) * buffOf(awayTeam, min, 'def') * awaySit
-    homeTeam.midAcc += homeTeam.midfield * buffOf(homeTeam, min, 'mid') * homeSit
-    awayTeam.midAcc += awayTeam.midfield * buffOf(awayTeam, min, 'mid') * awaySit
+    homeTeam.midAcc += homeTeam.midfield * buffOf(homeTeam, min, 'mid') * homeSit * styleOf('home').mid
+    awayTeam.midAcc += awayTeam.midfield * buffOf(awayTeam, min, 'mid') * awaySit * styleOf('away').mid
 
     // Resolución del penal pendiente: patea el elegido por el DT (o el mejor definidor) y el arquero puede adivinar la esquina
     if (pendingPenalty && pendingPenalty.minute === min) {
@@ -611,7 +614,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const assister = getRandomPlayer(attTeam.players, 'MID')
       const goalkeeper = getRandomPlayer(defTeam.players, 'GK')
 
-      const goalChance = Math.max(0.06, Math.min(0.42, ((isHome ? curHomeAtt : curAwayAtt) / ((isHome ? curHomeAtt : curAwayAtt) + (isHome ? curAwayDef : curHomeDef))) * 0.40))
+      const goalChance = Math.max(0.05, Math.min(0.5, Math.max(0.06, Math.min(0.42, ((isHome ? curHomeAtt : curAwayAtt) / ((isHome ? curHomeAtt : curAwayAtt) + (isHome ? curAwayDef : curHomeDef))) * 0.40)) * styleOf(teamId).goal))
       const shotRoll = rng()
 
       // Algunos remates quedan "en el aire" un minuto para que el DT reaccione con su arquero
@@ -625,7 +628,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
     // Faltas y amonestaciones (4% por minuto)
     if (rng() < 0.04) {
-      const isHomeFoul = rng() < 0.5
+      const homeFoulShare = styleOf('home').foul / (styleOf('home').foul + styleOf('away').foul)
+      const isHomeFoul = rng() < homeFoulShare
       const foulTeam = isHomeFoul ? homeTeam : awayTeam
       const playerFoul = getRandomPlayer(foulTeam.players, 'DEF')
 
@@ -650,7 +654,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
           foulTeam.redIds.add(playerFoul.id)
           if (foulTeam.players.length > 8) foulTeam.players = foulTeam.players.filter(p => p.id !== playerFoul.id)
         }
-      } else if (cardRoll < 0.28) {
+      } else if (cardRoll < 0.28 * styleOf(isHomeFoul ? 'home' : 'away').card) {
         // Amarilla
         if (isHomeFoul) homeYellows++
         else awayYellows++
@@ -724,7 +728,7 @@ export const matchEngineApi = {
   /**
    * Marca el inicio del partido autoritativamente en la base de datos para impedir reinicios a 0'.
    */
-  async startMatch(fixtureId, userClubId, homeTactic, homePlayers, awayTactic, awayPlayers, seed = null, { userPowerFactor = 1, userIsHome = null, userTakers = null } = {}) {
+  async startMatch(fixtureId, userClubId, homeTactic, homePlayers, awayTactic, awayPlayers, seed = null, { userPowerFactor = 1, userIsHome = null, userTakers = null, rivalStyle = null } = {}) {
     const finalSeed = seed || `seed_${Date.now()}_${Math.random()}`
     // La caldera pesa: la ventaja de local sale del humor de la hinchada local (1,02 hostil a 1,10 caldera)
     let homeAdvantageFactor = 1.08
@@ -759,7 +763,9 @@ export const matchEngineApi = {
       homeAdvantage: homeAdvantageFactor, homePowerFactor, awayPowerFactor,
       aiSide: userIsHome === null ? null : (userIsHome ? 'away' : 'home'),
       // Especialistas que el DT fijó a mano (solo en su lado)
-      specialistOverrides: userTakers && userIsHome !== null ? { [userIsHome ? 'home' : 'away']: userTakers } : null
+      specialistOverrides: userTakers && userIsHome !== null ? { [userIsHome ? 'home' : 'away']: userTakers } : null,
+      // Personalidad de juego del rival (el lado que no dirige el usuario)
+      styles: rivalStyle && userIsHome !== null ? { [userIsHome ? 'away' : 'home']: rivalStyle } : null
     }
     const simResults = simulateMatch(homeTactic, homePlayers, awayTactic, awayPlayers, finalSeed, options)
 

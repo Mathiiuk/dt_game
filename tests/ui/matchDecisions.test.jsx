@@ -147,6 +147,8 @@ describe('partido en vivo con decisiones', () => {
     render(<MemoryRouter><MatchScreen /></MemoryRouter>)
     const scout = await screen.findByRole('region', { name: 'Especialistas del rival' })
     for (const label of ['Penales', 'Tiros libres', 'Córners', 'Cabezazos']) expect(within(scout).getByText(label)).toBeInTheDocument()
+    // Y cómo juega el rival
+    expect(within(scout).getByLabelText('Personalidad de juego')).toHaveTextContent(/Juegan a:/)
   })
 
   it('un remate peligroso en contra pide reaccionar con el arquero y manda la calidad al motor', async () => {

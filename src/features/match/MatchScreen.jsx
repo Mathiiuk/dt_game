@@ -44,6 +44,7 @@ import { teamChemistry } from '../../domain/chemistry'
 import { FREE_FORMATION, normalizeLayout, slotsOfLayout } from '../../domain/freeLayout'
 import { cleanTakers } from '../../domain/specialists'
 import RivalScout from './RivalScout'
+import { rivalStyleFor } from '../../domain/rivalStyle'
 
 // Puestos de la formación activa (en el orden en que se guarda la alineación)
 const slotsOf = (tactic) => {
@@ -272,7 +273,7 @@ export default function MatchScreen() {
     } catch (chemErr) {
       console.warn('Aviso: no se pudo calcular la química del equipo:', chemErr)
     }
-    const options = { userPowerFactor, userIsHome: isHome, userTakers: cleanTakers(data.tactic?.set_piece_takers) }
+    const options = { userPowerFactor, userIsHome: isHome, userTakers: cleanTakers(data.tactic?.set_piece_takers), rivalStyle: rivalStyleFor(rival?.id || rival?.name || 'rival').mods }
 
     const results = isHome
       ? await matchEngineApi.startMatch(fixtureId, data.club.id, data.tactic, matchSquad.starters, awayTactic, awayPlayers, null, options)
@@ -605,7 +606,7 @@ export default function MatchScreen() {
             )}
 
             {matchState === 'pre-match'
-              ? <RivalScout lineup={rivalPreview} rivalName={oppDisplayName} />
+              ? <RivalScout lineup={rivalPreview} rivalName={oppDisplayName} style={rivalStyleFor(rivalClub?.id || rivalClub?.name || 'rival')} />
               : <MatchTimeline events={events} matchState={matchState} />}
 
             {matchState !== 'pre-match' && simResults?.stats && (

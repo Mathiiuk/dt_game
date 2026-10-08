@@ -1,12 +1,12 @@
 import React from 'react'
 import {
-  Angry, Annoyed, Bandage, Brain, Briefcase, ChevronsDown, Cigarette, CircleCheck, CircleMinus, CircleX, Crown, Eye, Flame,
+  CircleDot, Crosshair, Flag, Angry, Annoyed, Bandage, Brain, Briefcase, ChevronsDown, Cigarette, CircleCheck, CircleMinus, CircleX, Crown, Eye, Flame,
   Footprints, Frown, Gem, Glasses, Hand, Handshake, Meh, MessageSquareQuote, Mic, PartyPopper, ScanFace, Search, Shield, Smile,
   Sparkles, Star, Target, ThumbsDown, ThumbsUp, Trophy, Wrench, Zap
 } from 'lucide-react'
 
 const ICONS = {
-  Angry, Annoyed, Bandage, Brain, Briefcase, ChevronsDown, Cigarette, CircleCheck, CircleMinus, CircleX, Crown, Eye, Flame,
+  CircleDot, Crosshair, Flag, Angry, Annoyed, Bandage, Brain, Briefcase, ChevronsDown, Cigarette, CircleCheck, CircleMinus, CircleX, Crown, Eye, Flame,
   Footprints, Frown, Gem, Glasses, Hand, Handshake, Meh, MessageSquareQuote, Mic, PartyPopper, ScanFace, Search, Shield, Smile,
   Sparkles, Star, Target, ThumbsDown, ThumbsUp, Trophy, Wrench, Zap
 }

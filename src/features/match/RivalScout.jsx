@@ -1,11 +1,12 @@
 import React from 'react'
 import { CircleDot, ChevronsUp, Eye, Flag, Target } from 'lucide-react'
+import { NamedIcon } from '../../components/ui/named-icon'
 import { ROLE_LABELS, aerialOf, specialistsOf } from '../../domain/specialists'
 
 const ICONS = { PENALTY: CircleDot, FREE_KICK: Target, CORNER: Flag, HEADER: ChevronsUp }
 
 /** Ficha de scouting antes del pitazo: quiénes son los especialistas de pelota parada del rival (para saber a quién marcar) */
-export default function RivalScout({ lineup, rivalName }) {
+export default function RivalScout({ lineup, rivalName, style = null }) {
   const specialists = specialistsOf(lineup)
   return (
     <section aria-label="Especialistas del rival" className="flex min-h-0 flex-1 flex-col justify-center gap-3 rounded-xl border border-line bg-surface-2 p-4">
@@ -13,6 +14,13 @@ export default function RivalScout({ lineup, rivalName }) {
         <p className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-gold"><Eye className="size-4" aria-hidden="true" />Scouting</p>
         <p className="text-sm text-fg-muted">Equipos en vestuarios finalizando la charla táctica. Mirá a quién tenés que marcar de {rivalName || 'el rival'}.</p>
       </div>
+      {style && (
+        <div className="rounded-lg border border-gold/40 bg-gold-soft px-3 py-2" aria-label="Personalidad de juego">
+          <p className="flex items-center gap-2 text-sm font-bold text-gold"><NamedIcon name={style.icon} className="size-4" />Juegan a: {style.label}</p>
+          <p className="mt-0.5 text-xs text-fg">{style.desc}</p>
+          <p className="mt-1 text-xs italic text-fg-muted">{style.tip}</p>
+        </div>
+      )}
       <ul className="space-y-2">
         {Object.entries(ICONS).map(([role, Icon]) => {
           const sp = specialists[role]
