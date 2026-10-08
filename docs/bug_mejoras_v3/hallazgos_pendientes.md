@@ -152,3 +152,8 @@ Pendiente: frases de estilo para las pelotas paradas y los penales del rival, y 
 - Ejemplos: un rival de contragolpe que gana "se encierra y espera el error para liquidarlo", y si pierde "se juega el todo por el todo y deja espacios atrás".
 - Se agregó la nota de los 80 minutos (el resto del relato y el resultado no cambian; los tests lo comprueban).
 Pendiente: que los clubes con plantel real usen a sus jugadores en vez del once armado.
+
+## Decimoctava tanda (nombres propios por club y por jugador)
+- Hallazgo sobre "planteles reales": de los 245 clubes, 231 no tienen jugadores guardados. Los 10 clubes con plantel son de otras cuentas (la base solo deja ver los jugadores propios, `owner_all`) y 3 clubes más tienen 1 jugador. Los rivales de la liga se arman siempre al empezar el partido; no hay planteles reales que usar sin crear datos nuevos.
+- Respuesta a la pregunta del DT: sí, cada club y cada jugador rival tiene nombre propio. `domain/rivalNames.js` tiene unos 80 nombres y 150 apellidos (más de diez mil combinaciones), siempre los mismos para el mismo club y sin repetir nombre ni apellido dentro de un once. Antes eran 15 nombres y 20 apellidos (300 combinaciones).
+Pendiente (decisión): guardar planteles reales para los rivales (filas nuevas en `players` y una función en la base) o seguir con el once generado, que ya es estable por club.
