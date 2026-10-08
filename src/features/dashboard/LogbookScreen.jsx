@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { History, Zap, Filter } from 'lucide-react'
 import { climateApi } from '../../api/climate'
-import { useGame } from '../../context/GameContext'
+import { useGameContext } from '../../context/GameContext'
 import { PageHeader, Card, CardBody, Badge, Segmented } from '../../components/ui'
 
 const SOURCE_LABELS = {
@@ -15,7 +15,7 @@ const SOURCE_LABELS = {
 }
 
 export default function LogbookScreen() {
-  const { club } = useGame()
+  const { club } = useGameContext()
   const [items, setItems] = useState(null)
   const [filter, setFilter] = useState('ALL')
 

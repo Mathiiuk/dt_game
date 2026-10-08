@@ -17,7 +17,7 @@ export default function SubstitutionsSheet({
     <ResponsiveOverlay 
       open={open} 
       onClose={onClose} 
-      title="Cambios y Táctica" 
+      title="Cambios y Tï¿½ctica" 
       placement="bottom"
       size="md"
     >

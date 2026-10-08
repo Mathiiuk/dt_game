@@ -12,6 +12,7 @@ import { isWarningMuted } from '../domain/warnings'
 const GameContext = createContext(null)
 
 export const useGameContext = () => useContext(GameContext)
+export const useGame = useGameContext
 
 let inFlightContextPromise = null
 

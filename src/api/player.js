@@ -233,7 +233,7 @@ export const playerApi = {
   /**
    * Generación atómica e idempotente del primer plantel
    */
-  async generateInitialSquad(clubId, reputation = 15) {
+  async generateInitialSquad(clubId, _reputation = 15) {
     if (!clubId) return []
 
     // 1. Idempotencia: Verificar si ya existen jugadores para el club

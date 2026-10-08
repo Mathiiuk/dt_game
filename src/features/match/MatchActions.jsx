@@ -1,4 +1,4 @@
-﻿import React from 'react'
+import React from 'react'
 import { FastForward, Pause, Play, Users, MessageCircle } from 'lucide-react'
 import { MATCH_SPEEDS } from '../../domain/matchClock'
 import { cn } from '../../lib/utils'
@@ -26,13 +26,14 @@ export default function MatchActions({
           type="button"
           onClick={onTogglePause}
           aria-pressed={paused}
+          aria-label={paused ? 'Reanudar' : 'Pausa'}
           className={cn(
             'flex items-center justify-center gap-1.5 rounded-xl border p-3 sm:px-4 sm:py-2 text-sm font-bold transition-colors min-h-[48px] sm:min-h-0',
             paused ? 'border-accent bg-accent text-accent-fg' : 'border-line bg-surface text-fg hover:bg-surface-3'
           )}
         >
           {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
-          <span className="hidden sm:inline">{paused ? 'Reanudar' : 'Pausa'}</span>
+          <span>{paused ? 'Reanudar' : 'Pausa'}</span>
         </button>
 
         <div role="radiogroup" aria-label="Velocidad del partido" className="flex items-center gap-1 border border-line rounded-xl p-1 bg-surface-2 min-h-[48px] sm:min-h-0">

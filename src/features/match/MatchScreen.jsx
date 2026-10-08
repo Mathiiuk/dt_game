@@ -74,7 +74,6 @@ export default function MatchScreen() {
   const { confirmAction } = useGameContext()
   const [activeOrder, setActiveOrder] = useState(null)
   const [savedToDb, setSavedToDb] = useState(false)
-  const [showStats, setShowStats] = useState(false)
   // Cambios del DT: once actual en la cancha y los cambios hechos (cada uno rejuega el resto del partido)
   const [onField, setOnField] = useState([])
   const [subsMade, setSubsMade] = useState([])
@@ -488,7 +487,7 @@ export default function MatchScreen() {
 
             <MatchTimeline events={events} matchState={matchState} />
 
-            {/* Controles"}
+            {/* Controles */}
             <div className="">
               {matchState === 'playing' && (
                 <MatchActions 
@@ -496,7 +495,7 @@ export default function MatchScreen() {
                   onSpeed={setSpeed} 
                   paused={paused} 
                   onTogglePause={() => setPaused(!paused)}
-                  onSkip={() => confirm('Saltar resto del partido? El resultado se calculara inmediatamente.') && finishMatchInstantly()}
+                  onSkip={handleSkipMatch}
                   onOpenSubs={() => setSubsSheetOpen(true)}
                   onOpenShouts={() => setShoutsSheetOpen(true)}
                 />
@@ -537,19 +536,6 @@ export default function MatchScreen() {
         </div>
       </div>
       
-      {/* Mobile Fixed Toolbar */}
-      {matchState === 'playing' && (
-        <div className="lg:hidden">
-          <MatchActions 
-            speed={speed} 
-            onSpeed={setSpeed} 
-            paused={paused} 
-            onTogglePause={() => setPaused(!paused)}
-            onOpenSubs={() => setSubsSheetOpen(true)}
-            onOpenShouts={() => setShoutsSheetOpen(true)}
-          />
-        </div>
-      )}
 
       {/* Mobile Sheets */}
       <SubstitutionsSheet 
