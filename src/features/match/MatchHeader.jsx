@@ -51,11 +51,11 @@ export default function MatchHeader({
         {/* Marcador */}
         <div className="flex items-center justify-center bg-surface-3 border border-line rounded-2xl px-3 sm:px-4 py-1.5 shadow-inner shrink-0">
           <span className="text-2xl sm:text-4xl font-mono font-black text-fg tracking-tighter">
-            {isHome ? score.home : score.away}
+            {score.home}
           </span>
           <span className="mx-2 sm:mx-3 text-fg-subtle font-black text-lg sm:text-xl">-</span>
           <span className="text-2xl sm:text-4xl font-mono font-black text-fg tracking-tighter">
-            {isHome ? score.away : score.home}
+            {score.away}
           </span>
         </div>
 
