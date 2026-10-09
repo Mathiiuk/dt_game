@@ -9,7 +9,7 @@ import { divisionName } from '../../domain/divisions'
 import { queryCache } from '../../utils/cache'
 import { FORM_LABELS, formatDiff, goalDiff, parseForm, zoneLegend, zoneOf } from '../../domain/standings'
 import { cn } from '../../lib/utils'
-import { Badge, Button, Card, EmptyState, PageHeader, Skeleton } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, PageHeader, QuickActions, QUICK_ACTION, Skeleton } from '../../components/ui'
 import LeaguePyramidModal from './LeaguePyramidModal'
 
 const FORM_STYLE = {
@@ -86,16 +86,17 @@ export default function StandingsScreen() {
       <PageHeader
         eyebrow={divisionName(club?.league_tier)}
         title="Tabla de posiciones"
+        actionsFill
         description={`${total} clubes`}
         actions={
-          <>
-            <Button variant="outline" size="icon" onClick={() => loadData(true)} disabled={refreshing} aria-label="Recargar tabla">
+          <QuickActions>
+            <Button variant="outline" size="icon" onClick={() => loadData(true)} disabled={refreshing} aria-label="Recargar tabla" className="h-auto min-h-14 shrink-0 sm:h-11 sm:min-h-0">
               <RefreshCw className={refreshing ? 'animate-spin' : ''} />
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/calendar')}><Calendar />Calendario</Button>
-            <Button variant="outline" size="sm" onClick={() => setShowPyramid(true)}><Layers />Pirámide</Button>
-            {seasonEnded && <Button size="sm" onClick={() => navigate('/dashboard')}><Trophy />Cierre anual</Button>}
-          </>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => navigate('/calendar')}><Calendar className="text-blue-400" />Calendario</Button>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowPyramid(true)}><Layers className="text-gold" />Pirámide</Button>
+            {seasonEnded && <Button size="sm" className={QUICK_ACTION} onClick={() => navigate('/dashboard')}><Trophy />Cierre anual</Button>}
+          </QuickActions>
         }
       />
 

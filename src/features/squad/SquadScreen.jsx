@@ -21,7 +21,7 @@ import {
   isListedForSale, playerLevel, playerSalary, playerMorale, positionGroup
 } from '../../domain/squad'
 import {
-  Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, Input, PageHeader, Progress,
+  Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, Input, PageHeader, Progress, QuickActions, QUICK_ACTION,
   Select, Skeleton, Stat, Tabs, TabsList, TabsTrigger, Tooltip
 } from '../../components/ui'
 import { absoluteWeek, seasonYearOf } from '../../domain/gameWeek'
@@ -374,13 +374,15 @@ export default function SquadScreen() {
       <PageHeader
         eyebrow="Gestión deportiva"
         title="Plantel"
+        actionsFill
         description="Contratos, transferibles y ofertas entrantes."
         actions={
-          <>
-            <Button variant="outline" size="sm" onClick={() => setShowEvolutionModal(true)}><TrendingUp />Desarrollo</Button>
-            <Button variant="outline" size="sm" onClick={() => setShowMentorshipModal(true)}><GraduationCap />Mentorías</Button>
-            <Button asChild variant="outline" size="sm"><Link to="/training"><Dumbbell />Entrenamiento</Link></Button>
-          </>
+          // Los tres atajos van en una sola fila (en el celular, icono arriba y texto abajo) y cada uno con su color para distinguirlos
+          <QuickActions>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowEvolutionModal(true)}><TrendingUp className="text-accent" />Desarrollo</Button>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowMentorshipModal(true)}><GraduationCap className="text-gold" />Mentorías</Button>
+            <Button asChild variant="outline" size="sm" className={QUICK_ACTION}><Link to="/training"><Dumbbell className="text-blue-400" />Entrenamiento</Link></Button>
+          </QuickActions>
         }
       />
 

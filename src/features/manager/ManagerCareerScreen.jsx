@@ -8,7 +8,7 @@ import { endgameApi } from '../../api/endgame'
 import { formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
 import {
-  Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, Skeleton, Stat, Tabs, TabsContent,
+  Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, PageHeader, QuickActions, QUICK_ACTION, Skeleton, Stat, Tabs, TabsContent,
   TabsList, TabsTrigger
 } from '../../components/ui'
 import JobOfferBottomSheet from '../career/JobOfferBottomSheet'
@@ -196,11 +196,12 @@ export default function ManagerCareerScreen() {
       <PageHeader
         eyebrow="Trayectoria, finanzas personales y ofertas"
         title="Carrera del DT"
+        actionsFill
         actions={
-          <>
-            <Button variant="outline" size="sm" onClick={() => navigate('/achievements')}><Award />Logros</Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/hall-of-fame')}><Trophy />Salón de la Fama</Button>
-          </>
+          <QuickActions>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => navigate('/achievements')}><Award className="text-gold" />Logros</Button>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => navigate('/hall-of-fame')}><Trophy className="text-accent" />Salón de la Fama</Button>
+          </QuickActions>
         }
       />
 

@@ -9,7 +9,7 @@ export { Dialog, DialogTrigger, DialogClose, DialogContent, DialogBody, DialogFo
 export { Input, Select, Textarea, Field } from './field'
 export { Segmented } from './segmented'
 export { Switch, Tooltip, Skeleton, EmptyState } from './misc'
-export { PageHeader, SectionTitle } from './page-header'
+export { PageHeader, SectionTitle, QuickActions, QUICK_ACTION } from './page-header'
 export { ChoiceChips } from './choice-chips'
 export { ResponsiveOverlay } from './responsive-overlay'
 export { Wizard, Stepper, OptionCards } from './wizard'
