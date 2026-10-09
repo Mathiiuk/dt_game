@@ -5,6 +5,7 @@ import { climateApi } from './climate'
 import { seasonYearOf } from '../domain/gameWeek'
 import { bingoCard, bingoLines, markCliche } from '../domain/pressRoom'
 import { toneHistory, memoryQuestion, situationQuestion } from '../domain/pressSituations'
+import { pressEcho, hasEcho } from '../domain/pressEcho'
 
 export const MEDIA_OUTLETS = [
   { name: 'FM El Aguante 91.5', journalist: 'Horacio "El Turco" Méndez', tier: 5 },
@@ -405,9 +406,36 @@ export const pressApi = {
   },
 
   /**
+   * El eco de una respuesta: un evento nuevo con el periodista del club y la frase que dijiste.
+   * Nunca rompe la respuesta (si algo falla solo se avisa) y respeta el máximo de 3 eventos pendientes.
+   * Devuelve true si lo creó.
+   */
+  async createEcho({ clubId, managerId = null, tone, outcome = null, quote = '', rival = null }) {
+    try {
+      const { eventsApi } = await import('./events')
+      const [climateState, pending] = await Promise.all([climateApi.getState(clubId), eventsApi.getPendingEvents(clubId)])
+      if (pending.length >= 3) return false
+      const characters = ensureCharacters(climateState?.characters, clubId)
+      const template = pressEcho({
+        tone,
+        outcome: outcome || 'D',
+        journalist: characters.journalist?.name,
+        outlet: characters.journalist?.outlet,
+        quote,
+        rival: rival || undefined
+      })
+      if (!template) return false
+      return await eventsApi.createFromTemplate(template, { clubId, managerId, characters })
+    } catch (err) {
+      console.warn('Aviso: no se pudo crear el eco de la prensa:', err)
+      return false
+    }
+  },
+
+  /**
    * Responde a una pregunta de la rueda de prensa
    */
-  async submitAnswer({ conferenceId, questionId, chosenTone, answerText, moraleImpact = 0, clubId, managerId, outcome = null, gameDate = null }) {
+  async submitAnswer({ conferenceId, questionId, chosenTone, answerText, moraleImpact = 0, clubId, managerId, outcome = null, gameDate = null, rivalName = null, rng = Math.random }) {
     if (!questionId) throw new Error('Pregunta no especificada')
 
     // 1. Guardar respuesta en BD
@@ -443,6 +471,11 @@ export const pressApi = {
           effects: { ...effects, notes: ['Tu respuesta en la conferencia de prensa.'] }
         })
       }
+    }
+
+    // 2b. Lo que dijiste puede volver como una historia corta con decisión (el eco de la prensa)
+    if (clubId && hasEcho(chosenTone, rng)) {
+      await this.createEcho({ clubId, managerId, tone: chosenTone, outcome, quote: answerText, rival: rivalName })
     }
 
     // 3. Verificar si quedan preguntas pendientes en esta conferencia

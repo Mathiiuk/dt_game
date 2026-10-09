@@ -138,7 +138,8 @@ export default function PostMatchScreen() {
         moraleImpact: option.moraleDelta,
         clubId,
         managerId,
-        outcome: outcomeOf(results)
+        outcome: outcomeOf(results),
+        rivalName: results.opponentName || null
       })
       setPressQuestions(prev => prev.map(q => q.id === question.id ? { ...q, chosen_tone: option.tone, manager_answer_text: option.text } : q))
     } catch (err) {
