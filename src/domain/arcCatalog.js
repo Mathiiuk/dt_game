@@ -7,6 +7,8 @@
  * Marcadores de texto: {presidente}, {periodista}, {barra} (ver domain/characters.js).
  */
 
+import { LEAGUE_ARCS } from './arcCatalogLiga'
+
 const o = (id, label, description, effects = {}, extra = {}) => ({ id, label, description, effects, ...extra })
 const chapter = (title, description, options, memory = {}) => ({ title, description, options, memory })
 
@@ -1556,7 +1558,9 @@ export const ARC_CATALOG = [
         ]
       )
     ]
-  }
+  },
+  // Política de liga: la federación cambia las reglas, la tele manda y los amigos del poder se salvan
+  ...LEAGUE_ARCS
 ]
 
 export const arcById = (id) => ARC_CATALOG.find(a => a.id === id) || null
