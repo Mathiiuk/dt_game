@@ -148,14 +148,18 @@ function ReporterBubble({ question, index }) {
       </div>
       <button type="button" onClick={skip} disabled={done} aria-label="Pregunta del periodista" className="min-w-0 flex-1 rounded-xl rounded-tl-none border border-line bg-bg p-3 text-left disabled:cursor-default">
         <p className="mb-1 text-[11px] text-fg-subtle"><span className="font-semibold text-fg-muted">{question.journalist_name}</span><span> · {question.media_outlet}</span><span className="[@media(max-height:740px)]:hidden"> {reporter.intro}</span></p>
-        {done ? (
-          <p className="text-sm font-medium italic text-fg [@media(max-height:740px)]:text-xs">“{question.question_text}”</p>
-        ) : (
-          <>
-            <span className="sr-only">{question.question_text}</span>
-            <p className="text-sm font-medium italic text-fg" aria-hidden="true">“{text}▍</p>
-          </>
-        )}
+        {/* El texto completo reserva el alto desde el principio (invisible): al escribirse la pregunta nada se mueve ni se achica */}
+        <div className="grid">
+          <p aria-hidden="true" data-text={`“${question.question_text}”`} className="invisible col-start-1 row-start-1 text-sm font-medium italic text-fg after:content-[attr(data-text)] [@media(max-height:740px)]:text-xs" />
+          {done ? (
+            <p className="col-start-1 row-start-1 text-sm font-medium italic text-fg [@media(max-height:740px)]:text-xs">“{question.question_text}”</p>
+          ) : (
+            <>
+              <span className="sr-only">{question.question_text}</span>
+              <p className="col-start-1 row-start-1 text-sm font-medium italic text-fg [@media(max-height:740px)]:text-xs" aria-hidden="true">“{text}▍</p>
+            </>
+          )}
+        </div>
       </button>
     </div>
   )
@@ -189,11 +193,11 @@ function ToneTile({ opt, micRef, onPick, onHover, disabled }) {
     if (!start.current) return
     const dx = e.clientX - start.current.x
     const dy = e.clientY - start.current.y
-    if (!moved.current && Math.hypot(dx, dy) > 10) { moved.current = true; feel('tap'); onHover('drag') }
+    if (!moved.current && Math.hypot(dx, dy) > 10) { moved.current = true; feel('tap'); onHover('drag', opt) }
     if (!moved.current) return
     setOffset({ x: dx, y: dy })
     const now = overMic(e)
-    if (now !== over.current) { over.current = now; onHover(now ? 'over' : 'drag'); if (now) feel('tap') }
+    if (now !== over.current) { over.current = now; onHover(now ? 'over' : 'drag', opt); if (now) feel('tap') }
   }
   const up = (e) => {
     if (!start.current) return
@@ -221,7 +225,7 @@ function ToneTile({ opt, micRef, onPick, onHover, disabled }) {
         <span className="rounded-full bg-bg/50 px-2 py-0.5 text-[10px] font-bold text-fg">Moral {opt.moraleDelta >= 0 ? `+${opt.moraleDelta}` : opt.moraleDelta}</span>
       </span>
       <span className="text-xs font-bold uppercase tracking-wider">{toneLabel(opt.tone, 'Respuesta')}</span>
-      <span className="line-clamp-4 text-xs italic leading-snug text-fg">“{opt.text}”</span>
+      <span className="line-clamp-3 text-xs italic leading-snug text-fg">“{opt.text}”</span>
     </button>
   )
 }
@@ -237,6 +241,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const [mood, setMood] = useState(50) // humor de la sala
   const [sound, setSound] = useState(soundEnabled)
   const [hover, setHover] = useState(null) // null | 'drag' | 'over': estado del arrastre hacia el micrófono
+  const [grabbed, setGrabbed] = useState(null) // la ficha que se está arrastrando: su frase se lee grande junto al micrófono
+  const onHover = (state, opt = null) => { setHover(state); setGrabbed(state ? opt : null) }
   const [answering, setAnswering] = useState(false)
   const micRef = useRef(null)
   const [lightning, setLightning] = useState(null) // total de la ronda relámpago cuando termina
@@ -562,7 +568,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
         {/* Las cuatro posturas a la vista: tocá la que querés decir */}
         <div role="group" aria-label="Elegí tu postura y respuesta" className={`grid min-h-0 flex-1 grid-cols-2 gap-2.5 ${options.length > 2 ? 'grid-rows-2' : ''}`}>
           {options.map((opt, optIdx) => (
-            <ToneTile key={optIdx} opt={opt} micRef={micRef} onPick={pick} onHover={setHover} disabled={answering} />
+            <ToneTile key={optIdx} opt={opt} micRef={micRef} onPick={pick} onHover={onHover} disabled={answering} />
           ))}
         </div>
 
@@ -573,13 +579,21 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
             <div
               ref={micRef}
               aria-hidden="true"
-              className={`grid size-16 shrink-0 place-items-center rounded-full border-2 transition-all [@media(max-height:740px)]:size-12 ${hover === 'over' ? 'scale-125 border-accent bg-accent/30 text-accent' : hover === 'drag' ? 'animate-pulse border-gold bg-gold-soft text-gold' : 'border-line-strong bg-surface text-fg-muted'}`}
+              className={`relative grid size-16 shrink-0 place-items-center rounded-full border-2 transition-all [@media(max-height:740px)]:size-12 ${hover === 'over' ? 'scale-125 border-accent bg-accent/30 text-accent shadow-overlay' : hover === 'drag' ? 'animate-pulse border-gold bg-gold-soft text-gold' : 'border-line-strong bg-surface text-fg-muted'}`}
             >
+              {hover && <span className={`pointer-events-none absolute inset-0 animate-ping rounded-full border-2 ${hover === 'over' ? 'border-accent' : 'border-gold'}`} />}
               <Mic className="size-7 [@media(max-height:740px)]:size-5" />
             </div>
             <div className="flex flex-1 items-center justify-start gap-2">{rightActions}</div>
           </div>
-          <p className="text-[11px] text-fg-subtle [@media(max-height:740px)]:hidden" aria-live="polite">{hover === 'over' ? 'Soltá la ficha para decirlo' : 'Tocá una ficha o arrastrala al micrófono'}</p>
+          {/* Alto fijo: al agarrar una ficha su frase se lee acá en grande sin mover nada */}
+          <div className="flex min-h-10 w-full items-center justify-center px-2 text-center" aria-live="polite">
+            {grabbed ? (
+              <p className={`line-clamp-2 text-xs font-semibold italic leading-snug ${hover === 'over' ? 'text-accent' : 'text-fg'}`}>{hover === 'over' ? '¡Soltá para decirlo! ' : ''}“{grabbed.text}”</p>
+            ) : (
+              <p className="text-[11px] text-fg-subtle">Arrastrá una ficha al micrófono o tocala</p>
+            )}
+          </div>
         </div>
       </div>
     )

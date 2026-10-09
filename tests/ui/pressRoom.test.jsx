@@ -178,3 +178,26 @@ describe('sala de prensa relámpago', () => {
     })
   })
 })
+
+describe('sala de prensa arcade', () => {
+  beforeEach(() => { localStorage.clear(); sessionStorage.clear() })
+
+  it('el globo del periodista reserva el alto de la pregunta completa para que las fichas no se achiquen al escribirse', () => {
+    setup()
+    const spacer = document.querySelector('[data-text]')
+    expect(spacer).not.toBeNull()
+    expect(spacer.getAttribute('data-text')).toBe('“¿Qué pasó hoy?”')
+    expect(spacer.className).toContain('invisible')
+  })
+
+  it('al agarrar una ficha su frase se lee en grande junto al micrófono y se apaga al soltarla fuera', () => {
+    setup()
+    const tile = screen.getByRole('button', { name: /Partido a partido/ })
+    expect(screen.getByText(/Arrastrá una ficha al micrófono/)).toBeInTheDocument()
+    fireEvent.pointerDown(tile, { clientX: 10, clientY: 10, pointerId: 1 })
+    fireEvent.pointerMove(tile, { clientX: 60, clientY: 80, pointerId: 1 })
+    expect(screen.getAllByText(/Partido a partido\./).length).toBeGreaterThan(1)
+    fireEvent.pointerUp(tile, { clientX: 60, clientY: 80, pointerId: 1 })
+    expect(screen.getByText(/Arrastrá una ficha al micrófono/)).toBeInTheDocument()
+  })
+})
