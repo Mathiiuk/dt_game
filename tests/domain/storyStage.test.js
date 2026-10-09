@@ -114,3 +114,116 @@ describe('decisiones sueltas del club', () => {
     for (const cat of ['COMMUNITY', 'LOCKER_ROOM', 'BOARD_PRESS', 'FINANCIAL_CRISIS']) expect(EVENT_KIND_LABEL[cat]).toBeTruthy()
   })
 })
+
+import { ALL_CHALLENGES, CATEGORY_CHALLENGES, buildChant, chantHit, chantWon, CHANT_BEATS, CHANT_WINDOW_MS, calmTick, calmWon, CALM_START, CALM_BAND, CALM_NEEDED, CALM_SECONDS, CALM_TICK_MS, buildHeadline, headlineNext, HEADLINES, buildBalance, balanceSum, balanceWon } from '../../src/domain/storyStage'
+
+const seeded = (seed = 1) => () => {
+  seed |= 0; seed = (seed + 0x6D2B79F5) | 0
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+}
+
+describe('cada tipo de evento tiene su minijuego', () => {
+  it('el propio del tipo sale más seguido y estable para el mismo evento', () => {
+    for (const [category, own] of Object.entries(CATEGORY_CHALLENGES)) {
+      const picks = Array.from({ length: 200 }, (_, i) => challengeFor({ template_code: `EVT_${category}_${i}`, category }))
+      expect(picks.filter(c => c === own).length).toBeGreaterThan(40)
+      expect(picks.every(c => c === null || ALL_CHALLENGES.includes(c))).toBe(true)
+      expect(challengeFor({ template_code: `EVT_${category}_3`, category })).toBe(challengeFor({ template_code: `EVT_${category}_3`, category }))
+    }
+  })
+
+  it('los propios solo salen en su tipo de evento', () => {
+    const picks = Array.from({ length: 300 }, (_, i) => challengeFor({ template_code: `EVT_X_${i}`, category: 'COMMUNITY' }))
+    expect(picks.some(c => c === 'CALM' || c === 'HEADLINE' || c === 'BALANCE')).toBe(false)
+    expect(picks.some(c => c === 'CHANT')).toBe(true)
+  })
+})
+
+describe('el cántico', () => {
+  it('hay cuatro golpes cada vez más tarde y con ritmo parejo pero no clavado', () => {
+    const beats = buildChant(seeded(3))
+    expect(beats).toHaveLength(CHANT_BEATS)
+    for (let i = 1; i < beats.length; i++) {
+      const gap = beats[i].at - beats[i - 1].at
+      expect(gap).toBeGreaterThanOrEqual(650)
+      expect(gap).toBeLessThan(1000)
+    }
+    expect(new Set([buildChant(seeded(1))[1].at, buildChant(seeded(9))[1].at]).size).toBe(2)
+  })
+  it('se acierta dentro de la ventana y con tres de cuatro se gana', () => {
+    expect(chantHit(1000, 1000 + CHANT_WINDOW_MS)).toBe(true)
+    expect(chantHit(1000, 1000 + CHANT_WINDOW_MS + 1)).toBe(false)
+    expect(chantHit(1300, 1000)).toBe(false)
+    expect(chantWon(3)).toBe(true)
+    expect(chantWon(2)).toBe(false)
+  })
+})
+
+describe('calmar al vestuario', () => {
+  it('sin tocar la tensión sube siempre y con un toque baja', () => {
+    let st = { tension: CALM_START, seconds: 0 }
+    for (let i = 0; i < 10; i++) { const n = calmTick(st, false, seeded(i + 1)); expect(n.tension).toBeGreaterThan(st.tension); st = n }
+    const tapped = calmTick({ tension: 60, seconds: 0 }, true, () => 0)
+    expect(tapped.tension).toBe(54) // +2 y -8
+  })
+  it('solo cuenta el tiempo que está en la franja verde y la tensión no se sale de 0 a 100', () => {
+    expect(calmTick({ tension: 50, seconds: 1 }, false, () => 0).seconds).toBe(1 + CALM_TICK_MS / 1000)
+    expect(calmTick({ tension: 90, seconds: 1 }, false, () => 0).seconds).toBe(1)
+    expect(calmTick({ tension: 2, seconds: 0 }, true, () => 0).tension).toBe(0)
+    expect(calmTick({ tension: 99, seconds: 0 }, false, () => 0.99).tension).toBe(100)
+    expect(CALM_BAND[0]).toBeLessThan(CALM_BAND[1])
+  })
+  it('se gana con 5,5 s en la franja de los 9 que dura', () => {
+    expect(calmWon(CALM_NEEDED)).toBe(true)
+    expect(calmWon(CALM_NEEDED - 0.25)).toBe(false)
+    expect(CALM_NEEDED).toBeLessThan(CALM_SECONDS)
+  })
+  it('es posible ganar: tocando cuando se pasa de la franja se aguanta en el verde', () => {
+    let st = { tension: CALM_START, seconds: 0 }
+    const rng = seeded(5)
+    for (let i = 0; i < (CALM_SECONDS * 1000) / CALM_TICK_MS; i++) st = calmTick(st, st.tension > 52, rng)
+    expect(calmWon(st.seconds)).toBe(true)
+  })
+})
+
+describe('armá el titular', () => {
+  it('trae las palabras de un titular real mezcladas, nunca en orden', () => {
+    for (let s = 1; s < 40; s++) {
+      const { answer, words } = buildHeadline(seeded(s))
+      expect(HEADLINES).toContain(answer)
+      expect(words).toHaveLength(answer.length)
+      expect(words.map(w => w.text).sort()).toEqual([...answer].sort())
+      expect(words.every((w, i) => w.id === i)).toBe(false)
+    }
+  })
+  it('tocar la palabra que sigue está bien y cualquier otra es un error', () => {
+    const { words } = buildHeadline(seeded(4))
+    const first = words.find(w => w.id === 0)
+    const other = words.find(w => w.id !== 0)
+    expect(headlineNext([], first)).toBe('OK')
+    expect(headlineNext([], other)).toBe('MISTAKE')
+    expect(headlineNext([0], words.find(w => w.id === 1))).toBe('OK')
+  })
+})
+
+describe('cuadrar la caja', () => {
+  it('el monto a cubrir sale de una combinación real de gastos: siempre hay solución', () => {
+    for (let s = 1; s < 60; s++) {
+      const { items, target } = buildBalance(seeded(s))
+      expect(items).toHaveLength(5)
+      expect(new Set(items.map(i => i.label)).size).toBe(5)
+      const ids = items.map(i => i.id)
+      const subsets = (k) => k === 0 ? [[]] : ids.flatMap(id => subsets(k - 1).filter(x => x.every(y => y < id)).map(x => [...x, id]))
+      const found = [...subsets(2), ...subsets(3)].some(sel => balanceSum(sel, items) === target)
+      expect(found).toBe(true)
+    }
+  })
+  it('se gana con la suma exacta y no con una selección vacía', () => {
+    const items = [{ id: 0, amount: 300 }, { id: 1, amount: 500 }, { id: 2, amount: 200 }]
+    expect(balanceWon([0, 1], items, 800)).toBe(true)
+    expect(balanceWon([0, 2], items, 800)).toBe(false)
+    expect(balanceWon([], items, 0)).toBe(false)
+  })
+})

@@ -112,7 +112,7 @@
   /* Respeta a quien pide menos movimiento */
   @media (prefers-reduced-motion: reduce) {
     /* La barra de potencia del penal es el juego en sí: se mueve igual, solo más lento (ver .penalty-marker) */
-    *:not(.penalty-marker), *::before, *::after {
+    *:not(.penalty-marker):not(.animate-chant-ring), *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -128,6 +128,12 @@
     animation: penalty-sweep 0.8s linear infinite alternate;
   }
   .penalty-marker-paused { animation-play-state: paused; }
+  /* Aro del cántico: se cierra sobre el círculo y llega justo en el golpe (es el juego en sí, no se acelera con "menos movimiento") */
+  .animate-chant-ring { animation: chant-ring 0.65s cubic-bezier(.4,0,.8,.6) forwards; }
+  @keyframes chant-ring {
+    from { transform: scale(2.8); opacity: 0.15; }
+    to { transform: scale(1); opacity: 1; }
+  }
   /* Versión lenta para elegir entre varias opciones (historias) */
   .penalty-marker.sweep-slow { animation-duration: 1.8s; }
   @media (prefers-reduced-motion: reduce) {

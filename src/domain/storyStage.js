@@ -73,13 +73,19 @@ export const BILLS_COUNT = 6
 export const BILLS_NEEDED = 5
 export const BILLS_SECONDS = 9
 
+// Cada tipo de evento tiene su minijuego propio, que sale más seguido que los compartidos:
+//  - Comunidad y barrio: el cántico (ritmo)  - Vestuario: calmar la tensión  - Dirigencia y prensa: armar el titular  - Crisis de plata: cuadrar la caja
+export const CATEGORY_CHALLENGES = { COMMUNITY: 'CHANT', LOCKER_ROOM: 'CALM', BOARD_PRESS: 'HEADLINE', FINANCIAL_CRISIS: 'BALANCE' }
+export const ALL_CHALLENGES = [...CHALLENGES, ...Object.values(CATEGORY_CHALLENGES)]
+
 /**
  * Desafío del capítulo (o ninguno): estable para el mismo evento.
- * El de billetes sólo sale en las crisis de plata; el resto elige entre los demás.
+ * El de billetes sólo sale en las crisis de plata; el propio del tipo de evento entra dos veces en el sorteo.
  */
 export const challengeFor = (event) => {
   const money = event?.category === 'FINANCIAL_CRISIS'
-  const pool = CHALLENGES.filter(c => money || c !== 'BILLS')
+  const own = CATEGORY_CHALLENGES[event?.category]
+  const pool = [...CHALLENGES.filter(c => money || c !== 'BILLS'), ...(own ? [own, own] : [])]
   const n = hash(`${event?.template_code || event?.id || ''}:desafio`) % (pool.length + 1)
   return pool[n] || null
 }
@@ -134,3 +140,73 @@ export const rumorWon = (answers = [], rumors = []) => answers.filter((a, i) => 
 
 /** Opción sobre la que cayó el marcador de la barra de puntería (`pos` va de 0 a 1) */
 export const optionAtPosition = (pos, count) => Math.max(0, Math.min(count - 1, Math.floor(Math.max(0, Math.min(0.9999, pos)) * count)))
+
+
+// ---------------------------------------------------------------------------------------------
+// Minijuegos propios de cada tipo de evento
+// ---------------------------------------------------------------------------------------------
+
+/** EL CÁNTICO (comunidad y barrio): cuatro golpes de ritmo; hay que tocar cuando llegan. Con tres se gana. */
+export const CHANT_BEATS = 4
+export const CHANT_WINDOW_MS = 260
+export const CHANT_NEEDED = 3
+/** Instantes (ms desde que arranca) en que cae cada golpe: el primero tras un respiro y los demás a ritmo parejo pero no clavado */
+export function buildChant(rng = Math.random, count = CHANT_BEATS) {
+  let at = 1100
+  return Array.from({ length: count }, () => { const beat = { at }; at += 650 + Math.floor(rng() * 350); return beat })
+}
+export const chantHit = (tapAt, beatAt) => Math.abs(tapAt - beatAt) <= CHANT_WINDOW_MS
+export const chantWon = (hits) => hits >= CHANT_NEEDED
+
+/** CALMAR AL VESTUARIO (vestuario): la tensión sube sola; tocando baja. Hay que sostenerla en la franja verde. */
+export const CALM_SECONDS = 9
+export const CALM_TICK_MS = 250
+export const CALM_BAND = [35, 65]
+export const CALM_NEEDED = 5.5
+export const CALM_START = 50
+/** Un instante del juego: sube entre 2 y 6 puntos solo y un toque la baja 8. Cuenta el tiempo que estuvo en la franja. */
+export function calmTick({ tension = CALM_START, seconds = 0 } = {}, tapped = false, rng = Math.random) {
+  const next = Math.max(0, Math.min(100, tension + 2 + Math.floor(rng() * 5) - (tapped ? 8 : 0)))
+  const inBand = next >= CALM_BAND[0] && next <= CALM_BAND[1]
+  return { tension: next, seconds: inBand ? seconds + CALM_TICK_MS / 1000 : seconds }
+}
+export const calmWon = (seconds) => seconds >= CALM_NEEDED
+
+/** ARMÁ EL TITULAR (dirigencia y prensa): las palabras vienen mezcladas y hay que tocarlas en orden. Dos errores y se pierde. */
+export const HEADLINES = [
+  ['EL', 'PIBE', 'SALVÓ', 'AL', 'CLUB'],
+  ['LA', 'TRIBUNA', 'CANTÓ', 'TODA', 'LA', 'NOCHE'],
+  ['EL', 'DT', 'LE', 'PUSO', 'FRENO', 'AL', 'VESTUARIO'],
+  ['LA', 'DIRIGENCIA', 'SE', 'REUNIÓ', 'DE', 'URGENCIA'],
+  ['EL', 'POTRERO', 'SE', 'VISTIÓ', 'DE', 'FIESTA'],
+  ['NADIE', 'SE', 'ESPERABA', 'ESE', 'GOLAZO']
+]
+export const HEADLINE_MISTAKES = 2
+export function buildHeadline(rng = Math.random) {
+  const answer = HEADLINES[Math.min(HEADLINES.length - 1, Math.floor(rng() * HEADLINES.length))]
+  let words = answer.map((text, i) => ({ id: i, text }))
+  // Mezcla de Fisher-Yates; si por casualidad queda en el mismo orden se rota para que siempre haya algo que ordenar
+  for (let i = words.length - 1; i > 0; i--) { const j = Math.min(i, Math.floor(rng() * (i + 1))); [words[i], words[j]] = [words[j], words[i]] }
+  if (words.every((w, i) => w.id === i)) words = [...words.slice(1), words[0]]
+  return { answer, words }
+}
+/** La palabra tocada: es la que sigue en el titular (id = posición) o es un error */
+export const headlineNext = (placed = [], word) => (word?.id === placed.length ? 'OK' : 'MISTAKE')
+
+/** CUADRAR LA CAJA (crisis de plata): elegir los gastos que suman exactamente lo que falta cubrir. Dos intentos. */
+export const BALANCE_TRIES = 2
+const EXPENSES = ['Luz', 'Sueldos', 'Cantina', 'Viáticos', 'Pelotas', 'Arreglos', 'Colectivo', 'Seguro']
+export function buildBalance(rng = Math.random, count = 5) {
+  const pool = [...EXPENSES]
+  const items = Array.from({ length: count }, (_, id) => {
+    const at = Math.min(pool.length - 1, Math.floor(rng() * pool.length))
+    const [label] = pool.splice(at, 1)
+    return { id, label, amount: (2 + Math.floor(rng() * 9)) * 100 } // de $200 a $1.000
+  })
+  // El monto a cubrir sale de una combinación real de dos o tres gastos: siempre hay solución
+  const size = 2 + Math.floor(rng() * 2)
+  const chosen = [...items].sort(() => rng() - 0.5).slice(0, size)
+  return { items, target: chosen.reduce((n, it) => n + it.amount, 0) }
+}
+export const balanceSum = (selectedIds = [], items = []) => items.filter(it => selectedIds.includes(it.id)).reduce((n, it) => n + it.amount, 0)
+export const balanceWon = (selectedIds, items, target) => selectedIds.length > 0 && balanceSum(selectedIds, items) === target

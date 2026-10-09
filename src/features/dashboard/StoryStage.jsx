@@ -6,6 +6,7 @@ import { arcById } from '../../domain/arcCatalog'
 import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
 import { RumorChallenge, SequenceChallenge, TapsChallenge, TargetPick } from './StoryMinigames'
 import { BillsChallenge, ReflexChallenge } from './StoryActionGames'
+import { BalanceChallenge, CalmChallenge, ChantChallenge, HeadlineChallenge } from './StoryCategoryGames'
 import { formatMoney } from '../../lib/format'
 import { feel } from '../../lib/feedback'
 import { cn } from '../../lib/utils'
@@ -18,7 +19,12 @@ const CHALLENGE_INFO = {
   TAPS: { title: 'Desafío de insistencia', text: 'Convencelo tocando el botón lo más rápido que puedas.', Game: TapsChallenge },
   RUMOR: { title: 'Verdadero o falso', text: 'Contestá bien dos de tres preguntas de fútbol.', Game: RumorChallenge },
   REFLEX: { title: 'Desafío de reflejos', text: 'Atrapá las noticias antes de que se escapen.', Game: ReflexChallenge },
-  BILLS: { title: 'Desafío de billetes', text: 'Juntá los billetes sueltos en la caja del club.', Game: BillsChallenge }
+  BILLS: { title: 'Desafío de billetes', text: 'Juntá los billetes sueltos en la caja del club.', Game: BillsChallenge },
+  // Los propios de cada tipo de evento
+  CHANT: { title: 'El cántico de la tribuna', text: 'Seguí el ritmo: tocá cuando el aro llega al círculo.', Game: ChantChallenge },
+  CALM: { title: 'Calmar al vestuario', text: 'Mantené la tensión en la zona verde tocando para bajarla.', Game: CalmChallenge },
+  HEADLINE: { title: 'Armá el titular', text: 'Tocá las palabras en el orden en que se lee el titular.', Game: HeadlineChallenge },
+  BALANCE: { title: 'Cuadrar la caja', text: 'Elegí los gastos que suman justo lo que falta cubrir.', Game: BalanceChallenge }
 }
 
 const chapterOf = (title) => {
