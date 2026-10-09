@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Lightbulb, Flag } from 'lucide-react'
+import { Lightbulb, Flag, CircleDot } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { cornerLanding } from '../../domain/shotPath'
 
 /**
  * Córner a favor: se elige a qué zona del área va el centro. El banco da una pista de por dónde está floja la defensa
@@ -8,12 +9,17 @@ import { cn } from '../../lib/utils'
  */
 export default function CornerPick({ options, hint, onChoose }) {
   const [picked, setPicked] = useState(null)
+  // Dónde cae el centro dentro de la zona elegida (distinto cada vez) y si ya salió
+  const [landing, setLanding] = useState(null)
+  const [flying, setFlying] = useState(false)
   const byZone = Object.fromEntries(options.map(o => [o.zone, o]))
   const hintOption = byZone[hint]
 
   const choose = (zone) => {
     if (picked) return
     setPicked(zone)
+    setLanding(cornerLanding(zone))
+    requestAnimationFrame(() => requestAnimationFrame(() => setFlying(true)))
     setTimeout(() => onChoose(byZone[zone]), 600)
   }
 
@@ -30,6 +36,18 @@ export default function CornerPick({ options, hint, onChoose }) {
         <div className="absolute inset-x-6 top-0 h-3 border-x-2 border-b-2 border-fg/70" aria-hidden="true" />
         <div className="absolute inset-x-3 top-0 h-24 border-x-2 border-b-2 border-fg/30" aria-hidden="true" />
         <Flag className="absolute bottom-1 right-1 size-5 text-gold" aria-hidden="true" />
+        {landing && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute z-10 text-fg"
+            style={{
+              left: flying ? `${landing.x}%` : '92%',
+              top: flying ? `${landing.y}px` : '148px',
+              transform: `translate(-50%, -50%) scale(${flying ? 0.8 : 1.2})`,
+              transition: 'left 520ms ease-out, top 520ms cubic-bezier(.2,.8,.3,1), transform 520ms ease-out'
+            }}
+          ><CircleDot className="size-5" /></span>
+        )}
         <div className="absolute inset-x-3 top-3 grid h-24 grid-cols-3">
           {['NEAR', 'MID', 'FAR'].map(zone => (
             <button

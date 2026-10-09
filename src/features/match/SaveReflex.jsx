@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { CircleDot, Hand } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { feel } from '../../lib/feedback'
+import { flightPlan } from '../../domain/shotPath'
 
 const ZONES = ['L', 'C', 'R']
 const NAMES = { L: 'izquierda', C: 'el medio', R: 'derecha' }
@@ -9,10 +10,10 @@ const FLIGHT_MS = 850
 const LATE_MS = 1350
 
 /** Calidad de la reacción (0 a 1) según a dónde se tiró el arquero y cuánto tardó */
-export function reactionQuality({ tapped, target, elapsed }) {
+export function reactionQuality({ tapped, target, elapsed, flight = FLIGHT_MS }) {
   if (tapped === null) return 0 // llegó tarde: no se movió
   if (tapped !== target) return 0.1 // se tiró para el otro lado
-  return Math.max(0.55, Math.min(1, 1 - (elapsed / FLIGHT_MS) * 0.45))
+  return Math.max(0.55, Math.min(1, 1 - (elapsed / flight) * 0.45))
 }
 
 /** Frase del relato según cómo reaccionó el arquero */
@@ -25,6 +26,8 @@ export const reactionLabel = (quality) =>
  */
 export default function SaveReflex({ onDone }) {
   const [target] = useState(() => ZONES[Math.floor(Math.random() * 3)])
+  // De dónde sale la pelota, cuánto tarda y a qué altura entra: cada remate es distinto
+  const [plan] = useState(() => flightPlan())
   const [phase, setPhase] = useState('wait') // wait → fly → done
   const [tapped, setTapped] = useState(undefined) // undefined: todavía no tocó
   const [moving, setMoving] = useState(false)
@@ -37,7 +40,7 @@ export default function SaveReflex({ onDone }) {
     finished.current = true
     setTapped(zone)
     setPhase('done')
-    const quality = early ? 0.2 : reactionQuality({ tapped: zone, target, elapsed })
+    const quality = early ? 0.2 : reactionQuality({ tapped: zone, target, elapsed, flight: plan.flightMs })
     feel(quality >= 0.55 ? 'good' : 'bad')
     const label = early ? 'Tu arquero se adelantó y lo engañaron' : zone === null ? 'Tu arquero no alcanzó a reaccionar' : reactionLabel(quality)
     timers.current.push(setTimeout(() => onDone({ quality, label }), 900))
@@ -52,7 +55,7 @@ export default function SaveReflex({ onDone }) {
       setPhase('fly')
       // un cuadro después se le da el destino para que la transición de CSS la haga viajar
       requestAnimationFrame(() => requestAnimationFrame(() => setMoving(true)))
-      timers.current.push(setTimeout(() => finish(null, LATE_MS), LATE_MS))
+      timers.current.push(setTimeout(() => finish(null, plan.flightMs + (LATE_MS - FLIGHT_MS)), plan.flightMs + (LATE_MS - FLIGHT_MS)))
     }, wait))
     const all = timers.current
     return () => all.forEach(clearTimeout)
@@ -65,7 +68,7 @@ export default function SaveReflex({ onDone }) {
     finish(zone, performance.now() - start.current)
   }
 
-  const targetLeft = { L: '16.5%', C: '50%', R: '83.5%' }[target]
+  const targetLeft = `${{ L: 16.5, C: 50, R: 83.5 }[target] + plan.jitterX}%`
   const ok = phase === 'done' && tapped === target
   return (
     <div className="space-y-2">
@@ -93,7 +96,7 @@ export default function SaveReflex({ onDone }) {
           <span
             aria-hidden="true"
             className="pointer-events-none absolute text-fg"
-            style={{ left: moving ? targetLeft : '50%', top: moving ? '34%' : '88%', transform: 'translate(-50%, -50%)', transition: `left ${FLIGHT_MS}ms linear, top ${FLIGHT_MS}ms ease-out` }}
+            style={{ left: moving ? targetLeft : `${plan.startX}%`, top: moving ? `${plan.endTop}%` : '88%', transform: 'translate(-50%, -50%)', transition: `left ${plan.flightMs}ms linear, top ${plan.flightMs}ms ease-out` }}
           >
             <CircleDot className="size-7" />
           </span>

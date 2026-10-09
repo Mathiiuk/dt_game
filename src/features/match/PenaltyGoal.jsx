@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Hand, CircleDot } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { feel } from '../../lib/feedback'
+import { shotPath, sweepPhase } from '../../domain/shotPath'
 
 const ZONES = { L: 'Izquierda', C: 'Centro', R: 'Derecha' }
 
@@ -70,6 +71,12 @@ export default function PenaltyGoal({ options, onChoose }) {
 export function PenaltyShoot({ takerName, onDone }) {
   const [aim, setAim] = useState(null)
   const [shot, setShot] = useState(false)
+  // Adónde llega la pelota (depende de la zona y de la calidad del golpe) y si ya salió: cada penal es distinto
+  const [path, setPath] = useState(null)
+  const [flying, setFlying] = useState(false)
+  // La barra arranca en otro punto y a otra velocidad cada vez (con "menos movimiento" se deja la velocidad lenta de siempre)
+  const [sweep] = useState(() => sweepPhase())
+  const slowMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
   // La barra se mueve con una animación de CSS (suave, sin re-renderizar nada); al patear se lee dónde quedó el marcador
   const trackRef = useRef(null)
   const markerRef = useRef(null)
@@ -84,6 +91,10 @@ export function PenaltyShoot({ takerName, onDone }) {
     const pos = track && marker && track.width > 0 ? Math.max(0, Math.min(1, (marker.left + marker.width / 2 - track.left) / track.width)) : 0.5
     const quality = Math.max(0, 1 - Math.abs(pos - 0.5) * 2)
     setShot(true)
+    const trajectory = shotPath({ aim, quality })
+    setPath(trajectory)
+    // un cuadro después se le da el destino para que la transición de CSS la haga viajar
+    requestAnimationFrame(() => requestAnimationFrame(() => setFlying(true)))
     timer.current = setTimeout(() => onDone({ aim, quality }), 700)
   }
 
@@ -105,8 +116,18 @@ export function PenaltyShoot({ takerName, onDone }) {
             </button>
           ))}
         </div>
-        {shot && (
-          <span aria-hidden="true" className={cn('pointer-events-none absolute bottom-4 left-1/2 text-fg transition-all duration-500 ease-out', aim === 'L' && '-translate-x-[260%] -translate-y-14', aim === 'R' && 'translate-x-[160%] -translate-y-14', aim === 'C' && '-translate-x-1/2 -translate-y-16')}><CircleDot className="size-6" /></span>
+        {shot && path && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute text-fg"
+            style={{
+              left: flying ? `${path.x}%` : '50%',
+              bottom: flying ? `${path.y}%` : '6%',
+              transform: `translate(-50%, 50%) scale(${flying ? 0.85 : 1.15})`,
+              opacity: flying && path.off ? 0.35 : 1,
+              transition: `left ${path.ms}ms ease-out, bottom ${path.ms}ms cubic-bezier(.2,.8,.3,1), transform ${path.ms}ms ease-out, opacity ${path.ms}ms ease-in`
+            }}
+          ><CircleDot className="size-6" /></span>
         )}
       </div>
 
@@ -114,7 +135,7 @@ export function PenaltyShoot({ takerName, onDone }) {
         <>
           <div ref={trackRef} className="relative mx-auto h-5 w-full max-w-xs overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
             <div className="absolute inset-y-0 left-[35%] w-[30%] bg-accent/40" />
-            <div ref={markerRef} className={cn('penalty-marker absolute inset-y-0 w-1.5 -translate-x-1/2 rounded-full bg-fg', shot && 'penalty-marker-paused')} />
+            <div ref={markerRef} style={{ animationDelay: `${sweep.delay}s`, ...(slowMotion ? {} : { animationDuration: `${sweep.duration}s` }) }} className={cn('penalty-marker absolute inset-y-0 w-1.5 -translate-x-1/2 rounded-full bg-fg', shot && 'penalty-marker-paused')} />
           </div>
           <button
             type="button"
