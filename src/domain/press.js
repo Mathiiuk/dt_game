@@ -13,6 +13,9 @@ export function outcomeOf({ isHome = true, homeScore = 0, awayScore = 0 } = {}) 
 }
 
 /** Nombre a la vista de cada tono de respuesta: los códigos internos (PRAISING...) nunca se muestran */
+// La rueda de prensa tiene como máximo 2 preguntas: lo que muestra la sala y lo que cuenta la base tienen que coincidir
+export const PRESS_MAX_QUESTIONS = 2
+
 export const TONE_LABELS = {
   PRAISING: 'Elogioso',
   COMBATIVE: 'Combativo',

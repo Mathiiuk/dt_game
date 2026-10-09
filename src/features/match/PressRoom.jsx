@@ -3,7 +3,7 @@ import { ArrowRight, CheckCircle2, Mic, Newspaper, PenLine, ThumbsDown, ThumbsUp
 import { AsyncButton } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import { feel, setSoundEnabled, soundEnabled } from '../../lib/feedback'
-import { toneLabel } from '../../domain/press'
+import { toneLabel, PRESS_MAX_QUESTIONS } from '../../domain/press'
 import { NamedIcon } from '../../components/ui/named-icon'
 import { reporterOf, roomFace, nextRoomMood, TONE_ICON, lightningRound, lightningTotal, LIGHTNING_TIMEOUT } from '../../domain/pressScene'
 import { BINGO_CLICHES, PRESS_SECONDS, headlineResult, headlineRound, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
@@ -272,7 +272,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   }, [conferenceId, headlines])
 
   // M8: Conferencia corta de 2 preguntas máximo
-  const activeQuestions = useMemo(() => (questions || []).slice(0, 2), [questions])
+  const activeQuestions = useMemo(() => (questions || []).slice(0, PRESS_MAX_QUESTIONS), [questions])
   const question = activeQuestions[currentIndex]
   // No presentarse y delegar son decisiones de antes de hablar: después de la primera respuesta solo se puede terminar ahí
   const answeredAny = questions.some(q => q.chosen_tone)

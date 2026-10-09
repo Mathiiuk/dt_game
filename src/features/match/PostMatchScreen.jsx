@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { postMatchApi } from '../../api/postMatch'
 import { pressApi } from '../../api/press'
 import { useGameContext } from '../../context/GameContext'
-import { outcomeOf, pressFine } from '../../domain/press'
+import { outcomeOf, pressFine, PRESS_MAX_QUESTIONS } from '../../domain/press'
 import { formatMoney } from '../../lib/format'
 import { 
   ArrowRight, 
@@ -97,15 +97,17 @@ export default function PostMatchScreen() {
             isDerby: Boolean(results.isDerby)
           })
           if (pressRes) {
+            // Conferencias viejas guardaron más preguntas de las que la sala muestra: se cuentan solo las que se hacen
+            const asked = (pressRes.questions || []).slice(0, PRESS_MAX_QUESTIONS)
             setPressConference(pressRes.conference)
-            setPressQuestions(pressRes.questions || [])
-            const pendingIdx = pressRes.questions.findIndex(q => !q.chosen_tone)
+            setPressQuestions(asked)
+            const pendingIdx = asked.findIndex(q => !q.chosen_tone)
             // Una conferencia ya cerrada (terminada antes de la última pregunta) no se retoma al volver a la pantalla
             if (pressRes.conference?.status && pressRes.conference.status !== 'IN_PROGRESS') {
               setIsPressFinished(true)
             } else if (pendingIdx !== -1) {
               setCurrentQIndex(pendingIdx)
-            } else if (pressRes.questions.length > 0) {
+            } else if (asked.length > 0) {
               setIsPressFinished(true)
             }
           }
