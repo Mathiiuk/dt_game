@@ -128,7 +128,7 @@ describe('cada tipo de evento tiene su minijuego', () => {
   it('el propio del tipo sale más seguido y estable para el mismo evento', () => {
     for (const [category, own] of Object.entries(CATEGORY_CHALLENGES)) {
       const picks = Array.from({ length: 200 }, (_, i) => challengeFor({ template_code: `EVT_${category}_${i}`, category }))
-      expect(picks.filter(c => c === own).length).toBeGreaterThan(40)
+      expect(picks.filter(c => c === own).length).toBeGreaterThan(20) // 2 de cada 12 del sorteo
       expect(picks.every(c => c === null || ALL_CHALLENGES.includes(c))).toBe(true)
       expect(challengeFor({ template_code: `EVT_${category}_3`, category })).toBe(challengeFor({ template_code: `EVT_${category}_3`, category }))
     }
@@ -225,5 +225,46 @@ describe('cuadrar la caja', () => {
     expect(balanceWon([0, 1], items, 800)).toBe(true)
     expect(balanceWon([0, 2], items, 800)).toBe(false)
     expect(balanceWon([], items, 0)).toBe(false)
+  })
+})
+
+import { pickAutoStage, isArcEvent } from '../../src/domain/storyStage'
+
+describe('que no cansen: un solo evento se abre solo por visita', () => {
+  const arc = { id: 'a', template_code: 'ARC_PIBE_1', severity: 'MEDIUM' }
+  const loose = { id: 'b', template_code: 'EVT_X', severity: 'LOW' }
+  const critical = { id: 'c', template_code: 'EVT_Y', severity: 'CRITICAL' }
+
+  it('reconoce los capítulos de historias', () => {
+    expect(isArcEvent(arc)).toBe(true)
+    expect(isArcEvent(loose)).toBe(false)
+    expect(isArcEvent({})).toBe(false)
+  })
+
+  it('primero lo urgente, después las historias y por último los eventos sueltos', () => {
+    expect(pickAutoStage([loose, arc, critical])).toBe(critical)
+    expect(pickAutoStage([loose, arc])).toBe(arc)
+    expect(pickAutoStage([loose])).toBe(loose)
+  })
+
+  it('con el mismo nivel respeta el orden en que llegaron', () => {
+    const otro = { id: 'd', template_code: 'EVT_Z', severity: 'LOW' }
+    expect(pickAutoStage([loose, otro])).toBe(loose)
+  })
+
+  it('lo dejado para más tarde no se vuelve a abrir solo, y sin eventos no hay nada que abrir', () => {
+    expect(pickAutoStage([critical, arc], new Set(['c']))).toBe(arc)
+    expect(pickAutoStage([arc], new Set(['a']))).toBeNull()
+    expect(pickAutoStage([])).toBeNull()
+    expect(pickAutoStage(undefined)).toBeNull()
+  })
+})
+
+describe('no todos los eventos traen desafío', () => {
+  it('más o menos la mitad de los eventos no tiene ninguno', () => {
+    const picks = Array.from({ length: 400 }, (_, i) => challengeFor({ template_code: `EVT_MEDIO_${i}`, category: 'COMMUNITY' }))
+    const none = picks.filter(c => c === null).length
+    expect(none).toBeGreaterThan(120)
+    expect(none).toBeLessThan(280)
   })
 })

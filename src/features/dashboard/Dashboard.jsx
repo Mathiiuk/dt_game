@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   AlertTriangle, AlertCircle, BookOpen, Bell, ChevronRight, MessageSquareQuote, Sparkles, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { pickAutoStage } from '../../domain/storyStage'
 import { dashboardApi } from '../../api/dashboard'
 import { eventsApi } from '../../api/events'
 import { queryCache } from '../../utils/cache'
@@ -125,7 +126,7 @@ function chapterOf(title) {
 const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E']
 
 /** Dilema del DT (evento dinámico) con sus opciones */
-function EventCard({ event, budget, boardConfidence, onResolve }) {
+function EventCard({ event, budget, boardConfidence, onResolve, onPlay }) {
   const critical = event.severity === 'CRITICAL'
   const story = isStoryEvent(event)
   const chapter = story ? chapterOf(event.title) : null
@@ -153,6 +154,8 @@ function EventCard({ event, budget, boardConfidence, onResolve }) {
           {story && <Badge tone="gold"><BookOpen className="size-3" aria-hidden="true" />Historia</Badge>}
           <Badge tone={category.tone}>{category.label}</Badge>
           {critical && <Badge tone="danger" dot>Decisión urgente</Badge>}
+          {/* Se abre a pantalla completa con su minijuego cuando se quiera jugar (las opciones de abajo siguen sirviendo para decidir rápido) */}
+          {onPlay && <Button size="sm" variant="outline" className="ml-auto" onClick={() => onPlay(event)}><Play />Jugar</Button>}
         </div>
         {chapter && (
           <div className="flex items-center gap-2" aria-label={`Capítulo ${chapter.current} de ${chapter.total}`}>
@@ -326,10 +329,12 @@ export default function Dashboard() {
     }
   }
 
-  // Las historias y las decisiones del club se abren solas a pantalla completa (una por vez, con su minijuego); "decidir más tarde" las deja en el inicio
-  const nextStory = (dashboardData?.pendingEvents || []).find(e => !postponed.has(e.id))
+  // Al entrar se abre solo a pantalla completa UN evento (lo urgente primero, después las historias); el resto queda en el inicio con su botón "Jugar".
+  // Así no se encadenan y no cansan. "Decidir más tarde" lo deja en el inicio.
+  const autoOpened = useRef(false)
+  const nextStory = pickAutoStage(dashboardData?.pendingEvents, postponed)
   useEffect(() => {
-    if (!stage && nextStory) setStage({ event: nextStory, result: null })
+    if (!stage && !autoOpened.current && nextStory) { autoOpened.current = true; setStage({ event: nextStory, result: null }) }
   }, [stage, nextStory?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const chooseInStage = async (option) => {
@@ -403,7 +408,7 @@ export default function Dashboard() {
         {pendingEvents?.length > 0 && (
           <section aria-label="Decisiones pendientes" className="space-y-3">
             {pendingEvents.map(ev => (
-              <EventCard key={ev.id} event={ev} budget={Number(club?.budget || 0)} boardConfidence={Number(club?.board_confidence ?? 100)} onResolve={handleResolveEvent} />
+              <EventCard key={ev.id} event={ev} budget={Number(club?.budget || 0)} boardConfidence={Number(club?.board_confidence ?? 100)} onResolve={handleResolveEvent} onPlay={(event) => setStage({ event, result: null })} />
             ))}
           </section>
         )}

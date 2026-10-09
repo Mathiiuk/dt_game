@@ -86,8 +86,23 @@ export const challengeFor = (event) => {
   const money = event?.category === 'FINANCIAL_CRISIS'
   const own = CATEGORY_CHALLENGES[event?.category]
   const pool = [...CHALLENGES.filter(c => money || c !== 'BILLS'), ...(own ? [own, own] : [])]
-  const n = hash(`${event?.template_code || event?.id || ''}:desafio`) % (pool.length + 1)
+  // La mitad de los eventos no traen desafío: jugar siempre cansa, y así cada desafío sorprende
+  const n = hash(`${event?.template_code || event?.id || ''}:desafio`) % (pool.length * 2)
   return pool[n] || null
+}
+
+/** ¿Es un capítulo de una historia con varios capítulos? (los eventos sueltos del club no lo son) */
+export const isArcEvent = (event) => String(event?.template_code || '').startsWith('ARC_')
+
+/**
+ * Qué evento se abre solo a pantalla completa al entrar al inicio: uno solo por visita, para que no cansen.
+ * Primero las decisiones urgentes, después los capítulos de historias y por último los eventos sueltos (en el orden recibido).
+ * Los que se dejaron "para más tarde" no se vuelven a abrir solos. El resto queda en el inicio para jugarlo cuando se quiera.
+ */
+export function pickAutoStage(events = [], postponed = new Set()) {
+  const open = (events || []).filter(e => e && !postponed.has(e.id))
+  const rank = (e) => (e.severity === 'CRITICAL' ? 0 : isArcEvent(e) ? 1 : 2)
+  return [...open].sort((a, b) => rank(a) - rank(b))[0] || null
 }
 
 /** Noticias que aparecen una a una: lugar (en %), espera previa y cuánto duran a la vista (ms) */

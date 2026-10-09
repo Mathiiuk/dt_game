@@ -129,6 +129,20 @@ describe('decisiones sueltas del club a pantalla completa', () => {
     expect(screen.getByText('Traerlo ya')).toBeInTheDocument()
   })
 
+  it('un evento suelto se lee de un solo toque y una historia con capítulos se lee de a momentos', () => {
+    const { unmount } = render(<StoryStage event={looseEvent()} budget={1000} boardConfidence={80} result={null} busy={false} onChoose={vi.fn()} onLater={vi.fn()} onClose={vi.fn()} />)
+    // El evento suelto muestra todo el texto junto: un solo toque para seguir
+    expect(screen.getByText(/Terminó el entrenamiento abierto.*camiseta puesta esperando una foto/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Seguir leyendo' }))
+    expect(screen.queryByRole('button', { name: 'Seguir leyendo' })).not.toBeInTheDocument()
+    unmount()
+    // Una historia con capítulos se reparte en varios momentos
+    render(<StoryStage event={{ ...makeEvent(findCode('HOLD', null)), description: 'Un ojeador te cuenta de un zurdo. "Pará, que se lo lleva un grande", te susurra. Mide uno sesenta.' }} budget={1000} boardConfidence={80} result={null} busy={false} onChoose={vi.fn()} onLater={vi.fn()} onClose={vi.fn()} />)
+    let taps = 0
+    while (screen.queryByRole('button', { name: 'Seguir leyendo' }) && taps < 10) { fireEvent.click(screen.getByRole('button', { name: 'Seguir leyendo' })); taps++ }
+    expect(taps).toBeGreaterThan(1)
+  })
+
   it('una decisión urgente lo avisa en la cabecera', () => {
     render(<StoryStage event={looseEvent({ severity: 'CRITICAL', category: 'LOCKER_ROOM', title: 'Pelea en el vestuario' })} budget={1000} boardConfidence={80} result={null} busy={false} onChoose={vi.fn()} onLater={vi.fn()} onClose={vi.fn()} />)
     const dialog = screen.getByRole('dialog')

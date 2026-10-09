@@ -3,7 +3,7 @@ import { BookOpen, ChevronRight, Coins, Hourglass, MessageSquareQuote, Newspaper
 import { splitBeats, effectChips } from '../../domain/storyFlavor'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
-import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
+import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, isArcEvent, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
 import { RumorChallenge, SequenceChallenge, TapsChallenge, TargetPick } from './StoryMinigames'
 import { BillsChallenge, ReflexChallenge } from './StoryActionGames'
 import { BalanceChallenge, CalmChallenge, ChantChallenge, HeadlineChallenge } from './StoryCategoryGames'
@@ -121,7 +121,8 @@ function DecisionTimer({ seconds, onExpire }) {
 export default function StoryStage({ event, budget, boardConfidence, result, busy, onChoose, onLater, onClose }) {
   const arc = arcById(parseArcCode(event.template_code)?.arcId)
   const chapter = chapterOf(event.title)
-  const beats = useMemo(() => splitBeats(event.description), [event.description])
+  // Las historias se leen de a momentos; los eventos sueltos, de un solo toque (son cortos y no hace falta tanto tap)
+  const beats = useMemo(() => (isArcEvent(event) ? splitBeats(event.description) : [{ type: 'tell', text: event.description }]), [event.description, event.template_code]) // eslint-disable-line react-hooks/exhaustive-deps
   const options = Array.isArray(event.options) ? event.options : []
   const mode = stageModeFor(event)
   const ctx = { budget, boardConfidence }
