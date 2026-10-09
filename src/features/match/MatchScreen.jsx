@@ -204,7 +204,6 @@ export default function MatchScreen() {
               setEvents(parsed.simResults.events || [])
               setMinute(90)
               setMatchState('finished')
-              toast.info('Partido reanudado y completado automáticamente.')
             }
           } catch (err) {
             console.error('Error restaurando estado del partido:', err)
@@ -213,7 +212,6 @@ export default function MatchScreen() {
           setScore({ home: fixture.home_score || 0, away: fixture.away_score || 0 })
           setMinute(90)
           setMatchState('finished')
-          toast.info('Este partido ya fue disputado.')
         }
       } catch (e) {
         console.error(e)
@@ -365,7 +363,6 @@ export default function MatchScreen() {
     setPreselectOut(null)
     if (isLg && autoPausedRef.current) { autoPausedRef.current = false; setPaused(false) }
     setEvents(prev => [{ minute: Math.max(1, minute), type: 'SUBSTITUTION', text: substitutionText(made.sub), team: userSide }, ...prev])
-    toast.success(`Cambio: entra ${made.sub.inName}`)
   }
 
   // Decisión de un momento (entretiempo, ir perdiendo, roja, lesión)
@@ -376,7 +373,6 @@ export default function MatchScreen() {
     if (option.buff && Object.keys(option.buff).length > 0) {
       commitChange({ buff: option.buff, duration: option.duration })
       logDirective(decisionText(option))
-      toast.success(option.label)
     }
     // Penal: quién lo patea (a favor) o hacia dónde se tira el arquero (en contra); se resuelve al minuto siguiente
     if (option.action === 'PENALTY_TAKER' && option.playerId) {
@@ -438,7 +434,6 @@ export default function MatchScreen() {
     setEvents(simResults.events || [])
     setMatchState('finished')
     persistMatchResults(simResults)
-    toast.success('Partido simulado hasta el pitido final.')
   }
 
   // Órdenes tácticas del DT en vivo
@@ -447,7 +442,6 @@ export default function MatchScreen() {
     setActiveOrder(order.id)
     setLastShout(minute)
     commitChange({ buff: shoutBuff(order.effect), duration: SHOUT_DURATION })
-    toast.success(`Orden aplicada: ${order.label}`)
     logDirective(`[DT] ${order.label} - ${order.desc}`)
   }
 
