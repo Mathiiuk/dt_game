@@ -8,6 +8,16 @@
  */
 
 export const STAGE_MODES = ['HOLD', 'COIN', 'TIMER', 'TARGET']
+// Las decisiones urgentes se piensan: sin moneda ni reloj que decidan por vos (mantener apretado o puntería)
+export const CRITICAL_STAGE_MODES = ['HOLD', 'TARGET']
+
+/** Cómo se llama cada tipo de evento en la cabecera de la pantalla completa (las historias con capítulos usan el título de la historia) */
+export const EVENT_KIND_LABEL = {
+  COMMUNITY: 'Comunidad y barrio',
+  LOCKER_ROOM: 'Vestuario',
+  BOARD_PRESS: 'Dirigencia y prensa',
+  FINANCIAL_CRISIS: 'Crisis de plata'
+}
 export const HOLD_MS = 900
 export const TIMER_SECONDS = 12
 
@@ -21,7 +31,10 @@ const hash = (str) => {
 }
 
 /** Modo de decisión del capítulo: estable para el mismo evento */
-export const stageModeFor = (event) => STAGE_MODES[hash(event?.template_code || event?.id || '') % STAGE_MODES.length]
+export const stageModeFor = (event) => {
+  const pool = event?.severity === 'CRITICAL' ? CRITICAL_STAGE_MODES : STAGE_MODES
+  return pool[hash(event?.template_code || event?.id || '') % pool.length]
+}
 
 /** ¿Se puede elegir esta opción? (alcanza la caja y la dirigencia la respalda) */
 export const canChoose = (opt, { budget = 0, boardConfidence = 100 } = {}) => {

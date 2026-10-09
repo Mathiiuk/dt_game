@@ -92,3 +92,25 @@ describe('reflejos y billetes', () => {
     expect(other.has('REFLEX')).toBe(true)
   })
 })
+
+import { CRITICAL_STAGE_MODES, EVENT_KIND_LABEL } from '../../src/domain/storyStage'
+
+describe('decisiones sueltas del club', () => {
+  it('una decisión urgente nunca se deja a la moneda ni al reloj', () => {
+    for (let i = 0; i < 60; i++) {
+      const mode = stageModeFor({ template_code: `EVT_CRITICO_${i}`, severity: 'CRITICAL' })
+      expect(CRITICAL_STAGE_MODES).toContain(mode)
+    }
+    // Y con distintos eventos aparecen las dos formas serias
+    expect(new Set(Array.from({ length: 60 }, (_, i) => stageModeFor({ template_code: `EVT_CRITICO_${i}`, severity: 'CRITICAL' }))).size).toBe(2)
+  })
+
+  it('las no urgentes siguen repartiéndose entre los cuatro modos', () => {
+    const modes = new Set(Array.from({ length: 80 }, (_, i) => stageModeFor({ template_code: `EVT_COMUN_${i}`, severity: 'MEDIUM' })))
+    expect(modes.size).toBe(4)
+  })
+
+  it('cada categoría de evento tiene su nombre para la cabecera', () => {
+    for (const cat of ['COMMUNITY', 'LOCKER_ROOM', 'BOARD_PRESS', 'FINANCIAL_CRISIS']) expect(EVENT_KIND_LABEL[cat]).toBeTruthy()
+  })
+})

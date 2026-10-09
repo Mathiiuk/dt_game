@@ -326,8 +326,8 @@ export default function Dashboard() {
     }
   }
 
-  // Las historias se abren solas a pantalla completa (una por vez); "decidir más tarde" las deja en el inicio
-  const nextStory = (dashboardData?.pendingEvents || []).find(e => isStoryEvent(e) && !postponed.has(e.id))
+  // Las historias y las decisiones del club se abren solas a pantalla completa (una por vez, con su minijuego); "decidir más tarde" las deja en el inicio
+  const nextStory = (dashboardData?.pendingEvents || []).find(e => !postponed.has(e.id))
   useEffect(() => {
     if (!stage && nextStory) setStage({ event: nextStory, result: null })
   }, [stage, nextStory?.id]) // eslint-disable-line react-hooks/exhaustive-deps

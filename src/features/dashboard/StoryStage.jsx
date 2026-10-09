@@ -3,7 +3,7 @@ import { BookOpen, ChevronRight, Coins, Hourglass, MessageSquareQuote, Newspaper
 import { splitBeats, effectChips } from '../../domain/storyFlavor'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
-import { HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
+import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
 import { RumorChallenge, SequenceChallenge, TapsChallenge, TargetPick } from './StoryMinigames'
 import { BillsChallenge, ReflexChallenge } from './StoryActionGames'
 import { formatMoney } from '../../lib/format'
@@ -108,7 +108,8 @@ function DecisionTimer({ seconds, onExpire }) {
 }
 
 /**
- * Historia a pantalla completa. Tres momentos: leer el capítulo (de a poco, tocando), decidir (con una mecánica distinta
+ * Historia o decisión a pantalla completa (sirve tanto para los capítulos de las historias como para los eventos sueltos del club).
+ * Tres momentos: leer el capítulo (de a poco, tocando), decidir (con una mecánica distinta
  * según el capítulo: mantener apretado, moneda o reloj) y ver cómo quedó la cosa. Las opciones y sus efectos son las reales del evento.
  */
 export default function StoryStage({ event, budget, boardConfidence, result, busy, onChoose, onLater, onClose }) {
@@ -146,7 +147,10 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
       <header className="flex shrink-0 items-center gap-3 px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold"><CategoryIcon className="size-5" aria-hidden="true" /></span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[11px] font-bold uppercase tracking-widest text-gold">{arc?.title || 'Historia'}</p>
+          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gold">
+            <span className="truncate">{arc?.title || EVENT_KIND_LABEL[event.category] || 'Decisión del DT'}</span>
+            {event.severity === 'CRITICAL' && <Badge tone="danger" dot className="shrink-0">Urgente</Badge>}
+          </p>
           {chapter && (
             <div className="mt-1 flex items-center gap-1" aria-label={`Capítulo ${chapter.current} de ${chapter.total}`}>
               {Array.from({ length: chapter.total }, (_, i) => (

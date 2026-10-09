@@ -103,3 +103,41 @@ describe('historia a pantalla completa', () => {
     expect(screen.queryByText(/Hinchada \+2/)).not.toBeInTheDocument()
   })
 })
+
+describe('decisiones sueltas del club a pantalla completa', () => {
+  const looseEvent = (extra = {}) => ({
+    id: 'ev9',
+    template_code: 'EVT_TRIBUNA_CANTA',
+    category: 'COMMUNITY',
+    severity: 'LOW',
+    title: 'La tribuna te canta el nombre',
+    description: 'Terminó el entrenamiento abierto y los hinchas empezaron a cantar. No es habitual. Hay chicos con la camiseta puesta esperando una foto.',
+    options: baseOptions,
+    ...extra
+  })
+
+  it('un evento común (sin capítulos) se lee de a poco con el nombre de su tipo en la cabecera', () => {
+    render(<StoryStage event={looseEvent()} budget={1000} boardConfidence={80} result={null} busy={false} onChoose={vi.fn()} onLater={vi.fn()} onClose={vi.fn()} />)
+    const dialog = screen.getByRole('dialog', { name: 'La tribuna te canta el nombre' })
+    expect(within(dialog).getByText('Comunidad y barrio')).toBeInTheDocument()
+    expect(within(dialog).queryByLabelText(/Capítulo/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Traerlo ya')).not.toBeInTheDocument()
+    readAll()
+    // Si le toca un desafío de pista se puede pasar y decidir a ciegas
+    const skipClue = screen.queryByRole('button', { name: /Paso, decido a ciegas/ })
+    if (skipClue) fireEvent.click(skipClue)
+    expect(screen.getByText('Traerlo ya')).toBeInTheDocument()
+  })
+
+  it('una decisión urgente lo avisa en la cabecera', () => {
+    render(<StoryStage event={looseEvent({ severity: 'CRITICAL', category: 'LOCKER_ROOM', title: 'Pelea en el vestuario' })} budget={1000} boardConfidence={80} result={null} busy={false} onChoose={vi.fn()} onLater={vi.fn()} onClose={vi.fn()} />)
+    const dialog = screen.getByRole('dialog')
+    expect(within(dialog).getByText('Vestuario')).toBeInTheDocument()
+    expect(within(dialog).getByText('Urgente')).toBeInTheDocument()
+  })
+
+  it('un evento de otro tipo no cae en "Historia": usa su categoría o "Decisión del DT"', () => {
+    render(<StoryStage event={looseEvent({ category: 'OTRA' })} budget={1000} boardConfidence={80} result={null} busy={false} onChoose={vi.fn()} onLater={vi.fn()} onClose={vi.fn()} />)
+    expect(screen.getByText('Decisión del DT')).toBeInTheDocument()
+  })
+})
