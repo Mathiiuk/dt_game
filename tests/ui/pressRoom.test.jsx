@@ -201,3 +201,32 @@ describe('sala de prensa arcade', () => {
     expect(screen.getByText(/Arrastrá una ficha al micrófono/)).toBeInTheDocument()
   })
 })
+
+describe('racha de reflejos', () => {
+  beforeEach(() => { localStorage.clear(); sessionStorage.clear() })
+  afterEach(() => vi.useRealTimers())
+
+  it('contestar al toque muestra el cartel de racha y la sala se prende', async () => {
+    setup()
+    await click(screen.getByRole('button', { name: /Partido a partido/ }))
+    expect(screen.getByText(/Contestaste sin dudar/)).toBeInTheDocument()
+    expect(screen.getAllByText('¡Al toque!').length).toBeGreaterThan(0)
+  })
+
+  it('contestar con lo justo no arma racha', async () => {
+    vi.useFakeTimers()
+    setup()
+    seconds(10)
+    await click(screen.getByRole('button', { name: /Partido a partido/ }))
+    expect(screen.queryByText(/Contestaste sin dudar/)).not.toBeInTheDocument()
+    expect(screen.queryByText('¡Al toque!')).not.toBeInTheDocument()
+  })
+
+  it('si se acaba el tiempo no hay racha', async () => {
+    vi.useFakeTimers()
+    setup()
+    seconds(13)
+    await act(async () => { await Promise.resolve() })
+    expect(screen.queryByText(/Contestaste sin dudar/)).not.toBeInTheDocument()
+  })
+})

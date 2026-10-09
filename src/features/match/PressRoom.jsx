@@ -6,6 +6,7 @@ import { feel, setSoundEnabled, soundEnabled } from '../../lib/feedback'
 import { toneLabel, PRESS_MAX_QUESTIONS } from '../../domain/press'
 import { NamedIcon } from '../../components/ui/named-icon'
 import { reporterOf, roomFace, nextRoomMood, TONE_ICON, lightningRound, lightningTotal, LIGHTNING_TIMEOUT } from '../../domain/pressScene'
+import { speedOf, nextCombo, comboMoodBonus, comboLabel } from '../../domain/pressCombo'
 import { BINGO_CLICHES, PRESS_SECONDS, headlineResult, headlineRound, phraseResult, phraseRound, roomReaction, timeoutOption } from '../../domain/pressRoom'
 
 const TONE_COLORS = {
@@ -26,10 +27,12 @@ const clicheText = Object.fromEntries(BINGO_CLICHES.map(c => [c.id, c.text]))
 const signed = (n) => (n > 0 ? 'sube' : n < 0 ? 'baja' : 'sin cambios')
 
 /** Cuenta regresiva de una pregunta: al llegar a cero responde sola con la opción más cauta */
-function Countdown({ seconds, onExpire }) {
+function Countdown({ seconds, onExpire, leftRef = null }) {
   const [left, setLeft] = useState(seconds)
   const expire = useRef(onExpire)
   expire.current = onExpire
+  // Quien contesta necesita saber cuánto quedaba para medir los reflejos
+  if (leftRef) leftRef.current = left
 
   useEffect(() => {
     if (left <= 0) {
@@ -244,6 +247,8 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const [grabbed, setGrabbed] = useState(null) // la ficha que se está arrastrando: su frase se lee grande junto al micrófono
   const onHover = (state, opt = null) => { setHover(state); setGrabbed(state ? opt : null) }
   const [answering, setAnswering] = useState(false)
+  const [combo, setCombo] = useState(0) // respuestas rápidas seguidas
+  const leftRef = useRef(PRESS_SECONDS) // segundos que quedaban al contestar
   const micRef = useRef(null)
   const [lightning, setLightning] = useState(null) // total de la ronda relámpago cuando termina
   const [phraseDone, setPhraseDone] = useState(() => phraseDoneBefore(conferenceId))
@@ -292,11 +297,16 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
   const answer = async (option, timedOut = false) => {
     await onAnswer(question, option, { timedOut })
     const r = roomReaction({ tone: option.tone, outcome })
+    // Reflejos: contestar rápido seguido arma un combo que levanta el humor de la sala
+    const speed = speedOf({ secondsLeft: leftRef.current, totalSeconds: PRESS_SECONDS, timedOut, timerOff: noTimer })
+    const newCombo = nextCombo(combo, speed)
+    const bonus = comboMoodBonus(newCombo, speed)
+    setCombo(newCombo)
     // La respuesta se siente: vibra y suena distinto si cayó bien o mal en la sala
     const sign = r.fans + r.board
     feel(timedOut || sign < 0 ? 'bad' : sign > 0 ? 'good' : 'tap')
-    setMood(m => nextRoomMood(m, r))
-    setReaction({ ...r, timedOut, tone: option.tone, said: option.text })
+    setMood(m => Math.min(100, nextRoomMood(m, r) + bonus))
+    setReaction({ ...r, timedOut, tone: option.tone, said: option.text, speed, combo: newCombo, bonus })
   }
 
   const next = () => {
@@ -391,6 +401,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
         {activeQuestions.map((_, i) => <span key={i} className={`h-2 w-6 rounded-full transition-colors ${i < currentIndex ? 'bg-accent' : i === currentIndex ? 'bg-gold' : 'bg-surface-3'}`} />)}
       </span>
       <div className="min-w-0 flex-1">{(answeredAny || reaction) && <RoomMeter mood={mood} compact />}</div>
+      {combo > 0 && <span role="status" className="shrink-0 animate-rise-in rounded-full border border-gold/60 bg-gold-soft px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-gold">{comboLabel(combo)}</span>}
       {reaction && soundBtn}
     </div>
   )
@@ -421,6 +432,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
     body = (
       <div className="flex min-h-0 flex-1 flex-col justify-center gap-3" aria-live="polite">
         {reaction.timedOut && <p className="rounded-xl border border-warning/40 bg-warning-soft p-2.5 text-xs font-semibold text-warning">Se te acabó el tiempo: contestaste nervioso.</p>}
+        {reaction.speed === 'FAST' && <p className="rounded-xl border border-gold/40 bg-gold-soft p-2.5 text-xs font-semibold text-gold">{comboLabel(reaction.combo)} Contestaste sin dudar y la sala se prende (+{reaction.bonus} de humor).</p>}
         {reaction.said && (
           <div className="ml-6 animate-rise-in rounded-2xl rounded-br-none border border-accent/40 bg-accent-soft p-3">
             <p className="mb-1 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-accent"><Mic className="size-3.5" aria-hidden="true" />Vos dijiste</p>
@@ -563,7 +575,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
       <div className="flex min-h-0 flex-1 flex-col gap-3">
         <ReporterBubble key={question.id || currentIndex} question={question} index={currentIndex} />
 
-        {noTimer ? null : <Countdown key={question.id || currentIndex} seconds={PRESS_SECONDS} onExpire={() => answer(timeoutOption(question.options), true)} />}
+        {noTimer ? null : <Countdown key={question.id || currentIndex} seconds={PRESS_SECONDS} leftRef={leftRef} onExpire={() => answer(timeoutOption(question.options), true)} />}
 
         {/* Las cuatro posturas a la vista: tocá la que querés decir */}
         <div role="group" aria-label="Elegí tu postura y respuesta" className={`grid min-h-0 flex-1 grid-cols-2 gap-2.5 ${options.length > 2 ? 'grid-rows-2' : ''}`}>
