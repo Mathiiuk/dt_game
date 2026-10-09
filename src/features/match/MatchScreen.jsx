@@ -48,7 +48,7 @@ import { cleanTakers } from '../../domain/specialists'
 import RivalScout from './RivalScout'
 import DerbyDuel from './DerbyDuel'
 import { pressApi } from '../../api/press'
-import { isDerby, duelKickoffLine } from '../../domain/derbyDuel'
+import { fixtureIsDerby, duelKickoffLine } from '../../domain/derbyDuel'
 import { rivalStyleFor } from '../../domain/rivalStyle'
 
 // Puestos de la formación activa (en el orden en que se guarda la alineación)
@@ -289,6 +289,8 @@ export default function MatchScreen() {
     const matchData = {
       ...results,
       isHome,
+      // El clásico mueve la taquilla, la hinchada, la dirigencia y la prensa: el resultado lo lleva hasta el post-partido
+      isDerby: fixtureIsDerby(data.fixture, data.club.id),
       opponentName: oppName,
       // Lesionados que jugaron: el post-partido evalúa si agravan la lesión
       injuredPlayingIds: matchSquad.injuredPlayingIds,
@@ -333,7 +335,7 @@ export default function MatchScreen() {
   const userSide = (data.fixture ? data.fixture.home_team_id === data.club?.id : true) ? 'home' : 'away'
 
   // Clásico: el duelo de declaraciones se juega una sola vez por partido (si se recarga, no se repite)
-  const derby = Boolean(data.fixture && isDerby(data.club?.id, rivalClub?.id))
+  const derby = fixtureIsDerby(data.fixture, data.club?.id)
   const duelKey = `derby_duel_${fixtureId || data.club?.id}`
   useEffect(() => {
     if (!derby) return

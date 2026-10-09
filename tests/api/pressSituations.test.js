@@ -94,4 +94,19 @@ describe('la conferencia incluye las preguntas nuevas', () => {
     expect(cats.filter(c => c === 'STAR_PERFORMANCE').length).toBeGreaterThanOrEqual(2)
     expect(state.inserted.length).toBe(4)
   })
+
+  it('en un clásico la pregunta del clásico es la 2ª, la que la sala sí hace, y la de la figura baja a la 3ª', async () => {
+    await pressApi._generatePostMatchConference({ ...baseParams, isDerby: true })
+    const byOrder = Object.fromEntries(state.inserted.map(q => [q.order_index, q.topic_category]))
+    expect(byOrder[1]).not.toBe('NEXT_DERBY_HYPE')
+    expect(byOrder[2]).toBe('NEXT_DERBY_HYPE')
+    expect(byOrder[3]).toBe('STAR_PERFORMANCE')
+    expect(new Set(state.inserted.map(q => q.order_index)).size).toBe(state.inserted.length)
+  })
+
+  it('sin clásico la 2ª pregunta sigue siendo la de la figura', async () => {
+    await pressApi._generatePostMatchConference({ ...baseParams, isDerby: false })
+    const second = state.inserted.find(q => q.order_index === 2)
+    expect(second.topic_category).toBe('STAR_PERFORMANCE')
+  })
 })

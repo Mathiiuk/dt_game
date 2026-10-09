@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isDerby, buildDuel, scoreAnswer, duelOutcome, DUEL_MORALE, duelKickoffLine, JAB_TYPES, TONES, DUEL_ROUNDS, DERBY_MODULUS } from '../../src/domain/derbyDuel'
+import { isDerby, fixtureIsDerby, buildDuel, scoreAnswer, duelOutcome, DUEL_MORALE, duelKickoffLine, JAB_TYPES, TONES, DUEL_ROUNDS, DERBY_MODULUS } from '../../src/domain/derbyDuel'
 
 // Un generador con semilla para que las pruebas no dependan del azar
 const seeded = (seed = 1) => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646 }
@@ -21,6 +21,24 @@ describe('clásicos', () => {
     const n = rivals.filter(r => isDerby('mi-club', r)).length
     expect(n).toBeGreaterThan(190 / DERBY_MODULUS / 2)
     expect(n).toBeLessThan(190 / DERBY_MODULUS * 2)
+  })
+})
+
+describe('el partido es clásico', () => {
+  const rivals = Array.from({ length: 60 }, (_, i) => `rival-${i}`)
+  const derbyRival = rivals.find(r => isDerby('mi-club', r))
+  const normalRival = rivals.find(r => !isDerby('mi-club', r))
+
+  it('lo es igual de local que de visitante', () => {
+    expect(fixtureIsDerby({ home_team_id: 'mi-club', away_team_id: derbyRival }, 'mi-club')).toBe(true)
+    expect(fixtureIsDerby({ home_team_id: derbyRival, away_team_id: 'mi-club' }, 'mi-club')).toBe(true)
+    expect(fixtureIsDerby({ home_team_id: 'mi-club', away_team_id: normalRival }, 'mi-club')).toBe(false)
+  })
+
+  it('sin partido o sin club no hay clásico', () => {
+    expect(fixtureIsDerby(null, 'mi-club')).toBe(false)
+    expect(fixtureIsDerby({ home_team_id: 'mi-club', away_team_id: derbyRival }, null)).toBe(false)
+    expect(fixtureIsDerby({}, 'mi-club')).toBe(false)
   })
 })
 

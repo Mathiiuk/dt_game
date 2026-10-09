@@ -274,7 +274,6 @@ export const pressApi = {
     ])
     const dynamicQuestions = [situationQuestion(pressCtx), memoryQuestion(tones)].filter(Boolean)
     const extras = []
-    if (isDerby) extras.push({ ...generalQuestion })
     extras.push(...dynamicQuestions.map((q, i) => ({
       conference_id: conference.id,
       journalist_name: MEDIA_OUTLETS[(2 + i + (isDerby ? 1 : 0)) % MEDIA_OUTLETS.length].journalist,
@@ -282,7 +281,15 @@ export const pressApi = {
       ...q
     })))
     if (!isDerby && extras.length === 0 && Math.random() > 0.4) extras.push({ ...generalQuestion })
-    extras.slice(0, 2).forEach((q, i) => questionsList.push({ ...q, order_index: 3 + i }))
+    if (isDerby) {
+      // El clásico se pregunta de verdad: pasa a ser la 2ª pregunta (la sala hace dos) y la de la figura baja al lugar siguiente
+      const star = questionsList.find(q => q.order_index === 2)
+      if (star) star.order_index = 3
+      questionsList.push({ ...generalQuestion, order_index: 2 })
+      extras.slice(0, 1).forEach((q, i) => questionsList.push({ ...q, order_index: 4 + i }))
+    } else {
+      extras.slice(0, 2).forEach((q, i) => questionsList.push({ ...q, order_index: 3 + i }))
+    }
 
     // Insertar preguntas en BD
     const { data: insertedQuestions, error: qaErr } = await supabase

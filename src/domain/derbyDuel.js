@@ -14,6 +14,13 @@ export function isDerby(clubId, rivalId) {
   return hash([String(clubId), String(rivalId)].sort().join('|')) % DERBY_MODULUS === 0
 }
 
+/** ¿El partido (con sus dos clubes) es un clásico? Sin partido o sin alguno de los dos clubes, no */
+export function fixtureIsDerby(fixture, clubId) {
+  if (!fixture || !clubId) return false
+  const rivalId = fixture.home_team_id === clubId ? fixture.away_team_id : fixture.home_team_id
+  return isDerby(clubId, rivalId)
+}
+
 export const TONES = ['BRAVE', 'COOL', 'RESPECT']
 export const TONE_LABEL = { BRAVE: 'Plantarse', COOL: 'Con calma', RESPECT: 'Con respeto' }
 
