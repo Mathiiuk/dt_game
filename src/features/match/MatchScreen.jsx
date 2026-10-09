@@ -46,6 +46,9 @@ import { teamChemistry } from '../../domain/chemistry'
 import { FREE_FORMATION, normalizeLayout, slotsOfLayout } from '../../domain/freeLayout'
 import { cleanTakers } from '../../domain/specialists'
 import RivalScout from './RivalScout'
+import DerbyDuel from './DerbyDuel'
+import { pressApi } from '../../api/press'
+import { isDerby, duelKickoffLine } from '../../domain/derbyDuel'
 import { rivalStyleFor } from '../../domain/rivalStyle'
 
 // Puestos de la formación activa (en el orden en que se guarda la alineación)
@@ -94,6 +97,8 @@ export default function MatchScreen() {
   const [lastShout, setLastShout] = useState(null)
   const [preselectOut, setPreselectOut] = useState(null)
   const [subsSheetOpen, setSubsSheetOpen] = useState(false)
+  const [duelOpen, setDuelOpen] = useState(false) // el duelo de declaraciones del clásico está en pantalla
+  const [duel, setDuel] = useState(null) // { result, total } cuando ya se jugó
   const [shoutsSheetOpen, setShoutsSheetOpen] = useState(false)
 
   // Vista previa del once: avisa antes del pitazo si el plantel está incompleto
@@ -300,7 +305,8 @@ export default function MatchScreen() {
     setSimResults(matchData)
     setMinute(0)
     setScore({ home: 0, away: 0 })
-    setEvents([])
+    // Si hubo duelo de declaraciones antes del clásico, el relato lo recuerda al arrancar
+    setEvents(duel ? [{ minute: 1, type: 'TACTIC_SHOUT', text: duelKickoffLine(duel.result, oppName), team: isHome ? 'home' : 'away' }] : [])
     setPaused(false)
     setMatchState('playing')
 
@@ -325,6 +331,23 @@ export default function MatchScreen() {
   const rivalPreview = useMemo(() => buildRivalLineup(rivalClub?.reputation || 10, rivalClub?.strength ?? null, rivalClub?.id || rivalClub?.name || 'rival'), [rivalClub?.reputation, rivalClub?.strength, rivalClub?.id, rivalClub?.name])
 
   const userSide = (data.fixture ? data.fixture.home_team_id === data.club?.id : true) ? 'home' : 'away'
+
+  // Clásico: el duelo de declaraciones se juega una sola vez por partido (si se recarga, no se repite)
+  const derby = Boolean(data.fixture && isDerby(data.club?.id, rivalClub?.id))
+  const duelKey = `derby_duel_${fixtureId || data.club?.id}`
+  useEffect(() => {
+    if (!derby) return
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(duelKey) || 'null')
+      if (saved?.result) setDuel(saved)
+    } catch { /* sin almacenamiento el duelo se puede volver a jugar */ }
+  }, [derby, duelKey])
+  const handleDuelFinish = async (outcome) => {
+    setDuel(outcome)
+    setDuelOpen(false)
+    try { sessionStorage.setItem(duelKey, JSON.stringify(outcome)) } catch { /* sin almacenamiento el resultado igual rige este partido */ }
+    await pressApi.applyDuelResult({ clubId: data.club?.id, result: outcome.result })
+  }
 
   // Todo cambio del DT (jugadores, gritos, decisiones) rejuega el resto del partido con la misma semilla:
   // hasta el minuto actual queda igual y desde el siguiente rinde lo nuevo
@@ -608,8 +631,26 @@ export default function MatchScreen() {
               </div>
             )}
 
+            {matchState === 'pre-match' && derby && duelOpen && (
+              <DerbyDuel rivalName={oppDisplayName} onFinish={handleDuelFinish} />
+            )}
+
+            {matchState === 'pre-match' && derby && !duelOpen && (
+              <div className="shrink-0 rounded-xl border border-gold/50 bg-gold/10 p-3 text-gold" role="status">
+                <p className="text-xs font-black uppercase tracking-wider">¡Es clásico!</p>
+                {duel ? (
+                  <p className="mt-1 text-xs text-fg">{duel.result === 'WIN' ? 'Ganaste el duelo de declaraciones con' : duel.result === 'LOSE' ? 'Perdiste el duelo de declaraciones con' : 'Duelo parejo con'} {oppDisplayName}.</p>
+                ) : (
+                  <>
+                    <p className="mt-1 text-xs text-fg">{oppDisplayName} ya empezó a hablar. Contestale antes del pitazo: puede subirle o bajarle la moral a tu plantel.</p>
+                    <button type="button" onClick={() => setDuelOpen(true)} className="mt-2 min-h-11 w-full rounded-lg border border-gold/60 bg-bg px-3 text-xs font-bold uppercase tracking-wider text-gold transition-colors hover:bg-surface-3">Cruce de declaraciones</button>
+                  </>
+                )}
+              </div>
+            )}
+
             {matchState === 'pre-match'
-              ? <RivalScout lineup={rivalPreview} rivalName={oppDisplayName} style={rivalStyleFor(rivalClub?.id || rivalClub?.name || 'rival')} />
+              ? (!duelOpen && <RivalScout lineup={rivalPreview} rivalName={oppDisplayName} style={rivalStyleFor(rivalClub?.id || rivalClub?.name || 'rival')} />)
               : <MatchTimeline events={events} matchState={matchState} />}
 
             {matchState !== 'pre-match' && simResults?.stats && (

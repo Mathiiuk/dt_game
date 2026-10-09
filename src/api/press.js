@@ -6,6 +6,7 @@ import { seasonYearOf } from '../domain/gameWeek'
 import { bingoCard, bingoLines, markCliche } from '../domain/pressRoom'
 import { toneHistory, memoryQuestion, situationQuestion } from '../domain/pressSituations'
 import { pressEcho, hasEcho } from '../domain/pressEcho'
+import { DUEL_MORALE } from '../domain/derbyDuel'
 
 export const MEDIA_OUTLETS = [
   { name: 'FM El Aguante 91.5', journalist: 'Horacio "El Turco" Méndez', tier: 5 },
@@ -403,6 +404,25 @@ export const pressApi = {
   async applyPhrase({ clubId, fans = 0, gameDate = null }) {
     if (!clubId || !fans) return null
     return climateApi.applySquadConsequence({ clubId, source: 'PRESS', gameDate, effects: { fans, notes: ['La frase que elegiste en la conferencia.'] } })
+  },
+
+  /**
+   * El duelo de declaraciones antes del clásico mueve un poco la moral de todo el plantel (ganar sube, perder baja).
+   * Devuelve los puntos aplicados; nunca rompe el partido si falla.
+   */
+  async applyDuelResult({ clubId, result }) {
+    const delta = DUEL_MORALE[result] || 0
+    if (!clubId || delta === 0) return 0
+    try {
+      const { data: players } = await supabase.from('players').select('id, state_morale').eq('club_id', clubId)
+      if (!players?.length) return 0
+      const { playerApi } = await import('./player')
+      await playerApi.batchUpdate(players.map(p => ({ id: p.id, state_morale: Math.min(100, Math.max(10, (p.state_morale ?? 70) + delta)) })))
+      return delta
+    } catch (err) {
+      console.warn('Aviso: no se pudo aplicar el resultado del duelo:', err)
+      return 0
+    }
   },
 
   /**
