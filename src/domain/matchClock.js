@@ -1,12 +1,11 @@
 /**
  * Reloj del partido en vivo: velocidades y tiempo real entre minutos simulados.
- * x1 es lento y legible (un partido dura alrededor de un minuto), x2 es la velocidad que antes era la normal y x4 es rápida.
+ * x1 es lento y legible (un partido dura alrededor de un minuto) y x2 es la velocidad que antes era la normal.
  * Saltear el partido es una acción aparte, no una velocidad.
  */
 export const MATCH_SPEEDS = [
   { id: 1, label: 'x1', ms: 700, hint: 'Lento: leé cada jugada' },
-  { id: 2, label: 'x2', ms: 150, hint: 'Normal' },
-  { id: 4, label: 'x4', ms: 40, hint: 'Rápido' }
+  { id: 2, label: 'x2', ms: 150, hint: 'Normal' }
 ]
 
 export const DEFAULT_SPEED = 1

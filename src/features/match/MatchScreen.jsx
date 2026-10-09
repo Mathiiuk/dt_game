@@ -82,7 +82,7 @@ export default function MatchScreen() {
   const [score, setScore] = useState({ home: 0, away: 0 })
   const [events, setEvents] = useState([])
   const [simResults, setSimResults] = useState(null)
-  const [speed, setSpeed] = useState(DEFAULT_SPEED) // x1 lento, x2, x4
+  const [speed, setSpeed] = useState(DEFAULT_SPEED) // x1 lento, x2
   const [paused, setPaused] = useState(false)
   const { confirmAction } = useGameContext()
   const [activeOrder, setActiveOrder] = useState(null)

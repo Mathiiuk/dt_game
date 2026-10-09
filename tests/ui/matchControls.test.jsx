@@ -12,16 +12,17 @@ describe('controles del partido', () => {
     return handlers
   }
 
-  it('ofrece pausa, tres velocidades y saltear como acción aparte', async () => {
+  it('ofrece pausa, dos velocidades y saltear como acción aparte', async () => {
     const h = setup()
     expect(screen.getByRole('button', { name: 'Pausa' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByRole('radio', { name: 'x1' })).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByRole('radio', { name: 'x2' })).toHaveAttribute('aria-checked', 'false')
-    await userEvent.click(screen.getByRole('radio', { name: 'x4' }))
-    expect(h.onSpeed).toHaveBeenCalledWith(4)
+    await userEvent.click(screen.getByRole('radio', { name: 'x2' }))
+    expect(h.onSpeed).toHaveBeenCalledWith(2)
+    expect(screen.queryByRole('radio', { name: 'x4' })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /Saltear partido/ }))
     expect(h.onSkip).toHaveBeenCalledTimes(1)
-    expect(screen.getAllByRole('radio')).toHaveLength(3)
+    expect(screen.getAllByRole('radio')).toHaveLength(2)
   })
 
   it('en pausa el botón pasa a reanudar', async () => {
@@ -57,16 +58,16 @@ describe('useMatchClock', () => {
     expect(onTick).toHaveBeenLastCalledWith(3)
   })
 
-  it('x4 avanza más rápido que x1', () => {
+  it('x2 avanza más rápido que x1', () => {
     const slow = vi.fn()
     const fast = vi.fn()
     const { unmount } = render(<Clock onTick={slow} speed={1} />)
     run(msPerMinute(1) * 3, msPerMinute(1))
     unmount()
-    render(<Clock onTick={fast} speed={4} />)
-    run(msPerMinute(1) * 3, msPerMinute(4))
+    render(<Clock onTick={fast} speed={2} />)
+    run(msPerMinute(1) * 3, msPerMinute(2))
     expect(slow).toHaveBeenCalledTimes(3)
-    expect(fast.mock.calls.length).toBeGreaterThan(slow.mock.calls.length * 5)
+    expect(fast.mock.calls.length).toBeGreaterThan(slow.mock.calls.length * 3)
   })
 
   it('en pausa el reloj se detiene y al reanudar sigue desde el mismo minuto', () => {

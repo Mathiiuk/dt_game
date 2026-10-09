@@ -4,7 +4,7 @@ import { MATCH_SPEEDS } from '../../domain/matchClock'
 import { cn } from '../../lib/utils'
 
 /**
- * Controles del partido en vivo: pausa y reanudar, velocidad (x1 lento, x2, x4) y saltear el partido.
+ * Controles del partido en vivo: pausa y reanudar, velocidad (x1 lento, x2) y saltear el partido.
  * Saltear es una acción aparte de la velocidad y pide confirmación desde la pantalla.
  */
 export default function MatchControls({ speed, onSpeed, paused, onTogglePause, onSkip }) {
