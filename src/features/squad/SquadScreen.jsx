@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { playerApi } from '../../api/player'
 import { contractApi } from '../../api/contracts'
+import { expiringPlayers } from '../../domain/contracts'
 import { loansApi } from '../../api/loans'
 import { lockerRoomApi } from '../../api/lockerRoom'
 import { buybackApi } from '../../api/buyback'
@@ -33,7 +34,7 @@ import { friendlyError } from '../../lib/errors'
 
 const GROUP_LABEL = { GK: 'ARQ', DEF: 'DEF', MED: 'MED', DEL: 'DEL' }
 
-function PlayerBadges({ player, captains }) {
+function PlayerBadges({ player, captains, expiring = null }) {
   const arche = player.personalityData?.primary_archetype
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -41,6 +42,7 @@ function PlayerBadges({ player, captains }) {
       {captains?.viceCaptainId === player.id && <Badge tone="gold">Subcapitán</Badge>}
       {player.is_injured && <Badge tone="danger" dot>Lesionado{player.injury_type ? ` · ${player.injury_type}` : ''}</Badge>}
       {player.morale_unhappy_transfer_blocked && <Badge tone="warning">Descontento</Badge>}
+      {expiring && <Badge tone={expiring.urgent ? 'danger' : 'warning'} dot>Contrato: {expiring.label}</Badge>}
       {isListedForSale(player) && <Badge tone="accent">En venta{player.asking_price ? ` · ${formatMoney(player.asking_price)}` : ''}</Badge>}
       {arche && (
         <Tooltip content={PERSONALITY_ARCHETYPES[arche]?.description || arche}>
@@ -123,6 +125,8 @@ export default function SquadScreen() {
   // El aviso de contratos por vencer llega con /squad?orden=contrato
   const [searchParams] = useSearchParams()
   const [sortKey, setSortKey] = useState(searchParams.get('orden') === 'contrato' ? 'contract' : 'overall')
+  // Con el aviso, la lista abre mostrando solo a los que hay que renovar (se puede volver a ver a todos)
+  const [onlyExpiring, setOnlyExpiring] = useState(searchParams.get('orden') === 'contrato')
   const navigate = useNavigate()
   const [captains, setCaptains] = useState({ captainId: null, viceCaptainId: null })
   const proposeCaptain = (player) => navigate(`/club?tab=vestuario&capitan=${player.id}`)
@@ -159,10 +163,14 @@ export default function SquadScreen() {
     loadData()
   }, [contextLoading, club]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const visiblePlayers = useMemo(
-    () => sortPlayers(filterPlayers(data.players, { group, query }), sortKey),
-    [data.players, group, query, sortKey]
-  )
+  // A quiénes se les vence el contrato (la misma regla del aviso del inicio) y cuánto les falta
+  const expiring = useMemo(() => expiringPlayers(data.players, club?.game_date), [data.players, club?.game_date])
+  const expiringById = useMemo(() => new Map(expiring.map(x => [x.player.id, x])), [expiring])
+  const showOnlyExpiring = onlyExpiring && expiring.length > 0
+  const visiblePlayers = useMemo(() => {
+    const filtered = filterPlayers(data.players, { group, query })
+    return sortPlayers(showOnlyExpiring ? filtered.filter(p => expiringById.has(p.id)) : filtered, sortKey)
+  }, [data.players, group, query, sortKey, showOnlyExpiring, expiringById])
   const summary = useMemo(() => summarizeSquad(data.players), [data.players])
 
   const afterChange = async () => {
@@ -407,6 +415,35 @@ export default function SquadScreen() {
 
         <section className={mobileTab === 'squad' ? 'min-w-0 space-y-4' : 'hidden min-w-0 space-y-4 lg:block'} aria-label="Jugadores">
 
+          {/* Los contratos por vencer: quiénes son, cuánto les falta y renovar desde acá */}
+          {(onlyExpiring || searchParams.get('orden') === 'contrato') && (
+            <Card as="section" aria-label="Contratos por vencer" className="border-warning/50">
+              <CardBody className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="font-display text-lg font-semibold text-fg">Contratos por vencer <span className="num text-fg-subtle">({expiring.length})</span></h2>
+                  {expiring.length > 0 && (
+                    <Button variant="outline" size="sm" onClick={() => setOnlyExpiring(v => !v)}>{showOnlyExpiring ? 'Ver todo el plantel' : 'Ver solo los que vencen'}</Button>
+                  )}
+                </div>
+                {expiring.length === 0 ? (
+                  <p className="text-sm text-fg-muted">Ya no hay contratos por vencer: todos los jugadores tienen la renovación al día.</p>
+                ) : (
+                  <ul className="divide-y divide-line">
+                    {expiring.map(({ player, label, urgent }) => (
+                      <li key={player.id} className="flex items-center justify-between gap-3 py-2">
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-fg">{player.first_name} {player.last_name}</span>
+                          <span className={`block text-xs ${urgent ? 'font-semibold text-danger' : 'text-fg-muted'}`}>{player.position} · {label}</span>
+                        </span>
+                        <Button size="sm" variant="secondary" aria-label={`Renovar a ${player.first_name} ${player.last_name}`} onClick={() => setRenewalPlayer(player)}><FileSignature />Renovar</Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardBody>
+            </Card>
+          )}
+
           {/* Controles de lista: filtro por línea, búsqueda y orden */}
           <div className="space-y-3">
             <ChoiceChips label="Filtrar por línea" value={group} onChange={setGroup} options={POSITION_GROUP_OPTIONS} />
@@ -444,7 +481,7 @@ export default function SquadScreen() {
                             <p className="eyebrow mt-1">Nivel</p>
                           </div>
                         </div>
-                        <PlayerBadges player={p} captains={captains} />
+                        <PlayerBadges player={p} captains={captains} expiring={expiringById.get(p.id)} />
                         <div className="grid grid-cols-3 gap-3 border-t border-line pt-3">
                           <div><p className="eyebrow">Físico</p><p className={`num mt-0.5 text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(p.state_fitness ?? 75)]}`}>{p.state_fitness ?? 75}%</p></div>
                           <div><p className="eyebrow">Moral</p><p className={`num mt-0.5 text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(playerMorale(p))]}`}>{playerMorale(p)}%</p></div>
@@ -473,7 +510,7 @@ export default function SquadScreen() {
                         <tr key={p.id} className="transition-colors hover:bg-surface-2/60">
                           <th scope="row" className="px-4 py-3 text-left font-normal">
                             <p className="font-semibold text-fg">{p.first_name} {p.last_name}</p>
-                            <div className="mt-1"><PlayerBadges player={p} captains={captains} /></div>
+                            <div className="mt-1"><PlayerBadges player={p} captains={captains} expiring={expiringById.get(p.id)} /></div>
                           </th>
                           <td className="px-4 py-3"><Badge>{GROUP_LABEL[positionGroup(p.position)]}</Badge> <span className="text-xs text-fg-subtle">{p.position}</span></td>
                           <td className="num px-4 py-3 text-fg-muted">{p.age}</td>

@@ -13,9 +13,9 @@ const setViewport = (desktop) => {
 }
 
 const players = [
-  { id: '1', first_name: 'Hugo', last_name: 'Ríos', position: 'GK', age: 31, attr_overall: 60, contract_salary: 500, shirt_number: 1, state_fitness: 90, morale: 80, market_value: 20000 },
+  { id: '1', first_name: 'Hugo', last_name: 'Ríos', position: 'GK', age: 31, attr_overall: 60, contract_salary: 500, shirt_number: 1, state_fitness: 90, morale: 80, market_value: 20000, contract_end: '2027-05-12' },
   { id: '2', first_name: 'Cristian', last_name: 'García', position: 'LB', age: 22, attr_overall: 52, contract_salary: 450, shirt_number: 3, state_fitness: 55, morale: 45, is_injured: true, injury_type: 'Esguince' },
-  { id: '3', first_name: 'Álvaro', last_name: 'Medina', position: 'CM', age: 28, attr_overall: 58, contract_salary: 700, shirt_number: 8, state_fitness: 80, morale: 70, transfer_status: 'TRANSFER_LISTED', asking_price: 30000 }
+  { id: '3', first_name: 'Álvaro', last_name: 'Medina', position: 'CM', age: 28, attr_overall: 58, contract_salary: 700, shirt_number: 8, state_fitness: 80, morale: 70, transfer_status: 'TRANSFER_LISTED', asking_price: 30000, contract_end: '2028-06-30' }
 ]
 const offers = [{ id: 'o1', amount: 10000, player_id: '3', from_club_id: 'x', from_club_name: 'Racing', players: { first_name: 'Álvaro', last_name: 'Medina' }, expires_at_week: 5 }]
 
@@ -25,7 +25,7 @@ const setTransferStatus = vi.fn(async () => ({}))
 
 vi.mock('../../src/context/GameContext', () => ({
   useGameContext: () => ({
-    club: { id: 'c1', budget: 94916, squad_morale: 72, squad_cohesion: 40, current_week: 3 },
+    club: { id: 'c1', budget: 94916, squad_morale: 72, squad_cohesion: 40, current_week: 3, game_date: '2027-04-14' },
     manager: { id: 'm1' }, loading: false, refreshContext: vi.fn(), confirmAction, confirmRisk: vi.fn(async () => true)
   })
 }))
@@ -51,7 +51,7 @@ vi.mock('../../src/api/personalities', () => ({
 // B19: quién lleva la cinta (lectura liviana del vestuario)
 const getCaptains = vi.fn(async () => ({ captainId: null, viceCaptainId: null }))
 vi.mock('../../src/api/lockerRoom', () => ({ lockerRoomApi: { getCaptains: (...x) => getCaptains(...x) } }))
-vi.mock('../../src/features/squad/ContractRenewalModal', () => ({ default: () => null }))
+vi.mock('../../src/features/squad/ContractRenewalModal', () => ({ default: ({ player }) => <p>Renovando a {player.last_name}</p> }))
 vi.mock('../../src/features/squad/MentorshipModal', () => ({ default: () => null }))
 vi.mock('../../src/features/squad/PlayerEvolutionModal', () => ({ default: () => null }))
 
@@ -59,8 +59,8 @@ import SquadScreen from '../../src/features/squad/SquadScreen'
 
 const LocationProbe = () => { const l = useLocation(); return <p>Club {l.search}</p> }
 
-const renderScreen = () => render(
-  <MemoryRouter initialEntries={['/squad']}>
+const renderScreen = (path = '/squad') => render(
+  <MemoryRouter initialEntries={[path]}>
     <Routes>
       <Route path="/squad" element={<SquadScreen />} />
       <Route path="/club" element={<LocationProbe />} />
@@ -102,6 +102,35 @@ describe('pantalla Plantel', () => {
     expect(screen.getByRole('button', { name: /Mentorías/ })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('link', { name: /Entrenamiento/ }))
     expect(await screen.findByText('Pantalla de entrenamiento')).toBeInTheDocument()
+  })
+
+  it('con el aviso de contratos dice quién vence, cuánto le falta y deja renovar desde la lista', async () => {
+    renderScreen('/squad?orden=contrato')
+    const panel = await screen.findByRole('region', { name: 'Contratos por vencer' })
+    expect(within(panel).getByText('(1)')).toBeInTheDocument()
+    expect(within(panel).getByText('Hugo Ríos')).toBeInTheDocument()
+    expect(within(panel).getByText(/vence en 4 semanas/)).toBeInTheDocument()
+    // La lista abre mostrando solo a quien hay que renovar, con su insignia
+    const table = await screen.findByRole('table', { name: 'Plantel profesional' })
+    expect(within(table).getAllByRole('row')).toHaveLength(2)
+    expect(within(table).getByText('Contrato: vence en 4 semanas')).toBeInTheDocument()
+    await userEvent.click(within(panel).getByRole('button', { name: 'Renovar a Hugo Ríos' }))
+    expect(await screen.findByText('Renovando a Ríos')).toBeInTheDocument()
+  })
+
+  it('se puede volver a ver todo el plantel y el aviso no aparece si se entra por otro lado', async () => {
+    renderScreen('/squad?orden=contrato')
+    await userEvent.click(await screen.findByRole('button', { name: 'Ver todo el plantel' }))
+    const table = await screen.findByRole('table', { name: 'Plantel profesional' })
+    expect(within(table).getAllByRole('row')).toHaveLength(1 + players.length)
+    expect(screen.getByRole('button', { name: 'Ver solo los que vencen' })).toBeInTheDocument()
+  })
+
+  it('al entrar por el menú no hay panel de contratos pero el jugador igual lleva su insignia', async () => {
+    renderScreen('/squad')
+    const table = await screen.findByRole('table', { name: 'Plantel profesional' })
+    expect(screen.queryByRole('region', { name: 'Contratos por vencer' })).not.toBeInTheDocument()
+    expect(within(table).getByText('Contrato: vence en 4 semanas')).toBeInTheDocument()
   })
 
   it('filtra por línea y por búsqueda (sin tildes) y permite quitar los filtros', async () => {

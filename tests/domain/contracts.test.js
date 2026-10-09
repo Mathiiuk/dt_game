@@ -68,3 +68,41 @@ describe('alerta de contratos por vencer', () => {
     expect(contractsAlert([{ contract_end: '2028-06-30' }], '2027-04-14')).toBeNull()
   })
 })
+
+import { expiringPlayers, weeksLeftLabel } from '../../src/domain/contracts'
+
+describe('quiénes tienen el contrato por vencer', () => {
+  const squad = [
+    { id: 'a', last_name: 'Gómez', contract_end: '2027-06-30' },
+    { id: 'b', last_name: 'Pérez', contract_end: '2027-04-21' },
+    { id: 'c', last_name: 'López', contract_end: '2028-06-30' },
+    { id: 'd', last_name: 'Ruiz', contract_end: '2026-12-01' },
+    { id: 'e', last_name: 'Sin fecha' }
+  ]
+
+  it('devuelve exactamente a los que cuenta la alerta, los más urgentes primero', () => {
+    const list = expiringPlayers(squad, '2027-04-14')
+    expect(list.map(x => x.player.id)).toEqual(['b', 'a'])
+    expect(list.length).toBe(contractsAlert(squad, '2027-04-14').count)
+  })
+
+  it('dice cuántas semanas faltan y marca los urgentes (12 semanas o menos)', () => {
+    const [first, second] = expiringPlayers(squad, '2027-04-14')
+    expect(first).toMatchObject({ weeks: 1, urgent: true, label: 'vence esta semana' })
+    expect(second.weeks).toBe(11)
+    expect(second.urgent).toBe(true)
+    expect(expiringPlayers([{ id: 'x', contract_end: '2027-09-01' }], '2027-04-14')[0]).toMatchObject({ urgent: false })
+  })
+
+  it('no incluye contratos ya vencidos, lejanos ni sin fecha, y tolera un plantel vacío', () => {
+    expect(expiringPlayers(squad, '2027-04-14').some(x => ['c', 'd', 'e'].includes(x.player.id))).toBe(false)
+    expect(expiringPlayers([], '2027-04-14')).toEqual([])
+    expect(expiringPlayers(undefined, '2027-04-14')).toEqual([])
+  })
+
+  it('las semanas se dicen en palabras', () => {
+    expect(weeksLeftLabel(1)).toBe('vence esta semana')
+    expect(weeksLeftLabel(0)).toBe('vence esta semana')
+    expect(weeksLeftLabel(9)).toBe('vence en 9 semanas')
+  })
+})

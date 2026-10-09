@@ -6,6 +6,7 @@
 
 // Ventana (en semanas) a partir de la cual se avisa de un contrato por vencer (6 meses)
 export const CONTRACT_ALERT_WINDOW_WEEKS = 26
+export const URGENT_CONTRACT_WEEKS = 12
 
 // Distribución realista de años de contrato restantes en un plantel recién creado
 export const INITIAL_CONTRACT_YEARS_DISTRIBUTION = [
@@ -70,12 +71,28 @@ export const pickInitialContractYears = (rng = Math.random) => {
   return INITIAL_CONTRACT_YEARS_DISTRIBUTION[0].years
 }
 
+/** Cuánto le falta a un contrato en palabras ("vence esta semana", "vence en 9 semanas") */
+export const weeksLeftLabel = (weeks) => (weeks <= 1 ? 'vence esta semana' : `vence en ${weeks} semanas`)
+
+/**
+ * Los jugadores cuyo contrato vence dentro de la ventana de alerta, con las semanas que les faltan, los más urgentes primero.
+ * Es la misma regla del aviso del inicio: el Plantel muestra con esto exactamente a quiénes se refiere la alerta.
+ * @returns {Array<{ player: object, weeks: number, urgent: boolean, label: string }>}
+ */
+export const expiringPlayers = (squad = [], gameDate) =>
+  squad
+    .filter(p => isContractExpiringSoon(p.contract_end, gameDate, CONTRACT_ALERT_WINDOW_WEEKS))
+    .map(player => {
+      const weeks = weeksBetween(gameDate, player.contract_end)
+      return { player, weeks, urgent: weeks <= URGENT_CONTRACT_WEEKS, label: weeksLeftLabel(weeks) }
+    })
+    .sort((x, y) => x.weeks - y.weeks)
+
 /**
  * Alerta del inicio por contratos que vencen. Aviso suave durante los 6 meses previos; en las últimas 12 semanas es urgente y dice
  * cuántas faltan, porque al cerrar la temporada los que no renovaron quedan libres.
  * @returns {{ id: string, priority: string, title: string, message: string, count: number, actionUrl: string } | null}
  */
-export const URGENT_CONTRACT_WEEKS = 12
 // El aviso abre el Plantel ordenado por vencimiento: los que hay que renovar quedan arriba
 export const CONTRACTS_ALERT_URL = '/squad?orden=contrato'
 export const contractsAlert = (squad = [], gameDate) => {
