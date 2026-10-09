@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowRightLeft, Bell, Check, Crown, DollarSign, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
+import { ArrowRightLeft, Bell, Check, Crown, DollarSign, Dumbbell, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { playerApi } from '../../api/player'
@@ -371,6 +371,7 @@ export default function SquadScreen() {
           <>
             <Button variant="outline" size="sm" onClick={() => setShowEvolutionModal(true)}><TrendingUp />Desarrollo</Button>
             <Button variant="outline" size="sm" onClick={() => setShowMentorshipModal(true)}><GraduationCap />Mentorías</Button>
+            <Button asChild variant="outline" size="sm"><Link to="/training"><Dumbbell />Entrenamiento</Link></Button>
           </>
         }
       />

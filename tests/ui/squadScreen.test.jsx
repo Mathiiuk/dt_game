@@ -64,6 +64,7 @@ const renderScreen = () => render(
     <Routes>
       <Route path="/squad" element={<SquadScreen />} />
       <Route path="/club" element={<LocationProbe />} />
+      <Route path="/training" element={<p>Pantalla de entrenamiento</p>} />
     </Routes>
   </MemoryRouter>
 )
@@ -92,6 +93,15 @@ describe('pantalla Plantel', () => {
     expect(buttons).toHaveLength(players.length - 1)
     await userEvent.click(within(table).getByRole('button', { name: `Hacer capitán: ${players[2].first_name} ${players[2].last_name}` }))
     expect(await screen.findByText(`Club ?tab=vestuario&capitan=${players[2].id}`)).toBeInTheDocument()
+  })
+
+  it('arriba hay tres botones y el tercero lleva a Entrenamiento', async () => {
+    renderScreen()
+    await screen.findByRole('heading', { level: 1, name: 'Plantel' })
+    expect(screen.getByRole('button', { name: /Desarrollo/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Mentorías/ })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('link', { name: /Entrenamiento/ }))
+    expect(await screen.findByText('Pantalla de entrenamiento')).toBeInTheDocument()
   })
 
   it('filtra por línea y por búsqueda (sin tildes) y permite quitar los filtros', async () => {
