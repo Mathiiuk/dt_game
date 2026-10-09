@@ -163,7 +163,8 @@ export default function AppShell() {
             <Outlet />
           </main>
         </div>
-        <MobileTabBar pathname={pathname} />
+        {/* El resumen del partido es un flujo cerrado: sin barra inferior hasta salir de ahí */}
+        {!fit && <MobileTabBar pathname={pathname} />}
       </div>
     </div>
   )

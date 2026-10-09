@@ -28,6 +28,7 @@ const renderAt = (path) => render(
         <Route path="/dashboard" element={<p>Pantalla inicio</p>} />
         <Route path="/squad" element={<p>Pantalla plantel</p>} />
         <Route path="/more" element={<MoreScreen />} />
+        <Route path="/post-match" element={<p>Pantalla resumen</p>} />
       </Route>
     </Routes>
   </MemoryRouter>
@@ -120,5 +121,15 @@ describe('página Más', () => {
     expect(within(main).getByRole('button', { name: /Cerrar sesión/ })).toBeInTheDocument()
     // 'Plantel' está en la barra inferior: no se duplica en la lista de Más
     expect(within(main).queryByRole('link', { name: /Plantel/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('barra inferior en el resumen del partido', () => {
+  it('se oculta en el resumen (flujo cerrado) y sigue en el resto de las pantallas', () => {
+    const { unmount } = renderAt('/post-match')
+    expect(screen.queryAllByRole('navigation', { name: 'Navegación principal' }).some(n => n.className.includes('lg:hidden'))).toBe(false)
+    unmount()
+    renderAt('/dashboard')
+    expect(screen.queryAllByRole('navigation', { name: 'Navegación principal' }).some(n => n.className.includes('lg:hidden'))).toBe(true)
   })
 })

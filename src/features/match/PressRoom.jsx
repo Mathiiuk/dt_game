@@ -341,20 +341,22 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
     await onHeadline?.(result)
   }
 
-  // Barra superior: avance de la conferencia, humor de la sala y las acciones a mano (faltar, delegar o cortar)
+  // Acciones a los costados del micrófono: a la izquierda las decisiones (faltar, delegar o cortar), a la derecha los ajustes (sonido y cuenta regresiva)
   const showTop = !finished && !skipResult && !delegated && !!question
-  const topBar = showTop && (
-    <div className="flex shrink-0 items-center gap-2">
-      <span className="flex items-center gap-1" role="img" aria-label={`Pregunta ${currentIndex + 1} de ${activeQuestions.length}`}>
-        {activeQuestions.map((_, i) => <span key={i} className={`h-2 w-6 rounded-full transition-colors ${i < currentIndex ? 'bg-accent' : i === currentIndex ? 'bg-gold' : 'bg-surface-3'}`} />)}
-      </span>
-      <div className="min-w-0 flex-1">{(answeredAny || reaction) && <RoomMeter mood={mood} compact />}</div>
+  const iconBtn = 'grid size-11 place-items-center rounded-xl border border-line bg-bg transition-colors hover:bg-surface-3'
+  const soundBtn = (
+    <button type="button" onClick={toggleSound} aria-pressed={sound} aria-label="Sonido" title={sound ? 'Apagar el sonido' : 'Encender el sonido'} className={`grid size-11 place-items-center rounded-xl border transition-colors ${sound ? 'border-accent/60 bg-accent-soft text-accent' : 'border-line bg-bg text-fg-subtle hover:bg-surface-3'}`}>
+      {sound ? <Volume2 className="size-5" aria-hidden="true" /> : <VolumeX className="size-5" aria-hidden="true" />}
+    </button>
+  )
+  const leftActions = (
+    <>
       {!reaction && !answeredAny && (
         <>
-          <AsyncButton onClick={onSkip} aria-label="No presentarme" title="No presentarme (te multan)" className="grid size-11 place-items-center rounded-xl border border-line bg-bg text-danger transition-colors hover:bg-surface-3">
+          <AsyncButton onClick={onSkip} aria-label="No presentarme" title="No presentarme (te multan)" className={`${iconBtn} text-danger`}>
             <UserX className="size-5" aria-hidden="true" />
           </AsyncButton>
-          <AsyncButton onClick={onDelegate} aria-label="Delegar en 2º Entrenador" title="Delegar en el 2º entrenador" className="grid size-11 place-items-center rounded-xl border border-line bg-bg text-fg transition-colors hover:bg-surface-3">
+          <AsyncButton onClick={onDelegate} aria-label="Delegar en 2º Entrenador" title="Delegar en el 2º entrenador" className={`${iconBtn} text-fg`}>
             <UserCheck className="size-5" aria-hidden="true" />
           </AsyncButton>
         </>
@@ -362,15 +364,28 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
       {!reaction && answeredAny && !finished && (
         <AsyncButton onClick={onFinishEarly} className="flex min-h-11 items-center gap-1.5 rounded-xl border border-line bg-bg px-3 text-xs font-semibold text-fg transition-colors hover:bg-surface-3">Terminar acá</AsyncButton>
       )}
-      <button type="button" onClick={toggleSound} aria-pressed={sound} aria-label="Sonido" title={sound ? 'Apagar el sonido' : 'Encender el sonido'} className={`grid size-11 place-items-center rounded-xl border transition-colors ${sound ? 'border-accent/60 bg-accent-soft text-accent' : 'border-line bg-bg text-fg-subtle hover:bg-surface-3'}`}>
-        {sound ? <Volume2 className="size-5" aria-hidden="true" /> : <VolumeX className="size-5" aria-hidden="true" />}
-      </button>
+    </>
+  )
+  const rightActions = (
+    <>
+      {soundBtn}
       {!reaction && (
         <label title="Sin cuenta regresiva" className={`grid size-11 cursor-pointer place-items-center rounded-xl border transition-colors ${noTimer ? 'border-gold/60 bg-gold-soft text-gold' : 'border-line bg-bg text-fg-subtle hover:bg-surface-3'}`}>
           <input type="checkbox" className="sr-only" checked={noTimer} onChange={toggleTimer} aria-label="Sin cuenta regresiva" />
           {noTimer ? <TimerOff className="size-5" aria-hidden="true" /> : <Timer className="size-5" aria-hidden="true" />}
         </label>
       )}
+    </>
+  )
+
+  // Barra superior, finita: avance de la conferencia y humor de la sala (con la reacción en pantalla suma el sonido, porque no hay micrófono)
+  const topBar = showTop && (
+    <div className="flex shrink-0 items-center gap-2">
+      <span className="flex items-center gap-1" role="img" aria-label={`Pregunta ${currentIndex + 1} de ${activeQuestions.length}`}>
+        {activeQuestions.map((_, i) => <span key={i} className={`h-2 w-6 rounded-full transition-colors ${i < currentIndex ? 'bg-accent' : i === currentIndex ? 'bg-gold' : 'bg-surface-3'}`} />)}
+      </span>
+      <div className="min-w-0 flex-1">{(answeredAny || reaction) && <RoomMeter mood={mood} compact />}</div>
+      {reaction && soundBtn}
     </div>
   )
 
@@ -551,14 +566,18 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
           ))}
         </div>
 
-        {/* El micrófono: se puede arrastrar una ficha hasta acá para decirla */}
+        {/* El micrófono: se puede arrastrar una ficha hasta acá para decirla; a los lados, las acciones */}
         <div className="flex shrink-0 flex-col items-center gap-1">
-          <div
-            ref={micRef}
-            aria-hidden="true"
-            className={`grid size-16 place-items-center rounded-full border-2 transition-all [@media(max-height:740px)]:size-12 ${hover === 'over' ? 'scale-125 border-accent bg-accent/30 text-accent' : hover === 'drag' ? 'animate-pulse border-gold bg-gold-soft text-gold' : 'border-line-strong bg-surface text-fg-muted'}`}
-          >
-            <Mic className="size-7 [@media(max-height:740px)]:size-5" />
+          <div className="flex w-full items-center gap-3">
+            <div className="flex flex-1 items-center justify-end gap-2">{leftActions}</div>
+            <div
+              ref={micRef}
+              aria-hidden="true"
+              className={`grid size-16 shrink-0 place-items-center rounded-full border-2 transition-all [@media(max-height:740px)]:size-12 ${hover === 'over' ? 'scale-125 border-accent bg-accent/30 text-accent' : hover === 'drag' ? 'animate-pulse border-gold bg-gold-soft text-gold' : 'border-line-strong bg-surface text-fg-muted'}`}
+            >
+              <Mic className="size-7 [@media(max-height:740px)]:size-5" />
+            </div>
+            <div className="flex flex-1 items-center justify-start gap-2">{rightActions}</div>
           </div>
           <p className="text-[11px] text-fg-subtle [@media(max-height:740px)]:hidden" aria-live="polite">{hover === 'over' ? 'Soltá la ficha para decirlo' : 'Tocá una ficha o arrastrala al micrófono'}</p>
         </div>
