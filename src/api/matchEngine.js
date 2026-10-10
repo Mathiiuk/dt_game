@@ -3,6 +3,7 @@ import { tacticMultipliers } from '../domain/tacticalStyle'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { specialistsOf, aerialOf } from '../domain/specialists'
 import { stylesToMods } from '../domain/rivalStyle'
+import { rivalNames } from '../domain/rivalNames'
 import { styleQuipFor } from '../domain/rivalNarrative'
 import { NOTE_MINUTES, tacticalNote } from '../domain/rivalNotes'
 import { homeAdvantage } from '../domain/consequences'
@@ -124,9 +125,9 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
   // 1. Calcular poder base de cada equipo
   const calcBasePower = (players) => {
-    const list = players.length > 0 ? players : Array.from({ length: 11 }).map((_, i) => ({
-      first_name: 'Jugador',
-      last_name: `#${i + 1}`,
+    const fallbackNames = rivalNames('equipo', 11)
+    const list = players.length > 0 ? players : fallbackNames.map((n) => ({
+      ...n,
       state_fitness: 85,
       attr_pace: 50,
       attr_shooting: 50,

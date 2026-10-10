@@ -178,12 +178,31 @@ export const rivalAttributes = (level, line, base, idx) => {
   }))
 }
 
-export const buildRivalLineup = (reputation = 10, strength = null, seed = 'rival') => {
+const SLOT_LINE = { PO: 'ARQ', LI: 'DEF', DFC1: 'DEF', DFC2: 'DEF', LD: 'DEF', MI: 'MED', MC1: 'MED', MC2: 'MED', MD: 'MED', DC1: 'DEL', DC2: 'DEL' }
+
+/**
+ * Nombres del once rival a partir de la plantilla del club (filas de `real_squads`: { player_name, position }).
+ * Cada puesto toma a uno de su línea; si falta, a quien sobre. Sin plantilla, devuelve null.
+ */
+export const namesFromSquad = (squad) => {
+  if (!Array.isArray(squad) || squad.length < RIVAL_SLOTS.length) return null
+  const pool = [...squad]
+  const out = RIVAL_SLOTS.map((slot) => {
+    let i = pool.findIndex(p => p.position === SLOT_LINE[slot])
+    if (i < 0) i = 0
+    const [p] = pool.splice(i, 1)
+    const [first, ...rest] = String(p.player_name).trim().split(/\s+/)
+    return { first_name: first, last_name: rest.join(' ') || first }
+  })
+  return out
+}
+
+export const buildRivalLineup = (reputation = 10, strength = null, seed = 'rival', squad = null) => {
   // Con fuerza propia el rival rinde exactamente eso; si no la tiene, se estima por reputación
   const level = strength != null ? Math.round(strength) : Math.round(50 + reputation * 0.5)
   const base = seedNumber(seed)
   // Cada club y cada jugador tienen su nombre (siempre el mismo para el mismo club, sin repetirse dentro del equipo)
-  const names = rivalNames(seed, RIVAL_SLOTS.length)
+  const names = namesFromSquad(squad) || rivalNames(seed, RIVAL_SLOTS.length)
   return RIVAL_SLOTS.map((slot, idx) => ({
     id: `rival_${idx}`,
     ...names[idx],

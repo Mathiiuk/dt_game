@@ -7,6 +7,7 @@ import { tacticsApi, FORMATIONS } from '../../api/tactics'
 import { playerApi } from '../../api/player'
 import { matchEngineApi, SHOUT_TYPES } from '../../api/matchEngine'
 import { supabase } from '../../api/supabase'
+import { squadsApi } from '../../api/squads'
 import { useGameContext } from '../../context/GameContext'
 import MatchHeader from './MatchHeader'
 import MatchTimeline from './MatchTimeline'
@@ -77,6 +78,7 @@ export default function MatchScreen() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState({ club: null, tactic: null, players: [], fixture: null })
   const [hasScout, setHasScout] = useState(false)
+  const [rivalSquad, setRivalSquad] = useState(null)
   
   // Simulation State
   const [matchState, setMatchState] = useState('pre-match') // pre-match, playing, finished
@@ -266,7 +268,7 @@ export default function MatchScreen() {
     
     const rival = data.fixture ? (data.fixture.home_team_id === data.club.id ? data.fixture.away : data.fixture.home) : null
     // El rival juega con su fuerza real (si no la tiene, con la de su reputación)
-    const awayPlayers = buildRivalLineup(rival?.reputation || 10, rival?.strength ?? null, rival?.id || rival?.name || 'rival')
+    const awayPlayers = buildRivalLineup(rival?.reputation || 10, rival?.strength ?? null, rival?.id || rival?.name || 'rival', rivalSquad)
     
     const isHome = data.fixture ? data.fixture.home_team_id === data.club.id : true
     const oppName = data.fixture 
@@ -337,7 +339,13 @@ export default function MatchScreen() {
 
   // El once del rival se arma igual que al comenzar (mismos nombres y atributos), para mostrar su scouting antes del pitazo
   const rivalClub = data.fixture ? (data.fixture.home_team_id === data.club?.id ? data.fixture.away : data.fixture.home) : null
-  const rivalPreview = useMemo(() => buildRivalLineup(rivalClub?.reputation || 10, rivalClub?.strength ?? null, rivalClub?.id || rivalClub?.name || 'rival'), [rivalClub?.reputation, rivalClub?.strength, rivalClub?.id, rivalClub?.name])
+  // Los nombres del once rival salen de la plantilla de su club (si la tiene)
+  useEffect(() => {
+    let alive = true
+    squadsApi.getClubSquad(rivalClub?.name).then(sq => { if (alive) setRivalSquad(sq.length >= 11 ? sq : null) })
+    return () => { alive = false }
+  }, [rivalClub?.name])
+  const rivalPreview = useMemo(() => buildRivalLineup(rivalClub?.reputation || 10, rivalClub?.strength ?? null, rivalClub?.id || rivalClub?.name || 'rival', rivalSquad), [rivalClub?.reputation, rivalClub?.strength, rivalClub?.id, rivalClub?.name, rivalSquad])
 
   const userSide = (data.fixture ? data.fixture.home_team_id === data.club?.id : true) ? 'home' : 'away'
 

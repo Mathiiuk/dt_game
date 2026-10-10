@@ -179,3 +179,24 @@ describe('atributos del once rival', () => {
     expect(names.size).toBeGreaterThan(10)
   })
 })
+
+describe('once rival con la plantilla del club', () => {
+  const squad = [
+    ...['Axel Luna', 'Bruno Vera', 'Camilo Rojas', 'Dante Sosa'].map(n => ({ player_name: n, position: 'DEL' })),
+    ...['Elías Díaz', 'Fabián Ríos', 'Gastón Gil', 'Hugo Paz'].map(n => ({ player_name: n, position: 'MED' })),
+    ...['Iván Cruz', 'Jorge Mora', 'Kevin Toro'].map(n => ({ player_name: n, position: 'DEF' })),
+    { player_name: 'Luis de la Fuente', position: 'ARQ' }
+  ]
+
+  it('el arquero es el arquero de la plantilla y los nombres no se repiten', () => {
+    const l = buildRivalLineup(15, 60, 'x', squad)
+    expect(l[0].slot_base).toBe('PO')
+    expect(`${l[0].first_name} ${l[0].last_name}`).toBe('Luis de la Fuente')
+    expect(new Set(l.map(p => `${p.first_name} ${p.last_name}`)).size).toBe(11)
+  })
+
+  it('sin plantilla usa los nombres generados de siempre', () => {
+    expect(buildRivalLineup(15, 60, 'x', null).map(p => p.last_name)).toEqual(buildRivalLineup(15, 60, 'x').map(p => p.last_name))
+    expect(buildRivalLineup(15, 60, 'x', squad.slice(0, 5)).every(p => p.first_name)).toBe(true)
+  })
+})
