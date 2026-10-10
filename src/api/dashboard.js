@@ -23,7 +23,8 @@ export const dashboardApi = {
         { data: squadData },
         { data: staffData },
         leagueTable,
-        pendingEvents
+        pendingEvents,
+        pendingClose
       ] = await Promise.all([
         levelsApi.getLevelInfo(manager.xp || 0),
         supabase
@@ -43,7 +44,9 @@ export const dashboardApi = {
         supabase.from('staff').select('wage_weekly, salary').eq('club_id', club.id),
         // La misma tabla ordenada que usa la pantalla Tabla (con caché): de ahí sale el puesto, que no se guarda en la base
         competitionApi.getStandings(club.id).catch(() => []),
-        eventsApi.getPendingEvents(club.id).catch(() => [])
+        eventsApi.getPendingEvents(club.id).catch(() => []),
+        // Si el cierre de la temporada anterior quedó a medias, el inicio lo avisa y deja terminarlo (no falla nunca)
+        seasonCloseApi.getPendingClose(club.id)
       ])
 
       const squad = squadData || []
@@ -113,9 +116,6 @@ export const dashboardApi = {
           actionUrl: '/finances'
         })
       }
-
-      // Si el cierre de la temporada anterior quedó a medias, el inicio lo avisa y deja terminarlo
-      const pendingClose = await seasonCloseApi.getPendingClose(club.id)
 
       return {
         pendingClose,

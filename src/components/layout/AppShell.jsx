@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { Suspense, useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { LogOut, Shield, Trash2 } from 'lucide-react'
+import { Loader2, LogOut, Shield, Trash2 } from 'lucide-react'
 import { useGameContext } from '../../context/GameContext'
 import { cn } from '../../lib/utils'
 import { formatGameDate } from '../../lib/format'
@@ -160,7 +160,9 @@ export default function AppShell() {
         <div ref={scrollRef} className={cn('min-h-0 flex-1 overscroll-contain lg:overflow-visible', fit ? 'flex flex-col overflow-hidden' : 'overflow-y-auto')}>
           <MobileTopBar club={club} title={titleForPath(pathname)} />
           <main id="contenido" className={cn('min-w-0 lg:pb-0', fit ? 'flex min-h-0 flex-1 flex-col' : 'pb-6')}>
-            <Outlet />
+            <Suspense fallback={<div role="status" aria-label="Cargando la pantalla" className="grid min-h-[50dvh] place-items-center text-accent"><Loader2 className="size-7 animate-spin" aria-hidden="true" /></div>}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
         {/* El resumen del partido es un flujo cerrado: sin barra inferior hasta salir de ahí */}

@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 import { seasonYearOf, weekOfDate, isAdvanceLocked } from '../domain/gameWeek'
 import { timed } from '../lib/perf'
+import { queryCache } from '../utils/cache'
 
 export { seasonYearOf, weekOfDate }
 
@@ -43,20 +44,23 @@ export const calendarApi = {
   /** Id de la carrera activa del DT (sesión más reciente); null si no hay */
   async resolveCareerId(managerId) {
     if (!managerId) return null
-    try {
-      const { data: manager } = await supabase.from('managers').select('user_id').eq('id', managerId).single()
-      if (!manager?.user_id) return null
-      const { data: session } = await supabase
-        .from('user_sessions')
-        .select('active_career_id')
-        .eq('user_id', manager.user_id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      return session?.active_career_id || null
-    } catch {
-      return null
-    }
+    // La carrera activa casi nunca cambia: se recuerda un par de minutos (se pedía en cada pantalla, con dos consultas)
+    return queryCache.fetch(`careerId:${managerId}`, async () => {
+      try {
+        const { data: manager } = await supabase.from('managers').select('user_id').eq('id', managerId).single()
+        if (!manager?.user_id) return null
+        const { data: session } = await supabase
+          .from('user_sessions')
+          .select('active_career_id')
+          .eq('user_id', manager.user_id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        return session?.active_career_id || null
+      } catch {
+        return null
+      }
+    }, 120000)
   },
 
   /**
@@ -156,53 +160,59 @@ export const calendarApi = {
    * Obtiene la estructura anual de 52 semanas con partidos y eventos clave.
    */
   async getSeasonCalendar(careerId, clubId, seasonYear = 2026) {
-    const calendarState = await this.reconcileWithClub(await this.getOrCreateCalendar(careerId), clubId)
-    seasonYear = calendarState.current_season_year || seasonYear
+    // La fecha del club y los partidos no dependen entre sí: se piden a la vez
+    const calendarPromise = (async () => this.reconcileWithClub(await this.getOrCreateCalendar(careerId), clubId))()
 
     // Obtener partidos programados para el club
-    let clubFixtures = []
-    try {
-      if (clubId) {
-        const { data: fixtures } = await supabase
-          .from('fixtures')
-          .select('id, match_date, home_club_id, away_club_id, home_score, away_score, status, round')
-          .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
-          .order('match_date', { ascending: true })
+    const fixturesPromise = (async () => {
+      let clubFixtures = []
+      try {
+        if (clubId) {
+          const { data: fixtures } = await supabase
+            .from('fixtures')
+            .select('id, match_date, home_club_id, away_club_id, home_score, away_score, status, round')
+            .or(`home_club_id.eq.${clubId},away_club_id.eq.${clubId}`)
+            .order('match_date', { ascending: true })
 
-        if (fixtures && fixtures.length > 0) {
-          const opponentIds = [...new Set(fixtures.map(f => (f.home_club_id === clubId ? f.away_club_id : f.home_club_id)).filter(Boolean))]
-          let opponentMap = new Map()
-          if (opponentIds.length > 0) {
-            try {
-              const { data: opponents } = await supabase
-                .from('clubs')
-                .select('id, name, short_name')
-                .in('id', opponentIds)
-              if (opponents) {
-                opponentMap = new Map(opponents.map(o => [o.id, o]))
+          if (fixtures && fixtures.length > 0) {
+            const opponentIds = [...new Set(fixtures.map(f => (f.home_club_id === clubId ? f.away_club_id : f.home_club_id)).filter(Boolean))]
+            let opponentMap = new Map()
+            if (opponentIds.length > 0) {
+              try {
+                const { data: opponents } = await supabase
+                  .from('clubs')
+                  .select('id, name, short_name')
+                  .in('id', opponentIds)
+                if (opponents) {
+                  opponentMap = new Map(opponents.map(o => [o.id, o]))
+                }
+              } catch (err) {
+                console.warn('Error leyendo nombres de rivales:', err)
               }
-            } catch (err) {
-              console.warn('Error leyendo nombres de rivales:', err)
             }
-          }
 
-          clubFixtures = fixtures.map(f => {
-            const isHome = f.home_club_id === clubId
-            const oppId = isHome ? f.away_club_id : f.home_club_id
-            const opp = opponentMap.get(oppId)
-            return {
-              ...f,
-              is_home: isHome,
-              opponent_id: oppId,
-              opponent_name: opp?.name || (isHome ? 'Rival' : 'Rival'),
-              opponent_short_name: opp?.short_name || 'RIV'
-            }
-          })
+            clubFixtures = fixtures.map(f => {
+              const isHome = f.home_club_id === clubId
+              const oppId = isHome ? f.away_club_id : f.home_club_id
+              const opp = opponentMap.get(oppId)
+              return {
+                ...f,
+                is_home: isHome,
+                opponent_id: oppId,
+                opponent_name: opp?.name || (isHome ? 'Rival' : 'Rival'),
+                opponent_short_name: opp?.short_name || 'RIV'
+              }
+            })
+          }
         }
+      } catch (e) {
+        console.warn('Error leyendo fixtures para calendario:', e)
       }
-    } catch (e) {
-      console.warn('Error leyendo fixtures para calendario:', e)
-    }
+      return clubFixtures
+    })()
+
+    const [calendarState, clubFixtures] = await Promise.all([calendarPromise, fixturesPromise])
+    seasonYear = calendarState.current_season_year || seasonYear
 
     // Construir las 52 semanas del año comenzando desde la fecha base
     const baseDate = new Date(`${seasonYear}-07-01T00:00:00`)

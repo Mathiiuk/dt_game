@@ -56,15 +56,16 @@ export default function MarketScreen() {
   const loadData = async () => {
     try {
       if (!club?.id) return
-      const list = await marketApi.getMarketPlayers(club.id, { gameDate: club.game_date })
-      setMarketStatus(marketApi.getMarketStatus(club.game_date))
-
-      const [{ data: scouted }, { data: mine }] = await Promise.all([
+      // Mercado, informes de ojeo, plantel propio y derechos de recompra no dependen entre sí: se piden a la vez
+      const [list, { data: scouted }, { data: mine }, rightsList] = await Promise.all([
+        marketApi.getMarketPlayers(club.id, { gameDate: club.game_date }),
         supabase.from('scout_reports').select('*').eq('club_id', club.id),
-        supabase.from('players').select('position, attr_overall, last_name, first_name').eq('club_id', club.id)
+        supabase.from('players').select('position, attr_overall, last_name, first_name').eq('club_id', club.id),
+        buybackApi.getRights(club.id).catch(() => [])
       ])
+      setMarketStatus(marketApi.getMarketStatus(club.game_date))
       setOwnSquad(mine || [])
-      setRights(await buybackApi.getRights(club.id).catch(() => []))
+      setRights(rightsList)
       const reports = new Map((scouted || []).map(s => [s.player_id, s]))
 
       setPlayers(list.map(p => {

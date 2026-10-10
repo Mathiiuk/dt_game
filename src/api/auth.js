@@ -263,6 +263,17 @@ async function ensureActiveCareer(userId) {
   return created || null
 }
 
+// La carrera activa casi nunca cambia: se recuerda un minuto por usuario (getSession se llama en cada pantalla y al volver a la pestaña)
+const CAREER_TTL_MS = 60000
+const careerMemo = new Map() // userId -> { id, at }
+async function activeCareerId(userId) {
+  const hit = careerMemo.get(userId)
+  if (hit && Date.now() - hit.at < CAREER_TTL_MS) return hit.id
+  const id = (await ensureActiveCareer(userId))?.id || null
+  if (id) careerMemo.set(userId, { id, at: Date.now() })
+  return id
+}
+
 export const authApi = {
   /**
    * Ingreso con Google. Redirige a Google y vuelve a /game con la sesión puesta; la carrera inicial se crea al
@@ -476,7 +487,7 @@ export const authApi = {
 
     let careerId = null
     try {
-      careerId = (await ensureActiveCareer(user.id))?.id || null
+      careerId = await activeCareerId(user.id)
     } catch {
       // Ignorar si la tabla no está creada
     }
@@ -531,6 +542,7 @@ export const authApi = {
 
     // Limpieza de memoria y caché SWR
     queryCache.clear()
+    careerMemo.clear()
 
     const { error } = await supabase.auth.signOut()
     if (error) throw new Error(error.message)
