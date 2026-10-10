@@ -16,8 +16,9 @@ create table if not exists public.league_scorers (
   unique (competition_id, club_id, player_name)
 );
 alter table public.league_scorers enable row level security;
-create policy owner_all on public.league_scorers for all using (owner_user_id = auth.uid()) with check (owner_user_id = auth.uid());
+create policy owner_all on public.league_scorers for all using (owner_user_id = (select auth.uid())) with check (owner_user_id = (select auth.uid()));
 create index if not exists idx_league_scorers_comp on public.league_scorers (competition_id, goals desc);
+create index if not exists idx_league_scorers_club on public.league_scorers (club_id);
 
 -- Nombre estable del jugador `p_slot` (0 a 11) de la plantilla derivada de un club
 create or replace function public.league_scorer_name(p_club_id uuid, p_slot integer)
