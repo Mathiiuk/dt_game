@@ -3,6 +3,7 @@
  */
 
 import { tierIncomeFactor } from './pyramid'
+import { formatMoney } from '../lib/format'
 
 export const TICKET_PRICES = [6, 8, 10, 14, 18]
 
@@ -167,3 +168,63 @@ export function getTycoonHealth(status, balance = 0, expensesTotal = 3000) {
   }
 }
 
+
+
+/** Tope de sueldos semanales que autoriza la dirigencia cuando el club no tiene uno propio */
+export const DEFAULT_WAGE_CAP = 3500
+export const wageCapOf = (club) => Number(club?.wage_budget) || DEFAULT_WAGE_CAP
+
+/** Masa salarial semanal: lo que cobran los jugadores (contract_salary) más el cuerpo técnico. Es la misma cuenta del cierre semanal. */
+export function payroll({ players = [], staff = [] } = {}) {
+  const sum = (list, f) => list.reduce((t, x) => t + Number(f(x) || 0), 0)
+  const playerWages = Math.round(sum(players, p => p.contract_salary ?? 500))
+  const staffWages = Math.round(sum(staff, s => s.wage_weekly ?? s.salary ?? 120))
+  return { playerWages, staffWages, total: playerWages + staffWages }
+}
+
+/**
+ * Cómo viene la masa salarial contra el tope de la dirigencia.
+ * `percent` puede pasar de 100 (para decirlo); `barValue` es para dibujar la barra (nunca más de 100).
+ */
+export function wageCapStatus(bill, cap) {
+  const limit = Number(cap) > 0 ? Number(cap) : DEFAULT_WAGE_CAP
+  const used = Math.max(0, Number(bill) || 0)
+  const percent = Math.round((used / limit) * 100)
+  const over = used > limit
+  return {
+    bill: used,
+    cap: limit,
+    percent,
+    barValue: Math.min(100, percent),
+    tone: over ? 'danger' : percent > 85 ? 'warning' : 'accent',
+    over,
+    margin: limit - used,
+    overBy: over ? used - limit : 0
+  }
+}
+
+/** Qué significa el tope, en tres líneas para el explicador */
+export const WAGE_CAP_EXPLAINER = [
+  'Es lo que cobran por semana todos tus jugadores y el cuerpo técnico, contra el máximo que autoriza la dirigencia.',
+  'Pasarse no te frena: te deja fichar y renovar, pero la dirigencia se enoja y baja la satisfacción financiera.',
+  'El tope sube al cerrar la temporada: un poco si te quedás en la categoría y bastante si ascendés.'
+]
+
+/**
+ * Compara la caja del club con el último saldo del libro de movimientos.
+ * Algunas operaciones (fichajes, premios, bonos) mueven la caja sin dejar asiento, así que una diferencia no es un error:
+ * se explica en lugar de "corregirla".
+ */
+export function balanceCheck(budget, lastLedgerBalance) {
+  if (lastLedgerBalance === null || lastLedgerBalance === undefined || Number.isNaN(Number(lastLedgerBalance))) {
+    return { status: 'EMPTY', drift: 0, message: 'Todavía no hay movimientos registrados para comparar con la caja.' }
+  }
+  const drift = Math.round(Number(budget || 0) - Number(lastLedgerBalance))
+  if (Math.abs(drift) < 1) return { status: 'OK', drift: 0, message: 'Todo cuadra: la caja es igual al último saldo del libro.' }
+  const side = drift > 0 ? 'más' : 'menos'
+  return {
+    status: 'DRIFT',
+    drift,
+    message: `La caja tiene ${formatMoney(Math.abs(drift))} ${side} que el último saldo del libro. Pasa cuando hay movimientos que no se anotan uno por uno, como fichajes, premios o primas.`
+  }
+}

@@ -1,10 +1,10 @@
 import React from 'react'
-import { AlertCircle, Clock, DollarSign, Sparkles, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
-import { Card, CardBody, Badge } from '../../components/ui'
+import { AlertCircle, CheckCircle2, Clock, DollarSign, Info, Sparkles, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { Card, CardBody, Badge, Button } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import { getTycoonHealth } from '../../domain/finances'
 
-export default function FinancesWalletCard({ finances }) {
+export default function FinancesWalletCard({ finances, check = null, checking = false, onVerify }) {
   const balance = finances?.balance || 0
   const net = finances?.netWeeklyFlow || 0
   const totalIncome = finances?.income?.totalRecurring || 0
@@ -51,6 +51,18 @@ export default function FinancesWalletCard({ finances }) {
             <span>{finances?.liquidityWeeks || tycoonHealth.runwayWeeks}</span>
           </div>
         </div>
+
+        {onVerify && (
+          <div className="flex flex-wrap items-start gap-3 border-b border-line pb-4">
+            <Button size="sm" variant="outline" onClick={onVerify} loading={checking}>{!checking && <CheckCircle2 />}Verificar balance</Button>
+            {check && (
+              <p role="status" className={`flex min-w-0 flex-1 items-start gap-2 text-xs leading-relaxed ${check.status === 'OK' ? 'text-accent' : 'text-fg-muted'}`}>
+                {check.status === 'OK' ? <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" /> : <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />}
+                <span>{check.message}</span>
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Balance Semanal y Flujo de Caja */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

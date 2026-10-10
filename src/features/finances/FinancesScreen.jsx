@@ -15,6 +15,7 @@ import {
   Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 import FinancesWalletCard from './FinancesWalletCard'
+import WageCapMeter from './WageCapMeter'
 import FinancesFacilityCard from './FinancesFacilityCard'
 import FinancesTransactionFeed from './FinancesTransactionFeed'
 import { friendlyError } from '../../lib/errors'
@@ -55,6 +56,19 @@ export default function FinancesScreen() {
   const [tab, setTab] = useState('balance')
   const [ticketPrice, setTicketPrice] = useState(10)
   const [updatingTicket, setUpdatingTicket] = useState(false)
+  const [check, setCheck] = useState(null)
+  const [checking, setChecking] = useState(false)
+
+  const handleVerify = async () => {
+    setChecking(true)
+    try {
+      setCheck(await financesApi.verifyBalance(club.id))
+    } catch (e) {
+      toast.error(friendlyError(e, 'No pudimos verificar el balance. Probá de nuevo.'))
+    } finally {
+      setChecking(false)
+    }
+  }
 
   const loadData = async () => {
     try {
@@ -156,7 +170,7 @@ export default function FinancesScreen() {
       />
 
       {/* 1. Billetera del Club (Caja, Salud Tycoon y Balance Semanal) */}
-      <FinancesWalletCard finances={f} />
+      <FinancesWalletCard finances={f} check={check} checking={checking} onVerify={handleVerify} />
 
       {/* 2. Pestañas de Gestión Financiera e Inversiones */}
       <Tabs value={tab} onValueChange={setTab}>
@@ -168,6 +182,11 @@ export default function FinancesScreen() {
 
         {/* Tab 1: Desglose de Ingresos, Gastos y Política de Entradas */}
         <TabsContent value="balance" className="space-y-6">
+          <Card as="section" aria-label="Masa salarial" className="border border-line bg-surface/90">
+            <CardBody className="p-4 sm:p-6">
+              <WageCapMeter bill={(f?.expenses?.playerWages || 0) + (f?.expenses?.staffWages || 0)} cap={f?.wageBudgetWeekly} />
+            </CardBody>
+          </Card>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <Breakdown
               title="Ingresos recurrentes"

@@ -2,11 +2,11 @@
 const table = { rows: [], fail: false }
 
 vi.mock('../../src/api/supabase', () => {
-  const chain = () => {
+  const chain = (t) => {
     const q = {}
     for (const m of ['select', 'eq', 'or', 'in', 'order', 'limit']) q[m] = () => q
     q.maybeSingle = async () => ({ data: null, error: null })
-    q.then = (resolve) => resolve({ data: [], error: null })
+    q.then = (resolve) => resolve({ data: t === 'players' ? [{ id: 'p1', contract_salary: 600, contract_wage: 999 }, { id: 'p2', contract_salary: 400, contract_wage: 999 }] : t === 'staff' ? [{ wage_weekly: 150 }] : [], error: null })
     return q
   }
   return { supabase: { from: chain } }
@@ -41,5 +41,14 @@ describe('puesto en la liga del Inicio', () => {
     const overview = await dashboardApi.getOverview(club, manager)
     expect(overview.standingsSnippet).toBeNull()
     expect(overview.clubSummary.name).toBe('Potrero')
+  })
+})
+
+describe('tope de sueldos del Inicio', () => {
+  beforeEach(() => { queryCache.clear(); table.fail = false; table.rows = [] })
+
+  it('la masa salarial sale de contract_salary y suma el cuerpo técnico, igual que Finanzas', async () => {
+    const overview = await dashboardApi.getOverview(club, manager)
+    expect(overview.financesSummary).toMatchObject({ weeklyWageBill: 1150, wageBudget: 3500 })
   })
 })
