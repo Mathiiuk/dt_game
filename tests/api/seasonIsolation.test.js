@@ -1,7 +1,7 @@
 // Cierre de temporada: el servidor lee la tabla de la liga del club aislando las demás
 const state = { rpc: [], writes: [] }
 
-vi.mock('../../src/api/playerEvolution', () => ({ playerEvolutionApi: { processAnnualEvolution: vi.fn(async () => []) } }))
+vi.mock('../../src/api/playerEvolution', () => ({ playerEvolutionApi: { processAnnualEvolution: vi.fn(async () => []), countSeasonEvolution: vi.fn(async () => ({ aged: 0, retiring: 0 })) } }))
 
 vi.mock('../../src/api/supabase', () => {
   return { 
@@ -11,7 +11,11 @@ vi.mock('../../src/api/supabase', () => {
         if (args.p_club_id === 'sin-liga') return { error: { message: 'No está en ninguna liga' } }
         return { data: { success: true, standingsJson: [], newSeasonYear: 2027 }, error: null } 
       },
-      from: () => ({ insert: () => Promise.resolve({ error: null }) })
+      from: () => {
+        const q = { insert: () => Promise.resolve({ error: null }), maybeSingle: async () => ({ data: null, error: null }), then: (resolve) => resolve({ data: [], error: null }) }
+        for (const m of ['select', 'eq', 'is', 'limit', 'update']) q[m] = () => q
+        return q
+      }
     } 
   }
 })

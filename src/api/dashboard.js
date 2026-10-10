@@ -3,6 +3,7 @@ import { queryCache } from '../utils/cache'
 import { levelsApi } from './levels'
 import { eventsApi } from './events'
 import { competitionApi } from './competition'
+import { seasonCloseApi } from './seasonClose'
 import { contractsAlert } from '../domain/contracts'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
@@ -108,7 +109,11 @@ export const dashboardApi = {
         })
       }
 
+      // Si el cierre de la temporada anterior quedó a medias, el inicio lo avisa y deja terminarlo
+      const pendingClose = await seasonCloseApi.getPendingClose(club.id)
+
       return {
+        pendingClose,
         managerSummary: {
           id: manager.id,
           name: `${manager.first_name} ${manager.last_name}`,

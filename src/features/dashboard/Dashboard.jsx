@@ -5,6 +5,8 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { pickAutoStage } from '../../domain/storyStage'
+import { closePendingText, closeProgressPercent } from '../../domain/seasonCloseStages'
+import { seasonCloseApi } from '../../api/seasonClose'
 import { dashboardApi } from '../../api/dashboard'
 import { eventsApi } from '../../api/events'
 import { queryCache } from '../../utils/cache'
@@ -254,6 +256,7 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
+  const [finishingClose, setFinishingClose] = useState(false)
   const [showSeasonCloseModal, setShowSeasonCloseModal] = useState(false)
   // Se sube al resolver una decisión: el club puede quedar igual (caja y fecha) y aun así hay que recargar eventos, clima y bitácora
   const [reloadTick, setReloadTick] = useState(0)
@@ -312,6 +315,23 @@ export default function Dashboard() {
     }
   }
 
+  // El cierre de la temporada quedó a medias: se completa con los resultados que ya estaban guardados (no se vuelve a sortear ni a cobrar nada)
+  const handleFinishClose = async () => {
+    setFinishingClose(true)
+    try {
+      const res = await seasonCloseApi.resumeSeasonClose({ clubId: club.id, careerId: club.career_id })
+      queryCache.clear()
+      await refreshContext()
+      setReloadTick(t => t + 1)
+      if (res?.alreadyClosed) toast.info(res.message || 'El cierre ya estaba completo.')
+      else toast.success('Cierre completo. Empieza la pretemporada.')
+    } catch (e) {
+      toast.error(friendlyError(e, 'No pudimos terminar el cierre. Tus resultados siguen guardados: probá de nuevo.'))
+    } finally {
+      setFinishingClose(false)
+    }
+  }
+
   /** Resuelve una decisión. Devuelve cómo quedó (o null si no se aplicó); con `silent` no muestra la tarjeta de resultado del inicio */
   const handleResolveEvent = async (event, option, { silent = false } = {}) => {
     try {
@@ -348,7 +368,7 @@ export default function Dashboard() {
 
   if (loading || contextLoading || !dashboardData) return <DashboardSkeleton />
 
-  const { managerSummary, clubSummary, financesSummary, squadHealth, standingsSnippet, nextFixture, urgentAlerts, pendingEvents } = dashboardData
+  const { managerSummary, clubSummary, financesSummary, squadHealth, standingsSnippet, nextFixture, urgentAlerts, pendingEvents, pendingClose } = dashboardData
 
   const matchDue = !!nextFixture && isFixtureDue(nextFixture.match_date, clubSummary.gameDate)
   const matchFuture = !!nextFixture && !matchDue
@@ -359,7 +379,9 @@ export default function Dashboard() {
   const wageUsage = financesSummary.wageBudget > 0 ? Math.round((financesSummary.weeklyWageBill / financesSummary.wageBudget) * 100) : 0
 
   // Acción principal según el momento: jugar, avanzar o cerrar la temporada
-  const primaryAction = seasonEnded ? (
+  const primaryAction = pendingClose ? (
+    <Button onClick={handleFinishClose} loading={finishingClose}>{!finishingClose && <Trophy />}Terminar el cierre de temporada</Button>
+  ) : seasonEnded ? (
     <Button onClick={() => setShowSeasonCloseModal(true)}><Trophy />Gala de fin de temporada</Button>
   ) : matchDue ? (
     <Button onClick={() => navigate('/match', { state: { fixtureId: nextFixture.id } })}><Play />Disputar partido</Button>
@@ -401,6 +423,22 @@ export default function Dashboard() {
       </div>
 
       <div className="min-w-0 space-y-6">
+        {pendingClose && (
+          <Card className="border-warning/50" aria-label="Cierre de temporada pendiente">
+            <CardBody className="space-y-3">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg font-semibold text-fg">El cierre de la temporada {pendingClose.season_year} quedó a medias</h2>
+                  <p className="mt-1 text-sm text-fg-muted">Tu temporada ya está cerrada y archivada: el puesto, el premio y los contratos están guardados. {closePendingText(pendingClose.stage)} Hasta que se termine no se puede avanzar de semana.</p>
+                </div>
+              </div>
+              <Progress value={closeProgressPercent(pendingClose.stage)} label="Avance del cierre" />
+              <Button onClick={handleFinishClose} loading={finishingClose}>{!finishingClose && <Trophy />}Terminar el cierre</Button>
+            </CardBody>
+          </Card>
+        )}
+
         <AlertList alerts={urgentAlerts} />
 
         {lastOutcome && <OutcomeCard outcome={lastOutcome} onClose={() => setLastOutcome(null)} />}

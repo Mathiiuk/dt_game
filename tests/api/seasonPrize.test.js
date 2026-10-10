@@ -1,7 +1,7 @@
 // Fin de temporada: el premio (por puesto y goleador) lo calcula y cobra la base; el navegador no escribe la caja
 const state = { rpc: [], rpcResult: null, writes: [], standings: null, playersRows: [] }
 
-vi.mock('../../src/api/playerEvolution', () => ({ playerEvolutionApi: { processAnnualEvolution: vi.fn(async () => []) } }))
+vi.mock('../../src/api/playerEvolution', () => ({ playerEvolutionApi: { processAnnualEvolution: vi.fn(async () => []), countSeasonEvolution: vi.fn(async () => ({ aged: 0, retiring: 0 })) } }))
 vi.mock('../../src/api/clubHistory', () => ({ clubHistoryApi: { addMilestone: vi.fn(async () => {}), addHemerotecaArticle: vi.fn(async () => {}) } }))
 
 vi.mock('../../src/api/supabase', () => {
@@ -15,6 +15,8 @@ vi.mock('../../src/api/supabase', () => {
     q.insert = (row) => { inserted = Array.isArray(row) ? row : [row]; state.writes.push({ table, op: 'insert', row }); return q }
     q.update = (row) => { state.writes.push({ table, op: 'update', row }); return q }
     q.delete = () => { state.writes.push({ table, op: 'delete' }); return q }
+    q.is = () => q
+    q.gte = (col, val) => { state.writes.push({ table, op: 'gte', col, val }); return q }
     q.in = (col, vals) => { state.writes.push({ table, op: 'in', col, vals }); return q }
     q.upsert = (row) => { state.writes.push({ table, op: 'upsert', row }); return Promise.resolve({ error: null }) }
     q.single = async () => ({ data: table === 'season_snapshots' ? { id: 'snap1' } : table === 'competitions' ? { id: 'newcomp' } : { budget: 99999999, wage_budget: 1, league_tier: 5 }, error: null })

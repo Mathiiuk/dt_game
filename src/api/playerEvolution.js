@@ -181,18 +181,31 @@ export const playerEvolutionApi = {
   },
 
   /**
-   * Procesa en lote la evolución anual del plantel de un club
+   * Procesa en lote la evolución anual del plantel de un club.
+   * Se puede retomar: los futbolistas que ya tienen su registro de esa temporada se saltean, así que si el cierre se interrumpe
+   * nadie envejece dos veces ni se vuelve a sortear su evolución. Un error de la base corta el proceso (no se ignora).
    */
   async processAnnualEvolution(clubId, seasonYear) {
     if (!clubId || !seasonYear) throw new Error('Parámetros de club y año requeridos')
 
     // 1. Obtener futbolistas del club
-    const { data: squad } = await supabase
+    const { data: allSquad, error: squadErr } = await supabase
       .from('players')
       .select('*')
       .eq('club_id', clubId)
+    if (squadErr) throw new Error(squadErr.message)
 
-    if (!squad || squad.length === 0) return []
+    // Los que ya evolucionaron en este cierre (si se retoma) no se tocan
+    const { data: done, error: doneErr } = await supabase
+      .from('player_evolution_history')
+      .select('player_id')
+      .eq('club_id', clubId)
+      .eq('season_year', seasonYear)
+    if (doneErr) throw new Error(doneErr.message)
+    const already = new Set((done || []).map(r => r.player_id))
+    const squad = (allSquad || []).filter(p => !already.has(p.id))
+
+    if (squad.length === 0) return []
 
     // 2. Obtener personalidades
     const { data: personalities } = await supabase
@@ -208,7 +221,7 @@ export const playerEvolutionApi = {
       const evo = this.calculateAnnualEvolution(player, pers)
 
       // 3. Registrar en player_evolution_history (idempotente)
-      await supabase
+      const { error: histErr } = await supabase
         .from('player_evolution_history')
         .upsert({
           player_id: player.id,
@@ -220,10 +233,11 @@ export const playerEvolutionApi = {
           attributes_delta: evo.attributesDelta,
           minutes_played: evo.minutesPlayed
         }, { onConflict: 'player_id,season_year' })
+      if (histErr) throw new Error(histErr.message)
 
       // 4. Registrar retiro si aplica
       if (evo.retiring) {
-        await supabase
+        const { error: retErr } = await supabase
           .from('player_retirements')
           .upsert({
             player_id: player.id,
@@ -232,10 +246,11 @@ export const playerEvolutionApi = {
             planned_retirement_season: seasonYear + 1,
             future_role_interest: evo.futureRole
           }, { onConflict: 'player_id' })
+        if (retErr) throw new Error(retErr.message)
       }
 
       // 5. Actualizar ficha del futbolista
-      await supabase
+      const { error: updErr } = await supabase
         .from('players')
         .update({
           age: evo.newAge,
@@ -246,6 +261,7 @@ export const playerEvolutionApi = {
           announced_retirement_year: evo.retiring ? seasonYear + 1 : null
         })
         .eq('id', player.id)
+      if (updErr) throw new Error(updErr.message)
 
       evolutionResults.push({
         player,
@@ -258,6 +274,18 @@ export const playerEvolutionApi = {
     queryCache.invalidate(`retirements:${clubId}`)
 
     return evolutionResults
+  },
+
+  /**
+   * Cuántos futbolistas evolucionaron en la temporada y cuántos anunciaron su retiro: sirve para el registro del cierre
+   * aunque el proceso se haya hecho en varios intentos.
+   */
+  async countSeasonEvolution(clubId, seasonYear) {
+    const [aged, retiring] = await Promise.all([
+      supabase.from('player_evolution_history').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('season_year', seasonYear),
+      supabase.from('player_retirements').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('planned_retirement_season', seasonYear + 1)
+    ])
+    return { aged: aged.count || 0, retiring: retiring.count || 0 }
   },
 
   /**

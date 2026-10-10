@@ -166,6 +166,8 @@ export const competitionApi = {
    * - Si se queda: los clubes de la IA que subieron o bajaron (según la pirámide) se reemplazan por recién llegados
    *   (los que suben dejan su lugar a equipos más débiles de la categoría, los que bajan a equipos más fuertes).
    * Devuelve la competición y los clubes que la juegan; los partidos los arma quien llama.
+   * Se puede retomar: si un intento anterior ya dejó la liga armada se la reconoce y se devuelve tal cual, sin crear clubes ni
+   * competiciones repetidos. Los errores de la base cortan el proceso (no se ignoran).
    */
   async prepareNextLeague({ clubId, competitionId, standings, oldTier, newTier, seasonYear, country = 'Argentina' }) {
     const seed = `${clubId}:${seasonYear}`
@@ -187,7 +189,18 @@ export const competitionApi = {
       stadium_capacity: c.stadium_capacity || 1500
     })
 
+    const mine = standings.find(s => s.club_id === clubId)
+
     if (newTier !== oldTier) {
+      // ¿Ya se armó en un intento anterior? Entonces el club ya está en otra competición con sus rivales
+      if (mine?.id) {
+        const { data: current } = await supabase.from('standings').select('competition_id').eq('id', mine.id).maybeSingle()
+        if (current?.competition_id && current.competition_id !== competitionId) {
+          const { data: rows } = await supabase.from('standings').select('club_id').eq('competition_id', current.competition_id)
+          const ids = (rows || []).map(r => r.club_id)
+          if (ids.length >= 2) return { competitionId: current.competition_id, clubIds: [clubId, ...ids.filter(id => id !== clubId)] }
+        }
+      }
       const { data: comp, error: compErr } = await supabase
         .from('competitions')
         .insert([{ name: `${divisionName(newTier)} (${country})`, level: newTier, teams_count: 20 }])
@@ -202,10 +215,14 @@ export const competitionApi = {
       if (clubsErr) throw new Error(clubsErr.message)
 
       const aiIds = (aiClubs || []).map(c => c.id)
-      const mine = standings.find(s => s.club_id === clubId)
-      if (mine) await supabase.from('standings').update({ competition_id: comp.id }).eq('id', mine.id)
       const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
-      await supabase.from('standings').insert(aiIds.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
+      // Primero la tabla de los rivales y recién después se muda el club: si se corta en el medio, el club sigue en su liga y se puede retomar
+      const { error: aiStandErr } = await supabase.from('standings').insert(aiIds.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
+      if (aiStandErr) throw new Error(aiStandErr.message)
+      if (mine) {
+        const { error: moveErr } = await supabase.from('standings').update({ competition_id: comp.id }).eq('id', mine.id)
+        if (moveErr) throw new Error(moveErr.message)
+      }
       queryCache.invalidate(`standings:${clubId}`)
       return { competitionId: comp.id, clubIds: [clubId, ...aiIds] }
     }
@@ -216,6 +233,13 @@ export const competitionApi = {
     const keep = standings.map(s => s.club_id).filter(id => !movers.some(m => m.club_id === id))
     if (movers.length === 0) return { competitionId, clubIds: keep }
 
+    // ¿Ya se reemplazaron en un intento anterior? Si los que se iban ya no están y la tabla está completa, no se repite
+    const { data: stillThere } = await supabase.from('standings').select('club_id').eq('competition_id', competitionId).in('club_id', movers.map(m => m.club_id))
+    if ((stillThere || []).length === 0) {
+      const { data: rows } = await supabase.from('standings').select('club_id').eq('competition_id', competitionId)
+      if ((rows || []).length >= standings.length) return { competitionId, clubIds: rows.map(r => r.club_id) }
+    }
+
     const names = standings.map(s => s.club?.name).filter(Boolean)
     const [lo, hi] = tierStrengthRange(oldTier)
     const mid = Math.round((lo + hi) / 2)
@@ -224,19 +248,26 @@ export const competitionApi = {
     const { data: newClubs, error: newErr } = await supabase.from('clubs').insert(rows).select('id')
     if (newErr) throw new Error(newErr.message)
 
-    await supabase.from('standings').delete().in('club_id', movers.map(m => m.club_id))
+    const { error: delErr } = await supabase.from('standings').delete().in('club_id', movers.map(m => m.club_id))
+    if (delErr) throw new Error(delErr.message)
     const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
     const newIds = (newClubs || []).map(c => c.id)
-    await supabase.from('standings').insert(newIds.map(id => ({ competition_id: competitionId, club_id: id, ...zero })))
+    const { error: insErr } = await supabase.from('standings').insert(newIds.map(id => ({ competition_id: competitionId, club_id: id, ...zero })))
+    if (insErr) throw new Error(insErr.message)
     queryCache.invalidate(`standings:${clubId}`)
     return { competitionId, clubIds: [...keep, ...newIds] }
   },
 
   /**
    * Generador de fixture todos contra todos (una rueda, 19 fechas para 20 clubes) con la localía repartida (domain/leagueSchedule).
+   * Se puede repetir: antes de generar se borran los partidos de esa competición que ya estaban programados desde esa fecha (por un
+   * intento anterior), así nunca quedan partidos duplicados. Los errores de la base cortan el proceso.
    */
   async generateRoundRobinFixtures(competitionId, clubIds, startDate = '2026-08-01') {
     if (!competitionId || !clubIds || clubIds.length < 2) return
+
+    const { error: clearErr } = await supabase.from('fixtures').delete().eq('competition_id', competitionId).eq('status', 'SCHEDULED').gte('match_date', startDate)
+    if (clearErr) throw new Error(clearErr.message)
 
     const fixtures = []
     const baseDate = new Date(`${startDate}T00:00:00Z`)
@@ -262,7 +293,8 @@ export const competitionApi = {
     // Insertar fixtures por lotes de 100 para evitar límites de payload
     for (let i = 0; i < fixtures.length; i += 100) {
       const batch = fixtures.slice(i, i + 100)
-      await supabase.from('fixtures').insert(batch)
+      const { error: fxErr } = await supabase.from('fixtures').insert(batch)
+      if (fxErr) throw new Error(fxErr.message)
     }
   },
 

@@ -54,7 +54,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
         setStory(seasonStory({
           clubName: club.name,
           position: res.userPosition,
-          champion: res.championClub?.club_id === club.id,
+          champion: res.championClubId === club.id,
           promoted: res.isPromoted,
           relegated: res.isRelegated,
           prize: res.totalPrizeAwarded,
@@ -73,7 +73,14 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
       onSuccess?.(res)
     } catch (err) {
       console.error(err)
-      toast.error(friendlyError(err, 'Error al procesar el cierre de temporada'))
+      if (err?.partialClose) {
+        // La temporada ya quedó cerrada y archivada: lo que falta se termina desde el inicio, con los mismos resultados
+        toast.error('El cierre quedó a medias. Tus resultados ya están guardados: terminalo desde el inicio.')
+        try { if (typeof refreshContext === 'function') await refreshContext() } catch { /* el inicio se actualiza igual al volver */ }
+        onClose?.()
+      } else {
+        toast.error(friendlyError(err, 'Error al procesar el cierre de temporada'))
+      }
     } finally {
       setClosing(false)
     }

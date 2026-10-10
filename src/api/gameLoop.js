@@ -1,11 +1,17 @@
 import { supabase } from './supabase'
 import { calendarApi } from './calendar'
+import { seasonCloseApi } from './seasonClose'
 
 export const gameLoopApi = {
   /**
    * Avanza la semana en el juego mediante el motor de tiempo autoritativo de calendarApi.
    */
   async advanceWeek(clubId, managerId, options = {}) {
+    // Con un cierre de temporada a medias no hay partidos del año nuevo: primero se termina el cierre
+    if (await seasonCloseApi.getPendingClose(clubId)) {
+      throw new Error('Primero hay que terminar el cierre de la temporada.')
+    }
+
     const { auditApi } = await import('./audit')
 
     // 1. Resolver career_id si está disponible
