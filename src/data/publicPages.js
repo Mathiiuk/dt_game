@@ -185,7 +185,7 @@ export const PUBLIC_PAGES = [
     h1: 'Términos y condiciones',
     intro: 'Al crear una cuenta y jugar a Vestuario aceptás estas condiciones.',
     sections: [
-      { heading: 'El juego', body: ['Vestuario es un juego de simulación. Los clubes, jugadores y resultados que aparecen en tu carrera son ficticios y se generan dentro del juego.'] },
+      { heading: 'El juego', body: ['Vestuario es un juego de simulación. Los jugadores, sus nombres y los resultados son inventados por el juego. Los clubes llevan nombres de instituciones deportivas argentinas solo para ambientar la historia: Vestuario no tiene relación ni acuerdo con ningún club, liga ni federación, y esos nombres no implican patrocinio ni aprobación.'] },
       { heading: 'Tu cuenta', body: ['Sos responsable de mantener tu contraseña en reserva y de lo que se haga con tu cuenta. Una persona, una cuenta: no está permitido usar programas automáticos ni aprovechar errores para sacar ventaja.'] },
       { heading: 'Cambios y disponibilidad', body: ['El juego está en desarrollo: puede cambiar, sumar o quitar funciones, y tener interrupciones. Hacemos lo posible por cuidar tu carrera, pero no podemos garantizar que el servicio esté siempre disponible.'] },
       { heading: 'Contacto', body: [contactLine] }

@@ -31,4 +31,4 @@ Disallow: /post-match
 Disallow: /endgame
 Disallow: /logbook
 
-Sitemap: https://vestuario.com.ar/sitemap.xml
+Sitemap: https://www.vestuario.com.ar/sitemap.xml

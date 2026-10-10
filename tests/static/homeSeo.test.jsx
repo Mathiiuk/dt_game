@@ -33,7 +33,7 @@ describe('SEO estático de la portada (index.html)', () => {
     expect(html).toContain('<html lang="es-AR">')
     expect(attr(/<title>([^<]*)<\/title>/)).toBe(HOME_SEO.title)
     expect(attr(/<meta name="description" content="([^"]*)"/)).toBe(HOME_SEO.description)
-    expect(attr(/<link rel="canonical" href="([^"]*)"/)).toBe('https://vestuario.com.ar/')
+    expect(attr(/<link rel="canonical" href="([^"]*)"/)).toBe('https://www.vestuario.com.ar/')
     expect(attr(/<meta name="robots" content="([^"]*)"/)).toBe('index,follow')
   })
 
@@ -95,7 +95,7 @@ describe('rastreo: sitemap y robots', () => {
     for (const path of PUBLIC_PATHS.filter(p => p !== '/')) {
       expect(blocked.some(rule => path.startsWith(rule))).toBe(false)
     }
-    expect(robots).toContain('Sitemap: https://vestuario.com.ar/sitemap.xml')
+    expect(robots).toContain('Sitemap: https://www.vestuario.com.ar/sitemap.xml')
   })
 
   it('las rutas del juego del código están todas bloqueadas en robots.txt', () => {

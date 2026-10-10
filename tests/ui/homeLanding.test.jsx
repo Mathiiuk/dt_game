@@ -82,7 +82,7 @@ describe('portada pública', () => {
   it('pone el título y los metadatos de la portada y registra la visita sin datos personales', () => {
     renderHome()
     expect(document.title).toBe(HOME_SEO.title)
-    expect(document.head.querySelector('link[rel="canonical"]').getAttribute('href')).toBe('https://vestuario.com.ar/')
+    expect(document.head.querySelector('link[rel="canonical"]').getAttribute('href')).toBe('https://www.vestuario.com.ar/')
     expect(document.head.querySelector('meta[name="robots"]').getAttribute('content')).toBe('index,follow')
     expect(window.dataLayer).toEqual([{ event: 'landing_view', path: '/' }])
   })
@@ -163,7 +163,7 @@ describe('páginas públicas secundarias', () => {
     expect(h1).toHaveLength(1)
     expect(h1[0]).toHaveTextContent(page.h1)
     expect(document.title).toBe(page.title)
-    expect(document.head.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(`https://vestuario.com.ar${path}`)
+    expect(document.head.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(`https://www.vestuario.com.ar${path}`)
     expect(page.description.length).toBeGreaterThan(50)
     expect(page.description.length).toBeLessThanOrEqual(165)
     const known = ['/', '/login', '/registro', ...PUBLIC_PAGES.map(p => p.path)]
