@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  AlertTriangle, AlertCircle, BookOpen, Bell, ChevronRight, MessageSquareQuote, Sparkles, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered
+  AlertTriangle, AlertCircle, BookOpen, Bell, ChevronRight, MessageSquareQuote, Sparkles, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered, Maximize2
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { pickAutoStage } from '../../domain/storyStage'
+import { pickAutoStage, isArcEvent, chapterOf } from '../../domain/storyStage'
 import { closePendingText, closeProgressPercent } from '../../domain/seasonCloseStages'
 import { seasonCloseApi } from '../../api/seasonClose'
 import { dashboardApi } from '../../api/dashboard'
@@ -35,8 +35,6 @@ import StoryStage from './StoryStage'
 import { splitBeats, reactionFor, effectChips } from '../../domain/storyFlavor'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
-
-const isStoryEvent = (event) => String(event.template_code || '').startsWith('ARC_')
 
 /** Escudo heráldico vectorial arcade con colores oficiales del club */
 function Crest({ club, name, highlight }) {
@@ -120,26 +118,21 @@ function StoryText({ text, onDone }) {
   )
 }
 
-/** Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)" */
-function chapterOf(title) {
-  const m = String(title || '').match(/\((\d+)\s*\/\s*(\d+)\)\s*$/)
-  return m ? { current: Number(m[1]), total: Number(m[2]), clean: String(title).replace(m[0], '').trim() } : null
-}
-
 const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E']
 
 /** Dilema del DT (evento dinámico) con sus opciones */
 function EventCard({ event, budget, boardConfidence, onResolve, onPlay }) {
   const critical = event.severity === 'CRITICAL'
-  const story = isStoryEvent(event)
-  const chapter = story ? chapterOf(event.title) : null
+  // Las historias (capítulos ARC_) y los eventos sueltos se presentan igual; la historia suma insignia, capítulos y su título
+  const arcEvent = isArcEvent(event)
+  const chapter = arcEvent ? chapterOf(event.title) : null
   const category = EVENT_CATEGORY[event.category] || { label: event.category, tone: 'neutral' }
   const options = Array.isArray(event.options) ? event.options : []
   // Una sola elección por evento: al apretar una opción se bloquean todas hasta que termine
   const [choosing, setChoosing] = useState(null)
-  // En las historias las opciones aparecen cuando terminás de leer el capítulo
-  const [read, setRead] = useState(!story)
-  const arc = story ? arcById(parseArcCode(event.template_code)?.arcId) : null
+  // Las opciones aparecen cuando terminás de leer
+  const [read, setRead] = useState(false)
+  const arc = arcEvent ? arcById(parseArcCode(event.template_code)?.arcId) : null
   const choose = async (opt) => {
     if (choosing) return
     setChoosing(opt.id)
@@ -151,14 +144,18 @@ function EventCard({ event, budget, boardConfidence, onResolve, onPlay }) {
   }
 
   return (
-    <Card className={cn('min-w-0 overflow-hidden', critical && 'border-danger/50', story && !critical && 'border-gold/40')}>
+    <Card className={cn('min-w-0 overflow-hidden', critical && 'border-danger/50', arcEvent && !critical && 'border-gold/40')}>
       <CardBody className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
-          {story && <Badge tone="gold"><BookOpen className="size-3" aria-hidden="true" />Historia</Badge>}
+          {arcEvent && <Badge tone="gold"><BookOpen className="size-3" aria-hidden="true" />Historia</Badge>}
           <Badge tone={category.tone}>{category.label}</Badge>
           {critical && <Badge tone="danger" dot>Decisión urgente</Badge>}
-          {/* Se abre a pantalla completa con su minijuego cuando se quiera jugar (las opciones de abajo siguen sirviendo para decidir rápido) */}
-          {onPlay && <Button size="sm" variant="outline" className="ml-auto" onClick={() => onPlay(event)}><Play />Jugar</Button>}
+          {/* Se puede abrir a pantalla completa (con su minijuego); las opciones de abajo sirven para decidir leyendo acá */}
+          {onPlay && (
+            <button type="button" aria-label="Abrir a pantalla completa" onClick={() => onPlay(event)} className="ml-auto grid size-8 place-items-center rounded-lg text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg">
+              <Maximize2 className="size-4" aria-hidden="true" />
+            </button>
+          )}
         </div>
         {chapter && (
           <div className="flex items-center gap-2" aria-label={`Capítulo ${chapter.current} de ${chapter.total}`}>
@@ -172,16 +169,14 @@ function EventCard({ event, budget, boardConfidence, onResolve, onPlay }) {
         )}
         <div>
           <h3 className="flex items-start gap-2 font-display text-xl font-semibold text-fg">
-            {story ? <Sparkles className="mt-1 size-4.5 shrink-0 text-gold" aria-hidden="true" /> : <Bell className={cn('mt-1 size-4.5 shrink-0', critical ? 'text-danger' : 'text-fg-subtle')} aria-hidden="true" />}
+            {arcEvent ? <Sparkles className="mt-1 size-4.5 shrink-0 text-gold" aria-hidden="true" /> : <Bell className={cn('mt-1 size-4.5 shrink-0', critical ? 'text-danger' : 'text-fg-subtle')} aria-hidden="true" />}
             <span className="min-w-0 break-words">{chapter ? chapter.clean : event.title}</span>
           </h3>
           {arc?.title && <p className="mt-0.5 text-xs italic text-fg-subtle">{arc.title} — {arc.tagline}</p>}
-          {story
-            ? <div className="mt-3"><StoryText text={event.description} onDone={() => setRead(true)} /></div>
-            : <p className="mt-1.5 text-sm leading-relaxed text-fg-muted">{event.description}</p>}
+          <div className="mt-3"><StoryText text={event.description} onDone={() => setRead(true)} /></div>
         </div>
-        {read && <div className={story ? 'animate-rise-in' : undefined}>
-          {story && <p className="eyebrow mb-2">¿Qué hacés?</p>}
+        {read && <div className="animate-rise-in">
+          <p className="eyebrow mb-2">¿Qué hacés?</p>
           <div className="flex flex-col gap-2">
             {options.map((opt, index) => {
               const cost = Number(opt.cost || 0)
