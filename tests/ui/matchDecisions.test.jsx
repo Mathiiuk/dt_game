@@ -206,7 +206,15 @@ describe('partido en vivo con decisiones', () => {
     expect(screen.getByText(/Desde el banco te avisan/)).toHaveTextContent('al segundo palo')
     click(screen.getByRole('button', { name: /Al segundo palo/ }))
     act(() => { vi.advanceTimersByTime(700) })
-    expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_CORNER', zone: 'FAR' })
+    // Segundo paso: frenar la barra para decidir qué tan bien sale el centro
+    expect(screen.getByText(/Frená la barra/)).toBeInTheDocument()
+    expect(mocks.replay).not.toHaveBeenCalled()
+    click(screen.getByRole('button', { name: /Centrar/ }))
+    act(() => { vi.advanceTimersByTime(800) })
+    const corner = mocks.replay.mock.calls[0][1][0]
+    expect(corner).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_CORNER', zone: 'FAR' })
+    expect(corner.quality).toBeGreaterThanOrEqual(0)
+    expect(corner.quality).toBeLessThanOrEqual(1)
   })
 
   it('un tiro libre a favor deja elegir quién lo patea, apuntar y frenar la barra', async () => {
@@ -230,6 +238,36 @@ describe('partido en vivo con decisiones', () => {
     expect(screen.getByText(/Desde el banco te avisan/)).toHaveTextContent('primer palo')
     click(screen.getByRole('button', { name: /Dejar dos arriba/ }))
     expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_DEF_CORNER', zone: 'COUNTER' })
+  })
+
+  it('un córner del rival, reforzando una zona, se defiende frenando la barra para despejar', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'SETPIECE_CORNER', team: 'away', defHint: 'NEAR', text: 'Se prepara el córner.' }]))
+    await startMatch()
+    minutes(5)
+    click(screen.getByRole('button', { name: /Reforzar el primer palo/ }))
+    expect(screen.getByText(/Frená la barra/)).toBeInTheDocument()
+    expect(mocks.replay).not.toHaveBeenCalled()
+    click(screen.getByRole('button', { name: /Despejar/ }))
+    act(() => { vi.advanceTimersByTime(800) })
+    const change = mocks.replay.mock.calls[0][1][0]
+    expect(change).toMatchObject({ minute: 5, team: 'home', kind: 'SETPIECE_DEF_CORNER', zone: 'NEAR' })
+    expect(change.quality).toBeGreaterThanOrEqual(0)
+    expect(change.quality).toBeLessThanOrEqual(1)
+  })
+
+  it('un mano a mano a favor, definido de primera, se resuelve frenando la barra', async () => {
+    mocks.start.mockResolvedValue(results([{ minute: 5, type: 'KEYPLAY', team: 'home', text: '¡Mano a mano!' }]))
+    await startMatch()
+    minutes(5)
+    click(screen.getByRole('button', { name: /defina de primera/ }))
+    expect(screen.getByText(/Frená la barra/)).toBeInTheDocument()
+    expect(mocks.replay).not.toHaveBeenCalled()
+    click(screen.getByRole('button', { name: /Definir/ }))
+    act(() => { vi.advanceTimersByTime(800) })
+    const change = mocks.replay.mock.calls[0][1][0]
+    expect(change).toMatchObject({ minute: 5, team: 'home', kind: 'KEYPLAY_CHOICE', choice: 'SHOOT' })
+    expect(change.quality).toBeGreaterThanOrEqual(0)
+    expect(change.quality).toBeLessThanOrEqual(1)
   })
 
   it('un tiro libre del rival deja armar la barrera', async () => {

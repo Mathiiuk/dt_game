@@ -214,6 +214,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
   // Cambios del DT en vivo: desde el minuto siguiente rinde el nuevo once (los que entran llegan frescos, los demás ya corrieron)
   const applyChange = (change, min) => {
+    // `quality` (0 a 1) sale del minijuego de la barra; sin ella (decisiones viejas) se resuelve como siempre
+    const qualityOf = (q) => (q === undefined || q === null ? null : Math.max(0, Math.min(1, Number(q))))
     const isHomeSide = change.team === 'home'
     const team = isHomeSide ? homeTeam : awayTeam
     // Penal pendiente: quién lo patea (equipo con el penal) o hacia dónde se tira el arquero (equipo que defiende)
@@ -222,12 +224,12 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
     // Penal a favor con puntería: hacia dónde patea y qué tan bien le pegó (0 a 1, del minijuego)
     if (change.kind === 'PENALTY_AIM') { team.penaltyAim = { aim: change.aim, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.7))) }; return }
     // Jugada clave: lo que decide el DT para el mano a mano (en ataque o en defensa)
-    if (change.kind === 'KEYPLAY_CHOICE') { keyChoice = { side: change.team, choice: change.choice }; return }
+    if (change.kind === 'KEYPLAY_CHOICE') { keyChoice = { side: change.team, choice: change.choice, quality: qualityOf(change.quality) }; return }
     // Remate peligroso en contra: qué tan bien reaccionó el arquero (0 a 1, del minijuego)
     // Córner a favor: a qué zona va el centro. Tiro libre a favor: quién lo patea, hacia dónde y qué tan bien le pegó
-    if (change.kind === 'SETPIECE_CORNER') { setChoice = { side: change.team, kind: 'CORNER', zone: change.zone }; return }
+    if (change.kind === 'SETPIECE_CORNER') { setChoice = { side: change.team, kind: 'CORNER', zone: change.zone, quality: qualityOf(change.quality) }; return }
     // Defender la pelota parada del rival: a qué zona refuerza (o deja dos arriba para la contra) y cómo se ordena ante el tiro libre
-    if (change.kind === 'SETPIECE_DEF_CORNER') { setChoice = { side: change.team, kind: 'DEF_CORNER', zone: change.zone }; return }
+    if (change.kind === 'SETPIECE_DEF_CORNER') { setChoice = { side: change.team, kind: 'DEF_CORNER', zone: change.zone, quality: qualityOf(change.quality) }; return }
     if (change.kind === 'SETPIECE_DEF_FK') { setChoice = { side: change.team, kind: 'DEF_FK', mode: change.mode }; return }
     if (change.kind === 'SETPIECE_FK') { setChoice = { side: change.team, kind: 'FK', taker: change.playerId, aim: change.aim, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.6))) }; return }
     if (change.kind === 'SAVE_REACT') { saveReact = { side: change.team, quality: Math.max(0, Math.min(1, Number(change.quality ?? 0.5))) }; return }
@@ -468,6 +470,8 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       const edge = Math.max(0.85, Math.min(1.15, (attPower / (attPower + defPower)) * 2))
       const attacking = keyChoice && keyChoice.side === kpTeam
       const choice = keyChoice ? keyChoice.choice : null
+      // Definir bien (barra en el verde) sube la chance; pegarle mal la baja. Sin calidad (decisión vieja) queda igual que antes
+      const finish = keyChoice?.quality != null ? 0.7 + 0.6 * keyChoice.quality : 1
       keyChoice = null
 
       let goalP = 0.32
@@ -480,7 +484,7 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       } else if (attacking && choice === 'PASS') {
         goalP = 0.4
       } else if (attacking && choice === 'SHOOT') {
-        goalP = 0.34
+        goalP = 0.34 * finish
       } else if (!attacking && choice === 'OUT') {
         goalP = 0.26
       } else if (!attacking && choice === 'STAY') {
@@ -544,11 +548,19 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
         const header = (specialists.HEADER && kpRng() < 0.6) ? specialists.HEADER.player : getRandomPlayer(att.players, 'ATTACK')
         let chance = 0.09 * (0.85 + skill(taker, 'attr_passing', 'attr_vision') / 333)
         // Si el centro va por donde la defensa está floja, es peligro; si va por donde está fuerte, casi nada
-        if (mine) chance *= mine.zone === ps.weak ? 2.1 : 0.8
+        if (mine) {
+          chance *= mine.zone === ps.weak ? 2.1 : 0.8
+          // El centro: bien frenada la barra llega al cabezazo; mal frenada se va largo o sale flojo
+          if (mine.quality != null) {
+            chance *= 0.7 + 0.6 * mine.quality
+            if (mine.quality < 0.15) chance = Math.min(chance, 0.02)
+          }
+        }
         // Quien remata: un buen cabeceador (juego aéreo) vale más que uno flojo
         chance *= 0.8 + aerialOf(header) / 250
         // Quien defiende: reforzar la zona correcta la cierra casi del todo; reforzar otra la deja más expuesta
-        if (dmine && dmine.zone !== 'COUNTER') chance *= dmine.zone === ps.target ? 0.45 : 1.1
+        // El despeje: con la barra en el verde la zona reforzada la cierra del todo; mal frenada, la cierra mucho menos
+        if (dmine && dmine.zone !== 'COUNTER') chance *= dmine.zone === ps.target ? (dmine.quality != null ? 0.45 + 0.4 * (1 - dmine.quality) : 0.45) : 1.1
         if (isHomeSet) homeShots++
         else awayShots++
         if (kpRng() < Math.min(0.5, chance)) {
