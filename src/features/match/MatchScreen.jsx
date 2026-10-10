@@ -86,7 +86,7 @@ export default function MatchScreen() {
   const [simResults, setSimResults] = useState(null)
   const [speed, setSpeed] = useState(DEFAULT_SPEED) // x1 lento, x2
   const [paused, setPaused] = useState(false)
-  const { confirmAction } = useGameContext()
+  const { confirmAction, club: contextClub } = useGameContext()
   const [activeOrder, setActiveOrder] = useState(null)
   const [savedToDb, setSavedToDb] = useState(false)
   // Cambios del DT: once actual en la cancha y los cambios hechos (cada uno rejuega el resto del partido)
@@ -179,28 +179,26 @@ export default function MatchScreen() {
   useEffect(() => {
     const load = async () => {
       try {
-        const user = await authApi.getSession()
-        if (!user) return navigate('/auth')
-        const manager = await managerApi.getManager(user.id)
-        const club = await clubApi.getClubByManager(manager.id)
-        const tactic = await tacticsApi.getTactic(club.id)
-        const [players, staff] = await Promise.all([
+        // El club ya está en el contexto del juego: no se vuelve a pedir sesión, DT y club (eran tres viajes en fila al abrir el partido)
+        let club = contextClub
+        if (!club) {
+          const user = await authApi.getSession()
+          if (!user) return navigate('/auth')
+          const manager = await managerApi.getManager(user.id)
+          club = await clubApi.getClubByManager(manager.id)
+        }
+        // Táctica, plantel, cuerpo técnico y partido no dependen entre sí: se piden juntos
+        const [tactic, players, staff, fixture] = await Promise.all([
+          tacticsApi.getTactic(club.id),
           playerApi.getSquad(club.id),
           // El scouting del rival es del Jefe de Ojeadores: sin él no se ve (y si no se puede leer el staff, tampoco)
-          staffApi.getStaff(club.id).catch(() => [])
+          staffApi.getStaff(club.id).catch(() => []),
+          fixtureId
+            ? supabase.from('fixtures').select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)').eq('id', fixtureId).single().then(({ data }) => data)
+            : Promise.resolve(null)
         ])
         setHasScout((staff || []).some(m => m.role === 'HEAD_SCOUT'))
-        
-        let fixture = null
-        if (fixtureId) {
-          const { data: fix } = await supabase
-            .from('fixtures')
-            .select('*, home:clubs!home_team_id(*), away:clubs!away_team_id(*)')
-            .eq('id', fixtureId)
-            .single()
-          fixture = fix
-        }
-        
+
         setData({ club, tactic, players, fixture })
 
         // Check if match was already in progress or completed
@@ -232,6 +230,8 @@ export default function MatchScreen() {
       }
     }
     load()
+    // El club del contexto solo se lee al abrir el partido: si el contexto se refresca a mitad no hay que recargar todo
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, fixtureId])
 
   // Save match results to DB once finished

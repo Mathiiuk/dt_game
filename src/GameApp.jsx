@@ -1,39 +1,52 @@
-import React, { useEffect } from 'react'
+import React, { Suspense, lazy, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import { Loader2 } from 'lucide-react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient'
 import { initDB } from './api/db'
 import AuthScreen from './features/auth/AuthScreen'
-import CreateManagerWizard from './features/manager/CreateManagerWizard'
-import CreateClubWizard from './features/club/CreateClubWizard'
 import Dashboard from './features/dashboard/Dashboard'
 import WelcomeScreen from './features/auth/WelcomeScreen'
-import CalendarScreen from './features/calendar/CalendarScreen'
-import TacticsScreen from './features/tactics/TacticsScreen'
-import MatchScreen from './features/match/MatchScreen'
-import PostMatchScreen from './features/match/PostMatchScreen'
-import StandingsScreen from './features/competition/StandingsScreen'
-import MarketScreen from './features/market/MarketScreen'
-import SquadScreen from './features/squad/SquadScreen'
-import ClubScreen from './features/club/screens/ClubScreen'
-import FinancesScreen from './features/finances/FinancesScreen'
-import TrainingScreen from './features/training/TrainingScreen'
-import ManagerCareerScreen from './features/manager/ManagerCareerScreen'
-import NationalTeamScreen from './features/manager/NationalTeamScreen'
-import InternationalCupScreen from './features/competition/InternationalCupScreen'
-import HallOfFameScreen from './features/manager/HallOfFameScreen'
-import AchievementsScreen from './features/career/AchievementsScreen'
-import EndgameScreen from './features/career/EndgameScreen'
-import LogbookScreen from './features/dashboard/LogbookScreen'
 import ReloadPrompt from './components/ReloadPrompt'
 import { GameProvider } from './context/GameContext'
 import AppShell from './components/layout/AppShell'
-import MoreScreen from './features/more/MoreScreen'
 import RequireCareer from './components/RequireCareer'
-import DesignSystemScreen from './features/design/DesignSystemScreen'
 import { useSeo } from './seo/useSeo'
 import { PRIVATE_SEO } from './seo/homeSeo'
+
+// Cada pantalla se descarga al entrar a ella (antes se bajaban todas juntas al abrir el juego). Quedan fijas las del primer paso:
+// acceso, bienvenida, inicio y el menú. Con la app instalada las descargas salen del caché del service worker.
+const CreateManagerWizard = lazy(() => import('./features/manager/CreateManagerWizard'))
+const CreateClubWizard = lazy(() => import('./features/club/CreateClubWizard'))
+const CalendarScreen = lazy(() => import('./features/calendar/CalendarScreen'))
+const TacticsScreen = lazy(() => import('./features/tactics/TacticsScreen'))
+const MatchScreen = lazy(() => import('./features/match/MatchScreen'))
+const PostMatchScreen = lazy(() => import('./features/match/PostMatchScreen'))
+const StandingsScreen = lazy(() => import('./features/competition/StandingsScreen'))
+const MarketScreen = lazy(() => import('./features/market/MarketScreen'))
+const SquadScreen = lazy(() => import('./features/squad/SquadScreen'))
+const ClubScreen = lazy(() => import('./features/club/screens/ClubScreen'))
+const FinancesScreen = lazy(() => import('./features/finances/FinancesScreen'))
+const TrainingScreen = lazy(() => import('./features/training/TrainingScreen'))
+const ManagerCareerScreen = lazy(() => import('./features/manager/ManagerCareerScreen'))
+const NationalTeamScreen = lazy(() => import('./features/manager/NationalTeamScreen'))
+const InternationalCupScreen = lazy(() => import('./features/competition/InternationalCupScreen'))
+const HallOfFameScreen = lazy(() => import('./features/manager/HallOfFameScreen'))
+const AchievementsScreen = lazy(() => import('./features/career/AchievementsScreen'))
+const EndgameScreen = lazy(() => import('./features/career/EndgameScreen'))
+const LogbookScreen = lazy(() => import('./features/dashboard/LogbookScreen'))
+const MoreScreen = lazy(() => import('./features/more/MoreScreen'))
+const DesignSystemScreen = lazy(() => import('./features/design/DesignSystemScreen'))
+
+/** Mientras baja una pantalla: un aviso liviano en el mismo lugar */
+function ScreenLoading() {
+  return (
+    <div role="status" aria-label="Cargando la pantalla" className="grid min-h-[50dvh] place-items-center text-accent">
+      <Loader2 className="size-7 animate-spin" aria-hidden="true" />
+    </div>
+  )
+}
 
 /**
  * El juego (área privada): acceso, asistentes de creación y pantallas de la carrera.
@@ -49,6 +62,7 @@ function GameApp() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-dvh bg-bg font-sans text-fg">
         <GameProvider>
+          <Suspense fallback={<ScreenLoading />}>
           <Routes>
             <Route path="/auth" element={<AuthScreen />} />
             <Route path="/login" element={<AuthScreen key="login" initialMode="login" />} />
@@ -94,6 +108,7 @@ function GameApp() {
             <Route path="/game" element={<Navigate to="/welcome" replace />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
           </Routes>
+          </Suspense>
           <Toaster theme="dark" position="top-center" />
           <ReloadPrompt />
         </GameProvider>

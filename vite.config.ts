@@ -49,6 +49,22 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Las librerías grandes en trozos propios: se cachean aparte y no se vuelven a bajar cuando cambia el código del juego
+        manualChunks(id: string) {
+          if (!id.includes('node_modules')) return undefined
+          if (id.includes('@supabase')) return 'supabase'
+          if (id.includes('/motion') || id.includes('framer-motion')) return 'motion'
+          if (id.includes('lucide-react')) return 'icons'
+          if (id.includes('@radix-ui') || id.includes('vaul')) return 'radix'
+          if (id.includes('react-dom') || id.includes('/react/') || id.includes('react-router') || id.includes('scheduler') || id.includes('@tanstack')) return 'react'
+          return undefined
+        }
+      }
+    }
+  },
   server: {
     allowedHosts: true,
   },

@@ -84,14 +84,17 @@ export const marketApi = {
    */
   async getMarketPlayers(currentClubId, filters = {}) {
     try {
-      if (filters.gameDate) await this.ensureFreeAgentPool(filters.gameDate, currentClubId)
+      // Pozo de agentes libres, clubes de la liga e informes de ojeo no dependen entre sí: se piden a la vez
+      // (el pozo tiene que estar repuesto antes de leer a los jugadores, por eso se espera antes de la consulta de jugadores)
+      const poolReady = filters.gameDate ? this.ensureFreeAgentPool(filters.gameDate, currentClubId) : Promise.resolve()
+      const reportsPromise = supabase.from('scout_reports').select('player_id, level').eq('club_id', currentClubId)
       let query = supabase
         .from('players')
         .select('*, clubs(name, short_name, primary_color, reputation)')
         .eq('is_retired', false)
 
       // El mercado sólo muestra a los clubes de la liga del usuario y a los agentes libres (no a otras carreras)
-      const leagueClubIds = await this.getLeagueClubIds(currentClubId)
+      const [leagueClubIds] = await Promise.all([this.getLeagueClubIds(currentClubId), poolReady])
       query = leagueClubIds.length > 0
         ? query.or(`club_id.in.(${leagueClubIds.join(',')}),club_id.is.null`)
         : query.is('club_id', null)
@@ -109,11 +112,8 @@ export const marketApi = {
 
       if (!players || players.length === 0) return []
 
-      // Obtener reportes de scouting para este club
-      const { data: reports } = await supabase
-        .from('scout_reports')
-        .select('player_id, level')
-        .eq('club_id', currentClubId)
+      // Reportes de scouting para este club (ya pedidos arriba)
+      const { data: reports } = await reportsPromise
 
       const reportMap = new Map((reports || []).map(r => [r.player_id, r.level]))
 

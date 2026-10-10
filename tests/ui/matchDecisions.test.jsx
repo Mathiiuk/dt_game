@@ -8,7 +8,8 @@ vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 const mocks = vi.hoisted(() => ({
   replay: vi.fn((results) => results),
   start: vi.fn(),
-  staff: vi.fn()
+  staff: vi.fn(),
+  ctx: {}
 }))
 
 const player = (i, extra = {}) => ({
@@ -30,9 +31,14 @@ vi.mock('../../src/api/matchEngine', async (importActual) => ({
   ...(await importActual()),
   matchEngineApi: { startMatch: (...a) => mocks.start(...a), replayWithChanges: (...a) => mocks.replay(...a), finalizeMatch: vi.fn(async () => {}) }
 }))
-vi.mock('../../src/context/GameContext', () => ({ useGameContext: () => ({ confirmAction: vi.fn(async () => true) }) }))
+vi.mock('../../src/context/GameContext', () => ({ useGameContext: () => ({ confirmAction: vi.fn(async () => true), ...mocks.ctx }) }))
 
 import MatchScreen from '../../src/features/match/MatchScreen'
+import { authApi } from '../../src/api/auth'
+import { managerApi } from '../../src/api/manager'
+import { clubApi } from '../../src/api/club'
+import { tacticsApi } from '../../src/api/tactics'
+import { playerApi } from '../../src/api/player'
 
 const results = (events = []) => ({ seed: 's', homeScore: 0, awayScore: 0, events, stats: { possession: { home: 50, away: 50 }, shots: { home: 0, away: 0 }, shotsOnTarget: { home: 0, away: 0 }, fouls: { home: 0, away: 0 }, corners: { home: 0, away: 0 } }, inputs: {} })
 
@@ -46,6 +52,7 @@ describe('partido en vivo con decisiones', () => {
     mocks.start.mockReset()
     mocks.start.mockResolvedValue(results())
     mocks.staff.mockResolvedValue([{ id: 's1', role: 'HEAD_SCOUT' }])
+    mocks.ctx = {}
   })
   afterEach(() => vi.useRealTimers())
 
@@ -152,6 +159,24 @@ describe('partido en vivo con decisiones', () => {
     for (const label of ['Penales', 'Tiros libres', 'Córners', 'Cabezazos']) expect(within(scout).getByText(label)).toBeInTheDocument()
     // Y cómo juega el rival
     expect(within(scout).getByLabelText('Personalidad de juego')).toHaveTextContent(/Juegan a:/)
+  })
+
+  it('si el club ya está en el contexto no vuelve a pedir sesión, DT y club, y carga lo demás en paralelo', async () => {
+    mocks.ctx = { club: { id: 'c1', name: 'Mi Club', manager_id: 'm1', squad_morale: 70 } }
+    authApi.getSession.mockClear(); managerApi.getManager.mockClear(); clubApi.getClubByManager.mockClear()
+    let release
+    const gate = new Promise(r => { release = r })
+    tacticsApi.getTactic.mockImplementationOnce(async () => { await gate; return { formation: '4-4-2', lineup: Array.from({ length: 11 }, (_, i) => `p${i}`) } })
+    const squadStarted = vi.fn()
+    playerApi.getSquad.mockImplementationOnce(async () => { squadStarted(); return Array.from({ length: 16 }, (_, i) => player(i)) })
+    render(<MemoryRouter><MatchScreen /></MemoryRouter>)
+    // Con la táctica todavía sin responder, el plantel ya se está pidiendo (no esperan uno detrás del otro)
+    await waitFor(() => expect(squadStarted).toHaveBeenCalled())
+    release()
+    expect(await screen.findByRole('button', { name: /Comenzar partido/ })).toBeInTheDocument()
+    expect(authApi.getSession).not.toHaveBeenCalled()
+    expect(managerApi.getManager).not.toHaveBeenCalled()
+    expect(clubApi.getClubByManager).not.toHaveBeenCalled()
   })
 
   it('sin Jefe de Ojeadores no hay scouting del rival: avisa que hay que contratarlo', async () => {
