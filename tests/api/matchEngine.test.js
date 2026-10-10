@@ -527,3 +527,33 @@ describe('penales y rival que reacciona', () => {
     expect(reacts).toBeGreaterThanOrEqual(passive - 15)
   })
 })
+
+describe('las instrucciones tácticas pesan en el partido', () => {
+  const shotsWith = (style) => {
+    let total = 0
+    for (let i = 0; i < 80; i++) total += simulateMatch({ formation: '4-4-2', ...style }, squad(60), tactic, squad(60), `tac-${i}`).stats.shots.home
+    return total
+  }
+  const todoArriba = { mentality: 'ATTACKING', passing_style: 'DIRECT', tempo: 'FAST', pressing_intensity: 'AGGRESSIVE' }
+  const cerrar = { mentality: 'VERY_DEFENSIVE', passing_style: 'LONG_BALL', tempo: 'SLOW', pressing_intensity: 'STAND_OFF' }
+
+  it('"todo arriba" remata bastante más que "cerrar el partido"', () => {
+    expect(shotsWith(todoArriba)).toBeGreaterThan(shotsWith(cerrar) * 1.15)
+  })
+
+  it('la mentalidad "muy defensiva" ya no es igual que la equilibrada', () => {
+    expect(shotsWith({ mentality: 'VERY_DEFENSIVE' })).not.toBe(shotsWith({ mentality: 'BALANCED' }))
+  })
+
+  it('el estilo de pase y la presión se notan en la posesión (antes no tenían ningún efecto)', () => {
+    const possessionWith = (style) => {
+      let total = 0
+      for (let i = 0; i < 80; i++) total += simulateMatch({ formation: '4-4-2', ...style }, squad(60), tactic, squad(60), `tac-${i}`).stats.possession.home
+      return total
+    }
+    const base = possessionWith({ mentality: 'BALANCED', passing_style: 'MIXED', pressing_intensity: 'BALANCED' })
+    expect(possessionWith({ mentality: 'BALANCED', passing_style: 'SHORT_TIKI' })).toBeGreaterThan(base)
+    expect(possessionWith({ mentality: 'BALANCED', pressing_intensity: 'AGGRESSIVE' })).toBeGreaterThan(base)
+    expect(possessionWith({ mentality: 'BALANCED', passing_style: 'LONG_BALL' })).toBeLessThan(base)
+  })
+})
