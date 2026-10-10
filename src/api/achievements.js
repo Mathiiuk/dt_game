@@ -433,14 +433,14 @@ export const achievementsApi = {
       // Si hubo desbloqueos nuevos, registrar en auditoría
       if (newlyUnlocked.length > 0) {
         for (const unl of newlyUnlocked) {
-          await auditApi.logAction(
-            managerId,
-            'ACHIEVEMENT_UNLOCKED',
-            'career_achievements',
-            unl.id,
-            null,
-            { code: unl.code, title: unl.title, xp: unl.reward_xp, rep: unl.reward_reputation }
-          ).catch(() => {})
+          await auditApi.logAction({
+            whoId: managerId,
+            action: 'ACHIEVEMENT_UNLOCKED',
+            entityType: 'career_achievements',
+            entityId: unl.id,
+            stateBefore: null,
+            stateAfter: { code: unl.code, title: unl.title, xp: unl.reward_xp, rep: unl.reward_reputation }
+          }).catch(() => {})
         }
       }
 
@@ -518,14 +518,14 @@ export const achievementsApi = {
           .eq('id', managerId)
 
         // Registrar auditoría
-        await auditApi.logAction(
-          managerId,
-          'ACHIEVEMENT_REWARD_CLAIMED',
-          'managers',
-          managerId,
-          { xp: manager.xp, reputation: manager.reputation },
-          { xp: newXp, reputation: newRep, achievement_code: achievementCode }
-        ).catch(() => {})
+        await auditApi.logAction({
+          whoId: managerId,
+          action: 'ACHIEVEMENT_REWARD_CLAIMED',
+          entityType: 'managers',
+          entityId: managerId,
+          stateBefore: { xp: manager.xp, reputation: manager.reputation },
+          stateAfter: { xp: newXp, reputation: newRep, achievement_code: achievementCode }
+        }).catch(() => {})
       }
 
       return {

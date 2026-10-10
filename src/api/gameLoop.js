@@ -37,7 +37,7 @@ export const gameLoopApi = {
       if (boardCheck && boardCheck.board_confidence <= 0) {
         isFired = true
         await supabase.from('clubs').update({ manager_id: null }).eq('id', clubId)
-        await supabase.from('managers').update({ is_looking_for_job: true }).eq('id', managerId)
+        await supabase.from('managers').update({ employment_status: 'UNEMPLOYED', current_contract_wage: 0 }).eq('id', managerId)
       }
     } catch (e) {
       console.warn('Error comprobando confianza dirigencial:', e)

@@ -25,3 +25,7 @@ El cierre fallaba (`ord`, jsonb leído como fila, tabla de hemeroteca inexistent
 - Script headless con las APIs reales (crear DT y club, 52 semanas con partidos, eventos críticos y copa, cierre y 8 semanas del año 2); usuario y datos borrados con la Edge Function `delete-account` (que de paso quedó probada de punta a punta).
 - Hallazgo: `close_season_atomic` aceptaba el cierre con la temporada a medias (semana 43, 37 de 39 partidos): solo la pantalla lo impedía. Ahora la base exige la fecha de la semana 52 (guarda aplicada en producción; huella repo == producción).
 - Aviso menor: 7 avisos `auditApi.logAction requires whoId and action` por año.
+
+## Arreglos de la simulación del año
+- `achievements.js`: dos llamadas a `auditApi.logAction` pasaban argumentos sueltos en vez del objeto `{ whoId, action, ... }`; el registro de logros desbloqueados/cobrados nunca se guardaba (era el aviso "requires whoId and action"). Test estático `tests/static/audit-calls.test.js` impide que vuelva.
+- `gameLoop.js`: al despedir al DT se escribía `managers.is_looking_for_job` (columna inexistente); ahora queda `employment_status: 'UNEMPLOYED'` como en la renuncia. Test `tests/api/gameLoopFired.test.js`.
