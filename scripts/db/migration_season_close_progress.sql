@@ -63,6 +63,7 @@ DECLARE
     v_top_scorer_id uuid;
     v_top_scorer_goals int;
     v_result jsonb;
+    v_game_date date;
 BEGIN
     -- 1. Idempotencia: Verificar si ya se cerró la temporada
     IF p_career_id IS NOT NULL THEN
@@ -79,6 +80,13 @@ BEGIN
     -- Sin carrera (partida clásica) no hay snapshot que consultar: la marca de avance del cierre dice si esa temporada ya se cerró
     IF EXISTS (SELECT 1 FROM season_close_progress WHERE club_id = p_club_id AND season_year = p_season_year) THEN
         RETURN jsonb_build_object('alreadyClosed', true);
+    END IF;
+
+    -- Solo se cierra una temporada terminada: la última semana (la 52) llega 357 días después del 1 de julio del año de inicio.
+    -- Sin esta guarda se podía pedir el premio con la temporada a medias (la pantalla ya lo impedía, pero la base no).
+    SELECT game_date INTO v_game_date FROM clubs WHERE id = p_club_id;
+    IF v_game_date IS NULL OR v_game_date < (p_season_year || '-07-01')::date + 357 THEN
+        RAISE EXCEPTION 'La temporada % todavía no terminó: se cierra en la última semana.', p_season_year;
     END IF;
 
     -- 2. Identificar la liga y obtener posiciones

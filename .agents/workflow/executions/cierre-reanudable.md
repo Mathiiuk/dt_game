@@ -20,3 +20,8 @@ El cierre fallaba (`ord`, jsonb leído como fila, tabla de hemeroteca inexistent
 - Corregido: `processAnnualEvolution` ya no escribe `overall` (solo `attr_overall`). Probado el UPDATE exacto en producción con rollback.
 - `close_season_atomic`: sin carrera no había chequeo de "ya cerrada" (el snapshot solo se consulta con carrera); ahora la marca `season_close_progress` también corta un segundo cierre. Se fijó `search_path` (aviso del linter). Aplicado en producción; huella del repo == producción (79bda275…).
 - Verificadas en producción con rollback las escrituras de la liga nueva (competición, clubes rivales, tabla, partidos, reset, registro de transición).
+
+## Recorrido de un año completo (usuario de prueba contra producción)
+- Script headless con las APIs reales (crear DT y club, 52 semanas con partidos, eventos críticos y copa, cierre y 8 semanas del año 2); usuario y datos borrados con la Edge Function `delete-account` (que de paso quedó probada de punta a punta).
+- Hallazgo: `close_season_atomic` aceptaba el cierre con la temporada a medias (semana 43, 37 de 39 partidos): solo la pantalla lo impedía. Ahora la base exige la fecha de la semana 52 (guarda aplicada en producción; huella repo == producción).
+- Aviso menor: 7 avisos `auditApi.logAction requires whoId and action` por año.
