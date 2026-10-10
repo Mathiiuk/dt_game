@@ -154,8 +154,8 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
       <header className="flex shrink-0 items-center gap-3 px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold"><CategoryIcon className="size-5" aria-hidden="true" /></span>
         <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gold">
-            <span className="truncate">{arc?.title || EVENT_KIND_LABEL[event.category] || 'Decisión del DT'}</span>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-bold uppercase tracking-widest text-gold">
+            <span className="min-w-0 break-words">{arc?.title || EVENT_KIND_LABEL[event.category] || 'Decisión del DT'}</span>
             {event.severity === 'CRITICAL' && <Badge tone="danger" dot className="shrink-0">Urgente</Badge>}
           </p>
           {chapter && (
@@ -192,8 +192,8 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
           </div>
         ) : reading ? (
           /* ---------- Leer: un momento por vez, tocando en cualquier lado ---------- */
-          <button type="button" onClick={() => setBeat(b => b + 1)} className="flex min-h-0 flex-1 flex-col justify-center gap-6 text-left" aria-label="Seguir leyendo">
-            <div key={beat} className="animate-rise-in space-y-4">
+          <button type="button" onClick={() => setBeat(b => b + 1)} className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto text-left" aria-label="Seguir leyendo">
+            <div key={beat} className="my-auto animate-rise-in space-y-4">
               {chapter && <p className="font-display text-xl font-semibold text-gold">{chapter.clean}</p>}
               {current.type === 'say' ? (
                 <p className="rounded-2xl rounded-tl-none border-l-4 border-gold bg-gold-soft px-4 py-4 text-xl italic leading-relaxed text-fg sm:text-2xl">
@@ -238,7 +238,7 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
               {timedOut && <p className="rounded-lg border border-warning/40 bg-warning-soft px-3 py-2 text-xs font-semibold text-warning">Se te acabó el tiempo: decidió el narrador.</p>}
             </div>
 
-            <ul className="flex min-h-0 flex-1 flex-col justify-center gap-2.5">
+            <ul className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto [&>li:first-child]:mt-auto [&>li:last-child]:mb-auto">
               {options.map((opt, i) => {
                 const ok = canChoose(opt, ctx)
                 const cost = Number(opt.cost || 0)

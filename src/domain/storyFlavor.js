@@ -3,24 +3,69 @@
  * el narrador comenta lo que pasó con una cargada acorde. Funciones puras.
  */
 
+const SENTENCE_END = /[.!?…:]["»”)]*$/
+const CLOSE_QUOTES = '"”»'
+
+const capitalizeFirst = (t) => t.charAt(0).toUpperCase() + t.slice(1)
+
+/** Agrega narración; la que cuelga de un globo (", te susurra, mirando…") pierde la puntuación suelta y arranca en mayúscula */
+function pushTell(out, raw) {
+  let text = raw.trim()
+  if (out.length && out[out.length - 1].type === 'say') text = capitalizeFirst(text.replace(/^[\s.,;:]+/, ''))
+  if (/[\p{L}\p{N}]/u.test(text)) out.push({ type: 'tell', text })
+}
+
 /**
- * Parte un texto en fragmentos: narración y diálogos (lo que va entre comillas).
+ * Parte un texto en fragmentos: narración y diálogos.
+ * Un diálogo (entre comillas) es un globo solo si ocupa una oración entera: al principio, después de un punto o de dos puntos.
+ * Una cita a mitad de oración ("se presenta como "tal cosa". Pide...") queda dentro de la narración, con sus comillas.
+ * Lo que sigue a un globo ("..., te susurra, mirando") pierde la puntuación suelta y arranca en mayúscula.
  * @returns {Array<{ type: 'say'|'tell', text: string }>}
  */
 export function splitSegments(text = '') {
   const out = []
-  const re = /"([^"]+)"/g
+  const re = /["“«]([^"”»]+)["”»]/g
+  let pending = ''
   let last = 0
   let m
   while ((m = re.exec(text)) !== null) {
-    const before = text.slice(last, m.index).trim()
-    if (before) out.push({ type: 'tell', text: before })
-    out.push({ type: 'say', text: m[1].trim() })
+    const before = text.slice(last, m.index)
+    const standalone = !(pending + before).trim() || SENTENCE_END.test((pending + before).trim())
+    if (standalone) {
+      pushTell(out, pending + before)
+      out.push({ type: 'say', text: m[1].trim() })
+      pending = ''
+    } else {
+      pending += before + m[0]
+    }
     last = m.index + m[0].length
   }
-  const rest = text.slice(last).trim()
-  if (rest) out.push({ type: 'tell', text: rest })
+  pushTell(out, pending + text.slice(last))
   return out
+}
+
+/** Oraciones de un texto: corta en . ! ? salvo dentro de una cita y salvo en números con punto (1.000) */
+export function splitSentences(text = '') {
+  const sentences = []
+  let current = ''
+  let inQuote = false
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+    current += ch
+    if (ch === '“' || ch === '«') inQuote = true
+    else if (ch === '”' || ch === '»') inQuote = false
+    else if (ch === '"') inQuote = !inQuote
+    if (!/[.!?]/.test(ch) || inQuote) continue
+    if (/[.!?]/.test(text[i + 1] || '')) continue
+    if (ch === '.' && /\d/.test(text[i + 1] || '')) continue
+    // pegar las comillas o paréntesis de cierre a la oración que termina
+    while (i + 1 < text.length && /["”»)]/.test(text[i + 1])) { current += text[++i]; if (CLOSE_QUOTES.includes(text[i])) inQuote = false }
+    if (i + 1 < text.length && !/\s/.test(text[i + 1])) continue
+    sentences.push(current.trim())
+    current = ''
+  }
+  if (current.trim()) sentences.push(current.trim())
+  return sentences
 }
 
 /** Divide la narración en oraciones y las agrupa de a dos; los diálogos quedan solos, como un globo */
@@ -28,7 +73,8 @@ export function splitBeats(text = '') {
   const beats = []
   for (const seg of splitSegments(text)) {
     if (seg.type === 'say') { beats.push(seg); continue }
-    const sentences = seg.text.match(/[^.!?¡¿]*[.!?]+["»)]*|[^.!?]+$/g)?.map(x => x.trim()).filter(Boolean) || [seg.text]
+    const sentences = splitSentences(seg.text)
+    if (!sentences.length) sentences.push(seg.text)
     for (let i = 0; i < sentences.length; i += 2) beats.push({ type: 'tell', text: sentences.slice(i, i + 2).join(' ') })
   }
   return beats.length ? beats : [{ type: 'tell', text }]
