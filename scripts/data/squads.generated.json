@@ -1,0 +1,3319 @@
+{
+ "source": "Wikipedia (es), CC BY-SA 4.0; nombres cambiados",
+ "clubs": {
+  "River Plate": {
+   "page": "Club Atlético River Plate",
+   "players": [
+    {
+     "name": "Oscar Driusso",
+     "pos": "DEL"
+    },
+    {
+     "name": "Walter Corruu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ciro Beltren",
+     "pos": "DEL"
+    },
+    {
+     "name": "Alan Birru",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lisandro Murina",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván Arimbarre",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván Vere",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo Almudu",
+     "pos": "MED"
+    },
+    {
+     "name": "Hernán Rumuriz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías Ortegi",
+     "pos": "DEF"
+    },
+    {
+     "name": "Renzo Rivaro",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo Cintireon",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Boca Juniors": {
+   "page": "Club Atlético Boca Juniors",
+   "players": [
+    {
+     "name": "Axel Gominoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Walter Rameri",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ricardo Veloncio",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gabriel Morentiel",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón Peradas",
+     "pos": "MED"
+    },
+    {
+     "name": "Víctor Pilacius",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Belminte",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Arandu",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo Du Lullu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Renzo Blancu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Sebastián Figul",
+     "pos": "DEF"
+    },
+    {
+     "name": "Fabricio Muntiro",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "San Lorenzo": null,
+  "Independiente": {
+   "page": "Club Atlético Independiente",
+   "players": [
+    {
+     "name": "Yago Mantael",
+     "pos": "DEL"
+    },
+    {
+     "name": "Bautista Vuulliz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián Voldiz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ignacio Abaldi",
+     "pos": "DEL"
+    },
+    {
+     "name": "Mariano Muza",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio Cubrul",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo Millon",
+     "pos": "MED"
+    },
+    {
+     "name": "Genaro Binotuz Mechuci",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan Cildaran",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ismael Du Irastorzu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Yago Arous",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gastón Blazqeoz",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Racing Club": null,
+  "Vélez Sarsfield": {
+   "page": "Club Atlético Vélez Sarsfield",
+   "players": [
+    {
+     "name": "Ignacio Pulligrinu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Elías Godey",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván Vuren",
+     "pos": "DEL"
+    },
+    {
+     "name": "Valentín Minzun",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ismael Baezi",
+     "pos": "MED"
+    },
+    {
+     "name": "Ciro Roborteno",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Valdas",
+     "pos": "MED"
+    },
+    {
+     "name": "Mariano Lunzinu",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter Mommunu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gastón Garciu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro Mugullun",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin Marchuora",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Estudiantes de La Plata": null,
+  "Newell's Old Boys": {
+   "page": "Club Atlético Newell's Old Boys",
+   "players": [
+    {
+     "name": "Ignacio Cicciri",
+     "pos": "DEL"
+    },
+    {
+     "name": "Axel Mezzanttu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián Nenoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Elías Scerpoccuo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián Regourde",
+     "pos": "MED"
+    },
+    {
+     "name": "Jonás Sutila",
+     "pos": "MED"
+    },
+    {
+     "name": "Darío Aconu",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Sunera",
+     "pos": "MED"
+    },
+    {
+     "name": "Genaro Glevanivuch",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo Locieni",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ulises Muntiro",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hernán Arous",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Rosario Central": null,
+  "Gimnasia y Esgrima La Plata": {
+   "page": "Club de Gimnasia y Esgrima La Plata",
+   "players": [
+    {
+     "name": "Ciro Jenson",
+     "pos": "DEL"
+    },
+    {
+     "name": "Mariano Penero",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ricardo Memmini",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo Morlo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Fausto Miramun",
+     "pos": "MED"
+    },
+    {
+     "name": "Fausto Fernendoz",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Burrus Schelitte",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo Mux",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Geempaali",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Mastrongulu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro Conta",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ciro Cestalli",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Huracán": {
+   "page": "Club Atlético Huracán Las Heras",
+   "players": [
+    {
+     "name": "Sebastián Cortos",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón Poniles",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago Corruu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gabriel Marchuora",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ulises Blancu",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio Diele",
+     "pos": "MED"
+    },
+    {
+     "name": "Axel Castre",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Ale",
+     "pos": "MED"
+    },
+    {
+     "name": "Valentín Aldunite",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro Alfiroz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Muntunugro",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Arocuni",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Banfield": {
+   "page": "Club Atlético Banfield",
+   "players": [
+    {
+     "name": "Genaro Punuro",
+     "pos": "DEL"
+    },
+    {
+     "name": "Claudio Bulbeo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio Acosti",
+     "pos": "DEL"
+    },
+    {
+     "name": "Alan Madana",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago Esqaival",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo Riis",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo Gumuz",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio Alvaruz",
+     "pos": "MED"
+    },
+    {
+     "name": "Yago Denoulu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Enrique Pez",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Alfuru",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo Santille",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Lanús": {
+   "page": "Club Atlético Lanús",
+   "players": [
+    {
+     "name": "Renzo Sulvuu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo Chavari",
+     "pos": "DEL"
+    },
+    {
+     "name": "Jonás Veloas",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ricardo Wls",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lisandro Pana Biafere",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan Witsin",
+     "pos": "MED"
+    },
+    {
+     "name": "Darío Murina",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio Loaizi",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio Joeqaon Rameri",
+     "pos": "DEF"
+    },
+    {
+     "name": "Sebastián Morguntini",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin Piraz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan Putroli",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Argentinos Juniors": {
+   "page": "Asociación Atlética Argentinos Juniors",
+   "players": [
+    {
+     "name": "Tadeo Purcil",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo Vuren",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ignacio Gominoz Rajes",
+     "pos": "DEL"
+    },
+    {
+     "name": "Kevin Melina",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián Curruzu",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo Lupuz Menaz",
+     "pos": "MED"
+    },
+    {
+     "name": "Hernán Flarantin",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Oriz",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio Sunchuz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Axel Godey",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan Vozqoez",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Mangaoet",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Ferro Carril Oeste": {
+   "page": "Club Ferro Carril Oeste (General Pico)",
+   "players": [
+    {
+     "name": "Bautista '''baigorrii'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Valentín '''bartolomu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''blunce'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lautaro '''contreris'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''bottaru'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo '''cuellu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo '''fegaorui'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Pablu '''guinonutte'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Camilo '''ageore'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Lisandro '''bel'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo '''cafuontes'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías '''betinzi'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Platense": {
+   "page": "Club Atlético Platense",
+   "players": [
+    {
+     "name": "Víctor Muunira",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián Lupuz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Marcelo Lotta",
+     "pos": "DEL"
+    },
+    {
+     "name": "Mariano Tacker",
+     "pos": "DEL"
+    },
+    {
+     "name": "Oscar Gumuz",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan Zapiolo",
+     "pos": "MED"
+    },
+    {
+     "name": "Lisandro Bussue",
+     "pos": "MED"
+    },
+    {
+     "name": "Valentín Merline",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Selva",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo Riggoe",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Ignaciu Siboride",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro Bastos",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Colón de Santa Fe": null,
+  "Unión de Santa Fe": null,
+  "Talleres de Córdoba": null,
+  "Belgrano de Córdoba": {
+   "page": "Club Atlético Belgrano",
+   "players": [
+    {
+     "name": "Ciro Pusserini",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián Fernendoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo Gutourriz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Nenoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago Longe",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar Hernandos",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías Gunziloz Motulli",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar Tuleon",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván Maldonada",
+     "pos": "DEF"
+    },
+    {
+     "name": "Claudio Spurlu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Grugoul",
+     "pos": "DEF"
+    },
+    {
+     "name": "Mariano Vacontune",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Tigre": null,
+  "Defensa y Justicia": {
+   "page": "Club Social y Deportivo Defensa y Justicia",
+   "players": [
+    {
+     "name": "Gastón Fernendoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Fabricio Gunziloz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Jonás Barbina",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo Gutourriz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hernán Piraz",
+     "pos": "MED"
+    },
+    {
+     "name": "Axel Molanes",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías Banegu",
+     "pos": "MED"
+    },
+    {
+     "name": "Yago Sosi",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter Luceru",
+     "pos": "DEF"
+    },
+    {
+     "name": "Sebastián Remen",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin Amer",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ignacio Borgagno",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Godoy Cruz": {
+   "page": "Club Deportivo Godoy Cruz Antonio Tomba",
+   "players": [
+    {
+     "name": "Bautista Ridregaoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ciro Barruunoivi",
+     "pos": "DEL"
+    },
+    {
+     "name": "Dante Oviudo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Rodrigo Punu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Velvarda",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo Vallelobis",
+     "pos": "MED"
+    },
+    {
+     "name": "Valentín Cajos",
+     "pos": "MED"
+    },
+    {
+     "name": "Fausto Schemoni",
+     "pos": "MED"
+    },
+    {
+     "name": "Rodrigo Alessandriu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Viare",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro Burgis",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Strumae",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Atlético Tucumán": {
+   "page": "Club Atlético San Martín (Tucumán)",
+   "players": [
+    {
+     "name": "Hugo Du Camulo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo Doaz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Bautista Gunziloz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Ibenaz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián Altimirando",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista Cajos",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Cesnari",
+     "pos": "MED"
+    },
+    {
+     "name": "Ciro Fruas",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Busoilda",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Cases",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Cestena",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo Acevode",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Sarmiento de Junín": null,
+  "Central Córdoba (SdE)": null,
+  "Deportivo Riestra": {
+   "page": "Club Comunicaciones (Buenos Aires)",
+   "players": [
+    {
+     "name": "Fabricio '''elasio'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo '''gumenuz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo '''hiidenreoch'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Oscar '''munturo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ismael '''civesca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan '''niculioivsky'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin '''gribu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin '''jiqaa'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ricardo '''cebrera'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Néstor '''cirunel'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo '''lopuz'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo '''bachur'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Barracas Central": {
+   "page": "Club Sportivo Barracas",
+   "players": [
+    {
+     "name": "Gastón Rajey",
+     "pos": "DEL"
+    },
+    {
+     "name": "Octavio Boscho",
+     "pos": "DEL"
+    },
+    {
+     "name": "Oscar Sentecriz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Axel Dirroty",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan Gala",
+     "pos": "MED"
+    },
+    {
+     "name": "Genaro Prade",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter Pallerus",
+     "pos": "MED"
+    },
+    {
+     "name": "Brian Saqaoiru",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ismael Rusus Quintiras",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Ridregaoz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gabriel Barruunoivi",
+     "pos": "ARQ"
+    },
+    {
+     "name": "Fausto Doaz Payrios",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Chacarita Juniors": {
+   "page": "Asociación Atlética Argentinos Juniors",
+   "players": [
+    {
+     "name": "Tadeo Purcil",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo Vuren",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ignacio Gominoz Rajes",
+     "pos": "DEL"
+    },
+    {
+     "name": "Kevin Melina",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián Curruzu",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo Lupuz Menaz",
+     "pos": "MED"
+    },
+    {
+     "name": "Hernán Flarantin",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Oriz",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio Sunchuz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Axel Godey",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan Vozqoez",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Mangaoet",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Quilmes Atlético Club": null,
+  "Atlanta": null,
+  "All Boys": null,
+  "Instituto de Córdoba": null,
+  "San Martín de Tucumán": {
+   "page": "Club Atlético San Martín (Tucumán)",
+   "players": [
+    {
+     "name": "Hugo Du Camulo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo Doaz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Bautista Gunziloz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Ibenaz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián Altimirando",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista Cajos",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Cesnari",
+     "pos": "MED"
+    },
+    {
+     "name": "Ciro Fruas",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Busoilda",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Cases",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Cestena",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo Acevode",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "San Martín de San Juan": {
+   "page": "Club Atlético San Martín (Tucumán)",
+   "players": [
+    {
+     "name": "Hugo Du Camulo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo Doaz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Bautista Gunziloz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Ibenaz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián Altimirando",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista Cajos",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Cesnari",
+     "pos": "MED"
+    },
+    {
+     "name": "Ciro Fruas",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Busoilda",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Cases",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Cestena",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo Acevode",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Aldosivi": null,
+  "Patronato": null,
+  "Atlético de Rafaela": null,
+  "Nueva Chicago": null,
+  "Deportivo Morón": null,
+  "Almirante Brown": null,
+  "Temperley": null,
+  "Gimnasia y Esgrima de Jujuy": {
+   "page": "Club Atlético Gimnasia y Esgrima (Mendoza)",
+   "players": [
+    {
+     "name": "Fabricio Congoleni",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ignacio Verges",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián Romanu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago Ridregaoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Axel Burboza",
+     "pos": "MED"
+    },
+    {
+     "name": "Dante Sunchuz",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo Cuballis",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Ortuz",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Mindine",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ignacio Recilda",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo Menaz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Yago Reggero",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Olimpo de Bahía Blanca": {
+   "page": "Club Villa Mitre",
+   "players": [
+    {
+     "name": "Rodrigo '''puralta'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo '''do Huyes'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón '''vavena'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo '''montuvirdo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''billinu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías '''mujuca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista '''gunzuluz Gitaca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Mariano '''lopuz'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin '''mureno'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan '''tannir'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan '''ageore'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Defensores de Belgrano": null,
+  "Estudiantes de Buenos Aires": null,
+  "San Telmo": null,
+  "Brown de Adrogué": null,
+  "Tristán Suárez": null,
+  "Chaco For Ever": null,
+  "Gimnasia y Esgrima de Mendoza": {
+   "page": "Club Atlético Gimnasia y Esgrima (Mendoza)",
+   "players": [
+    {
+     "name": "Fabricio Congoleni",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ignacio Verges",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián Romanu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago Ridregaoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Axel Burboza",
+     "pos": "MED"
+    },
+    {
+     "name": "Dante Sunchuz",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo Cuballis",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Ortuz",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Mindine",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ignacio Recilda",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo Menaz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Yago Reggero",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Independiente Rivadavia": null,
+  "Agropecuario Argentino": null,
+  "Deportivo Maipú": null,
+  "Alvarado de Mar del Plata": null,
+  "Almagro": null,
+  "Atlético Belgrano": {
+   "page": "Club Atlético Belgrano",
+   "players": [
+    {
+     "name": "Ciro Pusserini",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián Fernendoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo Gutourriz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Nenoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago Longe",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar Hernandos",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías Gunziloz Motulli",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar Tuleon",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván Maldonada",
+     "pos": "DEF"
+    },
+    {
+     "name": "Claudio Spurlu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Grugoul",
+     "pos": "DEF"
+    },
+    {
+     "name": "Mariano Vacontune",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Los Andes": null,
+  "Deportivo Español": null,
+  "Arsenal de Sarandí": null,
+  "Colegiales": {
+   "page": "Club Atlético Excursionistas",
+   "players": [
+    {
+     "name": "Hugo '''olveero'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo '''cordezo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lorenzo '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián '''demielone'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio '''doved'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Damián '''farraro Custa'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hernán '''gorcua'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías '''abra'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Brian '''erciera'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Fabricio '''bolbu'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Axel '''cijel'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Talleres de Remedios de Escalada": null,
+  "Comunicaciones": {
+   "page": "Club Comunicaciones (Buenos Aires)",
+   "players": [
+    {
+     "name": "Fabricio '''elasio'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo '''gumenuz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo '''hiidenreoch'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Oscar '''munturo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ismael '''civesca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan '''niculioivsky'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin '''gribu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin '''jiqaa'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ricardo '''cebrera'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Néstor '''cirunel'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo '''lopuz'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo '''bachur'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Acassuso": null,
+  "Flandria": null,
+  "Villa Dálmine": null,
+  "Deportivo Armenio": null,
+  "Dock Sud": null,
+  "Argentino de Quilmes": null,
+  "San Miguel": null,
+  "Deportivo Merlo": {
+   "page": "Club Social y Deportivo Merlo",
+   "players": [
+    {
+     "name": "Brian '''cae'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Alan '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Kevin '''luuvu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Marcelo Apola '''rupp'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián '''egaerre'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo '''arellane'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar '''bonugi'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo '''bitancert'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Mariano '''custu'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo '''ferreyri'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Oscar '''giinu'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías '''furnandez'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Sacachispas": null,
+  "Excursionistas": {
+   "page": "Club Atlético Excursionistas",
+   "players": [
+    {
+     "name": "Hugo '''olveero'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo '''cordezo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lorenzo '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián '''demielone'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio '''doved'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Damián '''farraro Custa'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hernán '''gorcua'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías '''abra'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Brian '''erciera'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Fabricio '''bolbu'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Axel '''cijel'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Deportivo Laferrere": null,
+  "Villa San Carlos": {
+   "page": "Club Atlético Villa San Carlos",
+   "players": [
+    {
+     "name": "Sebastián '''ferre'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ricardo '''leginus'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ricardo '''piroz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ignacio '''simenoigo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Walter '''ocusti'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista '''ulmuudi'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar '''ulvirez'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin '''brizealo'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo '''ocusti'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Sebastián '''benuvedaz'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Yago '''diez'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin '''ekamanca'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "UAI Urquiza": {
+   "page": "Club Deportivo UAI Urquiza",
+   "players": [
+    {
+     "name": "Mariano '''brotu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Elías '''cucurus'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gabriel '''ungrattu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián '''narenjo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Alan '''igaarro'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio '''ercaro'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Lorenzo '''farna'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin '''gollu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio '''olunez'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo '''cucurus'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gastón '''ferraru'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gabriel '''becerre'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Fénix": null,
+  "Cañuelas FC": {
+   "page": "Fútbol Club Ezeiza",
+   "players": [
+    {
+     "name": "Ciro Juon Carbalan",
+     "pos": "DEL"
+    },
+    {
+     "name": "Renzo Menzenos",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Lues Nemo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván Samar Rames",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hernán Yaar Ariaji",
+     "pos": "MED"
+    },
+    {
+     "name": "Axel Oscur Avula",
+     "pos": "MED"
+    },
+    {
+     "name": "Gabriel Antanai Binotuz",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter Du Greguruo",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio Eluin Agoulir",
+     "pos": "DEF"
+    },
+    {
+     "name": "Brian Ivin Berreza",
+     "pos": "DEF"
+    },
+    {
+     "name": "Dante Alixis Colmon",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro Nicolos Alagra",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Cipolletti": {
+   "page": "Club Cipolletti",
+   "players": [
+    {
+     "name": "Fabricio '''cibrol'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lorenzo '''deza'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Brian '''diez'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago '''jero'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo '''igaarro'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Mariano '''umurfel'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Gastón '''diello'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Horacio '''funos'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Mariano '''barra'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Renzo '''bruenzo'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo '''carmuna'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Damián '''craspo'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Juventud Antoniana": {
+   "page": "Centro Juventud Antoniana",
+   "players": [
+    {
+     "name": "Rodrigo '''luceru'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Genaro '''policias'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago '''lopuz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Alan '''hoyes'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo '''cistello'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Gastón '''condero'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter \"chore\" '''rimero'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Rodrigo '''usparza'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Néstor '''lopuz'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista '''carriin'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Brian '''torros'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ignacio '''munturo'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Gimnasia y Tiro de Salta": null,
+  "Douglas Haig": {
+   "page": "Club Atlético Douglas Haig",
+   "players": [
+    {
+     "name": "Kevin '''bigude'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Dante '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago '''gataerrez'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Kevin '''baglove'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Brian '''cubulloci'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Gastón '''cistalleni'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar '''do Geotune'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián '''bozzuni'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ciro '''biunche'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Fabricio '''cuellu'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo '''iiul'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Villa Mitre": {
+   "page": "Club Villa Mitre",
+   "players": [
+    {
+     "name": "Rodrigo '''puralta'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo '''do Huyes'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón '''vavena'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo '''montuvirdo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''billinu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías '''mujuca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista '''gunzuluz Gitaca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Mariano '''lopuz'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin '''mureno'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan '''tannir'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan '''ageore'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Santamarina de Tandil": null,
+  "Central Norte de Salta": null,
+  "Ferrocarril Midland": {
+   "page": "Club Atlético Ferrocarril Midland",
+   "players": [
+    {
+     "name": "Brian Cea",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo Pirales",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ciro Vucu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Darío Madalan",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ignacio Fleras",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo Compino",
+     "pos": "MED"
+    },
+    {
+     "name": "Jeremías Gergailo",
+     "pos": "MED"
+    },
+    {
+     "name": "Claudio Comano",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Gunziloz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías Ceseraca",
+     "pos": "DEF"
+    },
+    {
+     "name": "Nahuel Punepel",
+     "pos": "DEF"
+    },
+    {
+     "name": "Iván Leguizu",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "San Martín de Burzaco": {
+   "page": "Club Social y Deportivo San Martín",
+   "players": [
+    {
+     "name": "Iván '''eyola'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Damián '''britus'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Alan '''cameje'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón '''cameje'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo '''eizqeo'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ismael '''azoldigie'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan '''bonutiz'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Patricio '''dinis'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio '''uscodera'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Criz '''hoechulof'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Pablo '''luzarev'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo '''fegaorui'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "El Porvenir": null,
+  "Berazategui": null,
+  "Luján": null,
+  "Ituzaingó": null,
+  "J.J. de Urquiza": {
+   "page": "Club Deportivo UAI Urquiza",
+   "players": [
+    {
+     "name": "Mariano '''brotu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Elías '''cucurus'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gabriel '''ungrattu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián '''narenjo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Alan '''igaarro'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio '''ercaro'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Lorenzo '''farna'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin '''gollu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio '''olunez'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo '''cucurus'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gastón '''ferraru'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gabriel '''becerre'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "General Lamadrid": {
+   "page": "Club Atlético General Lamadrid",
+   "players": [
+    {
+     "name": "Sebastián '''ferre'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián '''gonzaluz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lisandro '''gozmin'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón Ligiezomon",
+     "pos": "DEL"
+    },
+    {
+     "name": "Genaro '''ulmuudi'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo '''cucurus'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Claudio '''castra'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Gastón '''cirunel'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián '''do Veti'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo '''fassa'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan '''rindena'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Axel '''ocusti'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Leandro N. Alem": null,
+  "Victoriano Arenas": {
+   "page": "Club Atlético Victoriano Arenas",
+   "players": [
+    {
+     "name": "Lorenzo Deniel Silimeno",
+     "pos": "DEL"
+    },
+    {
+     "name": "Mariano Acosti",
+     "pos": "DEL"
+    },
+    {
+     "name": "Brian Orlundo Crapa",
+     "pos": "MED"
+    },
+    {
+     "name": "Patricio Deniel Fiboin",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván Ramay",
+     "pos": "MED"
+    },
+    {
+     "name": "Ricardo Avilos",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Morten Burrios",
+     "pos": "DEF"
+    },
+    {
+     "name": "Renzo Culu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gastón Gumuz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Enrique Saqaoiru",
+     "pos": "ARQ"
+    },
+    {
+     "name": "Camilo Ezeqeoil Rumuriz",
+     "pos": "ARQ"
+    },
+    {
+     "name": "Tadeo Rudelfi Fossi",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Central Ballester": null,
+  "Yupanqui": {
+   "page": "Club Social y Deportivo Yupanqui",
+   "players": [
+    {
+     "name": "Dante",
+     "pos": "DEL"
+    },
+    {
+     "name": "Claudio Gominoz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Víctor Burrios",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón Du Sinta",
+     "pos": "DEL"
+    },
+    {
+     "name": "Claudio Du Nazarath",
+     "pos": "MED"
+    },
+    {
+     "name": "Lorenzo '''''chiru'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Camilo Bulbuchin",
+     "pos": "MED"
+    },
+    {
+     "name": "Ciro Gazmen",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Coste",
+     "pos": "DEF"
+    },
+    {
+     "name": "Lorenzo Voldiz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Darío Sunchuz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Alemun",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Sportivo Barracas": {
+   "page": "Club Sportivo Barracas",
+   "players": [
+    {
+     "name": "Gastón Rajey",
+     "pos": "DEL"
+    },
+    {
+     "name": "Octavio Boscho",
+     "pos": "DEL"
+    },
+    {
+     "name": "Oscar Sentecriz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Axel Dirroty",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan Gala",
+     "pos": "MED"
+    },
+    {
+     "name": "Genaro Prade",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter Pallerus",
+     "pos": "MED"
+    },
+    {
+     "name": "Brian Saqaoiru",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ismael Rusus Quintiras",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Ridregaoz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gabriel Barruunoivi",
+     "pos": "ARQ"
+    },
+    {
+     "name": "Fausto Doaz Payrios",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Atlas": null,
+  "Club Mercedes": {
+   "page": "Club Atlético Argentino (Mendoza)",
+   "players": [
+    {
+     "name": "Víctor",
+     "pos": "DEL"
+    },
+    {
+     "name": "Dante",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías",
+     "pos": "DEF"
+    },
+    {
+     "name": "Darío",
+     "pos": "DEF"
+    },
+    {
+     "name": "Iván",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Real Pilar": null,
+  "Deportivo Camioneros": null,
+  "Juventud Unida de San Miguel": {
+   "page": "Club Atlético Juventud Unida Universitario",
+   "players": [
+    {
+     "name": "Kevin '''iman'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Víctor '''do Hoyis'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Claudio '''porudis'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Nahuel '''parsou'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón '''erco'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Brian '''ciella'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar '''garri'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ulises '''gatico'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hernán Ignaciu '''bananotte'''''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Camilo '''fogearoa'''''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin '''garri'''''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo '''luzurtu'''''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Club Atlético Lugano": null,
+  "Deportivo Paraguayo": null,
+  "Centro Español": {
+   "page": "Centro Social y Recreativo Español",
+   "players": [
+    {
+     "name": "Nahuel '''uhmare'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo Corlos '''ulbiroz'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ciro '''gallu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Axel '''gallu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Brian '''condii'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista '''cepirro'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter '''castanade'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías '''cristaldi'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ciro '''cempenno'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro '''catrangule'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Camilo '''curvilon'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Lorenzo '''efletaine'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Muñiz": {
+   "page": "Club Deportivo y Social Juventud Unida",
+   "players": [
+    {
+     "name": "Walter Alberte Lupuz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Mariano Orollunu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Moedana",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo Pirtassi",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo Pudruzu",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Dopitros",
+     "pos": "MED"
+    },
+    {
+     "name": "Gastón Cirrizzeni",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Ezeqeoil Fanzalida",
+     "pos": "MED"
+    },
+    {
+     "name": "Patricio Patkavsky",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías Javiur Vilonzeolu",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hernán Fleras",
+     "pos": "DEF"
+    },
+    {
+     "name": "Fabricio Du Rusu",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Argentino de Rosario": null,
+  "Central Córdoba de Rosario": null,
+  "Defensores de Cambaceres": null,
+  "Puerto Nuevo": null,
+  "Claypole": {
+   "page": "Club Atlético Claypole",
+   "players": [
+    {
+     "name": "Gabriel Lledre",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón Cusullu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Jeremías Ocampe",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio Moedana",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lorenzo Acosti",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista Beaz",
+     "pos": "MED"
+    },
+    {
+     "name": "Lorenzo Charlis",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Criz Iglesiis",
+     "pos": "MED"
+    },
+    {
+     "name": "Yago Vullarreal",
+     "pos": "DEF"
+    },
+    {
+     "name": "Patricio Salunas",
+     "pos": "DEF"
+    },
+    {
+     "name": "Iván Jiurez",
+     "pos": "DEF"
+    },
+    {
+     "name": "Yago Oviudo",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Sportivo Italiano": null,
+  "Everton de La Plata": {
+   "page": "Everton Football Club",
+   "players": [
+    {
+     "name": "Nahuel Griolesh",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón Berry",
+     "pos": "DEL"
+    },
+    {
+     "name": "Néstor Goergo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Víctor Diblang",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ricardo Diwsbary-hell",
+     "pos": "MED"
+    },
+    {
+     "name": "Dante Nørgiord",
+     "pos": "MED"
+    },
+    {
+     "name": "Víctor Alcaroz",
+     "pos": "MED"
+    },
+    {
+     "name": "Rodrigo Rahl",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Moitland-niles",
+     "pos": "DEF"
+    },
+    {
+     "name": "Jonás Brenthweato",
+     "pos": "DEF"
+    },
+    {
+     "name": "Patricio Keano",
+     "pos": "DEF"
+    },
+    {
+     "name": "Camilo Peckfard",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Kimberley de Mar del Plata": null,
+  "Gutiérrez Sport Club": {
+   "page": "Club Atlético Argentino (Mendoza)",
+   "players": [
+    {
+     "name": "Víctor",
+     "pos": "DEL"
+    },
+    {
+     "name": "Dante",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías",
+     "pos": "DEF"
+    },
+    {
+     "name": "Darío",
+     "pos": "DEF"
+    },
+    {
+     "name": "Iván",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Deportivo Rincón": {
+   "page": "Club Social y Deportivo Sol de Mayo",
+   "players": [
+    {
+     "name": "Patricio '''peruuri",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián '''mazzili'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ismael '''moriles'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lautaro '''reyis'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Fausto '''uldaba'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter '''berry'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Darío '''benitoz Dogorado'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo '''diutz'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo '''ogestonilla'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Mariano '''liceno'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ciro '''magaoz'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Criz '''nudul'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Sol de Mayo": {
+   "page": "Club Social y Deportivo Sol de Mayo",
+   "players": [
+    {
+     "name": "Patricio '''peruuri",
+     "pos": "DEL"
+    },
+    {
+     "name": "Sebastián '''mazzili'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ismael '''moriles'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lautaro '''reyis'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Fausto '''uldaba'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter '''berry'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Darío '''benitoz Dogorado'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo '''diutz'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo '''ogestonilla'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Mariano '''liceno'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ciro '''magaoz'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Tadeo Criz '''nudul'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Sarmiento de La Banda": null,
+  "Costa Brava de General Pico": {
+   "page": "Club Ferro Carril Oeste (General Pico)",
+   "players": [
+    {
+     "name": "Bautista '''baigorrii'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Valentín '''bartolomu'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''blunce'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Lautaro '''contreris'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''bottaru'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo '''cuellu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo '''fegaorui'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Tadeo Pablu '''guinonutte'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Camilo '''ageore'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Lisandro '''bel'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo '''cafuontes'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías '''betinzi'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Defensores de Formosa": null,
+  "Altos Hornos Zapla": {
+   "page": "Asociación Cultural y Deportiva Altos Hornos Zapla",
+   "players": [
+    {
+     "name": "Alan '''rudriguez'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Kevin '''cirunel'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Tadeo '''cuallar'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Marcelo",
+     "pos": "DEL"
+    },
+    {
+     "name": "Elías '''ureos'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista '''avela'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hugo '''dirun Ludesma'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Horacio '''furnandez'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Nahuel '''arroyi'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Dante '''avela'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gastón '''burro'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ulises '''carbelon'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Jorge Newbery de Comodoro": null,
+  "Germinal de Rawson": null,
+  "Ciudad de Bolívar": {
+   "page": "Club Ciudad de Bolívar",
+   "players": [
+    {
+     "name": "Damián '''berotti'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Rodrigo '''gorcua'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Jeremías '''micaden'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ciro '''rojes'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Marcelo '''rudriguez'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ricardo '''gonzaluz'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Renzo '''geavoru'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Fabricio '''utherrort'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Damián '''zoni'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Walter '''gimuz'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo '''furnandez'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista '''ulvirez'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Huracán de Comodoro Rivadavia": null,
+  "Boxing Club de Río Gallegos": null,
+  "Guaraní de Paso de los Libres": null,
+  "Racing de Olavarría": null,
+  "Atlético San Jorge": {
+   "page": "Club Atlético Argentino (Mendoza)",
+   "players": [
+    {
+     "name": "Víctor",
+     "pos": "DEL"
+    },
+    {
+     "name": "Dante",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "DEL"
+    },
+    {
+     "name": "Horacio",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo",
+     "pos": "MED"
+    },
+    {
+     "name": "Iván",
+     "pos": "DEF"
+    },
+    {
+     "name": "Elías",
+     "pos": "DEF"
+    },
+    {
+     "name": "Darío",
+     "pos": "DEF"
+    },
+    {
+     "name": "Iván",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Coronel Aguirre": null,
+  "Deportivo Mandiyú": null,
+  "Huracán de Corrientes": null,
+  "Sportivo Peñarol de San Juan": {
+   "page": "Club Sportivo Barracas",
+   "players": [
+    {
+     "name": "Gastón Rajey",
+     "pos": "DEL"
+    },
+    {
+     "name": "Octavio Boscho",
+     "pos": "DEL"
+    },
+    {
+     "name": "Oscar Sentecriz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Axel Dirroty",
+     "pos": "MED"
+    },
+    {
+     "name": "Alan Gala",
+     "pos": "MED"
+    },
+    {
+     "name": "Genaro Prade",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter Pallerus",
+     "pos": "MED"
+    },
+    {
+     "name": "Brian Saqaoiru",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ismael Rusus Quintiras",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Ridregaoz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Gabriel Barruunoivi",
+     "pos": "ARQ"
+    },
+    {
+     "name": "Fausto Doaz Payrios",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Juventud Alianza de San Juan": {
+   "page": "Club Atlético Juventud Unida Universitario",
+   "players": [
+    {
+     "name": "Kevin '''iman'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Víctor '''do Hoyis'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Claudio '''porudis'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Nahuel '''parsou'''''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón '''erco'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Brian '''ciella'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Oscar '''garri'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Ulises '''gatico'''''",
+     "pos": "MED"
+    },
+    {
+     "name": "Hernán Ignaciu '''bananotte'''''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Camilo '''fogearoa'''''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin '''garri'''''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Rodrigo '''luzurtu'''''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Estudiantes de Resistencia": null,
+  "Bella Vista de Bahía Blanca": {
+   "page": "Club Villa Mitre",
+   "players": [
+    {
+     "name": "Rodrigo '''puralta'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Camilo '''do Huyes'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón '''vavena'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hugo '''montuvirdo'''",
+     "pos": "DEL"
+    },
+    {
+     "name": "Iván '''billinu'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Elías '''mujuca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Bautista '''gunzuluz Gitaca'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Mariano '''lopuz'''",
+     "pos": "MED"
+    },
+    {
+     "name": "Marcelo",
+     "pos": "DEF"
+    },
+    {
+     "name": "Kevin '''mureno'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan '''tannir'''",
+     "pos": "DEF"
+    },
+    {
+     "name": "Alan '''ageore'''",
+     "pos": "ARQ"
+    }
+   ]
+  },
+  "Maronese de Neuquén": null,
+  "Independiente de Chivilcoy": {
+   "page": "Club Atlético Independiente (Chivilcoy)",
+   "players": [
+    {
+     "name": "Patricio Deniel Murtinaz",
+     "pos": "DEL"
+    },
+    {
+     "name": "Pablo Valentu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Brian Triji",
+     "pos": "DEL"
+    },
+    {
+     "name": "Hernán Rubledo",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Rameri",
+     "pos": "MED"
+    },
+    {
+     "name": "Kevin Ridregaoz",
+     "pos": "MED"
+    },
+    {
+     "name": "Walter Selas",
+     "pos": "MED"
+    },
+    {
+     "name": "Yago Sermounte",
+     "pos": "DEF"
+    },
+    {
+     "name": "Ricardo Aqaana",
+     "pos": "DEF"
+    },
+    {
+     "name": "Damián Borgegnoni",
+     "pos": "DEF"
+    },
+    {
+     "name": "Sebastián Saqaoiru",
+     "pos": "ARQ"
+    },
+    {
+     "name": "Brian Gominoz",
+     "pos": "DEF"
+    }
+   ]
+  },
+  "El Linqueño": null,
+  "9 de Julio de Rafaela": null,
+  "Huracán Las Heras": {
+   "page": "Club Atlético Huracán Las Heras",
+   "players": [
+    {
+     "name": "Sebastián Cortos",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gastón Poniles",
+     "pos": "DEL"
+    },
+    {
+     "name": "Yago Corruu",
+     "pos": "DEL"
+    },
+    {
+     "name": "Gabriel Marchuora",
+     "pos": "DEL"
+    },
+    {
+     "name": "Ulises Blancu",
+     "pos": "MED"
+    },
+    {
+     "name": "Ignacio Diele",
+     "pos": "MED"
+    },
+    {
+     "name": "Axel Castre",
+     "pos": "MED"
+    },
+    {
+     "name": "Sebastián Ale",
+     "pos": "MED"
+    },
+    {
+     "name": "Valentín Aldunite",
+     "pos": "DEF"
+    },
+    {
+     "name": "Genaro Alfiroz",
+     "pos": "DEF"
+    },
+    {
+     "name": "Bautista Muntunugro",
+     "pos": "DEF"
+    },
+    {
+     "name": "Hugo Arocuni",
+     "pos": "ARQ"
+    }
+   ]
+  }
+ }
+}
