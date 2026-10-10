@@ -125,4 +125,42 @@ describe('pizarra con alineación libre', () => {
     const card = await screen.findByRole('region', { name: 'Especialistas de pelota parada' })
     expect(within(card).getByText(/^Córners · elegido por vos/)).toBeInTheDocument()
   })
+
+  it('cada instrucción dice qué efecto tiene en el partido', async () => {
+    state.tactic = { id: 't1', formation: '4-4-2', mentality: 'BALANCED', lineup: lineup442 }
+    renderScreen()
+    const mentality = await screen.findByRole('radiogroup', { name: 'Mentalidad' })
+    expect(within(mentality).getByRole('radio', { name: /Ofensiva/ })).toHaveTextContent('+20 % ataque, −15 % defensa')
+    expect(within(mentality).getByRole('radio', { name: /Muy defensiva/i })).toHaveTextContent('−30 % ataque, +30 % defensa')
+    const tempo = screen.getByRole('radiogroup', { name: 'Ritmo de juego' })
+    expect(within(tempo).getByRole('radio', { name: /Rápido/ })).toHaveTextContent('más desgaste físico')
+    expect(screen.getByRole('radiogroup', { name: 'Estilo de pase' })).toBeInTheDocument()
+    expect(screen.getByRole('radiogroup', { name: 'Intensidad de presión' })).toBeInTheDocument()
+  })
+
+  it('un estilo listo fija las cuatro instrucciones de un toque y se guarda', async () => {
+    state.tactic = { id: 't1', formation: '4-4-2', mentality: 'BALANCED', lineup: lineup442 }
+    renderScreen()
+    const styles = await screen.findByRole('group', { name: 'Estilos listos' })
+    await userEvent.click(within(styles).getByRole('button', { name: /Contraataque/ }))
+    expect(within(styles).getByRole('button', { name: /Contraataque/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(screen.getByRole('radiogroup', { name: 'Mentalidad' })).getByRole('radio', { name: /^Defensiva/ })).toHaveAttribute('aria-checked', 'true')
+    expect(within(screen.getByRole('radiogroup', { name: 'Ritmo de juego' })).getByRole('radio', { name: /Rápido/ })).toHaveAttribute('aria-checked', 'true')
+
+    await userEvent.click(screen.getAllByRole('button', { name: /Guardar cambios/ })[0])
+    await waitFor(() => expect(updateTactic).toHaveBeenCalledTimes(1))
+    expect(updateTactic.mock.calls[0][1]).toMatchObject({ mentality: 'DEFENSIVE', passing_style: 'DIRECT', tempo: 'FAST', pressing_intensity: 'STAND_OFF' })
+  })
+
+  it('el resumen cuenta el efecto total y cambiar una instrucción suelta desmarca el estilo', async () => {
+    state.tactic = { id: 't1', formation: '4-4-2', mentality: 'BALANCED', lineup: lineup442 }
+    renderScreen()
+    const styles = await screen.findByRole('group', { name: 'Estilos listos' })
+    await userEvent.click(within(styles).getByRole('button', { name: /Todo arriba/ }))
+    const summary = screen.getByRole('region', { name: 'Resumen de instrucciones' })
+    expect(summary).toHaveTextContent(/ataque/)
+    await userEvent.click(within(screen.getByRole('radiogroup', { name: 'Ritmo de juego' })).getByRole('radio', { name: /Lento/ }))
+    expect(within(styles).getByRole('button', { name: /Todo arriba/ })).toHaveAttribute('aria-pressed', 'false')
+  })
 })
+

@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { tacticMultipliers } from '../domain/tacticalStyle'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { specialistsOf, aerialOf } from '../domain/specialists'
 import { stylesToMods } from '../domain/rivalStyle'
@@ -166,34 +167,17 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
 
   // 2. Modificadores tácticos
   const applyTactics = (base, myTactic = {}, _oppTactic = {}, isHome = false) => {
-    let attack = base.attack
-    let defense = base.defense
-    let midfield = base.midfield
-
-    if (myTactic.mentality === 'Ofensiva' || myTactic.mentality === 'ATTACKING') {
-      attack *= 1.20
-      defense *= 0.85
-    } else if (myTactic.mentality === 'Defensiva' || myTactic.mentality === 'DEFENSIVE') {
-      attack *= 0.80
-      defense *= 1.20
-    } else if (myTactic.mentality === 'ALL_OUT_ATTACK') {
-      attack *= 1.35
-      defense *= 0.70
-    }
+    // Mentalidad, ritmo, presión y estilo de pase: los efectos viven en domain/tacticalStyle (la pantalla de táctica cuenta los mismos)
+    const m = tacticMultipliers(myTactic)
+    let attack = base.attack * m.attack
+    let defense = base.defense * m.defense
+    let midfield = base.midfield * m.midfield
+    const fitnessDrain = m.fitnessDrain
 
     if (isHome) {
       attack *= homeAdvantage
       defense *= homeAdvantage
       midfield *= homeAdvantage
-    }
-
-    let fitnessDrain = 0.35
-    if (myTactic.tempo === 'Alto' || myTactic.tempo === 'FAST') {
-      attack *= 1.12
-      fitnessDrain = 0.55
-    } else if (myTactic.tempo === 'Lento' || myTactic.tempo === 'SLOW') {
-      defense *= 1.08
-      fitnessDrain = 0.22
     }
 
     return {

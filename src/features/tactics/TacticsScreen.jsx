@@ -13,6 +13,7 @@ import { reassignLineup, resolveLineup, getLayout } from '../../domain/formation
 import { FREE_FORMATION, moveToPoint, normalizeLayout, shapeOf, slotsOfLayout } from '../../domain/freeLayout'
 import { fitLabel, positionName, slotBase } from '../../domain/positions'
 import { specialistsOf, topFor, cleanTakers, ROLE_LABELS, ROLE_SCORES } from '../../domain/specialists'
+import { TACTIC_PRESETS, describeEffect, effectOf, presetOf, tacticMultipliers } from '../../domain/tacticalStyle'
 import { ratingAtSlot, playerOverall } from '../../domain/ratings'
 import {
   Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ChoiceChips, EmptyState,
@@ -27,7 +28,6 @@ import { friendlyError } from '../../lib/errors'
 const ROLE_ICONS = { PENALTY: CircleDot, FREE_KICK: Target, CORNER: Flag, HEADER: ChevronsUp }
 const AFFINITY_TONE = { NATURAL: 'accent', COMPATIBLE: 'warning', ADAPTED: 'warning', OUT_OF_POSITION: 'danger' }
 
-const toOptions = (list) => list.map(i => ({ value: i.id, label: i.label }))
 const FORMATION_OPTIONS = Object.values(FORMATIONS).map(f => ({ value: f.id, label: f.id }))
 
 const ovr = (p) => playerOverall(p)
@@ -47,11 +47,29 @@ function InstructionGroup({ title, description, children }) {
   )
 }
 
-function Labeled({ label, children }) {
+/** Una instrucción con todas sus opciones a la vista: nombre y qué efecto tiene en el partido (objetivos grandes para el celular) */
+function InstructionPicker({ label, group, value, onChange, options }) {
   return (
-    <div className="space-y-2">
-      <p className="text-sm font-medium text-fg">{label}</p>
-      {children}
+    <div role="radiogroup" aria-label={label} className="grid gap-2">
+      {options.map(o => {
+        const active = o.id === value
+        return (
+          <button
+            key={o.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(o.id)}
+            className={cn(
+              'flex min-h-12 w-full flex-col items-start gap-0.5 rounded-xl border px-3.5 py-2.5 text-left transition-colors active:scale-[0.99]',
+              active ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent/60 hover:bg-surface-2'
+            )}
+          >
+            <span className="text-sm font-semibold text-fg">{o.label}</span>
+            <span className="text-xs leading-snug text-fg-muted">{effectOf(group, o.id)}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -79,6 +97,13 @@ export default function TacticsScreen() {
   const [savedSnapshot, setSavedSnapshot] = useState('')
   // Especialistas de pelota parada elegidos a mano ({ rol: idJugador }); vacío = automático
   const [takers, setTakers] = useState({})
+
+  const currentStyle = { mentality, passing_style: passingStyle, tempo, pressing_intensity: pressing }
+  const activePreset = presetOf(currentStyle)
+  const applyPreset = (preset) => {
+    setMentality(preset.values.mentality); setPassingStyle(preset.values.passing_style)
+    setTempo(preset.values.tempo); setPressing(preset.values.pressing_intensity)
+  }
 
   const snapshot = JSON.stringify({ formation, mentality, passingStyle, pressing, tempo, lineup, customLayout, takers })
   const dirty = !loading && snapshot !== savedSnapshot
@@ -393,17 +418,42 @@ export default function TacticsScreen() {
               <Button variant="outline" size="sm" onClick={handleAutoAssign}><Wand2 />Auto-alinear el mejor once</Button>
             </InstructionGroup>
 
+            <InstructionGroup title="Estilos listos" description="Un toque y quedan fijadas las cuatro instrucciones. Después podés ajustar lo que quieras.">
+              <div role="group" aria-label="Estilos listos" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {TACTIC_PRESETS.map(p => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    aria-pressed={activePreset === p.id}
+                    onClick={() => applyPreset(p)}
+                    className={cn(
+                      'flex min-h-14 flex-col items-start justify-center gap-0.5 rounded-xl border px-3 py-2 text-left transition-colors active:scale-[0.99]',
+                      activePreset === p.id ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent/60 hover:bg-surface-2'
+                    )}
+                  >
+                    <span className="text-sm font-semibold text-fg">{p.label}</span>
+                    <span className="text-[11px] leading-snug text-fg-muted">{p.description}</span>
+                  </button>
+                ))}
+              </div>
+              <section aria-label="Resumen de instrucciones" className="rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-xs leading-relaxed text-fg-muted">
+                <span className="font-semibold text-fg">Así juega tu equipo: </span>{describeEffect(tacticMultipliers(currentStyle))}
+              </section>
+            </InstructionGroup>
+
             <InstructionGroup title="Mentalidad" description="Cuánto riesgo asume el equipo en cada zona de la cancha.">
-              <ChoiceChips label="Mentalidad" value={mentality} onChange={setMentality} options={toOptions(TACTICAL_MENTALITIES)} />
+              <InstructionPicker label="Mentalidad" group="mentality" value={mentality} onChange={setMentality} options={TACTICAL_MENTALITIES} />
             </InstructionGroup>
 
             <InstructionGroup title="Con la pelota" description="Cómo construye el juego y a qué velocidad.">
-              <Labeled label="Estilo de pase"><ChoiceChips label="Estilo de pase" value={passingStyle} onChange={setPassingStyle} options={toOptions(PASSING_STYLES)} /></Labeled>
-              <Labeled label="Ritmo de juego"><ChoiceChips label="Ritmo de juego" value={tempo} onChange={setTempo} options={toOptions(TEMPO_LEVELS)} /></Labeled>
+              <p className="text-sm font-medium text-fg">Estilo de pase</p>
+              <InstructionPicker label="Estilo de pase" group="passing" value={passingStyle} onChange={setPassingStyle} options={PASSING_STYLES} />
+              <p className="pt-1 text-sm font-medium text-fg">Ritmo de juego</p>
+              <InstructionPicker label="Ritmo de juego" group="tempo" value={tempo} onChange={setTempo} options={TEMPO_LEVELS} />
             </InstructionGroup>
 
             <InstructionGroup title="Sin la pelota" description="Qué tan arriba se presiona y cuánto desgaste cuesta.">
-              <ChoiceChips label="Intensidad de presión" value={pressing} onChange={setPressing} options={toOptions(PRESSING_LEVELS)} />
+              <InstructionPicker label="Intensidad de presión" group="pressing" value={pressing} onChange={setPressing} options={PRESSING_LEVELS} />
             </InstructionGroup>
           </TabsContent>
 
