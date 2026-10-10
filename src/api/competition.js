@@ -3,6 +3,8 @@ import { movementOf, tierStrengthRange } from '../domain/pyramid'
 import { divisionName } from '../domain/divisions'
 import { seededRandom } from '../domain/cupMatch'
 import { pickRivalClubs } from '../domain/rivalClubs'
+import { clubLeaders } from '../domain/leaders'
+import { seasonYearOf } from '../domain/gameWeek'
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 
@@ -10,6 +12,56 @@ import { queryCache } from '../utils/cache'
 const leagueInit = new Map()
 
 export const competitionApi = {
+  /**
+   * Todas las ligas de la cuenta (la actual primero, después las de otras categorías por las que pasó el club), cada una con su tabla
+   * ordenada. Solo lectura. Las competiciones vacías (donde ya no queda ningún club) no se listan.
+   */
+  async getAllLeagues(clubId) {
+    if (!clubId) return []
+    return queryCache.fetch(`leagues:${clubId}`, async () => {
+      const { data: comps, error } = await supabase.from('competitions').select('id, name, level, season_year').order('level', { ascending: true })
+      if (error) throw new Error(error.message)
+      const ids = (comps || []).map(c => c.id)
+      if (ids.length === 0) return []
+      const { data: rows, error: rowsErr } = await supabase
+        .from('standings')
+        .select('competition_id, club_id, points, played, won, drawn, lost, goals_for, goals_against, clubs(name, short_name, primary_color)')
+        .in('competition_id', ids)
+      if (rowsErr) throw new Error(rowsErr.message)
+
+      const diff = (r) => (r.goals_for || 0) - (r.goals_against || 0)
+      const leagues = (comps || []).map(competition => {
+        const table = (rows || [])
+          .filter(r => r.competition_id === competition.id)
+          .sort((a, b) => (b.points || 0) - (a.points || 0) || diff(b) - diff(a) || (b.goals_for || 0) - (a.goals_for || 0) || String(a.clubs?.name || '').localeCompare(String(b.clubs?.name || '')))
+          .map((r, i) => ({ ...r, position: i + 1 }))
+        return { competition, rows: table, current: table.some(r => r.club_id === clubId) }
+      }).filter(l => l.rows.length > 0)
+      return leagues.sort((a, b) => Number(b.current) - Number(a.current) || a.competition.level - b.competition.level)
+    }, 30000)
+  },
+
+  /**
+   * Goleadores, asistidores y mejores notas del club en la temporada de la fecha de juego. Solo hay datos de los jugadores
+   * propios: los rivales de la IA no tienen plantel. Solo lectura.
+   */
+  async getClubLeaders(clubId, gameDate) {
+    const empty = { scorers: [], assisters: [], best: [] }
+    if (!clubId) return empty
+    const seasonStart = `${seasonYearOf(gameDate || '2026-07-01')}-07-01`
+    const { data: stats, error } = await supabase
+      .from('player_match_stats')
+      .select('player_id, goals, assists, rating, fixtures!inner(match_date)')
+      .eq('club_id', clubId)
+      .gte('fixtures.match_date', seasonStart)
+    if (error) throw new Error(error.message)
+    const ids = [...new Set((stats || []).map(r => r.player_id))]
+    if (ids.length === 0) return empty
+    const { data: players, error: playersErr } = await supabase.from('players').select('id, first_name, last_name, position').in('id', ids)
+    if (playersErr) throw new Error(playersErr.message)
+    return clubLeaders(stats, players || [])
+  },
+
   /**
    * Obtiene la tabla oficial de posiciones con criterios canónicos de desempate y zonas deportivas.
    */

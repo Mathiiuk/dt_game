@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Calendar, Layers, RefreshCw, Shield, Trophy } from 'lucide-react'
+import { Calendar, Globe2, Layers, RefreshCw, Shield, Trophy } from 'lucide-react'
 import { toast } from 'sonner'
 import { competitionApi } from '../../api/competition'
 import { useGameContext } from '../../context/GameContext'
@@ -11,6 +11,7 @@ import { FORM_LABELS, formatDiff, goalDiff, parseForm, zoneLegend, zoneOf } from
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, EmptyState, PageHeader, QuickActions, QUICK_ACTION, Skeleton } from '../../components/ui'
 import LeaguePyramidModal from './LeaguePyramidModal'
+import LeagueDataModal from './LeagueDataModal'
 
 const FORM_STYLE = {
   V: 'bg-accent-soft text-accent',
@@ -27,6 +28,7 @@ export default function StandingsScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const [showPyramid, setShowPyramid] = useState(false)
+  const [showAllLeagues, setShowAllLeagues] = useState(false)
 
   const loadData = async (force = false) => {
     if (!club?.id) return
@@ -90,10 +92,8 @@ export default function StandingsScreen() {
         description={`${total} clubes`}
         actions={
           <QuickActions>
-            <Button variant="outline" size="icon" onClick={() => loadData(true)} disabled={refreshing} aria-label="Recargar tabla" className="h-auto min-h-14 shrink-0 sm:h-11 sm:min-h-0">
-              <RefreshCw className={refreshing ? 'animate-spin' : ''} />
-            </Button>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => navigate('/calendar')}><Calendar className="text-blue-400" />Calendario</Button>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowAllLeagues(true)}><Globe2 className="text-accent" />Todas las ligas</Button>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowPyramid(true)}><Layers className="text-gold" />Pirámide</Button>
             {seasonEnded && <Button size="sm" className={QUICK_ACTION} onClick={() => navigate('/dashboard')}><Trophy />Cierre anual</Button>}
           </QuickActions>
@@ -176,6 +176,8 @@ export default function StandingsScreen() {
           </div>
         </Card>
       )}
+
+      {showAllLeagues && <LeagueDataModal club={club} onClose={() => setShowAllLeagues(false)} />}
 
       {showPyramid && (
         <LeaguePyramidModal
