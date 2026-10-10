@@ -6,6 +6,9 @@ import { useGameContext } from '../../context/GameContext'
 import { MAX_MEMBERS, MOTES, PRANKS, prankBlockReason, prankById } from '../../domain/friendRoom'
 import { Badge, Button, Card, CardBody, EmptyState, Field, Input, PageHeader, ResponsiveOverlay, Skeleton } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
+import { DEFAULT_SETTINGS, sanitizeSettings } from '../../domain/friendLeague'
+import LeagueSetupCard from './LeagueSetupCard'
+import LeagueView from './LeagueView'
 
 /** Liga de amigos: sala con código para hasta 10 DT, con tabla compartida, muro y travesuras de la AFA */
 export default function FriendsScreen() {
@@ -18,9 +21,14 @@ export default function FriendsScreen() {
   const [roomName, setRoomName] = useState('')
   const [joinCode, setJoinCode] = useState('')
   const [prankFor, setPrankFor] = useState(null) // { prank, choice }
+  const [newSettings, setNewSettings] = useState({ ...DEFAULT_SETTINGS })
+  const [draft, setDraft] = useState(null) // ajustes en edición dentro del lobby
+  const [league, setLeague] = useState({ table: [], teams: [], fixtures: [] })
 
   const room = rooms?.find(r => r.id === roomId) || null
   const me = table.find(t => t.is_me)
+  const isOwner = Boolean(room && me && room.created_by === me.user_id)
+  const started = room && room.status !== 'LOBBY'
 
   const loadRooms = useCallback(async (selectId) => {
     try {
@@ -39,6 +47,12 @@ export default function FriendsScreen() {
       const [t, w] = await Promise.all([friendsApi.getTable(id), friendsApi.getWall(id)])
       setTable(t)
       setWall(w)
+      const current = (await friendsApi.getMyRooms()).find(r => r.id === id)
+      if (current) setRooms(prev => (prev || []).map(r => (r.id === id ? current : r)))
+      if (current && current.status !== 'LOBBY') {
+        const [lt, lf] = await Promise.all([friendsApi.getLeagueTable(id), friendsApi.getLeagueFixtures(id)])
+        setLeague({ table: lt, teams: lf.teams, fixtures: lf.fixtures })
+      }
     } catch (err) {
       toast.error(friendlyError(err, 'No pudimos cargar la sala.'))
     }
@@ -62,7 +76,11 @@ export default function FriendsScreen() {
   }
 
   const create = async () => {
-    const res = await run(() => friendsApi.createRoom(roomName, club.id), 'Sala creada. Pasales el código a tus amigos.')
+    const res = await run(async () => {
+      const created = await friendsApi.createRoom(roomName, club.id)
+      await friendsApi.configureRoom(created.id, newSettings)
+      return created
+    }, 'Sala creada. Pasales el código a tus amigos.')
     if (res) { setRoomName(''); await loadRooms(res.id) }
   }
   const join = async () => {
@@ -73,6 +91,18 @@ export default function FriendsScreen() {
     if (!window.confirm('¿Salir de la sala? Perdés tus puntos de travesuras.')) return
     await run(() => friendsApi.leaveRoom(roomId), 'Saliste de la sala.')
     setTable([]); setWall([]); await loadRooms()
+  }
+  const saveSettings = async () => {
+    const res = await run(() => friendsApi.configureRoom(roomId, draft), 'Ajustes guardados.')
+    if (res) { setDraft(null); await loadRooms(roomId); await loadRoom(roomId) }
+  }
+  const startLeague = async () => {
+    const res = await run(() => friendsApi.startLeague(room, table.length), '¡Arrancó la liga!')
+    if (res) await loadRoom(roomId)
+  }
+  const playRound = async () => {
+    const res = await run(() => friendsApi.playRound(roomId))
+    if (res) { toast.success(res.done ? 'Se jugó la última fecha.' : `Fecha ${res.round} jugada.`); await loadRoom(roomId) }
   }
   const copyCode = async () => {
     try { await navigator.clipboard.writeText(room.code); toast.success('Código copiado.') } catch { toast.info(`Código: ${room.code}`) }
@@ -104,6 +134,7 @@ export default function FriendsScreen() {
           <Card as="div"><CardBody className="space-y-3">
             <h2 className="font-display text-lg font-semibold text-fg">Armar una sala</h2>
             <Field label="Nombre de la sala">{(p) => <Input {...p} value={roomName} maxLength={40} placeholder="Los Pibes del Potrero" onChange={e => setRoomName(e.target.value)} />}</Field>
+            <LeagueSetupCard settings={newSettings} onChange={setNewSettings} />
             <Button onClick={create} loading={busy} disabled={!roomName.trim() || !club}><Users />Crear sala</Button>
           </CardBody></Card>
           <Card as="div"><CardBody className="space-y-3">
@@ -131,32 +162,55 @@ export default function FriendsScreen() {
             </div>
           </CardBody></Card>
 
-          <Card as="div" className="overflow-hidden">
-            <table className="w-full text-left text-sm" aria-label="Tabla de la sala">
-              <thead><tr className="border-b border-line bg-surface-2 text-fg-subtle">
-                <th scope="col" className="eyebrow w-10 py-3 pl-3 text-center">Pos</th>
-                <th scope="col" className="eyebrow py-3">Club</th>
-                <th scope="col" className="eyebrow py-3 text-right">Liga</th>
-                <th scope="col" className="eyebrow py-3 text-right">Travesuras</th>
-                <th scope="col" className="eyebrow py-3 pr-3 text-right">Total</th>
-              </tr></thead>
-              <tbody>
-                {table.map((t, i) => (
-                  <tr key={t.user_id} className={t.is_me ? 'bg-accent-soft/40' : ''}>
-                    <td className="num py-2.5 pl-3 text-center text-fg-muted">{i + 1}</td>
-                    <td className="py-2.5">
-                      <span className="font-semibold text-fg">{t.club_name}</span>
-                      {t.is_me && <Badge tone="accent" className="ml-2">Vos</Badge>}
-                      {t.mote && <span className="block text-xs text-fg-subtle">“{t.mote}”</span>}
-                    </td>
-                    <td className="num py-2.5 text-right text-fg-muted">{t.league_points}</td>
-                    <td className="num py-2.5 text-right text-fg-muted">{t.bonus > 0 ? `+${t.bonus}` : t.bonus}</td>
-                    <td className="num py-2.5 pr-3 text-right font-semibold text-fg">{t.points}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+          {started ? (
+            <LeagueView room={room} table={league.table} teams={league.teams} fixtures={league.fixtures} isOwner={isOwner} busy={busy} onPlayRound={playRound} />
+          ) : (
+            <>
+            <Card as="div" className="overflow-hidden">
+              <table className="w-full text-left text-sm" aria-label="Tabla de la sala">
+                <thead><tr className="border-b border-line bg-surface-2 text-fg-subtle">
+                  <th scope="col" className="eyebrow w-10 py-3 pl-3 text-center">Pos</th>
+                  <th scope="col" className="eyebrow py-3">Club</th>
+                  <th scope="col" className="eyebrow py-3 text-right">Liga</th>
+                  <th scope="col" className="eyebrow py-3 text-right">Travesuras</th>
+                  <th scope="col" className="eyebrow py-3 pr-3 text-right">Total</th>
+                </tr></thead>
+                <tbody>
+                  {table.map((t, i) => (
+                    <tr key={t.user_id} className={t.is_me ? 'bg-accent-soft/40' : ''}>
+                      <td className="num py-2.5 pl-3 text-center text-fg-muted">{i + 1}</td>
+                      <td className="py-2.5">
+                        <span className="font-semibold text-fg">{t.club_name}</span>
+                        {t.is_me && <Badge tone="accent" className="ml-2">Vos</Badge>}
+                        {t.mote && <span className="block text-xs text-fg-subtle">“{t.mote}”</span>}
+                      </td>
+                      <td className="num py-2.5 text-right text-fg-muted">{t.league_points}</td>
+                      <td className="num py-2.5 text-right text-fg-muted">{t.bonus > 0 ? `+${t.bonus}` : t.bonus}</td>
+                      <td className="num py-2.5 pr-3 text-right font-semibold text-fg">{t.points}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+
+              <Card as="div"><CardBody className="space-y-3">
+                <h3 className="font-display text-lg font-semibold text-fg">La liga de la sala</h3>
+                {isOwner ? (
+                  <>
+                    <LeagueSetupCard settings={draft || sanitizeSettings({ ...DEFAULT_SETTINGS, ...(room.settings || {}) })} onChange={setDraft} humans={table.length} />
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="secondary" onClick={saveSettings} loading={busy} disabled={!draft}>Guardar ajustes</Button>
+                      <Button onClick={startLeague} loading={busy} disabled={table.length < 2 || Boolean(draft)}>Empezar la liga</Button>
+                    </div>
+                    {table.length < 2 && <p className="text-sm text-fg-subtle">Hacen falta al menos 2 DT. Pasales el código.</p>}
+                    {draft && <p className="text-sm text-fg-subtle">Guardá los ajustes antes de empezar.</p>}
+                  </>
+                ) : (
+                  <p className="text-sm text-fg-muted">Quien armó la sala decide los ajustes y cuándo empieza. Esperá al lobby.</p>
+                )}
+              </CardBody></Card>
+            </>
+          )}
 
           <section aria-labelledby="pranks-title">
             <h3 id="pranks-title" className="mb-2 flex items-center gap-2 font-display text-lg font-semibold text-fg">

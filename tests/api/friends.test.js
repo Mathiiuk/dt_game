@@ -41,3 +41,30 @@ describe('liga de amigos (API)', () => {
     expect(await friendsApi.getMyRooms()).toEqual([])
   })
 })
+
+describe('liga de la sala (API)', () => {
+  beforeEach(() => { calls.rpc.length = 0; calls.result = { data: { ok: true }, error: null } })
+
+  it('configurar manda ajustes saneados y las reglas ya resueltas (el sorteo no se sortea en el servidor)', async () => {
+    await friendsApi.configureRoom('r1', { teams: 99, legs: 1, rulesId: 'CERO_CERO', difficulty: 'CRACKS' })
+    const { args } = calls.rpc[0]
+    expect(calls.rpc[0].name).toBe('friend_configure_room')
+    expect(args.p_settings).toEqual({ teams: 20, fillBots: true, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO' })
+    expect(args.p_rules.nilNilPts).toBe(0)
+  })
+
+  it('empezar completa con los nombres de bots justos para la cantidad de DT', async () => {
+    await friendsApi.startLeague({ id: 'r1', settings: { teams: 10, fillBots: true } }, 3)
+    expect(calls.rpc[0].args.p_bot_names).toHaveLength(7)
+    calls.rpc.length = 0
+    await friendsApi.startLeague({ id: 'r1', settings: { teams: 10, fillBots: false } }, 3)
+    expect(calls.rpc[0].args.p_bot_names).toEqual([])
+  })
+
+  it('jugar fecha y pedir la tabla llaman a la base', async () => {
+    await friendsApi.playRound('r1')
+    expect(calls.rpc[0]).toEqual({ name: 'friend_play_round', args: { p_room_id: 'r1' } })
+    calls.result = { data: null, error: null }
+    expect(await friendsApi.getLeagueTable('r1')).toEqual([])
+  })
+})
