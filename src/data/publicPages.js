@@ -170,7 +170,8 @@ export const PUBLIC_PAGES = [
     sections: [
       { heading: 'Qué datos guardamos', body: ['Los datos de tu cuenta (nombre y correo electrónico), una contraseña que se guarda cifrada y los datos de tu partida: tu DT, tu club y el avance de tu carrera.'] },
       { heading: 'Para qué los usamos', body: ['Para que puedas iniciar sesión, guardar tu carrera y recuperar el acceso si olvidás la contraseña. No vendemos tus datos ni los compartimos con terceros con fines publicitarios.'] },
-      { heading: 'Medición de uso', body: ['Podemos registrar eventos de uso generales, como visitas y clics en los botones de la portada, para entender cómo se usa el sitio. Esos eventos no incluyen tu nombre ni tu correo.'] },
+      { heading: 'Medición de uso', body: ['Podemos registrar eventos de uso generales, como visitas, registros y clics en los botones, para entender cómo se usa el sitio. Esos eventos no incluyen tu nombre ni tu correo.'] },
+      { heading: 'Cookies y Google Tag Manager', body: ['Usamos Google Tag Manager para medir el uso del sitio. Las cookies de medición y publicidad solo se activan si tocás "Aceptar" en el aviso; con "Solo necesarias" quedan desactivadas. Podés cambiar tu elección borrando los datos del sitio en tu navegador.'] },
       { heading: 'Tus derechos', body: [`Podés pedir en cualquier momento que corrijamos o eliminemos tus datos y tu cuenta. ${contactLine}`] }
     ],
     related: ['/terminos', '/contacto']

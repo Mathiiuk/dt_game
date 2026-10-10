@@ -1,3 +1,4 @@
+import { track } from '../../lib/analytics'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -106,6 +107,7 @@ export default function AuthScreen({ initialMode = 'splash' }) {
         return
       }
       toast.success(`¡Bienvenido al fútbol profesional, ${user.name}!`)
+      track('sign_up', { placement: 'registro' })
       navigate('/create-manager')
     } catch (err) {
       toast.error(friendlyError(err, 'Error al crear la cuenta.'))

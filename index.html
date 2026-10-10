@@ -2,6 +2,24 @@
 <html lang="es-AR">
   <head>
     <meta charset="UTF-8" />
+    <!-- Consentimiento (Google Consent Mode v2): todo denegado hasta que la persona acepte; src/lib/consent.js guarda y reaplica la elección -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('consent', 'default', { ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', wait_for_update: 500 });
+      try {
+        if (localStorage.getItem('vestuario-consent') === 'granted') {
+          gtag('consent', 'update', { ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
+        }
+      } catch (e) {}
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NC5G56KV');</script>
+    <!-- End Google Tag Manager -->
     <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
     <!-- viewport-fit=cover es esencial para los safe-areas de iOS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
@@ -26,6 +44,10 @@
     <script type="application/ld+json" id="ld-page">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://vestuario.com.ar/#organizacion","name":"Vestuario","url":"https://vestuario.com.ar/","logo":"https://vestuario.com.ar/pwa-icon.svg"},{"@type":["VideoGame","WebApplication"],"@id":"https://vestuario.com.ar/#juego","name":"Vestuario","url":"https://vestuario.com.ar/","description":"Vestuario es un juego de Director Técnico de fútbol donde vos armás el plantel, elegís la táctica, negociás jugadores y construís tu carrera desde abajo.","inLanguage":"es-AR","genre":["Gestión deportiva","Fútbol"],"applicationCategory":"GameApplication","operatingSystem":"Web","gamePlatform":"Navegador web","publisher":{"@id":"https://vestuario.com.ar/#organizacion"}}]}</script>
   </head>
   <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NC5G56KV"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <!--
       La portada viene escrita en el HTML (prerender) para que buscadores y redes la lean sin ejecutar JavaScript
       y para que se vea al instante. No se edita a mano: se regenera con

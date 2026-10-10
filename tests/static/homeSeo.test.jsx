@@ -105,3 +105,23 @@ describe('rastreo: sitemap y robots', () => {
     expect(routes.filter(route => !blocked.includes(route))).toEqual([])
   })
 })
+
+describe('medición (Google Tag Manager) en index.html', () => {
+  const page = readFileSync('index.html', 'utf8')
+  const head = page.slice(0, page.indexOf('</head>'))
+
+  it('carga el contenedor GTM-NC5G56KV en el head y su versión noscript al abrir el body', () => {
+    expect(head).toContain("'GTM-NC5G56KV'")
+    expect(head).toContain('https://www.googletagmanager.com/gtm.js?id=')
+    const afterBody = page.slice(page.indexOf('<body>'), page.indexOf('<body>') + 400)
+    expect(afterBody).toContain('https://www.googletagmanager.com/ns.html?id=GTM-NC5G56KV')
+  })
+
+  it('el consentimiento arranca denegado ANTES de cargar GTM y reaplica lo aceptado', () => {
+    const consentAt = head.indexOf("gtag('consent', 'default'")
+    expect(consentAt).toBeGreaterThan(-1)
+    expect(consentAt).toBeLessThan(head.indexOf('googletagmanager.com/gtm.js'))
+    expect(head).toMatch(/analytics_storage: 'denied'/)
+    expect(head).toContain("localStorage.getItem('vestuario-consent') === 'granted'")
+  })
+})

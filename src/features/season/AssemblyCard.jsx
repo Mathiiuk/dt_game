@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { competitionApi } from '../../api/competition'
 import { leagueVoteApi } from '../../api/leagueVote'
 import { RULESETS } from '../../domain/leagueRules'
+import { track } from '../../lib/analytics'
 import { Badge, Button } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
 
@@ -45,6 +46,7 @@ export default function AssemblyCard({ club, nextYear, onStatus }) {
       const rivals = (rows || []).filter(r => r.club_id !== club.id).map(r => ({ id: r.club_id, name: r.clubs?.name }))
       const result = await leagueVoteApi.castVote({ clubId: club.id, seasonYear: nextYear, choice, rivals })
       update({ status: 'done', result })
+      track('assembly_voted')
     } catch (err) {
       toast.error(friendlyError(err, 'No pudimos registrar tu voto. Probá de nuevo.'))
     } finally {

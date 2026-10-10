@@ -182,3 +182,13 @@ describe('páginas públicas secundarias', () => {
     expect(data.mainEntity[0].name).toBe('¿Qué es Vestuario?')
   })
 })
+
+describe('privacidad: medición y cookies', () => {
+  it('explica Google Tag Manager, las cookies y cómo se rechazan', () => {
+    const page = PUBLIC_PAGES.find(p => p.path === '/privacidad')
+    const text = JSON.stringify(page.sections)
+    expect(text).toMatch(/Google Tag Manager/)
+    expect(text).toMatch(/Solo necesarias/)
+    expect(text).toMatch(/no incluyen tu nombre ni tu correo/i)
+  })
+})

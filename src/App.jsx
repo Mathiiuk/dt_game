@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react'
 import HomeLanding from './features/home/HomeLanding'
 import InfoPage from './features/home/InfoPage'
 import { PUBLIC_PAGES } from './data/publicPages'
+import CookieBanner from './features/consent/CookieBanner'
 
 // El juego entero (base de datos, pantallas, PWA) se descarga sólo cuando se sale de la parte pública:
 // la portada queda liviana y carga rápido para quien llega desde un buscador.
@@ -24,6 +25,7 @@ function GameLoading() {
 function App() {
   return (
     <BrowserRouter>
+      <CookieBanner />
       <Routes>
         <Route path="/" element={<HomeLanding />} />
         {PUBLIC_PAGES.map(page => (

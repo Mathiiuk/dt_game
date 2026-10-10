@@ -1,3 +1,4 @@
+import { track } from '../../lib/analytics'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -83,6 +84,7 @@ export default function CreateClubWizard() {
         }
       }
       toast.success('¡Institución fundada e inscripta en la liga!')
+      track('club_created')
       // Recarga manager y club en el contexto antes de entrar al juego (evita estado obsoleto tras una sucesión)
       await refreshContext()
       navigate('/dashboard', { replace: true })

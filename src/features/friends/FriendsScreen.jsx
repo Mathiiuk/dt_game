@@ -6,6 +6,7 @@ import { useGameContext } from '../../context/GameContext'
 import { MAX_MEMBERS, MOTES, PRANKS, prankBlockReason, prankById } from '../../domain/friendRoom'
 import { Badge, Button, Card, CardBody, EmptyState, Field, Input, PageHeader, ResponsiveOverlay, Skeleton } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
+import { track } from '../../lib/analytics'
 import { DEFAULT_SETTINGS, sanitizeSettings } from '../../domain/friendLeague'
 import LeagueSetupCard from './LeagueSetupCard'
 import LeagueView from './LeagueView'
@@ -81,11 +82,11 @@ export default function FriendsScreen() {
       await friendsApi.configureRoom(created.id, newSettings)
       return created
     }, 'Sala creada. Pasales el código a tus amigos.')
-    if (res) { setRoomName(''); await loadRooms(res.id) }
+    if (res) { track('friend_room_created'); setRoomName(''); await loadRooms(res.id) }
   }
   const join = async () => {
     const res = await run(() => friendsApi.joinRoom(joinCode, club.id), 'Te sumaste a la sala.')
-    if (res) { setJoinCode(''); await loadRooms(res.id) }
+    if (res) { track('friend_room_joined'); setJoinCode(''); await loadRooms(res.id) }
   }
   const leave = async () => {
     if (!window.confirm('¿Salir de la sala? Perdés tus puntos de travesuras.')) return

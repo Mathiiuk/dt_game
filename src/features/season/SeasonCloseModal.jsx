@@ -11,6 +11,7 @@ import { formatMoney } from '../../lib/format'
 import { Badge, Button, Card, CardBody, ResponsiveOverlay } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
 import AssemblyCard from './AssemblyCard'
+import { track } from '../../lib/analytics'
 
 const CONSEQUENCES = [
   ['Tabla archivada', 'La tabla de posiciones se congela para siempre en la historia de la liga.'],
@@ -72,6 +73,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
         console.warn('Aviso: no se pudo armar el resumen de la temporada:', storyErr)
       }
       toast.success('Temporada cerrada. Comienza la pretemporada.')
+      track('season_closed')
       if (typeof refreshContext === 'function') await refreshContext()
       onSuccess?.(res)
     } catch (err) {

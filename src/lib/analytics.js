@@ -7,10 +7,15 @@ export const LANDING_EVENTS = [
   'tactics_click', 'market_click', 'career_click', 'faq_click', 'footer_click'
 ]
 
+// Eventos del juego (sin datos personales): registro, club, temporada, Asamblea y liga de amigos
+export const GAME_EVENTS = ['sign_up', 'club_created', 'season_closed', 'assembly_voted', 'friend_room_created', 'friend_room_joined']
+
+const ALLOWED = [...LANDING_EVENTS, ...GAME_EVENTS]
+
 const SAFE_KEYS = ['placement', 'path']
 
 export function track(event, params = {}) {
-  if (typeof window === 'undefined' || !LANDING_EVENTS.includes(event)) return
+  if (typeof window === 'undefined' || !ALLOWED.includes(event)) return
   const safe = Object.fromEntries(Object.entries(params).filter(([key]) => SAFE_KEYS.includes(key)))
   window.dataLayer = window.dataLayer || []
   window.dataLayer.push({ event, ...safe })
