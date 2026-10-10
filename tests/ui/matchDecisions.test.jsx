@@ -7,7 +7,8 @@ vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 
 const mocks = vi.hoisted(() => ({
   replay: vi.fn((results) => results),
-  start: vi.fn()
+  start: vi.fn(),
+  staff: vi.fn()
 }))
 
 const player = (i, extra = {}) => ({
@@ -23,6 +24,7 @@ vi.mock('../../src/api/tactics', async (importActual) => ({
   tacticsApi: { getTactic: vi.fn(async () => ({ formation: '4-4-2', lineup: Array.from({ length: 11 }, (_, i) => `p${i}`) })) }
 }))
 vi.mock('../../src/api/player', () => ({ playerApi: { getSquad: vi.fn(async () => Array.from({ length: 16 }, (_, i) => player(i))) } }))
+vi.mock('../../src/api/staff', () => ({ staffApi: { getStaff: (...a) => mocks.staff(...a) } }))
 vi.mock('../../src/api/chemistry', () => ({ chemistryApi: { getContext: vi.fn(async () => ({})), withArchetypes: (p) => p } }))
 vi.mock('../../src/api/matchEngine', async (importActual) => ({
   ...(await importActual()),
@@ -43,6 +45,7 @@ describe('partido en vivo con decisiones', () => {
     mocks.replay.mockClear()
     mocks.start.mockReset()
     mocks.start.mockResolvedValue(results())
+    mocks.staff.mockResolvedValue([{ id: 's1', role: 'HEAD_SCOUT' }])
   })
   afterEach(() => vi.useRealTimers())
 
@@ -143,12 +146,28 @@ describe('partido en vivo con decisiones', () => {
     expect(mocks.replay.mock.calls[0][1][0]).toMatchObject({ kind: 'KEYPLAY_CHOICE', choice: 'OUT' })
   })
 
-  it('antes del pitazo muestra el scouting con los especialistas del rival', async () => {
+  it('antes del pitazo, con un Jefe de Ojeadores, muestra el scouting con los especialistas del rival', async () => {
     render(<MemoryRouter><MatchScreen /></MemoryRouter>)
     const scout = await screen.findByRole('region', { name: 'Especialistas del rival' })
     for (const label of ['Penales', 'Tiros libres', 'Córners', 'Cabezazos']) expect(within(scout).getByText(label)).toBeInTheDocument()
     // Y cómo juega el rival
     expect(within(scout).getByLabelText('Personalidad de juego')).toHaveTextContent(/Juegan a:/)
+  })
+
+  it('sin Jefe de Ojeadores no hay scouting del rival: avisa que hay que contratarlo', async () => {
+    mocks.staff.mockResolvedValue([{ id: 's2', role: 'PHYSIO' }])
+    render(<MemoryRouter><MatchScreen /></MemoryRouter>)
+    const aviso = await screen.findByRole('region', { name: 'Scouting del rival' })
+    expect(within(aviso).getByText(/Jefe de Ojeadores/)).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Especialistas del rival' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Penales')).not.toBeInTheDocument()
+  })
+
+  it('si no se puede leer el cuerpo técnico el partido igual carga, sin scouting', async () => {
+    mocks.staff.mockRejectedValue(new Error('sin red'))
+    render(<MemoryRouter><MatchScreen /></MemoryRouter>)
+    expect(await screen.findByRole('region', { name: 'Scouting del rival' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Comenzar partido/ })).toBeInTheDocument()
   })
 
   it('un remate peligroso en contra pide reaccionar con el arquero y manda la calidad al motor', async () => {

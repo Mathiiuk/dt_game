@@ -48,6 +48,7 @@ import { cleanTakers } from '../../domain/specialists'
 import RivalScout from './RivalScout'
 import DerbyDuel from './DerbyDuel'
 import { pressApi } from '../../api/press'
+import { staffApi } from '../../api/staff'
 import { fixtureIsDerby, duelKickoffLine } from '../../domain/derbyDuel'
 import { rivalStyleFor } from '../../domain/rivalStyle'
 
@@ -75,6 +76,7 @@ export default function MatchScreen() {
 
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState({ club: null, tactic: null, players: [], fixture: null })
+  const [hasScout, setHasScout] = useState(false)
   
   // Simulation State
   const [matchState, setMatchState] = useState('pre-match') // pre-match, playing, finished
@@ -182,7 +184,12 @@ export default function MatchScreen() {
         const manager = await managerApi.getManager(user.id)
         const club = await clubApi.getClubByManager(manager.id)
         const tactic = await tacticsApi.getTactic(club.id)
-        const players = await playerApi.getSquad(club.id)
+        const [players, staff] = await Promise.all([
+          playerApi.getSquad(club.id),
+          // El scouting del rival es del Jefe de Ojeadores: sin él no se ve (y si no se puede leer el staff, tampoco)
+          staffApi.getStaff(club.id).catch(() => [])
+        ])
+        setHasScout((staff || []).some(m => m.role === 'HEAD_SCOUT'))
         
         let fixture = null
         if (fixtureId) {
@@ -652,7 +659,14 @@ export default function MatchScreen() {
             )}
 
             {matchState === 'pre-match'
-              ? (!duelOpen && <RivalScout lineup={rivalPreview} rivalName={oppDisplayName} style={rivalStyleFor(rivalClub?.id || rivalClub?.name || 'rival')} />)
+              ? (!duelOpen && (hasScout
+                ? <RivalScout lineup={rivalPreview} rivalName={oppDisplayName} style={rivalStyleFor(rivalClub?.id || rivalClub?.name || 'rival')} />
+                : (
+                  <section aria-label="Scouting del rival" className="rounded-xl border border-dashed border-line-strong bg-surface p-4 text-sm text-fg-muted">
+                    <p className="font-semibold text-fg">Sin scouting del rival</p>
+                    <p className="mt-1">Contratá un Jefe de Ojeadores en el cuerpo técnico para ver los especialistas de {oppDisplayName} y cómo juegan.</p>
+                  </section>
+                )))
               : <MatchTimeline events={events} matchState={matchState} />}
 
             {matchState !== 'pre-match' && simResults?.stats && (
