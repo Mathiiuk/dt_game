@@ -1,24 +1,128 @@
 import { roundRobinSchedule } from '../domain/leagueSchedule'
-import { movementOf, tierStrengthRange } from '../domain/pyramid'
+import { movementOf, tierStrengthRange, TEAMS_PER_LEAGUE } from '../domain/pyramid'
 import { divisionName } from '../domain/divisions'
 import { seededRandom } from '../domain/cupMatch'
 import { pickRivalClubs } from '../domain/rivalClubs'
 import { clubLeaders } from '../domain/leaders'
+import { worldTiers, worldClubRow, leagueBoards, isCurrentSeasonLeague } from '../domain/worldLeagues'
 import { seasonYearOf } from '../domain/gameWeek'
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 
 // Creaciones de liga en vuelo por club (evita carreras entre createClub y getStandings)
 const leagueInit = new Map()
+// Armado del mundo en vuelo por club
+const worldInit = new Map()
 
 export const competitionApi = {
+  /**
+   * El mundo del fútbol: arma las divisiones que el club no juega (de la Primera al Torneo Regional) para la temporada de la fecha de
+   * juego, cada una con 20 clubes de su categoría, su tabla y sus 380 partidos. Las juega sola `play_league_ai_fixtures` junto con la
+   * liga del club. Se arma una sola vez por temporada y es determinista por club y año. Si algo falla se borra la competición a
+   * medias para poder reintentar. Devuelve `{ created }`.
+   */
+  async ensureWorldLeagues({ clubId, userTier = 5, gameDate, country = 'Argentina' }) {
+    if (!clubId) return { created: 0 }
+    const key = `${clubId}:${seasonYearOf(gameDate || '2026-07-01')}:${userTier}`
+    if (worldInit.has(key)) return worldInit.get(key)
+    const task = this._ensureWorldLeagues({ clubId, userTier, gameDate: gameDate || '2026-07-01', country }).finally(() => worldInit.delete(key))
+    worldInit.set(key, task)
+    return task
+  },
+
+  async _ensureWorldLeagues({ clubId, userTier, gameDate, country }) {
+    const seasonYear = seasonYearOf(gameDate)
+    const { data: existing, error: readErr } = await supabase.from('competitions').select('id, level, season_year').eq('season_year', seasonYear)
+    if (readErr) throw new Error(readErr.message)
+    const have = new Set((existing || []).map(c => c.level))
+    const missing = worldTiers(userTier).filter(t => !have.has(t))
+    let created = 0
+
+    for (const tier of missing) {
+      const { data: comp, error: compErr } = await supabase
+        .from('competitions')
+        .insert([{ name: `${divisionName(tier)} (${country})`, level: tier, teams_count: TEAMS_PER_LEAGUE, season_year: seasonYear }])
+        .select()
+        .single()
+      if (compErr) throw new Error(compErr.message)
+      try {
+        const seed = `${clubId}:world:${tier}:${seasonYear}`
+        const rand = seededRandom(`strength:${seed}`)
+        const rows = pickRivalClubs(seed, TEAMS_PER_LEAGUE, { tier }).map((c, i) => worldClubRow(c, i, tier, rand, country))
+        const { data: clubs, error: clubsErr } = await supabase.from('clubs').insert(rows).select('id')
+        if (clubsErr) throw new Error(clubsErr.message)
+        const ids = (clubs || []).map(c => c.id)
+        const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
+        const { error: standErr } = await supabase.from('standings').insert(ids.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
+        if (standErr) throw new Error(standErr.message)
+        await this.generateRoundRobinFixtures(comp.id, ids, `${seasonYear}-08-01`)
+        created++
+      } catch (e) {
+        // Sin tabla ni partidos la competición no sirve: se borra para que el próximo intento la arme de nuevo
+        await supabase.from('competitions').delete().eq('id', comp.id)
+        throw e
+      }
+    }
+
+    if (created > 0) {
+      // Si la temporada ya está avanzada, los partidos vencidos se juegan ahora
+      await this.simulateMatchDay(gameDate, clubId)
+      queryCache.invalidate('leagues:')
+    }
+    return { created }
+  },
+
+  /** Últimos partidos jugados de una liga (los más nuevos primero), con los nombres de los clubes. Solo lectura. */
+  async getLeagueResults(competitionId, limit = 12) {
+    if (!competitionId) return []
+    const { data, error } = await supabase
+      .from('fixtures')
+      .select('id, match_date, round, home_score, away_score, home:clubs!home_team_id(name, short_name), away:clubs!away_team_id(name, short_name)')
+      .eq('competition_id', competitionId)
+      .eq('status', 'PLAYED')
+      .order('match_date', { ascending: false })
+      .limit(limit)
+    if (error) throw new Error(error.message)
+    return (data || []).map(f => ({
+      id: f.id,
+      date: String(f.match_date).slice(0, 10),
+      round: f.round,
+      homeName: f.home?.name || 'Local',
+      awayName: f.away?.name || 'Visitante',
+      homeScore: f.home_score,
+      awayScore: f.away_score
+    }))
+  },
+
+  /**
+   * Goleadores, asistentes y figuras de cada liga (por id de competición). Las plantillas de la IA salen de `league_scorers`.
+   * Una consulta por liga, con tope, para no pasar el límite de filas.
+   */
+  async getLeagueLeaders(competitionIds = []) {
+    const ids = (competitionIds || []).filter(Boolean)
+    if (ids.length === 0) return {}
+    const entries = await Promise.all(ids.map(async (id) => {
+      const { data, error } = await supabase
+        .from('league_scorers')
+        .select('club_id, player_name, goals, assists, clubs(name)')
+        .eq('competition_id', id)
+        .order('goals', { ascending: false })
+        .limit(150)
+      if (error) throw new Error(error.message)
+      const rows = (data || []).map(r => ({ ...r, club_name: r.clubs?.name || '' }))
+      return [id, leagueBoards(rows)]
+    }))
+    return Object.fromEntries(entries)
+  },
+
   /**
    * Todas las ligas de la cuenta (la actual primero, después las de otras categorías por las que pasó el club), cada una con su tabla
    * ordenada. Solo lectura. Las competiciones vacías (donde ya no queda ningún club) no se listan.
    */
-  async getAllLeagues(clubId) {
+  async getAllLeagues(clubId, gameDate = null) {
     if (!clubId) return []
-    return queryCache.fetch(`leagues:${clubId}`, async () => {
+    const seasonYear = seasonYearOf(gameDate || '2026-07-01')
+    return queryCache.fetch(`leagues:${clubId}:${seasonYear}`, async () => {
       const { data: comps, error } = await supabase.from('competitions').select('id, name, level, season_year').order('level', { ascending: true })
       if (error) throw new Error(error.message)
       const ids = (comps || []).map(c => c.id)
@@ -35,9 +139,13 @@ export const competitionApi = {
           .filter(r => r.competition_id === competition.id)
           .sort((a, b) => (b.points || 0) - (a.points || 0) || diff(b) - diff(a) || (b.goals_for || 0) - (a.goals_for || 0) || String(a.clubs?.name || '').localeCompare(String(b.clubs?.name || '')))
           .map((r, i) => ({ ...r, position: i + 1 }))
-        return { competition, rows: table, current: table.some(r => r.club_id === clubId) }
+        return { competition, rows: table, current: table.some(r => r.club_id === clubId), past: !isCurrentSeasonLeague(competition, seasonYear) }
       }).filter(l => l.rows.length > 0)
-      return leagues.sort((a, b) => Number(b.current) - Number(a.current) || a.competition.level - b.competition.level)
+      // Las de esta temporada de la Primera al Potrero (la tuya marcada) y las de temporadas anteriores al final
+      return leagues.sort((a, b) =>
+        Number(a.past) - Number(b.past) ||
+        (a.past ? (b.competition.season_year || 0) - (a.competition.season_year || 0) : 0) ||
+        a.competition.level - b.competition.level)
     }, 30000)
   },
 

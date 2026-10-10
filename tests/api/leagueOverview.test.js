@@ -1,5 +1,5 @@
 // "Todas las ligas": las tablas de las competiciones de la cuenta y los líderes del club, solo lectura
-const { st } = vi.hoisted(() => ({ st: { comps: [], standings: [], stats: [], players: [], writes: 0, calls: [] } }))
+const { st } = vi.hoisted(() => ({ st: { comps: [], standings: [], stats: [], players: [], fixtures: [], writes: 0, calls: [] } }))
 
 vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
@@ -7,7 +7,7 @@ vi.mock('../../src/api/supabase', () => {
     for (const m of ['select', 'eq', 'order', 'limit', 'in', 'gte']) q[m] = (...a) => { st.calls.push({ table, m, a }); return q }
     for (const m of ['insert', 'update', 'upsert', 'delete']) q[m] = () => { st.writes++; return q }
     q.then = (r) => r({
-      data: table === 'competitions' ? st.comps : table === 'standings' ? st.standings : table === 'player_match_stats' ? st.stats : table === 'players' ? st.players : [],
+      data: table === 'competitions' ? st.comps : table === 'standings' ? st.standings : table === 'player_match_stats' ? st.stats : table === 'players' ? st.players : table === 'fixtures' ? st.fixtures : [],
       error: null
     })
     return q
@@ -24,12 +24,12 @@ describe('competitionApi.getAllLeagues', () => {
   beforeEach(() => { st.writes = 0; st.calls = []; queryCache.clear() })
 
   it('arma cada liga con su tabla ordenada y marca la del club', async () => {
-    st.comps = [{ id: 'c4', name: 'Primera C (Argentina)', level: 4, season_year: 2027 }, { id: 'c5', name: 'Primera D (Argentina)', level: 5, season_year: 2026 }]
+    st.comps = [{ id: 'c4', name: 'Primera C (Argentina)', level: 4, season_year: 2026 }, { id: 'c5', name: 'Primera D (Argentina)', level: 5, season_year: 2025 }]
     st.standings = [
       row('c5', 'x', 'Viejo', 10), row('c5', 'y', 'Otro', 12),
       row('c4', 'me', 'Mi Club', 3), row('c4', 'z', 'Rival', 9)
     ]
-    const leagues = await competitionApi.getAllLeagues('me')
+    const leagues = await competitionApi.getAllLeagues('me', '2027-01-20')
     expect(leagues.map(l => l.competition.id)).toEqual(['c4', 'c5'])
     expect(leagues[0].current).toBe(true)
     expect(leagues[1].current).toBe(false)
@@ -71,3 +71,45 @@ describe('competitionApi.getClubLeaders', () => {
     expect(await competitionApi.getClubLeaders(null, '2027-01-20')).toEqual({ scorers: [], assisters: [], best: [] })
   })
 })
+
+describe('getAllLeagues: el mundo completo', () => {
+  beforeEach(() => { st.writes = 0; st.calls = []; queryCache.clear() })
+
+  it('de la Primera al Potrero primero (con la tuya marcada) y las temporadas viejas al final', async () => {
+    st.comps = [
+      { id: 'c5', name: 'Regional', level: 5, season_year: null },
+      { id: 'w1', name: 'Primera', level: 1, season_year: 2026 },
+      { id: 'w3', name: 'Primera B', level: 3, season_year: 2026 },
+      { id: 'old2', name: 'Nacional vieja', level: 2, season_year: 2025 }
+    ]
+    st.standings = [
+      row('c5', 'me', 'Mi Club', 3), row('c5', 'z', 'Rival', 9),
+      row('w1', 'a', 'Grande', 20), row('w1', 'b', 'Otro Grande', 10),
+      row('w3', 'c', 'Tercera', 5), row('w3', 'd', 'Tercera 2', 4),
+      row('old2', 'e', 'Viejo', 5), row('old2', 'f', 'Viejo 2', 4)
+    ]
+    const leagues = await competitionApi.getAllLeagues('me', '2026-09-02')
+    expect(leagues.map(l => l.competition.id)).toEqual(['w1', 'w3', 'c5', 'old2'])
+    expect(leagues.map(l => l.current)).toEqual([false, false, true, false])
+    expect(leagues.map(l => l.past)).toEqual([false, false, false, true])
+  })
+})
+
+describe('getLeagueResults', () => {
+  beforeEach(() => { st.writes = 0; st.calls = []; queryCache.clear() })
+
+  it('trae los últimos partidos jugados de una liga, con los nombres de los clubes, y solo lee', async () => {
+    st.fixtures = [
+      { id: 'f1', match_date: '2026-09-02', round: 5, home_score: 2, away_score: 1, home: { name: 'Alfa', short_name: 'ALF' }, away: { name: 'Beta', short_name: 'BET' } }
+    ]
+    const res = await competitionApi.getLeagueResults('c1', 10)
+    expect(res).toEqual([{ id: 'f1', date: '2026-09-02', round: 5, homeName: 'Alfa', awayName: 'Beta', homeScore: 2, awayScore: 1 }])
+    expect(st.calls.some(c => c.table === 'fixtures' && c.m === 'limit' && c.a[0] === 10)).toBe(true)
+    expect(st.writes).toBe(0)
+  })
+
+  it('sin liga devuelve una lista vacía', async () => {
+    expect(await competitionApi.getLeagueResults(null)).toEqual([])
+  })
+})
+
