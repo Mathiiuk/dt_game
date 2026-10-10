@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, within, waitFor } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { zoneLegend, zoneOf, goalDiff, formatDiff, parseForm } from '../../src/domain/standings'
@@ -15,6 +15,7 @@ vi.mock('../../src/api/competition', () => ({ competitionApi: { getStandings: (.
 const club = { id: 'c1', league_tier: 5 }
 vi.mock('../../src/context/GameContext', () => ({ useGameContext: () => ({ club, loading: false, confirmAction: vi.fn(async () => false) }) }))
 vi.mock('../../src/features/competition/LeaguePyramidModal', () => ({ default: () => <div role="dialog" aria-label="Pirámide" /> }))
+vi.mock('../../src/features/competition/LeagueDataModal', () => ({ default: () => <div role="dialog" aria-label="Todas las ligas" /> }))
 
 import StandingsScreen from '../../src/features/competition/StandingsScreen'
 
@@ -78,11 +79,17 @@ describe('pantalla Tabla', () => {
     expect(within(mine).getByText('Vos')).toBeInTheDocument()
   })
 
-  it('recargar vuelve a pedir la tabla y la pirámide abre su panel', async () => {
+  it('ya no hay botón de recargar: la tabla se actualiza sola', async () => {
     render(<MemoryRouter><StandingsScreen /></MemoryRouter>)
     await screen.findByRole('table')
-    await userEvent.click(screen.getByRole('button', { name: 'Recargar tabla' }))
-    await waitFor(() => expect(getStandings).toHaveBeenCalledTimes(2))
+    expect(screen.queryByRole('button', { name: 'Recargar tabla' })).not.toBeInTheDocument()
+  })
+
+  it('"Todas las ligas" abre el panel con los datos de todas las ligas y la pirámide abre el suyo', async () => {
+    render(<MemoryRouter><StandingsScreen /></MemoryRouter>)
+    await screen.findByRole('table')
+    await userEvent.click(screen.getByRole('button', { name: /Todas las ligas/ }))
+    expect(await screen.findByRole('dialog', { name: 'Todas las ligas' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /Pirámide/ }))
     expect(await screen.findByRole('dialog', { name: 'Pirámide' })).toBeInTheDocument()
   })
