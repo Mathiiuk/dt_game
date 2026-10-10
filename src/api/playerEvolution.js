@@ -254,7 +254,7 @@ export const playerEvolutionApi = {
         .from('players')
         .update({
           age: evo.newAge,
-          overall: evo.ovrAfter,
+          // `overall` es una columna calculada a partir de los atributos: la base no deja escribirla (hacerlo cortaba todo el cierre)
           attr_overall: evo.ovrAfter,
           career_phase: evo.careerPhase,
           minutes_played_season: 0, // Reset anual de minutos

@@ -13,4 +13,8 @@ describe('migración de la marca de avance del cierre', () => {
     expect(sql).toMatch(/INSERT INTO season_close_progress/)
     expect(sql).toMatch(/'DB_DONE'/)
   })
+  it('sin carrera también reconoce un cierre ya hecho por la marca de avance y fija el search_path', () => {
+    expect(sql).toMatch(/EXISTS \(SELECT 1 FROM season_close_progress WHERE club_id = p_club_id AND season_year = p_season_year\)/)
+    expect(sql).toMatch(/SET search_path = public, pg_temp/)
+  })
 })

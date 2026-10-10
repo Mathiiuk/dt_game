@@ -76,6 +76,11 @@ BEGIN
         END IF;
     END IF;
 
+    -- Sin carrera (partida clásica) no hay snapshot que consultar: la marca de avance del cierre dice si esa temporada ya se cerró
+    IF EXISTS (SELECT 1 FROM season_close_progress WHERE club_id = p_club_id AND season_year = p_season_year) THEN
+        RETURN jsonb_build_object('alreadyClosed', true);
+    END IF;
+
     -- 2. Identificar la liga y obtener posiciones
     SELECT competition_id INTO v_competition_id 
     FROM standings WHERE club_id = p_club_id;
@@ -228,3 +233,6 @@ BEGIN
     RETURN v_result;
 END;
 $$;
+
+-- Fija el search_path de la función (aviso de seguridad del linter de Supabase)
+ALTER FUNCTION public.close_season_atomic(uuid, integer, uuid) SET search_path = public, pg_temp;
