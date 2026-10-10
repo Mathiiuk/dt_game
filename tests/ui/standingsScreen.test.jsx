@@ -94,3 +94,13 @@ describe('pantalla Tabla', () => {
     expect(await screen.findByRole('dialog', { name: 'Pirámide' })).toBeInTheDocument()
   })
 })
+
+describe('zonas con el reglamento de la Asamblea', () => {
+  it('suben y bajan tantos como dice el reglamento del año', () => {
+    expect(zoneOf(4, 20, 4, { promoted: 4, relegated: 3 }).id).toBe('PROMOTION')
+    expect(zoneOf(2, 20, 4, { promoted: 1, relegated: 5 }).id).toBe('NONE')
+    expect(zoneOf(16, 20, 4, { promoted: 1, relegated: 5 }).id).toBe('RELEGATION')
+    expect(zoneLegend(4, 20, { promoted: 1, relegated: 5 }).map(([, r]) => r)).toEqual(['1º', 'últimos 5'])
+    expect(zoneLegend(4, 20).map(([, r]) => r)).toEqual(['1º - 2º', 'últimos 3'])
+  })
+})

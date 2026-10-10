@@ -10,6 +10,7 @@ import { useGameContext } from '../../context/GameContext'
 import { formatMoney } from '../../lib/format'
 import { Badge, Button, Card, CardBody, ResponsiveOverlay } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
+import AssemblyCard from './AssemblyCard'
 
 const CONSEQUENCES = [
   ['Tabla archivada', 'La tabla de posiciones se congela para siempre en la historia de la liga.'],
@@ -26,6 +27,8 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
   const [story, setStory] = useState(null)
   const [outlook, setOutlook] = useState(null)
   const [expiring, setExpiring] = useState([])
+  // Asamblea de la AFA: hay que votar el reglamento del año que viene antes de cerrar
+  const [assembly, setAssembly] = useState('loading')
 
   // Puesto actual en la tabla: de ahí salen el premio y el ascenso que se muestran antes de cerrar
   useEffect(() => {
@@ -91,7 +94,7 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
   ) : (
     <>
       <Button variant="ghost" onClick={onClose}>Revisar plantel</Button>
-      <Button onClick={handleExecuteClose} loading={closing}>
+      <Button onClick={handleExecuteClose} loading={closing} disabled={assembly === 'ready'}>
         {closing ? 'Procesando cierre anual…' : <>Cerrar temporada y abrir el nuevo año<ArrowRight /></>}
       </Button>
     </>
@@ -141,6 +144,8 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
             </p>
           </div>
         )}
+
+        {!closedSummary && club && <AssemblyCard club={club} nextYear={seasonYear + 1} onStatus={setAssembly} />}
 
         <section aria-labelledby="season-consequences">
           <h3 id="season-consequences" className="mb-2.5 flex items-center gap-2 font-display text-lg font-semibold text-fg">

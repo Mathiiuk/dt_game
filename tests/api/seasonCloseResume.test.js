@@ -50,7 +50,7 @@ describe('cierre de temporada por etapas', () => {
     expect(res.success).toBe(true)
     expect(res.championClubId).toBe('me')
     expect(db.progress.stage).toBe('COMPLETE')
-    expect(comp.generateRoundRobinFixtures).toHaveBeenCalledWith('comp', ['me', 'otro'], '2027-08-01')
+    expect(comp.generateRoundRobinFixtures).toHaveBeenCalledWith('comp', ['me', 'otro'], '2027-08-01', expect.objectContaining({ legs: 2, promoted: 2, relegated: 3 }))
     expect(db.inserts.find(i => i.table === 'season_transition_log').row).toMatchObject({ players_aged_count: 18, players_retired_count: 2, contracts_expired_count: 2, from_year: 2026, to_year: 2027 })
   })
 

@@ -7,9 +7,12 @@ export const TEAMS_PER_LEAGUE = 20
 export const PROMOTED_SPOTS = 2
 export const RELEGATED_SPOTS = 3
 
-export const movementOf = (position, tier) => {
-  if (position <= PROMOTED_SPOTS && tier > TOP_TIER) return 'PROMOTED'
-  if (position > TEAMS_PER_LEAGUE - RELEGATED_SPOTS && tier < BOTTOM_TIER) return 'RELEGATED'
+/** `rules` (opcional) trae cuántos suben y cuántos bajan ese año; sin eso, 2 y 3 */
+export const movementOf = (position, tier, rules = null) => {
+  const promoted = rules?.promoted ?? PROMOTED_SPOTS
+  const relegated = rules?.relegated ?? RELEGATED_SPOTS
+  if (position <= promoted && tier > TOP_TIER) return 'PROMOTED'
+  if (position > TEAMS_PER_LEAGUE - relegated && tier < BOTTOM_TIER) return 'RELEGATED'
   return 'STAY'
 }
 

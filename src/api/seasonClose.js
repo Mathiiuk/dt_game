@@ -2,6 +2,7 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { playerEvolutionApi } from './playerEvolution'
 import { competitionApi } from './competition'
+import { leagueVoteApi } from './leagueVote'
 import { isCloseIncomplete, needsStage } from '../domain/seasonCloseStages'
 
 /**
@@ -158,7 +159,11 @@ export const seasonCloseApi = {
             .update({ played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, goal_difference: 0, points: 0, form: '' })
             .eq('competition_id', league.competitionId)
           if (resetErr) throw new Error(resetErr.message)
-          await competitionApi.generateRoundRobinFixtures(league.competitionId, league.clubIds, `${result.newSeasonYear}-08-01`)
+          // El reglamento que votó la Asamblea para el año nuevo (el clásico si no hubo voto) rige la liga y sus partidos
+          const rules = await leagueVoteApi.getRules(clubId, result.newSeasonYear).catch(() => null)
+          const { error: rulesErr } = await supabase.from('competitions').update({ rules }).eq('id', league.competitionId)
+          if (rulesErr) throw new Error(rulesErr.message)
+          await competitionApi.generateRoundRobinFixtures(league.competitionId, league.clubIds, `${result.newSeasonYear}-08-01`, rules)
         }
 
         const evolution = current.payload?.evolution || { aged: 0, retiring: 0 }

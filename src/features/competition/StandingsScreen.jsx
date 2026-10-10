@@ -8,6 +8,7 @@ import { isSeasonEnded } from '../../domain/gameWeek'
 import { divisionName } from '../../domain/divisions'
 import { queryCache } from '../../utils/cache'
 import { FORM_LABELS, formatDiff, goalDiff, parseForm, zoneLegend, zoneOf } from '../../domain/standings'
+import { RULESETS, rulesetIdFor } from '../../domain/leagueRules'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, EmptyState, PageHeader, QuickActions, QUICK_ACTION, Skeleton } from '../../components/ui'
 import LeaguePyramidModal from './LeaguePyramidModal'
@@ -29,6 +30,7 @@ export default function StandingsScreen() {
   const [loadError, setLoadError] = useState(false)
   const [showPyramid, setShowPyramid] = useState(false)
   const [showAllLeagues, setShowAllLeagues] = useState(false)
+  const [rules, setRules] = useState(null)
 
   const loadData = async (force = false) => {
     if (!club?.id) return
@@ -38,6 +40,8 @@ export default function StandingsScreen() {
         queryCache.invalidate(`standings:${club.id}`)
       }
       setStandings((await competitionApi.getStandings(club.id)) || [])
+      // El reglamento que votó la Asamblea (si falla, rige el clásico)
+      try { setRules((await competitionApi.getLeagueRules?.(club.id)) || null) } catch { setRules(null) }
       setLoadError(false)
     } catch (e) {
       console.error('Error cargando tabla de posiciones:', e)
@@ -81,7 +85,9 @@ export default function StandingsScreen() {
 
   const total = standings.length
   const tier = club?.league_tier || 5
-  const legend = zoneLegend(tier, total)
+  const legend = zoneLegend(tier, total, rules)
+  const rulesetId = rulesetIdFor(rules)
+  const ruleset = RULESETS.find(r => r.id === rulesetId)
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8">
@@ -99,6 +105,12 @@ export default function StandingsScreen() {
           </QuickActions>
         }
       />
+
+      {ruleset && ruleset.id !== 'CLASICO' && !loadError && (
+        <p className="mb-3 rounded-lg border border-gold/40 bg-surface-2 px-3 py-2 text-sm text-fg-muted">
+          <strong className="font-semibold text-fg">Reglamento de la Asamblea: {ruleset.name}.</strong> {ruleset.blurb}
+        </p>
+      )}
 
       {legend.length > 0 && !loadError && (
         <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-fg-muted" aria-label="Referencias de zonas">
@@ -138,7 +150,7 @@ export default function StandingsScreen() {
               {standings.map((s, idx) => {
                 const mine = s.club_id === club.id
                 const pos = idx + 1
-                const zone = zoneOf(pos, total, tier)
+                const zone = zoneOf(pos, total, tier, rules)
                 const diff = goalDiff(s)
                 return (
                   <tr key={s.id || idx} aria-current={mine ? 'true' : undefined} className={cn('border-l-4', zone.border, mine && 'bg-accent-soft')}>

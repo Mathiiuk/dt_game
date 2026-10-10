@@ -18,17 +18,21 @@ const hasRelegation = (tier, total) => tier < BOTTOM_TIER && total > 8
  * Sale de las mismas reglas que el cierre de temporada (domain/pyramid): suben los dos primeros salvo en Primera
  * y bajan los tres últimos salvo en la última división.
  */
-export const zoneOf = (pos, total, tier = BOTTOM_TIER) => {
-  if (hasPromotion(tier) && pos <= PROMOTED_SPOTS) return ZONES.PROMOTION
-  if (hasRelegation(tier, total) && pos > total - RELEGATED_SPOTS) return ZONES.RELEGATION
+export const zoneOf = (pos, total, tier = BOTTOM_TIER, rules = null) => {
+  const promoted = rules?.promoted ?? PROMOTED_SPOTS
+  const relegated = rules?.relegated ?? RELEGATED_SPOTS
+  if (hasPromotion(tier) && pos <= promoted) return ZONES.PROMOTION
+  if (hasRelegation(tier, total) && pos > total - relegated) return ZONES.RELEGATION
   return ZONES.NONE
 }
 
 /** Referencias que corresponden a la división: [zona, rango de puestos] */
-export const zoneLegend = (tier = BOTTOM_TIER, total = 20) => {
+export const zoneLegend = (tier = BOTTOM_TIER, total = 20, rules = null) => {
+  const promoted = rules?.promoted ?? PROMOTED_SPOTS
+  const relegated = rules?.relegated ?? RELEGATED_SPOTS
   const legend = []
-  if (hasPromotion(tier)) legend.push([ZONES.PROMOTION, `1º - ${PROMOTED_SPOTS}º`])
-  if (hasRelegation(tier, total)) legend.push([ZONES.RELEGATION, `últimos ${RELEGATED_SPOTS}`])
+  if (hasPromotion(tier) && promoted > 0) legend.push([ZONES.PROMOTION, promoted === 1 ? '1º' : `1º - ${promoted}º`])
+  if (hasRelegation(tier, total) && relegated > 0) legend.push([ZONES.RELEGATION, `últimos ${relegated}`])
   return legend
 }
 

@@ -1,7 +1,7 @@
-// Calendario de liga: todos contra todos, ida y vuelta (2 * (n - 1) fechas), con la localía repartida parejo.
+// Calendario de liga: todos contra todos, ida y vuelta (2 * (n - 1) fechas) o solo ida con `{ legs: 1 }`, con la localía repartida parejo.
 // Método del círculo: un club queda fijo y el resto rota; la localía se alterna para que ningún club juegue casi todo de visitante.
 // En la segunda rueda, se invierten las localías exactas de la primera rueda.
-export function roundRobinSchedule(clubIds) {
+export function roundRobinSchedule(clubIds, { legs = 2 } = {}) {
   const teams = [...(clubIds || [])]
   if (teams.length < 2) return []
   if (teams.length % 2 === 1) teams.push(null) // descanso
@@ -37,5 +37,5 @@ export function roundRobinSchedule(clubIds) {
     round.map(m => ({ home: m.away, away: m.home }))
   )
 
-  return [...primeraRueda, ...segundaRueda]
+  return legs === 1 ? primeraRueda : [...primeraRueda, ...segundaRueda]
 }

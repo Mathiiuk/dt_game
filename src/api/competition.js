@@ -1,5 +1,7 @@
 import { roundRobinSchedule } from '../domain/leagueSchedule'
 import { movementOf, tierStrengthRange, TEAMS_PER_LEAGUE } from '../domain/pyramid'
+import { normalizeRules } from '../domain/leagueRules'
+import { leagueVoteApi } from './leagueVote'
 import { divisionName } from '../domain/divisions'
 import { seededRandom } from '../domain/cupMatch'
 import { pickRivalClubs } from '../domain/rivalClubs'
@@ -37,11 +39,13 @@ export const competitionApi = {
     const have = new Set((existing || []).map(c => c.level))
     const missing = worldTiers(userTier).filter(t => !have.has(t))
     let created = 0
+    // El reglamento que votó la Asamblea para este año rige también en las otras divisiones
+    const rules = missing.length > 0 ? await leagueVoteApi.getRules(clubId, seasonYear).catch(() => normalizeRules(null)) : normalizeRules(null)
 
     for (const tier of missing) {
       const { data: comp, error: compErr } = await supabase
         .from('competitions')
-        .insert([{ name: `${divisionName(tier)} (${country})`, level: tier, teams_count: TEAMS_PER_LEAGUE, season_year: seasonYear }])
+        .insert([{ name: `${divisionName(tier)} (${country})`, level: tier, teams_count: TEAMS_PER_LEAGUE, season_year: seasonYear, rules }])
         .select()
         .single()
       if (compErr) throw new Error(compErr.message)
@@ -55,7 +59,7 @@ export const competitionApi = {
         const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
         const { error: standErr } = await supabase.from('standings').insert(ids.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
         if (standErr) throw new Error(standErr.message)
-        await this.generateRoundRobinFixtures(comp.id, ids, `${seasonYear}-08-01`)
+        await this.generateRoundRobinFixtures(comp.id, ids, `${seasonYear}-08-01`, rules)
         created++
       } catch (e) {
         // Sin tabla ni partidos la competición no sirve: se borra para que el próximo intento la arme de nuevo
@@ -168,6 +172,15 @@ export const competitionApi = {
     const { data: players, error: playersErr } = await supabase.from('players').select('id, first_name, last_name, position').in('id', ids)
     if (playersErr) throw new Error(playersErr.message)
     return clubLeaders(stats, players || [])
+  },
+
+  /** Reglamento vigente de la liga del club (las reglas de puntos, calendario, ascensos y descensos que votó la Asamblea) */
+  async getLeagueRules(clubId) {
+    if (!clubId) return normalizeRules(null)
+    const { data: mine } = await supabase.from('standings').select('competition_id').eq('club_id', clubId).limit(1).maybeSingle()
+    if (!mine?.competition_id) return normalizeRules(null)
+    const { data: comp } = await supabase.from('competitions').select('rules').eq('id', mine.competition_id).maybeSingle()
+    return normalizeRules(comp?.rules)
   },
 
   /**
@@ -387,9 +400,12 @@ export const competitionApi = {
       return { competitionId: comp.id, clubIds: [clubId, ...aiIds] }
     }
 
+    // Suben y bajan tantos como decía el reglamento de la temporada que terminó
+    const { data: oldComp } = await supabase.from('competitions').select('rules').eq('id', competitionId).maybeSingle()
+    const oldRules = normalizeRules(oldComp?.rules)
     const movers = standings
       .map((s, i) => ({ ...s, position: i + 1 }))
-      .filter(s => s.club_id !== clubId && movementOf(s.position, oldTier) !== 'STAY')
+      .filter(s => s.club_id !== clubId && movementOf(s.position, oldTier, oldRules) !== 'STAY')
     const keep = standings.map(s => s.club_id).filter(id => !movers.some(m => m.club_id === id))
     if (movers.length === 0) return { competitionId, clubIds: keep }
 
@@ -404,7 +420,7 @@ export const competitionApi = {
     const [lo, hi] = tierStrengthRange(oldTier)
     const mid = Math.round((lo + hi) / 2)
     const picks = pickRivalClubs(seed, movers.length, { tier: oldTier, exclude: names })
-    const rows = movers.map((m, i) => rivalRow(picks[i], i, movementOf(m.position, oldTier) === 'PROMOTED' ? [lo, mid] : [mid, hi], oldTier))
+    const rows = movers.map((m, i) => rivalRow(picks[i], i, movementOf(m.position, oldTier, oldRules) === 'PROMOTED' ? [lo, mid] : [mid, hi], oldTier))
     const { data: newClubs, error: newErr } = await supabase.from('clubs').insert(rows).select('id')
     if (newErr) throw new Error(newErr.message)
 
@@ -419,11 +435,11 @@ export const competitionApi = {
   },
 
   /**
-   * Generador de fixture todos contra todos (una rueda, 19 fechas para 20 clubes) con la localía repartida (domain/leagueSchedule).
+   * Generador de fixture todos contra todos (ida y vuelta, 38 fechas para 20 clubes; con el reglamento `legs: 1`, solo ida) con la localía repartida (domain/leagueSchedule).
    * Se puede repetir: antes de generar se borran los partidos de esa competición que ya estaban programados desde esa fecha (por un
    * intento anterior), así nunca quedan partidos duplicados. Los errores de la base cortan el proceso.
    */
-  async generateRoundRobinFixtures(competitionId, clubIds, startDate = '2026-08-01') {
+  async generateRoundRobinFixtures(competitionId, clubIds, startDate = '2026-08-01', rules = null) {
     if (!competitionId || !clubIds || clubIds.length < 2) return
 
     const { error: clearErr } = await supabase.from('fixtures').delete().eq('competition_id', competitionId).eq('status', 'SCHEDULED').gte('match_date', startDate)
@@ -432,7 +448,7 @@ export const competitionApi = {
     const fixtures = []
     const baseDate = new Date(`${startDate}T00:00:00Z`)
 
-    roundRobinSchedule(clubIds).forEach((matches, round) => {
+    roundRobinSchedule(clubIds, { legs: normalizeRules(rules).legs }).forEach((matches, round) => {
       const matchDate = new Date(baseDate)
       matchDate.setUTCDate(matchDate.getUTCDate() + round * 7)
       const dateStr = matchDate.toISOString().split('T')[0]
