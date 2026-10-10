@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { isPreseason, preseasonAid } from '../domain/preseason'
-import { ECONOMY, weeklyBudget, runwayWeeks } from '../domain/finances'
+import { ECONOMY, weeklyBudget, runwayWeeks, wageCapOf, balanceCheck } from '../domain/finances'
 
 export const financesApi = {
   BALANCE: {
@@ -94,7 +94,7 @@ export const financesApi = {
         balance,
         debt: club.debt || 0,
         ticketPrice,
-        wageBudgetWeekly: club.wage_budget || 5000,
+        wageBudgetWeekly: wageCapOf(club),
         consecutiveDeficitWeeks: club.consecutive_deficit_weeks || 0,
         healthStatus,
         liquidityWeeks,
@@ -117,7 +117,7 @@ export const financesApi = {
         expectedWeeklyFlow,
         preseason,
         boardAid,
-        wageOverBudget: playerWages + staffWages > (club.wage_budget || 3500),
+        wageOverBudget: playerWages + staffWages > wageCapOf(club),
         monthlyProfit: expectedWeeklyFlow * 4
       }
     }, 20000)
@@ -200,6 +200,24 @@ export const financesApi = {
     if (!clubId) return
     // La caja y el asiento los mueve el servidor (la temporada y la semana salen de la fecha de juego del club)
     return this.moveCash({ clubId, careerId, category, amount: Number(amount), description, allowNegative: true })
+  },
+
+  /**
+   * Verifica el balance: compara la caja del club con el último saldo del libro de movimientos. Solo lee, no cambia nada.
+   * Devuelve { status: 'OK'|'DRIFT'|'EMPTY', drift, message, budget, ledgerBalance }.
+   */
+  async verifyBalance(clubId) {
+    if (!clubId) return null
+    const [clubRes, ledgerRes] = await Promise.all([
+      supabase.from('clubs').select('budget').eq('id', clubId).single(),
+      supabase.from('financial_transactions_ledger').select('balance_after').eq('club_id', clubId).order('created_at', { ascending: false }).limit(1)
+    ])
+    if (clubRes.error) throw new Error(clubRes.error.message)
+    if (ledgerRes.error) throw new Error(ledgerRes.error.message)
+    const budget = Number(clubRes.data?.budget || 0)
+    const last = ledgerRes.data?.[0]?.balance_after
+    const ledgerBalance = last === undefined || last === null ? null : Number(last)
+    return { ...balanceCheck(budget, ledgerBalance), budget, ledgerBalance }
   },
 
   /**

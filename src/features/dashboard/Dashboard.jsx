@@ -20,6 +20,7 @@ import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
 import SeasonCloseModal from '../season/SeasonCloseModal'
+import WageCapMeter from '../finances/WageCapMeter'
 import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
 
 const EVENT_CATEGORY = {
@@ -376,7 +377,6 @@ export default function Dashboard() {
   const seasonEnded = isSeasonEnded(clubSummary.gameDate)
   const isHome = nextFixture?.home_team_id === club.id
   const rival = nextFixture ? rivalLevel(rivalOf(nextFixture, club.id)?.strength) : null
-  const wageUsage = financesSummary.wageBudget > 0 ? Math.round((financesSummary.weeklyWageBill / financesSummary.wageBudget) * 100) : 0
 
   // Acción principal según el momento: jugar, avanzar o cerrar la temporada
   const primaryAction = pendingClose ? (
@@ -563,13 +563,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardBody className="space-y-4">
               <Stat label="Caja del club" value={formatMoney(financesSummary.balance)} valueClassName={financesSummary.balance < 0 ? 'text-danger' : undefined} />
-              <div>
-                <div className="mb-1.5 flex items-center justify-between text-sm text-fg-muted">
-                  <span>Sueldos semanales</span>
-                  <span className="num">{formatMoney(financesSummary.weeklyWageBill)} / {formatMoney(financesSummary.wageBudget)}</span>
-                </div>
-                <Progress auto={false} tone={wageUsage > 100 ? 'danger' : wageUsage > 85 ? 'warning' : 'accent'} value={Math.min(100, wageUsage)} label="Uso del tope salarial" />
-              </div>
+              <WageCapMeter bill={financesSummary.weeklyWageBill} cap={financesSummary.wageBudget} />
             </CardBody>
           </Card>
 

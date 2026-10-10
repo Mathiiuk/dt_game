@@ -5,6 +5,7 @@ import { eventsApi } from './events'
 import { competitionApi } from './competition'
 import { seasonCloseApi } from './seasonClose'
 import { contractsAlert } from '../domain/contracts'
+import { payroll, wageCapOf } from '../domain/finances'
 import { FIXTURE_OPEN_STATUSES } from '../domain/fixtureStatus'
 
 export const dashboardApi = {
@@ -20,6 +21,7 @@ export const dashboardApi = {
         levelInfo,
         { data: fixtureData },
         { data: squadData },
+        { data: staffData },
         leagueTable,
         pendingEvents
       ] = await Promise.all([
@@ -35,8 +37,10 @@ export const dashboardApi = {
           .maybeSingle(),
         supabase
           .from('players')
-          .select('id, first_name, last_name, position, is_injured, is_suspended, state_fitness, state_morale, contract_wage, contract_years, contract_end')
+          .select('id, first_name, last_name, position, is_injured, is_suspended, state_fitness, state_morale, contract_wage, contract_salary, contract_years, contract_end')
           .eq('club_id', club.id),
+        // El cuerpo técnico también cobra: cuenta para la masa salarial contra el tope de la dirigencia
+        supabase.from('staff').select('wage_weekly, salary').eq('club_id', club.id),
         // La misma tabla ordenada que usa la pantalla Tabla (con caché): de ahí sale el puesto, que no se guarda en la base
         competitionApi.getStandings(club.id).catch(() => []),
         eventsApi.getPendingEvents(club.id).catch(() => [])
@@ -53,7 +57,8 @@ export const dashboardApi = {
 
       const totalFitness = squad.reduce((acc, p) => acc + (Number(p.state_fitness) || 100), 0)
       const totalMorale = squad.reduce((acc, p) => acc + (Number(p.state_morale) || 75), 0)
-      const totalWageBill = squad.reduce((acc, p) => acc + (Number(p.contract_wage) || 0), 0)
+      // Misma cuenta que Finanzas y el cierre semanal: contract_salary de los jugadores más el cuerpo técnico
+      const totalWageBill = payroll({ players: squad, staff: staffData || [] }).total
 
       const averageFitness = totalPlayers > 0 ? Math.round(totalFitness / totalPlayers) : 100
       const averageMorale = totalPlayers > 0 ? Math.round(totalMorale / totalPlayers) : 75
@@ -92,7 +97,7 @@ export const dashboardApi = {
 
       // Alerta de Déficit Financiero
       const currentBalance = Number(club.budget) || 0
-      const weeklyBudget = Number(club.wage_budget) || 3500
+      const weeklyBudget = wageCapOf(club)
       const financialHealth = currentBalance < 0 
         ? 'DEFICIT' 
         : currentBalance < weeklyBudget * 2 
