@@ -1,4 +1,4 @@
-// Inicio: de las decisiones pendientes se abre sola una por visita; el resto queda con su botón "Jugar"
+// Inicio: de las decisiones pendientes se abre sola una por visita; el resto queda como tarjeta de historia (se lee de a poco y se abre a pantalla completa)
 import React from 'react'
 import { render, screen, fireEvent, within, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
@@ -43,18 +43,19 @@ describe('decisiones pendientes del inicio', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Dejar para más tarde' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const section = screen.getByRole('region', { name: 'Decisiones pendientes' })
-    expect(within(section).getAllByRole('button', { name: /Jugar/ })).toHaveLength(3)
+    expect(within(section).getAllByRole('button', { name: 'Abrir a pantalla completa' })).toHaveLength(3)
+    expect(within(section).queryByRole('button', { name: /Jugar/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('el botón "Jugar" de una tarjeta abre ese evento a pantalla completa', async () => {
+  it('el botón de abrir de una tarjeta abre ese evento a pantalla completa', async () => {
     state.events = [ev('uno'), ev('dos')]
     renderDashboard()
     fireEvent.click(await screen.findByRole('button', { name: 'Dejar para más tarde' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const section = screen.getByRole('region', { name: 'Decisiones pendientes' })
     const card = within(section).getByText('Evento dos').closest('div[class*="space-y-4"]')
-    fireEvent.click(within(card).getByRole('button', { name: /Jugar/ }))
+    fireEvent.click(within(card).getByRole('button', { name: 'Abrir a pantalla completa' }))
     expect(await screen.findByRole('dialog', { name: 'Evento dos' })).toBeInTheDocument()
   })
 
@@ -63,5 +64,19 @@ describe('decisiones pendientes del inicio', () => {
     await screen.findByText('Club Atlético Potrero')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Decisiones pendientes' })).not.toBeInTheDocument()
+  })
+
+  it('un evento suelto se presenta como una historia: se lee de a poco y las opciones aparecen al terminar', async () => {
+    state.events = [ev('uno', { description: 'Pasó algo en el barrio. Los vecinos hablan. Alguien trajo facturas. Nadie sabe quién.' })]
+    renderDashboard()
+    fireEvent.click(await screen.findByRole('button', { name: 'Dejar para más tarde' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    const section = screen.getByRole('region', { name: 'Decisiones pendientes' })
+    expect(within(section).getByRole('button', { name: 'Seguir leyendo' })).toBeInTheDocument()
+    expect(within(section).queryByText('Opción A')).not.toBeInTheDocument()
+    fireEvent.click(within(section).getByRole('button', { name: 'Leer todo' }))
+    expect(within(section).getByText('¿Qué hacés?')).toBeInTheDocument()
+    expect(within(section).getByText('Opción A')).toBeInTheDocument()
+    expect(within(section).queryByText('Jugar')).not.toBeInTheDocument()
   })
 })

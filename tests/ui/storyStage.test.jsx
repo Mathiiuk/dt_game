@@ -129,10 +129,13 @@ describe('decisiones sueltas del club a pantalla completa', () => {
     expect(screen.getByText('Traerlo ya')).toBeInTheDocument()
   })
 
-  it('un evento suelto se lee de un solo toque y una historia con capítulos se lee de a momentos', () => {
+  it('un evento suelto se lee de a momentos igual que una historia', () => {
     const { unmount } = render(<StoryStage event={looseEvent()} budget={1000} boardConfidence={80} result={null} busy={false} onChoose={vi.fn()} onLater={vi.fn()} onClose={vi.fn()} />)
-    // El evento suelto muestra todo el texto junto: un solo toque para seguir
-    expect(screen.getByText(/Terminó el entrenamiento abierto.*camiseta puesta esperando una foto/)).toBeInTheDocument()
+    // El evento suelto se reparte en momentos (de a dos oraciones), como las historias
+    expect(screen.getByText('Terminó el entrenamiento abierto y los hinchas empezaron a cantar. No es habitual.')).toBeInTheDocument()
+    expect(screen.queryByText(/camiseta puesta esperando una foto/)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Seguir leyendo' }))
+    expect(screen.getByText('Hay chicos con la camiseta puesta esperando una foto.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Seguir leyendo' }))
     expect(screen.queryByRole('button', { name: 'Seguir leyendo' })).not.toBeInTheDocument()
     unmount()

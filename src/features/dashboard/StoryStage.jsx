@@ -3,7 +3,7 @@ import { BookOpen, ChevronRight, Coins, Hourglass, MessageSquareQuote, Newspaper
 import { splitBeats, effectChips } from '../../domain/storyFlavor'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
-import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, isArcEvent, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
+import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, chapterOf, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
 import { RumorChallenge, SequenceChallenge, TapsChallenge, TargetPick } from './StoryMinigames'
 import { BillsChallenge, ReflexChallenge } from './StoryActionGames'
 import { BalanceChallenge, CalmChallenge, ChantChallenge, HeadlineChallenge } from './StoryCategoryGames'
@@ -25,11 +25,6 @@ const CHALLENGE_INFO = {
   CALM: { title: 'Calmar al vestuario', text: 'Mantené la tensión en la zona verde tocando para bajarla.', Game: CalmChallenge },
   HEADLINE: { title: 'Armá el titular', text: 'Tocá las palabras en el orden en que se lee el titular.', Game: HeadlineChallenge },
   BALANCE: { title: 'Cuadrar la caja', text: 'Elegí los gastos que suman justo lo que falta cubrir.', Game: BalanceChallenge }
-}
-
-const chapterOf = (title) => {
-  const m = String(title || '').match(/\((\d+)\s*\/\s*(\d+)\)\s*$/)
-  return m ? { current: Number(m[1]), total: Number(m[2]), clean: String(title).replace(m[0], '').trim() } : null
 }
 
 /** Botón de confirmación que se llena mientras se lo mantiene apretado */
@@ -121,8 +116,8 @@ function DecisionTimer({ seconds, onExpire }) {
 export default function StoryStage({ event, budget, boardConfidence, result, busy, onChoose, onLater, onClose }) {
   const arc = arcById(parseArcCode(event.template_code)?.arcId)
   const chapter = chapterOf(event.title)
-  // Las historias se leen de a momentos; los eventos sueltos, de un solo toque (son cortos y no hace falta tanto tap)
-  const beats = useMemo(() => (isArcEvent(event) ? splitBeats(event.description) : [{ type: 'tell', text: event.description }]), [event.description, event.template_code]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Todo se lee de a momentos, historia o evento suelto: se cuentan igual
+  const beats = useMemo(() => splitBeats(event.description), [event.description])
   const options = Array.isArray(event.options) ? event.options : []
   const mode = stageModeFor(event)
   const ctx = { budget, boardConfidence }

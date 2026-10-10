@@ -94,6 +94,12 @@ export const challengeFor = (event) => {
 /** ¿Es un capítulo de una historia con varios capítulos? (los eventos sueltos del club no lo son) */
 export const isArcEvent = (event) => String(event?.template_code || '').startsWith('ARC_')
 
+/** Los capítulos de una historia llevan su número en el título: "Un pibe que la rompe (1/4)" → { current: 1, total: 4, clean } */
+export const chapterOf = (title) => {
+  const m = String(title || '').match(/\((\d+)\s*\/\s*(\d+)\)\s*$/)
+  return m ? { current: Number(m[1]), total: Number(m[2]), clean: String(title).replace(m[0], '').trim() } : null
+}
+
 /**
  * Qué evento se abre solo a pantalla completa al entrar al inicio: uno solo por visita, para que no cansen.
  * Primero las decisiones urgentes, después los capítulos de historias y por último los eventos sueltos (en el orden recibido).
