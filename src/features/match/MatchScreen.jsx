@@ -416,19 +416,19 @@ export default function MatchScreen() {
       commitChange({ kind: 'SETPIECE_FK', playerId: option.playerId, aim: option.aim, quality: option.quality })
       logDirective(decisionText(option))
     } else if (option.action === 'DEF_CORNER') {
-      commitChange({ kind: 'SETPIECE_DEF_CORNER', zone: option.zone })
+      commitChange({ kind: 'SETPIECE_DEF_CORNER', zone: option.zone, quality: option.quality })
       logDirective(decisionText(option))
     } else if (option.action === 'DEF_FK') {
       commitChange({ kind: 'SETPIECE_DEF_FK', mode: option.mode })
       logDirective(decisionText(option))
     } else if (option.action === 'CORNER_ZONE') {
-      commitChange({ kind: 'SETPIECE_CORNER', zone: option.zone })
+      commitChange({ kind: 'SETPIECE_CORNER', zone: option.zone, quality: option.quality })
       logDirective(decisionText(option))
     } else if (option.action === 'SAVE_REACT') {
       commitChange({ kind: 'SAVE_REACT', quality: option.quality })
       logDirective(decisionText(option))
     } else if (option.action === 'KEYPLAY') {
-      commitChange({ kind: 'KEYPLAY_CHOICE', choice: option.choice })
+      commitChange({ kind: 'KEYPLAY_CHOICE', choice: option.choice, quality: option.quality })
       logDirective(decisionText(option))
     } else if (option.action === 'PENALTY_DIVE') {
       commitChange({ kind: 'PENALTY_DIVE', dive: option.dive })

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Hand, CircleDot } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { feel } from '../../lib/feedback'
-import { shotPath, sweepPhase } from '../../domain/shotPath'
+import { shotPath } from '../../domain/shotPath'
+import PowerBar from './PowerBar'
 
 const ZONES = { L: 'Izquierda', C: 'Centro', R: 'Derecha' }
 
@@ -74,25 +74,13 @@ export function PenaltyShoot({ takerName, onDone }) {
   // Adónde llega la pelota (depende de la zona y de la calidad del golpe) y si ya salió: cada penal es distinto
   const [path, setPath] = useState(null)
   const [flying, setFlying] = useState(false)
-  // La barra arranca en otro punto y a otra velocidad cada vez (con "menos movimiento" se deja la velocidad lenta de siempre)
-  const [sweep] = useState(() => sweepPhase())
-  const slowMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
-  // La barra se mueve con una animación de CSS (suave, sin re-renderizar nada); al patear se lee dónde quedó el marcador
-  const trackRef = useRef(null)
-  const markerRef = useRef(null)
   const timer = useRef(null)
   useEffect(() => () => clearTimeout(timer.current), [])
 
-  const kick = () => {
+  const kick = (quality) => {
     if (shot) return
-    feel('pick')
-    const track = trackRef.current?.getBoundingClientRect()
-    const marker = markerRef.current?.getBoundingClientRect()
-    const pos = track && marker && track.width > 0 ? Math.max(0, Math.min(1, (marker.left + marker.width / 2 - track.left) / track.width)) : 0.5
-    const quality = Math.max(0, 1 - Math.abs(pos - 0.5) * 2)
     setShot(true)
-    const trajectory = shotPath({ aim, quality })
-    setPath(trajectory)
+    setPath(shotPath({ aim, quality }))
     // un cuadro después se le da el destino para que la transición de CSS la haga viajar
     requestAnimationFrame(() => requestAnimationFrame(() => setFlying(true)))
     timer.current = setTimeout(() => onDone({ aim, quality }), 700)
@@ -131,22 +119,7 @@ export function PenaltyShoot({ takerName, onDone }) {
         )}
       </div>
 
-      {aim && (
-        <>
-          <div ref={trackRef} className="relative mx-auto h-5 w-full max-w-xs overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
-            <div className="absolute inset-y-0 left-[35%] w-[30%] bg-accent/40" />
-            <div ref={markerRef} style={{ animationDelay: `${sweep.delay}s`, ...(slowMotion ? {} : { animationDuration: `${sweep.duration}s` }) }} className={cn('penalty-marker absolute inset-y-0 w-1.5 -translate-x-1/2 rounded-full bg-fg', shot && 'penalty-marker-paused')} />
-          </div>
-          <button
-            type="button"
-            onClick={kick}
-            disabled={shot}
-            className="min-h-12 w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong disabled:opacity-60"
-          >
-            {shot ? '¡Pateó!' : '¡Patear!'}
-          </button>
-        </>
-      )}
+      {aim && <PowerBar onStop={kick} />}
     </div>
   )
 }

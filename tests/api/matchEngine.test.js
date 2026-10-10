@@ -557,3 +557,69 @@ describe('las instrucciones tácticas pesan en el partido', () => {
     expect(possessionWith({ mentality: 'BALANCED', passing_style: 'LONG_BALL' })).toBeLessThan(base)
   })
 })
+
+describe('la calidad del golpe en córners y mano a mano (minijuegos)', () => {
+  const sq2 = (level, id) => Array.from({ length: 11 }, (_, i) => ({ id: `${id}${i}`, first_name: 'J', last_name: `${i}`, state_fitness: 90, attr_pace: level, attr_shooting: level, attr_passing: level, attr_defending: level, attr_finishing: level }))
+
+  it('un córner a favor bien rematado (barra en el verde) convierte más que uno mal frenado', () => {
+    let found = 0; let good = 0; let bad = 0
+    for (let i = 0; i < 8000 && found < 200; i++) {
+      const base = simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `cq-${i}`)
+      const sp = base.events.find(e => e.type === 'SETPIECE_CORNER' && e.team === 'home')
+      if (!sp) continue
+      found++
+      const run = (quality) => simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `cq-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_CORNER', zone: sp.hint, quality }] })
+      const goalAt = (r) => r.events.some(e => e.minute === sp.minute + 1 && e.team === 'home' && e.type === 'GOAL' && /córner/.test(e.text))
+      if (goalAt(run(1))) good++
+      if (goalAt(run(0.05))) bad++
+    }
+    expect(found).toBeGreaterThan(80)
+    expect(good).toBeGreaterThan(bad)
+  })
+
+  it('sin calidad (como antes) el córner se resuelve igual que siempre', () => {
+    for (let i = 0; i < 3000; i++) {
+      const base = simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `cq0-${i}`)
+      const sp = base.events.find(e => e.type === 'SETPIECE_CORNER' && e.team === 'home')
+      if (!sp) continue
+      const withNull = simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `cq0-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_CORNER', zone: 'MID' }] })
+      const withUndefined = simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `cq0-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_CORNER', zone: 'MID', quality: undefined }] })
+      expect(withNull.events).toEqual(withUndefined.events)
+      return
+    }
+  })
+
+  it('defender un córner con buen despeje (barra en el verde) deja entrar menos goles que con uno malo', () => {
+    let found = 0; let good = 0; let bad = 0
+    for (let i = 0; i < 9000 && found < 220; i++) {
+      const base = simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `dq-${i}`)
+      const sp = base.events.find(e => e.type === 'SETPIECE_CORNER' && e.team === 'away')
+      if (!sp) continue
+      found++
+      const run = (quality) => simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `dq-${i}`, { changes: [{ minute: sp.minute, team: 'home', kind: 'SETPIECE_DEF_CORNER', zone: sp.defHint, quality }] })
+      const goalAt = (r) => r.events.some(e => e.minute === sp.minute + 1 && e.team === 'away' && e.type === 'GOAL' && /córner/.test(e.text))
+      if (goalAt(run(1))) good++
+      if (goalAt(run(0))) bad++
+    }
+    expect(found).toBeGreaterThan(80)
+    expect(good).toBeLessThanOrEqual(bad)
+    expect(bad).toBeGreaterThan(0)
+  })
+
+  it('un mano a mano definido con buena calidad convierte más que uno mal pegado', () => {
+    let found = 0; let good = 0; let bad = 0
+    for (let i = 0; i < 12000 && found < 250; i++) {
+      const base = simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `kq-${i}`)
+      const kp = base.events.find(e => e.type === 'KEYPLAY' && e.team === 'home')
+      if (!kp) continue
+      found++
+      const run = (quality) => simulateMatch(tactic, sq2(60, 'h'), tactic, sq2(60, 'a'), `kq-${i}`, { changes: [{ minute: kp.minute, team: 'home', kind: 'KEYPLAY_CHOICE', choice: 'SHOOT', quality }] })
+      const goalAt = (r) => r.events.some(e => e.minute === kp.minute + 1 && e.team === 'home' && e.type === 'GOAL')
+      if (goalAt(run(1))) good++
+      if (goalAt(run(0.05))) bad++
+    }
+    expect(found).toBeGreaterThan(80)
+    expect(good).toBeGreaterThan(bad)
+  })
+})
+
