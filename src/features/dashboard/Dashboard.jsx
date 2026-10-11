@@ -40,7 +40,7 @@ const EVENT_CATEGORY = {
 import { ClubBadge } from '../../components/ui'
 import { useAdvanceWeek } from '../week/useAdvanceWeek'
 import { useOnline } from '../../hooks/useOnline'
-import { readClubBudget } from '../week/readClubBudget'
+import { readWeekSnapshot } from '../week/readWeekSnapshot'
 import WeekProgress from '../week/WeekProgress'
 import StoryStage from './StoryStage'
 import { reactionFor, effectChips } from '../../domain/storyFlavor'
@@ -266,7 +266,8 @@ export default function Dashboard() {
       const { gameLoopApi } = await import('../../api/gameLoop')
       const { result, shown } = await weekRun.advance({
         run: () => gameLoopApi.advanceWeek(club.id, manager.id),
-        readBudget: readClubBudget(club.id)
+        readSnapshot: readWeekSnapshot(club.id),
+        fromDate: club.game_date
       })
 
       queryCache.clear()
@@ -353,7 +354,7 @@ export default function Dashboard() {
   // Qué conviene hacer ahora y, para cuentas nuevas, la misión inicial
   const step = nextStep({
     pendingClose: Boolean(pendingClose), seasonEnded, pendingEvents: pendingEvents?.length || 0, available: squadHealth.availableCount,
-    matchDue, daysToMatch, hasFixture: Boolean(nextFixture), tacticsVisited: Boolean(firstSteps.tactics), played: standingsSnippet?.played || 0
+    matchDue, daysToMatch, hasFixture: Boolean(nextFixture), matchWeekday: matchFuture ? new Intl.DateTimeFormat('es-AR', { weekday: 'long', timeZone: 'UTC' }).format(new Date(`${String(nextFixture.match_date).slice(0, 10)}T00:00:00Z`)) : '', tacticsVisited: Boolean(firstSteps.tactics), played: standingsSnippet?.played || 0
   })
   const mission = missionProgress(firstSteps, standingsSnippet?.played || 0)
   const missionVisible = showMission({ isNew: isNewAccount(user?.created_at), dismissed: Boolean(firstSteps.dismissed), complete: mission.complete })
@@ -438,7 +439,7 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
-      <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} onClose={weekRun.close} />
+      <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} days={weekRun.days} onClose={weekRun.close} />
       {stage && (
         <StoryStage
           event={stage.event}

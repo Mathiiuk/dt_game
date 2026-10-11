@@ -13,7 +13,7 @@ import { formatGameDate } from '../../lib/format'
 import { friendlyError } from '../../lib/errors'
 import { useAdvanceWeek } from '../week/useAdvanceWeek'
 import { useOnline } from '../../hooks/useOnline'
-import { readClubBudget } from '../week/readClubBudget'
+import { readWeekSnapshot } from '../week/readWeekSnapshot'
 import WeekProgress from '../week/WeekProgress'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, PageHeader, Segmented, Skeleton, Stat } from '../../components/ui'
@@ -143,7 +143,8 @@ export default function CalendarScreen() {
           careerId: calendarData.currentState.career_id,
           expectedCurrentWeek: calendarData.currentState.current_week
         }),
-        readBudget: readClubBudget(club.id)
+        readSnapshot: readWeekSnapshot(club.id),
+        fromDate: club.game_date
       })
 
       queryCache.clear()
@@ -177,7 +178,7 @@ export default function CalendarScreen() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:py-8">
-      <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} onClose={weekRun.close} />
+      <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} days={weekRun.days} onClose={weekRun.close} />
       <PageHeader
         eyebrow={`Temporada ${state.current_season_year} · 52 semanas`}
         title="Calendario"

@@ -2,7 +2,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import { CalendarDays } from 'lucide-react'
 import { Button } from '../../components/ui'
-import { WEEK_DAYS, dayAt, phraseAt } from '../../domain/weekFlavor'
+import { dayAt, dayPhrase, weekDays } from '../../domain/weekFlavor'
 import { cn } from '../../lib/utils'
 
 const TONE = { accent: 'text-accent', danger: 'text-danger', neutral: 'text-fg' }
@@ -11,10 +11,10 @@ const TONE = { accent: 'text-accent', danger: 'text-danger', neutral: 'text-fg' 
  * "La semana pasa": mientras se procesa, una línea de tiempo lunes→domingo y frases que rotan;
  * al terminar, un resumen corto de lo que cambió. Con "menos movimiento" no se anima (lo resuelve el CSS global).
  */
-export default function WeekProgress({ visible, tick, summary, onClose }) {
+export default function WeekProgress({ visible, tick, summary, days = weekDays(null), onClose }) {
   if (!visible) return null
   const done = Array.isArray(summary)
-  const current = done ? WEEK_DAYS.length - 1 : dayAt(tick)
+  const current = done ? days.length - 1 : dayAt(tick)
 
   return createPortal(
     <div className="fixed inset-0 z-[60] grid place-items-center bg-bg/95 px-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="La semana pasa">
@@ -24,10 +24,11 @@ export default function WeekProgress({ visible, tick, summary, onClose }) {
         </div>
 
         <ol className="flex items-center justify-between gap-1" aria-label="Días de la semana">
-          {WEEK_DAYS.map((day, i) => (
-            <li key={day} className="flex min-w-0 flex-1 flex-col items-center gap-1.5" aria-current={i === current ? 'step' : undefined}>
+          {days.map((day, i) => (
+            <li key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1.5" aria-current={i === current ? 'step' : undefined}>
               <span className={cn('size-3 rounded-full border transition-all duration-500', i < current || done ? 'border-accent bg-accent' : i === current ? 'scale-125 border-accent bg-accent/60 shadow-[0_0_0_4px_var(--color-accent-soft)]' : 'border-line-strong bg-surface-2')} />
-              <span className={cn('text-[0.7rem] font-semibold uppercase tracking-wider', i <= current ? 'text-fg' : 'text-fg-subtle')}>{day}</span>
+              <span className={cn('text-[0.7rem] font-semibold uppercase tracking-wider', i <= current ? 'text-fg' : 'text-fg-subtle')}>{day.weekday}</span>
+              <span className={cn('num text-xs', i <= current ? 'text-fg-muted' : 'text-fg-subtle')}>{day.day}</span>
             </li>
           ))}
         </ol>
@@ -41,7 +42,7 @@ export default function WeekProgress({ visible, tick, summary, onClose }) {
             <Button className="w-full" onClick={onClose}>Seguir</Button>
           </div>
         ) : (
-          <p role="status" aria-live="polite" className="min-h-6 text-base font-medium text-fg-muted">{phraseAt(tick)}…</p>
+          <p role="status" aria-live="polite" className="min-h-6 text-base font-medium text-fg-muted">{dayPhrase(days[current]?.weekday)}…</p>
         )}
       </div>
     </div>,

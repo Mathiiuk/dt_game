@@ -132,4 +132,46 @@ describe('pizarra en el celular', () => {
       delete squad[2].is_suspended; delete squad[2].suspension_reason; delete squad[2].suspended_matches; delete squad[3].is_injured
     }
   })
+
+  describe('ayuda con "?" (los textos explicativos no ocupan lugar en la pantalla)', () => {
+    it('bajo la cancha ya no hay párrafos fijos, pero el "?" de la pizarra explica cómo usarla', async () => {
+      renderScreen()
+      await screen.findByRole('list', { name: 'Resumen del once' })
+      expect(screen.queryByText(/Tocá una ficha para elegirla/)).toBeNull()
+      await userEvent.click(screen.getByRole('button', { name: 'Ayuda: la pizarra' }))
+      const dialog = screen.getByRole('dialog', { name: 'Cómo usar la pizarra' })
+      expect(within(dialog).getByText(/Tocá una ficha para elegirla/)).toBeInTheDocument()
+      expect(within(dialog).getByText(/“Editar”/)).toBeInTheDocument()
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Entendido' }))
+      expect(screen.queryByRole('dialog')).toBeNull()
+    })
+
+    it('el "?" del resumen explica nivel, química, fuera de puesto y los colores y símbolos de la cancha', async () => {
+      renderScreen()
+      await screen.findByRole('list', { name: 'Resumen del once' })
+      await userEvent.click(screen.getByRole('button', { name: 'Ayuda: el nivel, la química y los símbolos' }))
+      const dialog = screen.getByRole('dialog', { name: 'Nivel, química y símbolos' })
+      for (const text of [/Nivel:/, /Química:/, /Fuera de puesto:/, /Natural/, /Compatible/, /lesionado/i, /tarjeta roja/i, /tarjeta amarilla/i]) {
+        expect(within(dialog).getAllByText(text).length).toBeGreaterThan(0)
+      }
+    })
+
+    it('la hoja de Estilo tiene "?" para formación, mentalidad y estilos listos; la de Ajustes, para pase, ritmo y presión', async () => {
+      renderScreen()
+      await userEvent.click(await screen.findByRole('button', { name: 'Estilo' }))
+      for (const topic of ['la formación', 'la mentalidad', 'los estilos listos']) {
+        expect(screen.getByRole('button', { name: `Ayuda: ${topic}` })).toBeInTheDocument()
+      }
+      await userEvent.click(screen.getByRole('button', { name: 'Ayuda: la mentalidad' }))
+      expect(screen.getByRole('dialog', { name: 'Mentalidad' })).toHaveTextContent(/cuánto riesgo asume/i)
+    })
+
+    it('en Ajustes cada instrucción tiene su "?"', async () => {
+      renderScreen()
+      await userEvent.click(await screen.findByRole('button', { name: 'Ajustes' }))
+      for (const topic of ['el estilo de pase', 'el ritmo de juego', 'la presión']) {
+        expect(screen.getByRole('button', { name: `Ayuda: ${topic}` })).toBeInTheDocument()
+      }
+    })
+  })
 })

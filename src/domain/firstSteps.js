@@ -26,7 +26,7 @@ const plural = (n, one, many) => (n === 1 ? one : many)
  * Qué conviene hacer ahora. Devuelve { kind, title, body, cta? }; `cta` solo cuando la acción no está ya en el botón principal del Inicio.
  * Orden: cierre pendiente, fin de temporada, decisiones, plantel sin gente, día de partido y, si no hay nada urgente, avanzar.
  */
-export function nextStep({ pendingClose, seasonEnded, pendingEvents = 0, available = 11, matchDue, daysToMatch = 0, hasFixture = true, tacticsVisited = true, played = 0 }) {
+export function nextStep({ pendingClose, seasonEnded, pendingEvents = 0, available = 11, matchDue, daysToMatch = 0, hasFixture = true, tacticsVisited = true, played = 0, matchWeekday = '' }) {
   if (pendingClose) return { kind: 'CLOSE', title: 'Terminá el cierre de temporada', body: 'Quedó a medias: hasta que termine no se puede avanzar de semana.' }
   if (seasonEnded) return { kind: 'SEASON_END', title: 'Terminó la temporada', body: 'Cerrala con la gala: se reparten premios, contratos y ascensos.' }
   if (pendingEvents > 0) {
@@ -42,6 +42,6 @@ export function nextStep({ pendingClose, seasonEnded, pendingEvents = 0, availab
     if (!tacticsVisited && played === 0) return { kind: 'TACTICS', title: 'Hoy es tu debut: revisá la táctica', body: 'Un minuto en la pizarra y salís a la cancha con los once que querés.', cta: { label: 'Abrir la pizarra', to: '/tactics' } }
     return { kind: 'PLAY', title: 'Hoy se juega', body: 'Tu equipo está listo: tocá “Disputar partido”.' }
   }
-  const when = hasFixture && daysToMatch > 0 ? (daysToMatch === 1 ? 'El partido es mañana' : `El partido es en ${daysToMatch} días`) : 'No hay partido a la vista'
+  const when = hasFixture && daysToMatch > 0 ? (daysToMatch === 1 ? 'El partido es mañana' : (matchWeekday ? `El partido es el ${matchWeekday}, en ${daysToMatch} días` : `El partido es en ${daysToMatch} días`)) : 'No hay partido a la vista'
   return { kind: 'ADVANCE', title: 'Preparate para el próximo partido', body: `${when}. Entrená, mirá el plantel y avanzá la semana.` }
 }

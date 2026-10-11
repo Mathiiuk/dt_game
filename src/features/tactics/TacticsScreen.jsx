@@ -26,7 +26,8 @@ import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
 import { markStep } from '../onboarding/firstStepsStore'
 import { markBusy, clearBusy } from '../../lib/busy'
-import { SummaryBar, SelectionBar, Dock, CompactInstruction, StatusLegend } from './MobileTactics'
+import { SummaryBar, SelectionBar, Dock, CompactInstruction, StatusLegend, HelpTopic } from './MobileTactics'
+import { HELP } from '../../domain/tacticsHelp'
 import { cardStatus } from '../../domain/suspensions'
 import { useOnline } from '../../hooks/useOnline'
 import { styleName, styleLine } from '../../domain/tacticsView'
@@ -461,22 +462,20 @@ export default function TacticsScreen() {
             selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={editMode ? handleMove : undefined} links={chemistry.links} captainId={captainId}
           />
           {(summary.hurt > 0 || summary.banned > 0) && <StatusLegend />}
-          <p className="mt-2 px-1 text-xs text-fg-subtle">
-            {editMode ? 'Modo editar: arrastrá una ficha o tocá un lugar de la cancha para moverla.' : 'Tocá una ficha para elegirla; tocá otra para intercambiarlas. Para moverlas libremente usá “Editar”.'}
-          </p>
+          {editMode && <p className="mt-2 px-1 text-xs text-fg-subtle">Modo editar: arrastrá una ficha o tocá un lugar de la cancha para moverla.</p>}
           <Dock editMode={editMode} onToggleEdit={() => { setEditMode(v => !v); setSelectedSlot(null) }} onOpen={setSheet} />
 
           {sheet === 'style' && (
             <ResponsiveOverlay title="Estilo de juego" description={`Ahora: ${styleName(currentStyle)}. ${styleLine(currentStyle)}.`} onClose={() => setSheet(null)} size="md">
               <div className="space-y-4">
+                <div className="-mb-2 flex items-center justify-between"><p className="text-sm font-semibold text-fg">Estilos listos</p><HelpTopic help={HELP.presets} className="-my-3" /></div>
                 {presetButtons}
                 <div className="space-y-2 border-t border-line pt-4">
-                  <p className="text-sm font-semibold text-fg">Formación</p>
+                  <div className="flex items-center"><p className="text-sm font-semibold text-fg">Formación</p><HelpTopic help={HELP.formation} className="-my-3" /></div>
                   {formationBlock}
                 </div>
                 <div className="space-y-2 border-t border-line pt-4">
-                  <p className="text-sm font-semibold text-fg">Mentalidad</p>
-                  <p className="text-xs text-fg-muted">Es lo que más pesa: cuánto riesgo asume el equipo en cada zona de la cancha.</p>
+                  <div className="flex items-center"><p className="text-sm font-semibold text-fg">Mentalidad</p><HelpTopic help={HELP.mentality} className="-my-3" /></div>
                   <InstructionPicker label="Mentalidad" group="mentality" value={mentality} onChange={setMentality} options={TACTICAL_MENTALITIES} />
                 </div>
               </div>
@@ -485,9 +484,9 @@ export default function TacticsScreen() {
           {sheet === 'fine' && (
             <ResponsiveOverlay title="Ajustes finos" description="Pase, ritmo y presión: cambian poco el partido, pero afinan el estilo y el desgaste físico." onClose={() => setSheet(null)} size="md">
               <div className="space-y-5">
-                <CompactInstruction title="Estilo de pase" group="passing" value={passingStyle} onChange={setPassingStyle} options={PASSING_STYLES} />
-                <CompactInstruction title="Ritmo de juego" group="tempo" value={tempo} onChange={setTempo} options={TEMPO_LEVELS} />
-                <CompactInstruction title="Intensidad de presión" group="pressing" value={pressing} onChange={setPressing} options={PRESSING_LEVELS} />
+                <CompactInstruction help={HELP.passing} title="Estilo de pase" group="passing" value={passingStyle} onChange={setPassingStyle} options={PASSING_STYLES} />
+                <CompactInstruction help={HELP.tempo} title="Ritmo de juego" group="tempo" value={tempo} onChange={setTempo} options={TEMPO_LEVELS} />
+                <CompactInstruction help={HELP.pressing} title="Intensidad de presión" group="pressing" value={pressing} onChange={setPressing} options={PRESSING_LEVELS} />
               </div>
             </ResponsiveOverlay>
           )}

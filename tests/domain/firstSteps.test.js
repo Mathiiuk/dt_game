@@ -52,6 +52,7 @@ describe('tu próximo paso', () => {
   it('sin partido a la vista: entrenar y avanzar, con los días que faltan', () => {
     expect(nextStep({ ...base, daysToMatch: 1 }).body).toMatch(/mañana/i)
     expect(nextStep({ ...base, daysToMatch: 4 })).toMatchObject({ kind: 'ADVANCE' })
+    expect(nextStep({ ...base, daysToMatch: 3, matchWeekday: 'sábado' }).body).toMatch(/El partido es el sábado, en 3 días/)
     expect(nextStep({ ...base, daysToMatch: 4 }).body).toMatch(/4 días/)
     expect(nextStep({ ...base, hasFixture: false, daysToMatch: 0 }).kind).toBe('ADVANCE')
   })

@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-18-dias-reales',
+    date: '2026-10-18',
+    title: 'Días reales y ayuda en la pizarra',
+    items: [
+      'Al avanzar la semana ves los días con su fecha real y, al final, cuándo es tu próximo partido.',
+      'En la pizarra del celular, tocá el “?” para ver cómo se usa y qué significa cada color y símbolo.'
+    ]
+  },
+  {
     id: '2026-10-17-rapido',
     date: '2026-10-17',
     title: 'Más rápido y con conexión mala',
