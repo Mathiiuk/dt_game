@@ -139,7 +139,7 @@ export const PUBLIC_PAGES = [
       { heading: 'Cómo ajustarlo', body: ['Dentro del 4-4-2 podés jugar de muchas maneras: más ofensivo con presión alta y ritmo rápido, o más cuidadoso con una línea baja y salida paciente. La formación es el esqueleto; las instrucciones le dan la personalidad.'] },
       { heading: 'Un error común', body: ['Poner a un mediocampista de banda de lateral "porque se parece" le saca rendimiento. En Vestuario un jugador fuera de su puesto rinde menos, así que mirá siempre la posición natural antes de armar los once.'] }
     ],
-    related: ['/guias/formacion-4-3-3', '/tacticas']
+    related: ['/guias/formacion-4-3-3', '/tacticas', '/demo']
   },
   {
     path: '/guias/formacion-4-3-3',
@@ -156,7 +156,7 @@ export const PUBLIC_PAGES = [
       { heading: 'Presión alta y ritmo', body: ['El 4-3-3 combina bien con presión alta: robás cerca del arco rival y atacás con pocos pases. Pero cansa; cuidá el estado físico del plantel durante la semana y rotá a los extremos.', 'Probá combinarlo con ritmo alto durante una semana y mirá las estadísticas del partido. Si ves que el equipo genera muchas chances pero llega cansado al final, bajá un cambio y cuidá la energía.'] },
       { heading: 'Cuándo cambiarlo', body: ['Si vas ganando y querés cerrar el partido, pasar a una línea de cinco o sumar un volante le da firmeza. Si estás perdiendo, el 4-3-3 es una buena opción para empujar sin descuidar el equilibrio.', 'Los cambios durante el partido también cuentan: un lateral fresco o un delantero de recambio pueden darte la ventaja que el dibujo inicial no logró.'] }
     ],
-    related: ['/guias/formacion-4-4-2', '/tacticas']
+    related: ['/guias/formacion-4-4-2', '/tacticas', '/demo']
   },
   {
     path: '/guias/como-fichar-jugadores',
@@ -241,7 +241,7 @@ export const PUBLIC_PAGES = [
       { heading: 'Las travesuras de la AFA', body: ['Con mangos que ganás jugando podés mandar un sobre, apostar por un árbitro amigo, ponerle un mote a un amigo o denunciar al líder. Solo mueven puntos de la sala y el muro de noticias: nunca tocan tu plantel ni tu caja.', 'Cada travesura cuesta mangos y tiene azar, así que no conviene abusar: un sobre puede salir mal y devolverse en contra. Elegí bien cuándo arriesgar.'] },
       { heading: 'Un ganador con historia', body: ['Al terminar el torneo hay campeón y un resumen en el muro. Después podés armar otro con otras reglas y revancha.'] }
     ],
-    related: ['/guias/como-ascender-de-categoria', '/juego']
+    related: ['/guias/como-ascender-de-categoria', '/juego', '/demo']
   },
   {
     path: '/guias/simulador-de-futbol-argentino',
@@ -256,9 +256,24 @@ export const PUBLIC_PAGES = [
       { heading: 'Historias que se arman solas', body: ['El juego va contando la temporada con titulares, anécdotas y personajes. Dos DT nunca viven el mismo año, y lo que decidís hoy puede volver como problema (o como premio) tres meses después.', 'Hay temporadas tranquilas y otras en las que todo se complica a la vez: una racha mala, un reclamo de la hinchada y un pedido de la dirigencia. Saber priorizar es parte del juego.'] },
       { heading: 'Una carrera completa', body: ['Empezás en la última categoría con un club de barrio y apuntás a Primera. Hay cantera, mercado de pases, finanzas, copas, la selección y un salón de la fama para tu legado.', 'Podés quedarte toda la vida en un mismo club o irte a otro cuando llega una oferta. Tu historia, tus títulos y tus ídolos quedan registrados.'] },
       { heading: 'Gratis y desde el navegador', body: ['Se juega en el celular o la computadora, sin descargar nada, y se puede instalar como app. La carrera queda guardada en tu cuenta.', 'No hace falta una computadora potente ni descargar archivos pesados: funciona en cualquier celular moderno con conexión a internet.'] },
-      { heading: 'Empezá cuando quieras', body: ['Creás tu DT, fundás tu club y dirigís el primer partido en pocos minutos. Si te engancha, la carrera sigue temporada tras temporada.', 'Y si preferís jugar acompañado, podés armar una liga con amigos y competir con reglas bizarras, con bots o sin ellos.'] }
+      { heading: 'Empezá cuando quieras', body: ['Si querés ver de qué va, la demo te mete en tu primer día como DT en tres minutos y sin cuenta. Creás tu DT, fundás tu club y dirigís el primer partido en pocos minutos. Si te engancha, la carrera sigue temporada tras temporada.', 'Y si preferís jugar acompañado, podés armar una liga con amigos y competir con reglas bizarras, con bots o sin ellos.'] }
     ],
     related: ['/juego', '/como-jugar', '/guias']
+  },
+  {
+    path: '/demo',
+    label: 'Probá la demo',
+    group: 'juego',
+    event: 'game_info_click',
+    title: 'Demo gratis: tu primer día como DT | Vestuario',
+    description: 'Probá Vestuario en tres minutos y sin cuenta: tres decisiones bizarras, un partido con penal y los titulares del día siguiente.',
+    h1: 'Tu primer día como DT',
+    intro: 'Tres decisiones, un partido y los titulares del día siguiente. Dura tres minutos y no pide cuenta.',
+    sections: [
+      { heading: 'Cómo es', body: ['Dirigís al Potrero Unidos, un club de barrio. Antes del partido se te cruzan la barra, un dirigente y el árbitro, y cada respuesta mueve tu caja, la barra, la dirigencia y el vestuario.'] },
+      { heading: 'Y después', body: ['Con esas decisiones se juega el partido, con relato y un penal en el que te toca patear. Al final te enterás de qué dicen los diarios de vos.'] }
+    ],
+    related: ['/como-jugar', '/guias']
   },
   {
     path: '/faq',

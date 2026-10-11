@@ -8,7 +8,7 @@ export const LANDING_EVENTS = [
 ]
 
 // Eventos del juego (sin datos personales): registro, club, temporada, Asamblea y liga de amigos
-export const GAME_EVENTS = ['sign_up', 'club_created', 'season_closed', 'assembly_voted', 'friend_room_created', 'friend_room_joined', 'app_error']
+export const GAME_EVENTS = ['sign_up', 'club_created', 'season_closed', 'assembly_voted', 'friend_room_created', 'friend_room_joined', 'app_error', 'demo_start', 'demo_decision', 'demo_complete', 'demo_cta_click']
 
 const ALLOWED = [...LANDING_EVENTS, ...GAME_EVENTS]
 

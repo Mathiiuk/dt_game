@@ -12,6 +12,9 @@ import { isGamePath } from './data/gameRoutes'
 // El juego entero (base de datos, pantallas, PWA) se descarga sólo cuando se sale de la parte pública:
 // la portada queda liviana y carga rápido para quien llega desde un buscador.
 const GameApp = lazy(() => import('./GameApp'))
+const DemoScreen = lazy(() => import('./features/demo/DemoScreen'))
+// Páginas públicas con pantalla propia (el resto usa la plantilla de InfoPage)
+const CUSTOM_PAGES = { '/demo': DemoScreen }
 
 function GameLoading() {
   return (
@@ -40,7 +43,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomeLanding />} />
         {PUBLIC_PAGES.map(page => (
-          <Route key={page.path} path={page.path} element={<InfoPage path={page.path} />} />
+          <Route key={page.path} path={page.path} element={CUSTOM_PAGES[page.path] ? <Suspense fallback={<GameLoading />}>{React.createElement(CUSTOM_PAGES[page.path])}</Suspense> : <InfoPage path={page.path} />} />
         ))}
         <Route path="*" element={<GameOrNotFound />} />
       </Routes>

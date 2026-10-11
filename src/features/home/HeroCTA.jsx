@@ -28,6 +28,13 @@ export default function HeroCTA({ visitor = 'visitor' }) {
       >
         {HOME_COPY.secondaryCta}
       </Link>
+      <Link
+        to="/demo"
+        onClick={() => track('game_info_click', { placement: 'hero-demo' })}
+        className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-accent underline-offset-4 transition-colors hover:underline"
+      >
+        {HOME_COPY.demoCta}
+      </Link>
     </div>
   )
 }

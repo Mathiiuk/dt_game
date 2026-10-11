@@ -8,7 +8,8 @@ export const HOME_COPY = {
   context: 'Vestuario es un juego de Director Técnico de fútbol donde vos armás el plantel, elegís la táctica, negociás jugadores y construís tu carrera desde abajo.',
   primaryCta: 'Crear mi carrera',
   continueCta: 'Continuar carrera',
-  secondaryCta: 'Conocer el juego'
+  secondaryCta: 'Conocer el juego',
+  demoCta: 'Probar la demo gratis'
 }
 
 export const HOME_SEO = {
