@@ -136,4 +136,34 @@ describe('cancha de la pizarra', () => {
       expect(screen.getByRole('button', { name: /DC: puesto vacío/ })).toBeInTheDocument()
     })
   })
+
+  describe('insignias de bajas', () => {
+    const base = { first_name: 'Ana', last_name: 'Ruiz', position: 'DC', attr_overall: 60, shirt_number: 9, is_injured: false, is_suspended: false, yellow_cards_season: 0 }
+    const renderWith = (extra) => render(<Pitch formation="4-4-2" lineup={{ DC1: 'x' }} players={[{ id: 'x', ...base, ...extra }]} selectedSlot={null} onSelectSlot={() => {}} />)
+    const status = (container) => container.querySelector('[data-card-status]')?.getAttribute('data-card-status') ?? null
+
+    it('sin novedades no hay insignia', () => {
+      const { container } = renderWith({})
+      expect(status(container)).toBeNull()
+    })
+
+    it('lesionado: cruz; expulsado: tarjeta roja; suspendido por amarillas: tarjeta amarilla; apercibido: aviso', () => {
+      expect(status(renderWith({ is_injured: true }).container)).toBe('injured')
+      expect(status(renderWith({ is_suspended: true, suspension_reason: 'RED', suspended_matches: 1 }).container)).toBe('red')
+      expect(status(renderWith({ is_suspended: true, suspension_reason: 'YELLOWS', suspended_matches: 1 }).container)).toBe('yellow-ban')
+      expect(status(renderWith({ yellow_cards_season: 4 }).container)).toBe('warning')
+    })
+
+    it('el nombre accesible explica el motivo y que se pierde el próximo partido', () => {
+      renderWith({ is_suspended: true, suspension_reason: 'YELLOWS', suspended_matches: 1 })
+      expect(screen.getByRole('button', { name: /5 amarillas.*próximo partido/ })).toBeInTheDocument()
+    })
+
+    it('el texto "Lesionado/Suspendido" bajo la ficha solo se ve en pantallas anchas (en el celular tapa a los vecinos)', () => {
+      renderWith({ is_injured: true })
+      const pill = screen.getByText('Lesionado')
+      expect(pill.className).toMatch(/\bhidden\b/)
+      expect(pill.className).toMatch(/\bsm:inline-block\b/)
+    })
+  })
 })

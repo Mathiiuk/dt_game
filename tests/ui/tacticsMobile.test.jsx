@@ -118,4 +118,18 @@ describe('pizarra en el celular', () => {
     expect(await screen.findByRole('region', { name: 'Especialistas de pelota parada' })).toBeInTheDocument()
     expect(screen.getByRole('list', { name: 'Referencias de color' })).toBeInTheDocument()
   })
+
+  it('con jugadores suspendidos en el once lo cuenta en el resumen y explica los símbolos en una línea', async () => {
+    squad[2].is_suspended = true; squad[2].suspension_reason = 'RED'; squad[2].suspended_matches = 1
+    squad[3].is_injured = true
+    try {
+      renderScreen()
+      const summary = await screen.findByRole('list', { name: 'Resumen del once' })
+      expect(within(summary).getByText('1 suspendido')).toBeInTheDocument()
+      expect(within(summary).getByText('1 lesionado')).toBeInTheDocument()
+      expect(screen.getByText(/tarjeta roja: expulsado/i)).toBeInTheDocument()
+    } finally {
+      delete squad[2].is_suspended; delete squad[2].suspension_reason; delete squad[2].suspended_matches; delete squad[3].is_injured
+    }
+  })
 })

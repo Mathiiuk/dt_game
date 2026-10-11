@@ -10,6 +10,7 @@ import { queryCache } from '../utils/cache'
 import { positionLine } from '../domain/positions'
 import { gateSettlement } from '../domain/finances'
 import { benchConsequences } from '../domain/squadConsequences'
+import { suspensionUpdates, mergeRowsById } from '../domain/suspensions'
 
 /**
  * ¿El gol del evento lo hizo este jugador? Si el evento trae `playerId` manda ese dato; el nombre en el texto sólo
@@ -298,6 +299,10 @@ export const postMatchApi = {
         postMatchUpdates.push({ id: p.id, state_morale: Math.max(10, Math.min(100, (p.morale || p.state_morale || 70) + benchDelta)) })
       }
 
+      // Tarjetas: roja o 5ª amarilla = se pierde el próximo partido; los suspendidos que no jugaron cumplen una fecha
+      const sanctionRows = suspensionUpdates({ players, playedIds, events: matchEvents })
+      const batchRows = mergeRowsById(postMatchUpdates, sanctionRows)
+
       // Lesionados que jugaron: 35% de agravar la lesión (+2 semanas)
       await this._applyAggravations(clubId, rollAggravations([...injuredPlayingSet]))
 
@@ -306,7 +311,7 @@ export const postMatchApi = {
         const { playerApi } = await import('./player')
         // El estado de los jugadores y los minutos jugados son escrituras independientes: van juntas
         await Promise.all([
-          playerApi.batchUpdate(postMatchUpdates),
+          playerApi.batchUpdate(batchRows),
           supabase.rpc('increment_players_minutes', { player_ids: playedIds, mins: 90 })
         ])
       } catch (batchErr) {

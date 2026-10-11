@@ -166,6 +166,10 @@ export const seasonCloseApi = {
           await competitionApi.generateRoundRobinFixtures(league.competitionId, league.clubIds, `${result.newSeasonYear}-08-01`, rules)
         }
 
+        // Las amarillas acumuladas empiezan de cero en la temporada nueva (las sanciones pendientes se mantienen)
+        const { error: yellowsErr } = await supabase.from('players').update({ yellow_cards_season: 0 }).eq('club_id', clubId)
+        if (yellowsErr) console.warn('Aviso: no se pudieron reiniciar las amarillas de la temporada:', yellowsErr.message)
+
         const evolution = current.payload?.evolution || { aged: 0, retiring: 0 }
         let loggedQuery = supabase.from('season_transition_log').select('id').eq('from_year', seasonYear)
         loggedQuery = careerId ? loggedQuery.eq('career_id', careerId) : loggedQuery.is('career_id', null)

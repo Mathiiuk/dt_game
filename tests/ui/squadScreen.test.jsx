@@ -82,6 +82,19 @@ describe('pantalla Plantel', () => {
     expect(within(table).getByText(/En venta · \$30\.000/)).toBeInTheDocument()
   })
 
+  it('marca a los suspendidos (con el motivo) y a los apercibidos', async () => {
+    players[0].is_suspended = true; players[0].suspension_reason = 'YELLOWS'; players[0].suspended_matches = 1
+    players[2].yellow_cards_season = 4
+    try {
+      renderScreen()
+      const table = await screen.findByRole('table', { name: 'Plantel profesional' })
+      expect(within(table).getByText('Suspendido · 5 amarillas')).toBeInTheDocument()
+      expect(within(table).getByText(/Apercibido · 4 amarillas/)).toBeInTheDocument()
+    } finally {
+      delete players[0].is_suspended; delete players[0].suspension_reason; delete players[0].suspended_matches; delete players[2].yellow_cards_season
+    }
+  })
+
   it('marca al capitán y al subcapitán, y "Hacer capitán" lleva al Vestuario con ese jugador elegido', async () => {
     getCaptains.mockResolvedValue({ captainId: players[0].id, viceCaptainId: players[1].id })
     renderScreen()

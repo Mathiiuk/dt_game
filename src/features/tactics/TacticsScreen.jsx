@@ -26,7 +26,8 @@ import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
 import { markStep } from '../onboarding/firstStepsStore'
 import { markBusy, clearBusy } from '../../lib/busy'
-import { SummaryBar, SelectionBar, Dock, CompactInstruction } from './MobileTactics'
+import { SummaryBar, SelectionBar, Dock, CompactInstruction, StatusLegend } from './MobileTactics'
+import { cardStatus } from '../../domain/suspensions'
 import { styleName, styleLine } from '../../domain/tacticsView'
 
 const ROLE_ICONS = { PENALTY: CircleDot, FREE_KICK: Target, CORNER: Flag, HEADER: ChevronsUp }
@@ -181,7 +182,8 @@ export default function TacticsScreen() {
     const avg = starters.length ? Math.round(starters.reduce((s, p) => s + ratingAtSlot(p, starterSlotById[p.id]), 0) / starters.length) : 0
     const out = starters.filter(p => fitLabel(p.position, starterSlotById[p.id]).code === 'OUT_OF_POSITION').length
     const hurt = starters.filter(p => p.is_injured).length
-    return { avg, out, hurt, count: starters.length }
+    const banned = starters.filter(p => ['red', 'yellow-ban'].includes(cardStatus(p))).length
+    return { avg, out, hurt, banned, count: starters.length }
   }, [starterIds.join('|'), playerMap]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Química del once: enlaces entre vecinos, valor total y los vínculos más flojos
@@ -447,7 +449,7 @@ export default function TacticsScreen() {
       {/* ---------- Celular: cinta de resumen, cancha y barra de herramientas; todo entra sin bajar ---------- */}
       {!isLg && (
         <>
-          <SummaryBar formation={customLayout ? `Libre ${shapeOf(customLayout)}` : formation} styleLabel={styleName(currentStyle)} avg={summary.avg} chemistry={chemistry.score} out={summary.out} hurt={summary.hurt} dirty={dirty} saving={saving} onSave={handleSave} />
+          <SummaryBar formation={customLayout ? `Libre ${shapeOf(customLayout)}` : formation} styleLabel={styleName(currentStyle)} avg={summary.avg} chemistry={chemistry.score} out={summary.out} hurt={summary.hurt} banned={summary.banned} dirty={dirty} saving={saving} onSave={handleSave} />
           {selectedSlot && (
             <SelectionBar slotName={slotBase(selectedSlot)} playerName={selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : ''} onChange={() => setSheet('picker')} onCancel={() => setSelectedSlot(null)} />
           )}
@@ -456,6 +458,7 @@ export default function TacticsScreen() {
             formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad}
             selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={editMode ? handleMove : undefined} links={chemistry.links} captainId={captainId}
           />
+          {(summary.hurt > 0 || summary.banned > 0) && <StatusLegend />}
           <p className="mt-2 px-1 text-xs text-fg-subtle">
             {editMode ? 'Modo editar: arrastrá una ficha o tocá un lugar de la cancha para moverla.' : 'Tocá una ficha para elegirla; tocá otra para intercambiarlas. Para moverlas libremente usá “Editar”.'}
           </p>

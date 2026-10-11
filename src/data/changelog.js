@@ -2,6 +2,16 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-16-tarjetas',
+    date: '2026-10-16',
+    title: 'Tarjetas y suspensiones',
+    items: [
+      'Una roja o la quinta amarilla de la temporada te deja afuera del próximo partido.',
+      'En la pizarra: cruz roja si está lesionado, tarjeta roja si lo expulsaron y tarjeta amarilla si está suspendido por amarillas.',
+      'Las fichas del celular ya no se pisan entre sí.'
+    ]
+  },
+  {
     id: '2026-10-15-semana',
     date: '2026-10-15',
     title: 'La semana pasa',

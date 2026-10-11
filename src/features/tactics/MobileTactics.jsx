@@ -5,7 +5,7 @@ import { cn } from '../../lib/utils'
 import { effectOf } from '../../domain/tacticalStyle'
 
 /** Cinta de arriba en el celular: formación, estilo, nivel y química de un vistazo, y guardar apenas hay cambios */
-export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, dirty, saving, onSave }) {
+export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, banned = 0, dirty, saving, onSave }) {
   return (
     <div className="mb-2 border-b border-line pb-2">
       <div className="flex items-center justify-between gap-3">
@@ -17,6 +17,7 @@ export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, d
         <li><Badge tone={chemistry >= 70 ? 'accent' : chemistry < 40 ? 'danger' : 'warning'} className="num">Química {chemistry}%</Badge></li>
         {out > 0 && <li><Badge tone="warning" className="num">{out} fuera de puesto</Badge></li>}
         {hurt > 0 && <li><Badge tone="danger" className="num">{hurt} lesionado{hurt > 1 ? 's' : ''}</Badge></li>}
+        {banned > 0 && <li><Badge tone="danger" className="num">{banned} suspendido{banned > 1 ? 's' : ''}</Badge></li>}
       </ul>
     </div>
   )
@@ -59,5 +60,14 @@ export function CompactInstruction({ title, group, value, onChange, options }) {
       <ChoiceChips label={title} value={value} onChange={onChange} options={options.map(o => ({ value: o.id, label: o.label }))} />
       <p className="text-xs text-fg-muted">{effectOf(group, value)}</p>
     </div>
+  )
+}
+
+/** Qué significa cada símbolo de las fichas, en una línea (solo cuando hay alguna baja en el once) */
+export function StatusLegend() {
+  return (
+    <p className="mt-1 px-1 text-xs text-fg-muted">
+      <span className="font-semibold text-danger">+</span> lesionado · tarjeta roja: expulsado · <span className="font-semibold text-warning">tarjeta amarilla</span>: suspendido por 5 amarillas
+    </p>
   )
 }

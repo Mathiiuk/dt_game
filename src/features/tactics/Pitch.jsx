@@ -6,6 +6,7 @@ import { getLayout } from '../../domain/formations'
 import { clampPoint } from '../../domain/freeLayout'
 import { fitLabel, slotBase } from '../../domain/positions'
 import { ratingAtSlot } from '../../domain/ratings'
+import { cardStatus, suspensionNote } from '../../domain/suspensions'
 
 const RING = {
   NATURAL: 'border-accent text-accent',
@@ -72,6 +73,18 @@ function PitchLines() {
   )
 }
 
+const CARD = 'absolute -right-1.5 -top-2 border-2 border-bg'
+
+/** Insignia en la esquina de la ficha: cruz roja (lesión), tarjeta roja (expulsado), amarilla (suspendido por 5 amarillas) o aviso de apercibido */
+function StatusBadge({ status }) {
+  if (status === 'injured') {
+    return <span data-card-status="injured" className={cn(CARD, 'grid size-5 place-items-center rounded-full bg-danger text-xs font-bold leading-none text-white')} aria-hidden="true">+</span>
+  }
+  if (status === 'red') return <span data-card-status="red" className={cn(CARD, 'h-5 w-3.5 rounded-[3px] bg-danger')} aria-hidden="true" />
+  if (status === 'yellow-ban') return <span data-card-status="yellow-ban" className={cn(CARD, 'h-5 w-3.5 rounded-[3px] bg-warning')} aria-hidden="true" />
+  return <span data-card-status="warning" className={cn(CARD, 'h-4 w-3 rounded-[2px] border-dashed border-warning bg-warning/40')} aria-hidden="true" />
+}
+
 /**
  * Ficha de jugador: número, apellido y anillo de afinidad posicional.
  * Con `draggable` se arrastra; seleccionada, también se mueve con las flechas del teclado.
@@ -80,9 +93,10 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
   const base = slotBase(slot)
   const affinity = player ? fitLabel(player.position, slot) : null
   const rating = player ? ratingAtSlot(player, slot) : null
+  const status = cardStatus(player)
   const lastName = player ? (player.last_name || '').split(' ').slice(-1)[0] : ''
   const label = player
-    ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${captain ? ', capitán' : ''}${player.is_injured ? ', lesionado' : ''}${player.is_suspended ? ', suspendido' : ''}${selected ? ', seleccionado' : ''}`
+    ? `${base}: ${player.first_name} ${player.last_name}, ${affinity.label}, media ${rating} en el puesto${captain ? ', capitán' : ''}${player.is_injured ? ', lesionado' : ''}${status && status !== 'injured' ? `, ${suspensionNote(player)}`.replace(/\.$/, '') : ''}${selected ? ', seleccionado' : ''}`
     : `${base}: puesto vacío${selected ? ', seleccionado' : ''}`
 
   const handleKeyDown = (e) => {
@@ -112,11 +126,11 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
         onKeyDown={handleKeyDown}
         aria-label={label}
         aria-pressed={selected}
-        className={cn('group flex w-16 flex-col items-center gap-1 focus-visible:outline-none sm:w-20', draggable && 'touch-none cursor-grab active:cursor-grabbing')}
+        className={cn('group flex w-14 flex-col items-center gap-1 focus-visible:outline-none sm:w-20', draggable && 'touch-none cursor-grab active:cursor-grabbing')}
       >
         <span
           className={cn(
-            'relative grid size-10 place-items-center rounded-full border-2 bg-bg font-display text-lg font-semibold shadow-raised transition-transform sm:size-11',
+            'relative grid size-9 place-items-center rounded-full border-2 bg-bg font-display text-base font-semibold shadow-raised transition-transform sm:size-11 sm:text-lg',
             player ? RING[affinity.code] : 'border-dashed border-fg-subtle text-fg-subtle',
             selected && 'scale-110 ring-2 ring-fg ring-offset-2 ring-offset-transparent',
             dragging && 'scale-110 shadow-overlay',
@@ -124,12 +138,11 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
           )}
         >
           {player ? (player.shirt_number ?? '·') : '+'}
-          {player?.is_injured && <span className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full border-2 border-bg bg-danger text-xs font-bold leading-none text-white" aria-hidden="true">+</span>}
-          {player?.is_suspended && !player?.is_injured && <span className="absolute -right-1 -top-1.5 h-4 w-3 rounded-[2px] border border-bg bg-danger" aria-hidden="true" />}
+          {status && <StatusBadge status={status} />}
           {captain && <span className="absolute -left-1 -top-1 grid size-4 place-items-center rounded-full bg-gold text-[0.5625rem] font-bold leading-none text-bg" aria-hidden="true">C</span>}
         </span>
         {player && (
-          <span className="num -mt-3 ml-7 rounded-sm bg-bg px-1 text-[0.625rem] font-semibold leading-4 text-fg shadow-raised sm:ml-8" aria-hidden="true">{rating}</span>
+          <span className="num -mt-3 ml-6 rounded-sm bg-bg px-1 text-[0.625rem] font-semibold leading-4 text-fg shadow-raised sm:ml-8" aria-hidden="true">{rating}</span>
         )}
         <span className={cn(
           'max-w-full truncate rounded-sm px-1.5 text-[0.6875rem] font-semibold leading-4',
@@ -137,9 +150,9 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
         )}>
           {player ? lastName : base}
         </span>
-        {/* Bajas a simple vista: no hace falta tocar la ficha para saber quién no puede jugar */}
-        {player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><Bandage className="mr-0.5 inline size-2.5 align-[-1px]" />Lesionado</span>}
-        {player?.is_suspended && !player?.is_injured && <span className="-mt-0.5 rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white" aria-hidden="true"><span className="mr-0.5 inline-block h-2.5 w-2 rounded-[1px] bg-white align-[-1px]" />Suspendido</span>}
+        {/* Bajas con texto solo en pantallas anchas: en el celular la insignia de la ficha alcanza y la pastilla tapaba a los vecinos */}
+        {status === 'injured' && <span className="-mt-0.5 hidden rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white sm:inline-block" aria-hidden="true"><Bandage className="mr-0.5 inline size-2.5 align-[-1px]" />Lesionado</span>}
+        {(status === 'red' || status === 'yellow-ban') && <span className={cn('-mt-0.5 hidden rounded-sm px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide sm:inline-block', status === 'red' ? 'bg-danger text-white' : 'bg-warning text-bg')} aria-hidden="true">Suspendido</span>}
       </button>
     </motion.div>
   )

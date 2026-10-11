@@ -32,6 +32,7 @@ import SellPlayerModal from './SellPlayerModal'
 import CounterOfferModal from './CounterOfferModal'
 import { friendlyError } from '../../lib/errors'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { cardStatus, suspensionNote } from '../../domain/suspensions'
 
 const GROUP_LABEL = { GK: 'ARQ', DEF: 'DEF', MED: 'MED', DEL: 'DEL' }
 
@@ -42,6 +43,8 @@ function PlayerBadges({ player, captains, expiring = null }) {
       {captains?.captainId === player.id && <Badge tone="gold"><Crown className="size-3" aria-hidden="true" />Capitán</Badge>}
       {captains?.viceCaptainId === player.id && <Badge tone="gold">Subcapitán</Badge>}
       {player.is_injured && <Badge tone="danger" dot>Lesionado{player.injury_type ? ` · ${player.injury_type}` : ''}</Badge>}
+      {player.is_suspended && <Tooltip content={suspensionNote({ ...player, is_injured: false })}><span><Badge tone={player.suspension_reason === 'YELLOWS' ? 'warning' : 'danger'} dot>{player.suspension_reason === 'YELLOWS' ? 'Suspendido · 5 amarillas' : 'Suspendido · expulsión'}</Badge></span></Tooltip>}
+      {!player.is_suspended && cardStatus(player) === 'warning' && <Badge tone="warning">Apercibido · {player.yellow_cards_season} amarillas</Badge>}
       {player.morale_unhappy_transfer_blocked && <Badge tone="warning">Descontento</Badge>}
       {expiring && <Badge tone={expiring.urgent ? 'danger' : 'warning'} dot>Contrato: {expiring.label}</Badge>}
       {isListedForSale(player) && <Badge tone="accent">En venta{player.asking_price ? ` · ${formatMoney(player.asking_price)}` : ''}</Badge>}
