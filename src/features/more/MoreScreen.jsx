@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight, LogOut, Trash2 } from 'lucide-react'
+import { ChevronRight, GraduationCap, LogOut, Trash2 } from 'lucide-react'
 import { Card } from '../../components/ui'
 import { NAV_GROUPS, MOBILE_TABS } from '../../components/layout/navigation'
 import { useLogout } from '../../components/layout/useLogout'
 import DeleteAccountDialog from '../../components/layout/DeleteAccountDialog'
 import { useGameContext } from '../../context/GameContext'
 import DifficultySelector from '../dashboard/DifficultySelector'
+import { EVENT_START_TOUR } from '../tutorial/tourState'
 
 // Los destinos que ya están en la barra inferior no se repiten aquí
 const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
@@ -53,7 +54,16 @@ export default function MoreScreen() {
       <section aria-labelledby="more-account">
         <h2 id="more-account" className="eyebrow mb-2 px-1">Cuenta</h2>
         <Card as="div" className="overflow-hidden">
-          <button type="button" onClick={logout} className="flex min-h-16 w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-surface-2 active:bg-surface-3">
+          <button type="button" onClick={() => window.dispatchEvent(new Event(EVENT_START_TOUR))} className="flex min-h-16 w-full items-center gap-3.5 px-4 py-3 text-left transition-colors hover:bg-surface-2 active:bg-surface-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-md bg-surface-3 text-accent" aria-hidden="true">
+              <GraduationCap className="size-5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-fg">Ver el tutorial</span>
+              <span className="block truncate text-xs text-fg-subtle">Un recorrido por todas las secciones</span>
+            </span>
+          </button>
+          <button type="button" onClick={logout} className="flex min-h-16 w-full items-center gap-3.5 border-t border-line px-4 py-3 text-left transition-colors hover:bg-surface-2 active:bg-surface-3">
             <span className="grid size-10 shrink-0 place-items-center rounded-md bg-surface-3 text-fg-muted" aria-hidden="true">
               <LogOut className="size-5" />
             </span>

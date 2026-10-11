@@ -9,6 +9,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { NAV_GROUPS, MOBILE_TABS, isActivePath, titleForPath } from './navigation'
 import { useLogout } from './useLogout'
 import DeleteAccountDialog from './DeleteAccountDialog'
+import GameTour from '../../features/tutorial/GameTour'
 
 function Brand() {
   return (
@@ -39,6 +40,7 @@ function Sidebar({ club, manager }) {
                 <li key={to}>
                   <NavLink
                     to={to}
+                    data-tour={`nav-${to}`}
                     className={({ isActive }) => cn(
                       'group relative flex min-h-10 items-center gap-3 rounded-md px-2.5 text-sm font-medium transition-colors',
                       isActive ? 'bg-surface-2 text-fg' : 'text-fg-muted hover:bg-surface-2 hover:text-fg'
@@ -112,6 +114,7 @@ function MobileTabBar({ pathname }) {
               <NavLink
                 to={to}
                 aria-current={active ? 'page' : undefined}
+                data-tour={`tab-${to}`}
                 className={cn(
                   'flex h-full flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-semibold transition-colors',
                   active ? 'text-accent' : 'text-fg-subtle hover:text-fg'
@@ -156,6 +159,7 @@ export default function AppShell() {
         Saltar al contenido
       </a>
       <Sidebar club={club} manager={manager} />
+      <GameTour />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div ref={scrollRef} className={cn('min-h-0 flex-1 overscroll-contain lg:overflow-visible', fit ? 'flex flex-col overflow-hidden' : 'overflow-y-auto')}>
           <MobileTopBar club={club} title={titleForPath(pathname)} />
