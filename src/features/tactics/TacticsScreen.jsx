@@ -28,6 +28,7 @@ import { markStep } from '../onboarding/firstStepsStore'
 import { markBusy, clearBusy } from '../../lib/busy'
 import { SummaryBar, SelectionBar, Dock, CompactInstruction, StatusLegend } from './MobileTactics'
 import { cardStatus } from '../../domain/suspensions'
+import { useOnline } from '../../hooks/useOnline'
 import { styleName, styleLine } from '../../domain/tacticsView'
 
 const ROLE_ICONS = { PENALTY: CircleDot, FREE_KICK: Target, CORNER: Flag, HEADER: ChevronsUp }
@@ -88,6 +89,7 @@ export default function TacticsScreen() {
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const online = useOnline()
   const [squad, setSquad] = useState([])
   const [captainId, setCaptainId] = useState(null)
   const [formation, setFormation] = useState('4-4-2')
@@ -342,7 +344,7 @@ export default function TacticsScreen() {
   )
 
   const saveButton = (
-    <Button onClick={handleSave} loading={saving} disabled={!dirty}>
+    <Button onClick={handleSave} loading={saving} disabled={!dirty || !online} title={online ? undefined : 'Necesitás conexión para esto'}>
       {!saving && <Save />}Guardar cambios
     </Button>
   )
@@ -449,7 +451,7 @@ export default function TacticsScreen() {
       {/* ---------- Celular: cinta de resumen, cancha y barra de herramientas; todo entra sin bajar ---------- */}
       {!isLg && (
         <>
-          <SummaryBar formation={customLayout ? `Libre ${shapeOf(customLayout)}` : formation} styleLabel={styleName(currentStyle)} avg={summary.avg} chemistry={chemistry.score} out={summary.out} hurt={summary.hurt} banned={summary.banned} dirty={dirty} saving={saving} onSave={handleSave} />
+          <SummaryBar formation={customLayout ? `Libre ${shapeOf(customLayout)}` : formation} styleLabel={styleName(currentStyle)} avg={summary.avg} chemistry={chemistry.score} out={summary.out} hurt={summary.hurt} banned={summary.banned} dirty={dirty} saving={saving} onSave={handleSave} canSave={online} />
           {selectedSlot && (
             <SelectionBar slotName={slotBase(selectedSlot)} playerName={selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : ''} onChange={() => setSheet('picker')} onCancel={() => setSelectedSlot(null)} />
           )}

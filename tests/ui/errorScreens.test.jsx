@@ -1,5 +1,5 @@
 import React from 'react'
-import { act, render, screen, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
@@ -56,7 +56,8 @@ describe('aviso de sin conexión', () => {
     act(() => { window.dispatchEvent(new Event('offline')) })
     expect(screen.getByRole('status').textContent).toMatch(/sin conexión/i)
     act(() => { window.dispatchEvent(new Event('online')) })
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByRole('status').textContent).toMatch(/volviste/i)
+    await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument(), { timeout: 4000 })
     await userEvent.setup()
   })
 })

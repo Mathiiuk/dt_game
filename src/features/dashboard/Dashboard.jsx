@@ -39,6 +39,7 @@ const EVENT_CATEGORY = {
 
 import { ClubBadge } from '../../components/ui'
 import { useAdvanceWeek } from '../week/useAdvanceWeek'
+import { useOnline } from '../../hooks/useOnline'
 import { readClubBudget } from '../week/readClubBudget'
 import WeekProgress from '../week/WeekProgress'
 import StoryStage from './StoryStage'
@@ -222,6 +223,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
   const weekRun = useAdvanceWeek()
+  const online = useOnline()
   const [finishingClose, setFinishingClose] = useState(false)
   const [showSeasonCloseModal, setShowSeasonCloseModal] = useState(false)
   // Se sube al resolver una decisión: el club puede quedar igual (caja y fecha) y aun así hay que recargar eventos, clima y bitácora
@@ -364,7 +366,7 @@ export default function Dashboard() {
   ) : matchDue ? (
     <Button onClick={() => navigate('/match', { state: { fixtureId: nextFixture.id } })}><Play />Disputar partido</Button>
   ) : (
-    <Button onClick={handleAdvanceWeek} loading={advancing}>{!advancing && <FastForward />}Avanzar semana</Button>
+    <Button onClick={handleAdvanceWeek} loading={advancing} disabled={!online} title={online ? undefined : 'Necesitás conexión para esto'}>{!advancing && <FastForward />}Avanzar semana</Button>
   )
 
   const missionCard = missionVisible ? <FirstStepsCard progress={mission} onDismiss={() => markStep(user?.id, 'dismissed')} /> : null

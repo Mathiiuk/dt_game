@@ -6,7 +6,6 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient'
 import { initDB } from './api/db'
 import AuthScreen from './features/auth/AuthScreen'
-import Dashboard from './features/dashboard/Dashboard'
 import WelcomeScreen from './features/auth/WelcomeScreen'
 import ReloadPrompt from './components/ReloadPrompt'
 import { GameProvider } from './context/GameContext'
@@ -17,6 +16,8 @@ import { PRIVATE_SEO } from './seo/homeSeo'
 
 // Cada pantalla se descarga al entrar a ella (antes se bajaban todas juntas al abrir el juego). Quedan fijas las del primer paso:
 // acceso, bienvenida, inicio y el menú. Con la app instalada las descargas salen del caché del service worker.
+// El Inicio se baja aparte: así el acceso (lo primero que se ve) no carga con el peso del tablero; AuthScreen lo precarga mientras se escribe
+const Dashboard = lazy(() => import('./features/dashboard/Dashboard'))
 const CreateManagerWizard = lazy(() => import('./features/manager/CreateManagerWizard'))
 const CreateClubWizard = lazy(() => import('./features/club/CreateClubWizard'))
 const CalendarScreen = lazy(() => import('./features/calendar/CalendarScreen'))
@@ -58,6 +59,8 @@ function GameApp() {
   useSeo(PRIVATE_SEO)
   useEffect(() => {
     initDB()
+    // Avisa que el juego ya se dibujó: recién ahí se carga el medidor (ver index.html), para no competir con la descarga
+    window.dispatchEvent(new Event('vestuario:ready'))
   }, [])
 
   return (

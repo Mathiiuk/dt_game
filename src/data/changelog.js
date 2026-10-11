@@ -2,6 +2,16 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-17-rapido',
+    date: '2026-10-17',
+    title: 'Más rápido y con conexión mala',
+    items: [
+      'Abre más rápido, sobre todo con señal floja.',
+      'Sin internet podés mirar tu club (solo lectura); guardar y jugar vuelven al reconectar.',
+      'Si la conexión va lenta, te lo avisamos en vez de dejarte esperando.'
+    ]
+  },
+  {
     id: '2026-10-16-tarjetas',
     date: '2026-10-16',
     title: 'Tarjetas y suspensiones',

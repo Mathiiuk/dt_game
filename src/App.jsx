@@ -39,7 +39,7 @@ function App() {
   return (
     <BrowserRouter>
       <CookieBanner />
-      <OfflineBanner />
+      <OfflineBanner onRetry={() => window.location.reload()} />
       <Routes>
         <Route path="/" element={<HomeLanding />} />
         {PUBLIC_PAGES.map(page => (

@@ -1,3 +1,4 @@
+import { readCache } from '../lib/readCache'
 import { supabase, AUTH_STORAGE_KEY } from './supabase'
 import { queryCache } from '../utils/cache'
 import { auditApi } from './audit'
@@ -543,6 +544,7 @@ export const authApi = {
     // Limpieza de memoria y caché SWR
     queryCache.clear()
     careerMemo.clear()
+    await readCache.clear()
 
     const { error } = await supabase.auth.signOut()
     if (error) throw new Error(error.message)
@@ -569,6 +571,7 @@ export const authApi = {
       // Sin almacenamiento no hay nada que limpiar
     }
     queryCache.clear()
+    await readCache.clear()
     // La cuenta ya no existe: se cierra la sesión local (si el servidor ya la revocó, no pasa nada)
     try { await supabase.auth.signOut({ scope: 'local' }) } catch { /* ya cerrada */ }
     return data

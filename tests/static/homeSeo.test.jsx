@@ -117,6 +117,14 @@ describe('medición (Google Tag Manager) en index.html', () => {
     expect(afterBody).toContain('https://www.googletagmanager.com/ns.html?id=GTM-NC5G56KV')
   })
 
+  it('GTM se carga recién cuando la página terminó de cargar y el navegador está libre (no compite con el primer dibujo)', () => {
+    const gtm = head.slice(head.indexOf('Google Tag Manager'), head.indexOf('End Google Tag Manager'))
+    expect(gtm).toMatch(/addEventListener\('load'/)
+    expect(gtm).toMatch(/requestIdleCallback|setTimeout/)
+    // sigue el orden: el consentimiento denegado queda antes del contenedor
+    expect(head.indexOf("gtag('consent', 'default'")).toBeLessThan(head.indexOf('gtm.start'))
+  })
+
   it('el consentimiento arranca denegado ANTES de cargar GTM y reaplica lo aceptado', () => {
     const consentAt = head.indexOf("gtag('consent', 'default'")
     expect(consentAt).toBeGreaterThan(-1)

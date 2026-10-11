@@ -29,4 +29,11 @@ describe('404 real en Vercel', () => {
     expect(html).toContain('<div id="root" data-prerendered="/404"><h1>No existe</h1></div>')
     expect(html).toContain('GTM-NC5G56KV')
   })
+
+  it('los archivos con hash de /assets se cachean un año sin revalidar; index.html y sw.js siguen revalidando', () => {
+    const headerOf = (source) => Object.fromEntries((vercel.headers.find(h => h.source === source)?.headers || []).map(h => [h.key, h.value]))
+    expect(headerOf('/assets/(.*)')['Cache-Control']).toBe('public, max-age=31536000, immutable')
+    expect(headerOf('/index.html')['Cache-Control']).toMatch(/must-revalidate/)
+    expect(headerOf('/sw.js')['Cache-Control']).toMatch(/must-revalidate/)
+  })
 })

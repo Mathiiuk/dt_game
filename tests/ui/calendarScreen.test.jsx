@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
@@ -44,6 +44,20 @@ describe('pantalla Calendario', () => {
     expect(screen.getByRole('listitem', { current: 'date' })).toHaveTextContent('En curso')
     await userEvent.click(screen.getByRole('button', { name: /Avanzar semana/ }))
     await waitFor(() => expect(advanceWeek).toHaveBeenCalledWith('c1', 'm1', { careerId: 'k1', expectedCurrentWeek: 2 }))
+  })
+
+  it('sin conexión el botón de avanzar se desactiva y explica por qué (no falla tarde)', async () => {
+    renderScreen()
+    await screen.findByRole('heading', { level: 1, name: 'Calendario' })
+    act(() => { window.dispatchEvent(new Event('offline')) })
+    try {
+      const button = screen.getByRole('button', { name: /Avanzar semana/ })
+      expect(button).toBeDisabled()
+      expect(button).toHaveAttribute('title', expect.stringMatching(/necesit.* conexión/i))
+    } finally {
+      act(() => { window.dispatchEvent(new Event('online')) })
+    }
+    await waitFor(() => expect(screen.getByRole('button', { name: /Avanzar semana/ })).toBeEnabled())
   })
 
   it('con un partido vencido sin jugar, el avance se reemplaza por ir a jugarlo', async () => {

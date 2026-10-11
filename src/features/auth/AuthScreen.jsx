@@ -69,6 +69,14 @@ export default function AuthScreen({ initialMode = 'splash' }) {
   const [forgotSent, setForgotSent] = useState(false)
   const [rateLimitInfo, setRateLimitInfo] = useState({ locked: false, remainingAttempts: 5 })
 
+  // Mientras la persona escribe, se va bajando el Inicio: al entrar ya está en caché (clave en redes lentas)
+  useEffect(() => {
+    const warm = () => { import('../dashboard/Dashboard').catch(() => {}) }
+    if ('requestIdleCallback' in window) { const id = window.requestIdleCallback(warm, { timeout: 3000 }); return () => window.cancelIdleCallback?.(id) }
+    const id = setTimeout(warm, 1500)
+    return () => clearTimeout(id)
+  }, [])
+
   useEffect(() => {
     if (email) setRateLimitInfo(checkRateLimit(email))
   }, [email, mode])

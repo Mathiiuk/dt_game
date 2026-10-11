@@ -5,12 +5,12 @@ import { cn } from '../../lib/utils'
 import { effectOf } from '../../domain/tacticalStyle'
 
 /** Cinta de arriba en el celular: formación, estilo, nivel y química de un vistazo, y guardar apenas hay cambios */
-export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, banned = 0, dirty, saving, onSave }) {
+export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, banned = 0, dirty, saving, onSave, canSave = true }) {
   return (
     <div className="mb-2 border-b border-line pb-2">
       <div className="flex items-center justify-between gap-3">
         <p className="min-w-0 truncate text-sm font-semibold text-fg">{formation} <span className="font-normal text-fg-muted">· {styleLabel}</span></p>
-        {dirty && <Button size="sm" onClick={onSave} loading={saving}>{!saving && <Save />}Guardar</Button>}
+        {dirty && <Button size="sm" onClick={onSave} loading={saving} disabled={!canSave} title={canSave ? undefined : 'Necesitás conexión para esto'}>{!saving && <Save />}Guardar</Button>}
       </div>
       <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label="Resumen del once">
         <li><Badge tone="neutral" className="num">Nivel {avg}</Badge></li>

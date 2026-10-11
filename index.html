@@ -15,9 +15,17 @@
     </script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    new Date().getTime(),event:'gtm.js'});
+    // El contenedor (117 KB) no compite con la descarga del juego: en las rutas del juego espera a que la app se dibuje (o 8 s);
+    // en las páginas públicas, a que la página termine de cargar y el navegador esté libre.
+    var started=false;
+    function load(){if(started)return;started=true;var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}
+    function idle(){if('requestIdleCallback' in w){w.requestIdleCallback(load,{timeout:4000});}else{setTimeout(load,2000);}}
+    var isGame=/^\/(auth|login|registro|welcome|create-manager|create-club|design|match|endgame|dashboard|post-match|events|calendar|tactics|standings|market|squad|club|finances|training|manager|national-team|international-cup|friends|achievements|more|hall-of-fame|logbook|game)\/?$/.test(w.location.pathname);
+    if(isGame){w.addEventListener('vestuario:ready',function(){setTimeout(load,300);},{once:true});setTimeout(load,8000);}
+    else if(d.readyState==='complete'){idle();}else{w.addEventListener('load',idle);}
     })(window,document,'script','dataLayer','GTM-NC5G56KV');</script>
     <!-- End Google Tag Manager -->
     <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />

@@ -12,6 +12,7 @@ import {
 import { formatGameDate } from '../../lib/format'
 import { friendlyError } from '../../lib/errors'
 import { useAdvanceWeek } from '../week/useAdvanceWeek'
+import { useOnline } from '../../hooks/useOnline'
 import { readClubBudget } from '../week/readClubBudget'
 import WeekProgress from '../week/WeekProgress'
 import { cn } from '../../lib/utils'
@@ -93,6 +94,7 @@ export default function CalendarScreen() {
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
   const weekRun = useAdvanceWeek()
+  const online = useOnline()
   const [viewMode, setViewMode] = useState('UPCOMING') // 'UPCOMING' | 'SEASON' | 'WEEKS'
   const [filter, setFilter] = useState('ALL')
   const currentRef = useRef(null)
@@ -185,7 +187,7 @@ export default function CalendarScreen() {
             {dueMatch ? (
               <Button onClick={() => navigate('/dashboard')}><Trophy />Jugar el partido pendiente</Button>
             ) : (
-              <Button loading={advancing} onClick={handleAdvance}>{!advancing && <FastForward />}Avanzar semana</Button>
+              <Button loading={advancing} onClick={handleAdvance} disabled={!online} title={online ? undefined : 'Necesitás conexión para esto'}>{!advancing && <FastForward />}Avanzar semana</Button>
             )}
           </div>
         }

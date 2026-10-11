@@ -48,8 +48,19 @@ export default defineConfig({
         ]
       },
       // Service worker propio (src/sw.js): precache del juego para usarlo sin conexión + avisos push
+      // Se guarda de entrada solo lo necesario para abrir el juego (esqueleto + librerías + fuente de uso común): precachear todo
+      // (3 MB, 29 páginas de la web pública e imágenes) competía con la primera carga en redes lentas. El resto de las pantallas
+      // se guarda la primera vez que se visitan (ver src/sw.js) y queda disponible sin conexión.
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}']
+        globPatterns: [
+          'index.html',
+          'manifest.webmanifest',
+          'pwa-icon.svg',
+          'assets/index-*.{js,css}',
+          'assets/{rolldown-runtime,react,icons,radix,motion,supabase,GameApp,cache,GameContext,auth,site}-*.js',
+          'assets/inter-latin-wght-normal-*.woff2',
+          'assets/barlow-condensed-latin-{600,700}-normal-*.woff2'
+        ]
       }
     })
   ],

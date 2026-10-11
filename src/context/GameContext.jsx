@@ -5,9 +5,12 @@ import { managerApi } from '../api/manager'
 import { supabase } from '../api/supabase'
 import { clubApi } from '../api/club'
 import { queryCache } from '../utils/cache'
+import { readCache } from '../lib/readCache'
 import ActionSheet from '../components/ActionSheet'
-import { climateApi } from '../api/climate'
 import { isWarningMuted } from '../domain/warnings'
+
+// El clima del club es un módulo grande que solo hace falta con un club ya cargado: se baja aparte (no pesa en el login ni en la primera pantalla)
+const loadClimateApi = () => import('../api/climate').then(m => m.climateApi)
 
 const GameContext = createContext(null)
 
@@ -43,6 +46,9 @@ export const GameProvider = ({ children }) => {
           setGameState(prev => ({ ...prev, loading: false }))
           return
         }
+
+        // Las copias para ver el club sin conexión son de una sola persona: si entró otra, se borran
+        await readCache.bindOwner(user.id)
 
         // Si ya tenemos el manager y club cargados y no se fuerza recarga, reutilizar
         if (!force && gameState.manager && gameState.club && gameState.user?.id === user.id) {
@@ -160,7 +166,7 @@ export const GameProvider = ({ children }) => {
 
   // La dificultad elegida se guarda por club: se carga apenas hay club
   useEffect(() => {
-    if (gameState.club?.id) climateApi.load(gameState.club.id).catch(() => {})
+    if (gameState.club?.id) loadClimateApi().then(api => api.load(gameState.club.id)).catch(() => {})
   }, [gameState.club?.id])
 
   const refreshContext = async () => {
@@ -189,7 +195,7 @@ export const GameProvider = ({ children }) => {
     const clubId = gameState.club?.id
     if (clubId) {
       try {
-        const climate = await climateApi.load(clubId)
+        const climate = await (await loadClimateApi()).load(clubId)
         if (isWarningMuted(climate.muted_warnings, warning.key)) return true
       } catch {
         // Sin dato de avisos silenciados, se avisa igual
@@ -207,7 +213,7 @@ export const GameProvider = ({ children }) => {
 
   const handleSheetConfirm = (muted = false) => {
     if (muted === true && sheetConfig?.muteKey && gameState.club?.id) {
-      climateApi.muteWarning(gameState.club.id, sheetConfig.muteKey).catch(() => {})
+      loadClimateApi().then(api => api.muteWarning(gameState.club.id, sheetConfig.muteKey)).catch(() => {})
     }
     if (resolverRef.current) resolverRef.current(true)
     setSheetConfig(null)
