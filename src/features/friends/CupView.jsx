@@ -1,10 +1,13 @@
-import React, { useMemo } from 'react'
-import { Trophy, Play } from 'lucide-react'
-import { Badge, Button, Card, CardBody } from '../../components/ui'
+import React, { useMemo, useState } from 'react'
+import { Trophy } from 'lucide-react'
+import { Badge, Card, CardBody } from '../../components/ui'
+import FixtureRow from './FixtureRow'
+import MatchStory from './MatchStory'
 import { cupPlan, groupLetter, roundLabel, isKnockoutRound } from '../../domain/friendCup'
 
 /** Copa Mundial de la sala: tablas de cada grupo, llaves de eliminación directa y la próxima fecha */
-export default function CupView({ room, groups, teams, fixtures, isOwner, busy, onPlayRound }) {
+export default function CupView({ room, groups, teams, fixtures, panel }) {
+  const [story, setStory] = useState(null)
   const names = useMemo(() => Object.fromEntries((teams || []).map(t => [t.slot, t.name])), [teams])
   const plan = cupPlan((teams || []).length)
   const done = room.status === 'DONE'
@@ -18,18 +21,7 @@ export default function CupView({ room, groups, teams, fixtures, isOwner, busy, 
   const nextRound = room.current_round + 1
   const nextLabel = roundLabel(nextRound, plan.teams)
 
-  const score = (f) => {
-    if (f.home_goals == null) return 'vs'
-    const pens = f.pens_home != null ? ` (${f.pens_home}-${f.pens_away})` : ''
-    return `${f.home_goals} - ${f.away_goals}${pens}`
-  }
-  const match = (f) => (
-    <li key={`${f.round}-${f.home_slot}`} className="flex items-center justify-between gap-2 text-sm">
-      <span className={`min-w-0 flex-1 truncate text-right ${f.winner_slot === f.home_slot ? 'font-semibold text-fg' : 'text-fg-muted'}`}>{names[f.home_slot]}</span>
-      <span className="num w-20 shrink-0 text-center font-semibold text-fg">{score(f)}</span>
-      <span className={`min-w-0 flex-1 truncate ${f.winner_slot === f.away_slot ? 'font-semibold text-fg' : 'text-fg-muted'}`}>{names[f.away_slot]}</span>
-    </li>
-  )
+  const match = (f) => <FixtureRow key={`${f.round}-${f.home_slot}`} fixture={f} names={names} onOpen={setStory} />
 
   return (
     <div className="space-y-5">
@@ -42,9 +34,9 @@ export default function CupView({ room, groups, teams, fixtures, isOwner, busy, 
 
       <Card as="div"><CardBody className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-fg-muted">Fecha <strong className="num text-fg">{room.current_round}</strong> de <strong className="num text-fg">{room.total_rounds}</strong>{!done && <> · sigue: <strong className="text-fg">{nextLabel}</strong></>}</p>
-        {isOwner && !done && <Button onClick={onPlayRound} loading={busy}><Play />Jugar: {nextLabel}</Button>}
-        {!isOwner && !done && <p className="text-sm text-fg-subtle">Las fechas las juega quien armó la sala.</p>}
       </CardBody></Card>
+
+      {!done && panel}
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         {byGroup.map(([no, rows]) => (
@@ -104,6 +96,7 @@ export default function CupView({ room, groups, teams, fixtures, isOwner, busy, 
           <ul className="space-y-1.5">{fixtures.filter(f => f.round === nextRound).map(match)}</ul>
         </CardBody></Card>
       )}
+      <MatchStory fixture={story} names={names} onClose={() => setStory(null)} />
     </div>
   )
 }

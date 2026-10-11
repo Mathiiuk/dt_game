@@ -88,7 +88,7 @@ export const TOUR_STEPS = [
     nav: '/friends',
     title: 'Liga de amigos',
     body: [
-      'Armá una sala con hasta diez amigos y un código de invitación. Quien la arma elige cuántos equipos juegan, si se completa con bots, cuántas fechas hay y qué reglamento usan.',
+      'Armá una sala con hasta diez amigos y un código de invitación. Quien la arma elige el formato (liga o Copa Mundial), cuántos equipos juegan, si se completa con bots y el plazo de cada fecha. En cada fecha elegís tu planteo (presión, equilibrado o contra) y pronosticás los partidos en el prode.',
       'Además hay travesuras de la AFA con mangos que ganás jugando: un sobre, un árbitro amigo, un mote o una denuncia. Solo mueven puntos de la sala, nunca tu plantel ni tu caja.'
     ]
   },

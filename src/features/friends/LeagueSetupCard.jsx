@@ -1,5 +1,6 @@
 import React from 'react'
 import { CUP_SIZES } from '../../domain/friendCup'
+import { DEADLINE_HOURS } from '../../domain/friendPlans'
 import { DEFAULT_SETTINGS, DIFFICULTIES, FORMATS, sanitizeSettings, ROOM_RULESETS, roundsFor, settingsSummary, teamsFor } from '../../domain/friendLeague'
 import { Field, Segmented } from '../../components/ui'
 
@@ -19,6 +20,12 @@ export default function LeagueSetupCard({ settings, onChange, humans = 2, disabl
         {() => (
           <Segmented label="Formato" value={settings.format || 'LIGA'} disabled={disabled} onChange={setFormat}
             options={Object.entries(FORMATS).map(([value, label]) => ({ value, label }))} />
+        )}
+      </Field>
+      <Field label="Plazo de cada fecha" hint="Cada DT elige su planteo antes del cierre. Si todos eligen antes, se juega antes.">
+        {() => (
+          <Segmented label="Plazo" value={settings.deadlineHours || 24} disabled={disabled} onChange={v => set({ deadlineHours: v })}
+            options={DEADLINE_HOURS.map(h => ({ value: h, label: `${h} h` }))} />
         )}
       </Field>
       {isCup ? (

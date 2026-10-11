@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
 const { api } = vi.hoisted(() => ({
-  api: { getMyRooms: vi.fn(), getTable: vi.fn(), getWall: vi.fn(), createRoom: vi.fn(), joinRoom: vi.fn(), leaveRoom: vi.fn(), prank: vi.fn(), configureRoom: vi.fn(), startLeague: vi.fn(), playRound: vi.fn(), getLeagueTable: vi.fn(), getLeagueFixtures: vi.fn(), getCupGroups: vi.fn() }
+  api: { getMyRooms: vi.fn(), getTable: vi.fn(), getWall: vi.fn(), createRoom: vi.fn(), joinRoom: vi.fn(), leaveRoom: vi.fn(), prank: vi.fn(), configureRoom: vi.fn(), startLeague: vi.fn(), playRound: vi.fn(), getLeagueTable: vi.fn(), getLeagueFixtures: vi.fn(), getCupGroups: vi.fn(), tryClose: vi.fn(), getRoundInfo: vi.fn(), markSeen: vi.fn(), setPlan: vi.fn(), predict: vi.fn() }
 }))
 vi.mock('../../src/api/friends', () => ({ friendsApi: api }))
 vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
@@ -15,8 +15,15 @@ import FriendsScreen from '../../src/features/friends/FriendsScreen'
 
 const renderIt = () => render(<MemoryRouter><FriendsScreen /></MemoryRouter>)
 
+const roundInfo = { status: [{ user_id: 'u1', club_name: 'Mi Club', is_me: true, ready: false }, { user_id: 'u2', club_name: 'Club Amigo', is_me: false, ready: true }], prode: [], plan: null, picks: {} }
+
 describe('pantalla de la liga de amigos', () => {
-  beforeEach(() => Object.values(api).forEach(f => f.mockReset()))
+  beforeEach(() => {
+    Object.values(api).forEach(f => f.mockReset())
+    api.tryClose.mockResolvedValue({ closed: false })
+    api.getRoundInfo.mockResolvedValue(roundInfo)
+    api.markSeen.mockResolvedValue()
+  })
 
   it('sin sala ofrece armar una o entrar con código, y crea con el club propio', async () => {
     api.getMyRooms.mockResolvedValueOnce([]).mockResolvedValue([{ id: 'r1', code: 'ABC123', name: 'Los Pibes', status: 'LOBBY', created_by: 'u1', settings: {} }])
@@ -106,7 +113,7 @@ describe('pantalla de la liga de amigos', () => {
     renderIt()
     expect(await screen.findByText('Bot')).toBeInTheDocument()
     expect(await screen.findByText('Resultados de la fecha 1')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: /jugar fecha 2/i }))
+    await userEvent.click(screen.getByRole('button', { name: /cerrar la fecha ahora/i }))
     await waitFor(() => expect(api.playRound).toHaveBeenCalledWith('r1', 'LIGA'))
   })
 
@@ -127,7 +134,54 @@ describe('pantalla de la liga de amigos', () => {
     expect(await screen.findByLabelText('Grupo A')).toBeInTheDocument()
     expect(screen.getAllByText('Uruguay').length).toBeGreaterThan(0)
     expect(api.getLeagueTable).not.toHaveBeenCalled()
-    await userEvent.click(screen.getByRole('button', { name: /jugar: fecha 2 de grupos/i }))
+    await userEvent.click(screen.getByRole('button', { name: /cerrar la fecha ahora/i }))
     await waitFor(() => expect(api.playRound).toHaveBeenCalledWith('r1', 'COPA'))
+  })
+
+  const playing = () => {
+    api.getMyRooms.mockResolvedValue([{ id: 'r1', code: 'ABC123', name: 'Los Pibes', status: 'PLAYING', created_by: 'u1', settings: {}, current_round: 1, total_rounds: 3, round_deadline: new Date(Date.now() + 5 * 3600000).toISOString() }])
+    api.getTable.mockResolvedValue(humans)
+    api.getWall.mockResolvedValue([])
+    api.getLeagueTable.mockResolvedValue([{ slot: 1, user_id: 'u1', name: 'Mi Club', is_bot: false, is_me: true, played: 1, won: 1, drawn: 0, lost: 0, gf: 2, ga: 0, gd: 2, league_points: 3, bonus: 0, points: 3 }])
+    api.getLeagueFixtures.mockResolvedValue({ teams: [{ slot: 1, name: 'Mi Club' }, { slot: 3, name: 'Gimnasia' }], fixtures: [
+      { id: 'f1', round: 1, home_slot: 1, away_slot: 3, home_goals: 2, away_goals: 0, minutes: [{ m: 10, s: 'H' }, { m: 70, s: 'H' }], home_stance: 'PRESION', away_stance: 'CONTRA' },
+      { id: 'f2', round: 2, home_slot: 3, away_slot: 1, home_goals: null, away_goals: null }
+    ] })
+  }
+
+  it('la fecha en curso muestra el plazo, quiénes ya eligieron y guarda mi planteo', async () => {
+    playing()
+    api.setPlan.mockResolvedValue({ round: 2 })
+    renderIt()
+    expect(await screen.findByText(/cierra en/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Club Amigo/, { selector: 'span' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('radio', { name: 'Contra' }))
+    await userEvent.click(screen.getByRole('button', { name: /guardar planteo/i }))
+    await waitFor(() => expect(api.setPlan).toHaveBeenCalledWith('r1', 'CONTRA', 'GARRA'))
+  })
+
+  it('el prode manda el pronóstico de cada partido de la próxima fecha', async () => {
+    playing()
+    api.predict.mockResolvedValue()
+    renderIt()
+    await userEvent.click(await screen.findByRole('radio', { name: 'Gana Gimnasia' }))
+    await waitFor(() => expect(api.predict).toHaveBeenCalledWith('r1', 'f2', 'L'))
+    expect(await screen.findByRole('radio', { name: 'Gana Gimnasia', checked: true })).toBeInTheDocument()
+  })
+
+  it('tocar un resultado abre el relato del partido', async () => {
+    playing()
+    renderIt()
+    await userEvent.click(await screen.findByRole('button', { name: /ver el relato: mi club 2 - 0 gimnasia/i }))
+    expect(await screen.findByText(/Final: Mi Club 2 - 0 Gimnasia/)).toBeInTheDocument()
+    expect(screen.getByText(/salió con presión alta/i)).toBeInTheDocument()
+  })
+
+  it('al abrir la sala pide al servidor cerrar la fecha si ya está lista y avisa', async () => {
+    playing()
+    api.tryClose.mockResolvedValue({ closed: true, round: 2, done: false })
+    renderIt()
+    await waitFor(() => expect(api.tryClose).toHaveBeenCalledWith('r1'))
+    await waitFor(() => expect(api.markSeen).toHaveBeenCalledWith('r1'))
   })
 })

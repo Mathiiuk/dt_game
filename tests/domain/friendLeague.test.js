@@ -2,12 +2,12 @@ import { DEFAULT_SETTINGS, DIFFICULTIES, ROOM_RULESETS, sanitizeSettings, rounds
 
 describe('liga de la sala: ajustes del creador', () => {
   it('por defecto: 10 equipos, con bots parejos, ida y vuelta y reglamento clásico', () => {
-    expect(DEFAULT_SETTINGS).toEqual({ format: 'LIGA', teams: 10, fillBots: true, legs: 2, difficulty: 'PAREJOS', rulesId: 'CLASICO' })
+    expect(DEFAULT_SETTINGS).toEqual({ format: 'LIGA', teams: 10, fillBots: true, legs: 2, difficulty: 'PAREJOS', rulesId: 'CLASICO', deadlineHours: 24 })
   })
 
   it('sanea valores raros: equipos entre 4 y 20, ruedas 1 o 2, dificultad y reglamento conocidos', () => {
-    expect(sanitizeSettings({ teams: 99, legs: 7, difficulty: 'xx', rulesId: 'nada', fillBots: 'si' })).toEqual({ format: 'LIGA', teams: 20, fillBots: true, legs: 2, difficulty: 'PAREJOS', rulesId: 'CLASICO' })
-    expect(sanitizeSettings({ teams: 1, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO', fillBots: false })).toEqual({ format: 'LIGA', teams: 4, fillBots: false, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO' })
+    expect(sanitizeSettings({ teams: 99, legs: 7, difficulty: 'xx', rulesId: 'nada', fillBots: 'si' })).toEqual({ format: 'LIGA', deadlineHours: 24, teams: 20, fillBots: true, legs: 2, difficulty: 'PAREJOS', rulesId: 'CLASICO' })
+    expect(sanitizeSettings({ teams: 1, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO', fillBots: false })).toEqual({ format: 'LIGA', deadlineHours: 24, teams: 4, fillBots: false, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO' })
     expect(sanitizeSettings(null)).toEqual(DEFAULT_SETTINGS)
     expect(sanitizeSettings({ rulesId: 'SORTEO' }).rulesId).toBe('SORTEO')
   })

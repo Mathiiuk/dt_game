@@ -6,8 +6,9 @@ import { RULESETS, rulesFor, rulesetName } from './leagueRules'
 import { pickRivalClubs } from './rivalClubs'
 import { seededRandom } from './cupMatch'
 import { cupSizeFor } from './friendCup'
+import { DEADLINE_HOURS, DEFAULT_DEADLINE_HOURS } from './friendPlans'
 
-export const DEFAULT_SETTINGS = Object.freeze({ format: 'LIGA', teams: 10, fillBots: true, legs: 2, difficulty: 'PAREJOS', rulesId: 'CLASICO' })
+export const DEFAULT_SETTINGS = Object.freeze({ format: 'LIGA', teams: 10, fillBots: true, legs: 2, difficulty: 'PAREJOS', rulesId: 'CLASICO', deadlineHours: DEFAULT_DEADLINE_HOURS })
 
 export const FORMATS = { LIGA: 'Liga', COPA: 'Copa Mundial' }
 
@@ -29,15 +30,17 @@ const ROOM_RULE_IDS = new Set(['SORTEO', ...ROOM_RULESETS.map(r => r.id)])
 export function sanitizeSettings(raw) {
   const s = raw || {}
   const format = s.format === 'COPA' ? 'COPA' : 'LIGA'
+  const deadlineHours = DEADLINE_HOURS.includes(Number(s.deadlineHours)) ? Number(s.deadlineHours) : DEFAULT_DEADLINE_HOURS
   if (format === 'COPA') {
     return {
-      format, teams: cupSizeFor(s.teams), fillBots: true, legs: 1,
+      format, deadlineHours, teams: cupSizeFor(s.teams), fillBots: true, legs: 1,
       difficulty: s.difficulty in DIFFICULTIES ? s.difficulty : DEFAULT_SETTINGS.difficulty, rulesId: DEFAULT_SETTINGS.rulesId
     }
   }
   const teams = Math.min(20, Math.max(4, Math.round(Number(s.teams)) || DEFAULT_SETTINGS.teams))
   return {
     format,
+    deadlineHours,
     teams,
     fillBots: s.fillBots === undefined ? DEFAULT_SETTINGS.fillBots : Boolean(s.fillBots),
     legs: Number(s.legs) === 1 ? 1 : 2,

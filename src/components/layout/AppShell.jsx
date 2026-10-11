@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Loader2, LogOut, Shield, Trash2 } from 'lucide-react'
 import { useGameContext } from '../../context/GameContext'
 import { cn } from '../../lib/utils'
@@ -10,6 +10,7 @@ import { NAV_GROUPS, MOBILE_TABS, isActivePath, titleForPath } from './navigatio
 import { useLogout } from './useLogout'
 import DeleteAccountDialog from './DeleteAccountDialog'
 import GameTour from '../../features/tutorial/GameTour'
+import { useFriendsPending, pendingText } from '../../features/friends/useFriendsPending'
 
 function Brand() {
   return (
@@ -23,7 +24,7 @@ function Brand() {
 }
 
 /** Menú lateral de escritorio: grupos con rótulo, ítem activo con barra de acento */
-function Sidebar({ club, manager }) {
+function Sidebar({ club, manager, friendsPending }) {
   const logout = useLogout()
   const [deleting, setDeleting] = useState(false)
 
@@ -51,6 +52,7 @@ function Sidebar({ club, manager }) {
                         {isActive && <span className="absolute inset-y-2 left-0 w-0.5 rounded-full bg-accent" aria-hidden="true" />}
                         <Icon className={cn('size-4.5 shrink-0', isActive ? 'text-accent' : 'text-fg-subtle group-hover:text-fg-muted')} aria-hidden="true" />
                         {label}
+                        {to === '/friends' && friendsPending && <span className="ml-auto size-2 rounded-full bg-accent" role="img" aria-label="Tenés algo pendiente" />}
                       </>
                     )}
                   </NavLink>
@@ -144,6 +146,8 @@ export default function AppShell() {
   const { pathname } = useLocation()
   const scrollRef = useRef(null)
   const fit = FIT_ROUTES.includes(pathname)
+  const pending = useFriendsPending(pathname, Boolean(club))
+  const notice = pathname === '/friends' ? null : pending[0]
   // En el celular el menú es de alto fijo: la página no se mueve (en escritorio la página scrollea normal)
   const isLg = useMediaQuery('(min-width: 1024px)')
   usePageLock(!isLg)
@@ -158,11 +162,17 @@ export default function AppShell() {
       <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-fg">
         Saltar al contenido
       </a>
-      <Sidebar club={club} manager={manager} />
+      <Sidebar club={club} manager={manager} friendsPending={pending.length > 0} />
       <GameTour />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div ref={scrollRef} className={cn('min-h-0 flex-1 overscroll-contain lg:overflow-visible', fit ? 'flex flex-col overflow-hidden' : 'overflow-y-auto')}>
           <MobileTopBar club={club} title={titleForPath(pathname)} />
+          {notice && (
+            <Link to="/friends" className="mx-4 mt-3 flex items-center gap-2 rounded-lg border border-accent/40 bg-accent-soft px-3 py-2 text-sm font-medium text-accent lg:mx-6">
+              <span className="min-w-0 flex-1">{pendingText(notice)}</span>
+              <span aria-hidden="true">›</span>
+            </Link>
+          )}
           <main id="contenido" className={cn('min-w-0 lg:pb-0', fit ? 'flex min-h-0 flex-1 flex-col' : 'pb-6')}>
             <Suspense fallback={<div role="status" aria-label="Cargando la pantalla" className="grid min-h-[50dvh] place-items-center text-accent"><Loader2 className="size-7 animate-spin" aria-hidden="true" /></div>}>
               <Outlet />

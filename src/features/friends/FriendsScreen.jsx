@@ -11,6 +11,7 @@ import { DEFAULT_SETTINGS, sanitizeSettings } from '../../domain/friendLeague'
 import LeagueSetupCard from './LeagueSetupCard'
 import LeagueView from './LeagueView'
 import CupView from './CupView'
+import RoundPanel from './RoundPanel'
 
 /** Liga de amigos: sala con código para hasta 10 DT, con tabla compartida, muro y travesuras de la AFA */
 export default function FriendsScreen() {
@@ -26,6 +27,7 @@ export default function FriendsScreen() {
   const [newSettings, setNewSettings] = useState({ ...DEFAULT_SETTINGS })
   const [draft, setDraft] = useState(null) // ajustes en edición dentro del lobby
   const [league, setLeague] = useState({ table: [], groups: [], teams: [], fixtures: [] })
+  const [roundInfo, setRoundInfo] = useState({ status: [], prode: [], plan: null, picks: {} })
 
   const room = rooms?.find(r => r.id === roomId) || null
   const me = table.find(t => t.is_me)
@@ -46,6 +48,12 @@ export default function FriendsScreen() {
   const loadRoom = useCallback(async (id) => {
     if (!id) return
     try {
+      // Si la fecha ya está lista (venció el plazo o todos eligieron), la juega el servidor antes de mostrar nada
+      const opened = (await friendsApi.getMyRooms()).find(r => r.id === id)
+      if (opened?.status === 'PLAYING') {
+        const closed = await friendsApi.tryClose(id).catch(() => null)
+        if (closed?.closed) toast.info(closed.done ? 'Se jugó la última fecha.' : `Se jugó la fecha ${closed.round}.`)
+      }
       const [t, w] = await Promise.all([friendsApi.getTable(id), friendsApi.getWall(id)])
       setTable(t)
       setWall(w)
@@ -59,6 +67,11 @@ export default function FriendsScreen() {
           friendsApi.getLeagueFixtures(id)
         ])
         setLeague({ table: lt, groups: gr, teams: lf.teams, fixtures: lf.fixtures })
+        if (current.status === 'PLAYING') {
+          const meNow = t.find(x => x.is_me)
+          setRoundInfo(await friendsApi.getRoundInfo(id, current.current_round + 1, meNow?.user_id))
+        }
+        friendsApi.markSeen(id).catch(() => {})
       }
     } catch (err) {
       toast.error(friendlyError(err, 'No pudimos cargar la sala.'))
@@ -110,6 +123,14 @@ export default function FriendsScreen() {
   const playRound = async () => {
     const res = await run(() => friendsApi.playRound(roomId, room?.settings?.format || 'LIGA'))
     if (res) { toast.success(res.done ? 'Se jugó la última fecha.' : `Fecha ${res.round} jugada.`); await loadRoom(roomId) }
+  }
+  const savePlan = async (stance, cheer) => {
+    const res = await run(() => friendsApi.setPlan(roomId, stance, cheer), 'Planteo guardado.')
+    if (res) await loadRoom(roomId)
+  }
+  const predict = async (fixtureId, pick) => {
+    const res = await run(async () => { await friendsApi.predict(roomId, fixtureId, pick); return true })
+    if (res) setRoundInfo(prev => ({ ...prev, picks: { ...prev.picks, [fixtureId]: pick } }))
   }
   const copyCode = async () => {
     try { await navigator.clipboard.writeText(room.code); toast.success('Código copiado.') } catch { toast.info(`Código: ${room.code}`) }
@@ -170,9 +191,15 @@ export default function FriendsScreen() {
           </CardBody></Card>
 
           {started ? (
-            room.settings?.format === 'COPA'
-              ? <CupView room={room} groups={league.groups} teams={league.teams} fixtures={league.fixtures} isOwner={isOwner} busy={busy} onPlayRound={playRound} />
-              : <LeagueView room={room} table={league.table} teams={league.teams} fixtures={league.fixtures} isOwner={isOwner} busy={busy} onPlayRound={playRound} />
+            (() => {
+              const names = Object.fromEntries(league.teams.map(t => [t.slot, t.name]))
+              const panel = room.status === 'PLAYING'
+                ? <RoundPanel room={room} fixtures={league.fixtures} names={names} info={roundInfo} isOwner={isOwner} busy={busy} onSavePlan={savePlan} onPredict={predict} onClose={playRound} />
+                : null
+              return room.settings?.format === 'COPA'
+                ? <CupView room={room} groups={league.groups} teams={league.teams} fixtures={league.fixtures} panel={panel} />
+                : <LeagueView room={room} table={league.table} teams={league.teams} fixtures={league.fixtures} panel={panel} />
+            })()
           ) : (
             <>
             <Card as="div" className="overflow-hidden">

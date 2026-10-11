@@ -15,6 +15,8 @@ vi.mock('../../src/context/GameContext', () => ({
   })
 }))
 vi.mock('../../src/api/auth', () => ({ authApi: { logout: (...a) => logout(...a) } }))
+const pendingRooms = vi.hoisted(() => ({ list: [] }))
+vi.mock('../../src/api/friends', () => ({ friendsApi: { getPending: () => Promise.resolve(pendingRooms.list) } }))
 vi.mock('../../src/lib/redirect', () => ({ hardRedirect: (...a) => hardRedirect(...a) }))
 
 import AppShell from '../../src/components/layout/AppShell'
@@ -58,7 +60,7 @@ describe('mapa de navegación', () => {
 })
 
 describe('AppShell', () => {
-  beforeEach(() => { confirmAction.mockClear(); logout.mockClear(); hardRedirect.mockClear() })
+  beforeEach(() => { confirmAction.mockClear(); logout.mockClear(); hardRedirect.mockClear(); pendingRooms.list = [] })
 
   it('muestra contenido, menú lateral con todos los destinos y la fecha del juego', () => {
     renderAt('/dashboard')
@@ -100,6 +102,19 @@ describe('AppShell', () => {
     await waitFor(() => expect(confirmAction).toHaveBeenCalled())
     expect(logout).not.toHaveBeenCalled()
     expect(hardRedirect).not.toHaveBeenCalled()
+  })
+
+  it('avisa en cualquier pantalla cuando falta el planteo de una sala de amigos, y no en la de amigos', async () => {
+    pendingRooms.list = [{ room_id: 'r1', room_name: 'Los Pibes', kind: 'PLAN', round: 3 }]
+    renderAt('/squad')
+    expect(await screen.findByText('Tu planteo de la fecha 3 está pendiente en Los Pibes.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Tenés algo pendiente')).toBeInTheDocument()
+  })
+
+  it('con una fecha ya jugada avisa para ir a verla', async () => {
+    pendingRooms.list = [{ room_id: 'r1', room_name: 'Los Pibes', kind: 'PLAYED', round: 2 }]
+    renderAt('/dashboard')
+    expect(await screen.findByText(/Se jugó la fecha 2 en Los Pibes/)).toBeInTheDocument()
   })
 
   it('incluye un enlace para saltar al contenido principal', () => {

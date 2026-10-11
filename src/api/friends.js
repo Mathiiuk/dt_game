@@ -12,7 +12,7 @@ const unwrap = ({ data, error }) => {
 export const friendsApi = {
   /** Las salas en las que estoy (la base solo deja ver las propias) */
   async getMyRooms() {
-    return unwrap(await supabase.from('friend_rooms').select('id, code, name, created_at, created_by, status, settings, rules, current_round, total_rounds').order('created_at', { ascending: true })) || []
+    return unwrap(await supabase.from('friend_rooms').select('id, code, name, created_at, created_by, status, settings, rules, current_round, total_rounds, round_deadline').order('created_at', { ascending: true })) || []
   },
 
   async createRoom(name, clubId) {
@@ -28,7 +28,9 @@ export const friendsApi = {
   /** Ajustes del creador (solo en el lobby): equipos, ruedas, bots, nivel de los bots y reglamento */
   async configureRoom(roomId, rawSettings) {
     const settings = sanitizeSettings({ ...DEFAULT_SETTINGS, ...rawSettings })
-    return unwrap(await supabase.rpc('friend_configure_room', { p_room_id: roomId, p_settings: settings, p_rules: resolveRules(settings, roomId) }))
+    const res = unwrap(await supabase.rpc('friend_configure_room', { p_room_id: roomId, p_settings: settings, p_rules: resolveRules(settings, roomId) }))
+    unwrap(await supabase.rpc('friend_set_deadline', { p_room_id: roomId, p_hours: settings.deadlineHours }))
+    return res
   },
 
   /** Empieza la liga: completa con bots (nombres de clubes históricos) y arma el calendario */
@@ -61,9 +63,44 @@ export const friendsApi = {
   async getLeagueFixtures(roomId) {
     const [teams, fixtures] = await Promise.all([
       supabase.from('friend_league_teams').select('slot, name, user_id, group_no').eq('room_id', roomId),
-      supabase.from('friend_league_fixtures').select('round, home_slot, away_slot, home_goals, away_goals, stage, group_no, match_no, winner_slot, pens_home, pens_away').eq('room_id', roomId).order('round', { ascending: true })
+      supabase.from('friend_league_fixtures').select('id, round, home_slot, away_slot, home_goals, away_goals, stage, group_no, match_no, winner_slot, pens_home, pens_away, minutes, home_stance, away_stance').eq('room_id', roomId).order('round', { ascending: true })
     ])
     return { teams: unwrap(teams) || [], fixtures: unwrap(fixtures) || [] }
+  },
+
+  /** Al abrir la sala: si la fecha está lista (venció el plazo o todos eligieron), la juega el servidor */
+  async tryClose(roomId) {
+    return unwrap(await supabase.rpc('friend_try_close', { p_room_id: roomId }))
+  },
+
+  /** Mi planteo y mi arenga para la próxima fecha */
+  async setPlan(roomId, stance, cheer) {
+    return unwrap(await supabase.rpc('friend_set_plan', { p_room_id: roomId, p_stance: stance, p_cheer: cheer }))
+  },
+
+  /** Pronóstico de un partido de la próxima fecha: L (local), E (empate) o V (visitante) */
+  async predict(roomId, fixtureId, pick) {
+    unwrap(await supabase.rpc('friend_predict', { p_room_id: roomId, p_fixture_id: fixtureId, p_pick: pick }))
+  },
+
+  /** Quiénes ya eligieron planteo, el ranking del prode, mi planteo y mis pronósticos de la próxima fecha */
+  async getRoundInfo(roomId, round, userId) {
+    const [status, prode, plans, picks] = await Promise.all([
+      supabase.rpc('friend_round_status', { p_room_id: roomId }),
+      supabase.rpc('friend_prode_table', { p_room_id: roomId }),
+      supabase.from('friend_round_plans').select('stance, cheer').eq('room_id', roomId).eq('round', round).eq('user_id', userId),
+      supabase.from('friend_predictions').select('fixture_id, pick').eq('room_id', roomId).eq('round', round).eq('user_id', userId)
+    ])
+    return { status: unwrap(status) || [], prode: unwrap(prode) || [], plan: (unwrap(plans) || [])[0] || null, picks: Object.fromEntries((unwrap(picks) || []).map(p => [p.fixture_id, p.pick])) }
+  },
+
+  /** Avisos: salas donde me falta elegir planteo o hay una fecha jugada que no vi */
+  async getPending() {
+    return unwrap(await supabase.rpc('friend_pending')) || []
+  },
+
+  async markSeen(roomId) {
+    unwrap(await supabase.rpc('friend_mark_seen', { p_room_id: roomId }))
   },
 
   async leaveRoom(roomId) {

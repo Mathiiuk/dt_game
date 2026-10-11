@@ -49,7 +49,7 @@ describe('liga de la sala (API)', () => {
     await friendsApi.configureRoom('r1', { teams: 99, legs: 1, rulesId: 'CERO_CERO', difficulty: 'CRACKS' })
     const { args } = calls.rpc[0]
     expect(calls.rpc[0].name).toBe('friend_configure_room')
-    expect(args.p_settings).toEqual({ format: 'LIGA', teams: 20, fillBots: true, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO' })
+    expect(args.p_settings).toEqual({ format: 'LIGA', deadlineHours: 24, teams: 20, fillBots: true, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO' })
     expect(args.p_rules.nilNilPts).toBe(0)
   })
 
@@ -80,5 +80,24 @@ describe('liga de la sala (API)', () => {
     expect(calls.rpc[0]).toEqual({ name: 'friend_play_cup_round', args: { p_room_id: 'r1' } })
     await friendsApi.getCupGroups('r1')
     expect(calls.rpc[1]).toEqual({ name: 'friend_cup_group_table', args: { p_room_id: 'r1' } })
+  })
+
+  it('las fechas interactivas usan sus funciones del servidor', async () => {
+    await friendsApi.setPlan('r1', 'CONTRA', 'PICARDIA')
+    expect(calls.rpc[0]).toEqual({ name: 'friend_set_plan', args: { p_room_id: 'r1', p_stance: 'CONTRA', p_cheer: 'PICARDIA' } })
+    await friendsApi.predict('r1', 'f1', 'E')
+    expect(calls.rpc[1]).toEqual({ name: 'friend_predict', args: { p_room_id: 'r1', p_fixture_id: 'f1', p_pick: 'E' } })
+    await friendsApi.tryClose('r1')
+    expect(calls.rpc[2].name).toBe('friend_try_close')
+    await friendsApi.getPending()
+    expect(calls.rpc[3].name).toBe('friend_pending')
+    await friendsApi.markSeen('r1')
+    expect(calls.rpc[4]).toEqual({ name: 'friend_mark_seen', args: { p_room_id: 'r1' } })
+  })
+
+  it('al configurar también guarda el plazo de cada fecha', async () => {
+    calls.rpc.length = 0
+    await friendsApi.configureRoom('r1', { deadlineHours: 48 })
+    expect(calls.rpc[1]).toEqual({ name: 'friend_set_deadline', args: { p_room_id: 'r1', p_hours: 48 } })
   })
 })
