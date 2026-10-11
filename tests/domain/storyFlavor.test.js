@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { ARC_CATALOG } from '../../src/domain/arcCatalog'
 import { LEAGUE_ARCS } from '../../src/domain/arcCatalogLiga'
 import { chapterTemplate } from '../../src/domain/arcs'
-import { splitSegments, splitBeats, reactionFor, effectChips } from '../../src/domain/storyFlavor'
+import { splitSegments, splitBeats, reactionFor, effectChips, describeEffect } from '../../src/domain/storyFlavor'
 
 describe('cómo se cuentan las historias', () => {
   it('separa la narración de lo que dicen los personajes', () => {
@@ -31,10 +31,28 @@ describe('cómo se cuentan las historias', () => {
   })
 
   it('los chips muestran sólo lo que cambió', () => {
-    expect(effectChips({ fans: 2, locker: 0, budget: -300 })).toEqual([
+    expect(effectChips({ fans: 2, locker: 0, budget: -300 }).map(({ key, label, value }) => ({ key, label, value }))).toEqual([
       { key: 'fans', label: 'Hinchada', value: 2 },
       { key: 'budget', label: 'Caja', value: -300 }
     ])
+  })
+
+  it('cada chip dice si sube o baja, qué tan fuerte fue y cuánto llenar la barra', () => {
+    const [fans, locker, board, budget] = effectChips({ fans: 2, locker: -6, board: 12, budget: 2500 })
+    expect(fans).toMatchObject({ verb: 'sube', magnitude: 'leve' })
+    expect(locker).toMatchObject({ verb: 'baja', magnitude: 'fuerte' })
+    expect(board).toMatchObject({ verb: 'sube', magnitude: 'enorme' })
+    // La caja se mide en otra escala: 2500 pesos pesan como 5 puntos
+    expect(budget).toMatchObject({ key: 'budget', verb: 'sube', magnitude: 'fuerte' })
+    for (const c of [fans, locker, board, budget]) { expect(c.fill).toBeGreaterThan(0); expect(c.fill).toBeLessThanOrEqual(1) }
+    expect(board.fill).toBe(1)
+    expect(fans.fill).toBeLessThan(locker.fill)
+  })
+
+  it('el texto para lectores de pantalla junta nombre, sentido, fuerza y valor', () => {
+    expect(describeEffect(effectChips({ fans: 8 })[0])).toBe('Hinchada, sube mucho, más 8')
+    expect(describeEffect(effectChips({ board: -1 })[0])).toBe('Dirigencia, baja un poco, menos 1')
+    expect(describeEffect(effectChips({ locker: 4 })[0])).toBe('Vestuario, sube bastante, más 4')
   })
 
   it('no pierde los signos de apertura ¡ y ¿', () => {

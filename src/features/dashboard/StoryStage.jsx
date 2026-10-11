@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, ChevronRight, Coins, Hourglass, MessageSquareQuote, Newspaper, Shirt, Sparkles, Users, Wallet, X } from 'lucide-react'
 import { splitBeats, effectChips } from '../../domain/storyFlavor'
+import EffectMeters from '../../components/EffectMeters'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
 import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, chapterOf, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
@@ -176,13 +177,7 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
             {result.choice && <p className="text-sm text-fg-subtle">Elegiste: <span className="font-semibold text-fg">{result.choice}</span></p>}
             <h2 className="font-display text-2xl font-semibold leading-snug text-fg sm:text-3xl">{result.note}</h2>
             <p className="text-base italic leading-relaxed text-fg-muted">{result.reaction}</p>
-            {effectChips(result.effects).length > 0 && (
-              <ul className="flex flex-wrap gap-2" aria-label="Lo que cambió">
-                {effectChips(result.effects).map(c => (
-                  <li key={c.key}><Badge tone={c.value > 0 ? 'accent' : 'danger'} className="num px-3 py-1 text-sm">{c.label} {c.value > 0 ? '+' : ''}{c.value}</Badge></li>
-                ))}
-              </ul>
-            )}
+            <EffectMeters chips={effectChips(result.effects)} />
             <Button size="lg" className="mt-2 w-full" onClick={onClose}>Seguir<ChevronRight /></Button>
           </div>
         ) : reading ? (

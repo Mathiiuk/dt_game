@@ -23,13 +23,14 @@ import {
   HeartPulse,
   Home,
   MessageSquare,
-  UserCheck
-} from 'lucide-react'
+  UserCheck, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { AsyncButton, ClubBadge } from '../../components/ui'
 import { Pager } from '../../components/ui/pager'
 import { friendlyError } from '../../lib/errors'
 import PressRoom from './PressRoom'
+import { shareMatchResult } from '../../lib/shareMatch'
+import { track } from '../../lib/analytics'
 
 export default function PostMatchScreen() {
   const navigate = useNavigate()
@@ -258,6 +259,15 @@ export default function PostMatchScreen() {
 
   // Datos para "Titular o fake": el resultado y la figura del partido son verdaderos
   const headlineContext = { clubName: clubName || 'Tu Club', rivalName: oppName, isHome, homeScore: results.homeScore, awayScore: results.awayScore, mvpName: mvp?.name || null }
+
+  // Compartir el resultado (siempre desde el club propio)
+  const shareResult = async () => {
+    const mine = isHome ? results.homeScore : results.awayScore
+    const theirs = isHome ? results.awayScore : results.homeScore
+    const how = await shareMatchResult({ club: clubName, rival: oppName, mine, theirs })
+    track('share_match', { how })
+    if (how === 'copied') toast.success('Resultado copiado: pegalo donde quieras.')
+  }
 
   const keyEvents = (results.events || []).filter(e => ['GOAL', 'CARD_RED', 'CARD_YELLOW', 'INJURY'].includes(e.type))
 
@@ -578,6 +588,17 @@ export default function PostMatchScreen() {
       {(step === 'SUMMARY' || isPressFinished || isPressDelegated || skipResult) && <div className="shrink-0 border-t border-line pt-3">
         {/* Acciones: del resumen se sigue a la prensa; al final se vuelve al inicio */}
         <div className="mx-auto flex w-full max-w-4xl flex-row items-stretch justify-end gap-2 sm:gap-3">
+          {step === 'SUMMARY' && (
+            <button
+              type="button"
+              onClick={shareResult}
+              aria-label="Compartir resultado"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-3 text-xs font-bold text-fg transition-colors hover:bg-surface-3 sm:px-5"
+            >
+              <Share2 className="size-4" aria-hidden="true" /><span className="hidden sm:inline">Compartir</span>
+            </button>
+          )}
+
           {step === 'SUMMARY' && (
             <button
               onClick={() => leaveTo('/standings')}

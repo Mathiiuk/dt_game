@@ -32,6 +32,9 @@ vi.mock('../../src/api/press', () => ({
   }
 }))
 
+const shareMatchResult = vi.hoisted(() => vi.fn())
+vi.mock('../../src/lib/shareMatch', () => ({ shareMatchResult: (...a) => shareMatchResult(...a) }))
+
 import PostMatchScreen from '../../src/features/match/PostMatchScreen'
 
 const results = { isHome: true, homeScore: 0, awayScore: 2, opponentName: 'Rival', events: [], stats: {} }
@@ -101,5 +104,12 @@ describe('rueda de prensa después del partido', () => {
     await userEvent.click(await screen.findByRole('button', { name: /Ver tabla de posiciones/ }))
     expect(skipConference).not.toHaveBeenCalled()
     expect(screen.queryByText('Tabla de posiciones')).not.toBeInTheDocument()
+  })
+
+  it('el resumen permite compartir el resultado desde el club propio', async () => {
+    shareMatchResult.mockResolvedValue('shared')
+    renderScreen()
+    await userEvent.click(await screen.findByRole('button', { name: 'Compartir resultado' }))
+    expect(shareMatchResult).toHaveBeenCalledWith({ club: 'Potrero', rival: 'Rival', mine: 0, theirs: 2 })
   })
 })

@@ -109,9 +109,26 @@ export function reactionFor(effects = {}, seed = '') {
 
 const EFFECT_LABELS = { fans: 'Hinchada', locker: 'Vestuario', board: 'Dirigencia', budget: 'Caja' }
 
-/** Chips de efecto para mostrar tras decidir: [{ key, label, value }] */
+const MAGNITUDES = [[3, 'leve', 'un poco'], [8, 'fuerte', 'bastante'], [Infinity, 'enorme', 'mucho']]
+const FILL_AT = 12
+
+/**
+ * Chips de efecto para mostrar tras decidir: [{ key, label, value, verb, magnitude, fill }].
+ * `fill` (0 a 1) es cuánto llenar la barra; la caja se mide en otra escala (500 pesos pesan como 1 punto).
+ */
 export function effectChips(effects = {}) {
   return Object.keys(EFFECT_LABELS)
     .filter(k => Number(effects[k] || 0) !== 0)
-    .map(k => ({ key: k, label: EFFECT_LABELS[k], value: Number(effects[k]) }))
+    .map(k => {
+      const value = Number(effects[k])
+      const weight = k === 'budget' ? Math.abs(value) / 500 : Math.abs(value)
+      const [, magnitude] = MAGNITUDES.find(([limit]) => weight < limit)
+      return { key: k, label: EFFECT_LABELS[k], value, verb: value > 0 ? 'sube' : 'baja', magnitude, fill: Math.min(1, Math.max(0.08, weight / FILL_AT)) }
+    })
+}
+
+/** Frase para lectores de pantalla: "Hinchada, sube mucho, más 8" */
+export function describeEffect(chip) {
+  const [, , phrase] = MAGNITUDES.find(([, name]) => name === chip.magnitude)
+  return `${chip.label}, ${chip.verb} ${phrase}, ${chip.value > 0 ? 'más' : 'menos'} ${Math.abs(chip.value)}`
 }

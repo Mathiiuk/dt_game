@@ -22,6 +22,7 @@ import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progr
 import SeasonCloseModal from '../season/SeasonCloseModal'
 import WageCapMeter from '../finances/WageCapMeter'
 import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
+import EffectMeters from '../../components/EffectMeters'
 import FirstStepsCard from '../onboarding/FirstStepsCard'
 import NextStepCard from '../onboarding/NextStepCard'
 import { readSteps, markStep } from '../onboarding/firstStepsStore'
@@ -237,13 +238,7 @@ function OutcomeCard({ outcome, onClose }) {
           {outcome.choice && <p className="break-words text-xs text-fg-subtle">Elegiste: <span className="font-semibold text-fg-muted">{outcome.choice}</span></p>}
           <p className="break-words text-sm leading-relaxed text-fg">{outcome.note}</p>
           <p className="break-words text-sm italic leading-relaxed text-fg-muted">{outcome.reaction}</p>
-          {chips.length > 0 && (
-            <ul className="flex flex-wrap gap-1.5" aria-label="Lo que cambió">
-              {chips.map(c => (
-                <li key={c.key}><Badge tone={c.value > 0 ? 'accent' : 'danger'} className="num">{c.label} {c.value > 0 ? '+' : ''}{c.value}</Badge></li>
-              ))}
-            </ul>
-          )}
+          <EffectMeters chips={chips} />
         </div>
         <Button variant="ghost" size="sm" onClick={onClose} className="shrink-0">Seguir</Button>
       </div>
