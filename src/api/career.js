@@ -22,6 +22,34 @@ export const TIER_BASE_SALARIES = {
   5: { min: 400, max: 800, name: 'Torneo Regional Amateur' }
 }
 
+const initInFlight = new Map()
+
+async function createFirstStint(managerId, clubId) {
+  try {
+    const { data: currentClub } = await supabase.from('clubs').select('id, name').eq('id', clubId).maybeSingle()
+    if (!currentClub) return null
+    const { data: initialStint } = await supabase
+      .from('manager_career_stints')
+      .insert({
+        manager_id: managerId,
+        club_id: currentClub.id,
+        club_name: currentClub.name,
+        started_at: new Date().toISOString(),
+        matches_managed: 0,
+        matches_won: 0,
+        matches_drawn: 0,
+        matches_lost: 0,
+        trophies_won: []
+      })
+      .select()
+      .single()
+    return initialStint || null
+  } catch (stintInitErr) {
+    console.warn('Aviso: no se pudo auto-inicializar stint de carrera:', stintInitErr)
+    return null
+  }
+}
+
 export const careerApi = {
   /**
    * Obtiene el perfil curricular completo del DT:
@@ -46,35 +74,11 @@ export const careerApi = {
 
     // Auto-inicialización: si no tiene stints y está en un club, registrar su primer ciclo
     if ((!stints || stints.length === 0) && clubId) {
-      try {
-        const { data: currentClub } = await supabase
-          .from('clubs')
-          .select('id, name')
-          .eq('id', clubId)
-          .maybeSingle()
-
-        if (currentClub) {
-          const { data: initialStint } = await supabase
-            .from('manager_career_stints')
-            .insert({
-              manager_id: managerId,
-              club_id: currentClub.id,
-              club_name: currentClub.name,
-              started_at: new Date().toISOString(),
-              matches_managed: 0,
-              matches_won: 0,
-              matches_drawn: 0,
-              matches_lost: 0,
-              trophies_won: []
-            })
-            .select()
-            .single()
-
-          if (initialStint) stints = [initialStint]
-        }
-      } catch (stintInitErr) {
-        console.warn('Aviso: no se pudo auto-inicializar stint de carrera:', stintInitErr)
-      }
+      // Varias pantallas piden la trayectoria a la vez: comparten un único alta del primer ciclo
+      const key = `${managerId}:${clubId}`
+      if (!initInFlight.has(key)) initInFlight.set(key, createFirstStint(managerId, clubId).finally(() => initInFlight.delete(key)))
+      const initial = await initInFlight.get(key)
+      if (initial) stints = [initial]
     }
 
     // 3. Totales acumulados

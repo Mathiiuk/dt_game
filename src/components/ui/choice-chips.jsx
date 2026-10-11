@@ -33,7 +33,7 @@ export function ChoiceChips({ value, onChange, options, label, className }) {
             onClick={() => onChange(opt.value)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             className={cn(
-              'min-h-10 rounded-md border px-3 text-sm font-semibold transition-colors',
+              'min-h-10 shrink-0 whitespace-nowrap rounded-md border px-3 text-sm font-semibold transition-colors',
               active
                 ? 'border-accent bg-accent-soft text-accent'
                 : 'border-line-strong bg-surface-2 text-fg-muted hover:border-fg-subtle hover:text-fg'

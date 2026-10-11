@@ -25,7 +25,7 @@ function Breakdown({ title, total, tone, rows, sign }) {
   return (
     <Card as="section" className="border border-line bg-surface/90">
       <CardHeader className="pb-3 border-b border-line/60">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <CardTitle className="text-base font-bold font-display text-fg">{title}</CardTitle>
           <p className={`num font-display text-lg font-bold ${tone === 'accent' ? 'text-accent' : 'text-danger'}`}>
             {sign}{formatMoney(total)}

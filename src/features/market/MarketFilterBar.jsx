@@ -32,6 +32,7 @@ export default function MarketFilterBar({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <ChoiceChips
           label="Filtrar por línea"
+          className="-mx-4 flex-nowrap overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0"
           value={group}
           onChange={onGroupChange}
           options={POSITION_GROUP_OPTIONS}
@@ -72,8 +73,8 @@ export default function MarketFilterBar({
       </div>
 
       {/* 3. Búsqueda y Ordenamiento */}
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-12 lg:items-center">
-        <div className="relative sm:col-span-2 lg:col-span-6">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-12 lg:items-center">
+        <div className="relative col-span-2 lg:col-span-6">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-fg-subtle"
             aria-hidden="true"
@@ -95,7 +96,7 @@ export default function MarketFilterBar({
             min="0"
             max="99"
             aria-label="Ritmo mínimo"
-            placeholder="Ritmo mínimo"
+            placeholder="Ritmo mín."
             value={minPace}
             onChange={(e) => onMinPaceChange(e.target.value)}
             className="text-sm"
@@ -111,7 +112,7 @@ export default function MarketFilterBar({
           >
             {MARKET_SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
-                Ordenar por {o.label.toLowerCase()}
+                {o.label}
               </option>
             ))}
           </Select>
