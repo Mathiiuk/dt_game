@@ -1,0 +1,7 @@
+# Pruebas de carga, simulación anual y avisos de Supabase
+
+- Simulación anual completa (1 usuario): 52 semanas, 38 partidos, cierre de temporada, año 2 con 8 semanas. Sin avisos ni errores. Dura unos 134 s (unos 40 s para 16 semanas).
+- Carga concurrente: 5 usuarios jugando a la vez contra producción (crear DT y club, 26 semanas, partidos, eventos): los 5 pasaron, sin errores, y llegan a cada semana casi en el mismo tiempo que uno solo (16 semanas en ~44 s con 5 a la vez contra ~40 s con 1). No hay degradación a esta escala. No se probó con cientos de usuarios: eso requiere una herramienta de carga externa y ver los límites del plan de Supabase.
+- Avisos de seguridad corregidos (`scripts/db/migration_security_hardening.sql`): `friend_post` era llamable por cualquier usuario con sesión (podía escribir en el muro de cualquier sala) y ahora no; `friend_is_member` ya no es llamable por anónimos; 5 funciones con `search_path` fijo; índice faltante en `buyback_rights`.
+- Quedan sin cambios, a propósito: las funciones `security definer` de la liga de amigos son llamables por usuarios con sesión porque son la API de la liga (validan `auth.uid()` y membresía); `game_data_migrations` sin políticas (nadie la lee desde el navegador); 45 índices sin uso (esperable con poco tráfico; no se borran hasta tener datos reales); protección de contraseñas filtradas (la activa el dueño en Auth).
+- Los usuarios de prueba (`sim-test-year@…` y `sim-load-10…14@…`) se borran con `delete-account` al terminar.
