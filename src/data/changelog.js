@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-20-partido-al-dia',
+    date: '2026-10-20',
+    title: 'El partido llega justo',
+    items: [
+      'Al avanzar la semana ya no te pasás del día del partido: llegás y se juega.',
+      'Los partidos pendientes de tu liga se acomodaron al día de juego (aparecen unos días antes, ninguno se perdió).'
+    ]
+  },
+  {
     id: '2026-10-19-pizarra-linea',
     date: '2026-10-19',
     title: 'Pizarra más quieta',

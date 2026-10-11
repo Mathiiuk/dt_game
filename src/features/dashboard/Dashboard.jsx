@@ -351,10 +351,11 @@ export default function Dashboard() {
   const isHome = nextFixture?.home_team_id === club.id
   const rival = nextFixture ? rivalLevel(rivalOf(nextFixture, club.id)?.strength) : null
 
+  const matchWeekdayLabel = matchFuture ? new Intl.DateTimeFormat('es-AR', { weekday: 'long', timeZone: 'UTC' }).format(new Date(`${String(nextFixture.match_date).slice(0, 10)}T00:00:00Z`)) : ''
   // Qué conviene hacer ahora y, para cuentas nuevas, la misión inicial
   const step = nextStep({
     pendingClose: Boolean(pendingClose), seasonEnded, pendingEvents: pendingEvents?.length || 0, available: squadHealth.availableCount,
-    matchDue, daysToMatch, hasFixture: Boolean(nextFixture), matchWeekday: matchFuture ? new Intl.DateTimeFormat('es-AR', { weekday: 'long', timeZone: 'UTC' }).format(new Date(`${String(nextFixture.match_date).slice(0, 10)}T00:00:00Z`)) : '', tacticsVisited: Boolean(firstSteps.tactics), played: standingsSnippet?.played || 0
+    matchDue, daysToMatch, hasFixture: Boolean(nextFixture), matchWeekday: matchWeekdayLabel, tacticsVisited: Boolean(firstSteps.tactics), played: standingsSnippet?.played || 0
   })
   const mission = missionProgress(firstSteps, standingsSnippet?.played || 0)
   const missionVisible = showMission({ isNew: isNewAccount(user?.created_at), dismissed: Boolean(firstSteps.dismissed), complete: mission.complete })
@@ -422,7 +423,7 @@ export default function Dashboard() {
                     </Button>
                     {matchFuture && (
                       <p id="match-reason" className="text-sm text-fg-muted sm:ml-1">
-                        Se juega en {daysToMatch} {daysToMatch === 1 ? 'día' : 'días'}. Avanza la semana para llegar a la fecha.
+                        Se juega {matchWeekdayLabel ? `el ${matchWeekdayLabel}, ` : ''}en {daysToMatch} {daysToMatch === 1 ? 'día' : 'días'}. Avanzá la semana para llegar al día del partido.
                       </p>
                     )}
                   </div>

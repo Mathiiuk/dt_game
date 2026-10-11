@@ -40,3 +40,13 @@ export const isAdvanceLocked = (calendar, now = Date.now()) => {
   const since = calendar.updated_at ? new Date(calendar.updated_at).getTime() : now
   return now - since < ADVANCE_LOCK_SECONDS * 1000
 }
+
+/**
+ * Fecha del primer partido de liga de la temporada: 4 semanas justas después del 1 de julio (pretemporada de cuatro semanas).
+ * Como la fecha de juego avanza de a 7 días, el partido queda en el mismo día de la semana que la fecha de juego: al avanzar
+ * hasta él, "hoy se juega" (antes caía en sábado y el avance de 7 días lo salteaba).
+ */
+export const firstLeagueMatchDate = (seasonYear) => {
+  const start = new Date(Date.UTC(seasonYear, 6, 1))
+  return new Date(start.getTime() + 28 * MS_PER_DAY).toISOString().slice(0, 10)
+}

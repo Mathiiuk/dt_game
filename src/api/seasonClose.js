@@ -1,3 +1,4 @@
+import { firstLeagueMatchDate } from '../domain/gameWeek'
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 import { playerEvolutionApi } from './playerEvolution'
@@ -163,7 +164,7 @@ export const seasonCloseApi = {
           const rules = await leagueVoteApi.getRules(clubId, result.newSeasonYear).catch(() => null)
           const { error: rulesErr } = await supabase.from('competitions').update({ rules }).eq('id', league.competitionId)
           if (rulesErr) throw new Error(rulesErr.message)
-          await competitionApi.generateRoundRobinFixtures(league.competitionId, league.clubIds, `${result.newSeasonYear}-08-01`, rules)
+          await competitionApi.generateRoundRobinFixtures(league.competitionId, league.clubIds, firstLeagueMatchDate(result.newSeasonYear), rules)
         }
 
         // Las amarillas acumuladas empiezan de cero en la temporada nueva (las sanciones pendientes se mantienen)

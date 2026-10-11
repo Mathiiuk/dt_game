@@ -53,7 +53,7 @@ describe('ensureWorldLeagues', () => {
     // 380 partidos por liga (20 clubes, ida y vuelta), cargados por tandas
     const fixtures = st.inserts.filter(i => i.table === 'fixtures').flatMap(i => i.rows)
     expect(fixtures.length).toBe(4 * 380)
-    expect(fixtures.every(f => f.match_date >= '2026-08-01')).toBe(true)
+    expect(fixtures.every(f => f.match_date >= '2026-07-29')).toBe(true)
   })
 
   it('si el club juega en Primera arma de la 2 a la 5', async () => {

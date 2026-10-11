@@ -7,7 +7,7 @@ import { seededRandom } from '../domain/cupMatch'
 import { pickRivalClubs } from '../domain/rivalClubs'
 import { clubLeaders } from '../domain/leaders'
 import { worldTiers, worldClubRow, leagueBoards, isCurrentSeasonLeague } from '../domain/worldLeagues'
-import { seasonYearOf } from '../domain/gameWeek'
+import { seasonYearOf, firstLeagueMatchDate } from '../domain/gameWeek'
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 
@@ -59,7 +59,7 @@ export const competitionApi = {
         const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
         const { error: standErr } = await supabase.from('standings').insert(ids.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
         if (standErr) throw new Error(standErr.message)
-        await this.generateRoundRobinFixtures(comp.id, ids, `${seasonYear}-08-01`, rules)
+        await this.generateRoundRobinFixtures(comp.id, ids, firstLeagueMatchDate(seasonYear), rules)
         created++
       } catch (e) {
         // Sin tabla ni partidos la competición no sirve: se borra para que el próximo intento la arme de nuevo
@@ -439,7 +439,7 @@ export const competitionApi = {
    * Se puede repetir: antes de generar se borran los partidos de esa competición que ya estaban programados desde esa fecha (por un
    * intento anterior), así nunca quedan partidos duplicados. Los errores de la base cortan el proceso.
    */
-  async generateRoundRobinFixtures(competitionId, clubIds, startDate = '2026-08-01', rules = null) {
+  async generateRoundRobinFixtures(competitionId, clubIds, startDate = firstLeagueMatchDate(2026), rules = null) {
     if (!competitionId || !clubIds || clubIds.length < 2) return
 
     const { error: clearErr } = await supabase.from('fixtures').delete().eq('competition_id', competitionId).eq('status', 'SCHEDULED').gte('match_date', startDate)
