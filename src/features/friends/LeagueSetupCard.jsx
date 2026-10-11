@@ -1,16 +1,44 @@
 import React from 'react'
-import { DIFFICULTIES, ROOM_RULESETS, roundsFor, settingsSummary, teamsFor } from '../../domain/friendLeague'
+import { CUP_SIZES } from '../../domain/friendCup'
+import { DEFAULT_SETTINGS, DIFFICULTIES, FORMATS, sanitizeSettings, ROOM_RULESETS, roundsFor, settingsSummary, teamsFor } from '../../domain/friendLeague'
 import { Field, Segmented } from '../../components/ui'
 
 const selectClass = 'w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-fg'
 
 /** Ajustes de la liga de la sala: los decide quien armó la sala hasta que empieza */
 export default function LeagueSetupCard({ settings, onChange, humans = 2, disabled = false }) {
+  const isCup = settings.format === 'COPA'
+  // Al cambiar de formato los ajustes se acotan (la copa es de 8 o 16 selecciones, siempre con bots)
   const set = (patch) => onChange({ ...settings, ...patch })
+  const setFormat = (format) => onChange(sanitizeSettings({ ...settings, format, teams: format === 'COPA' ? 16 : DEFAULT_SETTINGS.teams }))
   const teams = teamsFor(settings, humans)
 
   return (
     <div className="space-y-4">
+      <Field label="Formato" hint="Liga: todos contra todos. Copa Mundial: grupos y llaves hasta la final.">
+        {() => (
+          <Segmented label="Formato" value={settings.format || 'LIGA'} disabled={disabled} onChange={setFormat}
+            options={Object.entries(FORMATS).map(([value, label]) => ({ value, label }))} />
+        )}
+      </Field>
+      {isCup ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Selecciones" hint="En grupos de 4. Con más de 8 DT juegan 16.">
+            {() => (
+              <Segmented label="Selecciones" value={settings.teams} disabled={disabled} onChange={v => set({ teams: v })}
+                options={CUP_SIZES.map(n => ({ value: n, label: String(n) }))} />
+            )}
+          </Field>
+          <Field label="Nivel de las selecciones bot" hint="Comparado con el promedio de los clubes de los amigos.">
+            {(p) => (
+              <select {...p} className={selectClass} disabled={disabled} value={settings.difficulty} onChange={e => set({ difficulty: e.target.value })}>
+                {Object.entries(DIFFICULTIES).map(([id, d]) => <option key={id} value={id}>{d.label}</option>)}
+              </select>
+            )}
+          </Field>
+        </div>
+      ) : (
+      <>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Equipos" hint="Entre 4 y 20. Los lugares libres se completan con bots.">
           {(p) => <input {...p} type="number" min={4} max={20} disabled={disabled} className={selectClass} value={settings.teams} onChange={e => set({ teams: Number(e.target.value) })} />}
@@ -43,6 +71,8 @@ export default function LeagueSetupCard({ settings, onChange, humans = 2, disabl
           </select>
         )}
       </Field>
+      </>
+      )}
       <p className="text-sm text-fg-muted">{settingsSummary(settings, humans)}</p>
     </div>
   )

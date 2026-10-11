@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { normalizeCode } from '../domain/friendRoom'
+import { pickNationNames, cupSizeFor } from '../domain/friendCup'
 import { DEFAULT_SETTINGS, sanitizeSettings, botCount, pickBotNames, resolveRules } from '../domain/friendLeague'
 
 const unwrap = ({ data, error }) => {
@@ -33,13 +34,22 @@ export const friendsApi = {
   /** Empieza la liga: completa con bots (nombres de clubes históricos) y arma el calendario */
   async startLeague(room, humans) {
     const settings = sanitizeSettings({ ...DEFAULT_SETTINGS, ...(room.settings || {}) })
+    if (settings.format === 'COPA') {
+      const size = cupSizeFor(settings.teams, humans)
+      return unwrap(await supabase.rpc('friend_start_cup', { p_room_id: room.id, p_bot_names: pickNationNames(room.id, size - humans) }))
+    }
     const names = pickBotNames(room.id, botCount(settings, humans))
     return unwrap(await supabase.rpc('friend_start_league', { p_room_id: room.id, p_bot_names: names }))
   },
 
   /** Juega la próxima fecha (solo el creador) */
-  async playRound(roomId) {
-    return unwrap(await supabase.rpc('friend_play_round', { p_room_id: roomId }))
+  async playRound(roomId, format = 'LIGA') {
+    return unwrap(await supabase.rpc(format === 'COPA' ? 'friend_play_cup_round' : 'friend_play_round', { p_room_id: roomId }))
+  },
+
+  /** Tabla de cada grupo de la Copa Mundial de la sala */
+  async getCupGroups(roomId) {
+    return unwrap(await supabase.rpc('friend_cup_group_table', { p_room_id: roomId })) || []
   },
 
   /** Tabla de la liga de la sala */
@@ -50,8 +60,8 @@ export const friendsApi = {
   /** Equipos y partidos de la liga de la sala */
   async getLeagueFixtures(roomId) {
     const [teams, fixtures] = await Promise.all([
-      supabase.from('friend_league_teams').select('slot, name, user_id').eq('room_id', roomId),
-      supabase.from('friend_league_fixtures').select('round, home_slot, away_slot, home_goals, away_goals').eq('room_id', roomId).order('round', { ascending: true })
+      supabase.from('friend_league_teams').select('slot, name, user_id, group_no').eq('room_id', roomId),
+      supabase.from('friend_league_fixtures').select('round, home_slot, away_slot, home_goals, away_goals, stage, group_no, match_no, winner_slot, pens_home, pens_away').eq('room_id', roomId).order('round', { ascending: true })
     ])
     return { teams: unwrap(teams) || [], fixtures: unwrap(fixtures) || [] }
   },

@@ -10,6 +10,7 @@ import { track } from '../../lib/analytics'
 import { DEFAULT_SETTINGS, sanitizeSettings } from '../../domain/friendLeague'
 import LeagueSetupCard from './LeagueSetupCard'
 import LeagueView from './LeagueView'
+import CupView from './CupView'
 
 /** Liga de amigos: sala con código para hasta 10 DT, con tabla compartida, muro y travesuras de la AFA */
 export default function FriendsScreen() {
@@ -24,7 +25,7 @@ export default function FriendsScreen() {
   const [prankFor, setPrankFor] = useState(null) // { prank, choice }
   const [newSettings, setNewSettings] = useState({ ...DEFAULT_SETTINGS })
   const [draft, setDraft] = useState(null) // ajustes en edición dentro del lobby
-  const [league, setLeague] = useState({ table: [], teams: [], fixtures: [] })
+  const [league, setLeague] = useState({ table: [], groups: [], teams: [], fixtures: [] })
 
   const room = rooms?.find(r => r.id === roomId) || null
   const me = table.find(t => t.is_me)
@@ -51,8 +52,13 @@ export default function FriendsScreen() {
       const current = (await friendsApi.getMyRooms()).find(r => r.id === id)
       if (current) setRooms(prev => (prev || []).map(r => (r.id === id ? current : r)))
       if (current && current.status !== 'LOBBY') {
-        const [lt, lf] = await Promise.all([friendsApi.getLeagueTable(id), friendsApi.getLeagueFixtures(id)])
-        setLeague({ table: lt, teams: lf.teams, fixtures: lf.fixtures })
+        const isCup = current.settings?.format === 'COPA'
+        const [lt, gr, lf] = await Promise.all([
+          isCup ? Promise.resolve([]) : friendsApi.getLeagueTable(id),
+          isCup ? friendsApi.getCupGroups(id) : Promise.resolve([]),
+          friendsApi.getLeagueFixtures(id)
+        ])
+        setLeague({ table: lt, groups: gr, teams: lf.teams, fixtures: lf.fixtures })
       }
     } catch (err) {
       toast.error(friendlyError(err, 'No pudimos cargar la sala.'))
@@ -98,11 +104,11 @@ export default function FriendsScreen() {
     if (res) { setDraft(null); await loadRooms(roomId); await loadRoom(roomId) }
   }
   const startLeague = async () => {
-    const res = await run(() => friendsApi.startLeague(room, table.length), '¡Arrancó la liga!')
+    const res = await run(() => friendsApi.startLeague(room, table.length), room?.settings?.format === 'COPA' ? '¡Arrancó la Copa Mundial!' : '¡Arrancó la liga!')
     if (res) await loadRoom(roomId)
   }
   const playRound = async () => {
-    const res = await run(() => friendsApi.playRound(roomId))
+    const res = await run(() => friendsApi.playRound(roomId, room?.settings?.format || 'LIGA'))
     if (res) { toast.success(res.done ? 'Se jugó la última fecha.' : `Fecha ${res.round} jugada.`); await loadRoom(roomId) }
   }
   const copyCode = async () => {
@@ -164,7 +170,9 @@ export default function FriendsScreen() {
           </CardBody></Card>
 
           {started ? (
-            <LeagueView room={room} table={league.table} teams={league.teams} fixtures={league.fixtures} isOwner={isOwner} busy={busy} onPlayRound={playRound} />
+            room.settings?.format === 'COPA'
+              ? <CupView room={room} groups={league.groups} teams={league.teams} fixtures={league.fixtures} isOwner={isOwner} busy={busy} onPlayRound={playRound} />
+              : <LeagueView room={room} table={league.table} teams={league.teams} fixtures={league.fixtures} isOwner={isOwner} busy={busy} onPlayRound={playRound} />
           ) : (
             <>
             <Card as="div" className="overflow-hidden">
