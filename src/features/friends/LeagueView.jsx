@@ -33,30 +33,36 @@ export default function LeagueView({ room, table, teams, fixtures, isOwner, busy
         {!isOwner && !done && <p className="text-sm text-fg-subtle">Las fechas las juega quien armó la sala.</p>}
       </CardBody></Card>
 
-      <Card as="div" className="overflow-x-auto">
-        <table className="w-full min-w-[34rem] text-left text-sm" aria-label="Tabla de la liga de la sala">
+      <Card as="div" className="overflow-hidden">
+        <table className="w-full table-fixed text-left text-sm" aria-label="Tabla de la liga de la sala">
           <thead><tr className="border-b border-line bg-surface-2 text-fg-subtle">
-            <th scope="col" className="eyebrow w-10 py-3 pl-3 text-center">Pos</th>
+            <th scope="col" className="eyebrow w-9 py-3 pl-2 text-center sm:w-10 sm:pl-3">#</th>
             <th scope="col" className="eyebrow py-3">Club</th>
-            {['PJ', 'PG', 'PE', 'PP', 'DG'].map(h => <th key={h} scope="col" className="eyebrow py-3 text-right">{h}</th>)}
-            <th scope="col" className="eyebrow py-3 text-right">Trav.</th>
-            <th scope="col" className="eyebrow py-3 pr-3 text-right">Pts</th>
+            <th scope="col" className="eyebrow w-9 py-3 text-right">PJ</th>
+            {['PG', 'PE', 'PP'].map(h => <th key={h} scope="col" className="eyebrow hidden w-10 py-3 text-right sm:table-cell">{h}</th>)}
+            <th scope="col" className="eyebrow w-10 py-3 text-right">DG</th>
+            <th scope="col" className="eyebrow hidden w-12 py-3 text-right sm:table-cell">Trav.</th>
+            <th scope="col" className="eyebrow w-11 py-3 pr-3 text-right">Pts</th>
           </tr></thead>
           <tbody>
             {table.map((t, i) => (
               <tr key={t.slot} className={t.is_me ? 'bg-accent-soft/40' : ''}>
-                <td className="num py-2.5 pl-3 text-center text-fg-muted">{i + 1}</td>
-                <td className="py-2.5">
-                  <span className="font-semibold text-fg">{t.name}</span>
-                  {t.is_me && <Badge tone="accent" className="ml-2">Vos</Badge>}
-                  {t.is_bot && <Badge tone="neutral" className="ml-2">Bot</Badge>}
+                <td className="num py-2.5 pl-2 text-center text-fg-muted sm:pl-3">{i + 1}</td>
+                <td className="py-2.5 pr-1">
+                  <span className="block truncate font-semibold text-fg">{t.name}</span>
+                  {(t.is_me || t.is_bot) && (
+                    <span className="mt-0.5 flex gap-1">
+                      {t.is_me && <Badge tone="accent">Vos</Badge>}
+                      {t.is_bot && <Badge tone="neutral">Bot</Badge>}
+                    </span>
+                  )}
                 </td>
                 <td className="num py-2.5 text-right text-fg-muted">{t.played}</td>
-                <td className="num py-2.5 text-right text-fg-muted">{t.won}</td>
-                <td className="num py-2.5 text-right text-fg-muted">{t.drawn}</td>
-                <td className="num py-2.5 text-right text-fg-muted">{t.lost}</td>
+                <td className="num hidden py-2.5 text-right text-fg-muted sm:table-cell">{t.won}</td>
+                <td className="num hidden py-2.5 text-right text-fg-muted sm:table-cell">{t.drawn}</td>
+                <td className="num hidden py-2.5 text-right text-fg-muted sm:table-cell">{t.lost}</td>
                 <td className="num py-2.5 text-right text-fg-muted">{t.gd > 0 ? `+${t.gd}` : t.gd}</td>
-                <td className="num py-2.5 text-right text-fg-muted">{t.bonus > 0 ? `+${t.bonus}` : t.bonus}</td>
+                <td className="num hidden py-2.5 text-right text-fg-muted sm:table-cell">{t.bonus > 0 ? `+${t.bonus}` : t.bonus}</td>
                 <td className="num py-2.5 pr-3 text-right font-semibold text-fg">{t.points}</td>
               </tr>
             ))}
@@ -64,7 +70,7 @@ export default function LeagueView({ room, table, teams, fixtures, isOwner, busy
         </table>
       </Card>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
         {last.length > 0 && (
           <Card as="div"><CardBody className="space-y-2">
             <h3 className="font-display text-base font-semibold text-fg">Resultados de la fecha {room.current_round}</h3>

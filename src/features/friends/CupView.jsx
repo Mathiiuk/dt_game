@@ -46,22 +46,26 @@ export default function CupView({ room, groups, teams, fixtures, isOwner, busy, 
         {!isOwner && !done && <p className="text-sm text-fg-subtle">Las fechas las juega quien armó la sala.</p>}
       </CardBody></Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         {byGroup.map(([no, rows]) => (
-          <Card as="div" key={no} className="overflow-x-auto">
-            <table className="w-full min-w-[20rem] text-left text-sm" aria-label={`Grupo ${groupLetter(no)}`}>
+          <Card as="div" key={no} className="min-w-0 overflow-hidden">
+            <table className="w-full table-fixed text-left text-sm" aria-label={`Grupo ${groupLetter(no)}`}>
               <thead><tr className="border-b border-line bg-surface-2 text-fg-subtle">
                 <th scope="col" className="eyebrow py-2.5 pl-3">Grupo {groupLetter(no)}</th>
-                {['PJ', 'DG'].map(h => <th key={h} scope="col" className="eyebrow py-2.5 text-right">{h}</th>)}
-                <th scope="col" className="eyebrow py-2.5 pr-3 text-right">Pts</th>
+                {['PJ', 'DG'].map(h => <th key={h} scope="col" className="eyebrow w-10 py-2.5 text-right">{h}</th>)}
+                <th scope="col" className="eyebrow w-11 py-2.5 pr-3 text-right">Pts</th>
               </tr></thead>
               <tbody>
                 {rows.map(t => (
                   <tr key={t.slot} className={`${t.is_me ? 'bg-accent-soft/40' : ''} ${t.pos <= 2 ? 'border-l-2 border-accent' : 'border-l-2 border-transparent'}`}>
                     <td className="py-2 pl-3">
-                      <span className="font-semibold text-fg">{t.name}</span>
-                      {t.is_me && <Badge tone="accent" className="ml-2">Vos</Badge>}
-                      {t.is_bot && <Badge tone="neutral" className="ml-2">Bot</Badge>}
+                      <span className="block truncate font-semibold text-fg">{t.name}</span>
+                      {(t.is_me || t.is_bot) && (
+                        <span className="mt-0.5 flex gap-1">
+                          {t.is_me && <Badge tone="accent">Vos</Badge>}
+                          {t.is_bot && <Badge tone="neutral">Bot</Badge>}
+                        </span>
+                      )}
                     </td>
                     <td className="num py-2 text-right text-fg-muted">{t.played}</td>
                     <td className="num py-2 text-right text-fg-muted">{t.gd > 0 ? `+${t.gd}` : t.gd}</td>

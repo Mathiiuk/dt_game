@@ -137,7 +137,7 @@ export default function FriendsScreen() {
       />
 
       {!room ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
           <Card as="div"><CardBody className="space-y-3">
             <h2 className="font-display text-lg font-semibold text-fg">Armar una sala</h2>
             <Field label="Nombre de la sala">{(p) => <Input {...p} value={roomName} maxLength={40} placeholder="Los Pibes del Potrero" onChange={e => setRoomName(e.target.value)} />}</Field>
@@ -227,7 +227,7 @@ export default function FriendsScreen() {
               <Badge tone="gold" className="num">{me?.mangos ?? 0} mangos</Badge>
             </h3>
             <p className="mb-3 text-sm text-fg-subtle">Ganás 2 mangos por partido jugado. Solo mueven puntos de la sala y el muro, nunca tu caja ni tu plantel. Máximo 3 por día.</p>
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
               {PRANKS.map(p => (
                 <li key={p.id}><Card as="div"><CardBody className="space-y-2">
                   <p className="font-semibold text-fg">{p.name} <span className="num text-sm font-normal text-fg-muted">· {p.cost} mangos</span></p>

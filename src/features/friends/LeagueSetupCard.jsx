@@ -22,7 +22,7 @@ export default function LeagueSetupCard({ settings, onChange, humans = 2, disabl
         )}
       </Field>
       {isCup ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
           <Field label="Selecciones" hint="En grupos de 4. Con más de 8 DT juegan 16.">
             {() => (
               <Segmented label="Selecciones" value={settings.teams} disabled={disabled} onChange={v => set({ teams: v })}
@@ -39,7 +39,7 @@ export default function LeagueSetupCard({ settings, onChange, humans = 2, disabl
         </div>
       ) : (
       <>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
         <Field label="Equipos" hint="Entre 4 y 20. Los lugares libres se completan con bots.">
           {(p) => <input {...p} type="number" min={4} max={20} disabled={disabled} className={selectClass} value={settings.teams} onChange={e => set({ teams: Number(e.target.value) })} />}
         </Field>
