@@ -85,3 +85,22 @@ export const findDueMatch = (weeks, currentDate) =>
 /** Próximo partido por jugar (el primero abierto, esté vencido o no) */
 export const findNextMatch = (weeks) => weeks.map(w => w.match).find(m => m && isFixtureOpen(m.status)) || null
 
+
+/**
+ * Cómo se muestra la semana de la temporada en una fila: rival, local o visitante, y el resultado visto desde el club propio
+ * (el marcador va con los goles del club primero y una etiqueta Victoria, Empate o Derrota, así no hay que adivinar quién es quién).
+ */
+export function weekItemView(week, clubId) {
+  const m = week?.match
+  if (!m) return { hasMatch: false }
+  const isHome = m.is_home !== undefined ? m.is_home : (clubId ? m.home_club_id === clubId : true)
+  const opponent = m.opponent_name || 'Rival'
+  const played = !isFixtureOpen(m.status)
+  const mine = isHome ? m.home_score : m.away_score
+  const theirs = isHome ? m.away_score : m.home_score
+  const hasScore = played && mine != null && theirs != null
+  const outcome = !hasScore ? null : mine > theirs ? 'win' : mine < theirs ? 'loss' : 'draw'
+  return { hasMatch: true, isHome, opponent, played, hasScore, score: hasScore ? `${mine} - ${theirs}` : null, outcome }
+}
+
+export const OUTCOME_LABEL = { win: 'Victoria', draw: 'Empate', loss: 'Derrota' }

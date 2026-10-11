@@ -67,6 +67,6 @@ describe('pantalla Calendario', () => {
   it('muestra el rival y la condición en próximos partidos', async () => {
     renderScreen()
     expect(await screen.findByText(/vs\. Rival/i)).toBeInTheDocument()
-    expect(screen.getByText(/\(Local\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/^Local · /)).toBeInTheDocument()
   })
 })

@@ -60,3 +60,34 @@ describe('vista del calendario', () => {
     expect(groups[1].weeks).toHaveLength(1)
   })
 })
+
+import { weekItemView, OUTCOME_LABEL } from '../../src/domain/calendarView'
+
+describe('fila de una semana del calendario', () => {
+  const week = (match) => ({ weekNumber: 4, match })
+
+  it('una semana sin partido no tiene rival ni resultado', () => {
+    expect(weekItemView(week(null), 'c1')).toEqual({ hasMatch: false })
+  })
+
+  it('de local o visitante, según el partido o el club', () => {
+    expect(weekItemView(week({ is_home: true, opponent_name: 'Bella Vista', status: 'SCHEDULED' }), 'c1')).toMatchObject({ isHome: true, opponent: 'Bella Vista', played: false, outcome: null, score: null })
+    expect(weekItemView(week({ home_club_id: 'x', away_club_id: 'c1', status: 'SCHEDULED' }), 'c1')).toMatchObject({ isHome: false, opponent: 'Rival' })
+  })
+
+  it('el resultado se cuenta desde el club propio, jugando de local o de visitante', () => {
+    const home = weekItemView(week({ is_home: true, status: 'COMPLETED', home_score: 3, away_score: 1 }), 'c1')
+    expect(home).toMatchObject({ score: '3 - 1', outcome: 'win', played: true })
+    const away = weekItemView(week({ is_home: false, status: 'COMPLETED', home_score: 3, away_score: 1 }), 'c1')
+    expect(away).toMatchObject({ score: '1 - 3', outcome: 'loss' })
+    expect(weekItemView(week({ is_home: false, status: 'COMPLETED', home_score: 2, away_score: 2 }), 'c1')).toMatchObject({ score: '2 - 2', outcome: 'draw' })
+  })
+
+  it('jugado pero sin marcador cargado: no inventa resultado', () => {
+    expect(weekItemView(week({ is_home: true, status: 'COMPLETED', home_score: null, away_score: null }), 'c1')).toMatchObject({ played: true, hasScore: false, score: null, outcome: null })
+  })
+
+  it('las etiquetas del resultado', () => {
+    expect(OUTCOME_LABEL).toEqual({ win: 'Victoria', draw: 'Empate', loss: 'Derrota' })
+  })
+})

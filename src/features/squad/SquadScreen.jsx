@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowRightLeft, Bell, Check, Crown, DollarSign, Dumbbell, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
+import { ArrowRightLeft, Bell, Check, ChevronRight, Crown, DollarSign, Dumbbell, FileSignature, GraduationCap, Search, Sparkles, TrendingUp, UserMinus, Users, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { playerApi } from '../../api/player'
@@ -22,7 +22,7 @@ import {
 } from '../../domain/squad'
 import {
   Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, Input, PageHeader, Progress, QuickActions, QUICK_ACTION,
-  Select, Skeleton, Stat, Tabs, TabsList, TabsTrigger, Tooltip
+  ResponsiveOverlay, Select, Skeleton, Stat, Tabs, TabsList, TabsTrigger, Tooltip
 } from '../../components/ui'
 import { absoluteWeek, seasonYearOf } from '../../domain/gameWeek'
 import ContractRenewalModal from './ContractRenewalModal'
@@ -31,6 +31,7 @@ import PlayerEvolutionModal from './PlayerEvolutionModal'
 import SellPlayerModal from './SellPlayerModal'
 import CounterOfferModal from './CounterOfferModal'
 import { friendlyError } from '../../lib/errors'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 
 const GROUP_LABEL = { GK: 'ARQ', DEF: 'DEF', MED: 'MED', DEL: 'DEL' }
 
@@ -110,6 +111,9 @@ function OfferCard({ offer, busy, onAccept, onCounter, onReject }) {
 
 export default function SquadScreen() {
   const { club, manager, loading: contextLoading, refreshContext, confirmAction, confirmRisk } = useGameContext()
+  // Escritorio: encabezado con atajos y tabla; celular: resumen compacto y tarjetas cortas con hoja de acciones
+  const isLg = useMediaQuery('(min-width: 1024px)')
+  const [actionsFor, setActionsFor] = useState(null)
   // La evolución anual se registra al cerrar cada temporada: se muestra el balance de la última cerrada
   const lastClosedSeason = seasonYearOf(club?.game_date || '2026-07-01') - 1
 
@@ -376,30 +380,56 @@ export default function SquadScreen() {
         title="Plantel"
         actionsFill
         description="Contratos, transferibles y ofertas entrantes."
-        actions={
-          // Los tres atajos van en una sola fila (en el celular, icono arriba y texto abajo) y cada uno con su color para distinguirlos
+        actions={isLg ? (
+          // Los tres atajos van en una sola fila y cada uno con su color para distinguirlos
           <QuickActions>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowEvolutionModal(true)}><TrendingUp className="text-accent" />Desarrollo</Button>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowMentorshipModal(true)}><GraduationCap className="text-gold" />Mentorías</Button>
             <Button asChild variant="outline" size="sm" className={QUICK_ACTION}><Link to="/training"><Dumbbell className="text-blue-400" />Entrenamiento</Link></Button>
           </QuickActions>
-        }
+        ) : undefined}
       />
 
-      <Card className="mb-6">
-        <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-          <Stat label="Jugadores" value={summary.total} hint={`${summary.injured} lesionados`} />
-          <Stat label="Nivel medio" value={summary.avgLevel} />
-          <Stat label="Masa salarial" value={formatMoney(summary.weeklyWages)} hint="por semana" valueClassName="text-2xl sm:text-3xl" />
-          <Stat label="Caja" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl text-accent sm:text-3xl" />
-        </CardBody>
-      </Card>
+      {isLg ? (
+        <Card className="mb-6">
+          <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+            <Stat label="Jugadores" value={summary.total} hint={`${summary.injured} lesionados`} />
+            <Stat label="Nivel medio" value={summary.avgLevel} />
+            <Stat label="Masa salarial" value={formatMoney(summary.weeklyWages)} hint="por semana" valueClassName="text-2xl sm:text-3xl" />
+            <Stat label="Caja" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl text-accent sm:text-3xl" />
+          </CardBody>
+        </Card>
+      ) : (
+        // Celular: cuatro cifras en una fila y los atajos debajo, para que la lista de jugadores aparezca en la primera pantalla
+        <Card className="mb-3">
+          <CardBody className="space-y-3 p-3">
+            <dl className="grid grid-cols-4 gap-2 text-center" aria-label="Resumen del plantel">
+              <div className="min-w-0"><dt className="eyebrow">Jugadores</dt><dd className="num font-display text-xl font-semibold text-fg">{summary.total}</dd></div>
+              <div className="min-w-0"><dt className="eyebrow">Nivel</dt><dd className="num font-display text-xl font-semibold text-fg">{summary.avgLevel}</dd></div>
+              <div className="min-w-0"><dt className="eyebrow">Sueldos</dt><dd className="num truncate font-display text-xl font-semibold text-fg">{formatMoney(summary.weeklyWages)}</dd></div>
+              <div className="min-w-0"><dt className="eyebrow">Caja</dt><dd className="num truncate font-display text-xl font-semibold text-accent">{formatMoney(club?.budget || 0)}</dd></div>
+            </dl>
+            <div className="grid grid-cols-3 gap-2 border-t border-line pt-3">
+              <Button variant="ghost" size="sm" onClick={() => setShowEvolutionModal(true)}><TrendingUp className="text-accent" />Desarrollo</Button>
+              <Button variant="ghost" size="sm" onClick={() => setShowMentorshipModal(true)}><GraduationCap className="text-gold" />Mentorías</Button>
+              <Button asChild variant="ghost" size="sm"><Link to="/training"><Dumbbell className="text-blue-400" />Entrenar</Link></Button>
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       {summary.injured > 0 && (
-        <p className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-danger/40 bg-danger-soft px-3.5 py-2.5 text-sm text-fg">
-          <span>{summary.injured === 1 ? 'Tenés 1 jugador lesionado.' : `Tenés ${summary.injured} jugadores lesionados.`}</span>
-          <Button asChild variant="outline" size="sm"><Link to="/club?tab=enfermeria">Ver la enfermería</Link></Button>
-        </p>
+        isLg ? (
+          <p className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-danger/40 bg-danger-soft px-3.5 py-2.5 text-sm text-fg">
+            <span>{summary.injured === 1 ? 'Tenés 1 jugador lesionado.' : `Tenés ${summary.injured} jugadores lesionados.`}</span>
+            <Button asChild variant="outline" size="sm"><Link to="/club?tab=enfermeria">Ver la enfermería</Link></Button>
+          </p>
+        ) : (
+          <Link to="/club?tab=enfermeria" className="mb-3 flex min-h-11 items-center justify-between gap-2 rounded-lg border border-danger/40 bg-danger-soft px-3 text-sm text-fg">
+            <span>{summary.injured === 1 ? '1 lesionado' : `${summary.injured} lesionados`}</span>
+            <span className="flex items-center gap-1 font-semibold text-danger">Enfermería<ChevronRight className="size-4" aria-hidden="true" /></span>
+          </Link>
+        )
       )}
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
@@ -446,16 +476,16 @@ export default function SquadScreen() {
             </Card>
           )}
 
-          {/* Controles de lista: filtro por línea, búsqueda y orden */}
-          <div className="space-y-3">
-            <ChoiceChips label="Filtrar por línea" value={group} onChange={setGroup} options={POSITION_GROUP_OPTIONS} />
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative flex-1">
+          {/* Controles de lista: filtro por línea (una sola fila que se desliza), búsqueda y orden en la misma línea */}
+          <div className="space-y-2.5">
+            <ChoiceChips label="Filtrar por línea" value={group} onChange={setGroup} options={POSITION_GROUP_OPTIONS} className="flex-nowrap overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap" />
+            <div className="flex gap-2">
+              <div className="relative min-w-0 flex-1">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-fg-subtle" aria-hidden="true" />
                 <Input type="search" aria-label="Buscar jugador" placeholder="Buscar por nombre" value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9" />
               </div>
-              <Select aria-label="Ordenar por" value={sortKey} onChange={(e) => setSortKey(e.target.value)} className="sm:w-48">
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>Ordenar por {o.label.toLowerCase()}</option>)}
+              <Select aria-label="Ordenar por" value={sortKey} onChange={(e) => setSortKey(e.target.value)} className="w-32 shrink-0 sm:w-48">
+                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </Select>
             </div>
           </div>
@@ -464,32 +494,34 @@ export default function SquadScreen() {
             <Card as="div"><EmptyState icon={Users} title="Sin resultados" description="Ningún jugador coincide con el filtro actual." action={<Button variant="outline" size="sm" onClick={() => { setGroup('ALL'); setQuery('') }}>Quitar filtros</Button>} /></Card>
           ) : (
             <>
-              {/* Móvil y tablet: tarjetas */}
-              <ul className="space-y-3 md:hidden">
+              {/* Móvil y tablet: tarjetas cortas; las acciones (renovar, vender, prestar…) se abren en una hoja */}
+              <ul className="space-y-2.5 md:hidden">
                 {visiblePlayers.map(p => (
                   <li key={p.id}>
                     <Card as="article">
-                      <CardBody className="space-y-3">
+                      <CardBody className="space-y-2.5 p-3.5">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 items-center gap-3">
-                            <span className="num grid size-11 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-lg font-semibold">{p.shirt_number ?? '·'}</span>
+                            <span className="num grid size-10 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-base font-semibold">{p.shirt_number ?? '·'}</span>
                             <div className="min-w-0">
                               <h3 className="truncate text-base font-semibold text-fg">{p.first_name} {p.last_name}</h3>
-                              <p className="text-xs text-fg-muted">{p.position} · {p.age} años · {p.contract_role || 'Rotación'}</p>
+                              <p className="truncate text-xs text-fg-muted">{p.position} · {p.age} años · {p.contract_role || 'Rotación'}</p>
                             </div>
                           </div>
-                          <div className="text-right">
+                          <div className="shrink-0 text-right">
                             <p className="num font-display text-2xl font-semibold leading-none text-fg">{playerLevel(p)}</p>
                             <p className="eyebrow mt-1">Nivel</p>
                           </div>
                         </div>
                         <PlayerBadges player={p} captains={captains} expiring={expiringById.get(p.id)} />
-                        <div className="grid grid-cols-3 gap-3 border-t border-line pt-3">
-                          <div><p className="eyebrow">Físico</p><p className={`num mt-0.5 text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(p.state_fitness ?? 75)]}`}>{p.state_fitness ?? 75}%</p></div>
-                          <div><p className="eyebrow">Moral</p><p className={`num mt-0.5 text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(playerMorale(p))]}`}>{playerMorale(p)}%</p></div>
-                          <div><p className="eyebrow">Salario</p><p className="num mt-0.5 text-sm font-semibold text-fg">{formatMoney(playerSalary(p) || 500)}</p></div>
+                        <div className="flex items-center gap-3">
+                          <dl className="grid min-w-0 flex-1 grid-cols-3 gap-2">
+                            <div><dt className="eyebrow">Físico</dt><dd className={`num text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(p.state_fitness ?? 75)]}`}>{p.state_fitness ?? 75}%</dd></div>
+                            <div><dt className="eyebrow">Moral</dt><dd className={`num text-sm font-semibold ${{ accent: 'text-accent', warning: 'text-warning', danger: 'text-danger' }[meterTone(playerMorale(p))]}`}>{playerMorale(p)}%</dd></div>
+                            <div className="min-w-0"><dt className="eyebrow">Salario</dt><dd className="num truncate text-sm font-semibold text-fg">{formatMoney(playerSalary(p) || 500)}</dd></div>
+                          </dl>
+                          <Button variant="outline" size="sm" className="shrink-0" onClick={() => setActionsFor(p)} aria-label={`Acciones: ${p.first_name} ${p.last_name}`}>Acciones<ChevronRight /></Button>
                         </div>
-                        <PlayerActions player={p} onRenew={setRenewalPlayer} onSell={setSellPlayer} onTerminate={handleTerminateContract} onLoan={handleLoanOut} onCaptain={proposeCaptain} isCaptain={captains.captainId === p.id} />
                       </CardBody>
                     </Card>
                   </li>
@@ -558,6 +590,20 @@ export default function SquadScreen() {
         </aside>
       </div>
 
+      {actionsFor && (
+        <ResponsiveOverlay title={`${actionsFor.first_name} ${actionsFor.last_name}`} description={`${actionsFor.position} · Nivel ${playerLevel(actionsFor)}`} onClose={() => setActionsFor(null)} size="sm">
+          {(() => {
+            const done = (fn) => (player) => { setActionsFor(null); fn(player) }
+            return (
+              <PlayerActions
+                player={actionsFor}
+                onRenew={done(setRenewalPlayer)} onSell={done(setSellPlayer)} onTerminate={done(handleTerminateContract)} onLoan={done(handleLoanOut)}
+                onCaptain={done(proposeCaptain)} isCaptain={captains.captainId === actionsFor.id}
+              />
+            )
+          })()}
+        </ResponsiveOverlay>
+      )}
       {renewalPlayer && (
         <ContractRenewalModal
           player={renewalPlayer} club={club} manager={manager} currentWeek={club?.game_date ? absoluteWeek(club.game_date) : 1}

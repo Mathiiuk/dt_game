@@ -7,7 +7,7 @@ vi.mock('../../src/api/supabase', () => ({ supabase: {} }))
 
 const setViewport = (desktop) => {
   window.matchMedia = (query) => ({
-    matches: query.includes('min-width: 768px') ? desktop : false,
+    matches: query.includes('min-width: 768px') || query.includes('min-width: 1024px') ? desktop : false,
     media: query, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false
   })
 }
@@ -226,5 +226,48 @@ describe('pantalla Plantel', () => {
     expect(await screen.findByText('Hugo Ríos', { selector: 'h3' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('tab', { name: /Ofertas/ }))
     expect(await screen.findAllByText('De Racing')).not.toHaveLength(0)
+  })
+
+  describe('en el celular', () => {
+    beforeEach(() => setViewport(false))
+
+    it('el resumen entra en una fila de cuatro cifras con los atajos debajo, y el aviso de lesionados es una sola línea', async () => {
+      renderScreen()
+      const summary = await screen.findByRole('group', { name: 'Resumen del plantel' }).catch(() => null)
+      const dl = summary || (await screen.findByLabelText('Resumen del plantel'))
+      expect(within(dl).getByText('Jugadores')).toBeInTheDocument()
+      expect(within(dl).getByText('Caja')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Desarrollo/ })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Mentorías/ })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: /Entrenar/ })).toHaveAttribute('href', '/training')
+      expect(screen.getByRole('link', { name: /1 lesionado/ })).toHaveAttribute('href', '/club?tab=enfermeria')
+    })
+
+    it('los filtros se deslizan en una fila y buscar y ordenar comparten línea', async () => {
+      renderScreen()
+      expect((await screen.findByRole('radiogroup', { name: 'Filtrar por línea' })).className).toMatch(/flex-nowrap/)
+      const search = screen.getByRole('searchbox', { name: 'Buscar jugador' })
+      const sort = screen.getByRole('combobox', { name: 'Ordenar por' })
+      expect(search.closest('div').parentElement).toBe(sort.parentElement)
+    })
+
+    it('cada tarjeta es corta: los datos clave y un solo botón "Acciones" (nada de cinco botones por jugador)', async () => {
+      renderScreen()
+      const card = (await screen.findByText('Hugo Ríos', { selector: 'h3' })).closest('article')
+      expect(within(card).getByText('Físico')).toBeInTheDocument()
+      expect(within(card).getAllByRole('button')).toHaveLength(1)
+      expect(within(card).queryByRole('button', { name: /Renovar|Vender|Prestar|Rescindir/ })).not.toBeInTheDocument()
+    })
+
+    it('"Acciones" abre una hoja con renovar, vender, prestar y rescindir, y al elegir una se cierra', async () => {
+      renderScreen()
+      const card = (await screen.findByText('Hugo Ríos', { selector: 'h3' })).closest('article')
+      await userEvent.click(within(card).getByRole('button', { name: 'Acciones: Hugo Ríos' }))
+      const sheet = await screen.findByRole('dialog')
+      for (const name of ['Renovar', 'Vender', 'Prestar', 'Rescindir']) expect(within(sheet).getByRole('button', { name: new RegExp(name) })).toBeInTheDocument()
+      await userEvent.click(within(sheet).getByRole('button', { name: /Vender/ }))
+      await waitFor(() => expect(sheet).not.toBeInTheDocument())
+      expect(await screen.findByText(/precio/i)).toBeInTheDocument()
+    })
   })
 })
