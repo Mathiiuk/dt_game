@@ -32,6 +32,7 @@ const TrainingScreen = lazy(() => import('./features/training/TrainingScreen'))
 const ManagerCareerScreen = lazy(() => import('./features/manager/ManagerCareerScreen'))
 const NationalTeamScreen = lazy(() => import('./features/manager/NationalTeamScreen'))
 const InternationalCupScreen = lazy(() => import('./features/competition/InternationalCupScreen'))
+const NotFoundScreen = lazy(() => import('./features/errors/NotFoundScreen'))
 const FriendsScreen = lazy(() => import('./features/friends/FriendsScreen'))
 const HallOfFameScreen = lazy(() => import('./features/manager/HallOfFameScreen'))
 const AchievementsScreen = lazy(() => import('./features/career/AchievementsScreen'))
@@ -108,7 +109,7 @@ function GameApp() {
             </Route>
 
             <Route path="/game" element={<Navigate to="/welcome" replace />} />
-            <Route path="*" element={<Navigate to="/auth" replace />} />
+            <Route path="*" element={<NotFoundScreen />} />
           </Routes>
           </Suspense>
           <Toaster theme="dark" position="top-center" />

@@ -3,6 +3,7 @@ import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter } from 'react-router-dom'
 import InfoPage from '../features/home/InfoPage'
+import NotFoundScreen from '../features/errors/NotFoundScreen'
 import { PUBLIC_PAGES, PUBLIC_PATHS } from '../data/publicPages'
 import { faqStructuredData } from './structuredData'
 
@@ -10,3 +11,5 @@ export { PUBLIC_PAGES, PUBLIC_PATHS }
 
 export const renderPage = (page) => renderToStaticMarkup(<MemoryRouter initialEntries={[page.path]}><InfoPage path={page.path} /></MemoryRouter>)
 export const pageJsonLd = (page) => (page.faq ? faqStructuredData(page.sections) : null)
+
+export const renderNotFound = () => renderToStaticMarkup(<MemoryRouter initialEntries={['/404']}><NotFoundScreen /></MemoryRouter>)

@@ -33,3 +33,17 @@ export function sitemapXml(paths, lastmod) {
   const urls = paths.map(p => `  <url><loc>${SITE.url}${p}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 }
+
+/** 404.html: la pantalla de página inexistente sobre la plantilla, sin canonical ni datos de la portada y con noindex (Vercel la sirve con estado 404) */
+export function build404Html(template, markup) {
+  let html = template
+  html = html.replace(/<title>[\s\S]*?<\/title>/, '<title>Página no encontrada | Vestuario</title>')
+  html = html.replace(/(<meta name="description" content=")[^"]*(")/, '$1Esta página no existe.$2')
+  html = html.replace(/<meta name="robots" content="[^"]*"/, '<meta name="robots" content="noindex,nofollow"')
+  html = html.replace(/<link rel="canonical"[^>]*>\n?/, '').replace(/<meta property="og:url"[^>]*>\n?/, '')
+  html = html.replace(/<script type="application\/ld\+json" id="ld-page">[\s\S]*?<\/script>/, '')
+  const start = html.indexOf(ROOT_START)
+  const end = html.indexOf(ROOT_END)
+  if (start === -1 || end === -1) throw new Error('index.html no trae la portada prerenderizada (home:start/home:end)')
+  return html.slice(0, start) + `<div id="root" data-prerendered="/404">${markup}</div>` + html.slice(end + ROOT_END.length)
+}
