@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-15-semana',
+    date: '2026-10-15',
+    title: 'La semana pasa',
+    items: [
+      'Al avanzar la semana ves cómo pasan los días mientras el club trabaja.',
+      'Al terminar, un resumen corto: qué pasó con la caja y las altas médicas.'
+    ]
+  },
+  {
     id: '2026-10-14-avisos',
     date: '2026-10-14',
     title: 'Avisos en tu celular',

@@ -38,6 +38,9 @@ const EVENT_CATEGORY = {
 }
 
 import { ClubBadge } from '../../components/ui'
+import { useAdvanceWeek } from '../week/useAdvanceWeek'
+import { readClubBudget } from '../week/readClubBudget'
+import WeekProgress from '../week/WeekProgress'
 import StoryStage from './StoryStage'
 import { reactionFor, effectChips } from '../../domain/storyFlavor'
 
@@ -218,6 +221,7 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
+  const weekRun = useAdvanceWeek()
   const [finishingClose, setFinishingClose] = useState(false)
   const [showSeasonCloseModal, setShowSeasonCloseModal] = useState(false)
   // Se sube al resolver una decisión: el club puede quedar igual (caja y fecha) y aun así hay que recargar eventos, clima y bitácora
@@ -258,18 +262,22 @@ export default function Dashboard() {
     setAdvancing(true)
     try {
       const { gameLoopApi } = await import('../../api/gameLoop')
-      const result = await gameLoopApi.advanceWeek(club.id, manager.id)
+      const { result, shown } = await weekRun.advance({
+        run: () => gameLoopApi.advanceWeek(club.id, manager.id),
+        readBudget: readClubBudget(club.id)
+      })
 
       queryCache.clear()
       await refreshContext()
 
       if (result.fired) {
         // El contexto detecta al DT desempleado y lo lleva a la Carrera para elegir una oferta
+        weekRun.close()
         toast.error('La dirigencia te destituyó por los resultados deportivos.')
         navigate('/manager')
         return
       }
-      toast.success('Semana completada. Plan de trabajo ejecutado.')
+      if (!shown) toast.success('Semana completada. Plan de trabajo ejecutado.')
     } catch (e) {
       toast.error(friendlyError(e, 'No pudimos avanzar la semana. Probá de nuevo.'))
     } finally {
@@ -428,6 +436,7 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+      <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} onClose={weekRun.close} />
       {stage && (
         <StoryStage
           event={stage.event}

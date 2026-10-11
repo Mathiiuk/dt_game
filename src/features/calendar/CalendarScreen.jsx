@@ -11,6 +11,9 @@ import {
 } from '../../domain/calendarView'
 import { formatGameDate } from '../../lib/format'
 import { friendlyError } from '../../lib/errors'
+import { useAdvanceWeek } from '../week/useAdvanceWeek'
+import { readClubBudget } from '../week/readClubBudget'
+import WeekProgress from '../week/WeekProgress'
 import { cn } from '../../lib/utils'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, PageHeader, Segmented, Skeleton, Stat } from '../../components/ui'
 
@@ -89,6 +92,7 @@ export default function CalendarScreen() {
   const [calendarData, setCalendarData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
+  const weekRun = useAdvanceWeek()
   const [viewMode, setViewMode] = useState('UPCOMING') // 'UPCOMING' | 'SEASON' | 'WEEKS'
   const [filter, setFilter] = useState('ALL')
   const currentRef = useRef(null)
@@ -132,20 +136,24 @@ export default function CalendarScreen() {
     if (!calendarData?.currentState) return
     setAdvancing(true)
     try {
-      const res = await gameLoopApi.advanceWeek(club.id, manager?.id, {
-        careerId: calendarData.currentState.career_id,
-        expectedCurrentWeek: calendarData.currentState.current_week
+      const { result: res, shown } = await weekRun.advance({
+        run: () => gameLoopApi.advanceWeek(club.id, manager?.id, {
+          careerId: calendarData.currentState.career_id,
+          expectedCurrentWeek: calendarData.currentState.current_week
+        }),
+        readBudget: readClubBudget(club.id)
       })
 
       queryCache.clear()
       await refreshContext()
       await loadCalendar()
       if (res.fired) {
+        weekRun.close()
         toast.error('La dirigencia te destituyó por los resultados deportivos.')
         navigate('/manager')
         return
       }
-      toast.success(`Semana ${res.week} completada. El plantel recuperó condición física.`)
+      if (!shown) toast.success(`Semana ${res.week} completada. El plantel recuperó condición física.`)
     } catch (e) {
       toast.error(friendlyError(e, 'No pudimos avanzar la semana. Probá de nuevo.'))
     } finally {
@@ -167,6 +175,7 @@ export default function CalendarScreen() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:py-8">
+      <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} onClose={weekRun.close} />
       <PageHeader
         eyebrow={`Temporada ${state.current_season_year} · 52 semanas`}
         title="Calendario"
