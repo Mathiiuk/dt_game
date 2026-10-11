@@ -25,8 +25,9 @@ export default function NotFoundScreen() {
         <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           <Link to="/" className={cn(buttonVariants({ size: 'lg' }))}>Volver al inicio</Link>
           <Link to="/como-jugar" className={cn(buttonVariants({ size: 'lg', variant: 'outline' }))}>Cómo jugar</Link>
-          <Link to="/juego" className={cn(buttonVariants({ size: 'lg', variant: 'ghost' }))}>Conocer el juego</Link>
+          <Link to="/demo" className={cn(buttonVariants({ size: 'lg', variant: 'ghost' }))}>Probar la demo</Link>
         </div>
+        <p className="mt-8 text-sm text-fg-subtle">¿Buscabas algo de táctica o fichajes? Mirá las <Link to="/guias" className="font-semibold text-accent underline underline-offset-4">guías para dirigir mejor</Link>.</p>
       </main>
       <PublicFooter />
     </div>
