@@ -49,7 +49,7 @@ describe('liga de la sala (API)', () => {
     await friendsApi.configureRoom('r1', { teams: 99, legs: 1, rulesId: 'CERO_CERO', difficulty: 'CRACKS' })
     const { args } = calls.rpc[0]
     expect(calls.rpc[0].name).toBe('friend_configure_room')
-    expect(args.p_settings).toEqual({ teams: 20, fillBots: true, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO' })
+    expect(args.p_settings).toEqual({ format: 'LIGA', teams: 20, fillBots: true, legs: 1, difficulty: 'CRACKS', rulesId: 'CERO_CERO' })
     expect(args.p_rules.nilNilPts).toBe(0)
   })
 
@@ -66,5 +66,19 @@ describe('liga de la sala (API)', () => {
     expect(calls.rpc[0]).toEqual({ name: 'friend_play_round', args: { p_room_id: 'r1' } })
     calls.result = { data: null, error: null }
     expect(await friendsApi.getLeagueTable('r1')).toEqual([])
+  })
+
+  it('la copa se empieza y se juega con sus propias funciones, con selecciones de relleno', async () => {
+    await friendsApi.startLeague({ id: 'r1', settings: { format: 'COPA', teams: 8 } }, 3)
+    expect(calls.rpc[0].name).toBe('friend_start_cup')
+    expect(calls.rpc[0].args.p_bot_names).toHaveLength(5)
+    calls.rpc.length = 0
+    await friendsApi.startLeague({ id: 'r1', settings: { format: 'COPA', teams: 8 } }, 9)
+    expect(calls.rpc[0].args.p_bot_names).toHaveLength(7)
+    calls.rpc.length = 0
+    await friendsApi.playRound('r1', 'COPA')
+    expect(calls.rpc[0]).toEqual({ name: 'friend_play_cup_round', args: { p_room_id: 'r1' } })
+    await friendsApi.getCupGroups('r1')
+    expect(calls.rpc[1]).toEqual({ name: 'friend_cup_group_table', args: { p_room_id: 'r1' } })
   })
 })
