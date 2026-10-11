@@ -1,0 +1,9 @@
+# Ejecución: UX móvil (pizarra e Inicio)
+
+- Rama: `feat/ux-fase3-movil`. Roles: product-designer, frontend-engineer, qa-engineer (TDD). Pedido: un tester dijo que el Inicio está cargado y que la pizarra es tosca en el celular (se abren menús al tocar, las configuraciones quedan abajo) y preguntó si el estilo de juego sirve.
+- **¿Sirve el estilo?** Sí: `tacticMultipliers` multiplica ataque, defensa y mediocampo en el motor (`matchEngine`). La mentalidad es lo que más pesa (de −30 % a +35 % de ataque); el ritmo cambia ataque, defensa y desgaste; pase y presión pesan 3 a 6 %. Por eso la hoja "Estilo" destaca los estilos listos y la mentalidad, y "Ajustes" deja pase, ritmo y presión.
+- **Pizarra en el celular** (`MobileTactics.jsx`, `TacticsScreen.jsx`): cinta de resumen arriba (formación, estilo, nivel, química, Guardar), cancha que entra en pantalla, barra de herramientas abajo (Estilo, Ajustes, Más, Editar). Tocar una ficha solo la elige y muestra "Cambiar jugador"; nada se abre solo. Mover fichas (arrastre, tocar el campo, flechas) exige el modo "Editar". Escritorio igual que antes.
+- **Inicio en el celular** (`Dashboard.jsx`): próximo paso, avisos, decisiones como filas compactas ("Decidir: …"), tarjeta del partido sin el botón repetido, tres tarjetitas (caja, plantel, puesto), misión plegada al próximo paso y "Ver más" (clima, consecuencias, tope salarial, carrera) plegado y recordado. Escritorio mantiene la grilla.
+- Dominio: `tacticsView.js` (nombre y efecto del estilo). Pruebas: `tacticsView.test.js`, `tacticsMobile.test.jsx`, `dashboardMobile.test.jsx`; `tacticsScreen.test.jsx` fija escritorio; `dashboardEvents` y `dashboardFirstSteps` adaptados.
+- Verificación visual con Chromium a 390 px (datos simulados): pizarra con barra de herramientas en una sola pantalla, hoja de Estilo, Inicio sin desborde horizontal.
+- Pendiente: probar el toque y el arrastre en un celular real.

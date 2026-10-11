@@ -18,6 +18,7 @@ import { divisionName } from '../../domain/divisions'
 import { rivalLevel, rivalOf } from '../../domain/rivalLevel'
 import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
 import SeasonCloseModal from '../season/SeasonCloseModal'
 import WageCapMeter from '../finances/WageCapMeter'
@@ -38,9 +39,7 @@ const EVENT_CATEGORY = {
 
 import { ClubBadge } from '../../components/ui'
 import StoryStage from './StoryStage'
-import { splitBeats, reactionFor, effectChips } from '../../domain/storyFlavor'
-import { parseArcCode } from '../../domain/arcs'
-import { arcById } from '../../domain/arcCatalog'
+import { reactionFor, effectChips } from '../../domain/storyFlavor'
 
 /** Escudo heráldico vectorial arcade con colores oficiales del club */
 function Crest({ club, name, highlight }) {
@@ -96,133 +95,90 @@ function AlertList({ alerts }) {
   )
 }
 
-/** Historia contada de a poco: cada toque muestra el siguiente momento; los diálogos van en globo */
-function StoryText({ text, onDone }) {
-  const beats = React.useMemo(() => splitBeats(text), [text])
-  const [shown, setShown] = useState(1)
-  const done = shown >= beats.length
-  React.useEffect(() => { if (done) onDone?.() }, [done]) // eslint-disable-line react-hooks/exhaustive-deps
-
+/** Decisiones pendientes: una fila por decisión; el relato y las opciones se leen en la pantalla completa */
+function DecisionRows({ events, onOpen }) {
+  if (!events?.length) return null
   return (
-    <div className="space-y-2.5">
-      {beats.slice(0, shown).map((beat, i) => (
-        beat.type === 'say' ? (
-          <p key={i} className="animate-rise-in ml-2 rounded-lg rounded-tl-none border-l-2 border-gold bg-gold-soft px-3 py-2 text-sm italic leading-relaxed text-fg">
-            <MessageSquareQuote className="mr-1.5 inline size-3.5 align-[-2px] text-gold" aria-hidden="true" />“{beat.text}”
-          </p>
-        ) : (
-          <p key={i} className="animate-rise-in text-sm leading-relaxed text-fg-muted">{beat.text}</p>
-        )
-      ))}
-      {!done && (
-        <div className="flex items-center gap-3 pt-1">
-          <Button size="sm" variant="outline" onClick={() => setShown(n => n + 1)}>Seguir leyendo<ChevronRight /></Button>
-          <button type="button" onClick={() => setShown(beats.length)} className="text-xs text-fg-subtle underline-offset-2 hover:text-fg hover:underline">Leer todo</button>
-        </div>
-      )}
-    </div>
+    <section aria-label="Decisiones pendientes">
+      <ul className="space-y-2">
+        {events.map(ev => {
+          const critical = ev.severity === 'CRITICAL'
+          const arc = isArcEvent(ev)
+          const chapter = arc ? chapterOf(ev.title) : null
+          const category = EVENT_CATEGORY[ev.category] || { label: ev.category, tone: 'neutral' }
+          const title = chapter ? chapter.clean : ev.title
+          return (
+            <li key={ev.id}>
+              <button
+                type="button"
+                onClick={() => onOpen(ev)}
+                aria-label={`Decidir: ${title}`}
+                className={cn(
+                  'flex min-h-14 w-full items-center gap-3 rounded-lg border bg-surface px-3 py-2.5 text-left transition-colors hover:bg-surface-2 active:bg-surface-3',
+                  critical ? 'border-danger/50' : arc ? 'border-gold/40' : 'border-line'
+                )}
+              >
+                {arc ? <Sparkles className="size-5 shrink-0 text-gold" aria-hidden="true" /> : <Bell className={cn('size-5 shrink-0', critical ? 'text-danger' : 'text-fg-subtle')} aria-hidden="true" />}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-fg">{title}</span>
+                  <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                    {critical && <Badge tone="danger" dot>Urgente</Badge>}
+                    {arc && <Badge tone="gold">Historia{chapter ? ` · ${chapter.current}/${chapter.total}` : ''}</Badge>}
+                    <Badge tone={category.tone}>{category.label}</Badge>
+                  </span>
+                </span>
+                <ChevronRight className="size-5 shrink-0 text-fg-subtle" aria-hidden="true" />
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
   )
 }
 
-const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E']
-
-/** Dilema del DT (evento dinámico) con sus opciones */
-function EventCard({ event, budget, boardConfidence, onResolve, onPlay }) {
-  const critical = event.severity === 'CRITICAL'
-  // Las historias (capítulos ARC_) y los eventos sueltos se presentan igual; la historia suma insignia, capítulos y su título
-  const arcEvent = isArcEvent(event)
-  const chapter = arcEvent ? chapterOf(event.title) : null
-  const category = EVENT_CATEGORY[event.category] || { label: event.category, tone: 'neutral' }
-  const options = Array.isArray(event.options) ? event.options : []
-  // Una sola elección por evento: al apretar una opción se bloquean todas hasta que termine
-  const [choosing, setChoosing] = useState(null)
-  // Las opciones aparecen cuando terminás de leer
-  const [read, setRead] = useState(false)
-  const arc = arcEvent ? arcById(parseArcCode(event.template_code)?.arcId) : null
-  const choose = async (opt) => {
-    if (choosing) return
-    setChoosing(opt.id)
-    try {
-      await onResolve(event, opt)
-    } finally {
-      setChoosing(null)
-    }
-  }
-
+/** Celular: caja, plantel y puesto en tres tarjetitas (el detalle está en cada sección) */
+function StatTiles({ finances, squad, standings }) {
+  const tile = 'flex min-w-0 flex-col gap-0.5 rounded-lg border border-line bg-surface px-3 py-2.5 transition-colors hover:bg-surface-2'
   return (
-    <Card className={cn('min-w-0 overflow-hidden', critical && 'border-danger/50', arcEvent && !critical && 'border-gold/40')}>
-      <CardBody className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {arcEvent && <Badge tone="gold"><BookOpen className="size-3" aria-hidden="true" />Historia</Badge>}
-          <Badge tone={category.tone}>{category.label}</Badge>
-          {critical && <Badge tone="danger" dot>Decisión urgente</Badge>}
-          {/* Se puede abrir a pantalla completa (con su minijuego); las opciones de abajo sirven para decidir leyendo acá */}
-          {onPlay && (
-            <button type="button" aria-label="Abrir a pantalla completa" onClick={() => onPlay(event)} className="ml-auto grid size-8 place-items-center rounded-lg text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg">
-              <Maximize2 className="size-4" aria-hidden="true" />
-            </button>
-          )}
-        </div>
-        {chapter && (
-          <div className="flex items-center gap-2" aria-label={`Capítulo ${chapter.current} de ${chapter.total}`}>
-            <span className="flex gap-1" aria-hidden="true">
-              {Array.from({ length: chapter.total }, (_, i) => (
-                <span key={i} className={cn('h-1.5 w-6 rounded-full', i < chapter.current ? 'bg-gold' : 'bg-surface-3', i === chapter.current - 1 && 'animate-pulse')} />
-              ))}
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gold">Capítulo {chapter.current} de {chapter.total}</span>
-          </div>
-        )}
-        <div>
-          <h3 className="flex items-start gap-2 font-display text-xl font-semibold text-fg">
-            {arcEvent ? <Sparkles className="mt-1 size-4.5 shrink-0 text-gold" aria-hidden="true" /> : <Bell className={cn('mt-1 size-4.5 shrink-0', critical ? 'text-danger' : 'text-fg-subtle')} aria-hidden="true" />}
-            <span className="min-w-0 break-words">{chapter ? chapter.clean : event.title}</span>
-          </h3>
-          {arc?.title && <p className="mt-0.5 text-xs italic text-fg-subtle">{arc.title} — {arc.tagline}</p>}
-          <div className="mt-3"><StoryText text={event.description} onDone={() => setRead(true)} /></div>
-        </div>
-        {read && <div className="animate-rise-in">
-          <p className="eyebrow mb-2">¿Qué hacés?</p>
-          <div className="flex flex-col gap-2">
-            {options.map((opt, index) => {
-              const cost = Number(opt.cost || 0)
-              const canAfford = cost === 0 || budget >= cost
-              const needsBoard = Number(opt.requires?.board || 0)
-              const hasBackup = !needsBoard || boardConfidence >= needsBoard
-              const disabled = !!choosing || !canAfford || !hasBackup
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  disabled={disabled}
-                  onClick={() => choose(opt)}
-                  className={cn(
-                    'group flex w-full min-w-0 items-start gap-3 rounded-lg border p-3 text-left transition-all',
-                    'border-line-strong bg-surface-2 hover:border-accent hover:bg-accent-soft active:scale-[0.99]',
-                    'disabled:pointer-events-none disabled:opacity-50',
-                    choosing === opt.id && 'border-accent bg-accent-soft'
-                  )}
-                >
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-sm font-semibold text-fg-muted transition-colors group-hover:bg-accent group-hover:text-accent-fg" aria-hidden="true">
-                    {OPTION_LETTERS[index] || index + 1}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block break-words text-sm font-semibold text-fg">{opt.label}</span>
-                    {opt.description && <span className="mt-0.5 block break-words text-xs leading-relaxed text-fg-muted">{opt.description}</span>}
-                    {(cost > 0 || !hasBackup) && (
-                      <span className="mt-1.5 flex flex-wrap gap-1.5">
-                        {cost > 0 && <Badge tone={canAfford ? 'warning' : 'danger'} className="num">-{formatMoney(cost)}</Badge>}
-                        {!hasBackup && <Badge tone="danger">Sin respaldo de la dirigencia</Badge>}
-                      </span>
-                    )}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </div>}
-      </CardBody>
-    </Card>
+    <ul className="grid grid-cols-3 gap-2" aria-label="Resumen del club">
+      <li className="min-w-0"><Link to="/finances" className={tile}>
+        <span className="eyebrow">Caja</span>
+        <span className={cn('num truncate font-display text-lg font-semibold', finances.balance < 0 ? 'text-danger' : 'text-fg')}>{formatMoney(finances.balance)}</span>
+      </Link></li>
+      <li className="min-w-0"><Link to="/squad" className={tile}>
+        <span className="eyebrow">Plantel</span>
+        <span className={cn('num font-display text-lg font-semibold', squad.availableCount < 11 ? 'text-warning' : 'text-fg')}>{squad.availableCount}/{squad.totalPlayers}</span>
+        <span className="text-[0.6875rem] text-fg-subtle">aptos · {squad.averageFitness}% físico</span>
+      </Link></li>
+      <li className="min-w-0"><Link to="/standings" className={tile}>
+        <span className="eyebrow">Puesto</span>
+        <span className="num font-display text-lg font-semibold text-fg">{standings?.rank ? `${standings.rank}º` : '—'}</span>
+        <span className="text-[0.6875rem] text-fg-subtle">{standings ? `${standings.points || 0} pts · ${standings.played || 0} PJ` : 'sin partidos'}</span>
+      </Link></li>
+    </ul>
+  )
+}
+
+const MORE_KEY = 'vestuario-dashboard-more'
+
+/** "Ver más": lo que no hace falta en el primer pantallazo, plegado; recuerda si quedó abierto en este navegador */
+function MoreSection({ children }) {
+  const [open, setOpen] = useState(() => {
+    try { return window.localStorage.getItem(MORE_KEY) === '1' } catch { return false }
+  })
+  const toggle = () => {
+    const next = !open
+    setOpen(next)
+    try { window.localStorage.setItem(MORE_KEY, next ? '1' : '0') } catch { /* sin almacenamiento: no se recuerda */ }
+  }
+  return (
+    <section aria-label="Más del club">
+      <Button variant="outline" className="w-full justify-between" aria-expanded={open} aria-controls="dashboard-more" onClick={toggle}>
+        {open ? 'Ver menos' : 'Ver más: clima, consecuencias y carrera'}<ChevronRight className={cn('transition-transform', open && 'rotate-90')} />
+      </Button>
+      {open && <div id="dashboard-more" className="mt-4 space-y-4 animate-rise-in">{children}</div>}
+    </section>
   )
 }
 
@@ -248,6 +204,8 @@ function OutcomeCard({ outcome, onClose }) {
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  // Escritorio: grilla completa; celular: resumen arriba y lo demás plegado
+  const isLg = useMediaQuery('(min-width: 1024px)')
   const { manager, club, user, loading: contextLoading, refreshContext } = useGameContext()
   // Lo que ya hizo la persona de la misión inicial (se actualiza al visitar la pizarra o resolver una decisión)
   const [firstSteps, setFirstSteps] = useState({})
@@ -401,6 +359,73 @@ export default function Dashboard() {
     <Button onClick={handleAdvanceWeek} loading={advancing}>{!advancing && <FastForward />}Avanzar semana</Button>
   )
 
+  const missionCard = missionVisible ? <FirstStepsCard progress={mission} onDismiss={() => markStep(user?.id, 'dismissed')} /> : null
+
+  // Tarjeta del próximo partido (escritorio: dentro de la grilla; celular: arriba de todo, sin repetir el botón de jugar)
+  const matchCard = (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <div className="flex items-center gap-2.5">
+                <CalendarDays className="size-5 text-accent" aria-hidden="true" />
+                <CardTitle>Próximo compromiso</CardTitle>
+              </div>
+              {nextFixture && <Badge className="num">Fecha {nextFixture.match_week || 1}</Badge>}
+            </CardHeader>
+            <CardBody>
+              {nextFixture ? (
+                <>
+                  <div className="flex items-center justify-between gap-4 py-4">
+                    <div className="flex min-w-0 flex-1 flex-col items-center gap-2 text-center">
+                      <Crest club={nextFixture.home} name={nextFixture.home?.name} highlight={nextFixture.home_team_id === club.id} />
+                      <p className="max-w-full truncate text-sm font-semibold text-fg">{nextFixture.home?.name || 'Local'}</p>
+                      <p className="eyebrow">{nextFixture.home_team_id === club.id ? 'Tu club' : 'Rival'}</p>
+                    </div>
+                    <div className="shrink-0 text-center">
+                      <p className="font-display text-2xl font-semibold text-fg-subtle">VS</p>
+                      <p className="num mt-1 text-xs capitalize text-fg-muted">{formatGameDate(String(nextFixture.match_date).slice(0, 10))}</p>
+                      <p className="mt-0.5 text-xs text-fg-subtle">{isHome ? 'De local' : 'De visitante'}</p>
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col items-center gap-2 text-center">
+                      <Crest club={nextFixture.away} name={nextFixture.away?.name} highlight={nextFixture.away_team_id === club.id} />
+                      <p className="max-w-full truncate text-sm font-semibold text-fg">{nextFixture.away?.name || 'Visitante'}</p>
+                      <p className="eyebrow">{nextFixture.away_team_id === club.id ? 'Tu club' : 'Rival'}</p>
+                    </div>
+                  </div>
+
+                  {rival && (
+                    <p className="flex flex-wrap items-center gap-2 border-t border-line py-3 text-sm text-fg-muted" data-testid="rival-level">
+                      <Badge tone={rival.tone}>Rival: {rival.label} · nivel {rival.level}</Badge>
+                      <span>{rival.hint}</span>
+                    </p>
+                  )}
+
+                  <div className="flex flex-col gap-2 border-t border-line pt-4 sm:flex-row sm:items-center">
+                    <Button asChild variant="outline"><Link to="/tactics">Ajustar táctica y once</Link></Button>
+                    <Button
+                      onClick={() => navigate('/match', { state: { fixtureId: nextFixture.id } })}
+                      disabled={!matchDue}
+                      aria-describedby="match-reason"
+                      className="hidden lg:inline-flex"
+                    >
+                      <Play />Disputar partido
+                    </Button>
+                    {matchFuture && (
+                      <p id="match-reason" className="text-sm text-fg-muted sm:ml-1">
+                        Se juega en {daysToMatch} {daysToMatch === 1 ? 'día' : 'días'}. Avanza la semana para llegar a la fecha.
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="py-6">
+                  <p className="font-display text-xl font-semibold text-fg">Pretemporada</p>
+                  <p className="mt-1 max-w-prose text-sm text-fg-muted">No hay compromisos oficiales agendados. Aprovecha para entrenar y cerrar fichajes.</p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+  )
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
       {stage && (
@@ -453,87 +478,50 @@ export default function Dashboard() {
 
         {step.kind !== 'CLOSE' && <NextStepCard step={step} onDecide={() => setStage({ event: nextStory || pendingEvents[0], result: null })} />}
 
-        {missionVisible && <FirstStepsCard progress={mission} onDismiss={() => markStep(user?.id, 'dismissed')} />}
+        {isLg && missionCard}
 
         <AlertList alerts={urgentAlerts} />
 
         {lastOutcome && <OutcomeCard outcome={lastOutcome} onClose={() => setLastOutcome(null)} />}
 
-        {pendingEvents?.length > 0 && (
-          <section aria-label="Decisiones pendientes" className="space-y-3">
-            {pendingEvents.map(ev => (
-              <EventCard key={ev.id} event={ev} budget={Number(club?.budget || 0)} boardConfidence={Number(club?.board_confidence ?? 100)} onResolve={handleResolveEvent} onPlay={(event) => setStage({ event, result: null })} />
-            ))}
-          </section>
+        <DecisionRows events={pendingEvents} onOpen={(event) => setStage({ event, result: null })} />
+
+        {!isLg && (
+          <>
+            {matchCard}
+            <StatTiles finances={financesSummary} squad={squadHealth} standings={standingsSnippet} />
+            {missionCard}
+            <MoreSection>
+              <ClimatePanel key={`climate-${reloadTick}`} club={club} gameDate={clubSummary.gameDate} />
+              <ConsequenceFeed key={`feed-${reloadTick}`} clubId={club?.id} />
+              <Card>
+                <CardHeader><CardTitle>Tope salarial</CardTitle><Button asChild variant="link" size="sm"><Link to="/finances">Detalle</Link></Button></CardHeader>
+                <CardBody><WageCapMeter bill={financesSummary.weeklyWageBill} cap={financesSummary.wageBudget} /></CardBody>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Tu carrera</CardTitle><Badge tone="gold">Nivel {managerSummary.level}</Badge></CardHeader>
+                <CardBody className="space-y-3">
+                  <div>
+                    <p className="text-sm font-semibold text-fg">{managerSummary.name}</p>
+                    <p className="text-sm text-fg-muted">{managerSummary.title} · reputación <span className="num font-semibold">{managerSummary.reputation}</span></p>
+                  </div>
+                  <Progress tone="accent" value={managerSummary.progressPercent} label="Progreso al próximo nivel" />
+                  <Button asChild variant="link" size="sm"><Link to="/manager">Ver mi carrera</Link></Button>
+                </CardBody>
+              </Card>
+            </MoreSection>
+          </>
         )}
 
+        {isLg && (
+          <>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <ClimatePanel key={`climate-${reloadTick}`} club={club} gameDate={clubSummary.gameDate} />
           <ConsequenceFeed key={`feed-${reloadTick}`} clubId={club?.id} />
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Próximo compromiso */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <div className="flex items-center gap-2.5">
-                <CalendarDays className="size-5 text-accent" aria-hidden="true" />
-                <CardTitle>Próximo compromiso</CardTitle>
-              </div>
-              {nextFixture && <Badge className="num">Fecha {nextFixture.match_week || 1}</Badge>}
-            </CardHeader>
-            <CardBody>
-              {nextFixture ? (
-                <>
-                  <div className="flex items-center justify-between gap-4 py-4">
-                    <div className="flex min-w-0 flex-1 flex-col items-center gap-2 text-center">
-                      <Crest club={nextFixture.home} name={nextFixture.home?.name} highlight={nextFixture.home_team_id === club.id} />
-                      <p className="max-w-full truncate text-sm font-semibold text-fg">{nextFixture.home?.name || 'Local'}</p>
-                      <p className="eyebrow">{nextFixture.home_team_id === club.id ? 'Tu club' : 'Rival'}</p>
-                    </div>
-                    <div className="shrink-0 text-center">
-                      <p className="font-display text-2xl font-semibold text-fg-subtle">VS</p>
-                      <p className="num mt-1 text-xs capitalize text-fg-muted">{formatGameDate(String(nextFixture.match_date).slice(0, 10))}</p>
-                      <p className="mt-0.5 text-xs text-fg-subtle">{isHome ? 'De local' : 'De visitante'}</p>
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-col items-center gap-2 text-center">
-                      <Crest club={nextFixture.away} name={nextFixture.away?.name} highlight={nextFixture.away_team_id === club.id} />
-                      <p className="max-w-full truncate text-sm font-semibold text-fg">{nextFixture.away?.name || 'Visitante'}</p>
-                      <p className="eyebrow">{nextFixture.away_team_id === club.id ? 'Tu club' : 'Rival'}</p>
-                    </div>
-                  </div>
-
-                  {rival && (
-                    <p className="flex flex-wrap items-center gap-2 border-t border-line py-3 text-sm text-fg-muted" data-testid="rival-level">
-                      <Badge tone={rival.tone}>Rival: {rival.label} · nivel {rival.level}</Badge>
-                      <span>{rival.hint}</span>
-                    </p>
-                  )}
-
-                  <div className="flex flex-col gap-2 border-t border-line pt-4 sm:flex-row sm:items-center">
-                    <Button asChild variant="outline"><Link to="/tactics">Ajustar táctica y once</Link></Button>
-                    <Button
-                      onClick={() => navigate('/match', { state: { fixtureId: nextFixture.id } })}
-                      disabled={!matchDue}
-                      aria-describedby="match-reason"
-                    >
-                      <Play />Disputar partido
-                    </Button>
-                    {matchFuture && (
-                      <p id="match-reason" className="text-sm text-fg-muted sm:ml-1">
-                        Se juega en {daysToMatch} {daysToMatch === 1 ? 'día' : 'días'}. Avanza la semana para llegar a la fecha.
-                      </p>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="py-6">
-                  <p className="font-display text-xl font-semibold text-fg">Pretemporada</p>
-                  <p className="mt-1 max-w-prose text-sm text-fg-muted">No hay compromisos oficiales agendados. Aprovecha para entrenar y cerrar fichajes.</p>
-                </div>
-              )}
-            </CardBody>
-          </Card>
+          {matchCard}
 
           {/* Estado del plantel */}
           <Card>
@@ -630,6 +618,8 @@ export default function Dashboard() {
             </CardBody>
           </Card>
         </div>
+          </>
+        )}
       </div>
 
       {showSeasonCloseModal && (

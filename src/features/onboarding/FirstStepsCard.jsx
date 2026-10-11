@@ -1,11 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Check, Circle, X } from 'lucide-react'
+import { Check, ChevronDown, Circle, X } from 'lucide-react'
 import { Button, Card, CardBody, Progress } from '../../components/ui'
 import { cn } from '../../lib/utils'
 
 /** Misión inicial de las cuentas nuevas: tres pasos concretos con su avance. Se puede ocultar. */
 export default function FirstStepsCard({ progress, onDismiss }) {
+  // Plegada muestra solo el próximo paso (en el celular el Inicio no se llena); desplegada, los tres
+  const [open, setOpen] = useState(false)
+  const steps = open ? progress.steps : progress.steps.filter(step => !step.done).slice(0, 1)
   return (
     <Card as="section" aria-labelledby="first-steps-title" className="border-accent/40">
       <CardBody className="space-y-3">
@@ -18,7 +21,7 @@ export default function FirstStepsCard({ progress, onDismiss }) {
         </div>
         <Progress value={Math.round((progress.done / progress.total) * 100)} label="Avance de la misión inicial" />
         <ol className="space-y-1">
-          {progress.steps.map(step => (
+          {steps.map(step => (
             <li key={step.id}>
               {step.done ? (
                 <p className="flex min-h-11 items-center gap-3 text-sm text-fg-subtle line-through">
@@ -33,6 +36,9 @@ export default function FirstStepsCard({ progress, onDismiss }) {
             </li>
           ))}
         </ol>
+        <button type="button" aria-expanded={open} onClick={() => setOpen(v => !v)} className="flex min-h-11 w-full items-center justify-center gap-1.5 text-xs font-semibold text-fg-muted hover:text-fg">
+          {open ? 'Ver solo el próximo' : 'Ver los tres pasos'}<ChevronDown className={cn('size-4 transition-transform', open && 'rotate-180')} aria-hidden="true" />
+        </button>
       </CardBody>
     </Card>
   )

@@ -17,7 +17,7 @@ import { TACTIC_PRESETS, describeEffect, effectOf, presetOf, tacticMultipliers }
 import { ratingAtSlot, playerOverall } from '../../domain/ratings'
 import {
   Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, ChoiceChips, EmptyState,
-  PageHeader, Select, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
+  PageHeader, ResponsiveOverlay, Select, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 import { cn } from '../../lib/utils'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
@@ -25,6 +25,8 @@ import { lockerRoomApi } from '../../api/lockerRoom'
 import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
 import { markStep } from '../onboarding/firstStepsStore'
+import { SummaryBar, SelectionBar, Dock, CompactInstruction } from './MobileTactics'
+import { styleName, styleLine } from '../../domain/tacticsView'
 
 const ROLE_ICONS = { PENALTY: CircleDot, FREE_KICK: Target, CORNER: Flag, HEADER: ChevronsUp }
 const AFFINITY_TONE = { NATURAL: 'accent', COMPATIBLE: 'warning', ADAPTED: 'warning', OUT_OF_POSITION: 'danger' }
@@ -97,6 +99,9 @@ export default function TacticsScreen() {
   const [tacticId, setTacticId] = useState(null)
   const [selectedSlot, setSelectedSlot] = useState(null)
   const [tab, setTab] = useState('instructions')
+  // Celular: hoja abierta ('style' | 'fine' | 'more' | 'picker') y modo Editar posiciones (apagado: tocar no mueve nada)
+  const [sheet, setSheet] = useState(null)
+  const [editMode, setEditMode] = useState(false)
   const [savedSnapshot, setSavedSnapshot] = useState('')
   // Especialistas de pelota parada elegidos a mano ({ rol: idJugador }); vacío = automático
   const [takers, setTakers] = useState({})
@@ -234,6 +239,7 @@ export default function TacticsScreen() {
       return next
     })
     setSelectedSlot(null)
+    setSheet(null)
   }
 
   const handleSave = async () => {
@@ -332,6 +338,95 @@ export default function TacticsScreen() {
     </Button>
   )
 
+  // Bloques que se reparten entre escritorio (columnas y pestañas) y celular (hojas desde la barra de abajo)
+  const specialistsCard = (
+    <Card as="section" aria-label="Especialistas de pelota parada">
+      <CardHeader><CardTitle className="text-lg">Especialistas</CardTitle></CardHeader>
+      <CardBody>
+        <ul className="space-y-2.5">
+          {Object.entries(ROLE_ICONS).map(([role, Icon]) => {
+            const sp = specialists[role]
+            const roleCandidates = topFor(squad, role, 40)
+            return (
+              <li key={role} className="space-y-1.5">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-3 text-accent"><Icon className="size-4" aria-hidden="true" /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs text-fg-subtle">{ROLE_LABELS[role]}{sp?.manual ? ' · elegido por vos' : ' · automático'}</span>
+                    <span className="block truncate text-sm font-semibold text-fg">{sp ? sp.name : 'Sin especialista disponible'}</span>
+                  </span>
+                  {sp && <span className="num font-mono text-sm font-bold text-accent">{sp.score}</span>}
+                </div>
+                <Select aria-label={`Especialista de ${ROLE_LABELS[role].toLowerCase()}`} value={takers[role] || ''} onChange={(e) => chooseTaker(role, e.target.value)}>
+                  <option value="">Automático (el mejor por atributos)</option>
+                  {roleCandidates.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name} · {Math.round(ROLE_SCORES[role](p))}</option>)}
+                </Select>
+              </li>
+            )
+          })}
+        </ul>
+        <p className="mt-3 text-xs text-fg-subtle">Si no elegís a nadie, cobra el mejor según sus atributos. En el partido, ellos cobran y definen las pelotas paradas; si el elegido se lesiona o sale, lo reemplaza el mejor disponible.</p>
+      </CardBody>
+    </Card>
+  )
+
+  const legends = (
+    <>
+      <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de color">
+        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-accent" />Natural</li>
+        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-warning" />Compatible</li>
+        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-[oklch(75%_0.16_55)]" />Adaptado</li>
+        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-danger" />Fuera de puesto</li>
+      </ul>
+      <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de química">
+        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(72%_0.17_150)]" />Química buena</li>
+        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(82%_0.15_90)]" />Regular</li>
+        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(62%_0.2_25)]" />Mala</li>
+      </ul>
+      {weak.length > 0 && (
+        <ul className="space-y-1 px-1 text-xs text-fg-muted" aria-label="Vínculos para mejorar">
+          {weak.map(l => (
+            <li key={`${l.a}-${l.b}`}>
+              <span className="font-semibold text-fg">{slotBase(l.a)} y {slotBase(l.b)}:</span> {l.reasons.join(', ') || 'se conocen poco'}
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  )
+
+  const presetButtons = (
+    <>
+      <div role="group" aria-label="Estilos listos" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {TACTIC_PRESETS.map(p => (
+          <button
+            key={p.id}
+            type="button"
+            aria-pressed={activePreset === p.id}
+            onClick={() => applyPreset(p)}
+            className={cn(
+              'flex min-h-14 flex-col items-start justify-center gap-0.5 rounded-xl border px-3 py-2 text-left transition-colors active:scale-[0.99]',
+              activePreset === p.id ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent/60 hover:bg-surface-2'
+            )}
+          >
+            <span className="text-sm font-semibold text-fg">{p.label}</span>
+            <span className="text-[11px] leading-snug text-fg-muted">{p.description}</span>
+          </button>
+        ))}
+      </div>
+      <section aria-label="Resumen de instrucciones" className="rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-xs leading-relaxed text-fg-muted">
+        <span className="font-semibold text-fg">Así juega tu equipo: </span>{describeEffect(tacticMultipliers(currentStyle))}
+      </section>
+    </>
+  )
+
+  const formationBlock = (
+    <>
+      <ChoiceChips label="Formación" value={formation} onChange={handleFormationChange} options={customLayout ? [...FORMATION_OPTIONS, { value: FREE_FORMATION, label: `Libre ${shapeOf(customLayout)}` }] : FORMATION_OPTIONS} />
+      <Button variant="outline" size="sm" onClick={handleAutoAssign}><Wand2 />Auto-alinear el mejor once</Button>
+    </>
+  )
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
       <PageHeader
@@ -339,175 +434,138 @@ export default function TacticsScreen() {
         title="Táctica y once titular"
         description="Arrastrá una ficha para ponerla donde quieras. En el celular, tocá una ficha y después el lugar de la cancha; tocar otra ficha las intercambia."
         actions={<span className="hidden lg:contents">{saveButton}</span>}
+        className="hidden lg:flex"
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
-        {/* Cancha y resumen */}
-        <div className="min-w-0 space-y-4">
-          <Pitch formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={handleMove} links={chemistry.links} captainId={captainId} />
-
-          <Card>
-            <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat label="Nivel del once" value={summary.avg} />
-              <Stat label="Química" value={`${chemistry.score}%`} valueClassName={chemistry.score >= 70 ? 'text-accent' : chemistry.score < 40 ? 'text-danger' : 'text-warning'} />
-              <Stat label="Fuera de puesto" value={summary.out} valueClassName={summary.out > 0 ? 'text-warning' : undefined} />
-              <Stat label="Lesionados" value={summary.hurt} valueClassName={summary.hurt > 0 ? 'text-danger' : undefined} />
-            </CardBody>
-          </Card>
-
-          <Card as="section" aria-label="Especialistas de pelota parada">
-            <CardHeader><CardTitle className="text-lg">Especialistas</CardTitle></CardHeader>
-            <CardBody>
-              <ul className="space-y-2.5">
-                {Object.entries(ROLE_ICONS).map(([role, Icon]) => {
-                  const sp = specialists[role]
-                  const candidates = topFor(squad, role, 40)
-                  return (
-                    <li key={role} className="space-y-1.5">
-                      <div className="flex items-center gap-3">
-                        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-surface-3 text-accent"><Icon className="size-4" aria-hidden="true" /></span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs text-fg-subtle">{ROLE_LABELS[role]}{sp?.manual ? ' · elegido por vos' : ' · automático'}</span>
-                          <span className="block truncate text-sm font-semibold text-fg">{sp ? sp.name : 'Sin especialista disponible'}</span>
-                        </span>
-                        {sp && <span className="num font-mono text-sm font-bold text-accent">{sp.score}</span>}
-                      </div>
-                      <Select aria-label={`Especialista de ${ROLE_LABELS[role].toLowerCase()}`} value={takers[role] || ''} onChange={(e) => chooseTaker(role, e.target.value)}>
-                        <option value="">Automático (el mejor por atributos)</option>
-                        {candidates.map(p => <option key={p.id} value={p.id}>{p.first_name} {p.last_name} · {Math.round(ROLE_SCORES[role](p))}</option>)}
-                      </Select>
-                    </li>
-                  )
-                })}
-              </ul>
-              <p className="mt-3 text-xs text-fg-subtle">Si no elegís a nadie, cobra el mejor según sus atributos. En el partido, ellos cobran y definen las pelotas paradas; si el elegido se lesiona o sale, lo reemplaza el mejor disponible.</p>
-            </CardBody>
-          </Card>
-
-          <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de color">
-            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-accent" />Natural</li>
-            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-warning" />Compatible</li>
-            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-[oklch(75%_0.16_55)]" />Adaptado</li>
-            <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-danger" />Fuera de puesto</li>
-          </ul>
-          <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de química">
-            <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(72%_0.17_150)]" />Química buena</li>
-            <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(82%_0.15_90)]" />Regular</li>
-            <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(62%_0.2_25)]" />Mala</li>
-          </ul>
-          {weak.length > 0 && (
-            <ul className="space-y-1 px-1 text-xs text-fg-muted" aria-label="Vínculos para mejorar">
-              {weak.map(l => (
-                <li key={`${l.a}-${l.b}`}>
-                  <span className="font-semibold text-fg">{slotBase(l.a)} y {slotBase(l.b)}:</span> {l.reasons.join(', ') || 'se conocen poco'}
-                </li>
-              ))}
-            </ul>
+      {/* ---------- Celular: cinta de resumen, cancha y barra de herramientas; todo entra sin bajar ---------- */}
+      {!isLg && (
+        <>
+          <SummaryBar formation={customLayout ? `Libre ${shapeOf(customLayout)}` : formation} styleLabel={styleName(currentStyle)} avg={summary.avg} chemistry={chemistry.score} out={summary.out} hurt={summary.hurt} dirty={dirty} saving={saving} onSave={handleSave} />
+          {selectedSlot && (
+            <SelectionBar slotName={slotBase(selectedSlot)} playerName={selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : ''} onChange={() => setSheet('picker')} onCancel={() => setSelectedSlot(null)} />
           )}
-        </div>
+          <Pitch
+            className="w-[min(100%,calc(56dvh*0.68))]"
+            formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad}
+            selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={editMode ? handleMove : undefined} links={chemistry.links} captainId={captainId}
+          />
+          <p className="mt-2 px-1 text-xs text-fg-subtle">
+            {editMode ? 'Modo editar: arrastrá una ficha o tocá un lugar de la cancha para moverla.' : 'Tocá una ficha para elegirla; tocá otra para intercambiarlas. Para moverlas libremente usá “Editar”.'}
+          </p>
+          <Dock editMode={editMode} onToggleEdit={() => { setEditMode(v => !v); setSelectedSlot(null) }} onOpen={setSheet} />
 
-        {/* Instrucciones y selección de jugadores */}
-        <Tabs value={tab} onValueChange={setTab} className="min-w-0">
-          <TabsList>
-            <TabsTrigger value="instructions">Instrucciones</TabsTrigger>
-            <TabsTrigger value="players">
-              Jugadores{selectedSlot ? ` · ${slotBase(selectedSlot)}` : ''}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="instructions" className="space-y-4">
-            <InstructionGroup title="Estructura" description={customLayout ? `Alineación libre con esquema ${shapeOf(customLayout)}. Elegí una formación para volver a una fija.` : (FORMATIONS[formation] || FORMATIONS['4-4-2']).description}>
-              <ChoiceChips label="Formación" value={formation} onChange={handleFormationChange} options={customLayout ? [...FORMATION_OPTIONS, { value: FREE_FORMATION, label: `Libre ${shapeOf(customLayout)}` }] : FORMATION_OPTIONS} />
-              <Button variant="outline" size="sm" onClick={handleAutoAssign}><Wand2 />Auto-alinear el mejor once</Button>
-            </InstructionGroup>
-
-            <InstructionGroup title="Estilos listos" description="Un toque y quedan fijadas las cuatro instrucciones. Después podés ajustar lo que quieras.">
-              <div role="group" aria-label="Estilos listos" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {TACTIC_PRESETS.map(p => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    aria-pressed={activePreset === p.id}
-                    onClick={() => applyPreset(p)}
-                    className={cn(
-                      'flex min-h-14 flex-col items-start justify-center gap-0.5 rounded-xl border px-3 py-2 text-left transition-colors active:scale-[0.99]',
-                      activePreset === p.id ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent/60 hover:bg-surface-2'
-                    )}
-                  >
-                    <span className="text-sm font-semibold text-fg">{p.label}</span>
-                    <span className="text-[11px] leading-snug text-fg-muted">{p.description}</span>
-                  </button>
-                ))}
+          {sheet === 'style' && (
+            <ResponsiveOverlay title="Estilo de juego" description={`Ahora: ${styleName(currentStyle)}. ${styleLine(currentStyle)}.`} onClose={() => setSheet(null)} size="md">
+              <div className="space-y-4">
+                {presetButtons}
+                <div className="space-y-2 border-t border-line pt-4">
+                  <p className="text-sm font-semibold text-fg">Formación</p>
+                  {formationBlock}
+                </div>
+                <div className="space-y-2 border-t border-line pt-4">
+                  <p className="text-sm font-semibold text-fg">Mentalidad</p>
+                  <p className="text-xs text-fg-muted">Es lo que más pesa: cuánto riesgo asume el equipo en cada zona de la cancha.</p>
+                  <InstructionPicker label="Mentalidad" group="mentality" value={mentality} onChange={setMentality} options={TACTICAL_MENTALITIES} />
+                </div>
               </div>
-              <section aria-label="Resumen de instrucciones" className="rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-xs leading-relaxed text-fg-muted">
-                <span className="font-semibold text-fg">Así juega tu equipo: </span>{describeEffect(tacticMultipliers(currentStyle))}
-              </section>
-            </InstructionGroup>
-
-            <InstructionGroup title="Mentalidad" description="Cuánto riesgo asume el equipo en cada zona de la cancha.">
-              <InstructionPicker label="Mentalidad" group="mentality" value={mentality} onChange={setMentality} options={TACTICAL_MENTALITIES} />
-            </InstructionGroup>
-
-            <InstructionGroup title="Con la pelota" description="Cómo construye el juego y a qué velocidad.">
-              <p className="text-sm font-medium text-fg">Estilo de pase</p>
-              <InstructionPicker label="Estilo de pase" group="passing" value={passingStyle} onChange={setPassingStyle} options={PASSING_STYLES} />
-              <p className="pt-1 text-sm font-medium text-fg">Ritmo de juego</p>
-              <InstructionPicker label="Ritmo de juego" group="tempo" value={tempo} onChange={setTempo} options={TEMPO_LEVELS} />
-            </InstructionGroup>
-
-            <InstructionGroup title="Sin la pelota" description="Qué tan arriba se presiona y cuánto desgaste cuesta.">
-              <InstructionPicker label="Intensidad de presión" group="pressing" value={pressing} onChange={setPressing} options={PRESSING_LEVELS} />
-            </InstructionGroup>
-          </TabsContent>
-
-          <TabsContent value="players">
-            {!selectedSlot ? (
-              <EmptyState title="Elige un puesto" description="Toca una ficha de la cancha para ver quién puede ocuparlo y qué tan cómodo estaría." />
-            ) : (
-              <div className="space-y-3">
-                <Card>
-                  <CardBody className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="eyebrow">Puesto {slotBase(selectedSlot)}</p>
-                      <p className="mt-1 truncate font-display text-xl font-semibold text-fg">
-                        {selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'Vacío'}
-                      </p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => setSelectedSlot(null)}>Cancelar</Button>
-                  </CardBody>
-                </Card>
-
-                {candidateList}
+            </ResponsiveOverlay>
+          )}
+          {sheet === 'fine' && (
+            <ResponsiveOverlay title="Ajustes finos" description="Pase, ritmo y presión: cambian poco el partido, pero afinan el estilo y el desgaste físico." onClose={() => setSheet(null)} size="md">
+              <div className="space-y-5">
+                <CompactInstruction title="Estilo de pase" group="passing" value={passingStyle} onChange={setPassingStyle} options={PASSING_STYLES} />
+                <CompactInstruction title="Ritmo de juego" group="tempo" value={tempo} onChange={setTempo} options={TEMPO_LEVELS} />
+                <CompactInstruction title="Intensidad de presión" group="pressing" value={pressing} onChange={setPressing} options={PRESSING_LEVELS} />
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Móvil: al tocar una ficha se despliegan los suplentes en una bandeja pegada abajo. No es modal: la pizarra
-          sigue activa para mover la ficha o intercambiarla con otra sin perder la selección */}
-      {!isLg && selectedSlot && (
-        <section aria-label={`Suplentes para ${slotBase(selectedSlot)}`} className="sticky bottom-0 z-30 -mx-4 mt-4 border-t border-line-strong bg-surface shadow-overlay sm:-mx-6">
-          <div className="flex items-center justify-between gap-3 px-4 py-2 sm:px-6">
-            <div className="min-w-0">
-              <p className="eyebrow">Puesto {slotBase(selectedSlot)}</p>
-              <p className="truncate text-sm font-semibold text-fg">
-                {selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'Vacío'} · elegí quién entra
-              </p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedSlot(null)}>Cerrar</Button>
-          </div>
-          <div className="max-h-[36dvh] overflow-y-auto overscroll-contain px-3 pb-3">{candidateList}</div>
-        </section>
+            </ResponsiveOverlay>
+          )}
+          {sheet === 'more' && (
+            <ResponsiveOverlay title="Especialistas y química" description="Quién cobra las pelotas paradas y cómo se llevan los once." onClose={() => setSheet(null)} size="md">
+              <div className="space-y-4">{specialistsCard}{legends}</div>
+            </ResponsiveOverlay>
+          )}
+          {sheet === 'picker' && selectedSlot && (
+            <ResponsiveOverlay title={`Elegí quién juega de ${slotBase(selectedSlot)}`} description={selectedPlayer ? `Ahora: ${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'El puesto está vacío'} onClose={() => setSheet(null)} size="md">
+              {candidateList}
+            </ResponsiveOverlay>
+          )}
+        </>
       )}
 
-      {/* Barra de guardado pegada abajo en móvil, sólo si hay cambios (dentro del flujo: no tapa ni se superpone con el menú) */}
-      {dirty && (
-        <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-line bg-surface px-4 py-3 sm:-mx-6 sm:px-6 lg:hidden">
-          <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
-            <p className="flex items-center gap-2 text-sm text-fg-muted"><ShieldAlert className="size-4 text-warning" aria-hidden="true" />Cambios sin guardar</p>
-            {saveButton}
+      {/* ---------- Escritorio: cancha a la izquierda y pestañas a la derecha ---------- */}
+      {isLg && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
+          <div className="min-w-0 space-y-4">
+            <Pitch formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad} selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={handleMove} links={chemistry.links} captainId={captainId} />
+
+            <Card>
+              <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <Stat label="Nivel del once" value={summary.avg} />
+                <Stat label="Química" value={`${chemistry.score}%`} valueClassName={chemistry.score >= 70 ? 'text-accent' : chemistry.score < 40 ? 'text-danger' : 'text-warning'} />
+                <Stat label="Fuera de puesto" value={summary.out} valueClassName={summary.out > 0 ? 'text-warning' : undefined} />
+                <Stat label="Lesionados" value={summary.hurt} valueClassName={summary.hurt > 0 ? 'text-danger' : undefined} />
+              </CardBody>
+            </Card>
+
+            {specialistsCard}
+            {legends}
           </div>
+
+          <Tabs value={tab} onValueChange={setTab} className="min-w-0">
+            <TabsList>
+              <TabsTrigger value="instructions">Instrucciones</TabsTrigger>
+              <TabsTrigger value="players">
+                Jugadores{selectedSlot ? ` · ${slotBase(selectedSlot)}` : ''}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="instructions" className="space-y-4">
+              <InstructionGroup title="Estructura" description={customLayout ? `Alineación libre con esquema ${shapeOf(customLayout)}. Elegí una formación para volver a una fija.` : (FORMATIONS[formation] || FORMATIONS['4-4-2']).description}>
+                {formationBlock}
+              </InstructionGroup>
+
+              <InstructionGroup title="Estilos listos" description="Un toque y quedan fijadas las cuatro instrucciones. Después podés ajustar lo que quieras.">
+                {presetButtons}
+              </InstructionGroup>
+
+              <InstructionGroup title="Mentalidad" description="Cuánto riesgo asume el equipo en cada zona de la cancha.">
+                <InstructionPicker label="Mentalidad" group="mentality" value={mentality} onChange={setMentality} options={TACTICAL_MENTALITIES} />
+              </InstructionGroup>
+
+              <InstructionGroup title="Con la pelota" description="Cómo construye el juego y a qué velocidad.">
+                <p className="text-sm font-medium text-fg">Estilo de pase</p>
+                <InstructionPicker label="Estilo de pase" group="passing" value={passingStyle} onChange={setPassingStyle} options={PASSING_STYLES} />
+                <p className="pt-1 text-sm font-medium text-fg">Ritmo de juego</p>
+                <InstructionPicker label="Ritmo de juego" group="tempo" value={tempo} onChange={setTempo} options={TEMPO_LEVELS} />
+              </InstructionGroup>
+
+              <InstructionGroup title="Sin la pelota" description="Qué tan arriba se presiona y cuánto desgaste cuesta.">
+                <InstructionPicker label="Intensidad de presión" group="pressing" value={pressing} onChange={setPressing} options={PRESSING_LEVELS} />
+              </InstructionGroup>
+            </TabsContent>
+
+            <TabsContent value="players">
+              {!selectedSlot ? (
+                <EmptyState title="Elige un puesto" description="Toca una ficha de la cancha para ver quién puede ocuparlo y qué tan cómodo estaría." />
+              ) : (
+                <div className="space-y-3">
+                  <Card>
+                    <CardBody className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="eyebrow">Puesto {slotBase(selectedSlot)}</p>
+                        <p className="mt-1 truncate font-display text-xl font-semibold text-fg">
+                          {selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : 'Vacío'}
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedSlot(null)}>Cancelar</Button>
+                    </CardBody>
+                  </Card>
+
+                  {candidateList}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       )}
     </div>

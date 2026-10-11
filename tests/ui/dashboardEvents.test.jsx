@@ -34,7 +34,7 @@ const renderDashboard = () => render(<MemoryRouter><Dashboard /></MemoryRouter>)
 describe('decisiones pendientes del inicio', () => {
   beforeEach(() => { state.events = [] })
 
-  it('se abre sola a pantalla completa una sola: la urgente primero, y las demás quedan como tarjetas con "Jugar"', async () => {
+  it('se abre sola a pantalla completa una sola: la urgente primero, y las demás quedan como filas con "Decidir"', async () => {
     state.events = [ev('uno'), ev('critico', { severity: 'CRITICAL', category: 'LOCKER_ROOM' }), ev('dos')]
     renderDashboard()
     const dialog = await screen.findByRole('dialog', { name: 'Evento critico' })
@@ -43,19 +43,19 @@ describe('decisiones pendientes del inicio', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Dejar para más tarde' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const section = screen.getByRole('region', { name: 'Decisiones pendientes' })
-    expect(within(section).getAllByRole('button', { name: 'Abrir a pantalla completa' })).toHaveLength(3)
-    expect(within(section).queryByRole('button', { name: /Jugar/ })).not.toBeInTheDocument()
+    expect(within(section).getAllByRole('listitem')).toHaveLength(3)
+    expect(within(section).getByRole('button', { name: 'Decidir: Evento critico' })).toBeInTheDocument()
+    expect(within(section).getByText('Urgente')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('el botón de abrir de una tarjeta abre ese evento a pantalla completa', async () => {
+  it('tocar una fila abre esa decisión a pantalla completa', async () => {
     state.events = [ev('uno'), ev('dos')]
     renderDashboard()
     fireEvent.click(await screen.findByRole('button', { name: 'Dejar para más tarde' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const section = screen.getByRole('region', { name: 'Decisiones pendientes' })
-    const card = within(section).getByText('Evento dos').closest('div[class*="space-y-4"]')
-    fireEvent.click(within(card).getByRole('button', { name: 'Abrir a pantalla completa' }))
+    fireEvent.click(within(section).getByRole('button', { name: 'Decidir: Evento dos' }))
     expect(await screen.findByRole('dialog', { name: 'Evento dos' })).toBeInTheDocument()
   })
 
@@ -66,17 +66,13 @@ describe('decisiones pendientes del inicio', () => {
     expect(screen.queryByRole('region', { name: 'Decisiones pendientes' })).not.toBeInTheDocument()
   })
 
-  it('un evento suelto se presenta como una historia: se lee de a poco y las opciones aparecen al terminar', async () => {
-    state.events = [ev('uno', { description: 'Pasó algo en el barrio. Los vecinos hablan. Alguien trajo facturas. Nadie sabe quién.' })]
+  it('las historias se marcan y muestran su capítulo; el relato no se vuelca en el inicio', async () => {
+    state.events = [ev('uno', { template_code: 'ARC_X_1', title: 'La barra pide un sobre (1/3)', description: 'Pasó algo en el barrio. Los vecinos hablan.' })]
     renderDashboard()
     fireEvent.click(await screen.findByRole('button', { name: 'Dejar para más tarde' }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const section = screen.getByRole('region', { name: 'Decisiones pendientes' })
-    expect(within(section).getByRole('button', { name: 'Seguir leyendo' })).toBeInTheDocument()
+    expect(within(section).queryByText(/Los vecinos hablan/)).not.toBeInTheDocument()
     expect(within(section).queryByText('Opción A')).not.toBeInTheDocument()
-    fireEvent.click(within(section).getByRole('button', { name: 'Leer todo' }))
-    expect(within(section).getByText('¿Qué hacés?')).toBeInTheDocument()
-    expect(within(section).getByText('Opción A')).toBeInTheDocument()
-    expect(within(section).queryByText('Jugar')).not.toBeInTheDocument()
   })
 })

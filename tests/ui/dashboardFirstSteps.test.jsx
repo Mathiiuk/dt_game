@@ -65,6 +65,9 @@ describe('inicio: próximo paso y misión inicial', () => {
     renderDashboard()
     const card = await screen.findByRole('region', { name: 'Tu primera misión' })
     expect(within(card).getByText('0 de 3', { exact: false })).toBeInTheDocument()
+    // Plegada: solo el próximo paso; desplegada, los tres
+    expect(within(card).getAllByRole('listitem')).toHaveLength(1)
+    fireEvent.click(within(card).getByRole('button', { name: /ver los tres pasos/i }))
     expect(within(card).getAllByRole('listitem')).toHaveLength(3)
     window.localStorage.setItem('vestuario-first-steps:u1', JSON.stringify({ tactics: true }))
     window.dispatchEvent(new Event('vestuario:first-steps'))

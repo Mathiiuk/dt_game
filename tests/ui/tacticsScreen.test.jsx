@@ -31,6 +31,11 @@ import { getLayout } from '../../src/domain/formations'
 
 const lineup442 = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10']
 
+// Este archivo prueba la pizarra de escritorio (cancha + pestañas); la del celular está en tacticsMobile.test.jsx
+beforeAll(() => {
+  window.matchMedia = (query) => ({ matches: true, media: query, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {} })
+})
+
 const renderScreen = () => render(<MemoryRouter><TacticsScreen /></MemoryRouter>)
 // Las fichas de la cancha tienen aria-pressed; la lista de candidatos no
 const token = (name) => screen.getAllByRole('button', { name }).find(b => b.hasAttribute('aria-pressed'))
