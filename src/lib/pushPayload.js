@@ -3,7 +3,7 @@ const text = (v, max) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().
 
 /** Convierte el cuerpo del push en { title, body, url, tag }; null si no es un aviso válido */
 export function parsePushPayload(data) {
-  let raw = null
+  let raw
   try { raw = typeof data?.json === 'function' ? data.json() : data } catch { return null }
   if (!raw || typeof raw !== 'object') return null
   const title = text(raw.title, 80)

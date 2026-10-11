@@ -9,6 +9,7 @@ import { useGameContext } from '../../context/GameContext'
 import DifficultySelector from '../dashboard/DifficultySelector'
 import { EVENT_START_TOUR } from '../tutorial/tourState'
 import { APP_VERSION } from '../../lib/appVersion'
+import NotificationsCard from '../notifications/NotificationsCard'
 
 // Los destinos que ya están en la barra inferior no se repiten aquí
 const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))

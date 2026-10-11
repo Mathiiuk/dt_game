@@ -2,6 +2,16 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-14-avisos',
+    date: '2026-10-14',
+    title: 'Avisos en tu celular',
+    items: [
+      'Activalos en "Más" para enterarte cuando se juega una fecha de tu sala o si te falta el planteo.',
+      'Elegís qué avisos recibir y los podés apagar cuando quieras.',
+      'En iPhone funcionan con el juego instalado en la pantalla de inicio.'
+    ]
+  },
+  {
     id: '2026-10-13-movil-y-lesiones',
     date: '2026-10-13',
     title: 'Pizarra y lesiones, a tu medida',
