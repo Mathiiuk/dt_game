@@ -6,7 +6,7 @@ import { FULL_SCREEN } from './HomeLanding'
 import { useVisitorState } from './useVisitorState'
 import { getPublicPage } from '../../data/publicPages'
 import { useSeo } from '../../seo/useSeo'
-import { faqStructuredData } from '../../seo/structuredData'
+import { pageStructuredData } from '../../seo/structuredData'
 import { HOME_COPY } from '../../seo/homeSeo'
 import { buttonVariants } from '../../components/ui/button'
 import { cn } from '../../lib/utils'
@@ -23,7 +23,7 @@ export default function InfoPage({ path }) {
     title: page.title,
     description: page.description,
     path: page.path,
-    jsonLd: page.faq ? faqStructuredData(page.sections) : undefined
+    jsonLd: pageStructuredData(page)
   })
   // Cada página empieza arriba aunque se llegue desde el pie de otra
   useEffect(() => { window.scrollTo?.(0, 0) }, [path])

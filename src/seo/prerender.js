@@ -8,6 +8,12 @@ const escapeText = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
 const ROOT_START = '<div id="root"><!--home:start-->'
 const ROOT_END = '<!--home:end--></div>'
 
+/** Nombre de archivo de la imagen de vista previa de una ruta: /guias/formacion-4-4-2 -> guias-formacion-4-4-2 */
+export const ogSlug = (path) => path.replace(/^\//, '').replace(/\//g, '-') || 'home'
+
+/** URL de la imagen de vista previa de una página */
+export const ogImageUrl = (path) => `${SITE.url}/og/${ogSlug(path)}.webp`
+
 /** Página `page` ({ path, title, description }) armada sobre la plantilla (index.html compilado) con su `markup` dentro de #root */
 export function applyPageToTemplate(template, page, markup, { jsonLd = null } = {}) {
   const url = `${SITE.url}${page.path}`
@@ -18,6 +24,7 @@ export function applyPageToTemplate(template, page, markup, { jsonLd = null } = 
   html = html.replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${url}$2`)
   html = html.replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${escapeAttr(page.title)}$2`)
   html = html.replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${escapeAttr(page.description)}$2`)
+  html = html.replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${ogImageUrl(page.path)}$2`)
   const ldTag = /<script type="application\/ld\+json" id="ld-page">[\s\S]*?<\/script>/
   html = html.replace(ldTag, jsonLd ? `<script type="application/ld+json" id="ld-page">${JSON.stringify(jsonLd)}</script>` : '')
   const start = html.indexOf(ROOT_START)

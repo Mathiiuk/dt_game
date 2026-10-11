@@ -46,3 +46,24 @@ export function faqStructuredData(sections) {
     }))
   }
 }
+
+/** Migas de pan de una página interna: Inicio > (Guías >) Página */
+export function breadcrumbStructuredData(page) {
+  const trail = [{ name: 'Inicio', path: '/' }]
+  if (page.path.startsWith('/guias/')) trail.push({ name: 'Guías', path: '/guias' })
+  trail.push({ name: page.label || page.h1, path: page.path })
+  return {
+    '@type': 'BreadcrumbList',
+    itemListElement: trail.map((t, i) => ({ '@type': 'ListItem', position: i + 1, name: t.name, item: absoluteUrl(t.path) }))
+  }
+}
+
+/** Todos los datos estructurados de una página interna: migas de pan y, en las preguntas frecuentes, el FAQPage */
+export function pageStructuredData(page) {
+  const graph = [breadcrumbStructuredData(page)]
+  if (page.faq) {
+    const { '@context': _ctx, ...faq } = faqStructuredData(page.sections)
+    graph.push(faq)
+  }
+  return { '@context': 'https://schema.org', '@graph': graph }
+}

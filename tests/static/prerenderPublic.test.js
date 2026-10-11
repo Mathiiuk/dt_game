@@ -6,7 +6,7 @@ import { SITE } from '../../src/data/site'
 const template = readFileSync('index.html', 'utf8')
 const faq = PUBLIC_PAGES.find(p => p.path === '/faq')
 const how = PUBLIC_PAGES.find(p => p.path === '/como-jugar')
-const out = (page, markup = '<h1>Hola</h1>') => applyPageToTemplate(template, page, markup, { jsonLd: page.faq ? { '@type': 'FAQPage' } : null })
+const out = (page, markup = '<h1>Hola</h1>') => applyPageToTemplate(template, page, markup, { jsonLd: page.faq ? { '@graph': [{ '@type': 'FAQPage' }] } : null })
 
 describe('HTML propio de cada página pública', () => {
   it('cada página sale con su título, descripción, canonical y Open Graph', () => {
@@ -60,5 +60,26 @@ describe('HTML propio de cada página pública', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
     expect(pkg.scripts.build).toMatch(/vite build && node scripts\/prerender-public\.mjs/)
     expect(readFileSync('public/sitemap.xml', 'utf8')).toContain(`${SITE.url}/mercado-de-pases`)
+  })
+})
+
+describe('imagen de vista previa por página', () => {
+  it('cada página usa su propia imagen en og:image', async () => {
+    const { ogSlug, ogImageUrl } = await import('../../src/seo/prerender')
+    expect(ogSlug('/guias/formacion-4-4-2')).toBe('guias-formacion-4-4-2')
+    expect(ogSlug('/faq')).toBe('faq')
+    const html = applyPageToTemplate(template, how, '<h1>x</h1>')
+    expect(html).toContain(`<meta property="og:image" content="${ogImageUrl('/como-jugar')}"`)
+    expect(html).not.toContain('vestuario-og-home.webp"')
+  })
+
+  it('las imágenes existen para todas las páginas, en 1200x630 y livianas', async () => {
+    const { ogSlug } = await import('../../src/seo/prerender')
+    const { statSync } = await import('node:fs')
+    for (const p of PUBLIC_PAGES) {
+      const size = statSync(`public/og/${ogSlug(p.path)}.webp`).size
+      expect(size, p.path).toBeGreaterThan(2000)
+      expect(size, p.path).toBeLessThan(150 * 1024)
+    }
   })
 })

@@ -54,7 +54,7 @@ describe('portada pública', () => {
     const links = footer.getAllByRole('link')
     expect(links.map(a => a.getAttribute('href')).sort()).toEqual(PUBLIC_PAGES.map(p => p.path).sort())
     for (const a of links) expect(a.textContent).not.toMatch(/click|clic|acá|aquí/i)
-    expect(FOOTER_GROUPS.map(g => g.label)).toEqual(['Juego', 'Soporte', 'Legal'])
+    expect(FOOTER_GROUPS.map(g => g.label)).toEqual(['Juego', 'Guías', 'Soporte', 'Legal'])
     expect(href('Privacidad', footer)).toBe('/privacidad')
     expect(href('Términos', footer)).toBe('/terminos')
     expect(footer.getByText('© 2026 Vestuario')).toBeInTheDocument()
@@ -178,8 +178,9 @@ describe('páginas públicas secundarias', () => {
   it('las preguntas frecuentes publican sus datos estructurados', () => {
     render(<MemoryRouter><InfoPage path="/faq" /></MemoryRouter>)
     const data = JSON.parse(document.head.querySelector('script#ld-page').textContent)
-    expect(data['@type']).toBe('FAQPage')
-    expect(data.mainEntity[0].name).toBe('¿Qué es Vestuario?')
+    const faq = data['@graph'].find(n => n['@type'] === 'FAQPage')
+    expect(faq.mainEntity[0].name).toBe('¿Qué es Vestuario?')
+    expect(data['@graph'].some(n => n['@type'] === 'BreadcrumbList')).toBe(true)
   })
 })
 

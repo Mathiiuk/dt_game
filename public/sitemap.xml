@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.vestuario.com.ar/</loc></url>
-  <url><loc>https://www.vestuario.com.ar/juego</loc></url>
-  <url><loc>https://www.vestuario.com.ar/como-jugar</loc></url>
-  <url><loc>https://www.vestuario.com.ar/tacticas</loc></url>
-  <url><loc>https://www.vestuario.com.ar/mercado-de-pases</loc></url>
-  <url><loc>https://www.vestuario.com.ar/cantera</loc></url>
-  <url><loc>https://www.vestuario.com.ar/carrera-del-dt</loc></url>
-  <url><loc>https://www.vestuario.com.ar/faq</loc></url>
-  <url><loc>https://www.vestuario.com.ar/contacto</loc></url>
-  <url><loc>https://www.vestuario.com.ar/soporte</loc></url>
-  <url><loc>https://www.vestuario.com.ar/privacidad</loc></url>
-  <url><loc>https://www.vestuario.com.ar/terminos</loc></url>
+  <url><loc>https://www.vestuario.com.ar/</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/juego</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/como-jugar</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/tacticas</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/mercado-de-pases</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/cantera</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/carrera-del-dt</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/formacion-4-4-2</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/formacion-4-3-3</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/como-fichar-jugadores</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/entrenamiento-y-lesiones</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/finanzas-del-club</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/como-ascender-de-categoria</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/liga-con-amigos</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/guias/simulador-de-futbol-argentino</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/faq</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/contacto</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/soporte</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/privacidad</loc><lastmod>2026-10-11</lastmod></url>
+  <url><loc>https://www.vestuario.com.ar/terminos</loc><lastmod>2026-10-11</lastmod></url>
 </urlset>
