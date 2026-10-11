@@ -10,6 +10,7 @@ import { NAV_GROUPS, MOBILE_TABS, isActivePath, titleForPath } from './navigatio
 import { useLogout } from './useLogout'
 import DeleteAccountDialog from './DeleteAccountDialog'
 import GameTour from '../../features/tutorial/GameTour'
+import WhatsNew from '../../features/whatsnew/WhatsNew'
 import { useFriendsPending, pendingText } from '../../features/friends/useFriendsPending'
 
 function Brand() {
@@ -142,7 +143,7 @@ function MobileTabBar({ pathname }) {
 const FIT_ROUTES = ['/post-match']
 
 export default function AppShell() {
-  const { club, manager } = useGameContext()
+  const { club, manager, user } = useGameContext()
   const { pathname } = useLocation()
   const scrollRef = useRef(null)
   const fit = FIT_ROUTES.includes(pathname)
@@ -164,6 +165,7 @@ export default function AppShell() {
       </a>
       <Sidebar club={club} manager={manager} friendsPending={pending.length > 0} />
       <GameTour />
+      <WhatsNew user={user} pathname={pathname} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div ref={scrollRef} className={cn('min-h-0 flex-1 overscroll-contain lg:overflow-visible', fit ? 'flex flex-col overflow-hidden' : 'overflow-y-auto')}>
           <MobileTopBar club={club} title={titleForPath(pathname)} />
