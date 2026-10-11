@@ -12,6 +12,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'prompt', // Mostramos prompt cuando haya actualización
       includeAssets: ['pwa-icon.svg'],
       manifest: {
@@ -34,13 +37,9 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
-        // Precargar recursos estáticos
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-        // Archivos para buscadores: siempre desde la red, nunca la app en su lugar
-        navigateFallbackDenylist: [/^\/robots\.txt$/, /^\/sitemap\.xml$/],
-        // Omitimos source maps del cacheo
-        sourcemap: false
+      // Service worker propio (src/sw.js): precache del juego para usarlo sin conexión + avisos push
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico}']
       }
     })
   ],

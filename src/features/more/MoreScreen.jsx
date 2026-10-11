@@ -16,7 +16,7 @@ const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
 export default function MoreScreen() {
   const logout = useLogout()
   const [deleting, setDeleting] = useState(false)
-  const { club } = useGameContext()
+  const { club, user } = useGameContext()
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-5">
@@ -50,6 +50,8 @@ export default function MoreScreen() {
           <DifficultySelector clubId={club?.id} />
         </Card>
       </section>
+
+      <NotificationsCard userId={user?.id} />
 
       <section aria-labelledby="more-account">
         <h2 id="more-account" className="eyebrow mb-2 px-1">Cuenta</h2>

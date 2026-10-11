@@ -340,6 +340,7 @@ export const PUBLIC_PAGES = [
       { heading: 'Para qué los usamos', body: ['Para que puedas iniciar sesión, guardar tu carrera y recuperar el acceso si olvidás la contraseña. No vendemos tus datos ni los compartimos con terceros con fines publicitarios.'] },
       { heading: 'Medición de uso', body: ['Podemos registrar eventos de uso generales, como visitas, registros y clics en los botones, para entender cómo se usa el sitio. Esos eventos no incluyen tu nombre ni tu correo.'] },
       { heading: 'Cookies y Google Tag Manager', body: ['Usamos Google Tag Manager para medir el uso del sitio. Las cookies de medición y publicidad solo se activan si tocás "Aceptar" en el aviso; con "Solo necesarias" quedan desactivadas. Podés cambiar tu elección borrando los datos del sitio en tu navegador.'] },
+      { heading: 'Notificaciones', body: ['Si activás los avisos en un dispositivo, guardamos una dirección técnica de ese dispositivo (la que entrega el navegador) y qué tipos de aviso querés recibir. Solo las usamos para avisarte de tu sala de amigos, de tu club o de novedades del juego, nunca de noche, y no las compartimos. Podés apagarlos desde la sección "Más" del juego o en los ajustes de tu navegador. Si eliminás tu cuenta, se borran.'] },
       { heading: 'Tus derechos', body: [`Podés pedir en cualquier momento que corrijamos o eliminemos tus datos y tu cuenta. ${contactLine}`] }
     ],
     related: ['/terminos', '/contacto']
