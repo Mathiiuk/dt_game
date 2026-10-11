@@ -24,6 +24,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { lockerRoomApi } from '../../api/lockerRoom'
 import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
+import { markStep } from '../onboarding/firstStepsStore'
 
 const ROLE_ICONS = { PENALTY: CircleDot, FREE_KICK: Target, CORNER: Flag, HEADER: ChevronsUp }
 const AFFINITY_TONE = { NATURAL: 'accent', COMPATIBLE: 'warning', ADAPTED: 'warning', OUT_OF_POSITION: 'danger' }
@@ -75,7 +76,9 @@ function InstructionPicker({ label, group, value, onChange, options }) {
 }
 
 export default function TacticsScreen() {
-  const { club, loading: contextLoading } = useGameContext()
+  const { club, user, loading: contextLoading } = useGameContext()
+  // Ver la pizarra cuenta para la misión inicial
+  useEffect(() => { markStep(user?.id, 'tactics') }, [user?.id])
   // En pantallas chicas los suplentes se despliegan en una hoja sobre la cancha, sin bajar hasta la pestaña de jugadores
   const isLg = useMediaQuery('(min-width: 1024px)')
 

@@ -22,6 +22,11 @@ import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progr
 import SeasonCloseModal from '../season/SeasonCloseModal'
 import WageCapMeter from '../finances/WageCapMeter'
 import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
+import FirstStepsCard from '../onboarding/FirstStepsCard'
+import NextStepCard from '../onboarding/NextStepCard'
+import { readSteps, markStep } from '../onboarding/firstStepsStore'
+import { missionProgress, showMission, nextStep } from '../../domain/firstSteps'
+import { isNewAccount } from '../tutorial/tourState'
 
 const EVENT_CATEGORY = {
   COMMUNITY: { label: 'Comunidad y barrio', tone: 'accent' },
@@ -248,7 +253,15 @@ function OutcomeCard({ outcome, onClose }) {
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { manager, club, loading: contextLoading, refreshContext } = useGameContext()
+  const { manager, club, user, loading: contextLoading, refreshContext } = useGameContext()
+  // Lo que ya hizo la persona de la misión inicial (se actualiza al visitar la pizarra o resolver una decisión)
+  const [firstSteps, setFirstSteps] = useState({})
+  useEffect(() => {
+    const load = () => setFirstSteps(readSteps(user?.id))
+    load()
+    window.addEventListener('vestuario:first-steps', load)
+    return () => window.removeEventListener('vestuario:first-steps', load)
+  }, [user?.id])
   const [dashboardData, setDashboardData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [advancing, setAdvancing] = useState(false)
@@ -336,6 +349,7 @@ export default function Dashboard() {
       setReloadTick(t => t + 1)
       // Si el evento ya estaba resuelto (doble clic u otra pestaña) no se aplicó nada: solo se refresca la pantalla
       if (outcome?.alreadyResolved) return null
+      markStep(user?.id, 'decision')
       const result = { note: outcome?.outcomeNote || 'Decisión ejecutada.', choice: option.label, effects: option.effects || {}, reaction: reactionFor(option.effects || {}, `${event.id}:${option.id}`) }
       if (!silent) setLastOutcome(result)
       return result
@@ -372,6 +386,14 @@ export default function Dashboard() {
   const seasonEnded = isSeasonEnded(clubSummary.gameDate)
   const isHome = nextFixture?.home_team_id === club.id
   const rival = nextFixture ? rivalLevel(rivalOf(nextFixture, club.id)?.strength) : null
+
+  // Qué conviene hacer ahora y, para cuentas nuevas, la misión inicial
+  const step = nextStep({
+    pendingClose: Boolean(pendingClose), seasonEnded, pendingEvents: pendingEvents?.length || 0, available: squadHealth.availableCount,
+    matchDue, daysToMatch, hasFixture: Boolean(nextFixture), tacticsVisited: Boolean(firstSteps.tactics), played: standingsSnippet?.played || 0
+  })
+  const mission = missionProgress(firstSteps, standingsSnippet?.played || 0)
+  const missionVisible = showMission({ isNew: isNewAccount(user?.created_at), dismissed: Boolean(firstSteps.dismissed), complete: mission.complete })
 
   // Acción principal según el momento: jugar, avanzar o cerrar la temporada
   const primaryAction = pendingClose ? (
@@ -433,6 +455,10 @@ export default function Dashboard() {
             </CardBody>
           </Card>
         )}
+
+        {step.kind !== 'CLOSE' && <NextStepCard step={step} onDecide={() => setStage({ event: nextStory || pendingEvents[0], result: null })} />}
+
+        {missionVisible && <FirstStepsCard progress={mission} onDismiss={() => markStep(user?.id, 'dismissed')} />}
 
         <AlertList alerts={urgentAlerts} />
 
