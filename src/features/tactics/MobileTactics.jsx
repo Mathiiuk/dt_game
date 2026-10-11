@@ -7,7 +7,7 @@ import { effectOf } from '../../domain/tacticalStyle'
 /** Cinta de arriba en el celular: formación, estilo, nivel y química de un vistazo, y guardar apenas hay cambios */
 export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, dirty, saving, onSave }) {
   return (
-    <div className="sticky top-0 z-30 -mx-4 mb-3 border-b border-line bg-bg/95 px-4 py-2 backdrop-blur">
+    <div className="mb-2 border-b border-line pb-2">
       <div className="flex items-center justify-between gap-3">
         <p className="min-w-0 truncate text-sm font-semibold text-fg">{formation} <span className="font-normal text-fg-muted">· {styleLabel}</span></p>
         {dirty && <Button size="sm" onClick={onSave} loading={saving}>{!saving && <Save />}Guardar</Button>}
@@ -40,7 +40,7 @@ export function SelectionBar({ slotName, playerName, onChange, onCancel }) {
 export function Dock({ editMode, onToggleEdit, onOpen }) {
   const item = 'flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 text-[0.6875rem] font-semibold text-fg-muted transition-colors hover:text-fg active:bg-surface-2'
   return (
-    <nav aria-label="Herramientas de la pizarra" className="sticky bottom-0 z-20 -mx-4 mt-3 flex items-stretch gap-1 border-t border-line bg-surface px-2 py-1">
+    <nav aria-label="Herramientas de la pizarra" className="mt-2 flex items-stretch gap-1 rounded-xl border border-line bg-surface px-1 py-1">
       <button type="button" className={item} onClick={() => onOpen('style')}><Sparkles className="size-5" aria-hidden="true" />Estilo</button>
       <button type="button" className={item} onClick={() => onOpen('fine')}><SlidersHorizontal className="size-5" aria-hidden="true" />Ajustes</button>
       <button type="button" className={item} onClick={() => onOpen('more')}><Layers className="size-5" aria-hidden="true" />Más</button>

@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
+import { postMatchRisk } from '../domain/injuryRates'
 
 export const INJURY_SEVERITY = {
   MINOR: {
@@ -67,24 +68,7 @@ export const injuriesApi = {
    * Calcula la probabilidad de lesión según fatiga acumulada y estado del campo
    */
   calculateInjuryRisk(player, pitchQuality = 70) {
-    let baseProb = 0.025 // 2.5% base
-
-    const fitness = player?.state_fitness ?? 70
-    if (fitness < 50) {
-      baseProb *= 5.0
-    } else if (fitness < 65) {
-      baseProb *= 3.0
-    } else if (fitness < 80) {
-      baseProb *= 1.5
-    }
-
-    if (pitchQuality < 40) {
-      baseProb *= 1.9
-    } else if (pitchQuality < 60) {
-      baseProb *= 1.4
-    }
-
-    return Math.min(0.65, baseProb)
+    return postMatchRisk(player, pitchQuality)
   },
 
   /**

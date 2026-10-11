@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { tacticMultipliers } from '../domain/tacticalStyle'
+import { matchMinuteRisk } from '../domain/injuryRates'
 import { positionLine, normalizePosition } from '../domain/positions'
 import { specialistsOf, aerialOf } from '../domain/specialists'
 import { stylesToMods } from '../domain/rivalStyle'
@@ -695,9 +696,11 @@ export const simulateMatch = (homeTactic, homePlayers = [], awayTactic, awayPlay
       }
     }
 
-    // Lesiones imprevistas en partido (0.8% por minuto)
-    if (rng() < 0.008) {
-      const isHomeInj = rng() < 0.5
+    // Lesiones imprevistas en partido: el riesgo depende del físico y del estilo de cada lado (ver domain/injuryRates)
+    const homeInjRisk = matchMinuteRisk(homeTactic, homeTeam.fitness) / 2
+    const awayInjRisk = matchMinuteRisk(awayTactic, awayTeam.fitness) / 2
+    if (rng() < homeInjRisk + awayInjRisk) {
+      const isHomeInj = rng() < homeInjRisk / (homeInjRisk + awayInjRisk)
       const injTeam = isHomeInj ? homeTeam : awayTeam
       const injuredPlayer = getRandomPlayer(injTeam.players)
 

@@ -50,6 +50,13 @@ describe('pizarra en el celular', () => {
     expect(screen.queryByRole('group', { name: 'Estilos listos' })).not.toBeInTheDocument()
   })
 
+  it('la cinta de resumen y la barra de herramientas no son pegajosas: no tapan la barra superior del juego', async () => {
+    renderScreen()
+    const summary = await screen.findByRole('list', { name: 'Resumen del once' })
+    expect(summary.parentElement.className).not.toMatch(/sticky|fixed/)
+    expect(screen.getByRole('navigation', { name: 'Herramientas de la pizarra' }).className).not.toMatch(/sticky|fixed/)
+  })
+
   it('tocar una ficha solo la elige: no abre ninguna lista; "Cambiar jugador" sí', async () => {
     renderScreen()
     await screen.findByRole('group', { name: /formación 4-4-2/ })

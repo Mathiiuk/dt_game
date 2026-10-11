@@ -428,7 +428,7 @@ export default function TacticsScreen() {
   )
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-6xl px-4 py-2 sm:px-6 lg:py-8">
       <PageHeader
         eyebrow="Pizarra"
         title="Táctica y once titular"
