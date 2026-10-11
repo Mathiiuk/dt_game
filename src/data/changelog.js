@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-19-pizarra-linea',
+    date: '2026-10-19',
+    title: 'Pizarra más quieta',
+    items: [
+      'Los datos de arriba van en una sola línea.',
+      'Al tocar una ficha, “Cambiar jugador” aparece en esa misma línea: la pizarra ya no se mueve ni hace scroll.'
+    ]
+  },
+  {
     id: '2026-10-18-dias-reales',
     date: '2026-10-18',
     title: 'Días reales y ayuda en la pizarra',

@@ -6,16 +6,11 @@ export const HELP = {
     body: [
       'Tocá una ficha para elegirla. Después podés tocar otra para intercambiarlas, o “Cambiar jugador” para elegir quién juega en ese puesto.',
       'Para ubicar a un jugador donde quieras, tocá “Editar”: arrastrá la ficha o tocá un lugar de la cancha.',
-      'Cuando cambiás algo aparece “Guardar”: hasta que lo toques, el equipo que juega es el anterior.'
-    ]
-  },
-  stats: {
-    topic: 'el nivel, la química y los símbolos',
-    title: 'Nivel, química y símbolos',
-    body: [
+      'Cuando cambiás algo aparece “Guardar”: hasta que lo toques, el equipo que juega es el anterior.',
       'Nivel: el promedio de lo que rinde cada titular en el puesto donde está (un arquero de delantero casi no suma).',
       'Química: qué tan bien se conocen y encajan los once. Se ve en las líneas entre fichas: verde, buena; amarilla, regular; roja, mala.',
-      'Fuera de puesto: jugadores en un lugar que no es el suyo. Rinden menos y se nota en el nivel del equipo.'
+      'Fuera de puesto: jugadores en un lugar que no es el suyo. Rinden menos y se nota en el nivel del equipo.',
+      'El número junto al ⚠ cuenta las bajas del once: lesionados, suspendidos y fuera de puesto.'
     ],
     legend: true
   },

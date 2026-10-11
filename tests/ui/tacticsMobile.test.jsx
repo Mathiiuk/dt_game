@@ -42,8 +42,8 @@ describe('pizarra en el celular', () => {
   it('muestra la cinta de resumen y la barra de herramientas, sin las tarjetas largas', async () => {
     renderScreen()
     const summary = await screen.findByRole('list', { name: 'Resumen del once' })
-    expect(within(summary).getByText(/Nivel/)).toBeInTheDocument()
-    expect(within(summary).getByText(/Química/)).toBeInTheDocument()
+    expect(within(summary).getByText(/Niv\./)).toBeInTheDocument()
+    expect(within(summary).getByText(/Quím/)).toBeInTheDocument()
     const dock = screen.getByRole('navigation', { name: 'Herramientas de la pizarra' })
     for (const name of ['Estilo', 'Ajustes', 'Más', 'Editar']) expect(within(dock).getByRole('button', { name })).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Especialistas de pelota parada' })).not.toBeInTheDocument()
@@ -125,8 +125,8 @@ describe('pizarra en el celular', () => {
     try {
       renderScreen()
       const summary = await screen.findByRole('list', { name: 'Resumen del once' })
-      expect(within(summary).getByText('1 suspendido')).toBeInTheDocument()
-      expect(within(summary).getByText('1 lesionado')).toBeInTheDocument()
+      // Las bajas son una sola marca compacta (cabe en la misma línea); el detalle va en el nombre accesible
+      expect(within(summary).getByLabelText('1 lesionado, 1 suspendido')).toBeInTheDocument()
       expect(screen.getByText(/tarjeta roja: expulsado/i)).toBeInTheDocument()
     } finally {
       delete squad[2].is_suspended; delete squad[2].suspension_reason; delete squad[2].suspended_matches; delete squad[3].is_injured
@@ -141,16 +141,17 @@ describe('pizarra en el celular', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Ayuda: la pizarra' }))
       const dialog = screen.getByRole('dialog', { name: 'Cómo usar la pizarra' })
       expect(within(dialog).getByText(/Tocá una ficha para elegirla/)).toBeInTheDocument()
+      expect(within(dialog).getByText(/Nivel:/)).toBeInTheDocument()
       expect(within(dialog).getByText(/“Editar”/)).toBeInTheDocument()
       await userEvent.click(within(dialog).getByRole('button', { name: 'Entendido' }))
       expect(screen.queryByRole('dialog')).toBeNull()
     })
 
-    it('el "?" del resumen explica nivel, química, fuera de puesto y los colores y símbolos de la cancha', async () => {
+    it('el mismo "?" explica nivel, química, fuera de puesto y los colores y símbolos de la cancha', async () => {
       renderScreen()
       await screen.findByRole('list', { name: 'Resumen del once' })
-      await userEvent.click(screen.getByRole('button', { name: 'Ayuda: el nivel, la química y los símbolos' }))
-      const dialog = screen.getByRole('dialog', { name: 'Nivel, química y símbolos' })
+      await userEvent.click(screen.getByRole('button', { name: 'Ayuda: la pizarra' }))
+      const dialog = screen.getByRole('dialog', { name: 'Cómo usar la pizarra' })
       for (const text of [/Nivel:/, /Química:/, /Fuera de puesto:/, /Natural/, /Compatible/, /lesionado/i, /tarjeta roja/i, /tarjeta amarilla/i]) {
         expect(within(dialog).getAllByText(text).length).toBeGreaterThan(0)
       }
@@ -173,5 +174,47 @@ describe('pizarra en el celular', () => {
         expect(screen.getByRole('button', { name: `Ayuda: ${topic}` })).toBeInTheDocument()
       }
     })
+  })
+
+  describe('sin scroll al elegir una ficha', () => {
+    it('los datos de arriba van en una sola fila (formación, nivel, química y ayuda)', async () => {
+      renderScreen()
+      const summary = await screen.findByRole('list', { name: 'Resumen del once' })
+      const row = summary.parentElement
+      expect(row.className).toMatch(/\bflex\b/)
+      expect(row.className).not.toMatch(/flex-wrap|flex-col/)
+      expect(within(row).getByRole('button', { name: 'Ayuda: la pizarra' })).toBeInTheDocument()
+      expect(summary.className).not.toMatch(/flex-wrap/)
+    })
+
+    it('al elegir una ficha la barra de "Cambiar jugador" ocupa el lugar de la cinta (misma altura): la pizarra no baja', async () => {
+      renderScreen()
+      const summary = await screen.findByRole('list', { name: 'Resumen del once' })
+      const slotBefore = summary.closest('[data-top-slot]')
+      expect(slotBefore).not.toBeNull()
+      const heightClass = slotBefore.className.match(/\bh-\d+\b/)?.[0]
+      expect(heightClass).toBeTruthy()
+      await userEvent.click(token(/MI: Nombre5/))
+      const bar = await screen.findByRole('region', { name: 'Puesto elegido: MI' })
+      const slotAfter = bar.closest('[data-top-slot]')
+      expect(slotAfter).toBe(slotBefore)
+      expect(slotAfter.className).toContain(heightClass)
+      expect(screen.queryByRole('list', { name: 'Resumen del once' })).toBeNull()
+      // Cancelar devuelve la cinta
+      await userEvent.click(within(bar).getByRole('button', { name: 'Cancelar la selección' }))
+      expect(await screen.findByRole('list', { name: 'Resumen del once' })).toBeInTheDocument()
+    })
+  })
+
+  it('en modo Editar el aviso va en la misma franja de arriba (no agrega altura) y "Listo" sale del modo', async () => {
+    renderScreen()
+    const summary = await screen.findByRole('list', { name: 'Resumen del once' })
+    const slot = summary.closest('[data-top-slot]')
+    await userEvent.click(screen.getByRole('button', { name: 'Editar' }))
+    expect(screen.getByText(/arrastrá una ficha o tocá un lugar/i).closest('[data-top-slot]')).toBe(slot)
+    expect(screen.queryByRole('list', { name: 'Resumen del once' })).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Listo' }))
+    expect(await screen.findByRole('list', { name: 'Resumen del once' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Editar' })).toHaveAttribute('aria-pressed', 'false')
   })
 })

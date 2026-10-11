@@ -5,25 +5,46 @@ import { HELP } from '../../domain/tacticsHelp'
 import { cn } from '../../lib/utils'
 import { effectOf } from '../../domain/tacticalStyle'
 
-/** Cinta de arriba en el celular: formación, estilo, nivel y química de un vistazo, y guardar apenas hay cambios */
-export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, banned = 0, dirty, saving, onSave, canSave = true }) {
+/**
+ * Franja de arriba en el celular: UNA sola línea de altura fija. Muestra el resumen (formación, nivel, química, bajas, Guardar y "?")
+ * o, mientras hay una ficha elegida, el puesto y "Cambiar jugador" en el mismo lugar: la pizarra no se mueve ni genera scroll.
+ */
+export function TopBar({ selection, editing = false, onDoneEditing, ...summary }) {
   return (
-    <div className="mb-2 border-b border-line pb-2">
-      <div className="flex items-center justify-between gap-3">
-        <p className="flex min-w-0 items-center text-sm font-semibold text-fg">
-          <span className="truncate">{formation} <span className="font-normal text-fg-muted">· {styleLabel}</span></span>
-          <HelpTopic help={HELP.board} className="-my-3" />
-        </p>
-        {dirty && <Button size="sm" onClick={onSave} loading={saving} disabled={!canSave} title={canSave ? undefined : 'Necesitás conexión para esto'}>{!saving && <Save />}Guardar</Button>}
-      </div>
-      <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label="Resumen del once">
-        <li><Badge tone="neutral" className="num">Nivel {avg}</Badge></li>
-        <li><Badge tone={chemistry >= 70 ? 'accent' : chemistry < 40 ? 'danger' : 'warning'} className="num">Química {chemistry}%</Badge></li>
-        {out > 0 && <li><Badge tone="warning" className="num">{out} fuera de puesto</Badge></li>}
-        {hurt > 0 && <li><Badge tone="danger" className="num">{hurt} lesionado{hurt > 1 ? 's' : ''}</Badge></li>}
-        {banned > 0 && <li><Badge tone="danger" className="num">{banned} suspendido{banned > 1 ? 's' : ''}</Badge></li>}
-        <li className="-my-3 -ml-1"><HelpTopic help={HELP.stats} /></li>
+    <div data-top-slot className="mb-2 h-11 border-b border-line">
+      {selection ? <SelectionBar {...selection} /> : editing ? <EditBar onDone={onDoneEditing} /> : <SummaryBar {...summary} />}
+    </div>
+  )
+}
+
+/** Modo Editar: el aviso ocupa el lugar del resumen (misma altura) y "Listo" vuelve a la pizarra normal */
+function EditBar({ onDone }) {
+  return (
+    <div className="flex h-full items-center gap-2 rounded-lg bg-accent-soft pl-3 pr-1">
+      <p className="min-w-0 flex-1 text-xs leading-tight text-fg">Modo editar: arrastrá una ficha o tocá un lugar de la cancha para moverla.</p>
+      <Button size="sm" onClick={onDone}>Listo</Button>
+    </div>
+  )
+}
+
+/** Resumen en una línea: formación y estilo (se recorta si falta lugar), nivel, química, bajas y guardar */
+export function SummaryBar({ formation, styleLabel, avg, chemistry, out, hurt, banned = 0, dirty, saving, onSave, canSave = true }) {
+  const flags = [
+    hurt > 0 && `${hurt} lesionado${hurt > 1 ? 's' : ''}`,
+    banned > 0 && `${banned} suspendido${banned > 1 ? 's' : ''}`,
+    out > 0 && `${out} fuera de puesto`
+  ].filter(Boolean)
+  const flagCount = (hurt || 0) + (banned || 0) + (out || 0)
+  return (
+    <div className="flex h-full items-center gap-2">
+      <p className="min-w-0 flex-1 truncate text-sm font-semibold text-fg">{formation} <span className="font-normal text-fg-muted">· {styleLabel}</span></p>
+      <ul className="flex shrink-0 items-center gap-1.5" aria-label="Resumen del once">
+        <li><Badge tone="neutral" className="num whitespace-nowrap">Niv. {avg}</Badge></li>
+        <li><Badge tone={chemistry >= 70 ? 'accent' : chemistry < 40 ? 'danger' : 'warning'} className="num whitespace-nowrap">Quím. {chemistry}%</Badge></li>
+        {flags.length > 0 && <li><Badge tone={hurt > 0 || banned > 0 ? 'danger' : 'warning'} className="num whitespace-nowrap" aria-label={flags.join(', ')}>⚠ {flagCount}</Badge></li>}
       </ul>
+      {dirty && <Button size="icon" onClick={onSave} loading={saving} disabled={!canSave} aria-label="Guardar" title={canSave ? 'Guardar' : 'Necesitás conexión para esto'} className="shrink-0">{!saving && <Save />}</Button>}
+      <HelpTopic help={HELP.board} className="-mr-3" />
     </div>
   )
 }
@@ -64,14 +85,11 @@ export function BoardLegend() {
   )
 }
 
-/** Barra que aparece al tocar una ficha: qué puesto es y el botón para cambiar al jugador (no se abre nada solo) */
+/** Al tocar una ficha: qué puesto es y el botón para cambiar al jugador (no se abre nada solo). Ocupa el lugar del resumen, en la misma línea */
 export function SelectionBar({ slotName, playerName, onChange, onCancel }) {
   return (
-    <section aria-label={`Puesto elegido: ${slotName}`} className="mb-2 flex items-center gap-2 rounded-lg border border-accent/50 bg-accent-soft px-3 py-2">
-      <div className="min-w-0 flex-1">
-        <p className="eyebrow text-accent">Puesto {slotName}</p>
-        <p className="truncate text-sm font-semibold text-fg">{playerName || 'Vacío'}</p>
-      </div>
+    <section aria-label={`Puesto elegido: ${slotName}`} className="flex h-full items-center gap-2 rounded-lg bg-accent-soft pl-3 pr-1">
+      <p className="min-w-0 flex-1 truncate text-sm"><span className="eyebrow mr-1.5 text-accent">{slotName}</span><span className="font-semibold text-fg">{playerName || 'Vacío'}</span></p>
       <Button size="sm" onClick={onChange}>Cambiar jugador</Button>
       <Button size="icon" variant="ghost" onClick={onCancel} aria-label="Cancelar la selección" className="shrink-0"><X /></Button>
     </section>

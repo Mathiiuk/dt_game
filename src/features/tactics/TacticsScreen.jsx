@@ -26,7 +26,7 @@ import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
 import { markStep } from '../onboarding/firstStepsStore'
 import { markBusy, clearBusy } from '../../lib/busy'
-import { SummaryBar, SelectionBar, Dock, CompactInstruction, StatusLegend, HelpTopic } from './MobileTactics'
+import { TopBar, Dock, CompactInstruction, StatusLegend, HelpTopic } from './MobileTactics'
 import { HELP } from '../../domain/tacticsHelp'
 import { cardStatus } from '../../domain/suspensions'
 import { useOnline } from '../../hooks/useOnline'
@@ -452,17 +452,18 @@ export default function TacticsScreen() {
       {/* ---------- Celular: cinta de resumen, cancha y barra de herramientas; todo entra sin bajar ---------- */}
       {!isLg && (
         <>
-          <SummaryBar formation={customLayout ? `Libre ${shapeOf(customLayout)}` : formation} styleLabel={styleName(currentStyle)} avg={summary.avg} chemistry={chemistry.score} out={summary.out} hurt={summary.hurt} banned={summary.banned} dirty={dirty} saving={saving} onSave={handleSave} canSave={online} />
-          {selectedSlot && (
-            <SelectionBar slotName={slotBase(selectedSlot)} playerName={selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : ''} onChange={() => setSheet('picker')} onCancel={() => setSelectedSlot(null)} />
-          )}
+          <TopBar
+            editing={editMode} onDoneEditing={() => { setEditMode(false); setSelectedSlot(null) }}
+            selection={selectedSlot ? { slotName: slotBase(selectedSlot), playerName: selectedPlayer ? `${selectedPlayer.first_name} ${selectedPlayer.last_name}` : '', onChange: () => setSheet('picker'), onCancel: () => setSelectedSlot(null) } : null}
+            formation={customLayout ? `Libre ${shapeOf(customLayout)}` : formation} styleLabel={styleName(currentStyle)} avg={summary.avg} chemistry={chemistry.score}
+            out={summary.out} hurt={summary.hurt} banned={summary.banned} dirty={dirty} saving={saving} onSave={handleSave} canSave={online}
+          />
           <Pitch
             className="w-[min(100%,calc(56dvh*0.68))]"
             formation={customLayout ? shapeOf(customLayout) : formation} layout={layout} lineup={lineup} players={squad}
             selectedSlot={selectedSlot} onSelectSlot={handleSelectSlot} onMove={editMode ? handleMove : undefined} links={chemistry.links} captainId={captainId}
           />
           {(summary.hurt > 0 || summary.banned > 0) && <StatusLegend />}
-          {editMode && <p className="mt-2 px-1 text-xs text-fg-subtle">Modo editar: arrastrá una ficha o tocá un lugar de la cancha para moverla.</p>}
           <Dock editMode={editMode} onToggleEdit={() => { setEditMode(v => !v); setSelectedSlot(null) }} onOpen={setSheet} />
 
           {sheet === 'style' && (
