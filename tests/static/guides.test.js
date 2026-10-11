@@ -7,12 +7,13 @@ const guides = PUBLIC_PAGES.filter(p => p.group === 'guias')
 const words = (page) => [page.intro, ...page.sections.flatMap(s => [s.heading, ...s.body])].join(' ').split(/\s+/).length
 
 describe('guías de contenido para buscadores', () => {
-  it('hay un hub y ocho guías con las rutas pensadas', () => {
+  it('hay un hub y catorce guías con las rutas pensadas', () => {
     expect(guides.map(g => g.path)).toEqual([
       '/guias', '/guias/formacion-4-4-2', '/guias/formacion-4-3-3', '/guias/como-fichar-jugadores', '/guias/entrenamiento-y-lesiones',
-      '/guias/finanzas-del-club', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/guias/simulador-de-futbol-argentino'
+      '/guias/finanzas-del-club', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/guias/simulador-de-futbol-argentino',
+      '/guias/formacion-4-2-3-1', '/guias/formacion-5-3-2', '/guias/cantera-y-juveniles', '/guias/pelota-parada-y-penales', '/guias/prensa-y-dirigencia', '/guias/copas-y-torneos'
     ])
-    expect(FOOTER_GROUPS.find(g => g.key === 'guias').links).toHaveLength(9)
+    expect(FOOTER_GROUPS.find(g => g.key === 'guias').links).toHaveLength(15)
   })
 
   it('cada guía tiene texto de verdad: al menos 300 palabras y 3 o más subtítulos', () => {
@@ -41,7 +42,7 @@ describe('guías de contenido para buscadores', () => {
   it('los enlaces relacionados existen y las guías se enlazan entre sí', () => {
     for (const p of PUBLIC_PAGES) for (const r of p.related || []) expect(PUBLIC_PATHS, `${p.path} -> ${r}`).toContain(r)
     const hub = guides.find(g => g.path === '/guias')
-    expect(hub.related).toHaveLength(8)
+    expect(hub.related).toHaveLength(14)
   })
 
   it('las páginas internas publican migas de pan; las guías pasan por el hub', () => {

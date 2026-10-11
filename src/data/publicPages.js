@@ -1,4 +1,5 @@
 import { SITE } from './site'
+import { MORE_GUIDES } from './guidesMore'
 
 /**
  * Páginas públicas secundarias. La Home es la portada (corta, sin scroll); estas páginas llevan el contenido
@@ -122,7 +123,7 @@ export const PUBLIC_PAGES = [
       { heading: 'Para cuidar el club', body: ['El entrenamiento, las lesiones y las finanzas deciden si tu proyecto dura una temporada o diez. Estas guías te muestran qué mirar cada semana.'] },
       { heading: 'Para crecer', body: ['Ascender de categoría y jugar con amigos son dos formas de darle sentido a la carrera.'] }
     ],
-    related: ['/guias/formacion-4-4-2', '/guias/formacion-4-3-3', '/guias/como-fichar-jugadores', '/guias/entrenamiento-y-lesiones', '/guias/finanzas-del-club', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/guias/simulador-de-futbol-argentino']
+    related: ['/guias/formacion-4-4-2', '/guias/formacion-4-3-3', '/guias/como-fichar-jugadores', '/guias/entrenamiento-y-lesiones', '/guias/finanzas-del-club', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/guias/simulador-de-futbol-argentino', '/guias/formacion-4-2-3-1', '/guias/formacion-5-3-2', '/guias/cantera-y-juveniles', '/guias/pelota-parada-y-penales', '/guias/prensa-y-dirigencia', '/guias/copas-y-torneos']
   },
   {
     path: '/guias/formacion-4-4-2',
@@ -260,6 +261,7 @@ export const PUBLIC_PAGES = [
     ],
     related: ['/juego', '/como-jugar', '/guias']
   },
+  ...MORE_GUIDES,
   {
     path: '/demo',
     label: 'Probá la demo',
