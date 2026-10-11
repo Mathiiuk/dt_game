@@ -3,8 +3,18 @@ import react from '@vitejs/plugin-react-swc'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { readFileSync } from 'node:fs'
+
+// Versión del juego: la del paquete + el commit publicado (Vercel lo informa); en local queda sin commit
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
+const commit = (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7)
+const APP_VERSION = commit ? `${pkg.version}+${commit}` : pkg.version
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(APP_VERSION),
+    __APP_BUILD_TIME__: JSON.stringify(new Date().toISOString())
+  },
   // Además de VITE_*, se expone SOLO la clave pública de reCAPTCHA con el nombre sin prefijo (Vercel avisa por el prefijo
   // "público"; la clave del sitio es pública por diseño). El prefijo es el nombre exacto: no expone RECAPTCHA_SECRET ni otras.
   envPrefix: ['VITE_', 'RECAPTCHA_SITE_KEY'],
