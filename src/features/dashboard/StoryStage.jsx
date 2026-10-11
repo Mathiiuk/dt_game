@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, ChevronRight, Coins, Hourglass, MessageSquareQuote, Newspaper, Shirt, Sparkles, Users, Wallet, X } from 'lucide-react'
 import { splitBeats, effectChips } from '../../domain/storyFlavor'
 import EffectMeters from '../../components/EffectMeters'
+import { markBusy, clearBusy } from '../../lib/busy'
 import { parseArcCode } from '../../domain/arcs'
 import { arcById } from '../../domain/arcCatalog'
 import { EVENT_KIND_LABEL, HOLD_MS, TIMER_SECONDS, canChoose, challengeFor, chapterOf, randomOption, safestOption, stageModeFor } from '../../domain/storyStage'
@@ -115,6 +116,8 @@ function DecisionTimer({ seconds, onExpire }) {
  * según el capítulo: mantener apretado, moneda o reloj) y ver cómo quedó la cosa. Las opciones y sus efectos son las reales del evento.
  */
 export default function StoryStage({ event, budget, boardConfidence, result, busy, onChoose, onLater, onClose }) {
+  // Una historia abierta cuenta como algo a medias: no se instala ninguna actualización hasta cerrarla
+  useEffect(() => { markBusy('story'); return () => clearBusy('story') }, [])
   const arc = arcById(parseArcCode(event.template_code)?.arcId)
   const chapter = chapterOf(event.title)
   // Todo se lee de a momentos, historia o evento suelto: se cuentan igual

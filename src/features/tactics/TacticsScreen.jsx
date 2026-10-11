@@ -25,6 +25,7 @@ import { lockerRoomApi } from '../../api/lockerRoom'
 import Pitch from './Pitch'
 import { friendlyError } from '../../lib/errors'
 import { markStep } from '../onboarding/firstStepsStore'
+import { markBusy, clearBusy } from '../../lib/busy'
 import { SummaryBar, SelectionBar, Dock, CompactInstruction } from './MobileTactics'
 import { styleName, styleLine } from '../../domain/tacticsView'
 
@@ -115,6 +116,12 @@ export default function TacticsScreen() {
 
   const snapshot = JSON.stringify({ formation, mentality, passingStyle, pressing, tempo, lineup, customLayout, takers })
   const dirty = !loading && snapshot !== savedSnapshot
+  // Con cambios sin guardar no se instala ninguna actualización
+  useEffect(() => {
+    if (!dirty) return undefined
+    markBusy('tactics-unsaved')
+    return () => clearBusy('tactics-unsaved')
+  }, [dirty])
 
   useEffect(() => {
     if (contextLoading || !club?.id) return

@@ -8,6 +8,7 @@ import DeleteAccountDialog from '../../components/layout/DeleteAccountDialog'
 import { useGameContext } from '../../context/GameContext'
 import DifficultySelector from '../dashboard/DifficultySelector'
 import { EVENT_START_TOUR } from '../tutorial/tourState'
+import { APP_VERSION } from '../../lib/appVersion'
 
 // Los destinos que ya están en la barra inferior no se repiten aquí
 const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
@@ -84,6 +85,8 @@ export default function MoreScreen() {
         </Card>
         <DeleteAccountDialog open={deleting} onClose={() => setDeleting(false)} />
       </section>
+
+      <p className="pb-2 text-center text-xs text-fg-subtle">Vestuario · versión <span className="num">{APP_VERSION}</span></p>
     </div>
   )
 }
