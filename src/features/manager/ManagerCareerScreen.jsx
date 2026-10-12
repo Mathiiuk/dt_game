@@ -13,6 +13,7 @@ import {
 } from '../../components/ui'
 import JobOfferBottomSheet from '../career/JobOfferBottomSheet'
 import ReputationHistoryModal from '../career/ReputationHistoryModal'
+import LegendRoadCard from './LegendRoadCard'
 import { friendlyError } from '../../lib/errors'
 
 const DEPARTURE = { RESIGNED: 'Renuncia', MOVED_TO_ANOTHER_CLUB: 'Traspaso', SACKED: 'Destituido' }
@@ -206,6 +207,7 @@ export default function ManagerCareerScreen() {
       />
 
       <div className="space-y-6">
+        <LegendRoadCard />
         {!isEmployed && !manager.is_retired && (
           <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-warning/40 bg-warning-soft p-4">
             <div className="flex items-center gap-3">

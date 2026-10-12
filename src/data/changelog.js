@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-05-camino-leyenda',
+    date: '2026-11-05',
+    title: 'Camino a la leyenda',
+    items: [
+      'En Carrera del DT ves cuántos puntos te faltan para alcanzar a los DT más ganadores de la historia.',
+      'Cada leyenda que superes se puede compartir.'
+    ]
+  },
+  {
     id: '2026-11-03-cancha-en-vivo',
     date: '2026-11-03',
     title: 'El partido ahora se ve',

@@ -120,3 +120,26 @@ describe('migración del perfil público del DT', () => {
     expect(code).toContain('l.titles * 600 > s.pts')
   })
 })
+
+describe('migración del camino a la leyenda', () => {
+  const sql = readFileSync('scripts/db/migration_legend_road.sql', 'utf8')
+  const code = sql.split('\n').filter(l => !l.trim().startsWith('--')).join('\n')
+
+  it('es solo lectura, aditiva y exige sesión; solo la ve quien está conectado', () => {
+    expect(code).toContain('create or replace function public.legend_road()')
+    expect(code).toContain('if uid is null then raise exception')
+    expect(code).toContain('where m.user_id = uid')
+    expect(code).not.toMatch(/\b(insert|update|delete|drop|alter|truncate)\b/i)
+    expect(code).toContain('revoke all on function public.legend_road() from public, anon;')
+    expect(code).toContain('grant execute on function public.legend_road() to authenticated;')
+  })
+
+  it('usa la misma fórmula que la tabla pública y las leyendas valen 600 puntos por título', () => {
+    expect(code).toContain('b.nat * 400 + b.intl * 800 + b.won * 15')
+    expect(code).toContain('l.titles * 600')
+  })
+
+  it('no expone datos de la cuenta', () => {
+    expect(code).not.toMatch(/email|auth\.users|c\.name|stadium/)
+  })
+})

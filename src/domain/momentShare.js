@@ -14,6 +14,7 @@ const BUILDERS = {
   promotion: ({ tierName }) => ({ headline: '¡ASCENSO!', big: tierName || 'Categoría nueva', sub: 'Subimos de categoría', tone: 'win', lead: '¡Ascendimos en Vestuario!' }),
   signing: ({ player, fee }) => ({ headline: 'NUEVO FICHAJE', big: player || 'Nuevo refuerzo', sub: `Llegó por ${formatMoney(fee || 0)}`, tone: 'win', lead: 'Cerré un fichaje en Vestuario.' }),
   daily: ({ score, rank, players }) => ({ headline: 'RETO DEL DÍA', big: `${score ?? 0} pts`, sub: rank ? `Puesto ${rank} de ${players ?? rank}` : 'Jugué el reto de hoy', tone: 'gold', lead: 'Jugué el reto del día en Vestuario.' }),
+  legend: ({ legend, points }) => ({ headline: '¡SUPERÉ A UNA LEYENDA!', big: legend || 'Una leyenda', sub: `Con ${new Intl.NumberFormat('es-AR').format(points || 0)} puntos de legado`, tone: 'gold', lead: '¡Superé a una leyenda en Vestuario!' }),
   season: ({ season, position, storyHeadline }) => ({ headline: `TEMPORADA ${season ?? ''}`.trim(), big: withPosition(position), sub: storyHeadline || 'Balance del año', tone: 'draw', lead: 'Mi temporada en Vestuario.' })
 }
 

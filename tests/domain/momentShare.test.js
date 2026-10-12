@@ -47,4 +47,14 @@ describe('momento: reto del día', () => {
     expect(c.sub).toBe('Puesto 2 de 9')
     expect(c.text).toContain(momentUrl('daily'))
   })
+
+  it('superar a una leyenda: titular, nombre de la leyenda y puntos, con el enlace marcado', () => {
+    const c = momentCard({ kind: 'legend', club: 'Potrero', legend: 'Guillermo Stábile', points: 8000 })
+    expect(c.kind).toBe('legend')
+    expect(c.headline).toBe('¡SUPERÉ A UNA LEYENDA!')
+    expect(c.big).toBe('Guillermo Stábile')
+    expect(c.sub).toContain('8.000')
+    expect(c.text).toContain('Guillermo Stábile')
+    expect(c.text).toContain(momentUrl('legend'))
+  })
 })
