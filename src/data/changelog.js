@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-03-cancha-en-vivo',
+    date: '2026-11-03',
+    title: 'El partido ahora se ve',
+    items: [
+      'Una cancha en vivo sigue la pelota: remates, córners y penales.',
+      'Los goles tienen su cartel, el banco festeja y las tarjetas se ven en el campo.'
+    ]
+  },
+  {
     id: '2026-11-02-perfil-publico',
     date: '2026-11-02',
     title: 'Tu DT tiene página propia',

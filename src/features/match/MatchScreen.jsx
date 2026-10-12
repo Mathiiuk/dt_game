@@ -10,6 +10,7 @@ import { supabase } from '../../api/supabase'
 import { squadsApi } from '../../api/squads'
 import { useGameContext } from '../../context/GameContext'
 import MatchHeader from './MatchHeader'
+import LivePitch from './LivePitch'
 import MatchTimeline from './MatchTimeline'
 import MatchActions from './MatchActions'
 import MatchStats from './MatchStats'
@@ -675,7 +676,18 @@ export default function MatchScreen() {
                     <p className="mt-1">Contratá un Jefe de Ojeadores en el cuerpo técnico para ver los especialistas de {oppDisplayName} y cómo juegan.</p>
                   </section>
                 )))
-              : <MatchTimeline events={events} matchState={matchState} />}
+              : (
+                <>
+                  <LivePitch
+                    events={events}
+                    minute={minute}
+                    matchState={matchState}
+                    homeColor={(isHome ? data.club : rivalClub)?.primary_color || undefined}
+                    awayColor={(isHome ? rivalClub : data.club)?.primary_color || undefined}
+                  />
+                  <MatchTimeline events={events} matchState={matchState} />
+                </>
+              )}
 
             {matchState !== 'pre-match' && simResults?.stats && (
               <MatchStats stats={liveStats || simResults.stats} homeName={data.club?.name || 'Local'} awayName={oppDisplayName} />

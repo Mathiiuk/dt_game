@@ -250,6 +250,14 @@
 }
 
 @layer components {
+  /* Cancha en vivo: la pelota se desliza entre jugadas y el banco salta al festejar un gol */
+  .live-ball { transition: transform 600ms cubic-bezier(0.25, 1, 0.5, 1); }
+  .bench-cheer { animation: bench-jump 420ms ease-out 3; }
+  @keyframes bench-jump {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2.5px); }
+  }
+
   /* Barra de potencia del penal: va y viene sola (animación de CSS, no depende de renders de React) */
   .penalty-marker {
     left: 0;
