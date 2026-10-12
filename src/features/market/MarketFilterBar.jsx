@@ -27,7 +27,7 @@ export default function MarketFilterBar({
   onClearFilters
 }) {
   return (
-    <section aria-label="Filtros" className="mb-6 space-y-3">
+    <section aria-label="Filtros" className="mb-4 space-y-3">
       {/* 1. Chips de Posición por Línea */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <ChoiceChips

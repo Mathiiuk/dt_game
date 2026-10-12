@@ -170,7 +170,7 @@ export default function ClubScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando instalaciones del club">
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando instalaciones del club">
         <Skeleton className="h-12 w-72" />
         <Skeleton className="h-11" />
         <div className="grid gap-4 lg:grid-cols-2"><Skeleton className="h-96" /><Skeleton className="h-96" /></div>
@@ -184,7 +184,7 @@ export default function ClubScreen() {
   const refresh = () => loadData(true)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8 space-y-6">
+    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
       <PageHeader
         eyebrow={`Fundado en ${club?.founded_year || 2026} · ${club?.city || 'Ciudad'}, ${club?.country || 'Nacional'}`}
         title={club?.name || 'Mi club'}
@@ -194,16 +194,16 @@ export default function ClubScreen() {
       {/* Métricas clave de la institución */}
       <Card className="border border-line bg-surface/90 shadow-sm">
         <CardBody className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-4 sm:gap-6">
-          <Stat label="Presupuesto" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl font-bold font-display text-accent sm:text-3xl" />
-          <Stat label="Sueldos" value={salaries === null ? '—' : formatMoney(salaries)} hint="plantel y staff por semana" valueClassName="text-2xl font-bold font-display sm:text-3xl" />
-          <Stat label="Por semana" value={weeklyFlow === null ? '—' : `${weeklyFlow >= 0 ? '+' : ''}${formatMoney(weeklyFlow)}`} hint="lo que entra menos lo que sale" valueClassName="text-2xl font-bold font-display sm:text-3xl" />
-          <Stat label="Academia" value={`Nv. ${club?.academy_level || 1}`} hint={`${data.youth.length} juveniles`} valueClassName="text-2xl font-bold font-display sm:text-3xl" />
+          <Stat label="Presupuesto" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl font-bold font-display text-accent sm:text-2xl" />
+          <Stat label="Sueldos" value={salaries === null ? '—' : formatMoney(salaries)} hint="plantel y staff por semana" valueClassName="text-xl font-bold font-display sm:text-2xl" />
+          <Stat label="Por semana" value={weeklyFlow === null ? '—' : `${weeklyFlow >= 0 ? '+' : ''}${formatMoney(weeklyFlow)}`} hint="lo que entra menos lo que sale" valueClassName="text-xl font-bold font-display sm:text-2xl" />
+          <Stat label="Academia" value={`Nv. ${club?.academy_level || 1}`} hint={`${data.youth.length} juveniles`} valueClassName="text-xl font-bold font-display sm:text-2xl" />
         </CardBody>
       </Card>
 
       {/* Redirecciones informativas para rutas históricas */}
       {activeTab === 'enfermeria' && (
-        <div className="p-3.5 rounded-xl bg-accent/10 border border-accent/25 flex items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 rounded-md bg-accent/10 border border-accent/25 flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-accent">
             <AlertCircle className="size-4 shrink-0" />
             <span>La Enfermería y el parte médico ahora se gestionan de forma directa en el <strong>Plantel</strong>.</span>
@@ -215,7 +215,7 @@ export default function ClubScreen() {
       )}
 
       {activeTab === 'directiva' && (
-        <div className="p-3.5 rounded-xl bg-accent/10 border border-accent/25 flex items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 rounded-md bg-accent/10 border border-accent/25 flex items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-accent">
             <AlertCircle className="size-4 shrink-0" />
             <span>Los objetivos y la confianza de la Directiva se consultan en el perfil de <strong>Carrera del DT</strong>.</span>
@@ -239,7 +239,7 @@ export default function ClubScreen() {
 
       {/* 1. Mística & Vitrina */}
       {activeTab === 'mistica' && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <ClubIdentityTab
             club={club}
             history={data.history}
@@ -257,7 +257,7 @@ export default function ClubScreen() {
           {/* Candidatos a staff para contratación rápida */}
           {data.candidates.length > 0 && (
             <Card className="border border-line bg-surface/90">
-              <CardBody className="p-4 sm:p-5 space-y-3">
+              <CardBody className="p-3 sm:p-4 space-y-3">
                 <h3 className="eyebrow">Especialistas disponibles para el cuerpo técnico</h3>
                 <ul className="space-y-2">
                   {data.candidates.map((c, i) => (

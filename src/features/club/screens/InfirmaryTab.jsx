@@ -90,12 +90,12 @@ export default function InfirmaryTab({ club }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header Fisioterapeuta y Resumen */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-lg bg-surface border border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-danger/10 text-danger border border-danger/20">
+            <div className="p-2.5 rounded-md bg-danger/10 text-danger border border-danger/20">
               <Activity className="w-5 h-5" />
             </div>
             <div>
@@ -110,7 +110,7 @@ export default function InfirmaryTab({ club }) {
 
         <div className="p-4 rounded-lg bg-surface border border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gold/10 text-gold border border-gold/20">
+            <div className="p-2.5 rounded-md bg-gold/10 text-gold border border-gold/20">
               <Clock className="w-5 h-5" />
             </div>
             <div>
@@ -126,7 +126,7 @@ export default function InfirmaryTab({ club }) {
 
         <div className="p-4 rounded-lg bg-surface border border-line flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-accent/10 text-accent border border-accent/20">
+            <div className="p-2.5 rounded-md bg-accent/10 text-accent border border-accent/20">
               <Stethoscope className="w-5 h-5" />
             </div>
             <div>
@@ -139,7 +139,7 @@ export default function InfirmaryTab({ club }) {
           <AsyncButton 
             onClick={loadInfirmary}
             disabled={loading}
-            className="p-2 rounded-xl bg-surface-3 hover:bg-surface-3 text-fg transition-colors"
+            className="p-2 rounded-md bg-surface-3 hover:bg-surface-3 text-fg transition-colors"
             title="Actualizar parte médico"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -148,7 +148,7 @@ export default function InfirmaryTab({ club }) {
       </div>
 
       {/* Lista de Convalecientes */}
-      <div className="p-5 rounded-xl bg-surface/60 border border-line space-y-4">
+      <div className="p-4 rounded-md bg-surface/60 border border-line space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <HeartPulse className="w-5 h-5 text-danger" />
@@ -163,7 +163,7 @@ export default function InfirmaryTab({ club }) {
             <span className="text-xs">Cargando fichas médicas...</span>
           </div>
         ) : injuries.length === 0 ? (
-          <div className="p-8 rounded-lg bg-bg/60 border border-line/80 text-center space-y-2">
+          <div className="p-5 rounded-lg bg-bg/60 border border-line/80 text-center space-y-2">
             <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent/20 text-accent flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-6 h-6" />
             </div>
@@ -184,7 +184,7 @@ export default function InfirmaryTab({ club }) {
                 <div key={injury.id} className="p-4 rounded-lg bg-bg border border-line hover:border-line transition-all space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-surface border border-line flex items-center justify-center font-bold text-fg text-sm">
+                      <div className="w-10 h-10 rounded-md bg-surface border border-line flex items-center justify-center font-bold text-fg text-sm">
                         {p?.shirt_number ? `#${p.shirt_number}` : <User className="w-5 h-5 text-fg-subtle" />}
                       </div>
                       <div>
@@ -231,7 +231,7 @@ export default function InfirmaryTab({ club }) {
 
                   {/* Secuelas o detalles */}
                   {injury.permanent_attribute_loss && (
-                    <div className="p-2.5 rounded-xl bg-danger-soft border border-danger/40 text-[11px] text-danger flex items-center gap-2">
+                    <div className="p-2.5 rounded-md bg-danger-soft border border-danger/40 text-[11px] text-danger flex items-center gap-2">
                       <ShieldAlert className="w-4 h-4 text-danger shrink-0" />
                       <span>
                         Secuela permanente documentada: {Object.entries(injury.permanent_attribute_loss).map(([attr, val]) => `${attr.toUpperCase()}: ${val}`).join(', ')}
@@ -252,7 +252,7 @@ export default function InfirmaryTab({ club }) {
                     <AsyncButton
                       disabled={!canInfiltrate || processingInfiltration === injury.id}
                       onClick={() => handleInfiltrate(injury)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                         canInfiltrate 
                           ? 'bg-danger/20 text-danger border border-danger/40 hover:bg-danger/30 shadow-md' 
                           : 'bg-surface text-fg-subtle border border-line cursor-not-allowed'
@@ -281,9 +281,9 @@ export default function InfirmaryTab({ club }) {
         >
           <div className="space-y-2">
             {loadingHistory ? (
-              <p className="py-8 text-center text-sm text-fg-muted" role="status">Cargando expediente...</p>
+              <p className="py-5 text-center text-sm text-fg-muted" role="status">Cargando expediente...</p>
             ) : historyList.length === 0 ? (
-              <p className="rounded-lg border border-line bg-surface-2 p-6 text-center text-sm text-fg-muted">
+              <p className="rounded-lg border border-line bg-surface-2 p-4 text-center text-sm text-fg-muted">
                 Sin antecedentes de lesiones registradas en la institución.
               </p>
             ) : (

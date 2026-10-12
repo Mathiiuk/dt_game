@@ -29,7 +29,7 @@ export default function FinancesFacilityCard({ facility, club, onUpgrade, budget
       <CardHeader className="pb-3 border-b border-line/60">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5">
-            <span className="grid size-10 place-items-center rounded-xl bg-surface-3 text-accent border border-line">
+            <span className="grid size-10 place-items-center rounded-md bg-surface-3 text-accent border border-line">
               <Icon className="size-5" aria-hidden="true" />
             </span>
             <div>
@@ -51,7 +51,7 @@ export default function FinancesFacilityCard({ facility, club, onUpgrade, budget
         </p>
 
         {/* Retorno de Inversión y Beneficio Estratégico */}
-        <div className="rounded-xl bg-surface-2/70 p-3 border border-line space-y-1.5">
+        <div className="rounded-md bg-surface-2/70 p-3 border border-line space-y-1.5">
           <div className="flex items-center gap-1.5 text-accent font-semibold">
             <Sparkles className="size-3.5 shrink-0" />
             <span>Próximo nivel:</span>

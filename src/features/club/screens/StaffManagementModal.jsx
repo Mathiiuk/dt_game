@@ -131,7 +131,7 @@ export default function StaffManagementModal({ club, manager, onClose, onStaffUp
       {loading ? (
         <div className="space-y-3" aria-busy="true"><Skeleton className="h-20" /><Skeleton className="h-24" /><Skeleton className="h-24" /></div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Card as="div">
             <CardBody className="grid grid-cols-3 gap-4">
               <Stat label="Recuperación médica" value={`-${bonuses.injuryReductionPct}%`} hint="de tiempo" />

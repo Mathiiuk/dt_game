@@ -7,7 +7,7 @@ export default function MarketHistory({ history = [] }) {
   if (!history || history.length === 0) return null
 
   return (
-    <Card as="section" aria-label="Historial de negociaciones" className="mb-6 border border-line bg-surface/90">
+    <Card as="section" aria-label="Historial de negociaciones" className="mb-4 border border-line bg-surface/90">
       <CardBody className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

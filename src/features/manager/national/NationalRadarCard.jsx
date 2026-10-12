@@ -8,11 +8,11 @@ export default function NationalRadarCard({ radar }) {
 
   return (
     <Card className="border border-line bg-surface/90 shadow-md">
-      <CardBody className="p-4 sm:p-5 space-y-4">
+      <CardBody className="p-3 sm:p-4 space-y-4">
         {/* Cabecera del Radar */}
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-accent/10 border border-accent/20 text-accent">
+            <div className="p-2 rounded-md bg-accent/10 border border-accent/20 text-accent">
               <Eye className="size-5" />
             </div>
             <div>
@@ -38,7 +38,7 @@ export default function NationalRadarCard({ radar }) {
 
         {/* Lista de Jugadores en el Radar */}
         {players.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-line p-6 text-center space-y-2">
+          <div className="rounded-md border border-dashed border-line p-4 text-center space-y-2">
             <p className="text-sm font-semibold text-fg">El seleccionador aún no puso los ojos en tu club</p>
             <p className="text-xs text-fg-muted max-w-md mx-auto">
               Para llamar la atención del radar, tus jugadores deben destacar en su categoría con alta media o rachas goleadoras. ¡Seguí potenciando la cantera!
@@ -53,7 +53,7 @@ export default function NationalRadarCard({ radar }) {
               return (
                 <div 
                   key={p.id}
-                  className={`rounded-xl border p-3.5 space-y-2.5 transition-all ${
+                  className={`rounded-md border p-3.5 space-y-2.5 transition-all ${
                     isCalled 
                       ? 'border-accent/40 bg-accent/5 shadow-sm' 
                       : 'border-line bg-surface-2'

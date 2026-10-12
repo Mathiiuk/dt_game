@@ -104,7 +104,7 @@ export default function ClubHistoryTab({ club }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 1. Vitrina de Récords Institucionales */}
       <section className="p-4 md:p-6 border border-line rounded-lg bg-surface/40 shadow-sm">
         <div className="flex items-center justify-between mb-4">
@@ -117,7 +117,7 @@ export default function ClubHistoryTab({ club }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {records.map((r, i) => (
-            <div key={i} className="p-4 border border-line/80 rounded-xl bg-bg/70 flex flex-col justify-between hover:border-line transition-colors">
+            <div key={i} className="p-4 border border-line/80 rounded-md bg-bg/70 flex flex-col justify-between hover:border-line transition-colors">
               <div>
                 <div className="flex items-center gap-2 text-fg-muted mb-1.5">
                   {getRecordIcon(r.record_type)}
@@ -176,7 +176,7 @@ export default function ClubHistoryTab({ club }) {
       {/* SUBTAB 1: LÍNEA TEMPORAL */}
       {subTab === 'timeline' && (
         <section className="p-4 md:p-6 border border-line rounded-lg bg-surface/40">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <h3 className="font-bold text-base text-fg flex items-center gap-2">
               <History className="w-5 h-5 text-accent" />
               <span>Cronología de hitos oficiales</span>
@@ -215,7 +215,7 @@ export default function ClubHistoryTab({ club }) {
               milestones.map((m) => (
                 <div key={m.id} className="relative group">
                   <span className="absolute -left-[29px] top-1.5 w-3.5 h-3.5 rounded-full bg-bg border-2 border-accent group-hover:scale-125 transition-transform" />
-                  <div className="p-4 border border-line/80 rounded-xl bg-bg/70 hover:border-line transition-colors">
+                  <div className="p-4 border border-line/80 rounded-md bg-bg/70 hover:border-line transition-colors">
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold px-2 py-0.5 rounded bg-surface-3 text-accent border border-line">
@@ -255,7 +255,7 @@ export default function ClubHistoryTab({ club }) {
               <p className="text-fg-subtle text-xs md:text-sm py-4">No hay crónicas archivadas en la hemeroteca aún.</p>
             ) : (
               hemeroteca.map((art) => (
-                <div key={art.id} className="p-4 border border-line rounded-xl bg-bg/80 flex flex-col justify-between">
+                <div key={art.id} className="p-4 border border-line rounded-md bg-bg/80 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between text-[11px] mb-2">
                       <span className="font-bold uppercase tracking-wider text-gold">
@@ -298,7 +298,7 @@ export default function ClubHistoryTab({ club }) {
 
           <div className="space-y-3">
             {seasons.length === 0 ? (
-              <div className="p-6 text-center border border-dashed border-line rounded-xl">
+              <div className="p-4 text-center border border-dashed border-line rounded-md">
                 <BookOpen className="w-8 h-8 text-fg-subtle mx-auto mb-2" />
                 <p className="text-fg text-sm font-semibold">Temporada inaugural en curso</p>
                 <p className="text-fg-subtle text-xs mt-1">
@@ -307,7 +307,7 @@ export default function ClubHistoryTab({ club }) {
               </div>
             ) : (
               seasons.map((h) => (
-                <div key={h.id} className="p-3.5 border rounded-xl border-line bg-bg/70 flex items-center justify-between">
+                <div key={h.id} className="p-3.5 border rounded-md border-line bg-bg/70 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-sm text-fg">Temporada {h.season_year}</p>

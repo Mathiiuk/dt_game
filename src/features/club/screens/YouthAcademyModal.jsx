@@ -136,7 +136,7 @@ export default function YouthAcademyModal({ club, manager, onClose, onCandidateP
       onClose={onClose}
       size="md"
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Card as="div">
           <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">

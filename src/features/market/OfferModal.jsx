@@ -63,7 +63,7 @@ export default function OfferModal({
   if (reply?.status === 'ACCEPTED') {
     body = (
       <div className="space-y-4 text-center py-2" aria-live="polite">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-accent/15 text-accent border border-accent/30 shadow-lg">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-lg bg-accent/15 text-accent border border-accent/30 shadow-sm">
           <Handshake className="size-8" aria-hidden="true" />
         </div>
         <div className="space-y-1">
@@ -75,7 +75,7 @@ export default function OfferModal({
         </div>
 
         {/* Cita de cierre del representante */}
-        <div className="rounded-xl bg-surface-2/80 border border-line p-3 text-xs text-left flex items-start gap-2.5">
+        <div className="rounded-md bg-surface-2/80 border border-line p-3 text-xs text-left flex items-start gap-2.5">
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent"><NamedIcon name={rep.avatar} className="size-4.5" /></span>
           <div>
             <span className="font-bold text-fg">{rep.name}:</span>
@@ -96,7 +96,7 @@ export default function OfferModal({
   } else if (reply?.status === 'REJECTED') {
     body = (
       <div className="space-y-4 text-center py-2" aria-live="polite">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-danger/15 text-danger border border-danger/30">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-lg bg-danger/15 text-danger border border-danger/30">
           <AlertCircle className="size-8" aria-hidden="true" />
         </div>
         <div className="space-y-1">
@@ -106,7 +106,7 @@ export default function OfferModal({
           </p>
         </div>
 
-        <div className="rounded-xl bg-surface-2/80 border border-line p-3 text-xs text-left flex items-start gap-2.5">
+        <div className="rounded-md bg-surface-2/80 border border-line p-3 text-xs text-left flex items-start gap-2.5">
           <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent"><NamedIcon name={rep.avatar} className="size-4.5" /></span>
           <div>
             <span className="font-bold text-fg">{rep.name}:</span>
@@ -122,7 +122,7 @@ export default function OfferModal({
     body = (
       <div className="space-y-4" aria-live="polite">
         {/* Burbuja de contraoferta del representante */}
-        <div className="rounded-2xl bg-surface-2 border border-line p-3.5 space-y-2">
+        <div className="rounded-lg bg-surface-2 border border-line p-3.5 space-y-2">
           <div className="flex items-center gap-2">
             <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent"><NamedIcon name={rep.avatar} className="size-4.5" /></span>
             <div>
@@ -134,7 +134,7 @@ export default function OfferModal({
             "Mirá, tu propuesta inicial no llega. {player.clubs?.name || 'El agente'} responde: no cierran por ese monto, pero piden:"
           </p>
           <div className="pl-7">
-            <p className="num text-3xl font-display font-black text-accent">{formatMoney(reply.counter)}</p>
+            <p className="num text-2xl font-display font-black text-accent">{formatMoney(reply.counter)}</p>
             <p className="text-xs text-fg-subtle mt-0.5">
               {reply.final
                 ? 'Es su última oferta: o la aceptás o se levantan de la mesa.'
@@ -186,8 +186,8 @@ export default function OfferModal({
     body = (
       <div className="space-y-4">
         {/* 1. Burbuja de Diálogo Arcade del Representante */}
-        <div className="rounded-2xl bg-surface-2/90 border border-line p-3.5 flex items-start gap-3 shadow-xs">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 border border-accent/25 text-xl">
+        <div className="rounded-lg bg-surface-2/90 border border-line p-3.5 flex items-start gap-3 shadow-xs">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-accent/15 border border-accent/25 text-xl">
             <NamedIcon name={rep.avatar} className="size-5 text-accent" />
           </div>
           <div className="space-y-0.5 min-w-0">

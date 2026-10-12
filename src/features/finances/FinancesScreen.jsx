@@ -32,7 +32,7 @@ function Breakdown({ title, total, tone, rows, sign }) {
           </p>
         </div>
       </CardHeader>
-      <CardBody className="p-4">
+      <CardBody className="p-3">
         <dl className="divide-y divide-line/60 text-xs">
           {rows.map(([label, value, highlight]) => (
             <div key={label} className={`flex items-center justify-between gap-3 py-2 ${highlight ? 'font-semibold text-fg' : ''}`}>
@@ -149,7 +149,7 @@ export default function FinancesScreen() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando finanzas">
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando finanzas">
         <Skeleton className="h-12 w-64" />
         <Skeleton className="h-28" />
         <div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-64" /><Skeleton className="h-64" /></div>
@@ -161,7 +161,7 @@ export default function FinancesScreen() {
   const health = healthInfo(f?.healthStatus)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8 space-y-6">
+    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
       <PageHeader
         eyebrow="Tesorería"
         title="Finanzas"
@@ -174,20 +174,20 @@ export default function FinancesScreen() {
 
       {/* 2. Pestañas de Gestión Financiera e Inversiones */}
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList aria-label="Secciones de finanzas" className="mb-6">
+        <TabsList aria-label="Secciones de finanzas" className="mb-4">
           <TabsTrigger value="balance">Flujo semanal</TabsTrigger>
           <TabsTrigger value="facilities">Instalaciones</TabsTrigger>
           <TabsTrigger value="ledger">Movimientos</TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Desglose de Ingresos, Gastos y Política de Entradas */}
-        <TabsContent value="balance" className="space-y-6">
+        <TabsContent value="balance" className="space-y-4">
           <Card as="section" aria-label="Masa salarial" className="border border-line bg-surface/90">
-            <CardBody className="p-4 sm:p-6">
+            <CardBody className="p-3 sm:p-4">
               <WageCapMeter bill={(f?.expenses?.playerWages || 0) + (f?.expenses?.staffWages || 0)} cap={f?.wageBudgetWeekly} />
             </CardBody>
           </Card>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Breakdown
               title="Ingresos recurrentes"
               sign="+"
@@ -219,7 +219,7 @@ export default function FinancesScreen() {
           <Card as="section" aria-label="Política de entradas" className="border border-line bg-surface/90">
             <CardHeader className="flex-wrap items-center justify-between pb-3 border-b border-line/60">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-gold-soft text-gold border border-gold/40">
+                <span className="grid size-10 place-items-center rounded-md bg-gold-soft text-gold border border-gold/40">
                   <Ticket className="size-5" aria-hidden="true" />
                 </span>
                 <div>
@@ -231,7 +231,7 @@ export default function FinancesScreen() {
               </div>
               <p className="num font-display text-2xl font-bold text-gold">{formatMoney(ticketPrice)}</p>
             </CardHeader>
-            <CardBody className="p-4">
+            <CardBody className="p-3">
               <div role="radiogroup" aria-label="Precio de la entrada" className="grid grid-cols-5 gap-2">
                 {TICKET_PRICES.map((price) => {
                   const active = Math.abs(ticketPrice - price) < 0.1
@@ -257,7 +257,7 @@ export default function FinancesScreen() {
 
         {/* Tab 2: Instalaciones y Obras Estratégicas (Tycoon) */}
         <TabsContent value="facilities">
-          <ul className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {FACILITIES.map((facility) => (
               <li key={facility.key}>
                 <FinancesFacilityCard

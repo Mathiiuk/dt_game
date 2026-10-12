@@ -16,12 +16,12 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
   }, [fanbase, club])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 1. Clima de la Tribuna (Lectura Humana y Narrativa) */}
       <Card className="border border-line bg-surface/90 shadow-sm overflow-hidden">
         <div className="bg-gradient-to-r from-gold/20 via-gold/20 to-transparent px-4 py-3 sm:px-6 border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-gold-soft text-gold border border-gold/40">
+            <div className="p-2 rounded-md bg-gold-soft text-gold border border-gold/40">
               <Megaphone className="size-5" />
             </div>
             <div>
@@ -36,13 +36,13 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
           </Badge>
         </div>
 
-        <CardBody className="p-4 sm:p-6 space-y-4">
+        <CardBody className="p-3 sm:p-4 space-y-4">
           <p className="text-sm text-fg-muted italic leading-relaxed">
             "{atmosphere.summary}"
           </p>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Popularidad</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">{atmosphere.popularity}</span>
@@ -53,7 +53,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
               </div>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Confianza</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">{atmosphere.satisfaction}</span>
@@ -64,7 +64,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
               </div>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Asistencia media</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">{atmosphere.attendanceRate}</span>
@@ -75,7 +75,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
               </div>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Socios al día</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">
@@ -92,15 +92,15 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
       </Card>
 
       {/* 2. Eventos y Vida de la Hinchada */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="border border-line bg-surface/90">
-          <CardBody className="p-4 sm:p-5 space-y-3">
+          <CardBody className="p-3 sm:p-4 space-y-3">
             <div className="flex items-center gap-2 border-b border-line pb-3">
               <Flame className="size-4 text-warning" />
               <h3 className="font-display text-base font-bold text-fg">Último movimiento en la tribuna</h3>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-4 border border-line space-y-2">
+            <div className="rounded-md bg-surface-2 p-4 border border-line space-y-2">
               <div className="flex items-center gap-2">
                 <Badge tone="accent">Evento reciente</Badge>
               </div>
@@ -115,7 +115,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
         </Card>
 
         <Card className="border border-line bg-surface/90">
-          <CardBody className="p-4 sm:p-5 space-y-3">
+          <CardBody className="p-3 sm:p-4 space-y-3">
             <div className="flex items-center gap-2 border-b border-line pb-3">
               <HeartHandshake className="size-4 text-accent" />
               <h3 className="font-display text-base font-bold text-fg">Identidad de la gente</h3>

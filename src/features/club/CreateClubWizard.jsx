@@ -110,7 +110,7 @@ export default function CreateClubWizard() {
       finalLabel="Fundar club y comenzar temporada"
     >
       {step === 1 && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <div>
             <h2 className="font-display text-2xl font-semibold text-fg">Identidad institucional</h2>
             <p className="mt-1 text-sm text-fg-muted">Origen en el Torneo Regional (división 5).</p>
@@ -130,9 +130,9 @@ export default function CreateClubWizard() {
       )}
 
       {step === 2 && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <h2 className="font-display text-2xl font-semibold text-fg">Colores y blasón</h2>
-          <div className="flex flex-col items-center gap-6 rounded-lg bg-surface-2 p-5 sm:flex-row">
+          <div className="flex flex-col items-center gap-4 rounded-lg bg-surface-2 p-4 sm:flex-row">
             <div className="text-center">
               <Jersey primary={colors.primary} secondary={colors.secondary} className="mx-auto h-32 w-28" />
               <p className="mt-1 text-xs text-fg-muted">Camiseta titular</p>
@@ -153,7 +153,7 @@ export default function CreateClubWizard() {
                   </span>
                 )}
               />
-              <div className="flex gap-5">
+              <div className="flex gap-4">
                 <Field label="Color primario">{(p) => <input {...p} type="color" value={colors.primary} onChange={(e) => setColors(prev => ({ ...prev, primary: e.target.value }))} className="h-11 w-16 cursor-pointer rounded-md border border-line bg-surface-3 p-1" />}</Field>
                 <Field label="Color secundario">{(p) => <input {...p} type="color" value={colors.secondary} onChange={(e) => setColors(prev => ({ ...prev, secondary: e.target.value }))} className="h-11 w-16 cursor-pointer rounded-md border border-line bg-surface-3 p-1" />}</Field>
               </div>
@@ -183,7 +183,7 @@ export default function CreateClubWizard() {
       )}
 
       {step === 3 && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <h2 className="font-display text-2xl font-semibold text-fg">Estadio e infraestructura inicial</h2>
           <Field label="Nombre del estadio">{(p) => <Input {...p} value={stadium.name} onChange={(e) => setStadium(prev => ({ ...prev, name: e.target.value }))} />}</Field>
           <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -195,13 +195,13 @@ export default function CreateClubWizard() {
       )}
 
       {step === 4 && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <h2 className="font-display text-2xl font-semibold text-fg">Acta de fundación</h2>
-          <div className="rounded-lg border border-accent/40 bg-surface-2 p-5">
+          <div className="rounded-lg border border-accent/40 bg-surface-2 p-4">
             <div className="flex items-start justify-between gap-3 border-b border-line pb-4">
               <div>
                 <p className="eyebrow text-accent">Club afiliado a la Liga Regional (división 5)</p>
-                <p className="mt-1 font-display text-3xl font-semibold leading-tight text-fg">{identity.name} <span className="text-fg-muted">({identity.shortName})</span></p>
+                <p className="mt-1 font-display text-2xl font-semibold leading-tight text-fg">{identity.name} <span className="text-fg-muted">({identity.shortName})</span></p>
                 <p className="text-xs text-fg-muted">“{identity.nickname}” · Fundado en {identity.foundedYear} · {identity.city}, {identity.country}</p>
               </div>
               <Jersey primary={colors.primary} secondary={colors.secondary} className="size-16 shrink-0" />

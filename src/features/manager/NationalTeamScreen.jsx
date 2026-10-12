@@ -147,7 +147,7 @@ export default function NationalTeamScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando selección nacional">
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando selección nacional">
         <Skeleton className="h-12 w-72" />
         <Skeleton className="h-28" />
         <Skeleton className="h-44" />
@@ -163,7 +163,7 @@ export default function NationalTeamScreen() {
   // Sin selección activa: radar de promesas + termómetro + bolsa de ofertas
   if (!team) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8 space-y-6">
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
         <PageHeader
           backTo="/manager"
           eyebrow={`Tu reputación: ${manager?.reputation || 20} pts · doble carrera`}
@@ -203,7 +203,7 @@ export default function NationalTeamScreen() {
               {offers.map(offer => (
                 <li key={offer.id}>
                   <Card as="article" className={cn('h-full transition-all hover:border-line-strong', !offer.is_eligible && 'opacity-70')}>
-                    <CardBody className="flex h-full flex-col gap-4 p-5">
+                    <CardBody className="flex h-full flex-col gap-4 p-4">
                       <div className="flex items-center justify-between gap-2">
                         <Badge tone={offer.is_eligible ? 'accent' : 'neutral'}>{offer.category_label}</Badge>
                         <span className="num text-xs text-fg-subtle">Rep. requerida: {offer.required_reputation}</span>
@@ -241,7 +241,7 @@ export default function NationalTeamScreen() {
   const keepers = callups.filter(isKeeper).length
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8 space-y-6">
+    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
       <PageHeader
         backTo="/manager"
         eyebrow={`Puesto FIFA #${team.world_ranking || 1}`}
@@ -254,7 +254,7 @@ export default function NationalTeamScreen() {
 
       {/* Estadísticas de la era */}
       <Card>
-        <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4 p-5">
+        <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4 p-4">
           <Stat label="Victorias" value={team.matches_won || 0} valueClassName="text-accent font-bold text-2xl" />
           <Stat label="Empates" value={team.matches_drawn || 0} valueClassName="text-warning font-bold text-2xl" />
           <Stat label="Derrotas" value={team.matches_lost || 0} valueClassName="text-danger font-bold text-2xl" />
@@ -289,7 +289,7 @@ export default function NationalTeamScreen() {
           ) : (
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {callups.map(c => (
-                <li key={c.id} className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4 shadow-sm">
+                <li key={c.id} className="flex items-center justify-between gap-3 rounded-md border border-line bg-surface p-4 shadow-sm">
                   <div className="min-w-0">
                     <p className="flex items-center gap-2 text-sm font-semibold text-fg">
                       <span className="truncate">{c.player?.first_name} {c.player?.last_name}</span>
@@ -323,7 +323,7 @@ export default function NationalTeamScreen() {
               {fixtures.map(f => (
                 <li key={f.id}>
                   <Card as="article" className="h-full">
-                    <CardBody className="flex h-full flex-col gap-3 p-5">
+                    <CardBody className="flex h-full flex-col gap-3 p-4">
                       <div className="flex items-center justify-between gap-2 text-xs">
                         <span className="eyebrow">{f.tournament_name}</span>
                         {f.played ? (
@@ -340,7 +340,7 @@ export default function NationalTeamScreen() {
                       </div>
                       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-3 text-sm font-bold text-fg">
                         <span className="truncate text-right">{f.is_home ? team.name : f.opponent_name}</span>
-                        <span className="num rounded-xl bg-surface-2 px-3.5 py-1.5 font-mono text-lg border border-line">
+                        <span className="num rounded-md bg-surface-2 px-3.5 py-1.5 font-mono text-lg border border-line">
                           {f.played ? `${f.home_score} - ${f.away_score}` : 'vs'}
                         </span>
                         <span className="truncate">{f.is_home ? f.opponent_name : team.name}</span>

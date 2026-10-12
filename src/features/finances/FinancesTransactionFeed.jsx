@@ -14,13 +14,13 @@ export default function FinancesTransactionFeed({ transactions = [] }) {
         <span className="text-xs text-fg-subtle">{transactions.length} registros</span>
       </CardHeader>
 
-      <CardBody className="p-4">
+      <CardBody className="p-3">
         {transactions.length === 0 ? (
           <EmptyState
             icon={Receipt}
             title="Sin movimientos"
             description="Los débitos y créditos se anotan durante los avances semanales y traspasos."
-            className="py-8"
+            className="py-5"
           />
         ) : (
           <>

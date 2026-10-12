@@ -92,12 +92,12 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* BANNER DE ULTIMÁTUM CRÍTICO (SI ESTÁ ACTIVO) */}
       {board?.is_under_ultimatum && (
-        <div className="p-4 sm:p-5 rounded-lg bg-danger-soft border border-danger/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-pulse">
+        <div className="p-3 sm:p-4 rounded-lg bg-danger-soft border border-danger/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-pulse">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-danger/20 text-danger shrink-0">
+            <div className="p-3 rounded-md bg-danger/20 text-danger shrink-0">
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
@@ -124,11 +124,11 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
       )}
 
       {/* TARJETA RESUMEN DE CONFIANZA */}
-      <div className="p-4 sm:p-6 rounded-lg bg-surface/60 border border-line">
+      <div className="p-3 sm:p-4 rounded-lg bg-surface/60 border border-line">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-line/80">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="p-2 rounded-xl bg-accent/10 border border-accent/20 text-accent">
+              <span className="p-2 rounded-md bg-accent/10 border border-accent/20 text-accent">
                 <Briefcase className="w-5 h-5" />
               </span>
               <div>
@@ -160,7 +160,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
         {/* SATISFACCIÓN POR ÁREAS */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-5">
           {/* Rendimiento Deportivo */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4 text-accent" />
@@ -182,7 +182,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
           </div>
 
           {/* Salud Financiera */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
                 <DollarSign className="w-4 h-4 text-primary" />
@@ -204,7 +204,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
           </div>
 
           {/* Plantel y Juveniles */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-purple-400" />
@@ -228,9 +228,9 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
       </div>
 
       {/* OBJETIVO DE LA TEMPORADA Y PETICIONES AL PRESIDENTE */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Objetivo de Temporada */}
-        <div className="p-4 sm:p-5 rounded-lg bg-surface/60 border border-line flex flex-col justify-between">
+        <div className="p-3 sm:p-4 rounded-lg bg-surface/60 border border-line flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="p-2 rounded-lg bg-surface-3 text-accent">
@@ -238,7 +238,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
               </span>
               <h3 className="text-sm font-bold text-fg">Objetivo oficial de la temporada</h3>
             </div>
-            <div className="p-3.5 rounded-xl bg-bg/80 border border-line/80 mb-3">
+            <div className="p-3.5 rounded-md bg-bg/80 border border-line/80 mb-3">
               <span className="text-xs font-mono font-bold text-accent uppercase tracking-wide">
                 Meta institucional
               </span>
@@ -258,7 +258,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
         </div>
 
         {/* Petición al Presidente: Inyección Extraordinaria de Fondos */}
-        <div className="p-4 sm:p-5 rounded-lg bg-surface/60 border border-line flex flex-col justify-between">
+        <div className="p-3 sm:p-4 rounded-lg bg-surface/60 border border-line flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="p-2 rounded-lg bg-surface-3 text-accent">
@@ -269,7 +269,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
             <p className="text-xs text-fg-muted mb-3">
               Si el club enfrenta dificultades de liquidez para sueldos u obras, puedes solicitar formalmente una inyección extraordinaria de capital al presidente.
             </p>
-            <div className="p-3 rounded-xl bg-bg/80 border border-line/80 text-xs space-y-1 mb-4">
+            <div className="p-3 rounded-md bg-bg/80 border border-line/80 text-xs space-y-1 mb-4">
               <p className="text-fg font-semibold">• Aporte solicitado: <span className="text-accent font-mono font-bold">$15,000</span></p>
               <p className="text-fg font-semibold">• Requisito mínimo: <span className="text-fg font-mono">Confianza {'>='} 55%</span></p>
               <p className="text-fg-muted">• Consecuencia: Mayor presión sobre el resultado del próximo fin de semana.</p>
@@ -279,7 +279,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
           <AsyncButton
             onClick={handleRequestFunding}
             disabled={actionLoading || score < 55}
-            className="w-full py-2.5 px-4 bg-primary hover:bg-primary-strong disabled:opacity-50 text-primary-fg font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
+            className="w-full py-2.5 px-4 bg-primary hover:bg-primary-strong disabled:opacity-50 text-primary-fg font-bold text-xs rounded-md flex items-center justify-center gap-2 transition-colors shadow-sm"
           >
             <Sparkles className="w-4 h-4" />
             <span>Petición extraordinaria de $15,000</span>
@@ -288,13 +288,13 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
       </div>
 
       {/* LIBRO DE REUNIONES DIRIGENCIALES Y DIÁLOGOS */}
-      <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
+      <div className="p-3 sm:p-4 rounded-lg bg-surface/40 border border-line">
         <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
           <MessageSquare className="w-4 h-4 text-accent" />
           Libro de actas y reuniones de comisión directiva
         </h3>
         {meetings.length === 0 ? (
-          <p className="text-xs text-fg-subtle py-6 text-center border border-dashed border-line rounded-xl">
+          <p className="text-xs text-fg-subtle py-4 text-center border border-dashed border-line rounded-md">
             Sin reuniones extraordinarias registradas hasta el momento.
           </p>
         ) : (
@@ -302,7 +302,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
             {meetings.map((m) => (
               <div 
                 key={m.id} 
-                className="p-3.5 rounded-xl bg-bg/70 border border-line/80 text-xs"
+                className="p-3.5 rounded-md bg-bg/70 border border-line/80 text-xs"
               >
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="font-bold text-accent">

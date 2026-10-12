@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-24-compactar',
+    date: '2026-10-24',
+    title: 'Club, Selección, Mercado y Finanzas más compactos',
+    items: [
+      'Menos espacio y bordes más chicos: se ve más en pantalla y cansa menos.',
+      'En la pizarra, el nivel del jugador ahora se ve entero sobre la ficha, sin quedar detrás del número.'
+    ]
+  },
+  {
     id: '2026-10-23-tema-auto',
     date: '2026-10-23',
     title: 'Claro u oscuro, como tu celular',

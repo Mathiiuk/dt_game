@@ -278,7 +278,7 @@ export default function MarketScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando mercado">
+      <div className="mx-auto max-w-6xl space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando mercado">
         <Skeleton className="h-12 w-64" />
         <Skeleton className="h-24" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -289,7 +289,7 @@ export default function MarketScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8 space-y-6">
+    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
       <PageHeader
         eyebrow="Transferencias"
         title="Mercado de pases"
@@ -309,7 +309,7 @@ export default function MarketScreen() {
 
       {/* 2. Derechos de recompra */}
       {rights.length > 0 && (
-        <Card as="section" aria-label="Derechos de recompra" className="mb-6 border border-line">
+        <Card as="section" aria-label="Derechos de recompra" className="mb-4 border border-line">
           <CardBody className="space-y-2 p-4">
             <h2 className="font-display text-base font-semibold text-fg">Derechos de recompra</h2>
             <p className="text-xs text-fg-muted">

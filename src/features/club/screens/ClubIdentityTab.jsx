@@ -24,12 +24,12 @@ export default function ClubIdentityTab({
   const topIdols = idols.slice(0, 3)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 1. ADN Institucional del Club */}
       <Card className="border border-line bg-surface/90 shadow-sm overflow-hidden">
         <div className="bg-gradient-to-r from-accent/15 via-accent/5 to-transparent px-4 py-3 sm:px-6 border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-accent/20 text-accent border border-accent/30">
+            <div className="p-2 rounded-md bg-accent/20 text-accent border border-accent/30">
               <Dna className="size-5" />
             </div>
             <div>
@@ -44,13 +44,13 @@ export default function ClubIdentityTab({
           </Badge>
         </div>
 
-        <CardBody className="p-4 sm:p-6 space-y-4">
+        <CardBody className="p-3 sm:p-4 space-y-4">
           <p className="text-sm text-fg-muted italic leading-relaxed">
             "{dna.subtitle}"
           </p>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Cantera</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">{dna.attributes.cantera}</span>
@@ -61,7 +61,7 @@ export default function ClubIdentityTab({
               </div>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Identidad local</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">{dna.attributes.identidadLocal}</span>
@@ -72,7 +72,7 @@ export default function ClubIdentityTab({
               </div>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Tradición</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">{dna.attributes.tradicion}</span>
@@ -83,7 +83,7 @@ export default function ClubIdentityTab({
               </div>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-3 border border-line">
+            <div className="rounded-md bg-surface-2 p-3 border border-line">
               <span className="eyebrow text-[10px]">Potrero y garra</span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="font-display text-lg font-bold text-fg">{dna.attributes.potrero}</span>
@@ -98,10 +98,10 @@ export default function ClubIdentityTab({
       </Card>
 
       {/* 2. Nuestra Casa (Estadio) y Vitrina de Copas */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Estadio como Identidad */}
         <Card className="border border-line bg-surface/90">
-          <CardBody className="p-4 sm:p-5 space-y-4">
+          <CardBody className="p-3 sm:p-4 space-y-4">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
                 <Home className="size-4 text-accent" />
@@ -112,7 +112,7 @@ export default function ClubIdentityTab({
               </Link>
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-4 border border-line space-y-2">
+            <div className="rounded-md bg-surface-2 p-4 border border-line space-y-2">
               <h4 className="font-display text-lg font-bold text-fg">
                 {club?.stadium_name || `Estadio de ${club?.name || 'la Ciudad'}`}
               </h4>
@@ -136,7 +136,7 @@ export default function ClubIdentityTab({
 
         {/* Vitrina de Copas */}
         <Card className="border border-line bg-surface/90">
-          <CardBody className="p-4 sm:p-5 space-y-4">
+          <CardBody className="p-3 sm:p-4 space-y-4">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
                 <Trophy className="size-4 text-gold" />
@@ -148,7 +148,7 @@ export default function ClubIdentityTab({
             </div>
 
             {history.filter(h => h.champions).length === 0 ? (
-              <div className="rounded-xl bg-surface-2/60 border border-line/60 p-4 text-center space-y-1">
+              <div className="rounded-md bg-surface-2/60 border border-line/60 p-4 text-center space-y-1">
                 <Trophy className="size-8 text-fg-subtle mx-auto opacity-50" />
                 <p className="text-sm font-semibold text-fg">Vitrina esperando su primera vuelta olímpica</p>
                 <p className="text-xs text-fg-muted">Las copas llegarán cuando tu proyecto culmine en lo más alto.</p>
@@ -172,7 +172,7 @@ export default function ClubIdentityTab({
 
       {/* 3. Ídolos de la Casa */}
       <Card className="border border-line bg-surface/90">
-        <CardBody className="p-4 sm:p-5 space-y-4">
+        <CardBody className="p-3 sm:p-4 space-y-4">
           <div className="flex items-center justify-between border-b border-line pb-3">
             <div className="flex items-center gap-2">
               <Award className="size-4 text-accent" />
@@ -182,7 +182,7 @@ export default function ClubIdentityTab({
           </div>
 
           {topIdols.length === 0 ? (
-            <div className="rounded-xl bg-surface-2/60 border border-line/60 p-4 text-center space-y-1">
+            <div className="rounded-md bg-surface-2/60 border border-line/60 p-4 text-center space-y-1">
               <Users className="size-7 text-fg-subtle mx-auto opacity-50" />
               <p className="text-sm font-semibold text-fg">Escribiendo las primeras leyendas</p>
               <p className="text-xs text-fg-muted">Los jugadores con más partidos, goles y títulos ascenderán a este mural.</p>
@@ -190,7 +190,7 @@ export default function ClubIdentityTab({
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {topIdols.map((idol, i) => (
-                <div key={idol.id || i} className="rounded-xl bg-surface-2 p-3 border border-line space-y-1.5">
+                <div key={idol.id || i} className="rounded-md bg-surface-2 p-3 border border-line space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-fg">{idol.player_name || idol.name}</span>
                     <Badge tone="accent">{idol.role_label || 'Ídolo'}</Badge>
@@ -209,10 +209,10 @@ export default function ClubIdentityTab({
       </Card>
 
       {/* 4. Cuerpo Técnico y Semillero de Cantera */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Cuerpo Técnico de la Casa */}
         <Card className="border border-line bg-surface/90">
-          <CardBody className="p-4 sm:p-5 space-y-4">
+          <CardBody className="p-3 sm:p-4 space-y-4">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <h3 className="font-display text-base font-bold text-fg">Cuerpo técnico</h3>
               <Button size="sm" variant="outline" onClick={onOpenStaffModal}>
@@ -249,7 +249,7 @@ export default function ClubIdentityTab({
 
         {/* Cantera y Juveniles */}
         <Card className="border border-line bg-surface/90">
-          <CardBody className="p-4 sm:p-5 space-y-4">
+          <CardBody className="p-3 sm:p-4 space-y-4">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <h3 className="font-display text-base font-bold text-fg">
                 Academia · Nv. {club?.academy_level || 1}

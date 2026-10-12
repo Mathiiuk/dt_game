@@ -109,12 +109,12 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 1. Banner de Mística & Bonificaciones Culturales */}
       <section className="p-4 md:p-6 border border-gold/30 rounded-lg bg-gold/5 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-gold/10 text-gold border border-gold/20 shrink-0">
+            <div className="p-3 rounded-md bg-gold/10 text-gold border border-gold/20 shrink-0">
               <Crown className="w-6 h-6" />
             </div>
             <div>
@@ -136,7 +136,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
 
         {/* Cuadrícula de Bonificaciones */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-gold/20">
-          <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
+          <div className="p-2.5 rounded-md bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
               <Users className="w-3.5 h-3.5 text-primary" />
               <span>Cohesión social</span>
@@ -144,7 +144,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
             <p className="text-base font-semibold text-accent">+{data.bonuses?.cohesionBonus || 0}%</p>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
+          <div className="p-2.5 rounded-md bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
               <Heart className="w-3.5 h-3.5 text-danger" />
               <span>Moral colectiva</span>
@@ -152,7 +152,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
             <p className="text-base font-semibold text-accent">+{data.bonuses?.moraleBonus || 0} pts</p>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
+          <div className="p-2.5 rounded-md bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
               <DollarSign className="w-3.5 h-3.5 text-gold" />
               <span>Merchandising</span>
@@ -160,7 +160,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
             <p className="text-base font-semibold text-accent">+{data.bonuses?.merchandiseBonusPercent || 0}%</p>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
+          <div className="p-2.5 rounded-md bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
               <ShieldCheck className="w-3.5 h-3.5 text-accent" />
               <span>Respaldo afición</span>
@@ -201,7 +201,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
       {activeSubTab === 'active' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.activeFigures.length === 0 ? (
-            <div className="col-span-full p-8 text-center border border-dashed border-line rounded-lg bg-surface/20">
+            <div className="col-span-full p-5 text-center border border-dashed border-line rounded-lg bg-surface/20">
               <Crown className="w-10 h-10 text-fg-subtle mx-auto mb-3" />
               <h4 className="font-bold text-fg text-sm md:text-base">El club forja su nuevo legado</h4>
               <p className="text-fg-subtle text-xs mt-1 max-w-md mx-auto">
@@ -217,7 +217,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-semibold text-sm border ${
+                      <div className={`w-11 h-11 rounded-md flex items-center justify-center font-semibold text-sm border ${
                         i.club_status === 'legend' 
                           ? 'bg-gold text-gold-fg border-gold shadow-md shadow-gold/20' 
                           : i.club_status === 'idol'
@@ -241,7 +241,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
                     </span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-bg/70 border border-line/80 mb-3">
+                  <div className="p-2.5 rounded-md bg-bg/70 border border-line/80 mb-3">
                     <p className="text-[11px] text-fg-muted italic">
                       "{i.legend_reason || 'Pilar fundamental en la historia y vestuario del club.'}"
                     </p>
@@ -265,7 +265,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
 
                   <button
                     onClick={() => handleRetireClick(i)}
-                    className="w-full py-2 px-3 rounded-xl border border-line bg-surface-3/80 hover:bg-gold/20 hover:border-gold/40 text-fg hover:text-gold text-xs font-bold transition-all flex items-center justify-center gap-2"
+                    className="w-full py-2 px-3 rounded-md border border-line bg-surface-3/80 hover:bg-gold/20 hover:border-gold/40 text-fg hover:text-gold text-xs font-bold transition-all flex items-center justify-center gap-2"
                   >
                     <Shirt className="w-3.5 h-3.5" />
                     <span>Retirar camiseta</span>
@@ -280,7 +280,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
       {/* SUBTAB 2: DORSALES RETIRADOS */}
       {activeSubTab === 'retired' && (
         <section className="p-4 md:p-6 border border-line rounded-lg bg-surface/40">
-          <div className="mb-6">
+          <div className="mb-4">
             <h3 className="font-bold text-base text-fg flex items-center gap-2">
               <Shirt className="w-5 h-5 text-danger" />
               <span>Salón de Honor: Camisetas Sagradas e Inmortales</span>
@@ -292,7 +292,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.retiredNumbers.length === 0 ? (
-              <div className="col-span-full p-8 text-center border border-dashed border-line rounded-lg">
+              <div className="col-span-full p-5 text-center border border-dashed border-line rounded-lg">
                 <Shirt className="w-10 h-10 text-fg-subtle mx-auto mb-2" />
                 <p className="text-sm font-semibold text-fg">Ningún dorsal ha sido retirado aún</p>
                 <p className="text-xs text-fg-subtle mt-1">
@@ -302,7 +302,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
             ) : (
               data.retiredNumbers.map((r) => (
                 <div key={r.id} className="p-4 border border-danger/30 rounded-lg bg-bg/80 flex items-center gap-4 relative overflow-hidden">
-                  <div className="w-14 h-16 rounded-xl bg-gradient-to-br from-danger/20 to-gold/10 border border-danger/40 flex flex-col items-center justify-center shrink-0">
+                  <div className="w-14 h-16 rounded-md bg-gradient-to-br from-danger/20 to-gold/10 border border-danger/40 flex flex-col items-center justify-center shrink-0">
                     <Shirt className="w-4 h-4 text-danger mb-0.5" />
                     <span className="text-xl font-semibold text-danger">#{r.shirt_number}</span>
                   </div>

@@ -19,7 +19,7 @@ export default function NationalCareerGauge({ manager, country }) {
         }}
       />
       
-      <CardBody className="p-4 sm:p-5 space-y-4">
+      <CardBody className="p-3 sm:p-4 space-y-4">
         {/* Encabezado del Termómetro */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -75,7 +75,7 @@ export default function NationalCareerGauge({ manager, country }) {
 
         {/* Desglose desplegable de reglas arcade de reputación */}
         {showRules && (
-          <div className="rounded-xl border border-line bg-surface-2 p-3 space-y-2 text-xs">
+          <div className="rounded-md border border-line bg-surface-2 p-3 space-y-2 text-xs">
             <p className="font-bold text-fg flex items-center gap-1.5">
               <Sparkles className="size-3.5 text-gold" />
               ¿Qué influye en tu consideración para la Selección?

@@ -22,7 +22,7 @@ export default function NationalMatchModal({ fixture, team, onClose, onSimulateF
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl border border-line bg-surface p-5 shadow-2xl space-y-4">
+      <div className="w-full max-w-md rounded-lg border border-line bg-surface p-4 shadow-2xl space-y-4">
         {/* Cabecera */}
         <div className="flex items-center justify-between border-b border-line pb-3">
           <div className="flex items-center gap-2">
@@ -41,7 +41,7 @@ export default function NationalMatchModal({ fixture, team, onClose, onSimulateF
         </div>
 
         {/* Rival y Torneo */}
-        <div className="rounded-xl border border-line bg-surface-2 p-4 text-center space-y-1">
+        <div className="rounded-md border border-line bg-surface-2 p-4 text-center space-y-1">
           <Badge tone="accent">{fixture.tournament_name || 'Fecha FIFA'}</Badge>
           <div className="flex items-center justify-center gap-4 text-lg font-bold text-fg pt-2">
             <span>{team?.name || 'Selección'}</span>
@@ -64,7 +64,7 @@ export default function NationalMatchModal({ fixture, team, onClose, onSimulateF
             type="button"
             disabled={loading}
             onClick={handleSimulate}
-            className="rounded-xl border border-line bg-surface-2 hover:bg-surface-3 p-3.5 text-left space-y-1 transition-all active:scale-[0.98] group"
+            className="rounded-md border border-line bg-surface-2 hover:bg-surface-3 p-3.5 text-left space-y-1 transition-all active:scale-[0.98] group"
           >
             <div className="flex items-center justify-between text-accent">
               <FastForward className="size-4" />
@@ -83,7 +83,7 @@ export default function NationalMatchModal({ fixture, team, onClose, onSimulateF
             type="button"
             disabled={loading}
             onClick={handleLive}
-            className="rounded-xl border border-accent/40 bg-accent/10 hover:bg-accent/20 p-3.5 text-left space-y-1 transition-all active:scale-[0.98] group"
+            className="rounded-md border border-accent/40 bg-accent/10 hover:bg-accent/20 p-3.5 text-left space-y-1 transition-all active:scale-[0.98] group"
           >
             <div className="flex items-center justify-between text-gold">
               <Play className="size-4" />

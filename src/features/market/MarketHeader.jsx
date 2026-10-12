@@ -15,20 +15,20 @@ export default function MarketHeader({
   const wageMargin = wageBudgetWeekly > 0 ? wageBudgetWeekly - currentPayroll : null
 
   return (
-    <Card className="mb-6 border border-line bg-surface/90 shadow-sm">
-      <CardBody className="p-4 sm:p-5">
+    <Card className="mb-4 border border-line bg-surface/90 shadow-sm">
+      <CardBody className="p-3 sm:p-4">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
           <Stat
             label="Caja disponible"
             value={formatMoney(budget)}
-            valueClassName="text-2xl font-display font-bold text-accent sm:text-3xl"
+            valueClassName="text-2xl font-display font-bold text-accent sm:text-2xl"
             hint="Para fichajes y primas"
           />
 
           <Stat
             label="Margen salarial"
             value={wageMargin !== null ? formatMoney(Math.max(0, wageMargin)) : 'Ilimitado'}
-            valueClassName="text-2xl font-display font-bold text-fg sm:text-3xl"
+            valueClassName="text-2xl font-display font-bold text-fg sm:text-2xl"
             hint={wageMargin !== null ? `${formatMoney(currentPayroll)} / sem en nómina` : 'Sin tope fijado'}
           />
 
@@ -36,7 +36,7 @@ export default function MarketHeader({
             label="Candidatos"
             value={candidatesCount}
             hint={`de ${totalCount} en vidriera`}
-            valueClassName="text-2xl font-display font-bold text-fg sm:text-3xl"
+            valueClassName="text-2xl font-display font-bold text-fg sm:text-2xl"
           />
 
           <div className="flex flex-col justify-center space-y-1">

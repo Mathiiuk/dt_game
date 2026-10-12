@@ -162,10 +162,10 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* ALERTA DE JUGADORES QUE EXIGEN HABLAR */}
       {demandingPlayers.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-lg bg-gold-soft border border-gold/40 space-y-3">
+        <div className="p-3 sm:p-4 rounded-lg bg-gold-soft border border-gold/40 space-y-3">
           <div className="flex items-center gap-2 text-gold">
             <AlertTriangle className="w-5 h-5 shrink-0" />
             <h3 className="font-bold text-sm sm:text-base">Reclamo en la oficina del DT</h3>
@@ -176,7 +176,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
             {demandingPlayers.map(p => (
-              <div key={p.id} className="p-3 rounded-xl bg-bg border border-line flex flex-col justify-between text-xs gap-2">
+              <div key={p.id} className="p-3 rounded-md bg-bg border border-line flex flex-col justify-between text-xs gap-2">
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="font-bold text-fg block">{p.name} ({p.position}, OVR {p.overall})</span>
@@ -217,11 +217,11 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       )}
 
       {/* TARJETA RESUMEN DEL VESTUARIO Y COHESIÓN */}
-      <div className="p-4 sm:p-6 rounded-lg bg-surface/60 border border-line">
+      <div className="p-3 sm:p-4 rounded-lg bg-surface/60 border border-line">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-line/80">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+              <span className="p-2 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-400">
                 <Users className="w-5 h-5" />
               </span>
               <div>
@@ -253,7 +253,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
         {/* EFECTO TÁCTICO & CAPITANÍA */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5">
           {/* Bonificación Táctica */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80 flex flex-col justify-between">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div>
               <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5 mb-1.5">
                 <TrendingUp className="w-4 h-4 text-accent" />
@@ -269,7 +269,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           </div>
 
           {/* Capitanes Designados */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80 flex flex-col justify-between">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
                 <Crown className="w-4 h-4 text-gold" />
@@ -295,7 +295,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       </div>
 
       {/* CHARLAS Y REUNIONES DE EQUIPO */}
-      <div className="p-4 sm:p-5 rounded-lg bg-surface/60 border border-line space-y-3">
+      <div className="p-3 sm:p-4 rounded-lg bg-surface/60 border border-line space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h3 className="text-sm sm:text-base font-bold text-fg flex items-center gap-2">
@@ -313,7 +313,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('PRAISE')}
-            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-primary/60 hover:bg-accent-soft transition-all text-xs group"
+            className="p-3 text-left rounded-md border border-line bg-bg/70 hover:border-primary/60 hover:bg-accent-soft transition-all text-xs group"
           >
             <span className="font-bold text-accent block mb-1">Elogiar sacrificio</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
@@ -324,7 +324,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('CALM')}
-            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-primary/40 hover:bg-primary-soft transition-all text-xs group"
+            className="p-3 text-left rounded-md border border-line bg-bg/70 hover:border-primary/40 hover:bg-primary-soft transition-all text-xs group"
           >
             <span className="font-bold text-primary block mb-1">Llamado a la calma</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
@@ -335,7 +335,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('DEMAND_EXCELLENCE')}
-            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-gold/60 hover:bg-gold-soft transition-all text-xs group"
+            className="p-3 text-left rounded-md border border-line bg-bg/70 hover:border-gold/60 hover:bg-gold-soft transition-all text-xs group"
           >
             <span className="font-bold text-gold block mb-1">Exigir excelencia</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
@@ -358,7 +358,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
             if (members.length === 0) return null
 
             return (
-              <div key={key} className="p-4 rounded-xl bg-surface/50 border border-line/80 space-y-3">
+              <div key={key} className="p-4 rounded-md bg-surface/50 border border-line/80 space-y-3">
                 <div className="flex items-center justify-between border-b border-line/60 pb-2">
                   <div>
                     <h4 className="font-bold text-sm text-fg">{def.label}</h4>
@@ -403,14 +403,14 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
 
       {/* HISTORIAL DE EVENTOS SOCIALES */}
       {events.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
+        <div className="p-3 sm:p-4 rounded-lg bg-surface/40 border border-line">
           <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
             <History className="w-4 h-4 text-accent" />
             Libro de actas y acontecimientos de vestuario
           </h3>
           <div className="space-y-2">
             {events.map((ev) => (
-              <div key={ev.id} className="p-3 rounded-xl bg-bg/70 border border-line/80 text-xs space-y-1">
+              <div key={ev.id} className="p-3 rounded-md bg-bg/70 border border-line/80 text-xs space-y-1">
                 <div className="flex items-center justify-between text-[11px] text-fg-subtle">
                   <span className="font-bold text-fg">{LOCKER_EVENT_LABELS[ev.event_type] || 'Acontecimiento'}</span>
                   <span>{new Date(ev.timestamp).toLocaleDateString()}</span>

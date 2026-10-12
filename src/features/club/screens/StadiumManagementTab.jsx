@@ -105,13 +105,13 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* TARJETA RESUMEN DEL ESTADIO */}
-      <div className="p-4 sm:p-6 rounded-lg bg-surface/60 border border-line">
+      <div className="p-3 sm:p-4 rounded-lg bg-surface/60 border border-line">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-line/80">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-accent/10 border border-accent/20 text-accent">
+              <span className="p-2 rounded-md bg-accent/10 border border-accent/20 text-accent">
                 <Building2 className="w-5 h-5" />
               </span>
               <div>
@@ -121,7 +121,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <div>
               <p className="text-[11px] text-fg-muted font-medium">Aforo habilitado</p>
               <p className="text-xl sm:text-2xl font-semibold text-fg font-mono">
@@ -140,7 +140,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
         {/* MÉTRICAS DE TERRENO Y COMODIDADES */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5">
           {/* Calidad del Césped */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80 flex flex-col justify-between">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
@@ -173,7 +173,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
           </div>
 
           {/* Iluminación Artificial */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80 flex flex-col justify-between">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div>
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5 mb-2">
                 <Zap className="w-4 h-4 text-gold" />
@@ -191,7 +191,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
           </div>
 
           {/* Palcos VIP */}
-          <div className="p-4 rounded-xl bg-bg/80 border border-line/80 flex flex-col justify-between">
+          <div className="p-4 rounded-md bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div>
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5 mb-2">
                 <Award className="w-4 h-4 text-purple-400" />
@@ -212,9 +212,9 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
 
       {/* PROYECTO ACTIVO EN CONSTRUCCIÓN */}
       {activeProject && (
-        <div className="p-4 sm:p-5 rounded-lg bg-gold-soft border border-gold/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="p-3 sm:p-4 rounded-lg bg-gold-soft border border-gold/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-gold/20 text-gold shrink-0">
+            <div className="p-3 rounded-md bg-gold/20 text-gold shrink-0">
               <Hammer className="w-6 h-6 animate-bounce" />
             </div>
             <div>
@@ -266,7 +266,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
             return (
               <div 
                 key={proj.key}
-                className={`p-4 rounded-xl border flex flex-col justify-between transition-all ${
+                className={`p-4 rounded-md border flex flex-col justify-between transition-all ${
                   isAlreadyMaxed 
                     ? 'bg-surface/30 border-line/40 opacity-60' 
                     : 'bg-surface/60 border-line hover:border-line'
@@ -344,7 +344,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
 
       {/* HISTORIAL DE AUDITORÍA EDILICIA */}
       {history.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-lg bg-surface/40 border border-line">
+        <div className="p-3 sm:p-4 rounded-lg bg-surface/40 border border-line">
           <h3 className="text-sm font-bold text-fg flex items-center gap-2 mb-3">
             <History className="w-4 h-4 text-accent" />
             Libro de obras y mantenimiento edilicio

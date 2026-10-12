@@ -139,11 +139,9 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
         >
           {player ? (player.shirt_number ?? '·') : '+'}
           {status && <StatusBadge status={status} />}
+          {player && <span className="num absolute -bottom-2 -right-3 z-10 min-w-5 rounded-sm border border-surface bg-fg px-1 text-center text-[0.6875rem] font-bold leading-4 text-bg shadow-raised" aria-hidden="true">{rating}</span>}
           {captain && <span className="absolute -left-1 -top-1 grid size-4 place-items-center rounded-full bg-gold text-[0.5625rem] font-bold leading-none text-bg" aria-hidden="true">C</span>}
         </span>
-        {player && (
-          <span className="num -mt-3 ml-6 rounded-sm bg-surface px-1 text-[0.625rem] font-semibold leading-4 text-fg shadow-raised sm:ml-8" aria-hidden="true">{rating}</span>
-        )}
         <span className={cn(
           'max-w-full truncate rounded-sm px-1.5 text-[0.6875rem] font-semibold leading-4',
           player ? 'bg-surface/90 text-fg' : 'text-pitch-line'
