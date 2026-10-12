@@ -1,6 +1,6 @@
 import React from 'react'
 import { Eye, Handshake, Lock } from 'lucide-react'
-import { Card, CardBody, Button, NamedIcon } from '../../components/ui'
+import { Card, CardBody, Button, NamedIcon, PlayerPortrait } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import {
   getPositionColorTheme,
@@ -59,6 +59,7 @@ export default function MarketPlayerCard({
       <CardBody className="space-y-2 p-3">
         {/* Identidad y nivel */}
         <div className="flex items-center gap-3">
+          <PlayerPortrait player={player} primary={player.clubs?.primary_color} secondary={player.clubs?.secondary_color} className="size-10 shrink-0" />
           <div className="min-w-0 flex-1">
             <h3 className="truncate text-sm font-semibold leading-snug text-fg">{player.first_name} {player.last_name}</h3>
             <p className="truncate text-xs text-fg-muted">{player.clubs?.name || 'Agente libre'} · {player.age} años</p>

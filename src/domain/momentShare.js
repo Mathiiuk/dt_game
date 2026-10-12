@@ -17,13 +17,14 @@ const BUILDERS = {
   season: ({ season, position, storyHeadline }) => ({ headline: `TEMPORADA ${season ?? ''}`.trim(), big: withPosition(position), sub: storyHeadline || 'Balance del año', tone: 'draw', lead: 'Mi temporada en Vestuario.' })
 }
 
-export function momentCard({ kind, club, ...data }) {
+export function momentCard({ kind, club, kit, ...data }) {
   const k = BUILDERS[kind] ? kind : 'season'
   const card = BUILDERS[k](data)
   return {
     kind: k,
     ...card,
     club: club || 'Mi club',
+    kit: kit || null,
     text: `${card.lead} ${club || 'Mi club'}: ${card.big} (${card.sub}). ¿Te animás a dirigir? Probalo gratis: ${momentUrl(k)}`
   }
 }

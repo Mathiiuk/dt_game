@@ -48,6 +48,7 @@ describe('negociación del fichaje', () => {
     await userEvent.click(within(dlg).getByRole('button', { name: /Aceptar/ }))
     expect(onSubmit).toHaveBeenLastCalledWith(4800, 1)
     expect(await within(dlg).findByText('¡Acuerdo cerrado!')).toBeInTheDocument()
+    expect(within(dlg).getByText('Fichado')).toBeInTheDocument()
   })
 
   it('se puede mejorar la oferta una vez más; la contraoferta de la segunda ronda es final y ya no se negocia', async () => {

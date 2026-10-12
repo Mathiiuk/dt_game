@@ -5,11 +5,14 @@ import { Button } from './ui'
 import { momentCard } from '../domain/momentShare'
 import { shareMoment } from '../lib/shareMatch'
 import { track } from '../lib/analytics'
+import { kitOf } from '../lib/shareJersey'
+import { useGameContext } from '../context/GameContext'
 
 /** Botón para compartir un momento del club (campeonato, ascenso, fichaje, temporada) como tarjeta con imagen */
 export default function ShareMomentButton({ moment, label = 'Compartir', variant = 'outline', className }) {
+  const club = useGameContext()?.club
   const share = async () => {
-    const card = momentCard(moment)
+    const card = momentCard({ kit: club ? kitOf(club) : undefined, ...moment })
     const how = await shareMoment(card)
     track('share_moment', { placement: card.kind })
     if (how === 'copied') toast.success('Copiado: pegalo donde quieras.')

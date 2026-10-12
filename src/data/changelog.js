@@ -7,7 +7,8 @@ export const CHANGELOG = [
     title: 'Diseñá la camiseta de tu club',
     items: [
       'Elegí entre seis diseños: franja, bastones, rayas, banda, mitades o lisa.',
-      'Podés cambiarlo cuando quieras en Club, con los colores de tu escudo.'
+      'Podés cambiarlo cuando quieras en Club, con los colores de tu escudo.',
+      'Tus jugadores tienen cara, y la camiseta aparece en las tarjetas que compartís.'
     ]
   },
   {

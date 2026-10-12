@@ -30,6 +30,7 @@ import { Pager } from '../../components/ui/pager'
 import { friendlyError } from '../../lib/errors'
 import PressRoom from './PressRoom'
 import { shareMatchResult } from '../../lib/shareMatch'
+import { kitOf } from '../../lib/shareJersey'
 import { track } from '../../lib/analytics'
 
 export default function PostMatchScreen() {
@@ -53,7 +54,7 @@ export default function PostMatchScreen() {
   const [isPressDelegated, setIsPressDelegated] = useState(false)
   const [skipResult, setSkipResult] = useState(null)
   const [bingo, setBingo] = useState(null)
-  const { confirmAction, refreshContext } = useGameContext()
+  const { confirmAction, refreshContext, club: ownClub } = useGameContext()
 
   useEffect(() => {
     if (!results) {
@@ -264,7 +265,7 @@ export default function PostMatchScreen() {
   const shareResult = async () => {
     const mine = isHome ? results.homeScore : results.awayScore
     const theirs = isHome ? results.awayScore : results.homeScore
-    const how = await shareMatchResult({ club: clubName, rival: oppName, mine, theirs })
+    const how = await shareMatchResult({ club: clubName, rival: oppName, mine, theirs, kit: ownClub ? kitOf(ownClub) : undefined })
     track('share_match', { how })
     if (how === 'copied') toast.success('Resultado copiado: pegalo donde quieras.')
   }

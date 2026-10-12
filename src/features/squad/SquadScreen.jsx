@@ -21,7 +21,7 @@ import {
   isListedForSale, playerLevel, playerSalary, playerMorale, positionGroup
 } from '../../domain/squad'
 import {
-  Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, Input, PageHeader, Progress, QuickActions, QUICK_ACTION,
+  Badge, Button, Card, CardBody, CardHeader, CardTitle, ChoiceChips, EmptyState, Input, PageHeader, PlayerPortrait, Progress, QuickActions, QUICK_ACTION,
   ResponsiveOverlay, Select, Skeleton, Stat, Tabs, TabsList, TabsTrigger, Tooltip
 } from '../../components/ui'
 import { absoluteWeek, seasonYearOf } from '../../domain/gameWeek'
@@ -505,6 +505,7 @@ export default function SquadScreen() {
                       <CardBody className="space-y-2.5 p-3.5">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 items-center gap-3">
+                            <PlayerPortrait player={p} primary={club?.primary_color} secondary={club?.secondary_color} className="size-11 shrink-0" />
                             <span className="num w-9 shrink-0 text-center font-display text-3xl font-bold leading-none text-primary">{p.shirt_number ?? '·'}</span>
                             <div className="min-w-0">
                               <h3 className="truncate font-sans text-base font-semibold tracking-normal text-fg">{p.first_name} {p.last_name}</h3>

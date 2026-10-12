@@ -1,11 +1,12 @@
 import { shareText, shareUrl, outcomeOf } from '../domain/matchShare'
 import { momentUrl } from '../domain/momentShare'
+import { drawJersey } from './shareJersey'
 
 const COLORS = { win: '#5be39b', draw: '#e8c86a', loss: '#ff7a6b' }
 const HEADLINE = { win: '¡GANAMOS!', draw: 'EMPATE PELEADO', loss: 'DERROTA DOLOROSA' }
 
 /** Dibuja la tarjeta del resultado (1080 x 1350) en un canvas: marca, resultado, marcador y enlace */
-export function drawShareCard(ctx, { club, rival, mine, theirs }) {
+export function drawShareCard(ctx, { club, rival, mine, theirs, kit }) {
   const result = outcomeOf(mine, theirs)
   ctx.fillStyle = '#0b1410'
   ctx.fillRect(0, 0, 1080, 1350)
@@ -13,6 +14,7 @@ export function drawShareCard(ctx, { club, rival, mine, theirs }) {
   ctx.fillStyle = '#5be39b'
   ctx.font = '700 56px sans-serif'
   ctx.fillText('VESTUARIO', 540, 140)
+  if (kit) drawJersey(ctx, { x: 465, y: 190, size: 150, ...kit })
   ctx.fillStyle = COLORS[result]
   ctx.font = '700 120px sans-serif'
   ctx.fillText(HEADLINE[result], 540, 460)
@@ -76,6 +78,7 @@ export function drawMomentCard(ctx, moment) {
   ctx.fillStyle = '#5be39b'
   ctx.font = '700 56px sans-serif'
   ctx.fillText('VESTUARIO', 540, 140)
+  if (moment.kit) drawJersey(ctx, { x: 465, y: 190, size: 150, ...moment.kit })
   ctx.fillStyle = MOMENT_COLORS[moment.tone] || '#5be39b'
   ctx.font = '700 120px sans-serif'
   ctx.fillText(moment.headline, 540, 460)

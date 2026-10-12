@@ -178,7 +178,10 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
 
         {story && (
           <section aria-labelledby="season-story" className="rounded-lg border border-line bg-surface-2 p-4">
-            <h3 id="season-story" className="font-display text-lg font-semibold text-fg">{story.headline}</h3>
+            <h3 id="season-story" className="flex items-center gap-2 font-display text-lg font-semibold text-fg">
+              {closedSummary?.championClubId === club.id && <Trophy className="size-6 shrink-0 animate-pop-in text-gold" aria-label="Campeones" />}
+              {story.headline}
+            </h3>
             <ul className="mt-2 space-y-1.5 text-sm text-fg-muted">
               {story.lines.map(line => <li key={line}>{line}</li>)}
             </ul>

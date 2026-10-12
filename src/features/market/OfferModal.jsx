@@ -65,8 +65,9 @@ export default function OfferModal({
   if (reply?.status === 'ACCEPTED') {
     body = (
       <div className="space-y-4 text-center py-2" aria-live="polite">
-        <div className="mx-auto flex size-14 items-center justify-center rounded-lg bg-accent/15 text-accent border border-accent/30 shadow-sm">
+        <div className="relative mx-auto flex size-14 items-center justify-center rounded-lg bg-accent/15 text-accent border border-accent/30 shadow-sm animate-pop-in">
           <Handshake className="size-8" aria-hidden="true" />
+          <span className="absolute -right-12 -top-1 -rotate-6 animate-stamp-in rounded-sm border-2 border-danger px-1.5 font-display text-sm font-bold uppercase tracking-[0.14em] text-danger">Fichado</span>
         </div>
         <div className="space-y-1">
           <p className="font-display text-xl font-black text-fg">¡Acuerdo cerrado!</p>
