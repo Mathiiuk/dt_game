@@ -23,6 +23,8 @@ const setReducedMotion = (matches) => {
 
 beforeEach(() => { visitor = 'visitor'; window.dataLayer = []; window.scrollTo = () => {}; setReducedMotion(false) })
 
+const BADGE_HREF = 'https://argentino.dev/proyecto/vestuario?utm_source=argentino.dev&utm_medium=badge&utm_campaign=insignia'
+
 describe('portada pública', () => {
   it('"Vos sos el DT." es el único H1 y el contexto de fútbol está a la vista', () => {
     renderHome()
@@ -86,7 +88,9 @@ describe('portada pública', () => {
   it('el pie enlaza a las páginas esenciales con anclas descriptivas, sin enlaces rotos', () => {
     renderHome()
     const footer = within(screen.getByRole('contentinfo'))
-    const links = footer.getAllByRole('link')
+    // Único enlace externo del pie: la insignia "Hecho en Argentina" (argentino.dev); el resto, páginas propias
+    const links = footer.getAllByRole('link').filter(a => a.getAttribute('href') !== BADGE_HREF)
+    expect(footer.getAllByRole('link').filter(a => a.getAttribute('href') === BADGE_HREF)).toHaveLength(1)
     expect(links.map(a => a.getAttribute('href')).sort()).toEqual(FOOTER_GROUPS.flatMap(g => g.links.map(l => l.path)).sort())
     for (const a of links) expect(PUBLIC_PAGES.map(p => p.path)).toContain(a.getAttribute('href'))
     for (const a of links) expect(a.textContent).not.toMatch(/click|clic|acá|aquí/i)
@@ -203,7 +207,7 @@ describe('páginas públicas secundarias', () => {
     expect(page.description.length).toBeGreaterThan(50)
     expect(page.description.length).toBeLessThanOrEqual(165)
     const known = ['/', '/login', '/registro', ...PUBLIC_PAGES.map(p => p.path)]
-    for (const a of screen.getAllByRole('link')) expect(known).toContain(a.getAttribute('href'))
+    for (const a of screen.getAllByRole('link')) expect([...known, BADGE_HREF]).toContain(a.getAttribute('href'))
   })
 
   it('los títulos y descripciones no se repiten entre páginas', () => {

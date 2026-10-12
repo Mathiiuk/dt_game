@@ -47,4 +47,20 @@ describe('cancha en vivo', () => {
     expect(screen.getByTestId('bench-away')).toHaveAttribute('data-cheer', 'true')
     expect(screen.getByTestId('bench-home')).toHaveAttribute('data-cheer', 'false')
   })
+
+  it('el banco del equipo que recibió el gol se lamenta, y el que lo hizo no', () => {
+    render(<LivePitch {...base} events={[ev(44, 'GOAL', 'away')]} minute={44} />)
+    expect(screen.getByTestId('bench-home')).toHaveAttribute('data-lament', 'true')
+    expect(screen.getByTestId('bench-away')).toHaveAttribute('data-lament', 'false')
+  })
+
+  it('sin gol reciente nadie festeja ni se lamenta, y al pasar el momento del gol se calman los dos', () => {
+    const { rerender } = render(<LivePitch {...base} events={[ev(44, 'GOAL', 'home')]} minute={44} />)
+    expect(screen.getByTestId('bench-away')).toHaveAttribute('data-lament', 'true')
+    rerender(<LivePitch {...base} events={[ev(44, 'GOAL', 'home')]} minute={50} />)
+    for (const side of ['home', 'away']) {
+      expect(screen.getByTestId(`bench-${side}`)).toHaveAttribute('data-cheer', 'false')
+      expect(screen.getByTestId(`bench-${side}`)).toHaveAttribute('data-lament', 'false')
+    }
+  })
 })
