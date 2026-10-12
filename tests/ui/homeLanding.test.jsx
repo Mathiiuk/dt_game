@@ -229,6 +229,8 @@ describe('privacidad: medición y cookies', () => {
     const page = PUBLIC_PAGES.find(p => p.path === '/privacidad')
     const text = JSON.stringify(page.sections)
     expect(text).toMatch(/Google Tag Manager/)
+    expect(text).toMatch(/Microsoft Clarity/)
+    expect(text).toMatch(/Clarity no se carga/)
     expect(text).toMatch(/Solo necesarias/)
     expect(text).toMatch(/no incluyen tu nombre ni tu correo/i)
   })
