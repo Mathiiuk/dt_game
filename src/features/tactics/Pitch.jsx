@@ -11,11 +11,11 @@ import { cardStatus, suspensionNote } from '../../domain/suspensions'
 const RING = {
   NATURAL: 'border-accent text-accent',
   COMPATIBLE: 'border-warning text-warning',
-  ADAPTED: 'border-[oklch(75%_0.16_55)] text-[oklch(75%_0.16_55)]',
+  ADAPTED: 'border-ring-adapted text-ring-adapted',
   OUT_OF_POSITION: 'border-danger text-danger'
 }
 
-const LINK_COLOR = { GOOD: 'oklch(72% 0.17 150)', OK: 'oklch(82% 0.15 90)', BAD: 'oklch(62% 0.2 25)' }
+const LINK_COLOR = { GOOD: 'var(--color-link-good)', OK: 'var(--color-link-ok)', BAD: 'var(--color-link-bad)' }
 
 /** Enlaces de química entre fichas vecinas: líneas verdes (buena), amarillas (regular) y rojas (mala) */
 function ChemistryLinks({ links, positions }) {
@@ -45,19 +45,19 @@ const DRAG_THRESHOLD = 6
 const KEY_STEP = 2
 const ARROWS = { ArrowLeft: [-KEY_STEP, 0], ArrowRight: [KEY_STEP, 0], ArrowUp: [0, -KEY_STEP], ArrowDown: [0, KEY_STEP] }
 
-/** Trazado de la cancha (líneas de tiza sobre césped oscuro). Proporción vertical 68:100 */
+/** Trazado de la cancha (líneas de tiza sobre césped apagado; los colores salen de los tokens de cada tema). Proporción vertical 68:100 */
 function PitchLines() {
-  const line = 'oklch(95% 0.012 100 / 0.22)'
+  const line = 'var(--color-pitch-line)'
   return (
     <svg viewBox="0 0 68 100" className="absolute inset-0 size-full" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <pattern id="mow" width="68" height="12.5" patternUnits="userSpaceOnUse">
-          <rect width="68" height="6.25" fill="oklch(24% 0.03 155)" />
-          <rect y="6.25" width="68" height="6.25" fill="oklch(22% 0.028 155)" />
+          <rect width="68" height="6.25" fill="var(--color-pitch)" />
+          <rect y="6.25" width="68" height="6.25" fill="var(--color-pitch-2)" />
         </pattern>
       </defs>
       <rect width="68" height="100" fill="url(#mow)" />
-      <g fill="none" stroke={line} strokeWidth="0.45">
+      <g fill="none" stroke={line} strokeWidth="0.45" strokeOpacity="0.7">
         <rect x="2" y="2" width="64" height="96" rx="0.5" />
         <line x1="2" y1="50" x2="66" y2="50" />
         <circle cx="34" cy="50" r="8" />
@@ -73,16 +73,16 @@ function PitchLines() {
   )
 }
 
-const CARD = 'absolute -right-1.5 -top-2 border-2 border-bg'
+const CARD = 'absolute -right-1.5 -top-2 border-2 border-surface'
 
 /** Insignia en la esquina de la ficha: cruz roja (lesión), tarjeta roja (expulsado), amarilla (suspendido por 5 amarillas) o aviso de apercibido */
 function StatusBadge({ status }) {
   if (status === 'injured') {
-    return <span data-card-status="injured" className={cn(CARD, 'grid size-5 place-items-center rounded-full bg-danger text-xs font-bold leading-none text-white')} aria-hidden="true">+</span>
+    return <span data-card-status="injured" className={cn(CARD, 'grid size-5 place-items-center rounded-full bg-danger text-xs font-bold leading-none text-danger-fg')} aria-hidden="true">+</span>
   }
   if (status === 'red') return <span data-card-status="red" className={cn(CARD, 'h-5 w-3.5 rounded-[3px] bg-danger')} aria-hidden="true" />
-  if (status === 'yellow-ban') return <span data-card-status="yellow-ban" className={cn(CARD, 'h-5 w-3.5 rounded-[3px] bg-warning')} aria-hidden="true" />
-  return <span data-card-status="warning" className={cn(CARD, 'h-4 w-3 rounded-[2px] border-dashed border-warning bg-warning/40')} aria-hidden="true" />
+  if (status === 'yellow-ban') return <span data-card-status="yellow-ban" className={cn(CARD, 'h-5 w-3.5 rounded-[3px] bg-card-yellow')} aria-hidden="true" />
+  return <span data-card-status="warning" className={cn(CARD, 'h-4 w-3 rounded-[2px] border-dashed border-card-yellow bg-card-yellow/40')} aria-hidden="true" />
 }
 
 /**
@@ -130,7 +130,7 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
       >
         <span
           className={cn(
-            'relative grid size-9 place-items-center rounded-full border-2 bg-bg font-display text-base font-semibold shadow-raised transition-transform sm:size-11 sm:text-lg',
+            'relative grid size-9 place-items-center rounded-full border-2 bg-surface font-display text-base font-semibold shadow-raised transition-transform sm:size-11 sm:text-lg',
             player ? RING[affinity.code] : 'border-dashed border-fg-subtle text-fg-subtle',
             selected && 'scale-110 ring-2 ring-fg ring-offset-2 ring-offset-transparent',
             dragging && 'scale-110 shadow-overlay',
@@ -142,17 +142,17 @@ function Token({ slot, player, x, y, selected, onSelect, draggable, dragging, on
           {captain && <span className="absolute -left-1 -top-1 grid size-4 place-items-center rounded-full bg-gold text-[0.5625rem] font-bold leading-none text-bg" aria-hidden="true">C</span>}
         </span>
         {player && (
-          <span className="num -mt-3 ml-6 rounded-sm bg-bg px-1 text-[0.625rem] font-semibold leading-4 text-fg shadow-raised sm:ml-8" aria-hidden="true">{rating}</span>
+          <span className="num -mt-3 ml-6 rounded-sm bg-surface px-1 text-[0.625rem] font-semibold leading-4 text-fg shadow-raised sm:ml-8" aria-hidden="true">{rating}</span>
         )}
         <span className={cn(
           'max-w-full truncate rounded-sm px-1.5 text-[0.6875rem] font-semibold leading-4',
-          player ? 'bg-bg/80 text-fg' : 'text-fg-subtle'
+          player ? 'bg-surface/90 text-fg' : 'text-pitch-line'
         )}>
           {player ? lastName : base}
         </span>
         {/* Bajas con texto solo en pantallas anchas: en el celular la insignia de la ficha alcanza y la pastilla tapaba a los vecinos */}
-        {status === 'injured' && <span className="-mt-0.5 hidden rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-white sm:inline-block" aria-hidden="true"><Bandage className="mr-0.5 inline size-2.5 align-[-1px]" />Lesionado</span>}
-        {(status === 'red' || status === 'yellow-ban') && <span className={cn('-mt-0.5 hidden rounded-sm px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide sm:inline-block', status === 'red' ? 'bg-danger text-white' : 'bg-warning text-bg')} aria-hidden="true">Suspendido</span>}
+        {status === 'injured' && <span className="-mt-0.5 hidden rounded-sm bg-danger px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide text-danger-fg sm:inline-block" aria-hidden="true"><Bandage className="mr-0.5 inline size-2.5 align-[-1px]" />Lesionado</span>}
+        {(status === 'red' || status === 'yellow-ban') && <span className={cn('-mt-0.5 hidden rounded-sm px-1 text-[0.5625rem] font-bold uppercase leading-4 tracking-wide sm:inline-block', status === 'red' ? 'bg-danger text-danger-fg' : 'bg-card-yellow text-fg')} aria-hidden="true">Suspendido</span>}
       </button>
     </motion.div>
   )

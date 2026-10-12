@@ -34,11 +34,11 @@ function FixtureItem({ week, clubId, as: Tag = 'li', refProp, extraBadges = null
       className={cn(
         'flex min-w-0 items-center gap-3 rounded-lg border',
         compact ? 'p-2.5' : 'p-3',
-        tone === 'current' ? 'border-accent bg-accent-soft' : 'border-line bg-surface',
+        tone === 'current' ? 'border-primary bg-primary-soft' : 'border-line bg-surface',
         week.isPast && !week.isCurrent && 'opacity-75'
       )}
     >
-      <div className={cn('grid size-11 shrink-0 place-items-center rounded-md text-center leading-none', tone === 'current' ? 'bg-accent text-accent-fg' : 'bg-surface-3 text-fg-muted')}>
+      <div className={cn('grid size-11 shrink-0 place-items-center rounded-md text-center leading-none', tone === 'current' ? 'bg-primary text-primary-fg' : 'bg-surface-3 text-fg-muted')}>
         <span>
           <span className="block text-[10px] font-semibold uppercase">Sem</span>
           <span className="num font-display text-lg font-semibold">{week.weekNumber}</span>
@@ -62,7 +62,7 @@ function FixtureItem({ week, clubId, as: Tag = 'li', refProp, extraBadges = null
         )}
         {(week.isCurrent || week.transferWindowOpen || extraBadges) && (
           <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {week.isCurrent && <Badge tone="accent">En curso</Badge>}
+            {week.isCurrent && <Badge tone="primary">En curso</Badge>}
             {week.transferWindowOpen && <Badge><ArrowRightLeft className="size-3" aria-hidden="true" />Mercado</Badge>}
             {extraBadges}
           </div>
@@ -79,7 +79,7 @@ function FixtureItem({ week, clubId, as: Tag = 'li', refProp, extraBadges = null
           ) : v.played ? (
             <span className="text-xs text-fg-subtle">Jugado</span>
           ) : (
-            <Badge tone="accent">Por jugar</Badge>
+            <Badge tone="primary">Por jugar</Badge>
           )}
         </div>
       )}
@@ -194,9 +194,9 @@ export default function CalendarScreen() {
         }
       />
 
-      <Card className="mb-6">
+      <Card masthead className="mb-6">
         <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-          <Stat label="Semana" value={`${state.current_week} / 52`} valueClassName="text-accent" />
+          <Stat label="Semana" value={`${state.current_week} / 52`} valueClassName="text-primary" />
           <Stat label="Fase" value={phaseLabel} valueClassName="text-xl sm:text-2xl" />
           <Stat label="Fecha" value={state.current_date ? formatGameDate(state.current_date) : '—'} valueClassName="text-xl sm:text-2xl" />
           <Stat label="Mercado" value={state.transfer_window_open ? 'Abierto' : 'Cerrado'} hint={state.transfer_window_open ? 'Fichajes y cesiones' : 'Sin fichajes'} valueClassName="text-xl sm:text-2xl" />
@@ -234,7 +234,7 @@ export default function CalendarScreen() {
           {/* Próximos 5 partidos */}
           <section aria-labelledby="upcoming-matches">
             <h2 id="upcoming-matches" className="eyebrow mb-3 px-1 flex items-center gap-2">
-              <Clock className="size-4 text-accent" />
+              <Clock className="size-4 text-primary" />
               Próximos 5 partidos
             </h2>
             {upcomingMatches.length === 0 ? (

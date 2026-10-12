@@ -69,7 +69,7 @@ function InstructionPicker({ label, group, value, onChange, options }) {
             onClick={() => onChange(o.id)}
             className={cn(
               'flex min-h-12 w-full flex-col items-start gap-0.5 rounded-xl border px-3.5 py-2.5 text-left transition-colors active:scale-[0.99]',
-              active ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent/60 hover:bg-surface-2'
+              active ? 'border-primary bg-primary-soft' : 'border-line-strong bg-surface hover:border-primary/60 hover:bg-surface-2'
             )}
           >
             <span className="text-sm font-semibold text-fg">{o.label}</span>
@@ -324,7 +324,7 @@ export default function TacticsScreen() {
               onClick={() => handleAssign(p.id)}
               className={cn(
                 'flex min-h-14 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors',
-                current ? 'border-accent bg-accent-soft' : 'border-line bg-surface hover:bg-surface-2',
+                current ? 'border-primary bg-primary-soft' : 'border-line bg-surface hover:bg-surface-2',
                 'disabled:cursor-not-allowed disabled:opacity-50'
               )}
             >
@@ -387,13 +387,13 @@ export default function TacticsScreen() {
       <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de color">
         <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-accent" />Natural</li>
         <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-warning" />Compatible</li>
-        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-[oklch(75%_0.16_55)]" />Adaptado</li>
+        <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-ring-adapted" />Adaptado</li>
         <li className="flex items-center gap-1.5"><span className="size-2.5 rounded-full border-2 border-danger" />Fuera de puesto</li>
       </ul>
       <ul className="flex flex-wrap gap-x-4 gap-y-1.5 px-1 text-xs text-fg-muted" aria-label="Referencias de química">
-        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(72%_0.17_150)]" />Química buena</li>
-        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(82%_0.15_90)]" />Regular</li>
-        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-[oklch(62%_0.2_25)]" />Mala</li>
+        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-link-good" />Química buena</li>
+        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-link-ok" />Regular</li>
+        <li className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-link-bad" />Mala</li>
       </ul>
       {weak.length > 0 && (
         <ul className="space-y-1 px-1 text-xs text-fg-muted" aria-label="Vínculos para mejorar">
@@ -418,7 +418,7 @@ export default function TacticsScreen() {
             onClick={() => applyPreset(p)}
             className={cn(
               'flex min-h-14 flex-col items-start justify-center gap-0.5 rounded-xl border px-3 py-2 text-left transition-colors active:scale-[0.99]',
-              activePreset === p.id ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent/60 hover:bg-surface-2'
+              activePreset === p.id ? 'border-primary bg-primary-soft' : 'border-line-strong bg-surface hover:border-primary/60 hover:bg-surface-2'
             )}
           >
             <span className="text-sm font-semibold text-fg">{p.label}</span>

@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-21-diario-pantallas',
+    date: '2026-10-21',
+    title: 'Nuevo look de diario deportivo',
+    items: [
+      'Inicio, Pizarra, Plantel y Calendario estrenan el estilo de diario: titulares, cifras grandes y sellos de baja.',
+      'En Más → Apariencia podés elegir Claro, Oscuro o que siga a tu celular.'
+    ]
+  },
+  {
     id: '2026-10-20-partido-al-dia',
     date: '2026-10-20',
     title: 'El partido llega justo',

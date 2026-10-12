@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  AlertTriangle, AlertCircle, BookOpen, Bell, ChevronRight, MessageSquareQuote, Sparkles, CalendarDays, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered, Maximize2
+  AlertTriangle, AlertCircle, BookOpen, Bell, ChevronRight, MessageSquareQuote, Sparkles, FastForward, Play, Shield, Trophy, Activity, Heart, Wallet, ListOrdered, Maximize2
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { pickAutoStage, isArcEvent, chapterOf } from '../../domain/storyStage'
@@ -19,7 +19,7 @@ import { rivalLevel, rivalOf } from '../../domain/rivalLevel'
 import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Kicker, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
 import SeasonCloseModal from '../season/SeasonCloseModal'
 import WageCapMeter from '../finances/WageCapMeter'
 import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
@@ -104,6 +104,11 @@ function DecisionRows({ events, onOpen }) {
   if (!events?.length) return null
   return (
     <section aria-label="Decisiones pendientes">
+      <div className="mb-2 flex items-baseline gap-3">
+        <h2 className="font-slab text-base font-bold text-fg">Noticias del club</h2>
+        <span className="h-0 flex-1 border-b border-line-strong" aria-hidden="true" />
+        <Kicker className="text-xs tracking-[0.1em] text-fg-muted">{events.length === 1 ? '1 pendiente' : `${events.length} pendientes`}</Kicker>
+      </div>
       <ul className="space-y-2">
         {events.map(ev => {
           const critical = ev.severity === 'CRITICAL'
@@ -118,7 +123,7 @@ function DecisionRows({ events, onOpen }) {
                 onClick={() => onOpen(ev)}
                 aria-label={`Decidir: ${title}`}
                 className={cn(
-                  'flex min-h-14 w-full items-center gap-3 rounded-lg border bg-surface px-3 py-2.5 text-left transition-colors hover:bg-surface-2 active:bg-surface-3',
+                  'flex min-h-14 w-full items-center gap-3 rounded-md border bg-surface px-3 py-2.5 text-left transition-colors hover:bg-surface-2 active:bg-surface-3',
                   critical ? 'border-danger/50' : arc ? 'border-gold/40' : 'border-line'
                 )}
               >
@@ -141,23 +146,23 @@ function DecisionRows({ events, onOpen }) {
   )
 }
 
-/** Celular: caja, plantel y puesto en tres tarjetitas (el detalle está en cada sección) */
+/** Celular: caja, plantel y puesto en una tira de datos de diario (cifras grandes entre filetes); el detalle está en cada sección */
 function StatTiles({ finances, squad, standings }) {
-  const tile = 'flex min-w-0 flex-col gap-0.5 rounded-lg border border-line bg-surface px-3 py-2.5 transition-colors hover:bg-surface-2'
+  const cell = 'flex min-w-0 flex-col items-center gap-0.5 px-1 py-2.5 text-center transition-colors hover:bg-surface-2'
   return (
-    <ul className="grid grid-cols-3 gap-2" aria-label="Resumen del club">
-      <li className="min-w-0"><Link to="/finances" className={tile}>
+    <ul className="grid grid-cols-3 divide-x divide-line border-y border-b-line-strong border-t-[3px] border-t-fg [border-top-style:double]" aria-label="Resumen del club">
+      <li className="min-w-0"><Link to="/finances" className={cell}>
+        <span className={cn('num max-w-full truncate font-display text-[1.625rem] font-bold leading-none', finances.balance < 0 ? 'text-danger' : 'text-fg')}>{formatMoney(finances.balance)}</span>
         <span className="eyebrow">Caja</span>
-        <span className={cn('num truncate font-display text-lg font-semibold', finances.balance < 0 ? 'text-danger' : 'text-fg')}>{formatMoney(finances.balance)}</span>
       </Link></li>
-      <li className="min-w-0"><Link to="/squad" className={tile}>
+      <li className="min-w-0"><Link to="/squad" className={cell}>
+        <span className={cn('num font-display text-[1.625rem] font-bold leading-none', squad.availableCount < 11 ? 'text-danger' : 'text-fg')}>{squad.availableCount}/{squad.totalPlayers}</span>
         <span className="eyebrow">Plantel</span>
-        <span className={cn('num font-display text-lg font-semibold', squad.availableCount < 11 ? 'text-warning' : 'text-fg')}>{squad.availableCount}/{squad.totalPlayers}</span>
         <span className="text-[0.6875rem] text-fg-subtle">aptos · {squad.averageFitness}% físico</span>
       </Link></li>
-      <li className="min-w-0"><Link to="/standings" className={tile}>
+      <li className="min-w-0"><Link to="/standings" className={cell}>
+        <span className="num font-display text-[1.625rem] font-bold leading-none text-fg">{standings?.rank ? `${standings.rank}º` : '—'}</span>
         <span className="eyebrow">Puesto</span>
-        <span className="num font-display text-lg font-semibold text-fg">{standings?.rank ? `${standings.rank}º` : '—'}</span>
         <span className="text-[0.6875rem] text-fg-subtle">{standings ? `${standings.points || 0} pts · ${standings.played || 0} PJ` : 'sin partidos'}</span>
       </Link></li>
     </ul>
@@ -375,12 +380,9 @@ export default function Dashboard() {
 
   // Tarjeta del próximo partido (escritorio: dentro de la grilla; celular: arriba de todo, sin repetir el botón de jugar)
   const matchCard = (
-          <Card className="lg:col-span-2">
+          <Card masthead className="lg:col-span-2">
             <CardHeader>
-              <div className="flex items-center gap-2.5">
-                <CalendarDays className="size-5 text-accent" aria-hidden="true" />
-                <CardTitle>Próximo compromiso</CardTitle>
-              </div>
+              <Kicker>Próximo compromiso</Kicker>
               {nextFixture && <Badge className="num">Fecha {nextFixture.match_week || 1}</Badge>}
             </CardHeader>
             <CardBody>
@@ -479,7 +481,7 @@ export default function Dashboard() {
               <div className="flex items-start gap-3">
                 <AlertTriangle className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
                 <div className="min-w-0">
-                  <h2 className="font-display text-lg font-semibold text-fg">El cierre de la temporada {pendingClose.season_year} quedó a medias</h2>
+                  <h2 className="font-slab text-lg font-bold text-fg">El cierre de la temporada {pendingClose.season_year} quedó a medias</h2>
                   <p className="mt-1 text-sm text-fg-muted">Tu temporada ya está cerrada y archivada: el puesto, el premio y los contratos están guardados. {closePendingText(pendingClose.stage)} Hasta que se termine no se puede avanzar de semana.</p>
                 </div>
               </div>

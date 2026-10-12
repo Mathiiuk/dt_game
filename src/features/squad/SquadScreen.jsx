@@ -42,8 +42,8 @@ function PlayerBadges({ player, captains, expiring = null }) {
     <div className="flex flex-wrap items-center gap-1.5">
       {captains?.captainId === player.id && <Badge tone="gold"><Crown className="size-3" aria-hidden="true" />Capitán</Badge>}
       {captains?.viceCaptainId === player.id && <Badge tone="gold">Subcapitán</Badge>}
-      {player.is_injured && <Badge tone="danger" dot>Lesionado{player.injury_type ? ` · ${player.injury_type}` : ''}</Badge>}
-      {player.is_suspended && <Tooltip content={suspensionNote({ ...player, is_injured: false })}><span><Badge tone={player.suspension_reason === 'YELLOWS' ? 'warning' : 'danger'} dot>{player.suspension_reason === 'YELLOWS' ? 'Suspendido · 5 amarillas' : 'Suspendido · expulsión'}</Badge></span></Tooltip>}
+      {player.is_injured && <Badge tone="danger" stamp>Lesionado{player.injury_type ? ` · ${player.injury_type}` : ''}</Badge>}
+      {player.is_suspended && <Tooltip content={suspensionNote({ ...player, is_injured: false })}><span><Badge tone={player.suspension_reason === 'YELLOWS' ? 'warning' : 'danger'} stamp>{player.suspension_reason === 'YELLOWS' ? 'Suspendido · 5 amarillas' : 'Suspendido · expulsión'}</Badge></span></Tooltip>}
       {!player.is_suspended && cardStatus(player) === 'warning' && <Badge tone="warning">Apercibido · {player.yellow_cards_season} amarillas</Badge>}
       {player.morale_unhappy_transfer_blocked && <Badge tone="warning">Descontento</Badge>}
       {expiring && <Badge tone={expiring.urgent ? 'danger' : 'warning'} dot>Contrato: {expiring.label}</Badge>}
@@ -505,14 +505,14 @@ export default function SquadScreen() {
                       <CardBody className="space-y-2.5 p-3.5">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 items-center gap-3">
-                            <span className="num grid size-10 shrink-0 place-items-center rounded-full bg-surface-3 font-display text-base font-semibold">{p.shirt_number ?? '·'}</span>
+                            <span className="num w-9 shrink-0 text-center font-display text-3xl font-bold leading-none text-primary">{p.shirt_number ?? '·'}</span>
                             <div className="min-w-0">
-                              <h3 className="truncate text-base font-semibold text-fg">{p.first_name} {p.last_name}</h3>
+                              <h3 className="truncate font-sans text-base font-semibold tracking-normal text-fg">{p.first_name} {p.last_name}</h3>
                               <p className="truncate text-xs text-fg-muted">{p.position} · {p.age} años · {p.contract_role || 'Rotación'}</p>
                             </div>
                           </div>
                           <div className="shrink-0 text-right">
-                            <p className="num font-display text-2xl font-semibold leading-none text-fg">{playerLevel(p)}</p>
+                            <p className="num font-display text-3xl font-bold leading-none text-fg">{playerLevel(p)}</p>
                             <p className="eyebrow mt-1">Nivel</p>
                           </div>
                         </div>
@@ -565,7 +565,7 @@ export default function SquadScreen() {
               {loans.players.length > 0 && (
                 <Card as="section" aria-label="Jugadores a préstamo">
                   <CardBody className="space-y-2">
-                    <h3 className="font-display text-lg font-semibold text-fg">A préstamo</h3>
+                    <h3 className="font-slab text-lg font-bold text-fg">A préstamo</h3>
                     <p className="text-xs text-fg-muted">Vuelven al cerrar la temporada. Mientras tanto ahorrás <span className="num font-semibold text-fg">{formatMoney(loans.weeklySaving)}</span> por semana en sueldos.</p>
                     <ul className="divide-y divide-line text-sm">
                       {loans.players.map(p => (

@@ -65,7 +65,13 @@
 
   /* Cancha (fichas y líneas de la pizarra) */
   --color-pitch: #8DAA84;
+  --color-pitch-2: #84A27B;
   --color-pitch-line: #F5EFE0;
+  --color-link-good: #14532D;
+  --color-link-ok: #F5C84B;
+  --color-link-bad: #B91C1C;
+  --color-ring-adapted: #B8620A;
+  --color-card-yellow: #E4B341;
 
   /* Radios: chicos, de recorte de diario */
   --radius-sm: 0.25rem;
@@ -128,7 +134,13 @@
   --color-gold-soft: #F2C94C26;
 
   --color-pitch: #1E4A33;
+  --color-pitch-2: #1A422D;
   --color-pitch-line: #E8E4D3;
+  --color-link-good: #7BE0A0;
+  --color-link-ok: #F2C94C;
+  --color-link-bad: #FF8A8A;
+  --color-ring-adapted: #FFA64D;
+  --color-card-yellow: #F2C94C;
 
   --shadow-raised: 0 1px 0 0 #FFFFFF0A inset, 0 8px 24px -12px #000000A0;
   --shadow-overlay: 0 24px 64px -16px #000000BF;
@@ -164,7 +176,13 @@
     --color-gold-fg: #1A1400;
     --color-gold-soft: #F2C94C26;
     --color-pitch: #1E4A33;
+    --color-pitch-2: #1A422D;
     --color-pitch-line: #E8E4D3;
+    --color-link-good: #7BE0A0;
+    --color-link-ok: #F2C94C;
+    --color-link-bad: #FF8A8A;
+    --color-ring-adapted: #FFA64D;
+    --color-card-yellow: #F2C94C;
   }
 }
 
