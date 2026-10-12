@@ -22,8 +22,8 @@ export function Stepper({ steps, step }) {
               <span
                 className={cn(
                   'grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold',
-                  current && 'bg-accent text-accent-fg',
-                  done && 'bg-accent-soft text-accent',
+                  current && 'bg-primary text-primary-fg',
+                  done && 'bg-primary-soft text-primary',
                   !current && !done && 'border border-line text-fg-subtle'
                 )}
               >
@@ -31,7 +31,7 @@ export function Stepper({ steps, step }) {
                 <span className="sr-only">{done ? ' (completado)' : current ? ' (actual)' : ''}</span>
               </span>
               <span className={cn('hidden truncate text-xs font-medium sm:block', current ? 'text-fg' : 'text-fg-subtle')}>{label}</span>
-              {n < steps.length && <span className={cn('h-px flex-1', done ? 'bg-accent' : 'bg-line')} aria-hidden="true" />}
+              {n < steps.length && <span className={cn('h-px flex-1', done ? 'bg-primary' : 'bg-line')} aria-hidden="true" />}
             </li>
           )
         })}
@@ -66,7 +66,7 @@ export function Wizard({ eyebrow, title, steps, step, onBack, onNext, nextLabel,
         <div className="mx-auto w-full max-w-2xl">
           <header className="mb-6">
             {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-            <h1 className="font-display text-3xl font-semibold leading-none text-fg sm:text-4xl break-words">{title}</h1>
+            <h1 className="font-slab text-2xl font-extrabold leading-tight text-fg sm:text-3xl break-words">{title}</h1>
           </header>
           <div className="mb-6"><Stepper steps={steps} step={step} /></div>
 
@@ -109,13 +109,13 @@ export function OptionCards({ value, onChange, options, label, columns = 'sm:gri
             onClick={() => onChange(opt.value)}
             onKeyDown={(e) => onKeyDown(e, index)}
             className={cn(
-              'rounded-lg border p-3.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-              active ? 'border-accent bg-accent-soft' : 'border-line bg-surface-2 hover:border-line-strong'
+              'rounded-lg border p-3.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+              active ? 'border-primary bg-primary-soft' : 'border-line bg-surface-2 hover:border-line-strong'
             )}
           >
             {renderOption ? renderOption(opt, active) : (
               <>
-                <span className={cn('block text-sm font-semibold', active ? 'text-accent' : 'text-fg')}>{opt.title}</span>
+                <span className={cn('block text-sm font-semibold', active ? 'text-primary' : 'text-fg')}>{opt.title}</span>
                 {opt.description && <span className="mt-0.5 block text-xs text-fg-muted">{opt.description}</span>}
               </>
             )}

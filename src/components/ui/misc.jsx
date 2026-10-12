@@ -10,14 +10,14 @@ export const Switch = React.forwardRef(function Switch({ className, ...props }, 
       ref={ref}
       className={cn(
         'relative h-6 w-11 shrink-0 rounded-full border border-line-strong bg-surface-3 transition-colors',
-        'data-[state=checked]:border-accent data-[state=checked]:bg-accent',
+        'data-[state=checked]:border-primary data-[state=checked]:bg-primary',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
       {...props}
     >
       <SwitchPrimitive.Thumb
-        className="block size-[1.125rem] translate-x-0.5 rounded-full bg-fg transition-transform data-[state=checked]:translate-x-[1.375rem] data-[state=checked]:bg-accent-fg"
+        className="block size-[1.125rem] translate-x-0.5 rounded-full bg-fg transition-transform data-[state=checked]:translate-x-[1.375rem] data-[state=checked]:bg-primary-fg"
       />
     </SwitchPrimitive.Root>
   )
@@ -57,7 +57,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
           <Icon className="size-6" aria-hidden="true" />
         </div>
       )}
-      <h3 className="font-display text-xl font-semibold text-fg">{title}</h3>
+      <h3 className="font-slab text-xl font-bold text-fg">{title}</h3>
       {description && <p className="mt-1.5 max-w-sm text-sm text-fg-muted">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>

@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils'
 const controlBase = [
   'w-full min-h-11 rounded-md border border-line-strong bg-surface-2 px-3 text-sm text-fg',
   'placeholder:text-fg-subtle transition-colors',
-  'hover:border-fg-subtle focus-visible:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40',
+  'hover:border-fg-subtle focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
   'disabled:cursor-not-allowed disabled:opacity-50',
   'aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger/30'
 ].join(' ')

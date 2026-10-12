@@ -77,7 +77,7 @@ export const DialogContent = React.forwardRef(function DialogContent(
             </DialogPrimitive.Close>
           )}
           <div className="min-w-0 flex-1">
-            <DialogPrimitive.Title className={cn('font-display font-semibold leading-tight text-fg', placement === 'page' ? 'text-xl' : 'text-2xl')}>
+            <DialogPrimitive.Title className={cn('font-slab font-bold leading-tight text-fg', placement === 'page' ? 'text-xl' : 'text-2xl')}>
               {title}
             </DialogPrimitive.Title>
             {description ? (

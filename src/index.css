@@ -1,9 +1,12 @@
 /*
- * El Pizarrón: sistema de diseño (Tailwind v4, configuración CSS-first)
+ * Vestuario: sistema de diseño "Diario deportivo" (Tailwind v4, configuración CSS-first)
  *
- * Concepto: un pizarrón de DT. Superficies oscuras con un dejo verde de césped, tiza como texto y UN solo color
- * de acento (verde cancha). Los colores semánticos (aviso, peligro, oro) se usan sólo para comunicar estado.
- * Tipografía: Barlow Condensed para titulares y cifras (tono de revista deportiva), Inter para el texto.
+ * Concepto: una revista deportiva de papel. Tema claro por defecto ("papel": fondo crema, tinta azul noche) y tema oscuro
+ * ("noche de redacción"), que sigue al sistema o se elige en Más (ver src/lib/theme.js y el script de index.html).
+ * Color: el AZUL es lo que se toca para avanzar (botones, enlaces, lo activo); el ROJO es siempre aviso (bajas, tarjetas,
+ * decisiones); el VERDE confirma (dinero que entra, química buena); el DORADO marca logros.
+ * Tipografía: Roboto Slab para titulares, Barlow Condensed para cifras y etiquetas de marcador, Inter para el texto.
+ * Los tokens son hex para que tests/static/themeContrast.test.js verifique el contraste AA de cada par.
  */
 @import "tailwindcss";
 
@@ -11,50 +14,68 @@
 @import "@fontsource/barlow-condensed/500.css";
 @import "@fontsource/barlow-condensed/600.css";
 @import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource/roboto-slab/700.css";
+@import "@fontsource/roboto-slab/800.css";
 
 @theme {
   /* Tipografía */
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-slab: "Roboto Slab", ui-serif, Georgia, serif;
+  --font-num: "Barlow Condensed", "Inter Variable", ui-sans-serif, sans-serif;
+  /* `font-display` queda para cifras y etiquetas (marcador); los titulares usan `font-slab` */
   --font-display: "Barlow Condensed", "Inter Variable", ui-sans-serif, sans-serif;
 
-  /* Superficies (de la más profunda a la más elevada) */
-  --color-bg: oklch(15% 0.012 160);
-  --color-surface: oklch(19% 0.013 160);
-  --color-surface-2: oklch(23% 0.014 160);
-  --color-surface-3: oklch(28% 0.015 160);
+  /* Tema CLARO (papel). Superficies, de la más profunda a la más elevada */
+  --color-bg: #F5EFE0;
+  --color-surface: #FFFBF0;
+  --color-surface-2: #EDE5D0;
+  --color-surface-3: #E3DAC1;
 
-  /* Bordes */
-  --color-line: oklch(30% 0.014 160);
-  --color-line-strong: oklch(40% 0.016 160);
+  /* Filetes */
+  --color-line: #D8CDB0;
+  --color-line-strong: #B9AB86;
 
-  /* Texto (todos con contraste AA sobre bg y surface) */
-  --color-fg: oklch(95% 0.012 100);
-  --color-fg-muted: oklch(75% 0.014 150);
-  --color-fg-subtle: oklch(66% 0.014 150);
+  /* Texto (tinta) */
+  --color-fg: #14213D;
+  --color-fg-muted: #4A5470;
+  --color-fg-subtle: #596280;
 
-  /* Acento único: verde cancha */
-  --color-accent: oklch(78% 0.17 150);
-  --color-accent-strong: oklch(72% 0.18 150);
-  --color-accent-fg: oklch(19% 0.04 150);
-  --color-accent-soft: oklch(78% 0.17 150 / 0.14);
+  /* Acción: azul camiseta */
+  --color-primary: #1F4E9D;
+  --color-primary-strong: #173F82;
+  --color-primary-fg: #FFFBF0;
+  --color-primary-soft: #1F4E9D1F;
+
+  /* Éxito / "bueno": verde cancha */
+  --color-accent: #2C7449;
+  --color-accent-strong: #235E3C;
+  --color-accent-fg: #FFFBF0;
+  --color-accent-soft: #2C744924;
 
   /* Estados */
-  --color-warning: oklch(82% 0.15 80);
-  --color-warning-soft: oklch(82% 0.15 80 / 0.14);
-  --color-danger: oklch(70% 0.19 25);
-  --color-danger-soft: oklch(70% 0.19 25 / 0.14);
-  --color-gold: oklch(83% 0.13 88);
-  --color-gold-soft: oklch(83% 0.13 88 / 0.14);
+  --color-warning: #8A5E00;
+  --color-warning-fg: #FFFBF0;
+  --color-warning-soft: #8A5E0021;
+  --color-danger: #BE2A35;
+  --color-danger-fg: #FFFBF0;
+  --color-danger-soft: #BE2A3521;
+  --color-gold: #8A5E00;
+  --color-gold-fg: #FFFBF0;
+  --color-gold-soft: #E4B34140;
 
-  /* Radios: sólo cuatro, para que nada parezca "inflado" */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-xl: 1.25rem;
+  /* Cancha (fichas y líneas de la pizarra) */
+  --color-pitch: #8DAA84;
+  --color-pitch-line: #F5EFE0;
 
-  /* Elevación sobria */
-  --shadow-raised: 0 1px 0 0 oklch(100% 0 0 / 0.04) inset, 0 8px 24px -12px oklch(0% 0 0 / 0.6);
-  --shadow-overlay: 0 24px 64px -16px oklch(0% 0 0 / 0.75);
+  /* Radios: chicos, de recorte de diario */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  /* Elevación sobria: casi plana, con borde fino */
+  --shadow-raised: 0 1px 0 0 #14213D0F;
+  --shadow-overlay: 0 24px 48px -16px #14213D59;
 
   /* Movimiento */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -72,9 +93,84 @@
   }
 }
 
+/* Tema OSCURO (noche de redacción): se activa con data-theme="dark" (lo fija el script de index.html antes de pintar). */
+:root[data-theme="dark"] {
+  --color-bg: #101521;
+  --color-surface: #171E30;
+  --color-surface-2: #1F2842;
+  --color-surface-3: #2A3556;
+
+  --color-line: #2A3350;
+  --color-line-strong: #3A456A;
+
+  --color-fg: #F1EBDA;
+  --color-fg-muted: #A9B1C7;
+  --color-fg-subtle: #8E98B3;
+
+  --color-primary: #7FA8FF;
+  --color-primary-strong: #9DBCFF;
+  --color-primary-fg: #0E1526;
+  --color-primary-soft: #7FA8FF29;
+
+  --color-accent: #5FD38A;
+  --color-accent-strong: #7BE0A0;
+  --color-accent-fg: #0C1A12;
+  --color-accent-soft: #5FD38A29;
+
+  --color-warning: #F2C94C;
+  --color-warning-fg: #1A1400;
+  --color-warning-soft: #F2C94C26;
+  --color-danger: #FF8A8A;
+  --color-danger-fg: #2A0B0E;
+  --color-danger-soft: #FF8A8A26;
+  --color-gold: #F2C94C;
+  --color-gold-fg: #1A1400;
+  --color-gold-soft: #F2C94C26;
+
+  --color-pitch: #1E4A33;
+  --color-pitch-line: #E8E4D3;
+
+  --shadow-raised: 0 1px 0 0 #FFFFFF0A inset, 0 8px 24px -12px #000000A0;
+  --shadow-overlay: 0 24px 64px -16px #000000BF;
+}
+
+/* Si el script de tema no corrió (sin JavaScript), el sistema decide */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg: #101521;
+    --color-surface: #171E30;
+    --color-surface-2: #1F2842;
+    --color-surface-3: #2A3556;
+    --color-line: #2A3350;
+    --color-line-strong: #3A456A;
+    --color-fg: #F1EBDA;
+    --color-fg-muted: #A9B1C7;
+    --color-fg-subtle: #8E98B3;
+    --color-primary: #7FA8FF;
+    --color-primary-strong: #9DBCFF;
+    --color-primary-fg: #0E1526;
+    --color-primary-soft: #7FA8FF29;
+    --color-accent: #5FD38A;
+    --color-accent-strong: #7BE0A0;
+    --color-accent-fg: #0C1A12;
+    --color-accent-soft: #5FD38A29;
+    --color-warning: #F2C94C;
+    --color-warning-fg: #1A1400;
+    --color-warning-soft: #F2C94C26;
+    --color-danger: #FF8A8A;
+    --color-danger-fg: #2A0B0E;
+    --color-danger-soft: #FF8A8A26;
+    --color-gold: #F2C94C;
+    --color-gold-fg: #1A1400;
+    --color-gold-soft: #F2C94C26;
+    --color-pitch: #1E4A33;
+    --color-pitch-line: #E8E4D3;
+  }
+}
+
 @layer base {
   html {
-    color-scheme: dark;
+    color-scheme: light dark;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -96,17 +192,17 @@
   }
 
   ::selection {
-    background: var(--color-accent-soft);
+    background: var(--color-primary-soft);
   }
 
   /* Foco visible consistente para teclado */
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
   h1, h2, h3 {
-    @apply font-display tracking-tight;
+    @apply font-slab tracking-tight;
   }
 
   /* Respeta a quien pide menos movimiento */

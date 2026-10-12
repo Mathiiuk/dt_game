@@ -35,7 +35,7 @@ export function ChoiceChips({ value, onChange, options, label, className }) {
             className={cn(
               'min-h-10 shrink-0 whitespace-nowrap rounded-md border px-3 text-sm font-semibold transition-colors',
               active
-                ? 'border-accent bg-accent-soft text-accent'
+                ? 'border-primary bg-primary-soft text-primary'
                 : 'border-line-strong bg-surface-2 text-fg-muted hover:border-fg-subtle hover:text-fg'
             )}
           >

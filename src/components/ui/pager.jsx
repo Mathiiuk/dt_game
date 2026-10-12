@@ -61,7 +61,7 @@ export function Pager({ items, perPage: fixed = null, render, className, label =
         </button>
         <span className="flex items-center gap-1.5" aria-hidden="true">
           {Array.from({ length: pages }, (_, i) => (
-            <span key={i} className={cn('h-1.5 rounded-full transition-all', i === page ? 'w-5 bg-accent' : 'w-1.5 bg-surface-3')} />
+            <span key={i} className={cn('h-1.5 rounded-full transition-all', i === page ? 'w-5 bg-primary' : 'w-1.5 bg-surface-3')} />
           ))}
         </span>
         <span className="sr-only" aria-live="polite">Página {page + 1} de {pages}</span>

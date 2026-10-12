@@ -19,12 +19,12 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-accent text-accent-fg hover:bg-accent-strong',
+        primary: 'bg-primary text-primary-fg hover:bg-primary-strong',
         secondary: 'bg-surface-3 text-fg hover:bg-line-strong',
         outline: 'border border-line-strong bg-transparent text-fg hover:bg-surface-2',
         ghost: 'bg-transparent text-fg-muted hover:bg-surface-2 hover:text-fg',
-        danger: 'bg-danger text-bg hover:brightness-110',
-        link: 'h-auto min-h-0 px-0 text-accent underline-offset-4 hover:underline'
+        danger: 'bg-danger text-danger-fg hover:brightness-110',
+        link: 'h-auto min-h-0 px-0 text-primary underline-offset-4 hover:underline'
       },
       size: {
         sm: 'min-h-9 px-3 text-sm pointer-coarse:min-h-11',

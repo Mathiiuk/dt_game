@@ -54,9 +54,9 @@ describe('portada pública', () => {
     expect(href('Probar la demo gratis', main)).toBe('/demo')
     const demo = main.getByRole('link', { name: 'Probar la demo gratis' })
     const create = main.getByRole('link', { name: 'Crear mi carrera' })
-    expect(demo.className).toMatch(/bg-accent/)
-    expect(create.className).not.toMatch(/(^|\s)bg-accent(\s|$)/)
-    expect(main.getAllByRole('link').filter(a => /bg-accent(\s|$)/.test(a.className))).toHaveLength(1)
+    expect(demo.className).toMatch(/bg-primary/)
+    expect(create.className).not.toMatch(/(^|\s)bg-primary(\s|$)/)
+    expect(main.getAllByRole('link').filter(a => /bg-primary(\s|$)/.test(a.className))).toHaveLength(1)
   })
 
   it('el pie enlaza a todas las páginas públicas con anclas descriptivas, sin enlaces rotos', () => {

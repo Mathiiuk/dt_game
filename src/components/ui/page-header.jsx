@@ -44,7 +44,7 @@ export function PageHeader({
         )}
         <div className={cn('min-w-0', !showMobileTitle && 'hidden lg:block')}>
           {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-          <h1 className="truncate font-display text-3xl font-semibold leading-none text-fg sm:text-4xl">{title}</h1>
+          <h1 className="truncate font-slab text-2xl font-extrabold leading-tight text-fg sm:text-3xl">{title}</h1>
           {description && <p className="mt-2 max-w-prose text-sm text-fg-muted">{description}</p>}
         </div>
       </div>
@@ -57,7 +57,7 @@ export function PageHeader({
 export function SectionTitle({ children, action, className }) {
   return (
     <div className={cn('mb-3 flex items-center justify-between gap-3', className)}>
-      <h2 className="font-display text-xl font-semibold text-fg truncate">{children}</h2>
+      <h2 className="font-slab text-xl font-bold text-fg truncate">{children}</h2>
       {action}
     </div>
   )

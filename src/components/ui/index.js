@@ -1,6 +1,6 @@
 // Barril del sistema de diseño: un único punto de importación para las pantallas
 export { Button, AsyncButton, buttonVariants } from './button'
-export { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter } from './card'
+export { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Kicker } from './card'
 export { Badge } from './badge'
 export { Stat } from './stat'
 export { Progress } from './progress'
