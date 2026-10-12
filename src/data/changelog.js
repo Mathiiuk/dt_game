@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-23-tema-auto',
+    date: '2026-10-23',
+    title: 'Claro u oscuro, como tu celular',
+    items: [
+      'El juego y la web ahora siguen el modo claro u oscuro de tu dispositivo.',
+      'Si preferís uno fijo, elegilo en Más → Apariencia.'
+    ]
+  },
+  {
     id: '2026-10-22-diario-resto',
     date: '2026-10-22',
     title: 'El nuevo look llega a todo el juego',

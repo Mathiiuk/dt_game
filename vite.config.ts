@@ -34,8 +34,8 @@ export default defineConfig({
         lang: 'es-AR',
         // La app instalada abre directo en el juego; la portada pública queda para la web
         start_url: '/dashboard',
-        theme_color: '#09090b', // bg-zinc-950
-        background_color: '#09090b',
+        theme_color: '#101521', // noche de redacción
+        background_color: '#101521',
         display: 'standalone',
         orientation: 'portrait', // Forzar vista vertical
         icons: [

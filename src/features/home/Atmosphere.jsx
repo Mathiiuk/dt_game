@@ -12,7 +12,7 @@ export default function Atmosphere() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-bg">
       {/* Luz del reflector: entra desde arriba, al centro */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_-8%,oklch(96%_0.03_110/0.24),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_-8%,color-mix(in_oklab,var(--color-primary)_16%,transparent),transparent_70%)]" />
 
       {/* Pizarra táctica: media cancha con un movimiento dibujado en tiza */}
       <svg
@@ -41,7 +41,7 @@ export default function Atmosphere() {
       </svg>
 
       {/* Bordes más oscuros: la mirada queda en el centro */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,oklch(9%_0.01_160/0.85))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,color-mix(in_oklab,var(--color-bg)_78%,black))]" />
       <div className="absolute inset-0 opacity-[0.06] mix-blend-overlay" style={{ backgroundImage: GRAIN }} />
     </div>
   )
