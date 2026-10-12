@@ -44,7 +44,7 @@ export default function LogbookScreen() {
   const sortedWeeks = Object.keys(groupedItems).map(Number).sort((a, b) => b - a)
 
   return (
-    <div className="mx-auto max-w-4xl py-6 sm:py-8 lg:py-10">
+    <div className="mx-auto max-w-4xl py-6 sm:py-8 lg:py-10 xl:max-w-6xl">
       <PageHeader
         title="Bitácora"
         eyebrow="Tus decisiones"

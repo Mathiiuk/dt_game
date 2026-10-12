@@ -117,6 +117,13 @@ describe('AppShell', () => {
     expect(await screen.findByText(/Se jugó la fecha 2 en Los Pibes/)).toBeInTheDocument()
   })
 
+  it('el menú lateral tiene un botón de Ajustes que abre el panel con la apariencia', async () => {
+    renderAt('/dashboard')
+    await userEvent.click(screen.getByRole('button', { name: 'Ajustes' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Ajustes' })
+    expect(within(dialog).getByRole('radiogroup', { name: 'Apariencia' })).toBeInTheDocument()
+  })
+
   it('incluye un enlace para saltar al contenido principal', () => {
     renderAt('/dashboard')
     expect(screen.getByRole('link', { name: 'Saltar al contenido' })).toHaveAttribute('href', '#contenido')

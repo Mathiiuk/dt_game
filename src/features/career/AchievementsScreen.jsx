@@ -86,7 +86,7 @@ export default function AchievementsScreen() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando logros">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando logros">
         <Skeleton className="h-12 w-64" />
         <Skeleton className="h-28" />
         <div className="grid gap-4 md:grid-cols-2">{[0, 1, 2, 3].map(i => <Skeleton key={i} className="h-44" />)}</div>
@@ -95,7 +95,7 @@ export default function AchievementsScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-6 sm:px-6 lg:py-8">
       <PageHeader
         backTo="/manager"
         eyebrow="Objetivos, hitos y recompensas"

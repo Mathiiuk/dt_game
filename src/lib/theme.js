@@ -6,8 +6,8 @@ import { useCallback, useEffect, useState } from 'react'
 export const THEME_KEY = 'vestuario-theme'
 export const THEME_PREFS = ['auto', 'light', 'dark']
 export const THEME_COLORS = { light: '#F5EFE0', dark: '#101521' }
-// Por defecto sigue al sistema (claro u oscuro); cada persona lo cambia en Más → Apariencia
-export const DEFAULT_THEME = 'auto'
+// Por defecto es claro para todos (la elección guardada de cada persona se respeta); se cambia en Ajustes (escritorio) o en Más → Apariencia (celular)
+export const DEFAULT_THEME = 'light'
 
 const validPref = (v) => (THEME_PREFS.includes(v) ? v : DEFAULT_THEME)
 const defaultStorage = () => { try { return window.localStorage } catch { return null } }

@@ -9,6 +9,8 @@ import { cn } from '../../lib/utils'
  * Con `backTo` muestra un botón de volver con área táctil de 44 px (útil en páginas que reemplazan modales en móvil).
  * En móvil (< lg) el título ya vive en la barra superior (MobileTopBar), por lo que se ocultan el h1,
  * la volanta y la bajada para no duplicar y aprovechar todo el alto de pantalla.
+ * En escritorio (lg+) el menú lateral ya dice dónde estás: el título, la volanta y la bajada no se ven (`lg:sr-only`),
+ * pero siguen en el documento para lectores de pantalla y el h1 de la página nunca desaparece. Solo quedan las acciones, a la derecha.
  */
 export function PageHeader({
   title,
@@ -26,7 +28,8 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        'items-center justify-between gap-x-6 gap-y-3 pb-4 lg:items-end lg:pb-5',
+        'items-center justify-between gap-x-6 gap-y-3 pb-4 lg:items-end lg:justify-end',
+        actions ? 'lg:pb-4' : 'lg:pb-0',
         hasMobileContent ? 'flex flex-wrap' : 'hidden lg:flex',
         className
       )}
@@ -43,9 +46,9 @@ export function PageHeader({
           </button>
         )}
         <div className={cn('min-w-0', !showMobileTitle && 'hidden lg:block')}>
-          {eyebrow && <p className="eyebrow mb-1">{eyebrow}</p>}
-          <h1 className="truncate font-slab text-2xl font-extrabold leading-tight text-fg sm:text-3xl">{title}</h1>
-          {description && <p className="mt-2 max-w-prose text-sm text-fg-muted">{description}</p>}
+          {eyebrow && <p className="eyebrow mb-1 lg:sr-only">{eyebrow}</p>}
+          <h1 className="truncate font-slab text-2xl font-extrabold leading-tight text-fg sm:text-3xl lg:sr-only">{title}</h1>
+          {description && <p className="mt-2 max-w-prose text-sm text-fg-muted lg:sr-only">{description}</p>}
         </div>
       </div>
       {actions && <div className={cn('flex flex-wrap items-center gap-2', actionsFill && 'w-full sm:w-auto')}>{actions}</div>}

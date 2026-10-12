@@ -57,7 +57,7 @@ function Crest({ club, name, highlight }) {
 
 function DashboardSkeleton() {
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6" aria-busy="true" aria-label="Cargando el centro de mando">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-6 px-4 py-6 sm:px-6" aria-busy="true" aria-label="Cargando el centro de mando">
       <Skeleton className="h-12 w-2/3" />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Skeleton className="h-64 lg:col-span-2" />
@@ -430,7 +430,7 @@ export default function Dashboard() {
   )
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-6 sm:px-6 lg:py-8">
       <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} days={weekRun.days} onClose={weekRun.close} />
       {stage && (
         <StoryStage

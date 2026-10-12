@@ -166,7 +166,7 @@ export default function CalendarScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-4xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando calendario">
+      <div className="mx-auto max-w-4xl space-y-4 px-4 py-6 sm:px-6 xl:max-w-7xl" role="status" aria-label="Cargando calendario">
         <Skeleton className="h-12 w-64" />
         <Skeleton className="h-28" />
         {[0, 1, 2, 3].map(i => <Skeleton key={i} className="h-20" />)}
@@ -177,7 +177,7 @@ export default function CalendarScreen() {
   const phaseLabel = SEASON_PHASES[state.season_phase]?.label || state.season_phase
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:py-8 xl:max-w-7xl xl:px-8">
       <WeekProgress visible={weekRun.visible} tick={weekRun.tick} summary={weekRun.summary} days={weekRun.days} onClose={weekRun.close} />
       <PageHeader
         eyebrow={`Temporada ${state.current_season_year} · 52 semanas`}
@@ -225,10 +225,10 @@ export default function CalendarScreen() {
 
       {/* VISTA 1: PRÓXIMOS PARTIDOS Y RESULTADOS (DEFAULT) */}
       {viewMode === 'UPCOMING' && (
-        <div className="space-y-6">
+        <div className="space-y-6 xl:grid xl:grid-cols-2 xl:items-start xl:gap-6 xl:space-y-0">
           {/* Semana en curso */}
           {currentWeekObj && (
-            <ul aria-label="Semana en curso"><FixtureItem week={currentWeekObj} clubId={club?.id} /></ul>
+            <ul aria-label="Semana en curso" className="xl:col-span-2"><FixtureItem week={currentWeekObj} clubId={club?.id} /></ul>
           )}
 
           {/* Próximos 5 partidos */}

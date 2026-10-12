@@ -178,7 +178,7 @@ export default function ManagerCareerScreen() {
 
   if (loading || !manager) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando expediente">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando expediente">
         <Skeleton className="h-12 w-64" />
         <div className="grid gap-4 md:grid-cols-3"><Skeleton className="h-56 md:col-span-2" /><Skeleton className="h-56" /></div>
         <Skeleton className="h-24" />
@@ -193,7 +193,7 @@ export default function ManagerCareerScreen() {
   const rank = stars >= 4 ? 'DT de élite internacional' : stars >= 3 ? 'Consolidado en Primera' : 'Entrenador emergente'
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-6 sm:px-6 lg:py-8">
       <PageHeader
         eyebrow="Trayectoria, finanzas personales y ofertas"
         title="Carrera del DT"

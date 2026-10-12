@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-07-escritorio',
+    date: '2026-11-07',
+    title: 'Más cómodo en la computadora',
+    items: [
+      'El juego arranca en modo claro. Cambialo en Ajustes, en el menú de la izquierda.',
+      'Las pantallas aprovechan mejor el ancho y no repiten el título que ya está en el menú.'
+    ]
+  },
+  {
     id: '2026-11-06-vestuario-2',
     date: '2026-11-06',
     title: 'Vestuario 2.0',

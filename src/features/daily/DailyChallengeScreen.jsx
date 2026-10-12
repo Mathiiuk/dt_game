@@ -106,7 +106,7 @@ function Board({ today }) {
 }
 
 /** Resultado: puntaje, puesto, objetivo, qué pasó en cada dilema y la tabla */
-function Played({ goal, mine, clubName, today }) {
+function Played({ goal, mine, clubName }) {
   return (
     <div className="space-y-4">
       <DataStrip label="Resumen del reto" items={[
@@ -122,7 +122,6 @@ function Played({ goal, mine, clubName, today }) {
         moment={{ kind: 'daily', club: clubName, score: mine.score, rank: mine.rank, players: mine.players }}
       />
       <p className="text-xs text-fg-muted">Mañana hay un reto nuevo. Volvé y competí de nuevo.</p>
-      <Board today={today} />
     </div>
   )
 }
@@ -222,7 +221,7 @@ export default function DailyChallengeScreen() {
 
   const { status, data } = state
   return (
-    <div className="mx-auto max-w-2xl space-y-4 px-4 py-4 sm:px-6 lg:py-6">
+    <div className="mx-auto max-w-2xl space-y-4 px-4 py-4 sm:px-6 lg:max-w-6xl lg:py-6 xl:px-8">
       <PageHeader eyebrow="Se renueva todos los días" title="Reto del día" showMobileTitle={false} />
       {status === 'loading' && <div role="status" aria-label="Cargando el reto"><Skeleton className="h-40" /></div>}
       {status === 'error' && (
@@ -232,22 +231,30 @@ export default function DailyChallengeScreen() {
         </CardBody></Card>
       )}
       {status === 'ready' && data && (
-        <>
-          <Card masthead as="section" aria-label="Objetivo de hoy">
-            <CardBody className="p-3 sm:p-4">
-              <Kicker>Objetivo de hoy</Kicker>
-              <p className="mt-0.5 flex items-start gap-2 font-slab text-base font-bold text-fg">
-                {data.mine ? (data.mine.goal_met ? <Check className="mt-1 size-4 shrink-0 text-accent" aria-hidden="true" /> : <X className="mt-1 size-4 shrink-0 text-danger" aria-hidden="true" />) : null}
-                {data.goal.text}
-              </p>
-              {data.streak > 0 && <p className="mt-1 text-xs font-semibold text-gold">Racha: {data.streak} {data.streak === 1 ? 'día' : 'días'} seguidos jugando</p>}
-              {!data.mine && <p className="mt-1 text-xs text-fg-muted">Tres dilemas, una sola oportunidad. Cada decisión mueve la Caja, la Barra, la Dirigencia y el Vestuario.</p>}
-            </CardBody>
-          </Card>
-          {data.mine
-            ? <Played goal={data.goal} mine={data.mine} clubName={club?.name} today={data.day} />
-            : <Playing decisions={data.decisions} onSubmit={submit} sending={sending} secondsSinceStart={data.seconds_since_start} />}
-        </>
+        // Escritorio: el reto a la izquierda y, una vez jugado, la tabla del día al costado (en el celular, todo en una columna)
+        <div className={cn('space-y-4', data.mine && 'lg:grid lg:grid-cols-12 lg:items-start lg:gap-6 lg:space-y-0')}>
+          <div className={cn('space-y-4', data.mine ? 'lg:col-span-7' : 'lg:mx-auto lg:max-w-2xl')}>
+            <Card masthead as="section" aria-label="Objetivo de hoy">
+              <CardBody className="p-3 sm:p-4">
+                <Kicker>Objetivo de hoy</Kicker>
+                <p className="mt-0.5 flex items-start gap-2 font-slab text-base font-bold text-fg">
+                  {data.mine ? (data.mine.goal_met ? <Check className="mt-1 size-4 shrink-0 text-accent" aria-hidden="true" /> : <X className="mt-1 size-4 shrink-0 text-danger" aria-hidden="true" />) : null}
+                  {data.goal.text}
+                </p>
+                {data.streak > 0 && <p className="mt-1 text-xs font-semibold text-gold">Racha: {data.streak} {data.streak === 1 ? 'día' : 'días'} seguidos jugando</p>}
+                {!data.mine && <p className="mt-1 text-xs text-fg-muted">Tres dilemas, una sola oportunidad. Cada decisión mueve la Caja, la Barra, la Dirigencia y el Vestuario.</p>}
+              </CardBody>
+            </Card>
+            {data.mine
+              ? <Played goal={data.goal} mine={data.mine} clubName={club?.name} />
+              : <Playing decisions={data.decisions} onSubmit={submit} sending={sending} secondsSinceStart={data.seconds_since_start} />}
+          </div>
+          {data.mine && (
+            <div className="lg:col-span-5 lg:sticky lg:top-6">
+              <Board today={data.day} />
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

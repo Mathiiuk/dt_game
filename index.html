@@ -33,7 +33,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <!-- Tema (claro / oscuro) antes de pintar: mismo cálculo que src/lib/theme.js (tests/static/themeBoot.test.js los compara) -->
     <meta name="theme-color" content="#F5EFE0" />
-    <script>(function(){try{var p=localStorage.getItem('vestuario-theme');if(p!=='light'&&p!=='dark'&&p!=='auto')p='auto';var d=p==='auto'?matchMedia('(prefers-color-scheme: dark)').matches:p==='dark';var t=d?'dark':'light';var r=document.documentElement;r.dataset.theme=t;r.style.colorScheme=t;document.querySelector('meta[name="theme-color"]').content=d?'#101521':'#F5EFE0'}catch(e){}})()</script>
+    <script>(function(){try{var p=localStorage.getItem('vestuario-theme');if(p!=='light'&&p!=='dark'&&p!=='auto')p='light';var d=p==='auto'?matchMedia('(prefers-color-scheme: dark)').matches:p==='dark';var t=d?'dark':'light';var r=document.documentElement;r.dataset.theme=t;r.style.colorScheme=t;document.querySelector('meta[name="theme-color"]').content=d?'#101521':'#F5EFE0'}catch(e){}})()</script>
     <!-- /Tema -->
     <link rel="apple-touch-icon" href="/pwa-icon.svg">
 

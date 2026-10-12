@@ -143,7 +143,7 @@ export default function FinancesScreen() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando finanzas">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando finanzas">
         <Skeleton className="h-12 w-64" />
         <Skeleton className="h-28" />
         <div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-64" /><Skeleton className="h-64" /></div>
@@ -155,7 +155,7 @@ export default function FinancesScreen() {
   const health = healthInfo(f?.healthStatus)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-4 sm:px-6 lg:py-6 space-y-4">
       <PageHeader
         eyebrow="Tesorería"
         title="Finanzas"

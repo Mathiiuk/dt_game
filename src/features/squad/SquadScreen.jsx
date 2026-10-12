@@ -341,7 +341,7 @@ export default function SquadScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6" aria-busy="true" aria-label="Cargando el plantel">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-5 px-4 py-6 sm:px-6" aria-busy="true" aria-label="Cargando el plantel">
         <Skeleton className="h-12 w-1/2" />
         <Skeleton className="h-24" />
         <Skeleton className="h-80" />

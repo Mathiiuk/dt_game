@@ -60,4 +60,15 @@ describe('tema claro / oscuro', () => {
     const doc = fakeDoc()
     expect(applyTheme('violeta', { doc, matchMedia: mq(false) })).toBe(resolveTheme(DEFAULT_THEME, false))
   })
+
+  it('por defecto es claro para todos, aunque el sistema esté en oscuro', () => {
+    expect(DEFAULT_THEME).toBe('light')
+    expect(getStoredTheme(memory())).toBe('light')
+    expect(resolveTheme(getStoredTheme(memory()), true)).toBe('light')
+  })
+
+  it('quien ya eligió oscuro o automático conserva su elección', () => {
+    expect(getStoredTheme(memory({ [THEME_KEY]: 'dark' }))).toBe('dark')
+    expect(getStoredTheme(memory({ [THEME_KEY]: 'auto' }))).toBe('auto')
+  })
 })

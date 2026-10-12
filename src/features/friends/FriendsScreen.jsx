@@ -161,11 +161,11 @@ export default function FriendsScreen() {
   }
 
   if (contextLoading || rooms === null) {
-    return <div className="mx-auto max-w-3xl space-y-3 px-4 py-6"><Skeleton className="h-10 w-48" /><Skeleton className="h-40 w-full" /></div>
+    return <div className="mx-auto max-w-3xl space-y-3 px-4 py-6 lg:max-w-6xl"><Skeleton className="h-10 w-48" /><Skeleton className="h-40 w-full" /></div>
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:max-w-6xl lg:py-8 xl:px-8">
       <PageHeader
         eyebrow="Con amigos"
         title="Liga de amigos"
@@ -218,8 +218,8 @@ export default function FriendsScreen() {
                 : <LeagueView room={room} table={league.table} teams={league.teams} fixtures={league.fixtures} panel={panel} />
             })()
           ) : (
-            <>
-            <Card as="div" className="overflow-hidden">
+            <div className="space-y-5 lg:grid lg:grid-cols-5 lg:items-start lg:gap-6 lg:space-y-0">
+            <Card as="div" className="overflow-hidden lg:col-span-3">
               <table className="w-full text-left text-sm" aria-label="Tabla de la sala">
                 <thead><tr className="border-b border-line bg-surface-2 text-fg-subtle">
                   <th scope="col" className="eyebrow w-10 py-3 pl-3 text-center">Pos</th>
@@ -246,7 +246,7 @@ export default function FriendsScreen() {
               </table>
             </Card>
 
-              <Card as="div"><CardBody className="space-y-3">
+              <Card as="div" className="lg:col-span-2"><CardBody className="space-y-3">
                 <h3 className="font-display text-lg font-semibold text-fg">La liga de la sala</h3>
                 {isOwner ? (
                   <>
@@ -262,9 +262,10 @@ export default function FriendsScreen() {
                   <p className="text-sm text-fg-muted">Quien armó la sala decide los ajustes y cuándo empieza. Esperá al lobby.</p>
                 )}
               </CardBody></Card>
-            </>
+            </div>
           )}
 
+          <div className="space-y-5 lg:grid lg:grid-cols-2 lg:items-start lg:gap-6 lg:space-y-0">
           <section aria-labelledby="pranks-title">
             <h3 id="pranks-title" className="mb-2 flex items-center gap-2 font-display text-lg font-semibold text-fg">
               <Skull className="size-4.5 text-danger" aria-hidden="true" />Travesuras de la AFA
@@ -295,6 +296,7 @@ export default function FriendsScreen() {
               </ul>
             )}
           </section>
+          </div>
         </div>
       )}
 

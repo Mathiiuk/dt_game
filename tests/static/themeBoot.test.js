@@ -34,6 +34,13 @@ describe('tema antes de pintar (index.html)', () => {
     }
   })
 
+  it('sin elección guardada la página sale clara aunque el sistema esté en oscuro', () => {
+    expect(run({ stored: null, dark: true }).theme).toBe('light')
+    expect(run({ stored: 'rosa', dark: true }).theme).toBe('light')
+    expect(run({ stored: 'auto', dark: true }).theme).toBe('dark')
+    expect(run({ stored: 'dark', dark: false }).theme).toBe('dark')
+  })
+
   it('si el almacenamiento está bloqueado no rompe la página (queda el tema por defecto del CSS)', () => {
     expect(() => run({ throws: true })).not.toThrow()
   })

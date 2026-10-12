@@ -132,4 +132,25 @@ describe('PageHeader', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Plantel' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Volver' })).toBeInTheDocument()
   })
+
+  it('en escritorio el título de página no se ve (el menú lateral ya dice dónde estás) pero sigue para lectores de pantalla', () => {
+    render(<MemoryRouter><PageHeader title="Plantel" eyebrow="Gestión" description="Jugadores y contratos" /></MemoryRouter>)
+    const h1 = screen.getByRole('heading', { level: 1, name: 'Plantel' })
+    expect(h1.className).toContain('lg:sr-only')
+    // la volanta y la bajada también se esconden a la vista en escritorio, sin salir del documento
+    expect(screen.getByText('Gestión').className).toContain('lg:sr-only')
+    expect(screen.getByText('Jugadores y contratos').className).toContain('lg:sr-only')
+  })
+
+  it('las acciones de la cabecera se quedan en escritorio, a la derecha', () => {
+    render(<MemoryRouter><PageHeader title="Plantel" actions={<button>Fichar</button>} /></MemoryRouter>)
+    expect(screen.getByRole('button', { name: 'Fichar' })).toBeInTheDocument()
+    expect(screen.getByRole('banner', { hidden: true }).className).toContain('lg:justify-end')
+  })
+
+  it('sin acciones la cabecera no ocupa lugar en escritorio', () => {
+    render(<MemoryRouter><PageHeader title="Plantel" /></MemoryRouter>)
+    const header = screen.getByRole('heading', { level: 1, hidden: true }).closest('header')
+    expect(header.className).toContain('lg:pb-0')
+  })
 })

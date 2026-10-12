@@ -285,7 +285,7 @@ export default function TacticsScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6" aria-busy="true" aria-label="Cargando la pizarra táctica">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-5 px-4 py-6 sm:px-6" aria-busy="true" aria-label="Cargando la pizarra táctica">
         <Skeleton className="h-12 w-1/2" />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,28rem)_1fr]">
           <Skeleton className="aspect-[68/100] w-full" />
@@ -440,7 +440,7 @@ export default function TacticsScreen() {
   )
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-2 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-2 sm:px-6 lg:py-8">
       <PageHeader
         eyebrow="Pizarra"
         title="Táctica y once titular"

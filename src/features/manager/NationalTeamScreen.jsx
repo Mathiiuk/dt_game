@@ -147,7 +147,7 @@ export default function NationalTeamScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando selección nacional">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando selección nacional">
         <Skeleton className="h-12 w-72" />
         <Skeleton className="h-28" />
         <Skeleton className="h-44" />
@@ -163,7 +163,7 @@ export default function NationalTeamScreen() {
   // Sin selección activa: radar de promesas + termómetro + bolsa de ofertas
   if (!team) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-4 sm:px-6 lg:py-6 space-y-4">
         <PageHeader
           backTo="/manager"
           eyebrow={`Tu reputación: ${manager?.reputation || 20} pts · doble carrera`}
@@ -225,7 +225,7 @@ export default function NationalTeamScreen() {
   const keepers = callups.filter(isKeeper).length
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-4 sm:px-6 lg:py-6 space-y-4">
       <PageHeader
         backTo="/manager"
         eyebrow={`Puesto FIFA #${team.world_ranking || 1}`}

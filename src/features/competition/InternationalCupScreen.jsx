@@ -123,7 +123,7 @@ export default function InternationalCupScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando certamen continental">
+      <div className="mx-auto max-w-5xl space-y-4 px-4 py-6 sm:px-6 xl:max-w-7xl" role="status" aria-label="Cargando certamen continental">
         <Skeleton className="h-12 w-72" />
         <div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-32" /><Skeleton className="h-32" /></div>
       </div>
@@ -161,7 +161,7 @@ export default function InternationalCupScreen() {
   )
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8 xl:max-w-7xl xl:px-8">
       <PageHeader
         backTo="/standings"
         eyebrow={`Temporada ${tournament.season_year || 2026} · Torneo de clubes de América`}

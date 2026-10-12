@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { Loader2, LogOut, Shield, Trash2 } from 'lucide-react'
+import { Loader2, LogOut, Settings, Shield, Trash2 } from 'lucide-react'
 import { getPendingInvite } from '../../lib/inviteStore'
 import { useGameContext } from '../../context/GameContext'
 import { cn } from '../../lib/utils'
@@ -10,6 +10,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { NAV_GROUPS, MOBILE_TABS, isActivePath, titleForPath } from './navigation'
 import { useLogout } from './useLogout'
 import DeleteAccountDialog from './DeleteAccountDialog'
+import SettingsSheet from './SettingsSheet'
 import GameTour from '../../features/tutorial/GameTour'
 import WhatsNew from '../../features/whatsnew/WhatsNew'
 import { useFriendsPending, pendingText } from '../../features/friends/useFriendsPending'
@@ -29,6 +30,7 @@ function Brand() {
 function Sidebar({ club, manager, friendsPending }) {
   const logout = useLogout()
   const [deleting, setDeleting] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-surface lg:flex">
@@ -73,8 +75,17 @@ function Sidebar({ club, manager, friendsPending }) {
         {club?.game_date && <p className="num mt-2 text-xs capitalize text-fg-muted">{formatGameDate(club.game_date)}</p>}
         <button
           type="button"
-          onClick={logout}
+          onClick={() => setSettingsOpen(true)}
           className="-mx-2 mt-3 flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
+        >
+          <Settings className="size-4.5 shrink-0 text-fg-subtle" aria-hidden="true" />
+          Ajustes
+        </button>
+        <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
+        <button
+          type="button"
+          onClick={logout}
+          className="-mx-2 flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-sm font-medium text-fg-muted transition-colors hover:bg-surface-2 hover:text-fg"
         >
           <LogOut className="size-4.5 shrink-0 text-fg-subtle" aria-hidden="true" />
           Cerrar sesión

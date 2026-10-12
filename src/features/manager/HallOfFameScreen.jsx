@@ -66,7 +66,7 @@ export default function HallOfFameScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Abriendo el Salón de la Fama">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Abriendo el Salón de la Fama">
         <Skeleton className="h-12 w-72" />
         <Skeleton className="h-36" />
         <div className="grid gap-4 md:grid-cols-3"><Skeleton className="h-48" /><Skeleton className="h-48" /><Skeleton className="h-48" /></div>
@@ -75,7 +75,7 @@ export default function HallOfFameScreen() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-6 sm:px-6 lg:py-8">
       <PageHeader
         backTo="/manager"
         eyebrow="Récords históricos y legado universal"

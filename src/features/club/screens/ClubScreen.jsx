@@ -181,7 +181,7 @@ export default function ClubScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando instalaciones del club">
+      <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] space-y-4 px-4 py-4 sm:px-6" role="status" aria-label="Cargando instalaciones del club">
         <Skeleton className="h-12 w-72" />
         <Skeleton className="h-11" />
         <div className="grid gap-4 lg:grid-cols-2"><Skeleton className="h-96" /><Skeleton className="h-96" /></div>
@@ -195,7 +195,7 @@ export default function ClubScreen() {
   const refresh = () => loadData(true)
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:py-6 space-y-4">
+    <div className="mx-auto max-w-6xl 2xl:max-w-[96rem] px-4 py-4 sm:px-6 lg:py-6 space-y-4">
       <PageHeader
         eyebrow={`Fundado en ${club?.founded_year || 2026} · ${club?.city || 'Ciudad'}, ${club?.country || 'Nacional'}`}
         title={club?.name || 'Mi club'}

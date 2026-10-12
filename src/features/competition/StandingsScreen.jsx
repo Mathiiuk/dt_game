@@ -67,7 +67,7 @@ export default function StandingsScreen() {
 
   if (loading || contextLoading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-4 px-4 py-6 sm:px-6" role="status" aria-label="Cargando clasificación">
+      <div className="mx-auto max-w-5xl space-y-4 px-4 py-6 sm:px-6 xl:max-w-7xl" role="status" aria-label="Cargando clasificación">
         <Skeleton className="h-12 w-64" />
         <Skeleton className="h-10" />
         <Skeleton className="h-96" />
@@ -90,7 +90,7 @@ export default function StandingsScreen() {
   const ruleset = RULESETS.find(r => r.id === rulesetId)
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:py-8 xl:max-w-7xl xl:px-8">
       <PageHeader
         eyebrow={divisionName(club?.league_tier)}
         title="Tabla de posiciones"
