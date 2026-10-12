@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
-import Atmosphere from './Atmosphere'
 import PublicHeader from './PublicHeader'
 import ManagerQuoteFlash from './ManagerQuoteFlash'
 import HeroIdentity from './HeroIdentity'
 import HeroCTA from './HeroCTA'
+import EditionColumn from './EditionColumn'
 import PublicFooter from './PublicFooter'
 import { useVisitorState } from './useVisitorState'
 import { useSeo } from '../../seo/useSeo'
@@ -15,8 +15,9 @@ import { track } from '../../lib/analytics'
 export const FULL_SCREEN = 'min-h-[calc(100svh-env(safe-area-inset-top)-env(safe-area-inset-bottom))]'
 
 /**
- * Portada pública de Vestuario. Una sola pantalla: encabezado, frase, "Vos sos el DT.", llamado a la acción y pie.
- * Es la tapa de un videojuego, no un catálogo: lo que no ayuda a entender, a convertir o a navegar no va.
+ * Portada pública de Vestuario: la primera plana de un diario deportivo.
+ * Mástil, titular "Vos sos el DT.", llamado a la acción, "El pensamiento del día" y, en pantallas anchas, "En esta edición".
+ * Una sola pantalla: lo que no ayuda a entender, a convertir o a navegar no va.
  */
 export default function HomeLanding() {
   const visitor = useVisitorState()
@@ -24,14 +25,17 @@ export default function HomeLanding() {
   useEffect(() => { track('landing_view', { path: '/' }) }, [])
 
   return (
-    <div className={`relative isolate grid ${FULL_SCREEN} grid-rows-[auto_1fr_auto]`}>
-      <Atmosphere />
-      <PublicHeader visitor={visitor} />
-      <main className="relative z-10 flex flex-col items-center justify-center px-5 pb-3 text-center">
-        <ManagerQuoteFlash />
-        <div className="h-[clamp(0.75rem,3svh,2.25rem)]" />
-        <HeroIdentity />
-        <HeroCTA visitor={visitor} />
+    <div className={`relative isolate flex ${FULL_SCREEN} flex-col bg-bg`}>
+      <PublicHeader visitor={visitor} masthead />
+      <main className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-1 flex-col gap-4 px-5 pb-3 pt-4 sm:px-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)_minmax(0,1fr)] lg:items-start lg:gap-0 lg:px-12 lg:pt-6">
+        <div className="mt-auto lg:mt-0">
+          <ManagerQuoteFlash />
+        </div>
+        <section className="order-first lg:order-none lg:px-9">
+          <HeroIdentity />
+          <HeroCTA visitor={visitor} />
+        </section>
+        <EditionColumn />
       </main>
       <PublicFooter />
     </div>

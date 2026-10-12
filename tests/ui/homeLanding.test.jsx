@@ -59,6 +59,30 @@ describe('portada pública', () => {
     expect(main.getAllByRole('link').filter(a => /bg-primary(\s|$)/.test(a.className))).toHaveLength(1)
   })
 
+  it('es una primera plana: mástil con la marca, "El diario del DT" y la fecha solo del lado del cliente', () => {
+    renderHome()
+    const header = within(screen.getByRole('banner'))
+    expect(header.getByText(/El diario del DT/)).toBeInTheDocument()
+    expect(header.getByRole('link', { name: /Vestuario, ir al inicio/ }).className).toMatch(/font-slab/)
+  })
+
+  it('"El pensamiento del día" es la frase rotativa del DT, dentro de un recuadro con nombre', () => {
+    renderHome()
+    const box = screen.getByRole('complementary', { name: 'El pensamiento del día' })
+    expect(within(box).getByRole('figure')).toBeInTheDocument()
+  })
+
+  it('"En esta edición" lleva a tres páginas públicas y solo aparece en pantallas anchas', () => {
+    renderHome()
+    const column = screen.getByRole('complementary', { name: 'En esta edición' })
+    expect(column.className).toMatch(/hidden/)
+    expect(column.className).toMatch(/lg:block/)
+    const links = within(column).getAllByRole('link')
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/tacticas', '/mercado-de-pases', '/guias/liga-con-amigos'])
+    for (const a of links) expect(PUBLIC_PAGES.map(p => p.path)).toContain(a.getAttribute('href'))
+    expect(links.some(a => /(^|\s)bg-primary(\s|$)/.test(a.className))).toBe(false)
+  })
+
   it('el pie enlaza a todas las páginas públicas con anclas descriptivas, sin enlaces rotos', () => {
     renderHome()
     const footer = within(screen.getByRole('contentinfo'))

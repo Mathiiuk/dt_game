@@ -10,9 +10,9 @@ import { track } from '../../lib/analytics'
  */
 export default function PublicFooter() {
   return (
-    <footer className="relative z-10 border-t border-line/60 px-4 py-2.5 text-xs text-fg-subtle sm:px-8 lg:py-3">
+    <footer className="relative z-10 border-t border-line-strong px-4 py-2.5 text-xs text-fg-muted sm:px-8 lg:py-3">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-x-6 gap-y-1 lg:flex-row lg:justify-between">
-        <p className="hidden font-display text-sm font-semibold uppercase tracking-[0.16em] text-fg-muted lg:block">{SITE.name}</p>
+        <p className="hidden font-slab text-sm font-extrabold uppercase tracking-[0.16em] text-fg lg:block">{SITE.name}</p>
         <nav aria-label="Secciones del sitio" className="flex flex-wrap items-center justify-center gap-x-1 lg:gap-x-3">
           {FOOTER_GROUPS.map((group, i) => (
             <React.Fragment key={group.key}>

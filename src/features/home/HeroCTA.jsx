@@ -12,20 +12,20 @@ import { track } from '../../lib/analytics'
  */
 export default function HeroCTA({ visitor = 'visitor' }) {
   const hasCareer = visitor === 'career'
-  const primary = 'min-h-14 w-full text-lg shadow-[0_0_48px_-12px_var(--color-accent)]'
+  const primary = 'min-h-13 w-full text-lg lg:w-auto lg:px-7'
   const info = (
     <Link
       to="/juego"
       onClick={() => track('game_info_click', { placement: 'hero' })}
-      className="inline-flex min-h-11 items-center px-3 text-sm font-medium text-fg-muted underline-offset-4 transition-colors hover:text-fg hover:underline"
+      className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline"
     >
-      {HOME_COPY.secondaryCta}
+      {HOME_COPY.secondaryCta}<span aria-hidden="true" className="ml-1">→</span>
     </Link>
   )
   // Quien ya tiene carrera la continúa; quien llega por primera vez prueba la demo (sin cuenta) y, si le gusta, crea la carrera
   if (hasCareer) {
     return (
-      <div className="mt-[clamp(1rem,3svh,2rem)] flex w-full max-w-xs flex-col items-center gap-1">
+      <div className="mt-4 flex w-full flex-col gap-1 lg:items-center">
         <Link
           to={careerTarget(visitor)}
           onClick={() => track('continue_click', { placement: 'hero' })}
@@ -37,7 +37,7 @@ export default function HeroCTA({ visitor = 'visitor' }) {
         <Link
           to="/demo"
           onClick={() => track('game_info_click', { placement: 'hero-demo' })}
-          className="inline-flex min-h-11 items-center px-3 text-sm font-semibold text-accent underline-offset-4 transition-colors hover:underline"
+          className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-primary underline-offset-4 transition-colors hover:underline"
         >
           {HOME_COPY.demoCta}
         </Link>
@@ -45,7 +45,7 @@ export default function HeroCTA({ visitor = 'visitor' }) {
     )
   }
   return (
-    <div className="mt-[clamp(1rem,3svh,2rem)] flex w-full max-w-xs flex-col items-center gap-2">
+    <div className="mt-4 flex w-full flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center lg:justify-center">
       <Link
         to="/demo"
         onClick={() => track('game_info_click', { placement: 'hero-demo' })}
@@ -56,7 +56,7 @@ export default function HeroCTA({ visitor = 'visitor' }) {
       <Link
         to={careerTarget(visitor)}
         onClick={() => track('register_click', { placement: 'hero' })}
-        className={cn(buttonVariants({ size: 'lg', variant: 'outline' }), 'min-h-12 w-full')}
+        className={cn(buttonVariants({ size: 'lg', variant: 'outline' }), 'min-h-12 w-full lg:w-auto lg:px-6')}
       >
         {HOME_COPY.primaryCta}
       </Link>
