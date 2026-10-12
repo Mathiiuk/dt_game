@@ -6,7 +6,7 @@ import { track } from '../../lib/analytics'
 
 /**
  * Pie de diario: filete doble, la marca a un costado y los enlaces agrupados con título (Juego, Guías, Soporte, Legal).
- * En escritorio van en columnas (las guías en dos); en el celular, cada grupo en su fila con los enlaces corridos.
+ * En escritorio van en cuatro columnas; en el celular, cada grupo en su fila con los enlaces corridos.
  */
 export default function PublicFooter() {
   return (
@@ -17,11 +17,11 @@ export default function PublicFooter() {
             <p className="font-slab text-lg font-extrabold uppercase tracking-[0.14em] text-fg">{SITE.name}</p>
             <p className="mt-0.5 font-display text-[0.8125rem] font-semibold uppercase tracking-[0.16em]">El diario del DT</p>
           </div>
-          <nav aria-label="Secciones del sitio" className="grid gap-x-8 gap-y-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <nav aria-label="Secciones del sitio" className="grid gap-x-8 gap-y-3 lg:grid-cols-4">
             {FOOTER_GROUPS.map(group => (
               <div key={group.key}>
                 <p className="font-display text-[0.78rem] font-bold uppercase tracking-[0.16em] text-danger">{group.label}</p>
-                <ul aria-label={group.label} className={group.key === 'guias' ? 'mt-0.5 flex flex-wrap lg:block lg:columns-2 lg:gap-x-6' : 'mt-0.5 flex flex-wrap lg:block'}>
+                <ul aria-label={group.label} className="mt-0.5 flex flex-wrap lg:block">
                   {group.links.map(page => (
                     <li key={page.path} className="lg:break-inside-avoid">
                       <Link

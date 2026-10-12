@@ -83,11 +83,12 @@ describe('portada pública', () => {
     expect(links.some(a => /(^|\s)bg-primary(\s|$)/.test(a.className))).toBe(false)
   })
 
-  it('el pie enlaza a todas las páginas públicas con anclas descriptivas, sin enlaces rotos', () => {
+  it('el pie enlaza a las páginas esenciales con anclas descriptivas, sin enlaces rotos', () => {
     renderHome()
     const footer = within(screen.getByRole('contentinfo'))
     const links = footer.getAllByRole('link')
-    expect(links.map(a => a.getAttribute('href')).sort()).toEqual(PUBLIC_PAGES.map(p => p.path).sort())
+    expect(links.map(a => a.getAttribute('href')).sort()).toEqual(FOOTER_GROUPS.flatMap(g => g.links.map(l => l.path)).sort())
+    for (const a of links) expect(PUBLIC_PAGES.map(p => p.path)).toContain(a.getAttribute('href'))
     for (const a of links) expect(a.textContent).not.toMatch(/click|clic|acá|aquí/i)
     expect(FOOTER_GROUPS.map(g => g.label)).toEqual(['Juego', 'Guías', 'Soporte', 'Legal'])
     expect(href('Privacidad', footer)).toBe('/privacidad')

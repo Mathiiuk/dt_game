@@ -14,6 +14,7 @@ const contactLine = SITE.contactEmail
 export const PUBLIC_PAGES = [
   {
     path: '/juego',
+    featured: true,
     label: 'El juego',
     group: 'juego',
     event: 'game_info_click',
@@ -31,6 +32,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/como-jugar',
+    featured: true,
     label: 'Cómo jugar',
     group: 'juego',
     title: 'Cómo jugar | Vestuario',
@@ -48,6 +50,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/tacticas',
+    featured: true,
     label: 'Tácticas',
     group: 'juego',
     event: 'tactics_click',
@@ -64,6 +67,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/mercado-de-pases',
+    featured: true,
     label: 'Mercado de pases',
     group: 'juego',
     event: 'market_click',
@@ -112,6 +116,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/guias',
+    featured: true,
     label: 'Todas las guías',
     group: 'guias',
     title: 'Guías de Vestuario | Táctica, fichajes, finanzas y más',
@@ -161,6 +166,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/guias/como-fichar-jugadores',
+    featured: true,
     label: 'Cómo fichar jugadores',
     group: 'guias',
     title: 'Cómo fichar jugadores sin gastar de más | Vestuario',
@@ -212,6 +218,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/guias/como-ascender-de-categoria',
+    featured: true,
     label: 'Cómo ascender de categoría',
     group: 'guias',
     title: 'Cómo ascender de categoría paso a paso | Vestuario',
@@ -229,6 +236,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/guias/liga-con-amigos',
+    featured: true,
     label: 'Liga con amigos',
     group: 'guias',
     title: 'Liga con amigos: armá tu torneo | Vestuario',
@@ -264,6 +272,7 @@ export const PUBLIC_PAGES = [
   ...MORE_GUIDES,
   {
     path: '/demo',
+    featured: true,
     label: 'Probá la demo',
     group: 'juego',
     event: 'game_info_click',
@@ -279,6 +288,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/faq',
+    featured: true,
     label: 'FAQ',
     group: 'soporte',
     event: 'faq_click',
@@ -299,6 +309,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/contacto',
+    featured: true,
     label: 'Contacto',
     group: 'soporte',
     title: 'Contacto | Vestuario',
@@ -313,6 +324,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/soporte',
+    featured: true,
     label: 'Soporte',
     group: 'soporte',
     title: 'Soporte | Vestuario',
@@ -329,6 +341,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/privacidad',
+    featured: true,
     label: 'Privacidad',
     group: 'legal',
     title: 'Política de privacidad | Vestuario',
@@ -353,6 +366,7 @@ export const PUBLIC_PAGES = [
   },
   {
     path: '/terminos',
+    featured: true,
     label: 'Términos',
     group: 'legal',
     title: 'Términos y condiciones | Vestuario',
@@ -379,4 +393,4 @@ export const FOOTER_GROUPS = [
   { key: 'guias', label: 'Guías' },
   { key: 'soporte', label: 'Soporte' },
   { key: 'legal', label: 'Legal' }
-].map(group => ({ ...group, links: PUBLIC_PAGES.filter(p => p.group === group.key) }))
+].map(group => ({ ...group, links: PUBLIC_PAGES.filter(p => p.group === group.key && p.featured) }))

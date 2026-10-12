@@ -9,6 +9,9 @@ import { useSeo } from '../../seo/useSeo'
 import { pageStructuredData } from '../../seo/structuredData'
 import { HOME_COPY } from '../../seo/homeSeo'
 import { buttonVariants } from '../../components/ui/button'
+import { Card, CardBody, Kicker } from '../../components/ui'
+
+const SECTION_LABEL = { juego: 'El juego', guias: 'Guía', soporte: 'Soporte', legal: 'Legal' }
 import { cn } from '../../lib/utils'
 import { track } from '../../lib/analytics'
 
@@ -31,42 +34,50 @@ export default function InfoPage({ path }) {
   return (
     <div className={`grid ${FULL_SCREEN} grid-rows-[auto_1fr_auto] bg-bg`}>
       <PublicHeader visitor={visitor} />
-      <main className="mx-auto w-full max-w-2xl px-5 pb-12 pt-6 sm:pt-10">
+      <main className="mx-auto w-full max-w-3xl px-5 pb-12 pt-6 sm:pt-9">
         <article>
-          <h1 className="text-balance font-display text-4xl font-bold leading-none text-fg sm:text-5xl">{page.h1}</h1>
-          <p className="mt-4 text-lg leading-relaxed text-fg-muted">{page.intro}</p>
+          <Kicker>{SECTION_LABEL[page.group] || 'Vestuario'}</Kicker>
+          <h1 className="mt-1 text-balance font-slab text-[2.25rem] font-extrabold leading-[1.05] tracking-tight text-fg sm:text-5xl">{page.h1}</h1>
+          <p className="mt-4 border-b border-line-strong pb-5 text-lg leading-relaxed text-fg-muted">{page.intro}</p>
           {page.sections.map(section => (
-            <section key={section.heading} className="mt-8">
-              <h2 className="font-display text-2xl font-semibold text-fg">{section.heading}</h2>
+            <section key={section.heading} className="mt-7">
+              <h2 className="flex items-baseline gap-3 font-slab text-2xl font-bold text-fg">
+                <span>{section.heading}</span>
+                <span className="h-0 grow border-b border-line-strong" aria-hidden="true" />
+              </h2>
               {section.body.map(paragraph => (
-                <p key={paragraph} className="mt-2 leading-relaxed text-fg-muted">{paragraph}</p>
+                <p key={paragraph} className="mt-2.5 leading-relaxed text-fg-muted">{paragraph}</p>
               ))}
             </section>
           ))}
         </article>
 
-        <aside className="mt-10 rounded-lg border border-line bg-surface p-5">
-          <p className="font-display text-2xl font-semibold text-fg">{HOME_COPY.h1}</p>
-          <p className="mt-1 text-sm text-fg-muted">{HOME_COPY.subheadline}</p>
-          <Link
-            to={careerTarget(visitor)}
-            onClick={() => track(visitor === 'career' ? 'continue_click' : 'register_click', { placement: 'page', path: page.path })}
-            className={cn(buttonVariants({ size: 'lg' }), 'mt-4 w-full sm:w-auto')}
-          >
-            {visitor === 'career' ? HOME_COPY.continueCta : HOME_COPY.primaryCta}
-          </Link>
-        </aside>
+        <Card masthead as="aside" className="mt-10">
+          <CardBody className="p-5">
+            <Kicker>Vestuario</Kicker>
+            <p className="mt-1 font-slab text-2xl font-extrabold text-fg">{HOME_COPY.h1}</p>
+            <p className="mt-1 text-sm text-fg-muted">{HOME_COPY.subheadline}</p>
+            <Link
+              to={careerTarget(visitor)}
+              onClick={() => track(visitor === 'career' ? 'continue_click' : 'register_click', { placement: 'page', path: page.path })}
+              className={cn(buttonVariants({ size: 'lg' }), 'mt-4 w-full sm:w-auto')}
+            >
+              {visitor === 'career' ? HOME_COPY.continueCta : HOME_COPY.primaryCta}
+            </Link>
+          </CardBody>
+        </Card>
 
         {page.related?.length > 0 && (
           <nav aria-label="Páginas relacionadas" className="mt-8">
-            <h2 className="eyebrow">Seguí leyendo</h2>
-            <ul className="mt-2 flex flex-wrap gap-x-5">
+            <h2 className="font-display text-sm font-bold uppercase tracking-[0.18em] text-danger">Seguí leyendo</h2>
+            <ul className="mt-1 border-t border-line-strong">
               {page.related.map(relatedPath => {
                 const related = getPublicPage(relatedPath)
                 return (
-                  <li key={relatedPath}>
-                    <Link to={relatedPath} className="inline-flex min-h-11 items-center font-medium text-accent underline-offset-4 hover:underline">
-                      {related.label === 'FAQ' ? 'Preguntas frecuentes' : related.label}
+                  <li key={relatedPath} className="border-b border-line">
+                    <Link to={relatedPath} className="flex min-h-11 items-center justify-between gap-3 py-2 font-semibold text-fg transition-colors hover:text-primary">
+                      <span>{related.label === 'FAQ' ? 'Preguntas frecuentes' : related.label}</span>
+                      <span aria-hidden="true" className="text-primary">→</span>
                     </Link>
                   </li>
                 )

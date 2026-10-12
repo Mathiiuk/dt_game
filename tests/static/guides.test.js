@@ -13,7 +13,7 @@ describe('guías de contenido para buscadores', () => {
       '/guias/finanzas-del-club', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/guias/simulador-de-futbol-argentino',
       '/guias/formacion-4-2-3-1', '/guias/formacion-5-3-2', '/guias/cantera-y-juveniles', '/guias/pelota-parada-y-penales', '/guias/prensa-y-dirigencia', '/guias/copas-y-torneos'
     ])
-    expect(FOOTER_GROUPS.find(g => g.key === 'guias').links).toHaveLength(15)
+    expect(FOOTER_GROUPS.find(g => g.key === 'guias').links.map(l => l.path)).toEqual(['/guias', '/guias/como-fichar-jugadores', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos'])
   })
 
   it('cada guía tiene texto de verdad: al menos 300 palabras y 3 o más subtítulos', () => {
