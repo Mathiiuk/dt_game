@@ -9,12 +9,17 @@ const template = readFileSync('index.html', 'utf8')
 describe('404 real en Vercel', () => {
   it('ya no se reescribe todo a la app: solo las rutas del juego, el resto cae en 404.html con estado 404', () => {
     expect(vercel.rewrites.some(r => r.source === '/(.*)')).toBe(false)
-    expect(vercel.rewrites).toHaveLength(1)
-    expect(vercel.rewrites[0].destination).toBe('/index.html')
+    expect(vercel.rewrites).toHaveLength(2)
+    vercel.rewrites.forEach(r => expect(r.destination).toBe('/index.html'))
+  })
+
+  it('el perfil público del DT (/dt/<dirección>) también entra a la app', () => {
+    expect(vercel.rewrites).toContainEqual({ source: '/dt/:slug', destination: '/index.html' })
   })
 
   it('la lista de rutas del juego coincide con las de vercel.json y con las de GameApp', () => {
-    const inVercel = vercel.rewrites[0].source.match(/^\/\((.*)\)$/)[1].split('|').map(p => `/${p}`)
+    const gameRewrite = vercel.rewrites.find(r => r.source.startsWith('/('))
+    const inVercel = gameRewrite.source.match(/^\/\((.*)\)$/)[1].split('|').map(p => `/${p}`)
     expect([...inVercel].sort()).toEqual([...GAME_PATHS].sort())
     const inApp = [...gameApp.matchAll(/path="(\/[a-z-]+)"/g)].map(m => m[1])
     expect([...new Set(inApp)].sort()).toEqual([...GAME_PATHS].sort())

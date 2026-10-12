@@ -13,6 +13,7 @@ import { isGamePath } from './data/gameRoutes'
 // la portada queda liviana y carga rápido para quien llega desde un buscador.
 const GameApp = lazy(() => import('./GameApp'))
 const DemoScreen = lazy(() => import('./features/demo/DemoScreen'))
+const PublicProfilePage = lazy(() => import('./features/home/PublicProfilePage'))
 // Páginas públicas con pantalla propia (el resto usa la plantilla de InfoPage)
 const CUSTOM_PAGES = { '/demo': DemoScreen }
 
@@ -45,6 +46,7 @@ function App() {
         {PUBLIC_PAGES.map(page => (
           <Route key={page.path} path={page.path} element={CUSTOM_PAGES[page.path] ? <Suspense fallback={<GameLoading />}>{React.createElement(CUSTOM_PAGES[page.path])}</Suspense> : <InfoPage path={page.path} />} />
         ))}
+        <Route path="/dt/:slug" element={<Suspense fallback={<GameLoading />}><PublicProfilePage /></Suspense>} />
         <Route path="*" element={<GameOrNotFound />} />
       </Routes>
     </BrowserRouter>

@@ -87,3 +87,36 @@ describe('migración de las leyendas de la tabla pública', () => {
     expect(code).not.toMatch(/drop (table|column)|delete from|truncate|alter table public\.(managers|clubs)/i)
   })
 })
+
+describe('migración del perfil público del DT', () => {
+  const sql = readFileSync('scripts/db/migration_public_profile.sql', 'utf8')
+  const code = sql.split('\n').filter(l => !l.trim().startsWith('--')).join('\n')
+
+  it('es aditiva: columna nueva, índice único parcial y funciones nuevas, sin tocar lo existente', () => {
+    expect(code).toContain('add column if not exists public_slug text')
+    expect(code).toMatch(/create unique index if not exists managers_public_slug_key on public\.managers \(public_slug\) where public_slug is not null/)
+    expect(code).not.toMatch(/drop (table|column|function)|delete from|truncate|public_ranking boolean/i)
+  })
+
+  it('el perfil y la tabla solo muestran a quien aceptó, y no exponen datos de la cuenta', () => {
+    expect(code.match(/where m\.public_ranking\s+and /g)).toHaveLength(2)
+    expect(code).not.toMatch(/auth\.users|email|c\.name|stadium|owner_user_id/)
+    const profile = code.slice(code.indexOf('function public.public_manager_profile'), code.indexOf('function public.public_top_managers_v3'))
+    expect(profile).toContain('returns table (manager_name text, points integer')
+    const returns = profile.slice(profile.indexOf('returns table'), profile.indexOf('language sql'))
+    expect(returns).not.toMatch(/\bid\b|uuid|user_id|slug/)
+  })
+
+  it('la dirección solo la genera quien está conectado y aceptó; los permisos están acotados', () => {
+    expect(code).toContain('where user_id = auth.uid()')
+    expect(code).toContain('if m.id is null or not m.public_ranking then return null; end if;')
+    expect(code).toContain('revoke all on function public.claim_public_slug() from public, anon;')
+    expect(code).toContain('grant execute on function public.claim_public_slug() to authenticated;')
+    expect(code).toContain('grant execute on function public.public_manager_profile(text) to anon, authenticated;')
+    expect(code).toContain('grant execute on function public.public_top_managers_v3(integer) to anon, authenticated;')
+  })
+
+  it('el puesto del perfil cuenta a las leyendas con la misma regla de 600 puntos por título', () => {
+    expect(code).toContain('l.titles * 600 > s.pts')
+  })
+})

@@ -1,6 +1,7 @@
 // Tabla pública "Los mejores DT": se pide con un fetch directo a la función pública de la base (sin cargar el cliente de Supabase
 // ni la sesión: la portada tiene que quedar liviana). Solo viaja la clave pública; la función devuelve nombre, puntos, títulos y victorias.
 import { supabaseUrl, supabaseAnonKey } from './supabaseEnv'
+import { isValidSlug } from './publicProfile'
 
 const MAX_NAME = 40
 
@@ -15,12 +16,13 @@ export function normalizeRows(rows) {
       points: Number(r.points),
       titles: Number(r.titles) || 0,
       won: Number(r.matches_won) || 0,
-      legend: Boolean(r.is_legend)
+      legend: Boolean(r.is_legend),
+      slug: isValidSlug(r.public_slug) ? r.public_slug : null
     }))
 }
 
 export async function fetchTopManagers(limit = 3, { fetchImpl = (...a) => fetch(...a), signal } = {}) {
-  const res = await fetchImpl(`${supabaseUrl}/rest/v1/rpc/public_top_managers_v2`, {
+  const res = await fetchImpl(`${supabaseUrl}/rest/v1/rpc/public_top_managers_v3`, {
     method: 'POST',
     headers: { apikey: supabaseAnonKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ p_limit: limit }),

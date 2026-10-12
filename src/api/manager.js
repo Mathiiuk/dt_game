@@ -208,6 +208,13 @@ export const managerApi = {
     return value === true
   },
 
+  /** Dirección del perfil público del DT (se genera una vez; solo si aceptó aparecer). Devuelve null si no corresponde */
+  async claimPublicSlug() {
+    const { data, error } = await supabase.rpc('claim_public_slug')
+    if (error) throw new Error(error.message)
+    return data || null
+  },
+
   async getManager(userId) {
     const { data, error } = await supabase
       .from('managers')

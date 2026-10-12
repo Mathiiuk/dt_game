@@ -1,14 +1,17 @@
 import React from 'react'
-import { render, screen, within } from '@testing-library/react'
+import { render as rtlRender, screen, within } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 
 const { fetchTopManagers } = vi.hoisted(() => ({ fetchTopManagers: vi.fn() }))
 vi.mock('../../src/lib/publicRanking', () => ({ fetchTopManagers }))
+
+const render = (ui) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>)
 
 import TopManagersTable from '../../src/features/home/TopManagersTable'
 
 const rows = [
   { rank: 1, name: 'Ramón Díaz', points: 10200, titles: 15, won: 480, legend: true },
-  { rank: 2, name: 'Ana Gómez', points: 1301, titles: 2, won: 15, legend: false },
+  { rank: 2, name: 'Ana Gómez', points: 1301, titles: 2, won: 15, legend: false, slug: 'ana-gomez-a1b2' },
   { rank: 3, name: 'Luis Peña', points: 1264, titles: 0, won: 4, legend: false }
 ]
 
@@ -40,6 +43,15 @@ describe('tabla "Los mejores DT" de la portada', () => {
     render(<TopManagersTable />)
     await screen.findByRole('table', { name: /mejores DT/i })
     expect(screen.getByText(/leyendas son los DT más ganadores/i)).toBeInTheDocument()
+  })
+
+  it('los DT del juego enlazan a su perfil; las leyendas no', async () => {
+    fetchTopManagers.mockResolvedValue(rows)
+    render(<TopManagersTable />)
+    const table = await screen.findByRole('table', { name: /mejores DT/i })
+    expect(within(table).getByRole('link', { name: 'Ana Gómez' })).toHaveAttribute('href', '/dt/ana-gomez-a1b2')
+    expect(within(table).queryByRole('link', { name: 'Ramón Díaz' })).toBeNull()
+    expect(within(table).queryByRole('link', { name: 'Luis Peña' })).toBeNull()
   })
 
   it('sin DT todavía invita a ser el primero', async () => {

@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-02-perfil-publico',
+    date: '2026-11-02',
+    title: 'Tu DT tiene página propia',
+    items: [
+      'Si aceptaste aparecer en la tabla, ahora tenés un perfil para compartir con tu puesto.',
+      'Lo ves en Más, en Privacidad. Si retirás el permiso, la página deja de existir.'
+    ]
+  },
+  {
     id: '2026-11-01-tarjetas-diario',
     date: '2026-11-01',
     title: 'Tus tarjetas, ahora como portada de diario',

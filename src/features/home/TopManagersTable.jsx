@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { fetchTopManagers } from '../../lib/publicRanking'
+import { profilePath } from '../../lib/publicProfile'
 
 const fmt = (n) => new Intl.NumberFormat('es-AR').format(n)
 
@@ -41,7 +43,7 @@ export default function TopManagersTable({ limit = 3 }) {
               <tr key={`${r.rank}-${r.name}-${r.points}`}>
                 <td className="num w-7 py-1 font-display text-base font-bold text-fg">{r.rank}</td>
                 <td className="truncate py-1 font-semibold text-fg">
-                  {r.name}
+                  {r.slug ? <Link to={profilePath(r.slug)} className="hover:underline">{r.name}</Link> : r.name}
                   {r.legend && <span className="ml-1.5 align-middle font-display text-[0.65rem] font-bold uppercase tracking-[0.14em] text-danger">Leyenda</span>}
                 </td>
                 <td className="num py-1 text-right font-display text-base font-bold text-fg">{fmt(r.points)}</td>
