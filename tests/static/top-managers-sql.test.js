@@ -55,3 +55,35 @@ describe('migración del consentimiento para la tabla pública', () => {
     expect(code.match(/alter table/gi)).toHaveLength(1)
   })
 })
+
+describe('migración de las leyendas de la tabla pública', () => {
+  const sql = readFileSync('scripts/db/migration_legend_managers.sql', 'utf8')
+  const code = sql.split('\n').filter(l => !l.trim().startsWith('--')).join('\n')
+
+  it('guarda cinco leyendas con su cantidad de títulos y sin nombres de clubes', () => {
+    const names = [...code.matchAll(/^\('([^']+)', '([^']+)',/gm)].map(m => m[1])
+    expect(names).toHaveLength(5)
+    expect(new Set(names).size).toBe(5)
+    expect(code).not.toMatch(/Boca|River|Vélez|Velez|Inter|Barcelona|Madrid|Roma|San Lorenzo|Corinthians|Hilal/i)
+  })
+
+  it('la tabla tiene RLS y ninguna política; solo se lee con la función', () => {
+    expect(code).toContain('alter table public.legend_managers enable row level security')
+    expect(code).not.toMatch(/create policy/i)
+  })
+
+  it('el puntaje de las leyendas es de 600 puntos por título (promedio de la fórmula de los DT)', () => {
+    expect(code).toContain('l.titles * 600 as pts')
+  })
+
+  it('la función devuelve la marca de leyenda, mezcla leyendas y DT con consentimiento y mantiene los permisos', () => {
+    expect(code).toContain('returns table (rank bigint, manager_name text, points integer, titles integer, matches_won integer, is_legend boolean)')
+    expect(code).toMatch(/where m\.public_ranking\s+and /)
+    expect(code).toMatch(/grant execute on function public\.public_top_managers_v2\(integer\) to anon, authenticated;/)
+    expect(code).not.toMatch(/auth\.users|email|user_id|owner_user_id/)
+  })
+
+  it('es aditiva: crea una tabla nueva y agrega una función nueva', () => {
+    expect(code).not.toMatch(/drop (table|column)|delete from|truncate|alter table public\.(managers|clubs)/i)
+  })
+})

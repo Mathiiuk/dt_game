@@ -14,12 +14,13 @@ export function normalizeRows(rows) {
       name: String(r.manager_name).trim().slice(0, MAX_NAME),
       points: Number(r.points),
       titles: Number(r.titles) || 0,
-      won: Number(r.matches_won) || 0
+      won: Number(r.matches_won) || 0,
+      legend: Boolean(r.is_legend)
     }))
 }
 
-export async function fetchTopManagers(limit = 5, { fetchImpl = (...a) => fetch(...a), signal } = {}) {
-  const res = await fetchImpl(`${supabaseUrl}/rest/v1/rpc/public_top_managers`, {
+export async function fetchTopManagers(limit = 3, { fetchImpl = (...a) => fetch(...a), signal } = {}) {
+  const res = await fetchImpl(`${supabaseUrl}/rest/v1/rpc/public_top_managers_v2`, {
     method: 'POST',
     headers: { apikey: supabaseAnonKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ p_limit: limit }),

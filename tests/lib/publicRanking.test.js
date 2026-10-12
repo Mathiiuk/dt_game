@@ -7,7 +7,7 @@ describe('tabla pública de mejores DT', () => {
     const fetchImpl = vi.fn().mockResolvedValue(ok([]))
     await fetchTopManagers(5, { fetchImpl })
     const [url, init] = fetchImpl.mock.calls[0]
-    expect(url).toMatch(/\/rest\/v1\/rpc\/public_top_managers$/)
+    expect(url).toMatch(/\/rest\/v1\/rpc\/public_top_managers_v2$/)
     expect(init.method).toBe('POST')
     expect(JSON.parse(init.body)).toEqual({ p_limit: 5 })
     expect(init.headers.apikey).toBeTruthy()
@@ -16,9 +16,15 @@ describe('tabla pública de mejores DT', () => {
   })
 
   it('devuelve las filas ordenadas y con los campos que se muestran', async () => {
-    const rows = [{ rank: 1, manager_name: 'Ana Gómez', points: 1301, titles: 2, matches_won: 15, id: 'secreto' }]
+    const rows = [
+      { rank: 1, manager_name: 'Ramón Díaz', points: 10200, titles: 15, matches_won: 480, is_legend: true },
+      { rank: 2, manager_name: 'Ana Gómez', points: 1301, titles: 2, matches_won: 15, is_legend: false, id: 'secreto' }
+    ]
     const out = await fetchTopManagers(5, { fetchImpl: vi.fn().mockResolvedValue(ok(rows)) })
-    expect(out).toEqual([{ rank: 1, name: 'Ana Gómez', points: 1301, titles: 2, won: 15 }])
+    expect(out).toEqual([
+      { rank: 1, name: 'Ramón Díaz', points: 10200, titles: 15, won: 480, legend: true },
+      { rank: 2, name: 'Ana Gómez', points: 1301, titles: 2, won: 15, legend: false }
+    ])
   })
 
   it('si el servidor falla o responde algo raro, avisa con un error (la portada oculta la tabla)', async () => {

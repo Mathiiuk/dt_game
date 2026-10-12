@@ -358,6 +358,7 @@ export const PUBLIC_PAGES = [
       { heading: 'Tabla pública de los mejores DT: solo si lo aceptás', body: [
         'La portada muestra una tabla con los DT que más puntos de legado juntaron en su carrera. Aparecés únicamente si lo aceptás: al crear tu DT hay una casilla que arranca sin tildar, y después podés activarlo o desactivarlo cuando quieras en "Más", en el apartado Privacidad.',
         'Si lo aceptás, se publica el nombre y apellido que elegiste para tu DT, sus puntos de legado, sus títulos y sus victorias, y recién cuando jugó al menos 10 partidos. Nunca se publican tu correo, tu contraseña, el nombre de tu club ni otros datos de tu cuenta.',
+        'En la tabla también figuran cinco leyendas: los DT argentinos más ganadores de la historia, con su cantidad de títulos. Son figuras públicas del fútbol que se muestran solo con ese dato; no son usuarios del juego y no se guarda nada de ellas más que su nombre y sus títulos.',
         `Podés retirar tu consentimiento en cualquier momento y dejás de aparecer enseguida. También dejás de aparecer si eliminás tu cuenta, y si cambiás el nombre de tu DT se muestra el nuevo. ${contactLine}`
       ] },
       { heading: 'Tus derechos', body: [`Podés pedir en cualquier momento que corrijamos o eliminemos tus datos y tu cuenta. ${contactLine}`] }

@@ -4,10 +4,10 @@ import { fetchTopManagers } from '../../lib/publicRanking'
 const fmt = (n) => new Intl.NumberFormat('es-AR').format(n)
 
 /**
- * "Los mejores DT": los cinco con más puntos de legado en toda su carrera (la misma cuenta del Salón de la Fama del juego).
+ * "Los mejores DT": los DT con más puntos de legado, mezclados con cinco leyendas: los DT argentinos más ganadores de la historia (600 puntos por título).
  * Si no se puede cargar, no se muestra nada: la portada no depende de esto.
  */
-export default function TopManagersTable({ limit = 5 }) {
+export default function TopManagersTable({ limit = 3 }) {
   const [state, setState] = useState({ status: 'loading', rows: [] })
 
   useEffect(() => {
@@ -39,13 +39,19 @@ export default function TopManagersTable({ limit = 5 }) {
           <tbody className="divide-y divide-line">
             {state.rows.map(r => (
               <tr key={`${r.rank}-${r.name}-${r.points}`}>
-                <td className="num w-7 py-1.5 font-display text-base font-bold text-fg">{r.rank}</td>
-                <td className="truncate py-1.5 font-semibold text-fg">{r.name}</td>
-                <td className="num py-1.5 text-right font-display text-base font-bold text-fg">{fmt(r.points)}</td>
+                <td className="num w-7 py-1 font-display text-base font-bold text-fg">{r.rank}</td>
+                <td className="truncate py-1 font-semibold text-fg">
+                  {r.name}
+                  {r.legend && <span className="ml-1.5 align-middle font-display text-[0.65rem] font-bold uppercase tracking-[0.14em] text-danger">Leyenda</span>}
+                </td>
+                <td className="num py-1 text-right font-display text-base font-bold text-fg">{fmt(r.points)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+      {!loading && state.rows.some(r => r.legend) && (
+        <p className="mt-1.5 text-xs text-fg-muted">Las leyendas son los DT más ganadores de la historia argentina: ¡superalos!</p>
       )}
     </section>
   )
