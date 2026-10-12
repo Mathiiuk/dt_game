@@ -10,14 +10,14 @@ const nameOf = (p) => `${p.first_name || ''} ${p.last_name || ''}`.trim()
 
 /** Trazado vectorial de la cancha de fútbol arcade con césped y líneas */
 function MiniPitch({ children }) {
-  const line = 'oklch(95% 0.012 100 / 0.25)'
+  const line = 'var(--color-pitch-line)'
   return (
     <div className="relative aspect-[68/100] w-full max-w-[320px] mx-auto rounded-xl overflow-hidden border border-line shadow-2xl select-none">
       <svg viewBox="0 0 68 100" className="absolute inset-0 size-full" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <pattern id="mow-mini" width="68" height="12.5" patternUnits="userSpaceOnUse">
-            <rect width="68" height="6.25" fill="#14301d" />
-            <rect y="6.25" width="68" height="6.25" fill="#0f2617" />
+            <rect width="68" height="6.25" fill="var(--color-pitch)" />
+            <rect y="6.25" width="68" height="6.25" fill="var(--color-pitch-2)" />
           </pattern>
         </defs>
         <rect width="68" height="100" fill="url(#mow-mini)" />
@@ -132,7 +132,7 @@ export default function InteractiveSubstitutionsModal({
                         ? 'border-amber-400 bg-amber-500 text-zinc-950 ring-4 ring-amber-400/50 animate-pulse'
                         : isInjured
                         ? 'border-red-500 bg-red-950/80 text-red-200'
-                        : 'border-white/80 bg-zinc-900/90 text-white group-hover:border-accent group-hover:scale-105'
+                        : 'border-white/80 bg-zinc-900/90 text-white group-hover:border-primary group-hover:scale-105'
                     )}
                   >
                     {player.shirt_number || idx + 1}
@@ -195,14 +195,14 @@ export default function InteractiveSubstitutionsModal({
                       key={sub.id}
                       type="button"
                       onClick={() => handleConfirmSub(sub)}
-                      className="w-full p-2.5 rounded-xl border border-line bg-surface hover:bg-surface-2 hover:border-accent text-left transition-all flex items-center justify-between gap-3 group"
+                      className="w-full p-2.5 rounded-xl border border-line bg-surface hover:bg-surface-2 hover:border-primary text-left transition-all flex items-center justify-between gap-3 group"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span className="size-7 rounded-lg bg-surface-3 flex items-center justify-center font-bold text-xs text-fg">
                           {sub.shirt_number || '·'}
                         </span>
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-fg truncate group-hover:text-accent">
+                          <p className="text-xs font-bold text-fg truncate group-hover:text-primary">
                             {nameOf(sub)}
                           </p>
                           <p className="text-[10px] text-fg-subtle">
@@ -220,7 +220,7 @@ export default function InteractiveSubstitutionsModal({
                             como {targetSlot}
                           </span>
                         </div>
-                        <span className="size-7 rounded-lg bg-accent/15 group-hover:bg-accent text-accent group-hover:text-accent-fg flex items-center justify-center transition-all">
+                        <span className="size-7 rounded-lg bg-accent/15 group-hover:bg-primary text-accent group-hover:text-primary-fg flex items-center justify-center transition-all">
                           <Check className="size-4" />
                         </span>
                       </div>

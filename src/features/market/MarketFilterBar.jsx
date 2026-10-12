@@ -62,7 +62,7 @@ export default function MarketFilterBar({
               onClick={() => onChipChange(chip.value)}
               className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 isActive
-                  ? 'bg-accent text-accent-contrast shadow-sm shadow-accent/20 scale-[1.02]'
+                  ? 'bg-primary text-accent-contrast shadow-sm shadow-accent/20 scale-[1.02]'
                   : 'bg-surface-2 border border-line text-fg-muted hover:text-fg hover:border-line-focus'
               }`}
             >

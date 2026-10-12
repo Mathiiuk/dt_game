@@ -2,10 +2,10 @@ import { supabase } from './supabase'
 import { queryCache } from '../utils/cache'
 
 export const HIERARCHY_TIERS = {
-  TEAM_LEADER: { key: 'TEAM_LEADER', label: 'Líder de Equipo', color: 'text-amber-400 bg-amber-950/40 border-amber-800/60' },
+  TEAM_LEADER: { key: 'TEAM_LEADER', label: 'Líder de Equipo', color: 'text-gold bg-gold-soft border-gold/40' },
   HIGHLY_INFLUENTIAL: { key: 'HIGHLY_INFLUENTIAL', label: 'Muy Influyente', color: 'text-purple-400 bg-purple-950/40 border-purple-800/60' },
-  INFLUENTIAL: { key: 'INFLUENTIAL', label: 'Influyente', color: 'text-blue-400 bg-blue-950/40 border-blue-800/60' },
-  FRINGE_PLAYER: { key: 'FRINGE_PLAYER', label: 'Relegado / Juvenil', color: 'text-zinc-400 bg-zinc-800/40 border-zinc-700/60' }
+  INFLUENTIAL: { key: 'INFLUENTIAL', label: 'Influyente', color: 'text-primary bg-primary-soft border-primary/40' },
+  FRINGE_PLAYER: { key: 'FRINGE_PLAYER', label: 'Relegado / Juvenil', color: 'text-fg-subtle bg-surface-3 border-line-strong' }
 }
 
 export const SOCIAL_GROUPS = {
@@ -374,34 +374,34 @@ export const lockerRoomApi = {
     if (score >= 85) {
       return {
         title: 'Familia Blindada (Unión Extrema)',
-        badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
+        badgeColor: 'text-accent bg-accent-soft border-accent/40',
         tacticalBonus: '+8% acierto de pases • Respaldo unánime al DT'
       }
     }
     if (score >= 65) {
       return {
         title: 'Cohesión Estable (Buen Ambiente)',
-        badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-800/60',
+        badgeColor: 'text-primary bg-primary-soft border-primary/40',
         tacticalBonus: '+3% acierto de pases • Vestuario disciplinado'
       }
     }
     if (score >= 45) {
       return {
         title: 'Clima Neutro (Distante)',
-        badgeColor: 'text-zinc-300 bg-zinc-800/50 border-zinc-700/60',
+        badgeColor: 'text-fg-muted bg-surface-3 border-line-strong',
         tacticalBonus: 'Sin bonificaciones tácticas'
       }
     }
     if (score >= 25) {
       return {
         title: 'Discrepancias Internas (Tensión)',
-        badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+        badgeColor: 'text-gold bg-gold-soft border-gold/40',
         tacticalBonus: '-5% precisión en salida • Aumento de amonestaciones'
       }
     }
     return {
       title: 'Motín en el Vestuario (Quiebre Total)',
-      badgeColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+      badgeColor: 'text-danger bg-danger-soft border-danger/40',
       tacticalBonus: 'Huelga de brazos caídos • La directiva intervendrá'
     }
   }

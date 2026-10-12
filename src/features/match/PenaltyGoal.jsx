@@ -26,7 +26,7 @@ export default function PenaltyGoal({ options, onChoose }) {
 
   return (
     <div>
-      <div className="relative mx-auto h-36 w-full max-w-xs overflow-hidden rounded-t-md border-x-4 border-t-4 border-fg bg-[repeating-linear-gradient(45deg,transparent_0_6px,oklch(100%_0_0/0.06)_6px_7px)]">
+      <div className="relative mx-auto h-36 w-full max-w-xs overflow-hidden rounded-t-md border-x-4 border-t-4 border-fg bg-[repeating-linear-gradient(45deg,transparent_0_6px,color-mix(in_oklab,var(--color-fg)_7%,transparent)_6px_7px)]">
         <div className="grid h-full grid-cols-3">
           {Object.keys(ZONES).map(dive => (
             <button
@@ -89,7 +89,7 @@ export function PenaltyShoot({ takerName, onDone }) {
   return (
     <div className="space-y-3">
       <p className="text-sm font-semibold text-fg">{aim ? `${takerName} está listo. Frená la barra en el verde.` : `${takerName} agarra la pelota. ¿Adónde la manda?`}</p>
-      <div className="relative mx-auto h-32 w-full max-w-xs overflow-hidden rounded-t-md border-x-4 border-t-4 border-fg bg-[repeating-linear-gradient(45deg,transparent_0_6px,oklch(100%_0_0/0.06)_6px_7px)]">
+      <div className="relative mx-auto h-32 w-full max-w-xs overflow-hidden rounded-t-md border-x-4 border-t-4 border-fg bg-[repeating-linear-gradient(45deg,transparent_0_6px,color-mix(in_oklab,var(--color-fg)_7%,transparent)_6px_7px)]">
         <div className="grid h-full grid-cols-3">
           {Object.keys(ZONES).map(zone => (
             <button

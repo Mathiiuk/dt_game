@@ -76,7 +76,7 @@ export default function DecisionCard({ moment, onChoose }) {
             <button
               type="button"
               onClick={() => pick(option)}
-              className="w-full rounded-lg border border-line bg-surface p-3 text-left text-sm text-fg transition-colors hover:border-accent"
+              className="w-full rounded-lg border border-line bg-surface p-3 text-left text-sm text-fg transition-colors hover:border-primary"
             >
               <span className="flex items-center gap-2 font-bold">{option.icon && <NamedIcon name={option.icon} className="size-4 shrink-0 text-accent" />}{option.label}</span>
               <span className="text-xs text-fg-subtle">{option.desc}</span>

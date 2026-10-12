@@ -6,7 +6,7 @@ export const INJURY_SEVERITY = {
   MINOR: {
     key: 'MINOR',
     name: 'Leve',
-    badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+    badgeColor: 'text-gold bg-gold-soft border-gold/40',
     minWeeks: 1,
     maxWeeks: 2,
     description: 'Sobrecarga muscular, contractura o contusión. Baja corta de 1 a 2 semanas.'
@@ -14,7 +14,7 @@ export const INJURY_SEVERITY = {
   MODERATE: {
     key: 'MODERATE',
     name: 'Moderada',
-    badgeColor: 'text-orange-400 bg-orange-950/40 border-orange-800/60',
+    badgeColor: 'text-warning bg-warning-soft border-warning/40',
     minWeeks: 3,
     maxWeeks: 6,
     description: 'Desgarro fibrilar o esguince articular. Recuperación de 3 a 6 semanas.'
@@ -22,7 +22,7 @@ export const INJURY_SEVERITY = {
   SEVERE: {
     key: 'SEVERE',
     name: 'Grave',
-    badgeColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+    badgeColor: 'text-danger bg-danger-soft border-danger/40',
     minWeeks: 7,
     maxWeeks: 16,
     description: 'Fractura, pubalgia crónica o rotura fascial. Convalecencia prolongada de 7 a 16 semanas.'
@@ -30,7 +30,7 @@ export const INJURY_SEVERITY = {
   CATASTROPHIC: {
     key: 'CATASTROPHIC',
     name: 'Catastrófica',
-    badgeColor: 'text-red-500 bg-red-950/60 border-red-700/80',
+    badgeColor: 'text-danger bg-danger-soft border-danger/40',
     minWeeks: 17,
     maxWeeks: 36,
     description: 'Rotura de ligamentos cruzados (LCA) o tendón de Aquiles. Riesgo de secuelas permanentes.'

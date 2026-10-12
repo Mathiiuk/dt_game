@@ -125,14 +125,14 @@ function LightningRound({ onFinish }) {
       {shown ? (
         <div className="space-y-3">
           <p role="status" className="rounded-lg border border-line bg-bg p-3 text-xs text-fg">{shown.line}</p>
-          <button type="button" onClick={advance} className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-2.5 text-xs font-semibold uppercase tracking-wider text-accent-fg hover:bg-accent-strong">
+          <button type="button" onClick={advance} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-xs font-semibold uppercase tracking-wider text-primary-fg hover:bg-primary-strong">
             {index + 1 >= round.length ? 'Terminar la ronda' : 'Otra más'} <ArrowRight className="size-4" aria-hidden="true" />
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => pick(current.yes)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95" ><ThumbsUp className="mr-1.5 inline size-4" aria-hidden="true" />Sí</button>
-          <button type="button" onClick={() => pick(current.no)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-accent/60 hover:bg-surface active:scale-95" ><ThumbsDown className="mr-1.5 inline size-4" aria-hidden="true" />No</button>
+          <button type="button" onClick={() => pick(current.yes)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-primary/60 hover:bg-surface active:scale-95" ><ThumbsUp className="mr-1.5 inline size-4" aria-hidden="true" />Sí</button>
+          <button type="button" onClick={() => pick(current.no)} className="min-h-12 rounded-xl border border-line bg-bg/70 py-3 text-sm font-bold text-fg transition-all hover:border-primary/60 hover:bg-surface active:scale-95" ><ThumbsDown className="mr-1.5 inline size-4" aria-hidden="true" />No</button>
         </div>
       )}
     </section>
@@ -447,7 +447,7 @@ export default function PressRoom({ questions, currentIndex, outcome, finished, 
             <p className="mt-0.5 text-xs text-fg-muted">Hinchada {signed(reaction.fans)} • Dirigencia {signed(reaction.board)}</p>
           </div>
         </div>
-        <button type="button" onClick={next} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent py-3 text-xs font-semibold uppercase tracking-wider text-accent-fg transition-all hover:bg-accent-strong active:scale-95">
+        <button type="button" onClick={next} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-xs font-semibold uppercase tracking-wider text-primary-fg transition-all hover:bg-primary-strong active:scale-95">
           <span>{currentIndex + 1 >= activeQuestions.length ? 'Terminar la conferencia' : 'Siguiente pregunta'}</span>
           <ArrowRight className="size-4" aria-hidden="true" />
         </button>

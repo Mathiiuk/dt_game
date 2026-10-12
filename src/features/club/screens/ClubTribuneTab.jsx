@@ -19,13 +19,13 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
     <div className="space-y-6">
       {/* 1. Clima de la Tribuna (Lectura Humana y Narrativa) */}
       <Card className="border border-line bg-surface/90 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent px-4 py-3 sm:px-6 border-b border-line flex items-center justify-between">
+        <div className="bg-gradient-to-r from-gold/20 via-gold/20 to-transparent px-4 py-3 sm:px-6 border-b border-line flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            <div className="p-2 rounded-xl bg-gold-soft text-gold border border-gold/40">
               <Megaphone className="size-5" />
             </div>
             <div>
-              <span className="eyebrow text-amber-400">Pulso de la hinchada</span>
+              <span className="eyebrow text-gold">Pulso de la hinchada</span>
               <h2 className="font-display text-lg font-bold text-fg sm:text-xl">
                 {atmosphere.headline}
               </h2>
@@ -49,7 +49,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
                 <span className="text-[11px] text-fg-subtle">en la ciudad</span>
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-amber-400 rounded-full" style={{ width: `${atmosphere.popularity}%` }} />
+                <div className="h-full bg-gold rounded-full" style={{ width: `${atmosphere.popularity}%` }} />
               </div>
             </div>
 
@@ -60,7 +60,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
                 <span className="text-[11px] text-fg-subtle">en el DT</span>
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${atmosphere.satisfaction}%` }} />
+                <div className="h-full bg-accent rounded-full" style={{ width: `${atmosphere.satisfaction}%` }} />
               </div>
             </div>
 
@@ -71,7 +71,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
                 <span className="text-[11px] text-fg-subtle">capacidad</span>
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-sky-400 rounded-full" style={{ width: atmosphere.attendanceRate }} />
+                <div className="h-full bg-primary rounded-full" style={{ width: atmosphere.attendanceRate }} />
               </div>
             </div>
 
@@ -96,7 +96,7 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
         <Card className="border border-line bg-surface/90">
           <CardBody className="p-4 sm:p-5 space-y-3">
             <div className="flex items-center gap-2 border-b border-line pb-3">
-              <Flame className="size-4 text-orange-400" />
+              <Flame className="size-4 text-warning" />
               <h3 className="font-display text-base font-bold text-fg">Último movimiento en la tribuna</h3>
             </div>
 

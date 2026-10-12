@@ -6,21 +6,21 @@ export const CAREER_PHASES = {
     key: 'YOUTH_GROWTH',
     name: 'Joya en Desarrollo',
     ageRange: '16 - 20 años',
-    badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
+    badgeColor: 'text-accent bg-accent-soft border-accent/40',
     description: 'Crecimiento técnico y físico acelerado. Requiere minutos en cancha para desbloquear su potencial.'
   },
   PRIME_DEVELOPMENT: {
     key: 'PRIME_DEVELOPMENT',
     name: 'Maduración Competitiva',
     ageRange: '21 - 24 años',
-    badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-800/60',
+    badgeColor: 'text-primary bg-primary-soft border-primary/40',
     description: 'Consolidación táctica, toma de decisiones y afinamiento en alta competencia.'
   },
   PEAK: {
     key: 'PEAK',
     name: 'Pico de Rendimiento',
     ageRange: '25 - 29 años',
-    badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+    badgeColor: 'text-gold bg-gold-soft border-gold/40',
     description: 'Plenitud física, técnica y psicológica. El futbolista rinde a su máximo nivel histórico.'
   },
   EXPERIENCED_TRANSITION: {
@@ -34,14 +34,14 @@ export const CAREER_PHASES = {
     key: 'DECLINING',
     name: 'Declive Natural',
     ageRange: '34+ años',
-    badgeColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+    badgeColor: 'text-danger bg-danger-soft border-danger/40',
     description: 'Pérdida paulatina de velocidad y fondo físico. El profesionalismo prolonga la carrera.'
   },
   RETIREMENT_PENDING: {
     key: 'RETIREMENT_PENDING',
     name: 'Retiro Anunciado',
     ageRange: 'Última temporada',
-    badgeColor: 'text-zinc-300 bg-zinc-800/60 border-zinc-700/80',
+    badgeColor: 'text-fg-muted bg-surface-3 border-line-strong',
     description: 'El futbolista colgará las botas al término del campeonato.'
   }
 }

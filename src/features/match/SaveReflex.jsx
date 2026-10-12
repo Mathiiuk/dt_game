@@ -77,7 +77,7 @@ export default function SaveReflex({ onDone }) {
         {phase === 'fly' && '¡Ahora! Tocá hacia dónde va.'}
         {phase === 'done' && (tapped === undefined || tapped === null ? 'Llegaste tarde.' : tapped !== target ? `Era ${NAMES[target]}. Te tiraste mal.` : ok ? '¡Llegaste!' : '')}
       </p>
-      <div className="relative mx-auto h-44 w-full max-w-xs overflow-hidden rounded-t-md border-x-4 border-t-4 border-fg bg-[repeating-linear-gradient(45deg,transparent_0_6px,oklch(100%_0_0/0.06)_6px_7px)]">
+      <div className="relative mx-auto h-44 w-full max-w-xs overflow-hidden rounded-t-md border-x-4 border-t-4 border-fg bg-[repeating-linear-gradient(45deg,transparent_0_6px,color-mix(in_oklab,var(--color-fg)_7%,transparent)_6px_7px)]">
         <div className="grid h-full grid-cols-3">
           {ZONES.map(zone => (
             <button

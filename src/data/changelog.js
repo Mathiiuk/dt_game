@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-22-diario-resto',
+    date: '2026-10-22',
+    title: 'El nuevo look llega a todo el juego',
+    items: [
+      'Partido, Club, Finanzas, Carrera y el resto de las pantallas usan los nuevos colores.',
+      'Los botones principales ahora son azules; el verde queda para lo que sale bien.'
+    ]
+  },
+  {
     id: '2026-10-21-diario-pantallas',
     date: '2026-10-21',
     title: 'Nuevo look de diario deportivo',

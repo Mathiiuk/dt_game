@@ -98,7 +98,7 @@ export default function StandingsScreen() {
         description={`${total} clubes`}
         actions={
           <QuickActions>
-            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => navigate('/calendar')}><Calendar className="text-blue-400" />Calendario</Button>
+            <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => navigate('/calendar')}><Calendar className="text-primary" />Calendario</Button>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowAllLeagues(true)}><Globe2 className="text-accent" />Todas las ligas</Button>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowPyramid(true)}><Layers className="text-gold" />Pirámide</Button>
             {seasonEnded && <Button size="sm" className={QUICK_ACTION} onClick={() => navigate('/dashboard')}><Trophy />Cierre anual</Button>}

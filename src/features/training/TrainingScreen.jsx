@@ -159,7 +159,7 @@ export default function TrainingScreen() {
                           onClick={() => setFocus(opt.id)}
                           className={cn(
                             'rounded-lg border p-3.5 text-left transition-colors',
-                            active ? 'border-accent bg-accent-soft' : 'border-line bg-surface-2 hover:border-line-strong'
+                            active ? 'border-primary bg-primary-soft' : 'border-line bg-surface-2 hover:border-line-strong'
                           )}
                         >
                           <span className="flex items-center justify-between gap-2">

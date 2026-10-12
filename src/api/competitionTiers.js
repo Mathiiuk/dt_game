@@ -6,14 +6,14 @@ export const LEAGUE_TIERS = {
     level: 1,
     name: 'Liga Profesional',
     shortName: 'Primera',
-    badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+    badgeColor: 'text-gold bg-gold-soft border-gold/40',
     description: 'Elite nacional, 20 clubes de primer nivel, estadios de 30,000+ personas, televisación internacional y cupos a copas.'
   },
   2: {
     level: 2,
     name: 'Primera Nacional',
     shortName: 'B Nacional',
-    badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-800/60',
+    badgeColor: 'text-primary bg-primary-soft border-primary/40',
     description: 'Segunda categoría federal, paridad extrema y viajes por todo el país.'
   },
   3: {
@@ -27,14 +27,14 @@ export const LEAGUE_TIERS = {
     level: 4,
     name: 'Primera C Metropolitana',
     shortName: 'Cuarta',
-    badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
+    badgeColor: 'text-accent bg-accent-soft border-accent/40',
     description: 'Fútbol áspero y apasionado de gran fervor popular y tribunas de tablón.'
   },
   5: {
     level: 5,
     name: 'Torneo Promocional Regional / Potrero',
     shortName: 'Regional',
-    badgeColor: 'text-orange-400 bg-orange-950/40 border-orange-800/60',
+    badgeColor: 'text-warning bg-warning-soft border-warning/40',
     description: 'División inaugural del usuario. Canchas de tierra, sueños intactos y potrero puro.'
   }
 }

@@ -32,7 +32,7 @@ export default function ShoutsSheet({
               }}
               className={`w-full p-3 text-left rounded-xl border transition-all flex items-start gap-3 ${
                 isSelected 
-                  ? 'border-accent bg-accent-soft text-accent font-bold ring-1 ring-accent'
+                  ? 'border-primary bg-primary-soft text-primary font-bold ring-1 ring-primary'
                   : 'border-line bg-surface hover:border-line hover:bg-surface-2 text-fg disabled:opacity-50 disabled:cursor-not-allowed'
               }`}
             >

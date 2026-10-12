@@ -253,37 +253,37 @@ export const fanbaseApi = {
         return {
           title: 'Fortaleza Inexpugnable (Euforia)',
           description: 'Las tribunas cantan los 90 minutos. Máxima ventaja ambiental (+8% duelos).',
-          badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
-          textColor: 'text-emerald-400'
+          badgeColor: 'text-accent bg-accent-soft border-accent/40',
+          textColor: 'text-accent'
         }
       case 'PASSIONATE':
         return {
           title: 'Apoyo Incondicional (Pasión)',
           description: 'Clima fervoroso de local. Aliento constante (+4% ventaja local).',
-          badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-800/60',
-          textColor: 'text-blue-400'
+          badgeColor: 'text-primary bg-primary-soft border-primary/40',
+          textColor: 'text-primary'
         }
       case 'NEUTRAL':
         return {
           title: 'Expectativa Moderada (Calma)',
           description: 'El público asiste y acompaña sin mayor fervor ni hostilidad.',
-          badgeColor: 'text-zinc-300 bg-zinc-800/50 border-zinc-700/60',
-          textColor: 'text-zinc-300'
+          badgeColor: 'text-fg-muted bg-surface-3 border-line-strong',
+          textColor: 'text-fg-muted'
         }
       case 'DISAPPOINTED':
         return {
           title: 'Murmullos e Inquietud (Tensión)',
           description: 'Impaciencia general. Los fallos generan abucheos en el entretiempo.',
-          badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
-          textColor: 'text-amber-400'
+          badgeColor: 'text-gold bg-gold-soft border-gold/40',
+          textColor: 'text-gold'
         }
       case 'HOSTILE_PROTEST':
       default:
         return {
           title: 'Clima Hostil (Bronca y Protesta)',
           description: 'Banderas al revés y cánticos pidiendo renuncias. Presión extrema al equipo.',
-          badgeColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
-          textColor: 'text-rose-400'
+          badgeColor: 'text-danger bg-danger-soft border-danger/40',
+          textColor: 'text-danger'
         }
     }
   }

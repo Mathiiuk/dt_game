@@ -29,7 +29,7 @@ export default function MatchActions({
           aria-label={paused ? 'Reanudar' : 'Pausa'}
           className={cn(
             'flex items-center justify-center gap-1.5 rounded-xl border p-3 sm:px-4 sm:py-2 text-sm font-bold transition-colors min-h-[48px] sm:min-h-0',
-            paused ? 'border-accent bg-accent text-accent-fg' : 'border-line bg-surface text-fg hover:bg-surface-3'
+            paused ? 'border-accent bg-primary text-primary-fg' : 'border-line bg-surface text-fg hover:bg-surface-3'
           )}
         >
           {paused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
@@ -47,7 +47,7 @@ export default function MatchActions({
               onClick={() => onSpeed(s.id)}
               className={cn(
                 'rounded-lg px-3 py-1.5 text-sm font-bold transition-all min-h-[40px] sm:min-h-0',
-                speed === s.id ? 'bg-accent text-accent-fg shadow-md shadow-emerald-950/40' : 'text-fg-muted hover:text-fg'
+                speed === s.id ? 'bg-primary text-primary-fg shadow-md shadow-accent/20' : 'text-fg-muted hover:text-fg'
               )}
             >
               {s.label}

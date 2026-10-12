@@ -57,7 +57,7 @@ export default function ClubIdentityTab({
                 <span className="text-[11px] text-fg-subtle">Semillero</span>
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${dna.attributes.cantera}%` }} />
+                <div className="h-full bg-accent rounded-full" style={{ width: `${dna.attributes.cantera}%` }} />
               </div>
             </div>
 
@@ -68,7 +68,7 @@ export default function ClubIdentityTab({
                 <span className="text-[11px] text-fg-subtle">{club?.city || 'Barrio'}</span>
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-sky-400 rounded-full" style={{ width: `${dna.attributes.identidadLocal}%` }} />
+                <div className="h-full bg-primary rounded-full" style={{ width: `${dna.attributes.identidadLocal}%` }} />
               </div>
             </div>
 
@@ -79,7 +79,7 @@ export default function ClubIdentityTab({
                 <span className="text-[11px] text-fg-subtle">Historia</span>
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-amber-400 rounded-full" style={{ width: `${dna.attributes.tradicion}%` }} />
+                <div className="h-full bg-gold rounded-full" style={{ width: `${dna.attributes.tradicion}%` }} />
               </div>
             </div>
 
@@ -90,7 +90,7 @@ export default function ClubIdentityTab({
                 <span className="text-[11px] text-fg-subtle">Ascenso</span>
               </div>
               <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-rose-400 rounded-full" style={{ width: `${dna.attributes.potrero}%` }} />
+                <div className="h-full bg-danger rounded-full" style={{ width: `${dna.attributes.potrero}%` }} />
               </div>
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function ClubIdentityTab({
           <CardBody className="p-4 sm:p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-line pb-3">
               <div className="flex items-center gap-2">
-                <Trophy className="size-4 text-amber-400" />
+                <Trophy className="size-4 text-gold" />
                 <h3 className="font-display text-base font-bold text-fg">Vitrina de títulos</h3>
               </div>
               <span className="text-xs text-fg-muted font-medium">

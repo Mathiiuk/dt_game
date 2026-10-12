@@ -231,7 +231,7 @@ export default function InfirmaryTab({ club }) {
 
                   {/* Secuelas o detalles */}
                   {injury.permanent_attribute_loss && (
-                    <div className="p-2.5 rounded-xl bg-red-950/30 border border-red-900/40 text-[11px] text-danger flex items-center gap-2">
+                    <div className="p-2.5 rounded-xl bg-danger-soft border border-danger/40 text-[11px] text-danger flex items-center gap-2">
                       <ShieldAlert className="w-4 h-4 text-danger shrink-0" />
                       <span>
                         Secuela permanente documentada: {Object.entries(injury.permanent_attribute_loss).map(([attr, val]) => `${attr.toUpperCase()}: ${val}`).join(', ')}

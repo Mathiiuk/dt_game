@@ -9,35 +9,35 @@ export const BOARD_STATUSES = {
     key: 'FULL_CONFIDENCE',
     minScore: 80,
     title: 'Plena Confianza Dirigencial',
-    badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
+    badgeColor: 'text-accent bg-accent-soft border-accent/40',
     description: 'La Comisión Directiva respalda absolutamente tu proyecto deportivo y respeta tus decisiones.'
   },
   STABLE: {
     key: 'STABLE',
     minScore: 55,
     title: 'Confianza Estable',
-    badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-800/60',
+    badgeColor: 'text-primary bg-primary-soft border-primary/40',
     description: 'Relación profesional sólida. Se cumplen los objetivos mínimos de temporada sin turbulencias.'
   },
   UNDER_WATCH: {
     key: 'UNDER_WATCH',
     minScore: 40,
     title: 'En Observación Rigurosa',
-    badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+    badgeColor: 'text-gold bg-gold-soft border-gold/40',
     description: 'Inquietud dirigencial. La directiva exige una mejora inmediata en los resultados para no abrir expediente.'
   },
   CRITICAL_ULTIMATUM: {
     key: 'CRITICAL_ULTIMATUM',
     minScore: 20,
     title: 'Ultimátum Crítico de Despido',
-    badgeColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+    badgeColor: 'text-danger bg-danger-soft border-danger/40',
     description: 'Plazo fijado. Debes sumar los puntos exigidos en los partidos señalados o serás cesado de inmediato.'
   },
   DISMISSAL_IMMINENT: {
     key: 'DISMISSAL_IMMINENT',
     minScore: 0,
     title: 'Destitución Inminente',
-    badgeColor: 'text-red-500 bg-red-950/50 border-red-800/80',
+    badgeColor: 'text-danger bg-danger-soft border-danger/40',
     description: 'Paciencia agotada. Proceso de desvinculación formal activado.'
   }
 }

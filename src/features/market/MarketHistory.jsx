@@ -22,7 +22,7 @@ export default function MarketHistory({ history = [] }) {
             <li key={item.id || idx} className="flex items-center justify-between py-2">
               <div className="flex items-center gap-2">
                 {item.status === 'ACCEPTED' ? (
-                  <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="size-4 text-accent shrink-0" />
                 ) : (
                   <XCircle className="size-4 text-danger shrink-0" />
                 )}

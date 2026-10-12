@@ -388,7 +388,7 @@ export default function SquadScreen() {
           <QuickActions>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowEvolutionModal(true)}><TrendingUp className="text-accent" />Desarrollo</Button>
             <Button variant="outline" size="sm" className={QUICK_ACTION} onClick={() => setShowMentorshipModal(true)}><GraduationCap className="text-gold" />Mentorías</Button>
-            <Button asChild variant="outline" size="sm" className={QUICK_ACTION}><Link to="/training"><Dumbbell className="text-blue-400" />Entrenamiento</Link></Button>
+            <Button asChild variant="outline" size="sm" className={QUICK_ACTION}><Link to="/training"><Dumbbell className="text-primary" />Entrenamiento</Link></Button>
           </QuickActions>
         ) : undefined}
       />
@@ -415,7 +415,7 @@ export default function SquadScreen() {
             <div className="grid grid-cols-3 gap-2 border-t border-line pt-3">
               <Button variant="ghost" size="sm" onClick={() => setShowEvolutionModal(true)}><TrendingUp className="text-accent" />Desarrollo</Button>
               <Button variant="ghost" size="sm" onClick={() => setShowMentorshipModal(true)}><GraduationCap className="text-gold" />Mentorías</Button>
-              <Button asChild variant="ghost" size="sm"><Link to="/training"><Dumbbell className="text-blue-400" />Entrenar</Link></Button>
+              <Button asChild variant="ghost" size="sm"><Link to="/training"><Dumbbell className="text-primary" />Entrenar</Link></Button>
             </div>
           </CardBody>
         </Card>

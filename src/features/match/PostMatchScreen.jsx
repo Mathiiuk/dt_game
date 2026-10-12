@@ -325,7 +325,7 @@ export default function PostMatchScreen() {
             )}
             {mvp && (
               <span className="px-2.5 py-0.5 rounded-full bg-gold/10 border border-gold/20 text-gold font-semibold flex items-center gap-1">
-                <Star className="w-3 h-3 fill-amber-400" />
+                <Star className="w-3 h-3 fill-gold" />
                 MVP: {mvp.name} ({mvp.rating})
               </span>
             )}
@@ -348,7 +348,7 @@ export default function PostMatchScreen() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
                   isSelected
-                    ? 'bg-accent text-accent-fg shadow-md shadow-emerald-950/40'
+                    ? 'bg-primary text-primary-fg shadow-md shadow-accent/20'
                     : 'bg-surface/60 text-fg-muted hover:text-fg border border-line'
                 }`}
               >
@@ -482,7 +482,7 @@ export default function PostMatchScreen() {
               <div className="shrink-0 p-3 rounded-lg border border-gold/50 bg-gradient-to-r from-gold/30 to-surface/60 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-gold font-semibold">
-                    <Star className="w-5 h-5 fill-amber-400" />
+                    <Star className="w-5 h-5 fill-gold" />
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-bold text-gold tracking-wider">Figura de la Cancha (MVP)</span>
@@ -491,7 +491,7 @@ export default function PostMatchScreen() {
                   </div>
                 </div>
 
-                <div className="px-3 py-1.5 rounded-xl bg-gold text-accent-fg font-semibold text-base">
+                <div className="px-3 py-1.5 rounded-xl bg-gold text-gold-fg font-semibold text-base">
                   {mvp.rating}
                 </div>
               </div>
@@ -611,7 +611,7 @@ export default function PostMatchScreen() {
           {step === 'SUMMARY' && pressConference && !isPressFinished && !isPressDelegated ? (
             <button
               onClick={openPress}
-              className="flex-1 sm:flex-none px-3 sm:px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none px-3 sm:px-6 py-3 rounded-xl bg-primary hover:bg-primary-strong active:scale-95 text-primary-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
             >
               <Mic className="w-4 h-4" />
               <span>Continuar a la rueda de prensa</span>
@@ -620,7 +620,7 @@ export default function PostMatchScreen() {
           ) : (
             <button
               onClick={() => leaveTo('/dashboard')}
-              className="flex-1 sm:flex-none px-3 sm:px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong active:scale-95 text-accent-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none px-3 sm:px-6 py-3 rounded-xl bg-primary hover:bg-primary-strong active:scale-95 text-primary-fg font-semibold text-xs uppercase tracking-wider transition-all shadow-lg shadow-accent/20 flex items-center justify-center gap-2"
             >
               <Home className="w-4 h-4" />
               <span>Volver al inicio</span>

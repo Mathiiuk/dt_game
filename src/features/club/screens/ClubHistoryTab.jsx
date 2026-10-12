@@ -65,7 +65,7 @@ export default function ClubHistoryTab({ club }) {
       case 'top_scorer_history':
         return <Flame className="w-4 h-4 text-gold" />
       case 'most_appearances':
-        return <ShieldCheck className="w-4 h-4 text-blue-400" />
+        return <ShieldCheck className="w-4 h-4 text-primary" />
       case 'highest_attendance':
         return <Users className="w-4 h-4 text-purple-400" />
       case 'longest_win_streak':
@@ -84,7 +84,7 @@ export default function ClubHistoryTab({ club }) {
       case 'title':
         return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-gold/20 text-gold border border-gold/40">Campeón</span>
       case 'promotion':
-        return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40">Ascenso</span>
+        return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-soft text-primary border border-primary/40">Ascenso</span>
       case 'record':
         return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">Récord</span>
       case 'legend':
@@ -164,7 +164,7 @@ export default function ClubHistoryTab({ club }) {
           onClick={() => setSubTab('temporadas')}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
             subTab === 'temporadas'
-              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+              ? 'bg-primary-soft text-primary border border-primary/40'
               : 'text-fg-muted hover:text-fg'
           }`}
         >
@@ -288,7 +288,7 @@ export default function ClubHistoryTab({ club }) {
         <section className="p-4 md:p-6 border border-line rounded-lg bg-surface/40">
           <div className="mb-4">
             <h3 className="font-bold text-base text-fg flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-400" />
+              <Calendar className="w-5 h-5 text-primary" />
               <span>Memoria de temporadas finalizadas</span>
             </h3>
             <p className="text-xs text-fg-muted mt-1">
@@ -312,7 +312,7 @@ export default function ClubHistoryTab({ club }) {
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-sm text-fg">Temporada {h.season_year}</p>
                       {h.promoted && (
-                        <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                        <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-primary-soft text-primary border border-primary/40">
                           Ascenso
                         </span>
                       )}

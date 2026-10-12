@@ -111,7 +111,7 @@ export function TapsChallenge({ onDone }) {
         type="button"
         onPointerDown={tap}
         onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); tap() } }}
-        className="mx-auto grid size-40 touch-manipulation select-none place-items-center rounded-full border-4 border-accent bg-accent-soft text-accent transition-transform active:scale-90"
+        className="mx-auto grid size-40 touch-manipulation select-none place-items-center rounded-full border-4 border-primary bg-primary-soft text-primary transition-transform active:scale-90"
         aria-label="Insistir"
       >
         <Zap className="size-16" aria-hidden="true" />
@@ -145,10 +145,10 @@ export function RumorChallenge({ onDone }) {
       <p className="text-xs font-bold uppercase tracking-widest text-fg-subtle">Verdadero o falso · {index + 1} de {rumors.length}</p>
       <p key={index} className="animate-rise-in text-xl font-medium leading-relaxed text-fg">{rumors[index].text}</p>
       <div className="grid grid-cols-2 gap-3">
-        <button type="button" onClick={() => answer(true)} disabled={flash !== null} className={cn('flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 text-base font-bold transition-all active:scale-95', flash !== null && rumors[index].ok ? 'border-accent bg-accent-soft text-accent' : 'border-line-strong bg-surface text-fg')}>
+        <button type="button" onClick={() => answer(true)} disabled={flash !== null} className={cn('flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 text-base font-bold transition-all active:scale-95', flash !== null && rumors[index].ok ? 'border-primary bg-primary-soft text-primary' : 'border-line-strong bg-surface text-fg')}>
           <ThumbsUp className="size-5" aria-hidden="true" />Verdadero
         </button>
-        <button type="button" onClick={() => answer(false)} disabled={flash !== null} className={cn('flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 text-base font-bold transition-all active:scale-95', flash !== null && !rumors[index].ok ? 'border-accent bg-accent-soft text-accent' : 'border-line-strong bg-surface text-fg')}>
+        <button type="button" onClick={() => answer(false)} disabled={flash !== null} className={cn('flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 text-base font-bold transition-all active:scale-95', flash !== null && !rumors[index].ok ? 'border-primary bg-primary-soft text-primary' : 'border-line-strong bg-surface text-fg')}>
           <ThumbsDown className="size-5" aria-hidden="true" />Falso
         </button>
       </div>
@@ -194,7 +194,7 @@ export function TargetPick({ options, enabled, busy, onPick }) {
         type="button"
         onClick={stop}
         disabled={landed !== null || busy}
-        className="min-h-12 w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong disabled:opacity-60"
+        className="min-h-12 w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wider text-primary-fg transition-colors hover:bg-primary-strong disabled:opacity-60"
       >
         {landed !== null ? 'Elegiste' : 'Frenar la barra'}
       </button>

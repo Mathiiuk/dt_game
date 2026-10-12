@@ -14,10 +14,10 @@ const TOUR_OPTIONS = {
   showProgress: true,
   overlayClickAction: false,
   zIndex: 10000,
-  primaryColor: '#5be39b',
-  backgroundColor: '#0f1a14',
-  textColor: '#f2f7f4',
-  arrowColor: '#0f1a14',
+  primaryColor: 'var(--color-primary)',
+  backgroundColor: 'var(--color-surface)',
+  textColor: 'var(--color-fg)',
+  arrowColor: 'var(--color-surface)',
   overlayColor: 'rgba(0, 0, 0, 0.65)'
 }
 

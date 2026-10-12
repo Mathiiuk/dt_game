@@ -295,7 +295,7 @@ export const clubHistoryApi = {
         reason: goals >= 25 
           ? `Goleador histórico con ${goals} goles convertidos` 
           : `Monumento vivo del club con ${matches} partidos disputados`,
-        badge_color: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+        badge_color: 'bg-gold-soft text-gold border-gold/40'
       }
     }
 
@@ -307,7 +307,7 @@ export const clubHistoryApi = {
         reason: goals >= 12 
           ? `Ídolo del gol con ${goals} anotaciones decisivas` 
           : `Aclamado por los hinchas con ${matches} batallas oficiales`,
-        badge_color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+        badge_color: 'bg-accent-soft text-accent border-accent/40'
       }
     }
 
@@ -317,7 +317,7 @@ export const clubHistoryApi = {
         status: 'referent',
         label: 'Referente',
         reason: `Líder dentro del vestuario con ${matches} partidos jugados`,
-        badge_color: 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+        badge_color: 'bg-primary-soft text-primary border-primary/40'
       }
     }
 
@@ -325,7 +325,7 @@ export const clubHistoryApi = {
       status: 'regular',
       label: 'Jugador',
       reason: 'Integrante del plantel profesional',
-      badge_color: 'bg-zinc-800 text-zinc-400 border-zinc-700'
+      badge_color: 'bg-surface-3 text-fg-subtle border-line-strong'
     }
   },
 

@@ -16,7 +16,7 @@ import { useFriendsPending, pendingText } from '../../features/friends/useFriend
 function Brand() {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="grid size-8 place-items-center rounded-md bg-accent text-accent-fg" aria-hidden="true">
+      <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-fg" aria-hidden="true">
         <Shield className="size-4.5" />
       </span>
       <span className="font-display text-xl font-semibold leading-none tracking-wide text-fg">VESTUARIO</span>
@@ -160,7 +160,7 @@ export default function AppShell() {
     // Móvil: altura fija de pantalla; el contenido scrollea adentro y la barra inferior queda siempre abajo.
     // En el celular la pantalla es un marco fijo (`fixed inset-0`): la barra y el encabezado ya aplican las zonas seguras.
     <div className="fixed inset-0 flex overflow-hidden lg:static lg:min-h-dvh lg:overflow-visible">
-      <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-fg">
+      <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-fg">
         Saltar al contenido
       </a>
       <Sidebar club={club} manager={manager} friendsPending={pending.length > 0} />

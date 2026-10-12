@@ -79,7 +79,7 @@ export default function RoundPanel({ room, fixtures, names, info, isOwner, busy,
                     {PICKS.filter(([v]) => canPick(f, v)).map(([v, label]) => (
                       <button key={v} type="button" role="radio" aria-checked={picks[f.id] === v} aria-label={pickLabel(v, labels)} disabled={busy}
                         onClick={() => onPredict(f.id, v)}
-                        className={`min-h-11 rounded-md border px-2 text-xs font-semibold transition-colors ${picks[f.id] === v ? 'border-accent bg-accent-soft text-accent' : 'border-line bg-surface-2 text-fg-muted hover:text-fg'}`}>
+                        className={`min-h-11 rounded-md border px-2 text-xs font-semibold transition-colors ${picks[f.id] === v ? 'border-primary bg-primary-soft text-primary' : 'border-line bg-surface-2 text-fg-muted hover:text-fg'}`}>
                         {label}
                       </button>
                     ))}

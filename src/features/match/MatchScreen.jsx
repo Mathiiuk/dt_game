@@ -582,9 +582,9 @@ export default function MatchScreen() {
               {matchState === 'pre-match' ? (
                 <button 
                   onClick={handleStartMatch}
-                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all shadow-lg flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-primary hover:bg-primary-strong text-primary-fg transition-all shadow-lg flex items-center justify-center gap-2"
                 >
-                  <Play className="w-5 h-5 fill-zinc-950" />
+                  <Play className="w-5 h-5 fill-primary-fg" />
                   Comenzar partido
                 </button>
               ) : matchState === 'playing' ? (
@@ -598,7 +598,7 @@ export default function MatchScreen() {
                         onClick={() => handleApplyOrder(order)}
                         className={`w-full p-2.5 mt-2 text-left rounded-lg border text-xs transition-all ${
                           activeOrder === order.id 
-                            ? 'border-accent bg-accent-soft text-accent font-bold'
+                            ? 'border-primary bg-primary-soft text-primary font-bold'
                             : 'border-line bg-bg/60 text-fg hover:border-line'
                         }`}
                       >
@@ -610,7 +610,7 @@ export default function MatchScreen() {
               ) : (
                 <button
                   onClick={goToSummary}
-                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-accent hover:bg-accent-strong text-accent-fg transition-all shadow-lg flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-primary hover:bg-primary-strong text-primary-fg transition-all shadow-lg flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-5 h-5" />
                   Resumen
@@ -701,7 +701,7 @@ export default function MatchScreen() {
             <button
               type="button"
               onClick={handleStartMatch}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wider text-primary-fg transition-colors hover:bg-primary-strong"
             >
               <Play className="size-5" aria-hidden="true" />
               Comenzar partido
@@ -715,7 +715,7 @@ export default function MatchScreen() {
             <button
               type="button"
               onClick={goToSummary}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wider text-primary-fg transition-colors hover:bg-primary-strong"
             >
               <CheckCircle className="size-5" aria-hidden="true" />
               Siguiente: resumen y prensa

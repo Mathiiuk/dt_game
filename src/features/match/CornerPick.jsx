@@ -70,7 +70,7 @@ export default function CornerPick({ options, hint, onChoose }) {
       <ul className="space-y-1.5">
         {options.map(o => (
           <li key={o.id}>
-            <button type="button" disabled={!!picked} onClick={() => choose(o.zone)} className={cn('w-full rounded-lg border bg-surface p-3 text-left text-sm text-fg transition-colors disabled:opacity-60', picked === o.zone ? 'border-accent' : 'border-line hover:border-accent')}>
+            <button type="button" disabled={!!picked} onClick={() => choose(o.zone)} className={cn('w-full rounded-lg border bg-surface p-3 text-left text-sm text-fg transition-colors disabled:opacity-60', picked === o.zone ? 'border-accent' : 'border-line hover:border-primary')}>
               <span className="block font-bold">{o.label}</span>
               <span className="text-xs text-fg-subtle">{o.desc}</span>
             </button>

@@ -37,7 +37,7 @@ export default function PowerBar({ actionLabel = '¡Patear!', doneLabel = '¡Pat
         type="button"
         onClick={stop}
         disabled={stopped}
-        className="min-h-12 w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong disabled:opacity-60"
+        className="min-h-12 w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wider text-primary-fg transition-colors hover:bg-primary-strong disabled:opacity-60"
       >
         {stopped ? doneLabel : actionLabel}
       </button>

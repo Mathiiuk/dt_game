@@ -17,7 +17,7 @@ export function HelpHint({ topic, title, children, className }) {
           onClick={(e) => e.stopPropagation()}
           className={cn('group inline-grid size-11 shrink-0 place-items-center rounded-full focus-visible:outline-none', className)}
         >
-          <span className="grid size-5 place-items-center rounded-full border border-line-strong bg-surface-2 text-xs font-bold leading-none text-fg-muted transition-colors group-hover:text-fg group-focus-visible:ring-2 group-focus-visible:ring-accent">?</span>
+          <span className="grid size-5 place-items-center rounded-full border border-line-strong bg-surface-2 text-xs font-bold leading-none text-fg-muted transition-colors group-hover:text-fg group-focus-visible:ring-2 group-focus-visible:ring-primary">?</span>
         </button>
       </DialogTrigger>
       <DialogContent placement="center" size="sm" title={title}>

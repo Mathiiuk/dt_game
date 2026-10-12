@@ -25,7 +25,7 @@ export default function OfflineBanner({ onRetry }) {
 
   if (online && !slow && !justBack) return null
 
-  const tone = !online ? 'bg-warning text-black' : justBack ? 'bg-accent text-accent-fg' : 'bg-surface-3 text-fg'
+  const tone = !online ? 'bg-warning text-primary-fg' : justBack ? 'bg-primary text-primary-fg' : 'bg-surface-3 text-fg'
   return (
     <div role="status" className={`fixed inset-x-0 top-0 z-[70] flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-sm font-medium ${tone}`}>
       {!online ? <WifiOff className="size-4 shrink-0" aria-hidden="true" /> : justBack ? <Wifi className="size-4 shrink-0" aria-hidden="true" /> : <Turtle className="size-4 shrink-0" aria-hidden="true" />}

@@ -70,7 +70,7 @@ export default function NationalMatchModal({ fixture, team, onClose, onSimulateF
               <FastForward className="size-4" />
               <span className="text-[10px] font-bold uppercase tracking-wider">Arcade</span>
             </div>
-            <p className="font-bold text-sm text-fg group-hover:text-accent transition-colors">
+            <p className="font-bold text-sm text-fg group-hover:text-primary transition-colors">
               Simular Rápido
             </p>
             <p className="text-[11px] text-fg-muted leading-tight">
@@ -89,7 +89,7 @@ export default function NationalMatchModal({ fixture, team, onClose, onSimulateF
               <Play className="size-4" />
               <span className="text-[10px] font-bold uppercase tracking-wider">Completo</span>
             </div>
-            <p className="font-bold text-sm text-fg group-hover:text-accent transition-colors">
+            <p className="font-bold text-sm text-fg group-hover:text-primary transition-colors">
               Dirigir en Vivo
             </p>
             <p className="text-[11px] text-fg-muted leading-tight">

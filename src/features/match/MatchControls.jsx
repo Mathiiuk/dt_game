@@ -16,7 +16,7 @@ export default function MatchControls({ speed, onSpeed, paused, onTogglePause, o
         aria-pressed={paused}
         className={cn(
           'flex items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-bold transition-colors',
-          paused ? 'border-accent bg-accent text-accent-fg' : 'border-line bg-surface text-fg hover:bg-surface-3'
+          paused ? 'border-accent bg-primary text-primary-fg' : 'border-line bg-surface text-fg hover:bg-surface-3'
         )}
       >
         {paused ? <Play className="size-3.5" aria-hidden="true" /> : <Pause className="size-3.5" aria-hidden="true" />}
@@ -34,7 +34,7 @@ export default function MatchControls({ speed, onSpeed, paused, onTogglePause, o
             onClick={() => onSpeed(s.id)}
             className={cn(
               'rounded-lg px-2.5 py-1 text-xs font-semibold transition-all',
-              speed === s.id ? 'bg-accent text-accent-fg shadow-md shadow-emerald-950/40' : 'border border-line bg-surface text-fg-muted hover:text-fg'
+              speed === s.id ? 'bg-primary text-primary-fg shadow-md shadow-accent/20' : 'border border-line bg-surface text-fg-muted hover:text-fg'
             )}
           >
             {s.label}

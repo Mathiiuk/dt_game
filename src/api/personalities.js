@@ -6,13 +6,13 @@ export const PERSONALITY_ARCHETYPES = {
   NATURAL_LEADER: {
     key: 'NATURAL_LEADER',
     name: 'Líder Nato',
-    badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+    badgeColor: 'text-gold bg-gold-soft border-gold/40',
     description: 'Alta determinación y liderazgo. Empuja al grupo en situaciones adversas y es el capitán ideal.'
   },
   MODEL_PROFESSIONAL: {
     key: 'MODEL_PROFESSIONAL',
     name: 'Profesional Ejemplar',
-    badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
+    badgeColor: 'text-accent bg-accent-soft border-accent/40',
     description: 'Máxima dedicación. Rinde al 100% en los entrenamientos, evoluciona rápido y prolonga su carrera.'
   },
   AMBITIOUS: {
@@ -24,25 +24,25 @@ export const PERSONALITY_ARCHETYPES = {
   TEMPERAMENTAL: {
     key: 'TEMPERAMENTAL',
     name: 'Temperamental / Rebelde',
-    badgeColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+    badgeColor: 'text-danger bg-danger-soft border-danger/40',
     description: 'Poca tolerancia a la frustración. Propenso a tarjetas absurdas por reclamar y disputas en el campo.'
   },
   STREET_RESILIENT: {
     key: 'STREET_RESILIENT',
     name: 'Resiliente de Potrero',
-    badgeColor: 'text-orange-400 bg-orange-950/40 border-orange-800/60',
+    badgeColor: 'text-warning bg-warning-soft border-warning/40',
     description: 'Forjado en el barro y la adversidad. Rinde al máximo en canchas duras y clásicos con pierna fuerte.'
   },
   SLACKER: {
     key: 'SLACKER',
     name: 'Indolente / Cómodo',
-    badgeColor: 'text-zinc-400 bg-zinc-800/50 border-zinc-700/60',
+    badgeColor: 'text-fg-subtle bg-surface-3 border-line-strong',
     description: 'Gran talento pero poca disciplina de trabajo. Necesita un tutor exigente para no estancarse.'
   },
   FRAGILE: {
     key: 'FRAGILE',
     name: 'Sensible a la Presión',
-    badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-800/60',
+    badgeColor: 'text-primary bg-primary-soft border-primary/40',
     description: 'Baja tolerancia a la presión ambiental. Sufre en tandas de penales o si recibe críticas públicas.'
   }
 }

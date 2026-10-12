@@ -147,7 +147,7 @@ export function getTycoonHealth(status, balance = 0, expensesTotal = 3000) {
       ...baseHealth,
       slogan: 'Estamos dulces',
       runwayWeeks: `${runway} semanas de margen`,
-      badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+      badgeClass: 'bg-accent-soft text-accent border-accent/40'
     }
   }
 
@@ -156,7 +156,7 @@ export function getTycoonHealth(status, balance = 0, expensesTotal = 3000) {
       ...baseHealth,
       slogan: 'Cuidá los gastos',
       runwayWeeks: `${runway} semanas de margen`,
-      badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+      badgeClass: 'bg-gold-soft text-gold border-gold/40'
     }
   }
 
@@ -164,7 +164,7 @@ export function getTycoonHealth(status, balance = 0, expensesTotal = 3000) {
     ...baseHealth,
     slogan: 'Hay que levantarla',
     runwayWeeks: `${Math.max(1, runway)} semanas de margen`,
-    badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+    badgeClass: 'bg-danger-soft text-danger border-danger/40'
   }
 }
 

@@ -351,7 +351,7 @@ export const stadiumApi = {
     if (quality >= 90) {
       return {
         level: 'Excelente (Billar Europeo)',
-        badgeColor: 'text-emerald-400 bg-emerald-950/40 border-emerald-800/60',
+        badgeColor: 'text-accent bg-accent-soft border-accent/40',
         tacticalBonus: '+10% efectividad pases cortos',
         injuryRisk: 'Riesgo de lesión mínimo (-20%)'
       }
@@ -359,7 +359,7 @@ export const stadiumApi = {
     if (quality >= 75) {
       return {
         level: 'Muy Bueno (Césped Nivelado)',
-        badgeColor: 'text-blue-400 bg-blue-950/40 border-blue-800/60',
+        badgeColor: 'text-primary bg-primary-soft border-primary/40',
         tacticalBonus: '+5% efectividad pases cortos',
         injuryRisk: 'Riesgo de lesión estándar'
       }
@@ -367,14 +367,14 @@ export const stadiumApi = {
     if (quality >= 50) {
       return {
         level: 'Aceptable (Potrero Municipal)',
-        badgeColor: 'text-amber-400 bg-amber-950/40 border-amber-800/60',
+        badgeColor: 'text-gold bg-gold-soft border-gold/40',
         tacticalBonus: 'Sin bonificaciones tácticas',
         injuryRisk: 'Riesgo moderado de sobrecargas'
       }
     }
     return {
       level: 'Crítico (Tierra, pozos y piedras)',
-      badgeColor: 'text-rose-400 bg-rose-950/40 border-rose-800/60',
+      badgeColor: 'text-danger bg-danger-soft border-danger/40',
       tacticalBonus: '-25% efectividad de pase / rebotes falsos',
       injuryRisk: 'Doble de riesgo de esguinces de tobillo'
     }

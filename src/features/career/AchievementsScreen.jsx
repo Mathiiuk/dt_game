@@ -131,7 +131,7 @@ export default function AchievementsScreen() {
             const canClaim = isClaimable(item)
             return (
               <li key={item.code}>
-                <Card as="article" className={cn('h-full', rarity.border, canClaim && 'ring-1 ring-accent/50')}>
+                <Card as="article" className={cn('h-full', rarity.border, canClaim && 'ring-1 ring-primary/50')}>
                   <CardBody className="flex h-full flex-col gap-2.5 p-3 sm:gap-4 sm:p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">

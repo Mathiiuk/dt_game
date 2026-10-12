@@ -138,7 +138,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-gold/20">
           <div className="p-2.5 rounded-xl bg-bg/60 border border-line/80">
             <div className="flex items-center gap-1.5 text-fg-muted text-xs mb-1">
-              <Users className="w-3.5 h-3.5 text-blue-400" />
+              <Users className="w-3.5 h-3.5 text-primary" />
               <span>Cohesión social</span>
             </div>
             <p className="text-base font-semibold text-accent">+{data.bonuses?.cohesionBonus || 0}%</p>
@@ -219,10 +219,10 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
                     <div className="flex items-center gap-3">
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-semibold text-sm border ${
                         i.club_status === 'legend' 
-                          ? 'bg-gold text-accent-fg border-gold shadow-md shadow-amber-500/20' 
+                          ? 'bg-gold text-gold-fg border-gold shadow-md shadow-gold/20' 
                           : i.club_status === 'idol'
-                          ? 'bg-accent text-accent-fg border-accent shadow-md shadow-emerald-500/20'
-                          : 'bg-blue-500 text-fg border-blue-400'
+                          ? 'bg-primary text-primary-fg border-accent shadow-md shadow-accent/20'
+                          : 'bg-primary text-fg border-primary/40'
                       }`}>
                         {i.first_name?.[0]}{i.last_name?.[0]}
                       </div>
@@ -302,7 +302,7 @@ export default function IdolsLegendsTab({ club, manager, confirmAction, onUpdate
             ) : (
               data.retiredNumbers.map((r) => (
                 <div key={r.id} className="p-4 border border-danger/30 rounded-lg bg-bg/80 flex items-center gap-4 relative overflow-hidden">
-                  <div className="w-14 h-16 rounded-xl bg-gradient-to-br from-rose-500/20 to-gold/10 border border-danger/40 flex flex-col items-center justify-center shrink-0">
+                  <div className="w-14 h-16 rounded-xl bg-gradient-to-br from-danger/20 to-gold/10 border border-danger/40 flex flex-col items-center justify-center shrink-0">
                     <Shirt className="w-4 h-4 text-danger mb-0.5" />
                     <span className="text-xl font-semibold text-danger">#{r.shirt_number}</span>
                   </div>

@@ -39,7 +39,7 @@ export default class ErrorBoundary extends React.Component {
           <h1 className="mt-3 text-balance font-display text-3xl font-bold leading-tight">Se pinchó la pelota</h1>
           <p className="mt-3 text-fg-muted">Algo falló en el partido. Tu carrera está a salvo: recargá la página y seguí. Si se repite, escribinos a contacto@vestuario.com.ar.</p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <button type="button" onClick={() => window.location.reload()} className="inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-6 font-semibold text-accent-fg hover:bg-accent-strong">Recargar</button>
+            <button type="button" onClick={() => window.location.reload()} className="inline-flex min-h-12 items-center justify-center rounded-md bg-primary px-6 font-semibold text-primary-fg hover:bg-primary-strong">Recargar</button>
             <a href="/" className="inline-flex min-h-12 items-center justify-center rounded-md border border-line px-6 font-semibold text-fg hover:bg-surface-2">Volver al inicio</a>
           </div>
         </div>

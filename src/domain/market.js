@@ -97,32 +97,32 @@ export const getPositionColorTheme = (position = '') => {
   if (['PO', 'GK'].includes(pos)) {
     return {
       key: 'emerald',
-      headerBg: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+      headerBg: 'bg-accent-soft text-accent border-accent/40',
       badgeTone: 'emerald',
-      glow: 'shadow-emerald-500/20'
+      glow: 'shadow-accent/20'
     }
   }
   if (['DFC', 'LI', 'LD', 'CB', 'LB', 'RB', 'DF', 'DEF'].includes(pos)) {
     return {
       key: 'sky',
-      headerBg: 'bg-sky-500/20 text-sky-400 border-sky-500/30',
+      headerBg: 'bg-primary-soft text-primary border-primary/40',
       badgeTone: 'sky',
-      glow: 'shadow-sky-500/20'
+      glow: 'shadow-primary/20'
     }
   }
   if (['MCD', 'MC', 'MCO', 'MD', 'MI', 'CDM', 'CM', 'CAM', 'RM', 'LM', 'MED'].includes(pos)) {
     return {
       key: 'amber',
-      headerBg: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+      headerBg: 'bg-gold-soft text-gold border-gold/40',
       badgeTone: 'amber',
-      glow: 'shadow-amber-500/20'
+      glow: 'shadow-gold/20'
     }
   }
   return {
     key: 'rose',
-    headerBg: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
+    headerBg: 'bg-danger-soft text-danger border-danger/40',
     badgeTone: 'rose',
-    glow: 'shadow-rose-500/20'
+    glow: 'shadow-danger/20'
   }
 }
 
@@ -140,13 +140,13 @@ export const getMarketHierarchyTag = (player, allPlayers = []) => {
   const maxOvrInPos = Math.max(...samePos.map(p => Number(p.attr_overall || p.overall || 0)), ovr)
 
   if (ovr >= maxOvrInPos && ovr >= 65) {
-    return { icon: 'Star', label: 'Estrella', tone: 'gold', className: 'border-amber-400/80 bg-amber-500/10 text-amber-300' }
+    return { icon: 'Star', label: 'Estrella', tone: 'gold', className: 'border-gold/40 bg-gold-soft text-gold' }
   }
   if (age <= 21 && potential >= 75) {
     return { icon: 'Gem', label: 'Joya', tone: 'cyan', className: 'border-cyan-400/80 bg-cyan-500/10 text-cyan-300' }
   }
   if (price > 0 && price <= 10000 && ovr >= 55) {
-    return { icon: 'Flame', label: 'Ganga', tone: 'orange', className: 'border-orange-400/80 bg-orange-500/10 text-orange-300' }
+    return { icon: 'Flame', label: 'Ganga', tone: 'orange', className: 'border-warning/40 bg-warning-soft text-warning' }
   }
   return null
 }

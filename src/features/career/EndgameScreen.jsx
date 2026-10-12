@@ -96,7 +96,7 @@ export default function EndgameScreen() {
         </p>
         <button
           onClick={() => navigate('/manager')}
-          className="px-6 py-3 bg-accent hover:bg-accent-strong text-black font-semibold rounded-xl text-sm transition-transform active:scale-95"
+          className="px-6 py-3 bg-primary hover:bg-primary-strong text-primary-fg font-semibold rounded-xl text-sm transition-transform active:scale-95"
         >
           Volver a carrera del DT
         </button>
@@ -139,7 +139,7 @@ export default function EndgameScreen() {
 
       <div className="max-w-5xl mx-auto space-y-6">
         {/* PORTADA DEL DIARIO ESTILO VINTAGE / DEPORTIVO */}
-        <div className="border-2 border-gold/40 rounded-xl bg-gradient-to-b from-surface via-surface/90 to-bg p-4 sm:p-8 shadow-2xl shadow-amber-500/10 relative overflow-hidden">
+        <div className="border-2 border-gold/40 rounded-xl bg-gradient-to-b from-surface via-surface/90 to-bg p-4 sm:p-8 shadow-2xl shadow-gold/20 relative overflow-hidden">
           {/* Marca de agua y brillo de fondo */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-gold/5 rounded-full blur-3xl -z-10" />
 
@@ -172,7 +172,7 @@ export default function EndgameScreen() {
 
             {/* Tarjeta de Honor del DT Retirado */}
             <div className="p-6 rounded-lg border border-gold/30 bg-bg/80 flex flex-col items-center justify-between text-center relative">
-              <div className="w-24 h-24 rounded-lg bg-gradient-to-tr from-gold to-gold text-black flex items-center justify-center font-semibold text-4xl shadow-xl shadow-amber-500/20 mb-3">
+              <div className="w-24 h-24 rounded-lg bg-gradient-to-tr from-gold to-gold text-gold-fg flex items-center justify-center font-semibold text-4xl shadow-xl shadow-gold/20 mb-3">
                 {snapshot.manager_name ? snapshot.manager_name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'DT'}
               </div>
 
@@ -254,10 +254,10 @@ export default function EndgameScreen() {
           <AsyncButton
             onClick={handleStartDynasty}
             disabled={startingDynasty}
-            className="p-5 rounded-xl border border-accent/40 bg-gradient-to-r from-accent/40 via-surface to-surface hover:border-accent flex items-center justify-between transition-all group"
+            className="p-5 rounded-xl border border-accent/40 bg-gradient-to-r from-accent/40 via-surface to-surface hover:border-primary flex items-center justify-between transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-lg bg-accent text-black flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform font-semibold">
+              <div className="w-12 h-12 rounded-lg bg-primary text-primary-fg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform font-semibold">
                 {startingDynasty ? <Loader2 className="w-6 h-6 animate-spin" /> : <UserPlus className="w-6 h-6" />}
               </div>
               <div className="text-left">

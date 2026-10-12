@@ -68,7 +68,7 @@ export default function FinancesWalletCard({ finances, check = null, checking = 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-surface-2/80 p-3.5 border border-line">
             <span className="eyebrow text-[10px]">Entró esta semana</span>
-            <div className="font-display text-lg font-bold text-emerald-400 mt-1">
+            <div className="font-display text-lg font-bold text-accent mt-1">
               +{formatMoney(totalIncome)}
             </div>
             <p className="text-[11px] text-fg-subtle mt-0.5">Socios, sponsors y TV</p>
@@ -76,7 +76,7 @@ export default function FinancesWalletCard({ finances, check = null, checking = 
 
           <div className="rounded-xl bg-surface-2/80 p-3.5 border border-line">
             <span className="eyebrow text-[10px]">Gastamos esta semana</span>
-            <div className="font-display text-lg font-bold text-rose-400 mt-1">
+            <div className="font-display text-lg font-bold text-danger mt-1">
               -{formatMoney(totalExpenses)}
             </div>
             <p className="text-[11px] text-fg-subtle mt-0.5">Sueldos y mantenimiento</p>

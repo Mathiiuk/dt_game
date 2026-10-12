@@ -177,7 +177,7 @@ export default function InternationalCupScreen() {
 
       {tournament.status === 'finished' && (
         <div role="status" className="mb-6 flex items-center gap-4 rounded-lg border border-gold/40 bg-gold-soft p-4 sm:p-5">
-          <span className="grid size-12 shrink-0 place-items-center rounded-md bg-gold text-accent-fg"><Trophy className="size-7" aria-hidden="true" /></span>
+          <span className="grid size-12 shrink-0 place-items-center rounded-md bg-gold text-gold-fg"><Trophy className="size-7" aria-hidden="true" /></span>
           <div>
             <p className="eyebrow text-gold">Campeón continental</p>
             <p className="font-display text-2xl font-semibold text-fg">{tournament.champion?.name || 'Campeón de América'}</p>

@@ -14,7 +14,7 @@ function Row({ icon: Icon, label, home = 0, away = 0, shown }) {
         <span className="num w-12 text-right font-mono text-sm font-bold text-fg">{shown ? shown[1] : away}</span>
       </div>
       <div className="flex h-1.5 overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
-        <div className="bg-accent transition-all duration-300" style={{ width: `${homePct}%` }} />
+        <div className="bg-primary transition-all duration-300" style={{ width: `${homePct}%` }} />
         <div className="bg-fg-subtle/60 transition-all duration-300" style={{ width: `${100 - homePct}%` }} />
       </div>
     </div>
@@ -68,7 +68,7 @@ export default function MatchStats({ stats, homeName = 'Local', awayName = 'Visi
         <BarChart3 className="size-4 shrink-0 text-accent" aria-hidden="true" />
         <span className="num w-10 shrink-0 font-mono text-sm font-bold text-fg">{homePoss}%</span>
         <span className="flex h-2.5 min-w-0 flex-1 overflow-hidden rounded-full border border-line/40 bg-surface-3" role="img" aria-label={`Posesión: ${homePoss}% a ${awayPoss}%`}>
-          <span className="bg-accent transition-all duration-300" style={{ width: `${homePoss}%` }} />
+          <span className="bg-primary transition-all duration-300" style={{ width: `${homePoss}%` }} />
           <span className="bg-fg-subtle/60 transition-all duration-300" style={{ width: `${awayPoss}%` }} />
         </span>
         <span className="num w-10 shrink-0 text-right font-mono text-sm font-bold text-fg">{awayPoss}%</span>

@@ -70,7 +70,7 @@ export default function ReloadPrompt() {
           <button
             type="button"
             onClick={apply}
-            className="px-4 py-2 text-sm font-bold text-black transition-colors bg-accent rounded hover:bg-accent-strong"
+            className="px-4 py-2 text-sm font-bold text-primary-fg transition-colors bg-primary rounded hover:bg-primary-strong"
           >
             Actualizar ahora
           </button>

@@ -99,7 +99,7 @@ export default function FanbaseManagementTab({ club }) {
             <div className="text-right">
               <span className="text-[11px] text-fg-muted font-medium">Índice de apoyo</span>
               <p className="text-2xl font-semibold text-fg font-mono flex items-center justify-end gap-1.5">
-                <Heart className={`w-5 h-5 ${score >= 70 ? 'text-danger fill-rose-500' : 'text-fg-subtle'}`} />
+                <Heart className={`w-5 h-5 ${score >= 70 ? 'text-danger fill-danger' : 'text-fg-subtle'}`} />
                 {score}<span className="text-xs font-normal text-fg-muted">/100</span>
               </p>
             </div>
@@ -136,7 +136,7 @@ export default function FanbaseManagementTab({ club }) {
           <div className="p-4 rounded-xl bg-bg/80 border border-line/80">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-semibold text-fg-muted flex items-center gap-1.5">
-                <Ticket className="w-4 h-4 text-blue-400" />
+                <Ticket className="w-4 h-4 text-primary" />
                 Potencial de hinchas
               </span>
               <span className="text-xs font-mono font-bold text-fg">
@@ -201,12 +201,12 @@ export default function FanbaseManagementTab({ club }) {
             placeholder="Escribe un nuevo cántico para la hinchada..."
             value={newChant}
             onChange={(e) => setNewChant(e.target.value)}
-            className="flex-1 px-3 py-2 text-xs bg-bg border border-line rounded-xl text-fg placeholder-fg-subtle focus:outline-none focus:border-accent"
+            className="flex-1 px-3 py-2 text-xs bg-bg border border-line rounded-xl text-fg placeholder-fg-subtle focus:outline-none focus:border-primary"
           />
           <button
             type="submit"
             disabled={addingChant || !newChant.trim()}
-            className="px-4 py-2 bg-accent hover:bg-accent-strong disabled:opacity-50 text-accent-fg font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+            className="px-4 py-2 bg-primary hover:bg-primary-strong disabled:opacity-50 text-primary-fg font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Agregar cántico</span>

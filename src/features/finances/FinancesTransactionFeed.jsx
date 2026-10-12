@@ -31,7 +31,7 @@ export default function FinancesTransactionFeed({ transactions = [] }) {
                 return (
                   <li key={tx.id} className="flex items-center justify-between gap-3 py-3">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`p-1.5 rounded-lg border ${income ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' : 'bg-rose-500/10 text-rose-400 border-rose-500/25'}`}>
+                      <div className={`p-1.5 rounded-lg border ${income ? 'bg-accent-soft text-accent border-accent/40' : 'bg-danger-soft text-danger border-danger/40'}`}>
                         {income ? <ArrowUpRight className="size-4" /> : <ArrowDownRight className="size-4" />}
                       </div>
                       <div className="min-w-0">

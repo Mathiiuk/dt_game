@@ -52,11 +52,11 @@ export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstit
                   onClick={() => setOutId(p.id)}
                   className={cn(
                     "flex flex-col w-full rounded-lg border bg-surface px-3 py-2 text-left text-sm text-fg transition-colors",
-                    p.id === preselectOutId ? "border-red-500/50 bg-red-500/10" : "border-line hover:border-accent"
+                    p.id === preselectOutId ? "border-danger/40 bg-danger-soft" : "border-line hover:border-primary"
                   )}
                 >
                   <span className="truncate font-semibold">{nameOf(p)}</span>
-                  <span className={cn("text-xs font-medium", p.id === preselectOutId ? "text-red-400" : "text-fg-subtle")}>
+                  <span className={cn("text-xs font-medium", p.id === preselectOutId ? "text-danger" : "text-fg-subtle")}>
                     {p.slot_base || p.position} · {Math.round(p.slot_rating ?? 0) || ovr(p)}
                     {(p.id === preselectOutId || statusById[p.id]?.hurt) && ' · Lesionado'}
                     {statusById[p.id]?.yellow > 0 && ' · Amarilla'}
@@ -86,7 +86,7 @@ export default function SubstitutionsPanel({ onField, bench, subsLeft, onSubstit
                       type="button"
                       onClick={() => confirm(p.id)}
                       className={cn(
-                        'flex w-full items-center justify-between rounded-lg border bg-surface px-3 py-3 text-left text-sm text-fg transition-colors hover:border-accent',
+                        'flex w-full items-center justify-between rounded-lg border bg-surface px-3 py-3 text-left text-sm text-fg transition-colors hover:border-primary',
                         isNatural ? 'border-accent/40 bg-accent/10' : 'border-line'
                       )}
                     >

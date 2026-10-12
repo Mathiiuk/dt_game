@@ -67,7 +67,7 @@ export function ChantChallenge({ onDone }) {
           type="button"
           onPointerDown={tap}
           aria-label="Seguir el cántico"
-          className={cn('relative grid size-24 place-items-center rounded-full border-2 transition-colors', flash === 'hit' ? 'border-accent bg-accent-soft text-accent' : flash === 'miss' ? 'border-danger bg-danger-soft text-danger' : 'border-line-strong bg-surface-2 text-fg')}
+          className={cn('relative grid size-24 place-items-center rounded-full border-2 transition-colors', flash === 'hit' ? 'border-primary bg-primary-soft text-primary' : flash === 'miss' ? 'border-danger bg-danger-soft text-danger' : 'border-line-strong bg-surface-2 text-fg')}
         >
           <Music2 className="size-9" aria-hidden="true" />
         </button>
@@ -222,7 +222,7 @@ export function BalanceChallenge({ onDone }) {
                 aria-pressed={on}
                 disabled={finished}
                 onClick={() => toggle(item.id)}
-                className={cn('flex min-h-14 w-full flex-col items-start rounded-xl border-2 px-3 py-2 text-left transition-all active:scale-[0.98] disabled:opacity-60', on ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface-2')}
+                className={cn('flex min-h-14 w-full flex-col items-start rounded-xl border-2 px-3 py-2 text-left transition-all active:scale-[0.98] disabled:opacity-60', on ? 'border-primary bg-primary-soft' : 'border-line-strong bg-surface-2')}
               >
                 <span className="text-xs font-semibold uppercase tracking-wider text-fg-muted">{item.label}</span>
                 <span className="num font-display text-lg font-semibold text-fg">{formatMoney(item.amount)}</span>
@@ -236,7 +236,7 @@ export function BalanceChallenge({ onDone }) {
         <span className="text-xs font-semibold text-fg-subtle">Intento {Math.min(tries + 1, BALANCE_TRIES)} de {BALANCE_TRIES}</span>
       </div>
       {message && <p className="rounded-lg border border-line bg-surface px-3 py-2 text-xs font-semibold text-fg-muted" aria-live="polite">{message}</p>}
-      <button type="button" onClick={close} disabled={finished || selected.length === 0} className="min-h-12 w-full rounded-xl bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-accent-fg disabled:opacity-40">Cerrar caja</button>
+      <button type="button" onClick={close} disabled={finished || selected.length === 0} className="min-h-12 w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold uppercase tracking-wider text-primary-fg disabled:opacity-40">Cerrar caja</button>
     </div>
   )
 }

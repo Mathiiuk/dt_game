@@ -59,7 +59,7 @@ export default function MarketPlayerCard({
       as="article"
       className={`group relative flex flex-col overflow-hidden border transition-all duration-200 hover:shadow-lg ${
         hierarchy?.tone === 'gold'
-          ? 'border-amber-500/60 shadow-amber-500/10'
+          ? 'border-gold/40 shadow-gold/20'
           : 'border-line hover:border-line-focus'
       } bg-surface`}
     >
@@ -90,7 +90,7 @@ export default function MarketPlayerCard({
         <div className="space-y-1.5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="truncate font-display text-base font-bold text-fg group-hover:text-accent transition-colors">
+              <h3 className="truncate font-display text-base font-bold text-fg group-hover:text-primary transition-colors">
                 {player.first_name} {player.last_name}
               </h3>
               <p className="truncate text-xs text-fg-muted">
@@ -114,11 +114,11 @@ export default function MarketPlayerCard({
             <span
               className={`font-semibold ${
                 comparison.status === 'improves'
-                  ? 'text-emerald-400'
+                  ? 'text-accent'
                   : comparison.status === 'rotates'
-                  ? 'text-amber-400'
+                  ? 'text-gold'
                   : comparison.status === 'uncovered'
-                  ? 'text-sky-400'
+                  ? 'text-primary'
                   : 'text-fg-muted'
               }`}
             >

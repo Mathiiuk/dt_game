@@ -219,7 +219,7 @@ export default function FinancesScreen() {
           <Card as="section" aria-label="Política de entradas" className="border border-line bg-surface/90">
             <CardHeader className="flex-wrap items-center justify-between pb-3 border-b border-line/60">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                <span className="grid size-10 place-items-center rounded-xl bg-gold-soft text-gold border border-gold/40">
                   <Ticket className="size-5" aria-hidden="true" />
                 </span>
                 <div>
@@ -229,7 +229,7 @@ export default function FinancesScreen() {
                   </CardDescription>
                 </div>
               </div>
-              <p className="num font-display text-2xl font-bold text-amber-400">{formatMoney(ticketPrice)}</p>
+              <p className="num font-display text-2xl font-bold text-gold">{formatMoney(ticketPrice)}</p>
             </CardHeader>
             <CardBody className="p-4">
               <div role="radiogroup" aria-label="Precio de la entrada" className="grid grid-cols-5 gap-2">

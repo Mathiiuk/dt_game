@@ -155,7 +155,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
                 <div 
                   className={`h-2 rounded-full transition-all duration-500 ${
                     (stadium?.pitch_quality || 60) >= 80 
-                      ? 'bg-accent' 
+                      ? 'bg-primary' 
                       : (stadium?.pitch_quality || 60) >= 50 
                         ? 'bg-gold' 
                         : 'bg-danger'
@@ -212,14 +212,14 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
 
       {/* PROYECTO ACTIVO EN CONSTRUCCIÓN */}
       {activeProject && (
-        <div className="p-4 sm:p-5 rounded-lg bg-amber-950/20 border border-amber-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 rounded-lg bg-gold-soft border border-gold/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-gold/20 text-gold shrink-0">
               <Hammer className="w-6 h-6 animate-bounce" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-gold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/50">
+                <span className="text-xs font-bold uppercase tracking-wider text-gold bg-gold-soft px-2 py-0.5 rounded border border-gold/40">
                   Obra en curso
                 </span>
                 <span className="text-xs text-fg-muted">Inversión: ${Number(activeProject.cost_paid).toLocaleString()}</span>
@@ -234,7 +234,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
             </div>
           </div>
 
-          <div className="w-full sm:w-auto text-right sm:text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-amber-800/40">
+          <div className="w-full sm:w-auto text-right sm:text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-gold/40">
             <span className="text-xs text-fg-muted">Tiempo restante</span>
             <span className="text-lg font-mono font-semibold text-gold flex items-center gap-1.5">
               <Clock className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-2">
                     <h4 className="font-bold text-sm text-fg">{proj.name}</h4>
-                    <span className="text-[11px] font-mono font-bold text-accent bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/50">
+                    <span className="text-[11px] font-mono font-bold text-accent bg-accent-soft px-2 py-0.5 rounded border border-accent/40">
                       ${proj.cost.toLocaleString()}
                     </span>
                   </div>
@@ -309,7 +309,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
                         : activeProject
                           ? 'bg-surface-3 text-fg-subtle cursor-not-allowed'
                           : isAffordable
-                            ? 'bg-accent hover:bg-accent-strong text-accent-fg shadow-sm'
+                            ? 'bg-primary hover:bg-primary-strong text-primary-fg shadow-sm'
                             : 'bg-surface-3 text-fg-subtle cursor-not-allowed'
                     }`}
                   >

@@ -147,12 +147,12 @@ export const hallOfFameApi = {
    * Determina la categoría o rango de legado alcanzado por el DT.
    */
   getLegacyTier(score) {
-    if (score >= 9000) return { title: 'Mito Universal del Fútbol', color: 'text-amber-400 border-amber-500/40 bg-amber-500/10' }
+    if (score >= 9000) return { title: 'Mito Universal del Fútbol', color: 'text-gold border-gold/40 bg-gold-soft' }
     if (score >= 8000) return { title: 'Leyenda Histórica', color: 'text-purple-400 border-purple-500/40 bg-purple-500/10' }
-    if (score >= 5000) return { title: 'Estratega Consagrado', color: 'text-blue-400 border-blue-500/40 bg-blue-500/10' }
-    if (score >= 2500) return { title: 'DT de Élite', color: 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10' }
+    if (score >= 5000) return { title: 'Estratega Consagrado', color: 'text-primary border-primary/40 bg-primary-soft' }
+    if (score >= 2500) return { title: 'DT de Élite', color: 'text-accent border-accent/40 bg-accent-soft' }
     if (score >= 1000) return { title: 'Técnico de Primera', color: 'text-teal-400 border-teal-500/40 bg-teal-500/10' }
-    return { title: 'DT en Ascenso', color: 'text-zinc-400 border-zinc-700 bg-zinc-800/50' }
+    return { title: 'DT en Ascenso', color: 'text-fg-subtle border-line-strong bg-surface-3' }
   },
 
   /**

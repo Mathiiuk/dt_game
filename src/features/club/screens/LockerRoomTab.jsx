@@ -165,7 +165,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
     <div className="space-y-6">
       {/* ALERTA DE JUGADORES QUE EXIGEN HABLAR */}
       {demandingPlayers.length > 0 && (
-        <div className="p-4 sm:p-5 rounded-lg bg-amber-950/30 border border-amber-800/60 space-y-3">
+        <div className="p-4 sm:p-5 rounded-lg bg-gold-soft border border-gold/40 space-y-3">
           <div className="flex items-center gap-2 text-gold">
             <AlertTriangle className="w-5 h-5 shrink-0" />
             <h3 className="font-bold text-sm sm:text-base">Reclamo en la oficina del DT</h3>
@@ -182,7 +182,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                     <span className="font-bold text-fg block">{p.name} ({p.position}, OVR {p.overall})</span>
                     <span className="text-[11px] text-fg-muted">Moral: {p.morale} • Satisfacción con minutos: {p.satisfaction_playing_time}%</span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-950 text-danger border border-rose-800">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-danger-soft text-danger border border-danger/40">
                     Disconforme
                   </span>
                 </div>
@@ -198,7 +198,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
                   <AsyncButton
                     disabled={actionLoading}
                     onClick={() => handleResolveConflict(p.player_id, 'HONEST_CRITIQUE')}
-                    className="px-2.5 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 font-semibold rounded text-[11px] transition-colors"
+                    className="px-2.5 py-1 bg-primary-soft hover:bg-primary-soft text-primary font-semibold rounded text-[11px] transition-colors"
                   >
                     Diálogo Franco (+2 moral)
                   </AsyncButton>
@@ -313,7 +313,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('PRAISE')}
-            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-accent/60 hover:bg-emerald-950/10 transition-all text-xs group"
+            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-primary/60 hover:bg-accent-soft transition-all text-xs group"
           >
             <span className="font-bold text-accent block mb-1">Elogiar sacrificio</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
@@ -324,9 +324,9 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('CALM')}
-            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-blue-500/60 hover:bg-blue-950/10 transition-all text-xs group"
+            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-primary/40 hover:bg-primary-soft transition-all text-xs group"
           >
-            <span className="font-bold text-blue-400 block mb-1">Llamado a la calma</span>
+            <span className="font-bold text-primary block mb-1">Llamado a la calma</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">
               Descomprime presiones y pide templanza ante los próximos partidos (+5 moral, +3 cohesión).
             </p>
@@ -335,7 +335,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
           <AsyncButton
             disabled={actionLoading}
             onClick={() => handleHoldTeamMeeting('DEMAND_EXCELLENCE')}
-            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-gold/60 hover:bg-amber-950/10 transition-all text-xs group"
+            className="p-3 text-left rounded-xl border border-line bg-bg/70 hover:border-gold/60 hover:bg-gold-soft transition-all text-xs group"
           >
             <span className="font-bold text-gold block mb-1">Exigir excelencia</span>
             <p className="text-fg-muted group-hover:text-fg leading-snug">

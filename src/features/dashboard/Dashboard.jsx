@@ -48,7 +48,7 @@ import { reactionFor, effectChips } from '../../domain/storyFlavor'
 /** Escudo heráldico vectorial arcade con colores oficiales del club */
 function Crest({ club, name, highlight }) {
   return (
-    <div className={cn('relative p-1 rounded-xl transition-all flex items-center justify-center', highlight && 'ring-2 ring-accent/60 bg-accent-soft/20')}>
+    <div className={cn('relative p-1 rounded-xl transition-all flex items-center justify-center', highlight && 'ring-2 ring-primary/60 bg-accent-soft/20')}>
       <ClubBadge club={club} name={name} size="lg" />
     </div>
   )

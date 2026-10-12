@@ -49,7 +49,7 @@ export default function DerbyDuel({ rivalName, onFinish, rng = Math.random }) {
         <p className="text-base font-black text-fg">{text.title}</p>
         <p className="text-xs text-fg-muted">{text.note}</p>
         <p className="text-xs font-semibold text-fg-subtle">Puntaje {total > 0 ? `+${total}` : total} · Moral del plantel {morale > 0 ? `+${morale}` : morale}</p>
-        <button type="button" onClick={() => onFinish({ result, total })} className="min-h-11 w-full rounded-xl bg-accent px-4 text-sm font-bold uppercase tracking-wider text-accent-fg transition-colors hover:bg-accent-strong">A la cancha</button>
+        <button type="button" onClick={() => onFinish({ result, total })} className="min-h-11 w-full rounded-xl bg-primary px-4 text-sm font-bold uppercase tracking-wider text-primary-fg transition-colors hover:bg-primary-strong">A la cancha</button>
       </section>
     )
   }

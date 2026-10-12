@@ -95,25 +95,25 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
     <div className="space-y-6">
       {/* BANNER DE ULTIMÁTUM CRÍTICO (SI ESTÁ ACTIVO) */}
       {board?.is_under_ultimatum && (
-        <div className="p-4 sm:p-5 rounded-lg bg-rose-950/40 border border-rose-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-pulse">
+        <div className="p-4 sm:p-5 rounded-lg bg-danger-soft border border-danger/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-pulse">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-danger/20 text-danger shrink-0">
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-danger bg-rose-950/80 px-2 py-0.5 rounded border border-rose-800">
+              <span className="text-xs font-bold uppercase tracking-wider text-danger bg-danger-soft px-2 py-0.5 rounded border border-danger/40">
                 Ultimátum dirigencial activo
               </span>
               <h3 className="text-base font-semibold text-fg mt-1">
                 La directiva exige sumar {board.ultimatum_points_required} puntos
               </h3>
-              <p className="text-xs text-rose-200">
+              <p className="text-xs text-danger">
                 Puntos conseguidos: {board.ultimatum_points_gathered} / {board.ultimatum_points_required}. Si no cumples la meta, serás destituido al concluir el plazo.
               </p>
             </div>
           </div>
 
-          <div className="w-full sm:w-auto text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-rose-800/40">
+          <div className="w-full sm:w-auto text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-danger/40">
             <span className="text-xs text-danger">Partidos restantes</span>
             <span className="text-xl font-mono font-semibold text-danger flex items-center gap-1.5">
               <Clock className="w-4 h-4" />
@@ -185,7 +185,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
           <div className="p-4 rounded-xl bg-bg/80 border border-line/80">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4 text-blue-400" />
+                <DollarSign className="w-4 h-4 text-primary" />
                 Área Financiera (30%)
               </span>
               <span className="text-xs font-mono font-bold text-fg">
@@ -194,7 +194,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
             </div>
             <div className="w-full bg-surface-3 rounded-full h-2 mb-2 overflow-hidden">
               <div 
-                className="h-2 rounded-full bg-blue-500 transition-all duration-500"
+                className="h-2 rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${board?.financial_satisfaction || 70}%` }}
               />
             </div>
@@ -279,7 +279,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
           <AsyncButton
             onClick={handleRequestFunding}
             disabled={actionLoading || score < 55}
-            className="w-full py-2.5 px-4 bg-accent hover:bg-accent-strong disabled:opacity-50 text-accent-fg font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
+            className="w-full py-2.5 px-4 bg-primary hover:bg-primary-strong disabled:opacity-50 text-primary-fg font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
           >
             <Sparkles className="w-4 h-4" />
             <span>Petición extraordinaria de $15,000</span>

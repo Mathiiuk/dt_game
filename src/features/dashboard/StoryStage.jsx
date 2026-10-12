@@ -148,7 +148,7 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
   const choose = (opt) => { if (opt && !busy) { feel('pick'); onChoose(opt) } }
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={chapter?.clean || event.title} className="fixed inset-0 z-[70] flex h-dvh flex-col bg-bg [background-image:radial-gradient(ellipse_at_top,oklch(30%_0.05_150/0.55),transparent_60%)]">
+    <div role="dialog" aria-modal="true" aria-label={chapter?.clean || event.title} className="fixed inset-0 z-[70] flex h-dvh flex-col bg-bg [background-image:radial-gradient(ellipse_at_top,color-mix(in_oklab,var(--color-accent)_22%,transparent),transparent_60%)]">
       {/* Encabezado: de qué historia es y en qué capítulo vamos */}
       <header className="flex shrink-0 items-center gap-3 px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold"><CategoryIcon className="size-5" aria-hidden="true" /></span>
@@ -244,11 +244,11 @@ export default function StoryStage({ event, budget, boardConfidence, result, bus
                       onClick={() => (mode === 'HOLD' ? setSelected(opt) : choose(opt))}
                       className={cn(
                         'flex w-full items-start gap-3 rounded-xl border p-3.5 text-left transition-all active:scale-[0.99] disabled:opacity-45',
-                        active ? 'border-accent bg-accent-soft' : 'border-line-strong bg-surface hover:border-accent hover:bg-surface-2',
+                        active ? 'border-primary bg-primary-soft' : 'border-line-strong bg-surface hover:border-primary hover:bg-surface-2',
                         mode === 'TARGET' && ok && 'disabled:opacity-100'
                       )}
                     >
-                      <span className={cn('grid size-8 shrink-0 place-items-center rounded-full font-display text-base font-semibold', active ? 'bg-accent text-accent-fg' : 'bg-surface-3 text-fg-muted')} aria-hidden="true">{LETTERS[i] || i + 1}</span>
+                      <span className={cn('grid size-8 shrink-0 place-items-center rounded-full font-display text-base font-semibold', active ? 'bg-primary text-primary-fg' : 'bg-surface-3 text-fg-muted')} aria-hidden="true">{LETTERS[i] || i + 1}</span>
                       <span className="min-w-0 flex-1">
                         <span className="block break-words text-base font-semibold text-fg">{opt.label}</span>
                         {opt.description && <span className="mt-0.5 block break-words text-sm leading-relaxed text-fg-muted">{opt.description}</span>}
