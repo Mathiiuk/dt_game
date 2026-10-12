@@ -1,6 +1,6 @@
 import React from 'react'
-import { Building, ShieldPlus, ShoppingBag, Sparkles, TrendingUp } from 'lucide-react'
-import { Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter, Button, Badge } from '../../components/ui'
+import { Building, ShieldPlus, ShoppingBag } from 'lucide-react'
+import { Card, CardBody, Button, Badge } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import { getFacilityROI, levelOf, storeWeeklyIncome, upgradeCost } from '../../domain/finances'
 
@@ -25,54 +25,26 @@ export default function FinancesFacilityCard({ facility, club, onUpgrade, budget
   const canPay = budget >= cost
 
   return (
-    <Card as="article" className="flex h-full flex-col border border-line bg-surface/90 shadow-sm hover:border-line-focus transition-all">
-      <CardHeader className="pb-3 border-b border-line/60">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <span className="grid size-10 place-items-center rounded-md bg-surface-3 text-accent border border-line">
-              <Icon className="size-5" aria-hidden="true" />
-            </span>
-            <div>
-              <CardTitle as="h3" className="text-base font-bold font-display text-fg">
-                {facility.name}
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Nivel {level} · {extra}
-              </CardDescription>
-            </div>
+    <Card as="article" className="h-full">
+      <CardBody className="space-y-2 p-3">
+        <div className="flex items-center gap-2.5">
+          <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <h3 className="font-slab text-sm font-bold text-fg">{facility.name}</h3>
+            <p className="text-xs text-fg-muted">Nivel {level} · {extra}</p>
           </div>
           <Badge tone="accent">Nv. {level}</Badge>
         </div>
-      </CardHeader>
-
-      <CardBody className="flex-1 p-4 space-y-3 text-xs">
-        <p className="text-fg-muted leading-relaxed">
-          {facility.description}
-        </p>
-
-        {/* Retorno de Inversión y Beneficio Estratégico */}
-        <div className="rounded-md bg-surface-2/70 p-3 border border-line space-y-1.5">
-          <div className="flex items-center gap-1.5 text-accent font-semibold">
-            <Sparkles className="size-3.5 shrink-0" />
-            <span>Próximo nivel:</span>
-          </div>
-          <p className="text-fg font-medium">{roi.gainText}</p>
-          <p className="text-fg-subtle italic text-[11px] border-t border-line/60 pt-1 mt-1">
-            {roi.paybackText}
-          </p>
-        </div>
-      </CardBody>
-
-      <CardFooter className="pt-2 border-t border-line/60">
-        <Button
-          className="w-full text-xs font-semibold"
-          variant="outline"
-          disabled={!canPay}
-          onClick={() => onUpgrade(facility)}
-        >
+        <p className="text-xs font-medium text-fg"><span className="text-accent">Próximo nivel:</span> {roi.gainText}</p>
+        <details className="text-xs text-fg-muted">
+          <summary className="cursor-pointer text-fg-subtle hover:text-fg">Ver detalle</summary>
+          <p className="mt-1 leading-relaxed">{facility.description}</p>
+          <p className="mt-1 italic text-fg-subtle">{roi.paybackText}</p>
+        </details>
+        <Button className="w-full text-xs font-semibold" variant="outline" disabled={!canPay} onClick={() => onUpgrade(facility)}>
           {facility.action} · {formatMoney(cost)}
         </Button>
-      </CardFooter>
+      </CardBody>
     </Card>
   )
 }

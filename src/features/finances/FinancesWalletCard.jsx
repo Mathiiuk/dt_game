@@ -1,59 +1,32 @@
 import React from 'react'
-import { AlertCircle, CheckCircle2, Clock, DollarSign, Info, Sparkles, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
-import { Card, CardBody, Badge, Button } from '../../components/ui'
+import { CheckCircle2, Info } from 'lucide-react'
+import { Card, CardBody, Kicker, Button, DataStrip } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import { getTycoonHealth } from '../../domain/finances'
 
 export default function FinancesWalletCard({ finances, check = null, checking = false, onVerify }) {
   const balance = finances?.balance || 0
   const net = finances?.netWeeklyFlow || 0
-  const totalIncome = finances?.income?.totalRecurring || 0
   const totalExpenses = finances?.expenses?.total || 0
   const profitable = net >= 0
-
   const tycoonHealth = getTycoonHealth(finances?.healthStatus, balance, totalExpenses)
 
   return (
-    <Card className="border border-line bg-surface/90 shadow-sm overflow-hidden mb-4">
-      {/* Cabecera Tycoon con Semáforo y Lema */}
-      <div className="bg-gradient-to-r from-accent/15 via-accent/5 to-transparent px-4 py-3 sm:px-6 border-b border-line flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-md bg-accent/20 text-accent border border-accent/30">
-            <Wallet className="size-5" />
-          </div>
-          <div>
-            <span className="eyebrow text-accent">Billetera del club</span>
-            <div className="flex items-center gap-2">
-              <h2 className="font-display text-lg font-bold text-fg sm:text-xl">
-                Caja del club
-              </h2>
-            </div>
-          </div>
+    <Card masthead as="section" aria-label="Billetera del club">
+      <CardBody className="space-y-3 p-3 sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Kicker>Billetera del club</Kicker>
+          <span className={`rounded-md border px-2 py-0.5 text-xs font-bold ${tycoonHealth.badgeClass}`}>{tycoonHealth.slogan}</span>
         </div>
 
-        <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border shadow-xs ${tycoonHealth.badgeClass}`}>
-          {tycoonHealth.slogan}
-        </span>
-      </div>
-
-      <CardBody className="p-3 sm:p-4 space-y-4">
-        {/* Monto Principal de Caja y Margen */}
-        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 border-b border-line pb-4">
-          <div>
-            <span className="eyebrow text-xs">Caja disponible hoy</span>
-            <div className="font-display text-2xl font-black text-accent sm:text-4xl mt-0.5 tracking-tight">
-              {formatMoney(balance)}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-medium text-fg-muted bg-surface-2 px-3 py-1.5 rounded-md border border-line">
-            <Clock className="size-4 text-fg-subtle shrink-0" />
-            <span>{finances?.liquidityWeeks || tycoonHealth.runwayWeeks}</span>
-          </div>
-        </div>
+        <DataStrip label="Caja y balance semanal" items={[
+          { label: 'Caja hoy', value: formatMoney(balance), tone: balance < 0 ? 'bad' : 'neutral' },
+          { label: 'Balance semanal', value: `${profitable ? '+' : ''}${formatMoney(net)}`, tone: profitable ? 'good' : 'bad', hint: profitable ? 'superávit' : 'déficit cubierto' },
+          { label: 'Autonomía', value: String(finances?.liquidityWeeks || tycoonHealth.runwayWeeks).replace(/\s*semanas? de margen/, ' sem.') }
+        ]} />
 
         {onVerify && (
-          <div className="flex flex-wrap items-start gap-3 border-b border-line pb-4">
+          <div className="flex flex-wrap items-start gap-3">
             <Button size="sm" variant="outline" onClick={onVerify} loading={checking}>{!checking && <CheckCircle2 />}Verificar balance</Button>
             {check && (
               <p role="status" className={`flex min-w-0 flex-1 items-start gap-2 text-xs leading-relaxed ${check.status === 'OK' ? 'text-accent' : 'text-fg-muted'}`}>
@@ -63,36 +36,6 @@ export default function FinancesWalletCard({ finances, check = null, checking = 
             )}
           </div>
         )}
-
-        {/* Balance Semanal y Flujo de Caja */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-md bg-surface-2/80 p-3.5 border border-line">
-            <span className="eyebrow text-[10px]">Entró esta semana</span>
-            <div className="font-display text-lg font-bold text-accent mt-1">
-              +{formatMoney(totalIncome)}
-            </div>
-            <p className="text-[11px] text-fg-subtle mt-0.5">Socios, sponsors y TV</p>
-          </div>
-
-          <div className="rounded-md bg-surface-2/80 p-3.5 border border-line">
-            <span className="eyebrow text-[10px]">Gastamos esta semana</span>
-            <div className="font-display text-lg font-bold text-danger mt-1">
-              -{formatMoney(totalExpenses)}
-            </div>
-            <p className="text-[11px] text-fg-subtle mt-0.5">Sueldos y mantenimiento</p>
-          </div>
-
-          <div className="rounded-md bg-surface-2/80 p-3.5 border border-line">
-            <span className="eyebrow text-[10px]">Balance de la semana</span>
-            <div className={`font-display text-lg font-bold mt-1 flex items-center gap-1.5 ${profitable ? 'text-accent' : 'text-danger'}`}>
-              {profitable ? <TrendingUp className="size-4" /> : <TrendingDown className="size-4" />}
-              {profitable ? '+' : ''}{formatMoney(net)}
-            </div>
-            <p className="text-[11px] text-fg-subtle mt-0.5">
-              {profitable ? 'Superávit operativo' : 'Déficit semanal cubierto'}
-            </p>
-          </div>
-        </div>
       </CardBody>
     </Card>
   )

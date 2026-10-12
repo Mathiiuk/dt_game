@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-25-finanzas-compacta',
+    date: '2026-10-25',
+    title: 'Finanzas más clara y compacta',
+    items: [
+      'La caja, el balance semanal y la autonomía quedan en una tira de datos.',
+      'Ingresos y gastos van juntos en una sola tarjeta; el detalle de las instalaciones se despliega al tocar.'
+    ]
+  },
+  {
     id: '2026-10-24-compactar',
     date: '2026-10-24',
     title: 'Club, Selección, Mercado y Finanzas más compactos',

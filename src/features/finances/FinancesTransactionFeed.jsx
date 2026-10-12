@@ -1,16 +1,13 @@
 import React from 'react'
 import { ArrowDownRight, ArrowUpRight, Receipt } from 'lucide-react'
-import { Card, CardBody, CardHeader, CardTitle, CardDescription, EmptyState } from '../../components/ui'
+import { Card, CardBody, CardHeader, CardTitle, EmptyState } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 
 export default function FinancesTransactionFeed({ transactions = [] }) {
   return (
-    <Card as="section" aria-label="Movimientos" className="border border-line bg-surface/90">
-      <CardHeader className="flex-wrap items-center justify-between border-b border-line pb-3">
-        <div>
-          <CardTitle className="text-base font-bold font-display text-fg">Últimos movimientos</CardTitle>
-          <CardDescription className="text-xs">Registro histórico de ingresos y egresos de caja</CardDescription>
-        </div>
+    <Card as="section" aria-label="Movimientos">
+      <CardHeader className="flex-wrap items-baseline justify-between border-b border-line px-3 py-2">
+        <CardTitle className="text-sm font-bold text-fg">Últimos movimientos</CardTitle>
         <span className="text-xs text-fg-subtle">{transactions.length} registros</span>
       </CardHeader>
 
@@ -29,9 +26,9 @@ export default function FinancesTransactionFeed({ transactions = [] }) {
               {transactions.map((tx) => {
                 const income = Number(tx.amount) >= 0
                 return (
-                  <li key={tx.id} className="flex items-center justify-between gap-3 py-3">
+                  <li key={tx.id} className="flex items-center justify-between gap-3 py-2">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`p-1.5 rounded-lg border ${income ? 'bg-accent-soft text-accent border-accent/40' : 'bg-danger-soft text-danger border-danger/40'}`}>
+                      <div className={`p-1 rounded-md border ${income ? 'bg-accent-soft text-accent border-accent/40' : 'bg-danger-soft text-danger border-danger/40'}`}>
                         {income ? <ArrowUpRight className="size-4" /> : <ArrowDownRight className="size-4" />}
                       </div>
                       <div className="min-w-0">

@@ -19,7 +19,7 @@ import { rivalLevel, rivalOf } from '../../domain/rivalLevel'
 import { formatGameDate, formatLongDate, daysBetween, formatMoney } from '../../lib/format'
 import { cn } from '../../lib/utils'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Kicker, PageHeader, Progress, Skeleton, Stat } from '../../components/ui'
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Kicker, PageHeader, Progress, Skeleton, Stat, DataStrip } from '../../components/ui'
 import SeasonCloseModal from '../season/SeasonCloseModal'
 import WageCapMeter from '../finances/WageCapMeter'
 import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
@@ -148,24 +148,12 @@ function DecisionRows({ events, onOpen }) {
 
 /** Celular: caja, plantel y puesto en una tira de datos de diario (cifras grandes entre filetes); el detalle está en cada sección */
 function StatTiles({ finances, squad, standings }) {
-  const cell = 'flex min-w-0 flex-col items-center gap-0.5 px-1 py-2.5 text-center transition-colors hover:bg-surface-2'
   return (
-    <ul className="grid grid-cols-3 divide-x divide-line border-y border-b-line-strong border-t-[3px] border-t-fg [border-top-style:double]" aria-label="Resumen del club">
-      <li className="min-w-0"><Link to="/finances" className={cell}>
-        <span className={cn('num max-w-full truncate font-display text-[1.625rem] font-bold leading-none', finances.balance < 0 ? 'text-danger' : 'text-fg')}>{formatMoney(finances.balance)}</span>
-        <span className="eyebrow">Caja</span>
-      </Link></li>
-      <li className="min-w-0"><Link to="/squad" className={cell}>
-        <span className={cn('num font-display text-[1.625rem] font-bold leading-none', squad.availableCount < 11 ? 'text-danger' : 'text-fg')}>{squad.availableCount}/{squad.totalPlayers}</span>
-        <span className="eyebrow">Plantel</span>
-        <span className="text-[0.6875rem] text-fg-subtle">aptos · {squad.averageFitness}% físico</span>
-      </Link></li>
-      <li className="min-w-0"><Link to="/standings" className={cell}>
-        <span className="num font-display text-[1.625rem] font-bold leading-none text-fg">{standings?.rank ? `${standings.rank}º` : '—'}</span>
-        <span className="eyebrow">Puesto</span>
-        <span className="text-[0.6875rem] text-fg-subtle">{standings ? `${standings.points || 0} pts · ${standings.played || 0} PJ` : 'sin partidos'}</span>
-      </Link></li>
-    </ul>
+    <DataStrip label="Resumen del club" items={[
+      { label: 'Caja', value: formatMoney(finances.balance), tone: finances.balance < 0 ? 'bad' : 'neutral', to: '/finances' },
+      { label: 'Plantel', value: `${squad.availableCount}/${squad.totalPlayers}`, tone: squad.availableCount < 11 ? 'bad' : 'neutral', hint: `aptos · ${squad.averageFitness}% físico`, to: '/squad' },
+      { label: 'Puesto', value: standings?.rank ? `${standings.rank}º` : '—', hint: standings ? `${standings.points || 0} pts · ${standings.played || 0} PJ` : 'sin partidos', to: '/standings' }
+    ]} />
   )
 }
 
