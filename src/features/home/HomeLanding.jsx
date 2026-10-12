@@ -4,6 +4,7 @@ import ManagerQuoteFlash from './ManagerQuoteFlash'
 import HeroIdentity from './HeroIdentity'
 import HeroCTA from './HeroCTA'
 import EditionColumn from './EditionColumn'
+import TopManagersTable from './TopManagersTable'
 import PublicFooter from './PublicFooter'
 import { useVisitorState } from './useVisitorState'
 import { useSeo } from '../../seo/useSeo'
@@ -35,7 +36,10 @@ export default function HomeLanding() {
           <HeroIdentity />
           <HeroCTA visitor={visitor} />
         </section>
-        <EditionColumn />
+        <div className="space-y-5 lg:border-l lg:border-line-strong lg:pl-7">
+          <TopManagersTable />
+          <EditionColumn />
+        </div>
       </main>
       <PublicFooter />
     </div>

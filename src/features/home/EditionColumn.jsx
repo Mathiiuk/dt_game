@@ -11,7 +11,7 @@ const NOTES = [
 /** "En esta edición": tres notas que llevan a páginas públicas. Solo en pantallas anchas (en el celular la portada es una sola pantalla). */
 export default function EditionColumn() {
   return (
-    <aside aria-label="En esta edición" className="hidden border-l border-line-strong pl-7 lg:block">
+    <aside aria-label="En esta edición" className="hidden lg:block">
       <p className="font-display text-sm font-bold uppercase tracking-[0.18em] text-danger">En esta edición</p>
       <ul className="mt-1">
         {NOTES.map(note => (
