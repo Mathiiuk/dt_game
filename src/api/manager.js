@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { auditApi } from './audit'
+import { queryCache } from '../utils/cache'
 
 export const FREE_POINTS_POOL = 15
 export const ATTRIBUTE_MAX_INITIAL_CAP = 14
@@ -120,7 +121,7 @@ export const managerApi = {
       throw new Error('Ya tienes un perfil de Director Técnico activo en tu carrera.')
     }
 
-    const { identity, background = 'STREET_COACH', distributedPoints = {}, philosophy, specialization } = managerData
+    const { identity, background = 'STREET_COACH', distributedPoints = {}, philosophy, specialization, publicRanking = false } = managerData
 
     // 2. Validación de suma cero autoritativa en backend
     const validation = validateManagerPoints(background, distributedPoints)
@@ -160,7 +161,9 @@ export const managerApi = {
       attr_youth: calculated.youth,
       attr_negotiation: calculated.negotiation,
       attr_locker_room: calculated.motivation,
-      is_retired: false
+      is_retired: false,
+      // Consentimiento para aparecer en la tabla pública de los mejores DT: solo si la persona lo aceptó
+      public_ranking: publicRanking === true
     }
 
     const { data, error } = await supabase
@@ -194,6 +197,15 @@ export const managerApi = {
     }
 
     return data
+  },
+
+  /** Acepta o retira el consentimiento para aparecer con el nombre del DT en la tabla pública de los mejores DT */
+  async setPublicRanking(managerId, value) {
+    if (!managerId) throw new Error('Director Técnico no encontrado')
+    const { error } = await supabase.from('managers').update({ public_ranking: value === true }).eq('id', managerId)
+    if (error) throw new Error(error.message)
+    queryCache.invalidate('manager:')
+    return value === true
   },
 
   async getManager(userId) {

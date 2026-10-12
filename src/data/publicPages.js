@@ -336,13 +336,17 @@ export const PUBLIC_PAGES = [
     h1: 'Política de privacidad',
     intro: 'Vestuario guarda la menor cantidad de datos posible para que puedas jugar y continuar tu carrera.',
     sections: [
-      { heading: 'Qué datos guardamos', body: ['Los datos de tu cuenta (nombre y correo electrónico), una contraseña que se guarda cifrada y los datos de tu partida: tu DT, tu club y el avance de tu carrera.'] },
+      { heading: 'Qué datos guardamos', body: ['Los datos de tu cuenta (nombre y correo electrónico), una contraseña que se guarda cifrada y los datos de tu partida: tu DT, tu club y el avance de tu carrera. También guardamos tu elección sobre aparecer o no en la tabla pública de los mejores DT.'] },
       { heading: 'Para qué los usamos', body: ['Para que puedas iniciar sesión, guardar tu carrera y recuperar el acceso si olvidás la contraseña. No vendemos tus datos ni los compartimos con terceros con fines publicitarios.'] },
       { heading: 'Medición de uso', body: ['Podemos registrar eventos de uso generales, como visitas, registros y clics en los botones, para entender cómo se usa el sitio. Esos eventos no incluyen tu nombre ni tu correo.'] },
       { heading: 'Cookies y Google Tag Manager', body: ['Usamos Google Tag Manager para medir el uso del sitio. Las cookies de medición y publicidad solo se activan si tocás "Aceptar" en el aviso; con "Solo necesarias" quedan desactivadas. Podés cambiar tu elección borrando los datos del sitio en tu navegador.'] },
       { heading: 'Uso sin conexión', body: ['Para que el juego abra rápido y se pueda mirar sin internet, guardamos en tu dispositivo una copia de los últimos datos de tu club que viste (plantel, tabla, calendario) por hasta 24 horas. Esa copia es solo tuya: se borra al cerrar sesión o al eliminar tu cuenta, y si entra otra persona en el mismo dispositivo.'] },
       { heading: 'Notificaciones', body: ['Si activás los avisos en un dispositivo, guardamos una dirección técnica de ese dispositivo (la que entrega el navegador) y qué tipos de aviso querés recibir. Solo las usamos para avisarte de tu sala de amigos, de tu club o de novedades del juego, nunca de noche, y no las compartimos. Podés apagarlos desde la sección "Más" del juego o en los ajustes de tu navegador. Si eliminás tu cuenta, se borran.'] },
-      { heading: 'Tabla pública de los mejores DT', body: ['La portada muestra una tabla con los DT que más puntos de legado juntaron en su carrera. De cada DT se publica solo el nombre y apellido que elegiste para tu DT en el juego, sus puntos, títulos y victorias: nunca tu correo, tu club ni datos de tu cuenta. Si no querés aparecer, pedí que te quitemos o cambiá el nombre de tu DT; si eliminás tu cuenta, dejás de aparecer.'] },
+      { heading: 'Tabla pública de los mejores DT: solo si lo aceptás', body: [
+        'La portada muestra una tabla con los DT que más puntos de legado juntaron en su carrera. Aparecés únicamente si lo aceptás: al crear tu DT hay una casilla que arranca sin tildar, y después podés activarlo o desactivarlo cuando quieras en "Más", en el apartado Privacidad.',
+        'Si lo aceptás, se publica el nombre y apellido que elegiste para tu DT, sus puntos de legado, sus títulos y sus victorias, y recién cuando jugó al menos 10 partidos. Nunca se publican tu correo, tu contraseña, el nombre de tu club ni otros datos de tu cuenta.',
+        `Podés retirar tu consentimiento en cualquier momento y dejás de aparecer enseguida. También dejás de aparecer si eliminás tu cuenta, y si cambiás el nombre de tu DT se muestra el nuevo. ${contactLine}`
+      ] },
       { heading: 'Tus derechos', body: [`Podés pedir en cualquier momento que corrijamos o eliminemos tus datos y tu cuenta. ${contactLine}`] }
     ],
     related: ['/terminos', '/contacto']

@@ -30,3 +30,28 @@ describe('migración de la tabla pública de mejores DT', () => {
     expect(code).not.toMatch(/drop (table|column)|alter table|delete from|truncate/i)
   })
 })
+
+describe('migración del consentimiento para la tabla pública', () => {
+  const sql = readFileSync('scripts/db/migration_public_ranking_consent.sql', 'utf8')
+  const code = sql.split('\n').filter(l => !l.trim().startsWith('--')).join('\n')
+
+  it('la columna arranca apagada para todos: nadie aparece sin aceptar', () => {
+    expect(code).toMatch(/add column if not exists public_ranking boolean not null default false/)
+  })
+
+  it('la tabla pública solo incluye a quien aceptó', () => {
+    expect(code).toMatch(/where m\.public_ranking\s+and /)
+  })
+
+  it('mantiene la privacidad de la función: sin ids ni correo, permisos y límite', () => {
+    expect(code).toContain('returns table (rank bigint, manager_name text, points integer, titles integer, matches_won integer)')
+    expect(code).not.toMatch(/auth\.users|email|user_id|owner_user_id/)
+    expect(code).toMatch(/grant execute on function public\.public_top_managers\(integer\) to anon, authenticated;/)
+    expect(code).toMatch(/limit least\(greatest\(coalesce\(p_limit, 5\), 1\), 20\)/)
+  })
+
+  it('es aditiva: solo agrega la columna', () => {
+    expect(code).not.toMatch(/drop (table|column)|delete from|truncate/i)
+    expect(code.match(/alter table/gi)).toHaveLength(1)
+  })
+})

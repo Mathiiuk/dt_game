@@ -64,6 +64,28 @@ describe('asistente de creación del DT', () => {
     expect(payload).toMatchObject({ background: 'EX_PLAYER', philosophy: 'Presión', distributedPoints: { tactics: 3, motivation: 4, youth: 3, management: 3, negotiation: 2 } })
     expect(navigate).toHaveBeenCalledWith('/create-club')
   })
+
+  it('en la firma ofrece aparecer en la tabla pública, con la casilla sin tildar, y manda lo que se eligió', async () => {
+    render(<MemoryRouter><CreateManagerWizard /></MemoryRouter>)
+    await waitFor(() => expect(screen.getByLabelText('Nombre')).toHaveValue('Marcelo'))
+    for (let i = 0; i < 4; i++) await userEvent.click(screen.getByRole('button', { name: /Siguiente/ }))
+    const box = screen.getByRole('checkbox', { name: /tabla pública de los mejores DT/i })
+    expect(box).not.toBeChecked()
+    expect(screen.getByText(/nombre y apellido de tu DT/i)).toBeInTheDocument()
+    await userEvent.click(box)
+    await userEvent.click(screen.getByRole('button', { name: /Firmar credencial/ }))
+    await waitFor(() => expect(createManager).toHaveBeenCalled())
+    expect(createManager.mock.calls[0][1]).toMatchObject({ publicRanking: true })
+  })
+
+  it('si no se tilda la casilla, el DT no se publica', async () => {
+    render(<MemoryRouter><CreateManagerWizard /></MemoryRouter>)
+    await waitFor(() => expect(screen.getByLabelText('Nombre')).toHaveValue('Marcelo'))
+    for (let i = 0; i < 4; i++) await userEvent.click(screen.getByRole('button', { name: /Siguiente/ }))
+    await userEvent.click(screen.getByRole('button', { name: /Firmar credencial/ }))
+    await waitFor(() => expect(createManager).toHaveBeenCalled())
+    expect(createManager.mock.calls[0][1]).toMatchObject({ publicRanking: false })
+  })
 })
 
 describe('asistente de fundación del club', () => {

@@ -27,6 +27,7 @@ export default function CreateManagerWizard() {
   const [distributed, setDistributed] = useState({ tactics: 3, motivation: 4, youth: 3, management: 3, negotiation: 2 })
   const [philosophy, setPhilosophy] = useState('Ofensivo')
   const [specialization, setSpecialization] = useState('TACTICO')
+  const [publicRanking, setPublicRanking] = useState(false)
 
   const preset = MANAGER_BACKGROUND_PRESETS[background] || MANAGER_BACKGROUND_PRESETS.STREET_COACH
   const free = remainingPoints(distributed, FREE_POINTS_POOL)
@@ -66,7 +67,7 @@ export default function CreateManagerWizard() {
     if (free !== 0) return toast.error(`Tenés que repartir los ${FREE_POINTS_POOL} puntos libres antes de confirmar.`)
     setLoading(true)
     try {
-      await managerApi.createManager(user.id, { identity, background, distributedPoints: distributed, philosophy, specialization })
+      await managerApi.createManager(user.id, { identity, background, distributedPoints: distributed, philosophy, specialization, publicRanking })
       toast.success('¡Credencial oficial de Director Técnico emitida con éxito!')
       emailApi.sendWelcome() // correo de bienvenida, sin esperar ni frenar el flujo
       navigate('/create-club')
@@ -206,6 +207,13 @@ export default function CreateManagerWizard() {
               <div className="flex justify-between gap-2 rounded-md bg-surface p-2.5"><dt className="text-fg-muted">Nivel inicial</dt><dd className="num font-semibold text-fg">1</dd></div>
             </dl>
           </div>
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-surface p-4 text-sm">
+            <input type="checkbox" checked={publicRanking} onChange={e => setPublicRanking(e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-[var(--color-primary)]" />
+            <span>
+              <span className="block font-semibold text-fg">Quiero aparecer en la tabla pública de los mejores DT</span>
+              <span className="mt-0.5 block text-fg-muted">Se publica solo el nombre y apellido de tu DT, tus puntos, títulos y victorias; nunca tu correo ni tu club. Es opcional: podés cambiarlo cuando quieras en Más.</span>
+            </span>
+          </label>
         </div>
       )}
     </Wizard>

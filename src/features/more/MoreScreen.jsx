@@ -11,6 +11,7 @@ import { EVENT_START_TOUR } from '../tutorial/tourState'
 import { APP_VERSION } from '../../lib/appVersion'
 import NotificationsCard from '../notifications/NotificationsCard'
 import ThemeToggle from './ThemeToggle'
+import PublicRankingCard from './PublicRankingCard'
 
 // Los destinos que ya están en la barra inferior no se repiten aquí
 const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
@@ -19,7 +20,7 @@ const IN_TAB_BAR = new Set(MOBILE_TABS.map(t => t.to))
 export default function MoreScreen() {
   const logout = useLogout()
   const [deleting, setDeleting] = useState(false)
-  const { club, user } = useGameContext()
+  const { club, user, manager } = useGameContext()
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-5">
@@ -57,6 +58,8 @@ export default function MoreScreen() {
       </section>
 
       <NotificationsCard userId={user?.id} />
+
+      {manager && <PublicRankingCard key={manager.id} manager={manager} />}
 
       <section aria-labelledby="more-account">
         <h2 id="more-account" className="eyebrow mb-2 px-1">Cuenta</h2>

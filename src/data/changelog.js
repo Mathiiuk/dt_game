@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-30-privacidad-tabla',
+    date: '2026-10-30',
+    title: 'Vos decidís si aparecés en la tabla pública',
+    items: [
+      'La tabla de los mejores DT de la portada ahora es opcional: solo aparecés si lo aceptás.',
+      'Activalo o retiralo cuando quieras en Más, en Privacidad. Por ahora nadie aparece.'
+    ]
+  },
+  {
     id: '2026-10-29-reto-del-dia',
     date: '2026-10-29',
     title: 'Nuevo: el reto del día',

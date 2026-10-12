@@ -228,3 +228,31 @@ describe('privacidad: medición y cookies', () => {
     expect(text).toMatch(/no incluyen tu nombre ni tu correo/i)
   })
 })
+
+describe('privacidad: tabla pública de los mejores DT', () => {
+  const page = PUBLIC_PAGES.find(p => p.path === '/privacidad')
+  const section = page.sections.find(s => /Tabla pública/.test(s.heading))
+  const text = section.body.join(' ')
+
+  it('es un consentimiento: dice que es opcional, que arranca sin tildar y que se retira cuando se quiera', () => {
+    expect(section.heading).toMatch(/solo si lo aceptás/)
+    expect(text).toMatch(/sin tildar/)
+    expect(text).toMatch(/cuando quieras/)
+    expect(text).toMatch(/retirar tu consentimiento/)
+  })
+
+  it('explica qué se publica y qué nunca se publica', () => {
+    expect(text).toMatch(/nombre y apellido/)
+    expect(text).toMatch(/Nunca se publican tu correo/)
+    expect(text).toMatch(/10 partidos/)
+  })
+
+  it('aclara qué pasa al eliminar la cuenta y cómo pedir ayuda', () => {
+    expect(text).toMatch(/eliminás tu cuenta/)
+    expect(text).toMatch(/contacto@vestuario\.com\.ar|Escribinos|escribinos/)
+  })
+
+  it('"Qué datos guardamos" menciona esa elección', () => {
+    expect(page.sections[0].body.join(' ')).toMatch(/tabla pública/)
+  })
+})
