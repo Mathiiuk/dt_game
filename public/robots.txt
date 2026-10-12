@@ -23,6 +23,7 @@ Disallow: /manager
 Disallow: /national-team
 Disallow: /international-cup
 Disallow: /friends
+Disallow: /reto
 Disallow: /achievements
 Disallow: /hall-of-fame
 Disallow: /more

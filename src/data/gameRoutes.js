@@ -3,7 +3,7 @@
 export const GAME_PATHS = [
   '/auth', '/login', '/registro', '/welcome', '/create-manager', '/create-club', '/design', '/match', '/endgame',
   '/dashboard', '/post-match', '/events', '/calendar', '/tactics', '/standings', '/market', '/squad', '/club',
-  '/finances', '/training', '/manager', '/national-team', '/international-cup', '/friends', '/achievements', '/more',
+  '/finances', '/training', '/manager', '/national-team', '/international-cup', '/friends', '/reto', '/achievements', '/more',
   '/hall-of-fame', '/logbook', '/game'
 ]
 

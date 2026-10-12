@@ -38,3 +38,13 @@ describe('momentos para compartir', () => {
     expect(momentCard({ kind: 'otro', club: 'X' }).headline).toBeTruthy()
   })
 })
+
+describe('momento: reto del día', () => {
+  it('muestra el puntaje y el puesto entre los que jugaron', () => {
+    const c = momentCard({ kind: 'daily', club: 'Potrero', score: 265, rank: 2, players: 9 })
+    expect(c.headline).toBe('RETO DEL DÍA')
+    expect(c.big).toBe('265 pts')
+    expect(c.sub).toBe('Puesto 2 de 9')
+    expect(c.text).toContain(momentUrl('daily'))
+  })
+})

@@ -1,6 +1,6 @@
 import {
   Home, Users, ClipboardList, Calendar, Trophy, Dumbbell, ArrowLeftRight, Building2, Wallet,
-  Briefcase, Flag, Globe, Menu, Swords
+  Briefcase, Flag, Globe, Menu, Swords, Zap
 } from 'lucide-react'
 
 /**
@@ -25,6 +25,7 @@ export const NAV_GROUPS = [
     items: [
       { to: '/standings', label: 'Tabla', icon: Trophy, description: 'Posiciones, ascensos y descensos' },
       { to: '/international-cup', label: 'Copa continental', icon: Globe, description: 'Torneo internacional de clubes' },
+      { to: '/reto', label: 'Reto del día', icon: Zap, description: 'Tres dilemas iguales para todos y una tabla del día' },
       { to: '/friends', label: 'Liga de amigos', icon: Swords, description: 'Una sala con hasta 10 DT, puntos y travesuras' },
       { to: '/national-team', label: 'Selección', icon: Flag, description: 'Doble carrera con una selección nacional' }
     ]

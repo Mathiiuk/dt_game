@@ -26,6 +26,7 @@ import { ClimatePanel, ConsequenceFeed } from './ClimatePanel'
 import EffectMeters from '../../components/EffectMeters'
 import FirstStepsCard from '../onboarding/FirstStepsCard'
 import NextStepCard from '../onboarding/NextStepCard'
+import DailyChallengeLink from '../daily/DailyChallengeLink'
 import { readSteps, markStep } from '../onboarding/firstStepsStore'
 import { missionProgress, showMission, nextStep } from '../../domain/firstSteps'
 import { isNewAccount } from '../tutorial/tourState'
@@ -488,6 +489,7 @@ export default function Dashboard() {
         {lastOutcome && <OutcomeCard outcome={lastOutcome} onClose={() => setLastOutcome(null)} />}
 
         <DecisionRows events={pendingEvents} onOpen={(event) => setStage({ event, result: null })} />
+        <DailyChallengeLink />
 
         {!isLg && (
           <>

@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/(auth|login|registro|welcome|create-manager|create-club|design|match|endgame|dashboard|post-match|events|calendar|tactics|standings|market|squad|club|finances|training|manager|national-team|international-cup|friends|achievements|more|hall-of-fame|logbook|game)", "destination": "/index.html" }
+    { "source": "/(auth|login|registro|welcome|create-manager|create-club|design|match|endgame|dashboard|post-match|events|calendar|tactics|standings|market|squad|club|finances|training|manager|national-team|international-cup|friends|reto|achievements|more|hall-of-fame|logbook|game)", "destination": "/index.html" }
   ],
   "headers": [
     {

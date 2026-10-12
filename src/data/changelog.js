@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-29-reto-del-dia',
+    date: '2026-10-29',
+    title: 'Nuevo: el reto del día',
+    items: [
+      'Tres dilemas iguales para todos y un objetivo distinto cada día. Una sola oportunidad.',
+      'Mirá tu puesto en la tabla del día, solo con tus amigos o con todos, y compartí tu resultado.'
+    ]
+  },
+  {
     id: '2026-10-28-compartir-momentos',
     date: '2026-10-28',
     title: 'Compartí tus mejores momentos',

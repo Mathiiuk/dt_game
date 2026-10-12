@@ -83,6 +83,16 @@ export const TOUR_STEPS = [
     ]
   },
   {
+    id: 'reto',
+    route: '/reto',
+    nav: '/reto',
+    title: 'Reto del día',
+    body: [
+      'Todos los días hay tres dilemas bizarros iguales para todos los DT y un objetivo, por ejemplo terminar con la Barra en 65 o más. Elegís una opción en cada dilema y el servidor calcula tus puntos.',
+      'Tenés un solo intento por día. Después ves qué pasó con cada decisión, tu puesto en la tabla del día (de todos o solo de tus amigos) y podés compartir tu resultado.'
+    ]
+  },
+  {
     id: 'amigos',
     route: '/friends',
     nav: '/friends',
