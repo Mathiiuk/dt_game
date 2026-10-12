@@ -145,6 +145,7 @@ end $$;
 revoke all on function public.push_public_key(), public.push_subscribe(text, text, text, text), public.push_unsubscribe(text), public.push_set_prefs(boolean, boolean, boolean), public.push_due() from public, anon;
 grant execute on function public.push_public_key(), public.push_subscribe(text, text, text, text), public.push_unsubscribe(text), public.push_set_prefs(boolean, boolean, boolean) to authenticated;
 -- push_due: solo permisos de servicio (la Edge Function)
+-- (En producción además se revocó EXECUTE a `authenticated` sobre push_due: ver migration_push_motivos.sql)
 grant execute on function public.push_due() to service_role;
 
 -- Cada 15 minutos el cron llama a la Edge Function `push-dispatch` con la clave interna (leída de `push_config` dentro de la base; no sale de ahí)

@@ -37,4 +37,22 @@ describe('textos de los avisos push', () => {
   it('los nombres con saltos de línea o espacios de más quedan en una línea y no rompen el texto', () => {
     expect(buildPush('plan_missing', { room: '  Los\n\nPibes   ', round: 2, hours: 2 }).title).toBe('Te falta el planteo en "Los Pibes"')
   })
+
+  it('lesión: nombra al jugador, los días y cuenta cuántos más hay; abre el plantel', () => {
+    const uno = buildPush('injury', { player: 'Hugo Ríos', days: 21, count: 1 })
+    expect(uno).toMatchObject({ url: '/squad', tag: 'club-injury' })
+    expect(uno.title).toContain('Hugo Ríos')
+    expect(uno.body).toContain('21 días')
+    const varios = buildPush('injury', { player: 'Hugo Ríos', days: 1, count: 3 })
+    expect(varios.title).toContain('y 2 más')
+    expect(buildPush('injury', { player: 'X', days: 1, count: 1 }).body).toContain('1 día')
+  })
+
+  it('contratos: avisa cuántos vencen y el primero; abre el plantel', () => {
+    const m = buildPush('contract_end', { player: 'Tomás Luna', count: 2, days: 40 })
+    expect(m).toMatchObject({ url: '/squad', tag: 'club-contracts' })
+    expect(m.title).toContain('2 contratos')
+    expect(m.body).toContain('Tomás Luna')
+    expect(buildPush('contract_end', { player: 'Tomás Luna', count: 1, days: 40 }).title).toContain('1 contrato')
+  })
 })
