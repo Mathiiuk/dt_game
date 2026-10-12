@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { AlertCircle, Check, Handshake, MessageSquare, Sparkles, User, X } from 'lucide-react'
 import { formatMoney } from '../../lib/format'
+import ShareMomentButton from '../../components/ShareMomentButton'
 import {
   INSTALLMENT_SURCHARGE,
   installmentAmounts,
@@ -26,7 +27,8 @@ export default function OfferModal({
   wageInfo = null,
   onClose,
   onSubmit,
-  processing = false
+  processing = false,
+  clubName = ''
 }) {
   const asking = player.asking_price || player.market_value || 0
   const [installments, setInstallments] = useState(1)
@@ -92,7 +94,12 @@ export default function OfferModal({
         )}
       </div>
     )
-    footer = <Button onClick={onClose} className="w-full">Listo</Button>
+    footer = (
+      <div className="flex w-full gap-2">
+        <ShareMomentButton label="Compartir el fichaje" className="flex-1" moment={{ kind: 'signing', club: clubName, player: `${player.first_name} ${player.last_name}`, fee: reply.price }} />
+        <Button onClick={onClose} className="flex-1">Listo</Button>
+      </div>
+    )
   } else if (reply?.status === 'REJECTED') {
     body = (
       <div className="space-y-4 text-center py-2" aria-live="polite">

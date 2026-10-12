@@ -385,6 +385,7 @@ export default function MarketScreen() {
           budget={budget}
           wageInfo={wageInfo}
           processing={submitting}
+          clubName={club?.name}
           onClose={() => setOfferPlayer(null)}
           onSubmit={handleSubmitOffer}
         />

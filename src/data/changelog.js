@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-28-compartir-momentos',
+    date: '2026-10-28',
+    title: 'Compartí tus mejores momentos',
+    items: [
+      'Campeonato, ascenso, fichaje y balance de la temporada se pueden compartir como tarjeta con imagen.',
+      'Los encontrás en la gala de fin de temporada y al cerrar un fichaje.'
+    ]
+  },
+  {
     id: '2026-10-27-invitar-enlace',
     date: '2026-10-27',
     title: 'Invitá a tus amigos con un enlace',

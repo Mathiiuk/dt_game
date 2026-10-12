@@ -3,7 +3,7 @@ import { Trophy, CheckCircle2, Landmark, Building2, ArrowRight } from 'lucide-re
 import { toast } from 'sonner'
 import { seasonCloseApi } from '../../api/seasonClose'
 import { competitionApi } from '../../api/competition'
-import { seasonOutlook } from '../../domain/divisions'
+import { seasonOutlook, divisionName } from '../../domain/divisions'
 import { climateApi } from '../../api/climate'
 import { seasonStory } from '../../domain/seasonStory'
 import { useGameContext } from '../../context/GameContext'
@@ -11,6 +11,7 @@ import { formatMoney } from '../../lib/format'
 import { Badge, Button, Card, CardBody, ResponsiveOverlay } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
 import AssemblyCard from './AssemblyCard'
+import ShareMomentButton from '../../components/ShareMomentButton'
 import { track } from '../../lib/analytics'
 
 const CONSEQUENCES = [
@@ -181,6 +182,11 @@ export default function SeasonCloseModal({ club, careerId, seasonYear = 2026, on
             <ul className="mt-2 space-y-1.5 text-sm text-fg-muted">
               {story.lines.map(line => <li key={line}>{line}</li>)}
             </ul>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {closedSummary?.championClubId === club.id && <ShareMomentButton label="Compartir el campeonato" moment={{ kind: 'champion', club: club.name, season: seasonYear }} />}
+              {closedSummary?.isPromoted && <ShareMomentButton label="Compartir el ascenso" moment={{ kind: 'promotion', club: club.name, season: seasonYear, tierName: divisionName(closedSummary.newTier) }} />}
+              <ShareMomentButton label="Compartir mi temporada" moment={{ kind: 'season', club: club.name, season: seasonYear, position: closedSummary?.userPosition, storyHeadline: story.headline }} />
+            </div>
           </section>
         )}
       </div>

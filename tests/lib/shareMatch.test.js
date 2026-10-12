@@ -1,4 +1,5 @@
-import { drawShareCard, shareMatchResult } from '../../src/lib/shareMatch'
+import { drawShareCard, drawMomentCard, shareMatchResult, shareMoment } from '../../src/lib/shareMatch'
+import { momentCard } from '../../src/domain/momentShare'
 
 const recorder = () => {
   const calls = []
@@ -44,5 +45,30 @@ describe('compartir el resultado', () => {
   it('si la persona cancela no pasa nada', async () => {
     const share = vi.fn().mockRejectedValue(Object.assign(new Error('x'), { name: 'AbortError' }))
     expect(await shareMatchResult(data, { doc, nav: { share } })).toBe('cancelled')
+  })
+})
+
+describe('compartir un momento del club', () => {
+  const moment = momentCard({ kind: 'champion', club: 'Club Atlético Potrero', season: 2027 })
+
+  it('la tarjeta trae marca, titular, dato principal, club y sitio', () => {
+    const { ctx, calls } = recorder()
+    drawMomentCard(ctx, moment)
+    const texts = calls.map(c => c[0])
+    expect(texts).toEqual(expect.arrayContaining(['VESTUARIO', '¡CAMPEONES!', '2027', 'Club Atlético Potrero']))
+    expect(texts.some(t => /vestuario\.com\.ar/.test(t))).toBe(true)
+  })
+
+  it('sin compartir del sistema copia el texto', async () => {
+    const writeText = vi.fn().mockResolvedValue()
+    expect(await shareMoment(moment, { doc: { createElement: () => ({ getContext: () => null }) }, nav: { clipboard: { writeText } } })).toBe('copied')
+    expect(writeText.mock.calls[0][0]).toContain('utm_medium=champion')
+  })
+
+  it('con imágenes permitidas manda el archivo', async () => {
+    const share = vi.fn().mockResolvedValue()
+    const canvas = { width: 0, height: 0, getContext: () => recorder().ctx, toBlob: (cb) => cb(new Blob(['x'], { type: 'image/png' })) }
+    expect(await shareMoment(moment, { doc: { createElement: () => canvas }, nav: { share, canShare: () => true } })).toBe('shared')
+    expect(share.mock.calls[0][0].files[0].name).toBe('momento-vestuario.png')
   })
 })
