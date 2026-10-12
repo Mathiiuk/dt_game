@@ -7,10 +7,10 @@ const H = 34
 const px = (x) => (x / 100) * W
 const py = (y) => (y / 100) * H
 
-function Bench({ side, color, cheer }) {
+function Bench({ side, color, cheer, lament }) {
   const x = side === 'home' ? 24 : 70
   return (
-    <g data-testid={`bench-${side}`} data-cheer={cheer ? 'true' : 'false'} className={cheer ? 'bench-cheer' : undefined}>
+    <g data-testid={`bench-${side}`} data-cheer={cheer ? 'true' : 'false'} data-lament={lament ? 'true' : 'false'} className={cheer ? 'bench-cheer' : lament ? 'bench-lament' : undefined}>
       <rect x={x} y={H - 3.6} width="11" height="1.6" rx="0.8" fill={color} opacity="0.35" />
       {[0, 1, 2].map(i => <circle key={i} cx={x + 2 + i * 3.6} cy={H - 4.9} r="1.2" fill={color} />)}
     </g>
@@ -18,7 +18,7 @@ function Bench({ side, color, cheer }) {
 }
 
 /**
- * Cancha en vivo: una tira con la pelota que sigue las jugadas del relato, el cartel de gol, las tarjetas y el banco que festeja.
+ * Cancha en vivo: una tira con la pelota que sigue las jugadas del relato, el cartel de gol, las tarjetas y los bancos (festeja el que hizo el gol, se lamenta el que lo recibió).
  * Es decorativa (el relato ya cuenta todo): no se lee en voz alta y es muy liviana (un solo movimiento por jugada).
  */
 function LivePitch({ events, minute, matchState, homeColor = '#1F4E9D', awayColor = '#BE2A35' }) {
@@ -44,8 +44,8 @@ function LivePitch({ events, minute, matchState, homeColor = '#1F4E9D', awayColo
         </g>
         <rect x="0" y="13.5" width="1.4" height="7" fill={homeColor} />
         <rect x={W - 1.4} y="13.5" width="1.4" height="7" fill={awayColor} />
-        <Bench side="home" color={homeColor} cheer={goal?.team === 'home'} />
-        <Bench side="away" color={awayColor} cheer={goal?.team === 'away'} />
+        <Bench side="home" color={homeColor} cheer={goal?.team === 'home'} lament={goal?.team === 'away'} />
+        <Bench side="away" color={awayColor} cheer={goal?.team === 'away'} lament={goal?.team === 'home'} />
 
         {goal && (
           <g key={`goal-${goal.minute}`} data-testid="goal-flash" className="animate-pop-in" style={{ transformOrigin: `${W / 2}px ${H / 2}px` }}>

@@ -38,7 +38,12 @@ export default function PublicFooter() {
             ))}
           </nav>
         </div>
-        <p className="mt-2 border-t border-line-strong pt-2 text-[0.6875rem] uppercase tracking-[0.1em]">© 2026 {SITE.name}</p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-line-strong pt-2">
+          <p className="text-[0.6875rem] uppercase tracking-[0.1em]">© 2026 {SITE.name}</p>
+          <a href="https://argentino.dev/proyecto/vestuario?utm_source=argentino.dev&utm_medium=badge&utm_campaign=insignia" rel="noopener" className="inline-flex shrink-0">
+            <img src="https://argentino.dev/badge-light.png" alt="Hecho en Argentina" width="170" height="32" loading="lazy" />
+          </a>
+        </div>
       </div>
     </footer>
   )
