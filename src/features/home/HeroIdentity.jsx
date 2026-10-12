@@ -8,7 +8,7 @@ import { HOME_COPY } from '../../seo/homeSeo'
 export default function HeroIdentity() {
   return (
     <div className="flex flex-col lg:items-center lg:text-center">
-      <p className="font-display text-sm font-bold uppercase tracking-[0.18em] text-danger lg:text-[0.9375rem] lg:tracking-[0.2em]">Portada · Fútbol</p>
+      <p className="font-display text-sm font-bold uppercase tracking-[0.18em] text-danger lg:text-[0.9375rem] lg:tracking-[0.2em]">Portada · fútbol</p>
       <h1 className="mt-1.5 font-slab text-[clamp(3.25rem,min(16vw,8.5svh),4.25rem)] font-extrabold leading-[0.98] tracking-[-0.02em] text-fg lg:text-[clamp(3.75rem,min(6.5vw,11svh),5.75rem)]">
         Vos sos <span className="block">el DT.</span>
       </h1>
