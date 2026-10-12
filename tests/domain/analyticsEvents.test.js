@@ -11,6 +11,14 @@ describe('eventos de medición', () => {
     expect(window.dataLayer.map(d => d.event)).toEqual(GAME_EVENTS.filter(e => ['sign_up', 'club_created', 'season_closed', 'assembly_voted', 'friend_room_created', 'friend_room_joined'].includes(e)))
   })
 
+  it('los eventos de activación nuevos están permitidos', () => {
+    for (const e of ['invite_shared', 'ranking_opt_in', 'match_played']) {
+      expect(GAME_EVENTS).toContain(e)
+      track(e, { placement: 'x' })
+    }
+    expect(window.dataLayer.map(d => d.event)).toEqual(['invite_shared', 'ranking_opt_in', 'match_played'])
+  })
+
   it('un evento desconocido se descarta y nunca viajan datos personales', () => {
     track('evento_raro')
     track('sign_up', { placement: 'registro', email: 'a@b.com', name: 'Pepe' })

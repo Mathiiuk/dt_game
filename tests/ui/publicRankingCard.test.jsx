@@ -38,8 +38,10 @@ describe('privacidad: aparecer en la tabla pública', () => {
     await userEvent.click(sw)
     await waitFor(() => expect(setPublicRanking).toHaveBeenLastCalledWith('m1', true))
     expect(sw).toBeChecked()
+    expect(window.dataLayer.map(d => d.event)).toEqual(['ranking_opt_in'])
     await userEvent.click(sw)
     await waitFor(() => expect(setPublicRanking).toHaveBeenLastCalledWith('m1', false))
+    expect(window.dataLayer.map(d => d.event)).toEqual(['ranking_opt_in'])
     expect(sw).not.toBeChecked()
   })
 

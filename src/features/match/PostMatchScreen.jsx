@@ -85,6 +85,7 @@ export default function PostMatchScreen() {
         }, officialFixtureId)
 
         setProcessedData(processed)
+        track('match_played')
         // La taquilla, la moral y el partido jugado ya están en la base: el inicio no tiene que mostrar los valores de antes
         Promise.resolve(refreshContext?.()).catch(() => {})
 

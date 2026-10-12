@@ -218,6 +218,7 @@ describe('pantalla de la liga de amigos', () => {
     await waitFor(() => expect(share).toHaveBeenCalled())
     expect(share.mock.calls[0][0].text).toContain('ABC123')
     expect(share.mock.calls[0][0].text).toContain('/friends?codigo=ABC123')
+    expect(window.dataLayer.map(d => d.event)).toContain('invite_shared')
     delete navigator.share
   })
 })

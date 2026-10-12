@@ -144,8 +144,9 @@ export default function FriendsScreen() {
   const invite = async () => {
     const text = inviteText({ code: room.code, name: room.name })
     try {
-      if (navigator.share) { await navigator.share({ title: 'Vestuario', text, url: inviteUrl(room.code) }); return }
+      if (navigator.share) { await navigator.share({ title: 'Vestuario', text, url: inviteUrl(room.code) }); track('invite_shared', { placement: 'share' }); return }
       await navigator.clipboard.writeText(text)
+      track('invite_shared', { placement: 'copy' })
       toast.success('Invitación copiada. Pegala en el chat de tus amigos.')
     } catch { /* se canceló el menú de compartir */ }
   }

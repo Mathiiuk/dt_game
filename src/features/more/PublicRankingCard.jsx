@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { managerApi } from '../../api/manager'
 import { Card, CardBody, Switch } from '../../components/ui'
 import { friendlyError } from '../../lib/errors'
+import { track } from '../../lib/analytics'
 
 /**
  * Privacidad: aparecer (o no) en la tabla pública de los mejores DT. Es un consentimiento: por defecto está apagado,
@@ -18,6 +19,7 @@ export default function PublicRankingCard({ manager }) {
     setBusy(true)
     try {
       await managerApi.setPublicRanking(manager.id, value)
+      if (value) track('ranking_opt_in')
       toast.success(value ? 'Vas a aparecer en la tabla pública cuando juntes 10 partidos.' : 'Dejaste de aparecer en la tabla pública.')
     } catch (err) {
       setOn(!value)
