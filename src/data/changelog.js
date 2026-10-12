@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-04-reto-racha',
+    date: '2026-11-04',
+    title: 'El reto del día, con racha y contrarreloj',
+    items: [
+      'Sumá días seguidos jugando y mirá tu racha. Respondé rápido para ganar hasta +10.',
+      'Hay tabla de ayer y nueve dilemas nuevos.'
+    ]
+  },
+  {
     id: '2026-11-03-cancha-en-vivo',
     date: '2026-11-03',
     title: 'El partido ahora se ve',

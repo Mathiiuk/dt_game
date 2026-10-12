@@ -83,6 +83,69 @@ describe('reto del día', () => {
     expect(share).toHaveBeenCalledWith(expect.objectContaining({ kind: 'daily', big: '265 pts' }))
   })
 
+  it('muestra la racha de días seguidos y no muestra nada si no hay', async () => {
+    api.get.mockResolvedValue({ ...today, streak: 3 })
+    const { unmount } = renderIt()
+    expect(await screen.findByText(/racha: 3 días/i)).toBeInTheDocument()
+    unmount()
+    api.get.mockResolvedValue({ ...today, streak: 1 })
+    const again = renderIt()
+    expect(await screen.findByText(/racha: 1 día\b/i)).toBeInTheDocument()
+    again.unmount()
+    api.get.mockResolvedValue({ ...today, streak: 0 })
+    renderIt()
+    await screen.findByText('Terminá con la Barra en 65 o más')
+    expect(screen.queryByText(/racha:/i)).toBeNull()
+  })
+
+  it('al jugar muestra la cuenta regresiva del contrarreloj con lo que ya corrió el reloj', async () => {
+    api.get.mockResolvedValue({ ...today, seconds_since_start: 10 })
+    renderIt()
+    expect(await screen.findByText(/contrarreloj/i)).toHaveTextContent(/20 s/)
+    expect(screen.getByText(/contrarreloj/i)).toHaveTextContent(/\+10/)
+  })
+
+  it('pasado el minuto ya no hay contrarreloj', async () => {
+    api.get.mockResolvedValue({ ...today, seconds_since_start: 400 })
+    renderIt()
+    await screen.findByText('Terminá con la Barra en 65 o más')
+    expect(screen.queryByText(/contrarreloj/i)).toBeNull()
+  })
+
+  it('el resultado cuenta el bonus por rapidez cuando lo hubo', async () => {
+    api.get.mockResolvedValue({ ...today, mine: { score: 275, goal_met: true, rank: 1, players: 9, bonus: 10, results: result.results } })
+    api.board.mockResolvedValue(board)
+    renderIt()
+    expect(await screen.findByText(/bonus por rapidez: \+10/i)).toBeInTheDocument()
+  })
+
+  it('sin bonus no se menciona', async () => {
+    api.get.mockResolvedValue({ ...today, mine: { score: 265, goal_met: true, rank: 2, players: 9, bonus: 0, results: result.results } })
+    api.board.mockResolvedValue(board)
+    renderIt()
+    await screen.findByRole('list', { name: 'Resumen del reto' })
+    expect(screen.queryByText(/bonus por rapidez/i)).toBeNull()
+  })
+
+  it('la tabla tiene la pestaña de ayer y la pide con el día anterior del servidor', async () => {
+    api.get.mockResolvedValue({ ...today, mine: { score: 265, goal_met: true, rank: 2, players: 9, results: result.results } })
+    api.board.mockResolvedValue(board)
+    renderIt()
+    await userEvent.click(await screen.findByRole('radio', { name: /ayer/i }))
+    await waitFor(() => expect(api.board).toHaveBeenLastCalledWith(false, '2026-10-11'))
+    await userEvent.click(screen.getByRole('radio', { name: /hoy/i }))
+    await waitFor(() => expect(api.board).toHaveBeenLastCalledWith(false))
+  })
+
+  it('el resumen del reto incluye las pestañas de hoy y ayer con amigos también', async () => {
+    api.get.mockResolvedValue({ ...today, mine: { score: 265, goal_met: true, rank: 2, players: 9, results: result.results } })
+    api.board.mockResolvedValue(board)
+    renderIt()
+    await userEvent.click(await screen.findByRole('radio', { name: /ayer/i }))
+    await userEvent.click(screen.getByRole('radio', { name: /mis amigos/i }))
+    await waitFor(() => expect(api.board).toHaveBeenLastCalledWith(true, '2026-10-11'))
+  })
+
   it('si falla la carga avisa y deja reintentar', async () => {
     api.get.mockRejectedValueOnce(new Error('sin red')).mockResolvedValue(today)
     renderIt()
