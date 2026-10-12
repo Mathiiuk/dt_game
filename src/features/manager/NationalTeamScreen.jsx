@@ -14,7 +14,7 @@ import {
   generateNationalHeadlines
 } from '../../domain/nationalRadar'
 import {
-  Badge, Button, Card, CardBody, EmptyState, PageHeader, Skeleton, Stat, Tabs, TabsContent, TabsList, TabsTrigger
+  Badge, Button, Card, CardBody, DataStrip, EmptyState, PageHeader, Skeleton, Tabs, TabsContent, TabsList, TabsTrigger
 } from '../../components/ui'
 import NationalCareerGauge from './national/NationalCareerGauge'
 import NationalRadarCard from './national/NationalRadarCard'
@@ -183,10 +183,7 @@ export default function NationalTeamScreen() {
         {/* 4. Ofertas y Oportunidades Federativas */}
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
-            <h3 className="font-display text-base font-bold text-fg sm:text-lg flex items-center gap-2">
-              <Flag className="size-5 text-accent" />
-              Ofertas y Puestos Disponibles
-            </h3>
+            <h2 className="font-slab text-base font-bold text-fg">Ofertas y puestos disponibles</h2>
             <span className="text-xs text-fg-subtle">{offers.length} vacantes</span>
           </div>
 
@@ -199,33 +196,20 @@ export default function NationalTeamScreen() {
               />
             </Card>
           ) : (
-            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="divide-y divide-line border-y border-line">
               {offers.map(offer => (
-                <li key={offer.id}>
-                  <Card as="article" className={cn('h-full transition-all hover:border-line-strong', !offer.is_eligible && 'opacity-70')}>
-                    <CardBody className="flex h-full flex-col gap-4 p-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <Badge tone={offer.is_eligible ? 'accent' : 'neutral'}>{offer.category_label}</Badge>
-                        <span className="num text-xs text-fg-subtle">Rep. requerida: {offer.required_reputation}</span>
-                      </div>
-                      <div>
-                        <h2 className="font-display text-xl font-bold text-fg">{offer.name}</h2>
-                        <p className="mt-1 text-xs text-fg-muted leading-relaxed">{offer.objective}</p>
-                      </div>
-                      <Stat 
-                        label="Sueldo federativo" 
-                        value={`${formatMoney(offer.weekly_wage)}/sem`} 
-                        valueClassName="text-xl text-accent font-bold" 
-                      />
-                      <Button 
-                        className="mt-auto" 
-                        disabled={!offer.is_eligible} 
-                        onClick={() => handleAcceptOffer(offer)}
-                      >
-                        {offer.is_eligible ? <>Aceptar el cargo<ChevronRight className="size-4" /></> : 'Reputación insuficiente'}
-                      </Button>
-                    </CardBody>
-                  </Card>
+                <li key={offer.id} className={cn('flex flex-wrap items-center gap-x-3 gap-y-2 py-3', !offer.is_eligible && 'opacity-75')}>
+                  <div className="min-w-0 flex-1 basis-56">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-slab text-base font-bold text-fg">{offer.name}</h3>
+                      <Badge tone={offer.is_eligible ? 'accent' : 'neutral'}>{offer.category_label}</Badge>
+                    </div>
+                    <p className="mt-0.5 text-xs leading-relaxed text-fg-muted">{offer.objective}</p>
+                    <p className="num mt-0.5 text-xs text-fg-subtle">Rep. requerida: {offer.required_reputation} · Sueldo federativo <b className="font-semibold text-accent">{formatMoney(offer.weekly_wage)}/sem</b></p>
+                  </div>
+                  <Button className="w-full sm:w-auto" disabled={!offer.is_eligible} onClick={() => handleAcceptOffer(offer)}>
+                    {offer.is_eligible ? <>Aceptar el cargo<ChevronRight className="size-4" /></> : 'Reputación insuficiente'}
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -253,14 +237,12 @@ export default function NationalTeamScreen() {
       <NationalCareerGauge manager={manager} country={countryIdentity} />
 
       {/* Estadísticas de la era */}
-      <Card>
-        <CardBody className="grid grid-cols-2 gap-4 sm:grid-cols-4 p-4">
-          <Stat label="Victorias" value={team.matches_won || 0} valueClassName="text-accent font-bold text-2xl" />
-          <Stat label="Empates" value={team.matches_drawn || 0} valueClassName="text-warning font-bold text-2xl" />
-          <Stat label="Derrotas" value={team.matches_lost || 0} valueClassName="text-danger font-bold text-2xl" />
-          <Stat label="Efectividad" value={`${winRate}%`} hint={`${played} partidos disputados`} valueClassName="font-bold text-2xl" />
-        </CardBody>
-      </Card>
+      <DataStrip label="Estadísticas de la selección" items={[
+        { label: 'Victorias', value: String(team.matches_won || 0), tone: 'good' },
+        { label: 'Empates', value: String(team.matches_drawn || 0), tone: 'warn' },
+        { label: 'Derrotas', value: String(team.matches_lost || 0), tone: 'bad' },
+        { label: 'Efectividad', value: `${winRate}%`, hint: `${played} partidos` }
+      ]} />
 
       <Tabs defaultValue="convocatoria">
         <TabsList aria-label="Secciones de la selección">
@@ -287,17 +269,15 @@ export default function NationalTeamScreen() {
               />
             </Card>
           ) : (
-            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="divide-y divide-line border-y border-line sm:grid sm:grid-cols-2 sm:gap-x-6 sm:divide-y-0 lg:grid-cols-3">
               {callups.map(c => (
-                <li key={c.id} className="flex items-center justify-between gap-3 rounded-md border border-line bg-surface p-4 shadow-sm">
+                <li key={c.id} className="flex items-center justify-between gap-3 border-b border-line py-2">
                   <div className="min-w-0">
                     <p className="flex items-center gap-2 text-sm font-semibold text-fg">
                       <span className="truncate">{c.player?.first_name} {c.player?.last_name}</span>
                       <Badge>{c.player?.position}</Badge>
                     </p>
-                    <p className="text-xs text-fg-muted mt-0.5">
-                      {c.player?.clubs?.short_name || 'Club'} · {c.player?.age || 22} años · Moral {c.player?.state_morale || 70}
-                    </p>
+                    <p className="text-xs text-fg-muted">{c.player?.clubs?.short_name || 'Club'} · {c.player?.age || 22} años · Moral {c.player?.state_morale || 70}</p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="num text-sm font-semibold text-fg">{c.caps || 0} caps</p>
@@ -319,46 +299,28 @@ export default function NationalTeamScreen() {
               />
             </Card>
           ) : (
-            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <ul className="divide-y divide-line border-y border-line">
               {fixtures.map(f => (
-                <li key={f.id}>
-                  <Card as="article" className="h-full">
-                    <CardBody className="flex h-full flex-col gap-3 p-4">
-                      <div className="flex items-center justify-between gap-2 text-xs">
-                        <span className="eyebrow">{f.tournament_name}</span>
-                        {f.played ? (
-                          <Badge tone="accent">
-                            <CheckCircle2 className="size-3" aria-hidden="true" />
-                            Finalizado
-                          </Badge>
-                        ) : (
-                          <span className="flex items-center gap-1 text-fg-muted">
-                            <Calendar className="size-3" aria-hidden="true" />
-                            {f.match_date}
-                          </span>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-3 text-sm font-bold text-fg">
-                        <span className="truncate text-right">{f.is_home ? team.name : f.opponent_name}</span>
-                        <span className="num rounded-md bg-surface-2 px-3.5 py-1.5 font-mono text-lg border border-line">
-                          {f.played ? `${f.home_score} - ${f.away_score}` : 'vs'}
-                        </span>
-                        <span className="truncate">{f.is_home ? f.opponent_name : team.name}</span>
-                      </div>
-                      {!f.played && (
-                        <div className="mt-auto pt-2">
-                          <Button 
-                            className="w-full" 
-                            loading={playingMatchId === f.id} 
-                            onClick={() => handlePlayMatch(f)}
-                          >
-                            {playingMatchId !== f.id && <Play className="size-4" />}
-                            Disputar partido de selección
-                          </Button>
-                        </div>
-                      )}
-                    </CardBody>
-                  </Card>
+                <li key={f.id} className="space-y-1.5 py-3">
+                  <div className="flex items-center justify-between gap-2 text-xs">
+                    <span className="eyebrow">{f.tournament_name}</span>
+                    {f.played ? (
+                      <Badge tone="accent"><CheckCircle2 className="size-3" aria-hidden="true" />Finalizado</Badge>
+                    ) : (
+                      <span className="flex items-center gap-1 text-fg-muted"><Calendar className="size-3" aria-hidden="true" />{f.match_date}</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm font-semibold text-fg">
+                    <span className="truncate text-right">{f.is_home ? team.name : f.opponent_name}</span>
+                    <span className="num rounded-md border border-line bg-surface-2 px-3 py-1 font-display text-lg font-bold">{f.played ? `${f.home_score} - ${f.away_score}` : 'vs'}</span>
+                    <span className="truncate">{f.is_home ? f.opponent_name : team.name}</span>
+                  </div>
+                  {!f.played && (
+                    <Button className="w-full" loading={playingMatchId === f.id} onClick={() => handlePlayMatch(f)}>
+                      {playingMatchId !== f.id && <Play className="size-4" />}
+                      Disputar partido de selección
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>

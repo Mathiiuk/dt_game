@@ -67,7 +67,7 @@ export default function ClubHistoryTab({ club }) {
       case 'most_appearances':
         return <ShieldCheck className="w-4 h-4 text-primary" />
       case 'highest_attendance':
-        return <Users className="w-4 h-4 text-purple-400" />
+        return <Users className="w-4 h-4 text-primary" />
       case 'longest_win_streak':
         return <TrendingUp className="w-4 h-4 text-danger" />
       case 'record_sale':
@@ -86,7 +86,7 @@ export default function ClubHistoryTab({ club }) {
       case 'promotion':
         return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-soft text-primary border border-primary/40">Ascenso</span>
       case 'record':
-        return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">Récord</span>
+        return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/40">Récord</span>
       case 'legend':
         return <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-danger/20 text-danger border border-danger/40">Ídolo</span>
       default:

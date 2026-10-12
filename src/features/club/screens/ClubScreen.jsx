@@ -10,7 +10,7 @@ import { useGameContext } from '../../../context/GameContext'
 import { queryCache } from '../../../utils/cache'
 import { formatMoney } from '../../../lib/format'
 import {
-  Badge, Button, Card, CardBody, PageHeader, Skeleton, Stat, Tabs, TabsList, TabsTrigger
+  Badge, Button, Card, CardBody, DataStrip, PageHeader, Skeleton, Tabs, TabsList, TabsTrigger
 } from '../../../components/ui'
 import YouthAcademyModal from './YouthAcademyModal'
 import StaffManagementModal from './StaffManagementModal'
@@ -192,14 +192,12 @@ export default function ClubScreen() {
       />
 
       {/* Métricas clave de la institución */}
-      <Card className="border border-line bg-surface/90 shadow-sm">
-        <CardBody className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-4 sm:gap-6">
-          <Stat label="Presupuesto" value={formatMoney(club?.budget || 0)} valueClassName="text-2xl font-bold font-display text-accent sm:text-2xl" />
-          <Stat label="Sueldos" value={salaries === null ? '—' : formatMoney(salaries)} hint="plantel y staff por semana" valueClassName="text-xl font-bold font-display sm:text-2xl" />
-          <Stat label="Por semana" value={weeklyFlow === null ? '—' : `${weeklyFlow >= 0 ? '+' : ''}${formatMoney(weeklyFlow)}`} hint="lo que entra menos lo que sale" valueClassName="text-xl font-bold font-display sm:text-2xl" />
-          <Stat label="Academia" value={`Nv. ${club?.academy_level || 1}`} hint={`${data.youth.length} juveniles`} valueClassName="text-xl font-bold font-display sm:text-2xl" />
-        </CardBody>
-      </Card>
+      <DataStrip label="Estado del club" items={[
+        { label: 'Presupuesto', value: formatMoney(club?.budget || 0), tone: 'good' },
+        { label: 'Sueldos', value: salaries === null ? '—' : formatMoney(salaries), hint: 'por semana' },
+        { label: 'Por semana', value: weeklyFlow === null ? '—' : `${weeklyFlow >= 0 ? '+' : ''}${formatMoney(weeklyFlow)}`, tone: weeklyFlow !== null && weeklyFlow < 0 ? 'bad' : 'good' },
+        { label: 'Academia', value: `Nv. ${club?.academy_level || 1}`, hint: `${data.youth.length} juveniles` }
+      ]} />
 
       {/* Redirecciones informativas para rutas históricas */}
       {activeTab === 'enfermeria' && (

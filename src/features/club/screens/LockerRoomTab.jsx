@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { lockerRoomApi, HIERARCHY_TIERS, SOCIAL_GROUPS } from '../../../api/lockerRoom'
 import { toast } from 'sonner'
-import { Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
+import { Kicker, Button, Field, Input, ResponsiveOverlay, Select, Textarea } from '../../../components/ui'
 import { AsyncButton } from '../../../components/ui'
 import { absoluteWeek } from '../../../domain/gameWeek'
 import { friendlyError } from '../../../lib/errors'
@@ -216,42 +216,32 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
         </div>
       )}
 
-      {/* TARJETA RESUMEN DEL VESTUARIO Y COHESIÓN */}
-      <div className="p-3 sm:p-4 rounded-lg bg-surface/60 border border-line">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-line/80">
+      {/* RESUMEN DEL VESTUARIO Y COHESIÓN */}
+      <div className="rounded-md border border-line border-t-[4px] bg-surface p-3 [border-top-style:double] border-t-fg sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="p-2 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-400">
-                <Users className="w-5 h-5" />
-              </span>
-              <div>
-                <h2 className="text-lg sm:text-xl font-semibold text-fg">Química y dinámica de vestuario</h2>
-                <p className="text-xs text-fg-muted">Jerarquías, liderazgos y cohesión del grupo humano</p>
-              </div>
-            </div>
+            <Kicker>Química y dinámica de vestuario</Kicker>
+            <p className="text-xs text-fg-muted">Jerarquías, liderazgos y cohesión del grupo humano</p>
           </div>
-
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <span className="text-[11px] text-fg-muted font-medium">Cohesión de equipo</span>
-              <p className="text-2xl font-semibold text-fg font-mono flex items-center justify-end gap-1.5">
-                <Heart className={`w-5 h-5 ${score >= 70 ? 'text-purple-400 fill-purple-400' : 'text-fg-subtle'}`} />
+              <span className="eyebrow">Cohesión de equipo</span>
+              <p className="num flex items-center justify-end gap-1.5 font-display text-2xl font-bold text-fg">
+                <Heart className={`size-4 ${score >= 70 ? 'fill-primary text-primary' : 'text-fg-subtle'}`} />
                 {score}<span className="text-xs font-normal text-fg-muted">/100</span>
               </p>
             </div>
             <div className="border-l border-line pl-4 text-left">
-              <span className="text-[11px] text-fg-muted font-medium">Ambiente interno</span>
+              <span className="eyebrow">Ambiente interno</span>
               <div className="mt-0.5">
-                <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-lg border ${cohesionMeta.badgeColor}`}>
-                  {cohesionMeta.title}
-                </span>
+                <span className={`inline-block rounded-md border px-2 py-0.5 text-xs font-bold ${cohesionMeta.badgeColor}`}>{cohesionMeta.title}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* EFECTO TÁCTICO & CAPITANÍA */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5">
+        <div className="grid grid-cols-1 gap-3 pt-3 md:grid-cols-2">
           {/* Bonificación Táctica */}
           <div className="p-4 rounded-md bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div>
@@ -348,7 +338,7 @@ export default function LockerRoomTab({ club, confirmAction, onUpdateClub }) {
       {/* CLANES Y GRUPOS SOCIALES DEL VESTUARIO */}
       <div className="space-y-4">
         <h3 className="text-base font-bold text-fg flex items-center gap-2">
-          <Users className="w-5 h-5 text-purple-400" />
+          <Users className="w-5 h-5 text-primary" />
           Clanes y grupos sociales del plantel
         </h3>
 

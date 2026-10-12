@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-26-compactas',
+    date: '2026-10-26',
+    title: 'Mercado, Club y Selección más livianos',
+    items: [
+      'Los datos clave van en una tira arriba y las listas son filas más bajas: se ve más sin hacer tanto scroll.',
+      'Lo secundario (historial, detalles) se despliega al tocar. No se quitó ninguna opción.'
+    ]
+  },
+  {
     id: '2026-10-25-finanzas-compacta',
     date: '2026-10-25',
     title: 'Finanzas más clara y compacta',

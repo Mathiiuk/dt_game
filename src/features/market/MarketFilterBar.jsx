@@ -27,7 +27,7 @@ export default function MarketFilterBar({
   onClearFilters
 }) {
   return (
-    <section aria-label="Filtros" className="mb-4 space-y-3">
+    <section aria-label="Filtros" className="space-y-2">
       {/* 1. Chips de Posición por Línea */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <ChoiceChips
@@ -60,9 +60,9 @@ export default function MarketFilterBar({
               key={chip.value}
               type="button"
               onClick={() => onChipChange(chip.value)}
-              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`whitespace-nowrap px-3 min-h-9 rounded-full text-xs font-semibold transition-all ${
                 isActive
-                  ? 'bg-primary text-accent-contrast shadow-sm shadow-accent/20 scale-[1.02]'
+                  ? 'bg-primary text-primary-fg'
                   : 'bg-surface-2 border border-line text-fg-muted hover:text-fg hover:border-line-focus'
               }`}
             >

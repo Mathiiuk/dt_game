@@ -8,25 +8,15 @@ export default function NationalCareerGauge({ manager, country }) {
   const gauge = calculateNationalGauge(manager)
 
   return (
-    <Card className="border border-line bg-surface/90 shadow-md overflow-hidden relative">
-      {/* Barra superior con gradiente del país */}
-      <div 
-        className="h-1.5 w-full bg-gradient-to-r from-accent via-accent-strong to-gold"
-        style={{
-          background: country?.colors?.primary 
-            ? `linear-gradient(90deg, ${country.colors.primary} 0%, #EAB308 100%)`
-            : undefined
-        }}
-      />
-      
-      <CardBody className="p-3 sm:p-4 space-y-4">
+    <Card masthead as="section" aria-label="Termómetro de carrera">
+      <CardBody className="p-3 sm:p-4 space-y-3">
         {/* Encabezado del Termómetro */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-xl" role="img" aria-label="Bandera">{country?.flag || '🇦🇷'}</span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-base font-bold text-fg sm:text-lg">
+                <h3 className="font-slab text-base font-bold leading-snug text-fg">
                   Camino al Buzo de la Selección ({country?.nickname || 'Albiceleste'})
                 </h3>
                 <Badge tone="accent" dot>{gauge.tierName}</Badge>
@@ -38,7 +28,7 @@ export default function NationalCareerGauge({ manager, country }) {
           </div>
           
           <div className="text-right">
-            <span className="font-mono text-xl sm:text-2xl font-black text-accent">
+            <span className="num font-display text-2xl font-bold text-accent">
               {gauge.percentage}%
             </span>
             <p className="text-[10px] uppercase font-bold tracking-wider text-fg-subtle">
@@ -84,7 +74,7 @@ export default function NationalCareerGauge({ manager, country }) {
               {gauge.rules.map((rule, idx) => (
                 <div key={idx} className="flex justify-between items-center py-1 border-b border-line/40 last:border-none">
                   <span className="text-fg-muted">{rule.action}</span>
-                  <span className={`font-mono font-bold ${rule.impact.startsWith('+') ? 'text-accent' : 'text-danger'}`}>
+                  <span className={`num font-display font-bold ${rule.impact.startsWith('+') ? 'text-accent' : 'text-danger'}`}>
                     {rule.impact}
                   </span>
                 </div>

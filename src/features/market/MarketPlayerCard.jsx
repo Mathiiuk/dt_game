@@ -1,6 +1,6 @@
 import React from 'react'
-import { Eye, Handshake, Lock, ShoppingCart, Sparkles, TrendingUp } from 'lucide-react'
-import { Card, CardBody, Badge, Button, NamedIcon, Stat } from '../../components/ui'
+import { Eye, Handshake, Lock } from 'lucide-react'
+import { Card, CardBody, Button, NamedIcon } from '../../components/ui'
 import { formatMoney } from '../../lib/format'
 import {
   getPositionColorTheme,
@@ -55,186 +55,73 @@ export default function MarketPlayerCard({
     : []
 
   return (
-    <Card
-      as="article"
-      className={`group relative flex flex-col overflow-hidden border transition-all duration-200 hover:shadow-lg ${
-        hierarchy?.tone === 'gold'
-          ? 'border-gold/40 shadow-gold/20'
-          : 'border-line hover:border-line-focus'
-      } bg-surface`}
-    >
-      {/* 1. Cabecera Figurita Panini con color temático */}
-      <div className={`relative px-4 py-3 border-b flex items-center justify-between ${theme.headerBg}`}>
-        <div className="flex items-center gap-2">
-          <span className="font-display font-black text-sm tracking-wide uppercase px-2 py-0.5 rounded bg-surface/80 border border-current shadow-xs">
-            {player.position}
-          </span>
+    <Card as="article" className={hierarchy?.tone === 'gold' ? 'border-gold/50' : undefined}>
+      <CardBody className="space-y-2 p-3">
+        {/* Identidad y nivel */}
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-sm font-semibold leading-snug text-fg">{player.first_name} {player.last_name}</h3>
+            <p className="truncate text-xs text-fg-muted">{player.clubs?.name || 'Agente libre'} · {player.age} años</p>
+          </div>
+          <div className="text-right">
+            <p className="num font-display text-3xl font-bold leading-none text-fg">{player.attr_overall || player.overall || '—'}</p>
+            <p className="eyebrow">Nivel</p>
+          </div>
+        </div>
+
+        {/* Posición, jerarquía, rasgo y atributos ojeados en una franja */}
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          <span className={`rounded-sm border px-1.5 font-display text-sm font-bold uppercase tracking-wide ${theme.headerBg}`}>{player.position}</span>
           {hierarchy && (
-            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border shadow-xs ${hierarchy.className}`}>
+            <span className={`rounded-full border px-2 text-[11px] font-bold ${hierarchy.className}`}>
               {hierarchy.icon && <NamedIcon name={hierarchy.icon} className="mr-1 inline size-3 align-[-1px]" />}{hierarchy.label}
             </span>
           )}
+          <span className="text-fg-muted">Ritmo <b className="num font-display text-sm text-fg"><Revealed scouted={scouted} value={player.attr_pace} hidden={hiddenRange(player.attr_pace)} /></b></span>
+          <span className="text-fg-muted">Potencial <b className="num font-display text-sm text-fg"><Revealed scouted={scouted} value={player.attr_potential} hidden="?" /></b></span>
         </div>
 
-        {/* OVR Principal con marco arcade */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] uppercase font-bold tracking-wider opacity-80">Nivel</span>
-          <div className="flex items-center justify-center size-9 rounded-full bg-surface text-fg font-display text-lg font-black shadow-md border-2 border-current">
-            {player.attr_overall || player.overall || '—'}
-          </div>
-        </div>
-      </div>
+        <p className="flex items-start gap-1.5 text-xs text-fg-muted">
+          <NamedIcon name={trait.icon} className="mt-0.5 size-3.5 shrink-0 text-accent" />
+          <span><b className="font-semibold text-fg">{trait.label}:</b> {trait.desc}</span>
+        </p>
 
-      <CardBody className="flex flex-1 flex-col justify-between p-4 space-y-3.5">
-        {/* 2. Identidad del Jugador y Rasgo Cómico */}
-        <div className="space-y-1.5">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <h3 className="truncate font-display text-base font-bold text-fg group-hover:text-primary transition-colors">
-                {player.first_name} {player.last_name}
-              </h3>
-              <p className="truncate text-xs text-fg-muted">
-                {player.clubs?.name || 'Agente libre'} · {player.age} años
-              </p>
-            </div>
-          </div>
+        <p className="text-xs">
+          <span className="text-fg-muted">Comparativa de puesto: </span>
+          <span className={`font-semibold ${comparison.status === 'improves' ? 'text-accent' : comparison.status === 'rotates' ? 'text-gold' : comparison.status === 'uncovered' ? 'text-primary' : 'text-fg-muted'}`}>{comparison.text}</span>
+        </p>
 
-          {/* Micro-badge de rasgo de personalidad cómico */}
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-2 border border-line text-xs font-medium text-fg">
-            <NamedIcon name={trait.icon} className="size-3.5 shrink-0 text-accent" />
-            <span className="font-semibold">{trait.label}:</span>
-            <span className="text-fg-subtle truncate max-w-[190px]">{trait.desc}</span>
-          </div>
-        </div>
-
-        {/* 3. Comparación con el Titular Actual del Plantel */}
-        <div className="rounded-lg bg-surface-2/60 border border-line/60 p-2 text-xs">
-          <div className="flex items-center justify-between gap-1">
-            <span className="text-fg-muted font-medium">Comparativa de puesto:</span>
-            <span
-              className={`font-semibold ${
-                comparison.status === 'improves'
-                  ? 'text-accent'
-                  : comparison.status === 'rotates'
-                  ? 'text-gold'
-                  : comparison.status === 'uncovered'
-                  ? 'text-primary'
-                  : 'text-fg-muted'
-              }`}
-            >
-              {comparison.text}
-            </span>
-          </div>
-        </div>
-
-        {/* 4. Atributos Técnicos (Scouted vs Rango oculto) */}
-        <dl className="grid grid-cols-3 gap-2 rounded-lg bg-surface-2/40 border border-line/40 p-2 text-center">
-          <div>
-            <dt className="eyebrow text-[10px]">Nivel</dt>
-            <dd className="num font-display text-xl font-bold leading-tight text-fg">
-              {player.attr_overall || player.overall || '—'}
-            </dd>
-          </div>
-          <div>
-            <dt className="eyebrow text-[10px]">Ritmo</dt>
-            <dd className="num font-display text-xl font-bold leading-tight text-fg">
-              <Revealed
-                scouted={scouted}
-                value={player.attr_pace}
-                hidden={<span className="text-sm font-semibold">{hiddenRange(player.attr_pace)}</span>}
-              />
-            </dd>
-          </div>
-          <div>
-            <dt className="eyebrow text-[10px]">Potencial</dt>
-            <dd className="num font-display text-xl font-bold leading-tight text-fg">
-              <Revealed
-                scouted={scouted}
-                value={player.attr_potential}
-                hidden={<span className="text-sm font-semibold text-fg-subtle">?</span>}
-              />
-            </dd>
-          </div>
-        </dl>
-
-        {/* 5. Lectura del Ojeador (si fue ojeado) */}
         {scouted && insights.length > 0 && (
-          <ul className="space-y-1 text-xs border-t border-line/60 pt-2" aria-label="Lectura del ojeador">
+          <ul className="space-y-0.5 border-t border-line pt-1.5 text-xs" aria-label="Lectura del ojeador">
             {insights.map((line) => (
-              <li
-                key={line.text}
-                className={`truncate ${
-                  line.tone === 'good'
-                    ? 'text-accent'
-                    : line.tone === 'warn'
-                    ? 'text-warning'
-                    : 'text-fg-muted'
-                }`}
-              >
-                • {line.text}
-              </li>
+              <li key={line.text} className={line.tone === 'good' ? 'text-accent' : line.tone === 'warn' ? 'text-warning' : 'text-fg-muted'}>• {line.text}</li>
             ))}
           </ul>
         )}
 
-        {/* 6. Economía: Precio + Sueldo + Caja después */}
-        <div className="border-t border-line pt-3 space-y-2">
-          <div className="flex items-end justify-between gap-2">
-            <div>
-              <span className="eyebrow text-[10px]">Cotización</span>
-              <p className="font-display text-lg font-bold text-fg">
-                {scouted ? formatMoney(price) : 'Desconocida'}
-              </p>
-              <p className="text-[11px] text-fg-subtle">
-                Sueldo aprox: {formatMoney(weeklyWage)}/sem
-              </p>
-            </div>
-
-            <div className="text-right">
-              <span className="eyebrow text-[10px]">Caja después</span>
-              <p
-                className={`font-display text-sm font-bold ${
-                  financialImpact.isTight ? 'text-warning' : 'text-fg-muted'
-                }`}
-              >
-                {formatMoney(Math.max(0, financialImpact.cashLeft))}
-              </p>
-              {financialImpact.isTight && (
-                <span className="text-[10px] text-warning font-medium block">
-                  Caja ajustada
-                </span>
-              )}
-            </div>
+        {/* Economía y acción */}
+        <div className="flex items-end justify-between gap-3 border-t border-line pt-2">
+          <div>
+            <span className="eyebrow">Cotización</span>
+            <p className="num font-display text-lg font-bold leading-tight text-fg">{scouted ? formatMoney(price) : 'Desconocida'}</p>
+            <p className="text-[11px] text-fg-subtle">Sueldo aprox: {formatMoney(weeklyWage)}/sem</p>
           </div>
-
-          {/* 7. Botón de Acción Principal */}
-          <div className="pt-1">
-            {!scouted ? (
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full text-xs font-semibold gap-1.5"
-                onClick={() => onScout(player)}
-                aria-label={`Ojear a ${player.first_name} ${player.last_name}`}
-              >
-                <Eye className="size-3.5" />
-                Ojear a {player.first_name} {player.last_name} · {formatMoney(SCOUT_COST)}
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                variant="primary"
-                disabled={!!blocked}
-                className="w-full text-xs font-semibold gap-1.5 shadow-sm"
-                onClick={() => onNegotiate(player)}
-                aria-label={`Ofertar por ${player.first_name} ${player.last_name}`}
-              >
-                {blocked ? <Lock className="size-3.5" /> : <Handshake className="size-3.5" />}
-                {blocked || 'Negociar fichaje'}
-              </Button>
-            )}
+          <div className="text-right">
+            <span className="eyebrow">Caja después</span>
+            <p className={`num font-display text-base font-bold leading-tight ${financialImpact.isTight ? 'text-warning' : 'text-fg-muted'}`}>{formatMoney(Math.max(0, financialImpact.cashLeft))}</p>
+            {financialImpact.isTight && <span className="block text-[10px] font-medium text-warning">Caja ajustada</span>}
           </div>
         </div>
+
+        {!scouted ? (
+          <Button size="sm" variant="outline" className="w-full gap-1.5 text-xs font-semibold" onClick={() => onScout(player)} aria-label={`Ojear a ${player.first_name} ${player.last_name}`}>
+            <Eye className="size-3.5" />Ojear a {player.first_name} {player.last_name} · {formatMoney(SCOUT_COST)}
+          </Button>
+        ) : (
+          <Button size="sm" variant="primary" disabled={!!blocked} className="w-full gap-1.5 text-xs font-semibold" onClick={() => onNegotiate(player)} aria-label={`Ofertar por ${player.first_name} ${player.last_name}`}>
+            {blocked ? <Lock className="size-3.5" /> : <Handshake className="size-3.5" />}{blocked || 'Negociar fichaje'}
+          </Button>
+        )}
       </CardBody>
     </Card>
   )

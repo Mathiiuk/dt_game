@@ -194,7 +194,7 @@ export default function StadiumManagementTab({ club, confirmAction, onUpdateClub
           <div className="p-4 rounded-md bg-bg/80 border border-line/80 flex flex-col justify-between">
             <div>
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5 mb-2">
-                <Award className="w-4 h-4 text-purple-400" />
+                <Award className="w-4 h-4 text-primary" />
                 Palcos corporativos
               </span>
               <p className="text-sm font-bold text-fg mb-1 font-mono">

@@ -207,7 +207,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
           <div className="p-4 rounded-md bg-bg/80 border border-line/80">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-fg flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-purple-400" />
+                <Users className="w-4 h-4 text-primary" />
                 Gestión de Plantel (20%)
               </span>
               <span className="text-xs font-mono font-bold text-fg">
@@ -216,7 +216,7 @@ export default function BoardManagementTab({ club, manager, confirmAction, onUpd
             </div>
             <div className="w-full bg-surface-3 rounded-full h-2 mb-2 overflow-hidden">
               <div 
-                className="h-2 rounded-full bg-purple-500 transition-all duration-500"
+                className="h-2 rounded-full bg-primary transition-all duration-500"
                 style={{ width: `${board?.squad_satisfaction || 70}%` }}
               />
             </div>

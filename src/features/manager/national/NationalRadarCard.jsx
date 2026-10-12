@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertTriangle, Award, CheckCircle2, Eye, Heart, Sparkles, TrendingUp, Users, Zap } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Eye, Sparkles, TrendingUp, Zap } from 'lucide-react'
 import { Card, CardBody, Badge } from '../../../components/ui'
 import { formatMoney } from '../../../lib/format'
 
@@ -7,119 +7,57 @@ export default function NationalRadarCard({ radar }) {
   const { players = [], country, calledUpCount = 0, inRadarCount = 0 } = radar || {}
 
   return (
-    <Card className="border border-line bg-surface/90 shadow-md">
-      <CardBody className="p-3 sm:p-4 space-y-4">
-        {/* Cabecera del Radar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-md bg-accent/10 border border-accent/20 text-accent">
-              <Eye className="size-5" />
-            </div>
-            <div>
-              <h3 className="font-display text-base font-bold text-fg sm:text-lg flex items-center gap-2">
-                Radar de Convocatorias ({country?.nickname || 'Nacional'})
-                {calledUpCount > 0 && (
-                  <Badge tone="accent">
-                    {calledUpCount} {calledUpCount === 1 ? 'Convocado' : 'Convocados'}
-                  </Badge>
-                )}
-              </h3>
-              <p className="text-xs text-fg-muted">
-                Seguimiento oficial del cuerpo técnico nacional sobre los futbolistas de tu club.
-              </p>
-            </div>
+    <Card as="section" aria-label="Radar de convocatorias">
+      <CardBody className="space-y-2 p-3 sm:p-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-2">
+          <div>
+            <h3 className="font-slab text-base font-bold text-fg">
+              Radar de convocatorias ({country?.nickname || 'Nacional'})
+              {calledUpCount > 0 && <Badge tone="accent" className="ml-2 align-middle">{calledUpCount} {calledUpCount === 1 ? 'Convocado' : 'Convocados'}</Badge>}
+            </h3>
+            <p className="text-xs text-fg-muted">Seguimiento oficial del cuerpo técnico nacional sobre los futbolistas de tu club.</p>
           </div>
-
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-fg-subtle">En la mira:</span>
-            <span className="font-mono font-bold text-fg">{inRadarCount} promesas</span>
-          </div>
+          <p className="text-xs text-fg-subtle">En la mira: <span className="num font-display text-sm font-bold text-fg">{inRadarCount} promesas</span></p>
         </div>
 
-        {/* Lista de Jugadores en el Radar */}
         {players.length === 0 ? (
-          <div className="rounded-md border border-dashed border-line p-4 text-center space-y-2">
-            <p className="text-sm font-semibold text-fg">El seleccionador aún no puso los ojos en tu club</p>
-            <p className="text-xs text-fg-muted max-w-md mx-auto">
-              Para llamar la atención del radar, tus jugadores deben destacar en su categoría con alta media o rachas goleadoras. ¡Seguí potenciando la cantera!
-            </p>
-          </div>
+          <p className="py-2 text-xs text-fg-muted"><b className="font-semibold text-fg">El seleccionador aún no puso los ojos en tu club.</b> Para llamar la atención del radar, tus jugadores deben destacar en su categoría con alta media o rachas goleadoras. ¡Seguí potenciando la cantera!</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <ul className="divide-y divide-line">
             {players.map((item) => {
               const p = item.player
               const isCalled = item.status === 'called_up'
-
               return (
-                <div 
-                  key={p.id}
-                  className={`rounded-md border p-3.5 space-y-2.5 transition-all ${
-                    isCalled 
-                      ? 'border-accent/40 bg-accent/5 shadow-sm' 
-                      : 'border-line bg-surface-2'
-                  }`}
-                >
-                  {/* Fila del Jugador */}
+                <li key={p.id} className="space-y-1.5 py-2.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-sm text-fg truncate">
-                          {p.first_name} {p.last_name}
-                        </span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface border border-line font-mono font-semibold text-fg-muted">
-                          {p.position} · {p.age} años
-                        </span>
-                      </div>
-                      <p className="text-xs font-semibold text-accent mt-0.5 flex items-center gap-1">
-                        {isCalled ? <CheckCircle2 className="size-3 text-accent" /> : <Eye className="size-3 text-gold" />}
+                      <p className="truncate text-sm font-semibold text-fg">{p.first_name} {p.last_name} <span className="text-xs font-normal text-fg-muted">· {p.position} · {p.age} años</span></p>
+                      <p className="flex items-center gap-1 text-xs font-semibold text-accent">
+                        {isCalled ? <CheckCircle2 className="size-3" /> : <Eye className="size-3 text-gold" />}
                         {item.headline}
                       </p>
                     </div>
-
-                    <div className="text-right shrink-0">
-                      <span className="font-mono text-base font-black text-fg">
-                        {p.attr_overall || 50}
-                      </span>
-                      <p className="text-[9px] uppercase font-bold text-fg-subtle">Media OVR</p>
+                    <div className="shrink-0 text-right">
+                      <p className="num font-display text-2xl font-bold leading-none text-fg">{p.attr_overall || 50}</p>
+                      <p className="eyebrow">Media OVR</p>
                     </div>
                   </div>
-
-                  {/* Impacto Dual: Beneficios vs Tensión/Costo */}
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-line/60 text-[11px]">
-                    {/* Beneficios */}
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-accent uppercase tracking-wider block">
-                        Honor & Premio
-                      </span>
-                      <p className="text-fg-muted flex items-center gap-1">
-                        <Sparkles className="size-3 text-gold shrink-0" />
-                        +{item.benefits.valueBoost}% Valor de mercado
-                      </p>
-                      <p className="text-fg-muted flex items-center gap-1">
-                        <TrendingUp className="size-3 text-accent shrink-0" />
-                        +{formatMoney(item.benefits.allowance)} por cesión
-                      </p>
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="space-y-0.5">
+                      <span className="eyebrow block text-accent">Honor y premio</span>
+                      <p className="flex items-center gap-1 text-fg-muted"><Sparkles className="size-3 shrink-0 text-gold" />+{item.benefits.valueBoost}% Valor de mercado</p>
+                      <p className="flex items-center gap-1 text-fg-muted"><TrendingUp className="size-3 shrink-0 text-accent" />+{formatMoney(item.benefits.allowance)} por cesión</p>
                     </div>
-
-                    {/* Costos / Tensión */}
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-danger uppercase tracking-wider block">
-                        Costo de Fecha FIFA
-                      </span>
-                      <p className="text-fg-muted flex items-center gap-1">
-                        <Zap className="size-3 text-gold shrink-0" />
-                        -{item.costs.fatigue}% físico al volver
-                      </p>
-                      <p className="text-fg-muted flex items-center gap-1">
-                        <AlertTriangle className="size-3 text-danger shrink-0" />
-                        +{item.costs.injuryRisk}% riesgo de lesión
-                      </p>
+                    <div className="space-y-0.5">
+                      <span className="eyebrow block text-danger">Costo de la fecha FIFA</span>
+                      <p className="flex items-center gap-1 text-fg-muted"><Zap className="size-3 shrink-0 text-gold" />-{item.costs.fatigue}% físico al volver</p>
+                      <p className="flex items-center gap-1 text-fg-muted"><AlertTriangle className="size-3 shrink-0 text-danger" />+{item.costs.injuryRisk}% riesgo de lesión</p>
                     </div>
                   </div>
-                </div>
+                </li>
               )
             })}
-          </div>
+          </ul>
         )}
       </CardBody>
     </Card>

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
-import { Bell, Flame, HeartHandshake, Megaphone, Ticket, Users } from 'lucide-react'
-import { Card, CardBody, Badge, Button, Stat } from '../../../components/ui'
+import { Card, CardBody, Badge, Kicker } from '../../../components/ui'
 import { getClubAtmosphere } from '../../../domain/clubDna'
 import FanbaseManagementTab from './FanbaseManagementTab'
 
@@ -15,130 +14,61 @@ export default function ClubTribuneTab({ fanbase = {}, club }) {
     })
   }, [fanbase, club])
 
+  const gauges = [
+    ['Popularidad', atmosphere.popularity, 'en la ciudad', 'bg-gold', `${atmosphere.popularity}%`],
+    ['Confianza', atmosphere.satisfaction, 'en el DT', 'bg-accent', `${atmosphere.satisfaction}%`],
+    ['Asistencia media', atmosphere.attendanceRate, 'capacidad', 'bg-primary', atmosphere.attendanceRate],
+    ['Socios al día', atmosphere.sociosCount.toLocaleString('es-AR'), 'padrón', 'bg-primary', '80%']
+  ]
+
   return (
     <div className="space-y-4">
-      {/* 1. Clima de la Tribuna (Lectura Humana y Narrativa) */}
-      <Card className="border border-line bg-surface/90 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-r from-gold/20 via-gold/20 to-transparent px-4 py-3 sm:px-6 border-b border-line flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-md bg-gold-soft text-gold border border-gold/40">
-              <Megaphone className="size-5" />
-            </div>
+      {/* 1. Pulso de la hinchada */}
+      <Card masthead as="section" aria-label="Pulso de la hinchada">
+        <CardBody className="space-y-3 p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <span className="eyebrow text-gold">Pulso de la hinchada</span>
-              <h2 className="font-display text-lg font-bold text-fg sm:text-xl">
-                {atmosphere.headline}
-              </h2>
+              <Kicker>Pulso de la hinchada</Kicker>
+              <h2 className="font-slab text-lg font-bold leading-tight text-fg">{atmosphere.headline}</h2>
             </div>
+            <Badge tone="accent">{atmosphere.attendanceRate} de cancha llena</Badge>
           </div>
-          <Badge tone="accent">
-            {atmosphere.attendanceRate} de cancha llena
-          </Badge>
-        </div>
-
-        <CardBody className="p-3 sm:p-4 space-y-4">
-          <p className="text-sm text-fg-muted italic leading-relaxed">
-            "{atmosphere.summary}"
-          </p>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-md bg-surface-2 p-3 border border-line">
-              <span className="eyebrow text-[10px]">Popularidad</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="font-display text-lg font-bold text-fg">{atmosphere.popularity}</span>
-                <span className="text-[11px] text-fg-subtle">en la ciudad</span>
+          <p className="text-sm italic leading-relaxed text-fg-muted">"{atmosphere.summary}"</p>
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4">
+            {gauges.map(([label, value, hint, bar, width]) => (
+              <div key={label}>
+                <dt className="eyebrow">{label}</dt>
+                <dd className="flex items-baseline justify-between">
+                  <span className="num font-display text-xl font-bold leading-tight text-fg">{value}</span>
+                  <span className="text-[11px] text-fg-subtle">{hint}</span>
+                </dd>
+                <div className="mt-0.5 h-1 w-full overflow-hidden rounded-full bg-surface-3"><div className={`h-full rounded-full ${bar}`} style={{ width }} /></div>
               </div>
-              <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-gold rounded-full" style={{ width: `${atmosphere.popularity}%` }} />
-              </div>
-            </div>
-
-            <div className="rounded-md bg-surface-2 p-3 border border-line">
-              <span className="eyebrow text-[10px]">Confianza</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="font-display text-lg font-bold text-fg">{atmosphere.satisfaction}</span>
-                <span className="text-[11px] text-fg-subtle">en el DT</span>
-              </div>
-              <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-accent rounded-full" style={{ width: `${atmosphere.satisfaction}%` }} />
-              </div>
-            </div>
-
-            <div className="rounded-md bg-surface-2 p-3 border border-line">
-              <span className="eyebrow text-[10px]">Asistencia media</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="font-display text-lg font-bold text-fg">{atmosphere.attendanceRate}</span>
-                <span className="text-[11px] text-fg-subtle">capacidad</span>
-              </div>
-              <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: atmosphere.attendanceRate }} />
-              </div>
-            </div>
-
-            <div className="rounded-md bg-surface-2 p-3 border border-line">
-              <span className="eyebrow text-[10px]">Socios al día</span>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="font-display text-lg font-bold text-fg">
-                  {atmosphere.sociosCount.toLocaleString('es-AR')}
-                </span>
-                <span className="text-[11px] text-fg-subtle">padrón</span>
-              </div>
-              <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full bg-purple-400 rounded-full" style={{ width: '80%' }} />
-              </div>
-            </div>
-          </div>
+            ))}
+          </dl>
         </CardBody>
       </Card>
 
-      {/* 2. Eventos y Vida de la Hinchada */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="border border-line bg-surface/90">
-          <CardBody className="p-3 sm:p-4 space-y-3">
-            <div className="flex items-center gap-2 border-b border-line pb-3">
-              <Flame className="size-4 text-warning" />
-              <h3 className="font-display text-base font-bold text-fg">Último movimiento en la tribuna</h3>
-            </div>
+      {/* 2. Eventos y vida de la hinchada: plegado, se abre al tocar */}
+      <details className="group" open>
+        <summary className="flex cursor-pointer items-baseline gap-3">
+          <h3 className="font-slab text-base font-bold text-fg">Último movimiento en la tribuna</h3>
+          <span className="h-0 grow border-b border-line-strong" aria-hidden="true" />
+        </summary>
+        <p className="mt-1 text-sm font-semibold text-fg">{atmosphere.latestEvent}</p>
+        <p className="text-xs text-fg-muted">La gente se autoconvoca en la previa del fin de semana para alentar al equipo en la salida del micro.</p>
+      </details>
 
-            <div className="rounded-md bg-surface-2 p-4 border border-line space-y-2">
-              <div className="flex items-center gap-2">
-                <Badge tone="accent">Evento reciente</Badge>
-              </div>
-              <p className="text-sm font-semibold text-fg">
-                {atmosphere.latestEvent}
-              </p>
-              <p className="text-xs text-fg-muted">
-                La gente se autoconvoca en la previa del fin de semana para alentar al equipo en la salida del micro.
-              </p>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card className="border border-line bg-surface/90">
-          <CardBody className="p-3 sm:p-4 space-y-3">
-            <div className="flex items-center gap-2 border-b border-line pb-3">
-              <HeartHandshake className="size-4 text-accent" />
-              <h3 className="font-display text-base font-bold text-fg">Identidad de la gente</h3>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-lg bg-surface-2 border border-line space-y-1">
-                <p className="font-semibold text-fg">El calor de local</p>
-                <p className="text-fg-subtle">
-                  Un estadio colmado intimida a los rivales de la categoría y presiona por el resultado.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-lg bg-surface-2 border border-line space-y-1">
-                <p className="font-semibold text-fg">Padrón de socios activo</p>
-                <p className="text-fg-subtle">
-                  Aporta un piso mensual de recaudación estable que protege las finanzas en los meses difíciles.
-                </p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
+      <section aria-label="Identidad de la gente" className="space-y-1">
+        <div className="flex items-baseline gap-3">
+          <h3 className="font-slab text-base font-bold text-fg">Identidad de la gente</h3>
+          <span className="h-0 grow border-b border-line-strong" aria-hidden="true" />
+        </div>
+        <ul className="divide-y divide-line text-xs">
+          <li className="py-2"><p className="font-semibold text-fg">El calor de local</p><p className="text-fg-subtle">Un estadio colmado intimida a los rivales de la categoría y presiona por el resultado.</p></li>
+          <li className="py-2"><p className="font-semibold text-fg">Padrón de socios activo</p><p className="text-fg-subtle">Aporta un piso mensual de recaudación estable que protege las finanzas en los meses difíciles.</p></li>
+        </ul>
+      </section>
 
       {/* 3. Gestión de afición y cánticos */}
       <FanbaseManagementTab club={club} />

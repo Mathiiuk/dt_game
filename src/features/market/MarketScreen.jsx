@@ -15,7 +15,7 @@ import {
   sortMarketPlayers
 } from '../../domain/market'
 import {
-  Badge, Button, Card, CardBody, PageHeader, Skeleton
+  Badge, Button, Card, CardBody, Kicker, PageHeader, Skeleton
 } from '../../components/ui'
 import OfferModal from './OfferModal'
 import MarketHeader from './MarketHeader'
@@ -309,18 +309,16 @@ export default function MarketScreen() {
 
       {/* 2. Derechos de recompra */}
       {rights.length > 0 && (
-        <Card as="section" aria-label="Derechos de recompra" className="mb-4 border border-line">
-          <CardBody className="space-y-2 p-4">
-            <h2 className="font-display text-base font-semibold text-fg">Derechos de recompra</h2>
-            <p className="text-xs text-fg-muted">
-              Jugadores que vendiste con cláusula: podés traerlos de vuelta por el precio pactado hasta que venza.
-            </p>
+        <Card masthead as="section" aria-label="Derechos de recompra">
+          <CardBody className="space-y-1 p-3">
+            <Kicker>Derechos de recompra</Kicker>
+            <p className="text-xs text-fg-muted">Jugadores que vendiste con cláusula: podés traerlos de vuelta por el precio pactado hasta que venza.</p>
             <ul className="divide-y divide-line text-sm">
               {rights.map(r => (
-                <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
+                <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-1.5">
                   <span>
                     <span className="font-semibold text-fg">{r.players?.first_name} {r.players?.last_name}</span>
-                    <span className="ml-2 text-fg-muted">hasta la temporada {r.expires_season}</span>
+                    <span className="ml-2 text-xs text-fg-muted">hasta la temporada {r.expires_season}</span>
                   </span>
                   <Button
                     size="sm"
@@ -361,7 +359,7 @@ export default function MarketScreen() {
       {visible.length === 0 ? (
         <MarketEmptyState hasFilters={hasFilters} onClearFilters={clearFilters} />
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-label="Jugadores disponibles">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="Jugadores disponibles">
           {visible.map(p => (
             <li key={p.id}>
               <MarketPlayerCard

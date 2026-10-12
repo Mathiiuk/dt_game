@@ -8,7 +8,7 @@ export default function AgentProfileCard({ agentData }) {
 
   const getAffinityLabel = (score) => {
     if (score >= 80) return { label: 'Socio de confianza', color: 'text-accent', barColor: 'bg-accent' }
-    if (score >= 60) return { label: 'Favorable', color: 'text-teal-400', barColor: 'bg-teal-500' }
+    if (score >= 60) return { label: 'Favorable', color: 'text-primary', barColor: 'bg-primary' }
     if (score >= 40) return { label: 'Neutral / Profesional', color: 'text-fg-muted', barColor: 'bg-fg-subtle' }
     if (score >= 25) return { label: 'Tenso', color: 'text-gold', barColor: 'bg-gold' }
     return { label: 'Hostil / Conflictivo', color: 'text-danger', barColor: 'bg-danger' }
