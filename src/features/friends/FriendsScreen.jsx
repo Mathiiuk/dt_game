@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Users, Copy, LogOut, Skull, Megaphone } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
+import { Users, Copy, LogOut, Skull, Megaphone, Share2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { friendsApi } from '../../api/friends'
 import { useGameContext } from '../../context/GameContext'
@@ -8,6 +9,8 @@ import { Badge, Button, Card, CardBody, EmptyState, Field, Input, PageHeader, Re
 import { friendlyError } from '../../lib/errors'
 import { track } from '../../lib/analytics'
 import { DEFAULT_SETTINGS, sanitizeSettings } from '../../domain/friendLeague'
+import { codeFromSearch, inviteText, inviteUrl, normalizeCode } from '../../domain/roomInvite'
+import { clearPendingInvite, getPendingInvite } from '../../lib/inviteStore'
 import LeagueSetupCard from './LeagueSetupCard'
 import LeagueView from './LeagueView'
 import CupView from './CupView'
@@ -22,7 +25,10 @@ export default function FriendsScreen() {
   const [wall, setWall] = useState([])
   const [busy, setBusy] = useState(false)
   const [roomName, setRoomName] = useState('')
-  const [joinCode, setJoinCode] = useState('')
+  const [searchParams] = useSearchParams()
+  // El código puede venir del enlace de invitación o haberse guardado antes de registrarse
+  const [invited] = useState(() => codeFromSearch(`?${searchParams.toString()}`) || getPendingInvite())
+  const [joinCode, setJoinCode] = useState(invited)
   const [prankFor, setPrankFor] = useState(null) // { prank, choice }
   const [newSettings, setNewSettings] = useState({ ...DEFAULT_SETTINGS })
   const [draft, setDraft] = useState(null) // ajustes en edición dentro del lobby
@@ -105,7 +111,7 @@ export default function FriendsScreen() {
   }
   const join = async () => {
     const res = await run(() => friendsApi.joinRoom(joinCode, club.id), 'Te sumaste a la sala.')
-    if (res) { track('friend_room_joined'); setJoinCode(''); await loadRooms(res.id) }
+    if (res) { track('friend_room_joined'); setJoinCode(''); clearPendingInvite(); await loadRooms(res.id) }
   }
   const leave = async () => {
     if (!window.confirm('¿Salir de la sala? Perdés tus puntos de travesuras.')) return
@@ -134,6 +140,14 @@ export default function FriendsScreen() {
   }
   const copyCode = async () => {
     try { await navigator.clipboard.writeText(room.code); toast.success('Código copiado.') } catch { toast.info(`Código: ${room.code}`) }
+  }
+  const invite = async () => {
+    const text = inviteText({ code: room.code, name: room.name })
+    try {
+      if (navigator.share) { await navigator.share({ title: 'Vestuario', text, url: inviteUrl(room.code) }); return }
+      await navigator.clipboard.writeText(text)
+      toast.success('Invitación copiada. Pegala en el chat de tus amigos.')
+    } catch { /* se canceló el menú de compartir */ }
   }
   const doPrank = async (target) => {
     const { prank, choice } = prankFor
@@ -166,9 +180,10 @@ export default function FriendsScreen() {
             <Button onClick={create} loading={busy} disabled={!roomName.trim() || !club}><Users />Crear sala</Button>
           </CardBody></Card>
           <Card as="div"><CardBody className="space-y-3">
+            {invited && <p role="status" className="rounded-md border border-primary/40 bg-primary-soft p-2.5 text-sm text-fg">Te invitaron a una sala. Ya cargamos el código <strong className="num tracking-widest">{invited}</strong>: tocá Entrar a la sala.</p>}
             <h2 className="font-display text-lg font-semibold text-fg">Entrar con un código</h2>
-            <Field label="Código de la sala">{(p) => <Input {...p} value={joinCode} maxLength={8} placeholder="AB12CD" onChange={e => setJoinCode(e.target.value)} />}</Field>
-            <Button variant="secondary" onClick={join} loading={busy} disabled={!joinCode.trim() || !club}>Entrar</Button>
+            <Field label="Código de la sala">{(p) => <Input {...p} value={joinCode} maxLength={8} placeholder="AB12CD" onChange={e => setJoinCode(normalizeCode(e.target.value))} />}</Field>
+            <Button variant="secondary" onClick={join} loading={busy} disabled={!joinCode.trim() || !club}>{invited && joinCode === invited ? 'Entrar a la sala' : 'Entrar'}</Button>
           </CardBody></Card>
         </div>
       ) : (
@@ -185,6 +200,7 @@ export default function FriendsScreen() {
               <p className="text-sm text-fg-muted">{table.length} de {MAX_MEMBERS} DT · código <strong className="num tracking-widest text-fg">{room.code}</strong></p>
             </div>
             <div className="flex gap-2">
+              <Button size="sm" onClick={invite}><Share2 />Invitar a mis amigos</Button>
               <Button size="sm" variant="outline" onClick={copyCode}><Copy />Copiar código</Button>
               <Button size="sm" variant="ghost" onClick={leave}><LogOut />Salir</Button>
             </div>

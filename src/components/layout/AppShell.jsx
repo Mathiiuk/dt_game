@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Loader2, LogOut, Shield, Trash2 } from 'lucide-react'
+import { getPendingInvite } from '../../lib/inviteStore'
 import { useGameContext } from '../../context/GameContext'
 import { cn } from '../../lib/utils'
 import { formatGameDate } from '../../lib/format'
@@ -149,6 +150,9 @@ export default function AppShell() {
   const fit = FIT_ROUTES.includes(pathname)
   const pending = useFriendsPending(pathname, Boolean(club))
   const notice = pathname === '/friends' ? null : pending[0]
+  // Llegó con un enlace de invitación y todavía no entró a la sala
+  const [invite] = useState(() => getPendingInvite())
+  const showInvite = Boolean(invite) && !notice && pathname !== '/friends'
   // En el celular el menú es de alto fijo: la página no se mueve (en escritorio la página scrollea normal)
   const isLg = useMediaQuery('(min-width: 1024px)')
   usePageLock(!isLg)
@@ -169,6 +173,12 @@ export default function AppShell() {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div ref={scrollRef} className={cn('min-h-0 flex-1 overscroll-contain lg:overflow-visible', fit ? 'flex flex-col overflow-hidden' : 'overflow-y-auto')}>
           <MobileTopBar club={club} title={titleForPath(pathname)} />
+          {showInvite && (
+            <Link to="/friends" className="mx-4 mt-3 flex items-center gap-2 rounded-lg border border-primary/40 bg-primary-soft px-3 py-2 text-sm font-medium text-primary lg:mx-6">
+              <span className="min-w-0 flex-1">Te invitaron a una sala de amigos. Tocá para entrar.</span>
+              <span aria-hidden="true">›</span>
+            </Link>
+          )}
           {notice && (
             <Link to="/friends" className="mx-4 mt-3 flex items-center gap-2 rounded-lg border border-accent/40 bg-accent-soft px-3 py-2 text-sm font-medium text-accent lg:mx-6">
               <span className="min-w-0 flex-1">{pendingText(notice)}</span>

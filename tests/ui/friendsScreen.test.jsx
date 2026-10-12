@@ -13,7 +13,7 @@ vi.mock('sonner', () => ({ toast: { error: vi.fn(), success: vi.fn(), info: vi.f
 
 import FriendsScreen from '../../src/features/friends/FriendsScreen'
 
-const renderIt = () => render(<MemoryRouter><FriendsScreen /></MemoryRouter>)
+const renderIt = (url = '/friends') => render(<MemoryRouter initialEntries={[url]}><FriendsScreen /></MemoryRouter>)
 
 const roundInfo = { status: [{ user_id: 'u1', club_name: 'Mi Club', is_me: true, ready: false }, { user_id: 'u2', club_name: 'Club Amigo', is_me: false, ready: true }], prode: [], plan: null, picks: {} }
 
@@ -193,5 +193,31 @@ describe('pantalla de la liga de amigos', () => {
     expect(await screen.findByRole('radio', { name: 'Gana Gimnasia' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('tab', { name: /listos/i }))
     expect(await screen.findByText(/Club Amigo/, { selector: 'span' })).toBeInTheDocument()
+  })
+
+  it('llega con un enlace de invitación: avisa, ya trae el código y entra con un toque', async () => {
+    api.getMyRooms.mockResolvedValueOnce([]).mockResolvedValue([{ id: 'r1', code: 'AB12CD', name: 'Los Pibes', status: 'LOBBY', created_by: 'u2', settings: {} }])
+    api.joinRoom.mockResolvedValue({ id: 'r1' })
+    api.getTable.mockResolvedValue([])
+    api.getWall.mockResolvedValue([])
+    renderIt('/friends?codigo=ab12cd')
+    expect(await screen.findByText(/te invitaron a una sala/i)).toBeInTheDocument()
+    expect(screen.getByLabelText('Código de la sala')).toHaveValue('AB12CD')
+    await userEvent.click(screen.getByRole('button', { name: /entrar a la sala/i }))
+    await waitFor(() => expect(api.joinRoom).toHaveBeenCalledWith('AB12CD', 'c1'))
+  })
+
+  it('en una sala ofrece invitar a los amigos con un enlace', async () => {
+    api.getMyRooms.mockResolvedValue([{ id: 'r1', code: 'ABC123', name: 'Los Pibes', status: 'LOBBY', created_by: 'u1', settings: {} }])
+    api.getTable.mockResolvedValue([{ user_id: 'u1', is_me: true, club_name: 'Mi Club', mote: null, league_points: 0, bonus: 0, points: 0, played: 0, mangos: 40 }])
+    api.getWall.mockResolvedValue([])
+    const share = vi.fn().mockResolvedValue()
+    Object.defineProperty(navigator, 'share', { value: share, configurable: true })
+    renderIt()
+    await userEvent.click(await screen.findByRole('button', { name: /invitar a mis amigos/i }))
+    await waitFor(() => expect(share).toHaveBeenCalled())
+    expect(share.mock.calls[0][0].text).toContain('ABC123')
+    expect(share.mock.calls[0][0].text).toContain('/friends?codigo=ABC123')
+    delete navigator.share
   })
 })

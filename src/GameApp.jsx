@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react'
+import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { Loader2 } from 'lucide-react'
@@ -13,6 +13,7 @@ import AppShell from './components/layout/AppShell'
 import RequireCareer from './components/RequireCareer'
 import { useSeo } from './seo/useSeo'
 import { PRIVATE_SEO } from './seo/homeSeo'
+import { capturePendingInvite } from './lib/inviteStore'
 
 // Cada pantalla se descarga al entrar a ella (antes se bajaban todas juntas al abrir el juego). Quedan fijas las del primer paso:
 // acceso, bienvenida, inicio y el menú. Con la app instalada las descargas salen del caché del service worker.
@@ -57,6 +58,8 @@ function ScreenLoading() {
  */
 function GameApp() {
   useSeo(PRIVATE_SEO)
+  // Antes de cualquier redirección (al acceso, por ejemplo): guarda el código de una invitación para usarlo después
+  useState(() => capturePendingInvite(window.location.search))
   useEffect(() => {
     initDB()
     // Avisa que el juego ya se dibujó: recién ahí se carga el medidor (ver index.html), para no competir con la descarga

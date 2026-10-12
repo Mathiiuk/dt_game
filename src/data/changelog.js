@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-27-invitar-enlace',
+    date: '2026-10-27',
+    title: 'Invitá a tus amigos con un enlace',
+    items: [
+      'En tu sala, tocá “Invitar a mis amigos” y mandales el enlace por WhatsApp.',
+      'Quien lo abra entra a la sala con el código ya cargado, aunque primero tenga que registrarse.'
+    ]
+  },
+  {
     id: '2026-10-26-compactas',
     date: '2026-10-26',
     title: 'Mercado, Club y Selección más livianos',
