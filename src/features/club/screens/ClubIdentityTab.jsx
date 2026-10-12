@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react'
 import { Trophy } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Card, CardBody, Badge, Button, Kicker } from '../../../components/ui'
+import { Card, CardBody, Badge, Button, Jersey, Kicker, OptionCards } from '../../../components/ui'
+import { JERSEY_PATTERNS, normalizeJerseyPattern } from '../../../domain/jerseyKits'
 import { calculateClubDNA } from '../../../domain/clubDna'
 
 /** Encabezado de sección de diario: título slab, filete y acción opcional a la derecha */
@@ -28,7 +29,8 @@ export default function ClubIdentityTab({
   onOpenStaffModal,
   onOpenYouthModal,
   onPromoteYouth,
-  onGenerateProspect
+  onGenerateProspect,
+  onChangeJersey
 }) {
   const dna = useMemo(() => {
     return calculateClubDNA(club, history)
@@ -69,6 +71,24 @@ export default function ClubIdentityTab({
               </div>
             ))}
           </dl>
+        </CardBody>
+      </Card>
+
+      {/* Camiseta titular */}
+      <Card as="section" aria-label="Camiseta titular">
+        <CardBody className="flex flex-col items-center gap-3 p-3 sm:flex-row sm:p-4">
+          <Jersey primary={club?.primary_color} secondary={club?.secondary_color} pattern={club?.jersey_pattern} label={`Camiseta titular de ${club?.name || 'tu club'}`} className="size-20 shrink-0" />
+          <div className="w-full flex-1">
+            <Heading>Camiseta titular</Heading>
+            <OptionCards
+              label="Diseño de la camiseta"
+              value={normalizeJerseyPattern(club?.jersey_pattern)}
+              onChange={(id) => onChangeJersey?.(id)}
+              columns="grid-cols-2 sm:grid-cols-3"
+              options={JERSEY_PATTERNS.map(j => ({ value: j.id, ...j }))}
+              renderOption={(j) => <span className="text-xs font-medium text-fg">{j.label}</span>}
+            />
+          </div>
         </CardBody>
       </Card>
 

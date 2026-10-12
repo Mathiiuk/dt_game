@@ -10,22 +10,13 @@ import { climateApi } from '../../api/climate'
 import { useGameContext } from '../../context/GameContext'
 import { BADGES, COLOR_PRESETS, defaultStadiumName, isAutoStadiumName, sameColors, validateIdentity } from '../../domain/clubIdentity'
 import { formatMoney } from '../../lib/format'
-import { Field, Input, OptionCards, Wizard } from '../../components/ui'
+import { Field, Input, Jersey, OptionCards, Wizard } from '../../components/ui'
+import { DEFAULT_JERSEY_PATTERN, JERSEY_PATTERNS } from '../../domain/jerseyKits'
 import { cn } from '../../lib/utils'
 import { friendlyError } from '../../lib/errors'
 
 const STEPS = ['Identidad', 'Colores y escudo', 'Estadio', 'Acta']
 const BADGE_ICONS = { SHIELD: Shield, CREST: Award, CIRCLE: Shield, DIAMOND: Shield }
-
-function Jersey({ primary, secondary, className }) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} role="img" aria-label="Vista previa de la camiseta titular">
-      <path d="M25,25 L10,40 L22,50 L28,42 L28,90 L72,90 L72,42 L78,50 L90,40 L75,25 L65,25 C63,33 37,33 35,25 Z" fill={primary} stroke="#27272a" strokeWidth="2" />
-      <rect x="42" y="30" width="16" height="60" fill={secondary} opacity="0.9" />
-      <path d="M35,25 C37,33 63,33 65,25" fill="none" stroke={secondary} strokeWidth="3" />
-    </svg>
-  )
-}
 
 export default function CreateClubWizard() {
   const navigate = useNavigate()
@@ -38,6 +29,7 @@ export default function CreateClubWizard() {
   const [identity, setIdentity] = useState({ name: 'Club Atlético Potrero', shortName: 'CAP', city: 'Buenos Aires', country: 'Argentina', foundedYear: 2026, nickname: 'El Expreso del Barrio' })
   const [colors, setColors] = useState({ primary: '#047857', secondary: '#FFFFFF' })
   const [badgeId, setBadgeId] = useState('SHIELD')
+  const [jerseyPattern, setJerseyPattern] = useState(DEFAULT_JERSEY_PATTERN)
   const [stadium, setStadium] = useState({ name: defaultStadiumName('Club Atlético Potrero'), capacity: TIER_5_STARTING_CONFIG.stadiumCapacity, pitchCondition: TIER_5_STARTING_CONFIG.pitchCondition })
   const [difficulty, setDifficulty] = useState('NORMAL')
 
@@ -75,7 +67,7 @@ export default function CreateClubWizard() {
   const handleCreate = async () => {
     setLoading(true)
     try {
-      const createdClub = await clubApi.createClub(manager.id, { identity, colors, badgeId, stadium })
+      const createdClub = await clubApi.createClub(manager.id, { identity, colors, badgeId, jerseyPattern, stadium })
       if (createdClub?.id && difficulty) {
         try {
           await climateApi.saveDifficulty(createdClub.id, difficulty)
@@ -134,7 +126,7 @@ export default function CreateClubWizard() {
           <h2 className="font-display text-2xl font-semibold text-fg">Colores y blasón</h2>
           <div className="flex flex-col items-center gap-4 rounded-lg bg-surface-2 p-4 sm:flex-row">
             <div className="text-center">
-              <Jersey primary={colors.primary} secondary={colors.secondary} className="mx-auto h-32 w-28" />
+              <Jersey primary={colors.primary} secondary={colors.secondary} pattern={jerseyPattern} className="mx-auto h-32 w-28" />
               <p className="mt-1 text-xs text-fg-muted">Camiseta titular</p>
             </div>
             <div className="w-full flex-1 space-y-4">
@@ -158,6 +150,22 @@ export default function CreateClubWizard() {
                 <Field label="Color secundario">{(p) => <input {...p} type="color" value={colors.secondary} onChange={(e) => setColors(prev => ({ ...prev, secondary: e.target.value }))} className="h-11 w-16 cursor-pointer rounded-md border border-line bg-surface-3 p-1" />}</Field>
               </div>
             </div>
+          </div>
+
+          <div>
+            <OptionCards
+              label="Diseño de la camiseta"
+              value={jerseyPattern}
+              onChange={setJerseyPattern}
+              columns="grid-cols-2 sm:grid-cols-3"
+              options={JERSEY_PATTERNS.map(j => ({ value: j.id, ...j }))}
+              renderOption={(j, active) => (
+                <span className="flex items-center gap-2">
+                  <Jersey primary={colors.primary} secondary={colors.secondary} pattern={j.id} label={j.label} className="size-8 shrink-0" />
+                  <span className={cn('text-xs font-medium', active ? 'text-accent' : 'text-fg')}>{j.label}</span>
+                </span>
+              )}
+            />
           </div>
 
           <div>
@@ -204,7 +212,7 @@ export default function CreateClubWizard() {
                 <p className="mt-1 font-display text-2xl font-semibold leading-tight text-fg">{identity.name} <span className="text-fg-muted">({identity.shortName})</span></p>
                 <p className="text-xs text-fg-muted">“{identity.nickname}” · Fundado en {identity.foundedYear} · {identity.city}, {identity.country}</p>
               </div>
-              <Jersey primary={colors.primary} secondary={colors.secondary} className="size-16 shrink-0" />
+              <Jersey primary={colors.primary} secondary={colors.secondary} pattern={jerseyPattern} className="size-16 shrink-0" />
             </div>
             <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
               <div className="rounded-md bg-surface p-2.5"><dt className="eyebrow">Director técnico</dt><dd className="font-semibold text-fg">{manager ? `${manager.first_name} ${manager.last_name}` : 'Asignado'}</dd></div>

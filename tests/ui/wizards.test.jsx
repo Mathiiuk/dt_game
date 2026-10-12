@@ -104,6 +104,7 @@ describe('asistente de fundación del club', () => {
     await userEvent.click(screen.getByRole('button', { name: /Siguiente/ })) // colores
     await userEvent.click(screen.getByRole('radio', { name: /Azul y oro/ }))
     await userEvent.click(screen.getByRole('radio', { name: /Rombo moderno/ }))
+    await userEvent.click(screen.getByRole('radio', { name: /Bastones/ }))
     await userEvent.click(screen.getByRole('button', { name: /Siguiente/ })) // estadio
     expect(screen.getByLabelText('Nombre del estadio')).toHaveValue('Estadio Atlético Sur')
     await userEvent.click(screen.getByRole('button', { name: /Siguiente/ })) // acta
@@ -111,7 +112,7 @@ describe('asistente de fundación del club', () => {
     await waitFor(() => expect(createClub).toHaveBeenCalled())
     const [managerId, data] = createClub.mock.calls[0]
     expect(managerId).toBe('m1')
-    expect(data).toMatchObject({ badgeId: 'DIAMOND', colors: { primary: '#1E3A8A', secondary: '#F59E0B' }, stadium: { name: 'Estadio Atlético Sur' }, identity: { name: 'Atlético Sur' } })
+    expect(data).toMatchObject({ badgeId: 'DIAMOND', jerseyPattern: 'STRIPES_VERTICAL', colors: { primary: '#1E3A8A', secondary: '#F59E0B' }, stadium: { name: 'Estadio Atlético Sur' }, identity: { name: 'Atlético Sur' } })
     expect(navigate).toHaveBeenCalledWith('/dashboard', { replace: true })
   })
 })

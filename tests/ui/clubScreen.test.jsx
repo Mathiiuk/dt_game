@@ -45,6 +45,7 @@ vi.mock('../../src/features/club/screens/InfirmaryTab', () => ({ default: () => 
 vi.mock('../../src/features/club/screens/ClubHistoryTab', () => ({ default: () => <p>Historia tab</p> }))
 vi.mock('../../src/features/club/screens/IdolsLegendsTab', () => ({ default: () => <p>Ídolos tab</p> }))
 
+import { clubApi } from '../../src/api/club'
 import ClubScreen from '../../src/features/club/screens/ClubScreen'
 
 const renderScreen = (path = '/club') => render(<MemoryRouter initialEntries={[path]}><ClubScreen /></MemoryRouter>)
@@ -61,6 +62,13 @@ describe('pantalla Club', () => {
     expect(screen.getByText('$3.200')).toBeInTheDocument()
     expect(screen.getByText('-$450')).toBeInTheDocument()
     expect(screen.queryByText('Margen semanal')).not.toBeInTheDocument()
+  })
+
+  it('permite cambiar el diseño de la camiseta y lo guarda en el club', async () => {
+    clubApi.updateClub.mockClear()
+    renderScreen()
+    await userEvent.click(await screen.findByRole('radio', { name: /Bastones/ }))
+    await waitFor(() => expect(clubApi.updateClub).toHaveBeenCalledWith('c1', { jersey_pattern: 'STRIPES_VERTICAL' }))
   })
 
   it('despedir pide confirmación antes de rescindir', async () => {

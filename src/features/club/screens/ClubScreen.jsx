@@ -6,6 +6,7 @@ import { staffApi, academyApi } from '../../../api/clubFeatures'
 import { clubHistoryApi } from '../../../api/clubHistory'
 import { financesApi } from '../../../api/finances'
 import { supabase } from '../../../api/supabase'
+import { clubApi } from '../../../api/club'
 import { useGameContext } from '../../../context/GameContext'
 import { queryCache } from '../../../utils/cache'
 import { formatMoney } from '../../../lib/format'
@@ -31,7 +32,7 @@ const TABS = [
 const PROSPECT_COST = 5000
 
 export default function ClubScreen() {
-  const { club, manager, loading: contextLoading, confirmAction } = useGameContext()
+  const { club, manager, loading: contextLoading, confirmAction, refreshContext } = useGameContext()
 
   const cachedClubData = club?.id ? queryCache.get(`club:screen:${club.id}`) : null
   const [loading, setLoading] = useState(!cachedClubData)
@@ -135,6 +136,16 @@ export default function ClubScreen() {
       await academyApi.generateYouthProspect(club.id, club.academy_level || 1)
       toast.success('¡Nuevo juvenil oteado en la academia!')
       loadData(true)
+    } catch (e) {
+      toast.error(friendlyError(e))
+    }
+  }
+
+  const handleChangeJersey = async (jerseyPattern) => {
+    try {
+      await clubApi.updateClub(club.id, { jersey_pattern: jerseyPattern })
+      await refreshContext?.()
+      toast.success('Camiseta actualizada')
     } catch (e) {
       toast.error(friendlyError(e))
     }
@@ -250,6 +261,7 @@ export default function ClubScreen() {
             onOpenYouthModal={() => setShowYouthModal(true)}
             onPromoteYouth={handlePromote}
             onGenerateProspect={handleGenerateProspect}
+            onChangeJersey={handleChangeJersey}
           />
 
           {/* Candidatos a staff para contratación rápida */}

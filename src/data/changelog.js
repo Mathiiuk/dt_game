@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-10-31-camisetas',
+    date: '2026-10-31',
+    title: 'Diseñá la camiseta de tu club',
+    items: [
+      'Elegí entre seis diseños: franja, bastones, rayas, banda, mitades o lisa.',
+      'Podés cambiarlo cuando quieras en Club, con los colores de tu escudo.'
+    ]
+  },
+  {
     id: '2026-10-30-privacidad-tabla',
     date: '2026-10-30',
     title: 'Vos decidís si aparecés en la tabla pública',

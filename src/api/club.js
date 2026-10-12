@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { playerApi } from './player'
 import { auditApi } from './audit'
+import { normalizeJerseyPattern } from '../domain/jerseyKits'
 
 export const TIER_5_STARTING_CONFIG = {
   initialCashBalance: 25000,
@@ -33,7 +34,7 @@ export const clubApi = {
       throw new Error(`El Director Técnico ya lidera la institución ${existingClub.name}.`)
     }
 
-    const { identity = {}, stadium = {}, colors = {}, badgeId = 'SHIELD' } = clubData
+    const { identity = {}, stadium = {}, colors = {}, badgeId = 'SHIELD', jerseyPattern } = clubData
 
     const cleanName = (identity.name || '').trim()
     if (cleanName.length < 3 || cleanName.length > 40) {
@@ -71,6 +72,7 @@ export const clubApi = {
           primary_color: primaryColor,
           secondary_color: secondaryColor,
           badge_id: badgeId,
+          jersey_pattern: normalizeJerseyPattern(jerseyPattern),
           nickname: identity.nickname || 'El Expreso del Barrio',
           history_type: 'potrero',
           budget,
