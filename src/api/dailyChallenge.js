@@ -17,8 +17,8 @@ export const dailyApi = {
     return unwrap(await supabase.rpc('daily_submit', { p_choices: choices }))
   },
 
-  /** Tabla de hoy: de todos o solo de mis compañeros de sala */
-  async board(friends = false) {
-    return unwrap(await supabase.rpc('daily_board', { p_friends: friends, p_day: null })) || []
+  /** Tabla de hoy (o del día pedido, hasta 6 días atrás): de todos o solo de mis compañeros de sala */
+  async board(friends = false, day = null) {
+    return unwrap(await supabase.rpc('daily_board', { p_friends: friends, p_day: day })) || []
   }
 }

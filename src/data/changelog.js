@@ -2,12 +2,31 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-06-vestuario-2',
+    date: '2026-11-06',
+    title: 'Vestuario 2.0',
+    items: [
+      'Camisetas con diseño, jugadores con cara y una cancha que sigue el partido en vivo.',
+      'Tarjetas de portada de diario, perfil público del DT y racha en el reto del día.',
+      'Medí tu carrera contra las cinco leyendas del fútbol argentino en la tabla de los mejores DT.'
+    ]
+  },
+  {
     id: '2026-11-05-camino-leyenda',
     date: '2026-11-05',
     title: 'Camino a la leyenda',
     items: [
       'En Carrera del DT ves cuántos puntos te faltan para alcanzar a los DT más ganadores de la historia.',
       'Cada leyenda que superes se puede compartir.'
+    ]
+  },
+  {
+    id: '2026-11-04-reto-racha',
+    date: '2026-11-04',
+    title: 'El reto del día, con racha y contrarreloj',
+    items: [
+      'Sumá días seguidos jugando y mirá tu racha. Respondé rápido para ganar hasta +10.',
+      'Hay tabla de ayer y nueve dilemas nuevos.'
     ]
   },
   {

@@ -128,7 +128,7 @@ export const PUBLIC_PAGES = [
       { heading: 'Para cuidar el club', body: ['El entrenamiento, las lesiones y las finanzas deciden si tu proyecto dura una temporada o diez. Estas guías te muestran qué mirar cada semana.'] },
       { heading: 'Para crecer', body: ['Ascender de categoría y jugar con amigos son dos formas de darle sentido a la carrera.'] }
     ],
-    related: ['/guias/formacion-4-4-2', '/guias/formacion-4-3-3', '/guias/como-fichar-jugadores', '/guias/entrenamiento-y-lesiones', '/guias/finanzas-del-club', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/guias/simulador-de-futbol-argentino', '/guias/formacion-4-2-3-1', '/guias/formacion-5-3-2', '/guias/cantera-y-juveniles', '/guias/pelota-parada-y-penales', '/guias/prensa-y-dirigencia', '/guias/copas-y-torneos']
+    related: ['/guias/formacion-4-4-2', '/guias/formacion-4-3-3', '/guias/como-fichar-jugadores', '/guias/entrenamiento-y-lesiones', '/guias/finanzas-del-club', '/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/guias/simulador-de-futbol-argentino', '/guias/formacion-4-2-3-1', '/guias/formacion-5-3-2', '/guias/cantera-y-juveniles', '/guias/pelota-parada-y-penales', '/guias/prensa-y-dirigencia', '/guias/copas-y-torneos', '/guias/mejores-dt-argentinos']
   },
   {
     path: '/guias/formacion-4-4-2',
@@ -251,6 +251,23 @@ export const PUBLIC_PAGES = [
       { heading: 'Un ganador con historia', body: ['Al terminar el torneo hay campeón y un resumen en el muro. Después podés armar otro con otras reglas y revancha.'] }
     ],
     related: ['/guias/como-ascender-de-categoria', '/juego', '/demo']
+  },
+  {
+    path: '/guias/mejores-dt-argentinos',
+    label: 'Los mejores DT argentinos',
+    group: 'guias',
+    title: 'Los DT argentinos más ganadores y cómo superarlos | Vestuario',
+    description: 'Los directores técnicos argentinos con más títulos de la historia y cómo medirte contra ellos en Vestuario: puntos de legado, camino a la leyenda y tabla pública.',
+    h1: 'Los DT argentinos más ganadores y cómo superarlos',
+    intro: 'En Vestuario la tabla de los mejores DT incluye a cinco leyendas del fútbol argentino. Son la vara para medir tu carrera: acá te contamos cómo se cuentan los puntos y cómo pasarlas.',
+    sections: [
+      { heading: 'Las cinco leyendas de la tabla', body: ['La tabla pública mezcla a los mejores DT del juego con cinco figuras de la historia, según los recuentos de títulos más citados: Ramón Díaz (17), Helenio Herrera (16), Carlos Bianchi (15), Marcelo Gallardo (15) y Guillermo Stábile (13). Los recuentos varían un poco según la fuente, así que tomalos como una referencia.', 'Son figuras públicas del fútbol que aparecen solo por sus títulos. En el juego no hay clubes reales: nada de lo que hagas en tu carrera está atado a ellos.'] },
+      { heading: 'Cómo se cuentan los puntos', body: ['Los puntos de legado de tu DT suman títulos de liga (400 cada uno), títulos continentales (800), victorias, efectividad y reputación. Es la misma cuenta del Salón de la Fama del juego.', 'Las leyendas valen 600 puntos por título, el promedio entre un título de liga y uno continental. Con una carrera larga y ganadora, un DT del juego puede pasarlas.'] },
+      { heading: 'Tu camino a la leyenda', body: ['En Carrera del DT hay una tarjeta que compara tus puntos con los de cada leyenda: cuánto te falta para la próxima, cuáles ya superaste y una barra de avance por cada una. Cuando pasás a una, podés compartirlo.', 'La meta realista es ir de a una: primero Stábile, después Gallardo y Bianchi, y al final Herrera y Díaz.'] },
+      { heading: 'Cómo sumar más rápido', body: ['Los títulos pesan mucho: un campeonato de liga vale lo que 27 victorias. Armá un plantel parejo, cuidá la cantera y las finanzas, y no descuides al vestuario: la reputación también suma.', 'Si querés aparecer vos en la tabla, tenés que aceptarlo en Más, en Privacidad: por defecto nadie aparece. Con 10 partidos jugados ya entrás en el ranking y tu DT tiene página propia.'] },
+      { heading: 'Un ranking que se mueve', body: ['La tabla se actualiza sola: cada partido que jugás y cada título que ganás cambian tus puntos. Si un DT del juego te pasa en el ranking, vas a ver cómo se corre tu puesto, y las leyendas se quedan en su lugar esperando que alguien las alcance.', 'Compartí tu perfil público con tus amigos y armen una liga de sala: así competís contra ellos con las reglas que elijan y, de paso, contra las leyendas de la tabla.'] }
+    ],
+    related: ['/guias/como-ascender-de-categoria', '/guias/liga-con-amigos', '/demo']
   },
   {
     path: '/guias/simulador-de-futbol-argentino',
