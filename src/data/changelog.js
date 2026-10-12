@@ -2,6 +2,15 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-01-tarjetas-diario',
+    date: '2026-11-01',
+    title: 'Tus tarjetas, ahora como portada de diario',
+    items: [
+      'Al compartir un resultado o un título sale una primera plana con tu camiseta.',
+      'Sale en claro o en oscuro, según el tema que estés usando.'
+    ]
+  },
+  {
     id: '2026-10-31-camisetas',
     date: '2026-10-31',
     title: 'Diseñá la camiseta de tu club',
