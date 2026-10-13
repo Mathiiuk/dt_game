@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { applyPageToTemplate, sitemapXml, pageOutputPath } from '../../src/seo/prerender'
-import { PUBLIC_PAGES, PUBLIC_PATHS } from '../../src/data/publicPages'
+import { PUBLIC_PAGES, PUBLIC_PATHS, CONTENT_UPDATED, pageLastmod, getPublicPage } from '../../src/data/publicPages'
 import { SITE } from '../../src/data/site'
 
 const template = readFileSync('index.html', 'utf8')
@@ -50,10 +50,21 @@ describe('HTML propio de cada página pública', () => {
     expect(pageOutputPath('/')).toBe('index.html')
   })
 
-  it('el sitemap lista todas las páginas públicas con la fecha de la compilación', () => {
+  it('el sitemap lista todas las páginas públicas', () => {
     const xml = sitemapXml(PUBLIC_PATHS, '2026-10-11')
     for (const p of PUBLIC_PATHS) expect(xml).toContain(`<loc>${SITE.url}${p}</loc>`)
     expect((xml.match(/<lastmod>2026-10-11<\/lastmod>/g) || []).length).toBe(PUBLIC_PATHS.length)
+  })
+
+  it('el lastmod de cada URL es la fecha real de su contenido, no la del build', () => {
+    const xml = sitemapXml(PUBLIC_PATHS, pageLastmod)
+    const dates = [...xml.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map(m => m[1])
+    expect(dates).toHaveLength(PUBLIC_PATHS.length)
+    for (const d of dates) expect(d).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    expect(pageLastmod('/')).toBe(CONTENT_UPDATED)
+    expect(pageLastmod('/faq')).toBe(getPublicPage('/faq').updated || CONTENT_UPDATED)
+    const build = new Date().toISOString().slice(0, 10)
+    expect(CONTENT_UPDATED <= build).toBe(true)
   })
 
   it('la compilación genera las páginas y el sitemap después de vite build', () => {

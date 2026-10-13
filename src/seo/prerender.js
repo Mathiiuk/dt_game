@@ -36,8 +36,10 @@ export function applyPageToTemplate(template, page, markup, { jsonLd = null } = 
 /** Dónde se guarda el HTML de cada ruta dentro de dist */
 export const pageOutputPath = (path) => (path === '/' ? 'index.html' : `${path.replace(/^\//, '')}/index.html`)
 
+/** `lastmod` puede ser una fecha para todas o una función de la ruta (la fecha real del contenido de cada página) */
 export function sitemapXml(paths, lastmod) {
-  const urls = paths.map(p => `  <url><loc>${SITE.url}${p}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')
+  const dateOf = typeof lastmod === 'function' ? lastmod : () => lastmod
+  const urls = paths.map(p => `  <url><loc>${SITE.url}${p}</loc><lastmod>${dateOf(p)}</lastmod></url>`).join('\n')
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 }
 

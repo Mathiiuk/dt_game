@@ -11,6 +11,10 @@ const contactLine = SITE.contactEmail
   ? `Escribinos a ${SITE.contactEmail} y te respondemos lo antes posible.`
   : 'Estamos preparando el canal de contacto y lo vamos a publicar en esta página.'
 
+// Fecha (AAAA-MM-DD) del último cambio de contenido de las páginas públicas; va al `lastmod` del sitemap.
+// Se actualiza al editar el texto de una página (o su `updated` propio); no es la fecha de cada compilación.
+export const CONTENT_UPDATED = '2026-10-12'
+
 export const PUBLIC_PAGES = [
   {
     path: '/juego',
@@ -405,6 +409,9 @@ export const PUBLIC_PAGES = [
 export const PUBLIC_PATHS = ['/', ...PUBLIC_PAGES.map(p => p.path)]
 
 export const getPublicPage = (path) => PUBLIC_PAGES.find(p => p.path === path)
+
+/** Fecha real del contenido de una ruta pública (su `updated` o la general) */
+export const pageLastmod = (path) => getPublicPage(path)?.updated || CONTENT_UPDATED
 
 // Grupos del footer, en el orden en que se muestran
 export const FOOTER_GROUPS = [
