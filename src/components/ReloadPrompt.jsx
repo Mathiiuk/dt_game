@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { isSafeToUpdate } from '../lib/updateGuard'
 import { STALE_EVENT } from '../lib/staleVersion'
+import { repairAndReload } from '../lib/repairApp'
 
 /**
  * Aviso de versión nueva. Nunca corta lo que la persona está haciendo:
@@ -32,7 +33,9 @@ export default function ReloadPrompt() {
   }, [])
 
   const pending = needRefresh || stale
-  const apply = () => (needRefresh ? updateServiceWorker(true) : window.location.reload())
+  // Versión nueva avisada por el service worker: se instala normal. Archivo viejo que ya no existe (`stale`): una recarga común no alcanza
+  // (el service worker viejo vuelve a servir lo mismo), así que se lo desregistra y se vacían las cachés antes de recargar.
+  const apply = () => (needRefresh ? updateServiceWorker(true) : repairAndReload({ force: true }))
 
   // Con una actualización pendiente, al cambiar de sección (y solo si es seguro) se instala sola
   const lastPath = useRef(pathname)

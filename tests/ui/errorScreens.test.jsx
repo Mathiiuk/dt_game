@@ -4,12 +4,14 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 
 vi.mock('../../src/features/home/useVisitorState', () => ({ useVisitorState: () => 'visitor' }))
+const repair = vi.hoisted(() => ({ fn: vi.fn().mockResolvedValue(true) }))
+vi.mock('../../src/lib/repairApp', () => ({ repairAndReload: (...a) => repair.fn(...a) }))
 
 import NotFoundScreen from '../../src/features/errors/NotFoundScreen'
 import ErrorBoundary, { isChunkError } from '../../src/features/errors/ErrorBoundary'
 import OfflineBanner from '../../src/components/OfflineBanner'
 
-beforeEach(() => { window.dataLayer = []; window.scrollTo = () => {}; window.sessionStorage.clear() })
+beforeEach(() => { window.dataLayer = []; window.scrollTo = () => {}; window.sessionStorage.clear(); repair.fn.mockClear() })
 
 describe('página inexistente (404)', () => {
   it('tiene un solo h1 con humor, enlaces útiles y no se indexa', () => {
@@ -46,6 +48,43 @@ describe('error inesperado en la app', () => {
     expect(isChunkError(new Error('Failed to fetch dynamically imported module: https://x/assets/a.js'))).toBe(true)
     expect(isChunkError(new Error('Loading chunk 5 failed'))).toBe(true)
     expect(isChunkError(new Error('otra cosa'))).toBe(false)
+  })
+})
+
+describe('error de una versión vieja (archivo que ya no existe)', () => {
+  const OldChunk = () => { throw new Error('Failed to fetch dynamically imported module: https://x/assets/Plantel-abc.js') }
+  const Other = () => { throw new Error('falló un componente') }
+
+  it('repara sola (desregistra el service worker, vacía las cachés y recarga) en vez de una recarga común', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(<ErrorBoundary><OldChunk /></ErrorBoundary>)
+    expect(repair.fn).toHaveBeenCalledTimes(1)
+    expect(repair.fn.mock.calls[0][0]?.force).toBeFalsy()
+    spy.mockRestore()
+  })
+
+  it('el botón de la pantalla de error repara a la fuerza cuando el problema es la versión vieja', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(<ErrorBoundary><OldChunk /></ErrorBoundary>)
+    repair.fn.mockClear()
+    await userEvent.click(screen.getByRole('button', { name: /actualizar el juego/i }))
+    expect(repair.fn).toHaveBeenCalledWith({ force: true })
+    spy.mockRestore()
+  })
+
+  it('explica que es una versión vieja y que la carrera está a salvo', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(<ErrorBoundary><OldChunk /></ErrorBoundary>)
+    expect(screen.getByText(/tenías una versión vieja/i)).toBeInTheDocument()
+    expect(screen.getByText(/carrera está a salvo/i)).toBeInTheDocument()
+    spy.mockRestore()
+  })
+
+  it('un error común no dispara la reparación', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    render(<ErrorBoundary><Other /></ErrorBoundary>)
+    expect(repair.fn).not.toHaveBeenCalled()
+    spy.mockRestore()
   })
 })
 

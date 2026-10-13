@@ -12,6 +12,7 @@
     "test:bdd": "cucumber-js --tags @auto",
     "test:bdd:docs": "cucumber-js --dry-run --no-strict",
     "test:e2e:cancha": "node scripts/e2e/live-pitch.mjs",
+    "test:e2e:version-vieja": "node scripts/e2e/repair-stale.mjs",
     "lint": "eslint . --max-warnings=0"
   },
   "devDependencies": {

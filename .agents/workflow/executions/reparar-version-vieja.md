@@ -1,0 +1,8 @@
+# Reparar una versión vieja atrapada ("Se pinchó la pelota" al tocar secciones)
+
+- **Síntoma:** un iPhone (Safari) muestra la pantalla de error al tocar cualquier sección. Los registros del servidor (24 h) no muestran fallas generales.
+- **Causa:** el service worker viejo sirve el `index.html` precacheado (con los nombres de archivo del deploy anterior) y las pantallas cargadas a pedido que no se habían abierto ya no existen en el servidor tras un deploy (hubo varios el mismo día). La recarga única que había no alcanzaba: el service worker volvía a servir lo mismo.
+- **Arreglo:** `src/lib/repairApp.js` (`repairAndReload`: desregistra los service workers, borra las cachés y recarga; tope de una vez por sesión salvo `force`). `ErrorBoundary` lo usa ante errores de archivo viejo (automático, y con el botón "Actualizar el juego" a la fuerza) y `ReloadPrompt` en el caso `vite:preloadError`. Para otros errores, todo igual.
+- **Pruebas:** unitarias (`repairApp`, `ErrorBoundary`, `ReloadPrompt`) y en navegador real con `npm run test:e2e:version-vieja` (servidor que "pierde" el archivo de una pantalla, service worker instalado, 6/6 comprobaciones). La reparación no toca la carrera (vive en la cuenta).
+- **No resuelto:** no pude reproducirlo en un iPhone real ni confirmar con certeza que esa sea la causa del caso del hermano (es la que mejor coincide). Si después de cerrar y reabrir la app o limpiar los datos del sitio sigue, pedir la captura o el texto del error.
+- **Aparte:** un 400 aislado al guardar datos de un DT desde un Android (PATCH a `managers`), sin detalle del error; pendiente de revisar.

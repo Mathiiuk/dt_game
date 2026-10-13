@@ -3,6 +3,8 @@ import { render, screen, act, fireEvent } from '@testing-library/react'
 import { MemoryRouter, useNavigate } from 'react-router-dom'
 import { resetBusy, markBusy } from '../../src/lib/busy'
 import { STALE_EVENT } from '../../src/lib/staleVersion'
+const repair = vi.hoisted(() => ({ fn: vi.fn().mockResolvedValue(true) }))
+vi.mock('../../src/lib/repairApp', () => ({ repairAndReload: (...a) => repair.fn(...a) }))
 
 const sw = { needRefresh: false, offlineReady: false, update: vi.fn(), setNeed: vi.fn(), setOffline: vi.fn() }
 vi.mock('virtual:pwa-register/react', () => ({
@@ -71,13 +73,13 @@ describe('aviso de versión nueva', () => {
     expect(sw.update).toHaveBeenCalledTimes(1)
   })
 
-  it('una pestaña vieja que pide un archivo inexistente muestra el aviso y se recarga cuando es seguro', () => {
-    const reload = vi.fn()
-    Object.defineProperty(window, 'location', { value: { ...window.location, reload }, writable: true })
+  it('una pestaña vieja que pide un archivo inexistente muestra el aviso y se repara (service worker y cachés) cuando es seguro', () => {
+    repair.fn.mockClear()
     renderAt('/dashboard')
     act(() => { window.dispatchEvent(new Event(STALE_EVENT)) })
     fireEvent.click(screen.getByRole('button', { name: 'Actualizar ahora' }))
-    expect(reload).toHaveBeenCalled()
+    expect(repair.fn).toHaveBeenCalledWith({ force: true })
+    expect(sw.update).not.toHaveBeenCalled()
   })
 
   it('el aviso de modo sin conexión se puede cerrar', () => {
