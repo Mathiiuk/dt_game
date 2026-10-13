@@ -45,3 +45,36 @@ export function pitchState({ events, minute }) {
     card: cardEvent ? { kind: cardEvent.type === 'CARD_RED' ? 'red' : 'yellow', team: cardEvent.team, minute: cardEvent.minute } : null
   }
 }
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
+
+/**
+ * Posiciones de los jugadores de un equipo sobre la cancha horizontal (porcentajes de 0 a 100).
+ * Parte de la formación (x de izquierda a derecha, y de arriba = arco rival a abajo = arco propio) y la gira:
+ * el local ataca hacia la derecha y el visitante hacia la izquierda. El bloque se corre un poco hacia donde está la pelota
+ * (el arquero casi no se mueve) para que se sienta que el equipo sube y baja.
+ */
+export function dotsFor({ layout, side, ball = { x: 50, y: 50 }, shift = 0.16 }) {
+  if (!Array.isArray(layout)) return []
+  const home = side !== 'away'
+  const pull = (clamp(Number(ball?.x) || 50, 0, 100) - 50) * shift
+  return layout
+    .filter(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))
+    .map(p => {
+      const keeper = p.y > 85
+      const baseX = home ? 100 - p.y : p.y
+      const baseY = home ? p.x : 100 - p.x
+      return { slot: p.slot, x: Math.round(clamp(baseX + pull * (keeper ? 0.25 : 1), 3, 97) * 10) / 10, y: Math.round(clamp(keeper ? 50 : baseY, 4, 96) * 10) / 10 }
+    })
+}
+
+const MARKER_KIND = { GOAL: 'goal', CARD_YELLOW: 'yellow', CARD_RED: 'red', SUBSTITUTION: 'sub' }
+
+/** Goles, tarjetas y cambios ya ocurridos (hasta el minuto actual), en orden, para la línea de tiempo del partido */
+export function matchMarkers(events, minute) {
+  const now = clampMinute(minute)
+  return (Array.isArray(events) ? events : [])
+    .filter(e => e && MARKER_KIND[e.type] && Number.isFinite(e.minute) && e.minute <= now && (e.team === 'home' || e.team === 'away'))
+    .map(e => ({ minute: e.minute, kind: MARKER_KIND[e.type], team: e.team }))
+    .sort((a, b) => a.minute - b.minute)
+}

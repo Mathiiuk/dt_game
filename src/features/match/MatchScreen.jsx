@@ -17,10 +17,13 @@ import MatchStats from './MatchStats'
 import SubstitutionsSheet from './SubstitutionsSheet'
 import ShoutsSheet from './ShoutsSheet'
 import DecisionSheet from './DecisionSheet'
-import SubstitutionsPanel from './SubstitutionsPanel'
+import DirectionPanel from './DirectionPanel'
+import DesktopPitch from './DesktopPitch'
+import MatchProgress from './MatchProgress'
+import DesktopSubstitutions from './DesktopSubstitutions'
 import DecisionCard from './DecisionCard'
 import { detectMoment, shoutBuff, shoutWaitMinutes, SHOUT_DURATION, MOMENT_ACTION_OPEN_SUBS, decisionText } from '../../domain/quickDecisions'
-import { benchOf, makeSubstitution, substitutionsLeft, substitutionText } from '../../domain/substitutions'
+import { makeSubstitution, substitutionsLeft, substitutionText } from '../../domain/substitutions'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { usePageLock } from '../../hooks/usePageLock'
 import { feel } from '../../lib/feedback'
@@ -574,67 +577,27 @@ export default function MatchScreen() {
         
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3 pt-0 lg:grid lg:grid-cols-12 lg:gap-6 lg:p-4 lg:pt-0">
           
-          {/* Izquierda: Desktop (Tu Equipo) / Oculto en móvil (van a las Sheets) */}
+          {/* Escritorio, izquierda: dirección técnica completa (control, órdenes y cambios) y estadísticas siempre abiertas. En el celular van los botones de abajo y las hojas */}
           {isLg && (
           <div className="hidden min-h-0 flex-col gap-4 overflow-y-auto pr-2 lg:col-span-4 lg:flex xl:col-span-3">
-            <div className="p-4 rounded-xl bg-surface border border-line space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Dirección técnica</h3>
-              
-              {matchState === 'pre-match' ? (
-                <button 
-                  onClick={handleStartMatch}
-                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-primary hover:bg-primary-strong text-primary-fg transition-all shadow-lg flex items-center justify-center gap-2"
-                >
-                  <Play className="w-5 h-5 fill-primary-fg" />
-                  Comenzar partido
-                </button>
-              ) : matchState === 'playing' ? (
-                <div className="space-y-4">
-                  <div className="bg-surface-2 p-3 rounded-xl border border-line">
-                    <p className="text-xs text-fg-subtle mb-2">Táctica y Gritos (Enfriamiento: {shoutWait}m)</p>
-                    {SHOUT_TYPES.map(order => (
-                      <button 
-                        key={order.id}
-                        disabled={shoutWait > 0}
-                        onClick={() => handleApplyOrder(order)}
-                        className={`w-full p-2.5 mt-2 text-left rounded-lg border text-xs transition-all ${
-                          activeOrder === order.id 
-                            ? 'border-primary bg-primary-soft text-primary font-bold'
-                            : 'border-line bg-bg/60 text-fg hover:border-line'
-                        }`}
-                      >
-                        {order.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={goToSummary}
-                  className="w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider bg-primary hover:bg-primary-strong text-primary-fg transition-all shadow-lg flex items-center justify-center gap-2"
-                >
-                  <CheckCircle className="w-5 h-5" />
-                  Resumen
-                </button>
-              )}
-            </div>
-
-            {matchState === 'playing' && (
-              <div className="flex-1 bg-surface border border-line rounded-xl overflow-hidden flex flex-col">
-                 <div className="p-3 bg-surface-2 border-b border-line">
-                   <h3 className="text-xs font-bold uppercase tracking-wider text-fg-muted">Tu Equipo (Alineación)</h3>
-                 </div>
-                 <div className="flex-1 overflow-y-auto p-2">
-                   <SubstitutionsPanel
-                      preselectOutId={preselectOut}
-                      onField={onField.filter(p => !sentOffIds.has(p.id))}
-                      statusById={statusById}
-                      bench={benchOf(data.players, onField, subsMade)}
-                      subsLeft={substitutionsLeft(subsMade)}
-                      onSubstitute={handleSubstitute}
-                   />
-                 </div>
-              </div>
+            <DirectionPanel
+              matchState={matchState}
+              paused={paused}
+              onTogglePause={() => setPaused(!paused)}
+              speed={speed}
+              onSpeed={setSpeed}
+              onSkip={handleSkipMatch}
+              shoutWait={shoutWait}
+              activeOrder={activeOrder}
+              onApplyOrder={handleApplyOrder}
+              subsLeft={substitutionsLeft(subsMade)}
+              subsMade={subsMade}
+              onOpenSubs={() => openSheet(setSubsSheetOpen)}
+              onStart={handleStartMatch}
+              onSummary={goToSummary}
+            />
+            {matchState !== 'pre-match' && simResults?.stats && (
+              <MatchStats alwaysOpen stats={liveStats || simResults.stats} homeName={data.club?.name || 'Local'} awayName={oppDisplayName} />
             )}
           </div>
           )}
@@ -678,31 +641,34 @@ export default function MatchScreen() {
                 )))
               : (
                 <>
-                  <LivePitch
-                    events={events}
-                    minute={minute}
-                    matchState={matchState}
-                    homeColor={(isHome ? data.club : rivalClub)?.primary_color || undefined}
-                    awayColor={(isHome ? rivalClub : data.club)?.primary_color || undefined}
-                  />
+                  {isLg ? (
+                    <>
+                      <DesktopPitch
+                        events={events}
+                        minute={minute}
+                        matchState={matchState}
+                        homeColor={(isHome ? data.club : rivalClub)?.primary_color || undefined}
+                        awayColor={(isHome ? rivalClub : data.club)?.primary_color || undefined}
+                        homeLayout={isHome ? pitchLayout : getLayout('4-4-2')}
+                        awayLayout={isHome ? getLayout('4-4-2') : pitchLayout}
+                      />
+                      <MatchProgress events={events} minute={minute} />
+                    </>
+                  ) : (
+                    <LivePitch
+                      events={events}
+                      minute={minute}
+                      matchState={matchState}
+                      homeColor={(isHome ? data.club : rivalClub)?.primary_color || undefined}
+                      awayColor={(isHome ? rivalClub : data.club)?.primary_color || undefined}
+                    />
+                  )}
                   <MatchTimeline events={events} matchState={matchState} />
                 </>
               )}
 
-            {matchState !== 'pre-match' && simResults?.stats && (
+            {!isLg && matchState !== 'pre-match' && simResults?.stats && (
               <MatchStats stats={liveStats || simResults.stats} homeName={data.club?.name || 'Local'} awayName={oppDisplayName} />
-            )}
-
-            {matchState === 'playing' && isLg && (
-              <MatchActions
-                speed={speed}
-                onSpeed={setSpeed}
-                paused={paused}
-                onTogglePause={() => setPaused(!paused)}
-                onSkip={handleSkipMatch}
-                onOpenSubs={() => openSheet(setSubsSheetOpen)}
-                onOpenShouts={() => openSheet(setShoutsSheetOpen)}
-              />
             )}
           </div>
         </div>
@@ -751,6 +717,18 @@ export default function MatchScreen() {
       </div>
 
       {/* Mobile Sheets */}
+      {isLg ? (
+        <DesktopSubstitutions
+          open={subsSheetOpen}
+          onClose={() => closeSheet(setSubsSheetOpen)}
+          preselectOutId={preselectOut}
+          onField={onField.filter(p => !sentOffIds.has(p.id))}
+          players={data.players}
+          subsMade={subsMade}
+          onSubstitute={handleSubstitute}
+          statusById={statusById}
+        />
+      ) : (
       <SubstitutionsSheet 
         open={subsSheetOpen}
         onClose={() => closeSheet(setSubsSheetOpen)}
@@ -764,6 +742,7 @@ export default function MatchScreen() {
         layout={pitchLayout}
         statusById={statusById}
       />
+      )}
 
       <ShoutsSheet
         open={shoutsSheetOpen}

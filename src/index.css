@@ -252,6 +252,7 @@
 @layer components {
   /* Cancha en vivo: la pelota se desliza entre jugadas y el banco salta al festejar un gol */
   .live-ball { transition: transform 600ms cubic-bezier(0.25, 1, 0.5, 1); }
+  .pitch-dot { transition: transform 900ms cubic-bezier(0.25, 1, 0.5, 1); }
   .bench-cheer { animation: bench-jump 420ms ease-out 3; }
   /* El banco que recibió el gol baja la cabeza: un solo movimiento, lento, y queda así hasta que pasa el momento */
   .bench-lament { animation: bench-droop 700ms ease-out 1 forwards; }

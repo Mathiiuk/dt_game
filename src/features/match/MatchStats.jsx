@@ -24,9 +24,11 @@ function Row({ icon: Icon, label, home = 0, away = 0, shown }) {
 /**
  * Estadísticas del partido pegadas abajo: cerradas sólo muestran la posesión; al tocar se despliegan hacia arriba
  * con el resto de los datos (y el relato se achica); al cerrar todo vuelve a como estaba.
+ * En escritorio (`alwaysOpen`) hay lugar de sobra y el detalle queda siempre a la vista.
  */
-export default function MatchStats({ stats, homeName = 'Local', awayName = 'Visita' }) {
-  const [open, setOpen] = useState(false)
+export default function MatchStats({ stats, homeName = 'Local', awayName = 'Visita', alwaysOpen = false }) {
+  const [openState, setOpen] = useState(false)
+  const open = alwaysOpen || openState
   if (!stats) return null
 
   const homePoss = stats.possession?.home ?? 50
@@ -60,9 +62,10 @@ export default function MatchStats({ stats, homeName = 'Local', awayName = 'Visi
       {/* Barra de posesión: siempre a la vista; tocarla abre o cierra el detalle */}
       <button
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={() => { if (!alwaysOpen) setOpen(o => !o) }}
         aria-expanded={open}
         aria-controls="stats-detail"
+        disabled={alwaysOpen}
         className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-surface-2"
       >
         <BarChart3 className="size-4 shrink-0 text-accent" aria-hidden="true" />

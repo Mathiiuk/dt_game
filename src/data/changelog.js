@@ -2,6 +2,16 @@
 // Para sumar una: agregarla arriba con un `id` nuevo, la fecha (AAAA-MM-DD) y frases cortas (máximo 140 caracteres).
 export const CHANGELOG = [
   {
+    id: '2026-11-08-partido-escritorio',
+    date: '2026-11-08',
+    title: 'Partido en vivo 2.0 (computadora)',
+    items: [
+      'Cancha grande con los 22 jugadores que suben y bajan con la pelota, y una línea con los goles del partido.',
+      'Dirección técnica en un solo panel: pausa, velocidad, órdenes y cambios, sin botones repetidos abajo.',
+      'Cambios más claros: elegís al titular por línea y ves quién rinde mejor en su puesto.'
+    ]
+  },
+  {
     id: '2026-11-07-escritorio',
     date: '2026-11-07',
     title: 'Más cómodo en la computadora',
