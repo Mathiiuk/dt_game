@@ -106,6 +106,22 @@ describe('rastreo: sitemap y robots', () => {
   })
 })
 
+describe('verificación de Bing Webmaster (msvalidate.01)', () => {
+  const META = '<meta name="msvalidate.01" content="2B5274C4AA9B4D2DD7CE71011809C363" />'
+  const page = readFileSync('index.html', 'utf8')
+  const head = page.slice(0, page.indexOf('</head>'))
+
+  it('la portada trae la meta de verificación una sola vez, dentro del head', () => {
+    expect(head).toContain(META)
+    expect(page.split('msvalidate.01')).toHaveLength(2)
+  })
+
+  it('queda junto a los metadatos de SEO (antes de los datos estructurados y del cuerpo)', () => {
+    expect(head.indexOf(META)).toBeGreaterThan(head.indexOf('<meta name="robots"'))
+    expect(page.indexOf(META)).toBeLessThan(page.indexOf('<body>'))
+  })
+})
+
 describe('medición (Google Tag Manager) en index.html', () => {
   const page = readFileSync('index.html', 'utf8')
   const head = page.slice(0, page.indexOf('</head>'))

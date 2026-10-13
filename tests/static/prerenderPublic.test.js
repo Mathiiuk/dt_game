@@ -82,4 +82,12 @@ describe('imagen de vista previa por página', () => {
       expect(size, p.path).toBeLessThan(150 * 1024)
     }
   })
+
+  it('todas las páginas públicas prerenderizadas conservan la meta de verificación de Bing', () => {
+    for (const page of PUBLIC_PAGES) {
+      const html = out(page)
+      expect(html, page.path).toContain('<meta name="msvalidate.01" content="2B5274C4AA9B4D2DD7CE71011809C363" />')
+      expect(html.split('msvalidate.01'), page.path).toHaveLength(2)
+    }
+  })
 })
