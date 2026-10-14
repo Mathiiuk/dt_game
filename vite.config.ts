@@ -26,7 +26,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.js',
       registerType: 'prompt', // Mostramos prompt cuando haya actualización
-      includeAssets: ['pwa-icon.svg'],
+      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png'],
       manifest: {
         name: 'Vestuario',
         short_name: 'Vestuario',
@@ -39,12 +39,10 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait', // Forzar vista vertical
         icons: [
-          {
-            src: 'pwa-icon.svg',
-            sizes: '192x192 512x512',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'pwa-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }
         ]
       },
       // Service worker propio (src/sw.js): precache del juego para usarlo sin conexión + avisos push
@@ -56,6 +54,7 @@ export default defineConfig({
           'index.html',
           'manifest.webmanifest',
           'pwa-icon.svg',
+          'icon-192.png',
           'assets/index-*.{js,css}',
           'assets/{rolldown-runtime,react,icons,radix,motion,supabase,GameApp,cache,GameContext,auth,site}-*.js',
           'assets/inter-latin-wght-normal-*.woff2',

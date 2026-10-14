@@ -28,14 +28,17 @@
     else if(d.readyState==='complete'){idle();}else{w.addEventListener('load',idle);}
     })(window,document,'script','dataLayer','GTM-NC5G56KV');</script>
     <!-- End Google Tag Manager -->
-    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <!-- viewport-fit=cover es esencial para los safe-areas de iOS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
     <!-- Tema (claro / oscuro) antes de pintar: mismo cálculo que src/lib/theme.js (tests/static/themeBoot.test.js los compara) -->
     <meta name="theme-color" content="#F5EFE0" />
     <script>(function(){try{var p=localStorage.getItem('vestuario-theme');if(p!=='light'&&p!=='dark'&&p!=='auto')p='light';var d=p==='auto'?matchMedia('(prefers-color-scheme: dark)').matches:p==='dark';var t=d?'dark':'light';var r=document.documentElement;r.dataset.theme=t;r.style.colorScheme=t;document.querySelector('meta[name="theme-color"]').content=d?'#101521':'#F5EFE0'}catch(e){}})()</script>
     <!-- /Tema -->
-    <link rel="apple-touch-icon" href="/pwa-icon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
     <!-- SEO de la portada. Estos valores salen de src/seo/homeSeo.js: tests/static/homeSeo.test.jsx exige que coincidan. -->
     <title>Vestuario | Juego de Director Técnico de Fútbol</title>
