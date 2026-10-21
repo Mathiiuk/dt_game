@@ -63,7 +63,7 @@ export const competitionApi = {
         created++
       } catch (e) {
         // Sin tabla ni partidos la competición no sirve: se borra para que el próximo intento la arme de nuevo
-        await supabase.from('competitions').delete().eq('id', comp.id)
+        await this._discardCompetition(comp.id, e)
         throw e
       }
     }
@@ -74,6 +74,18 @@ export const competitionApi = {
       queryCache.invalidate('leagues:')
     }
     return { created }
+  },
+
+  /**
+   * Borra una competición armada a medias. Las claves de `fixtures` y `standings` hacia `competitions` no borran en cascada, así
+   * que primero van sus partidos y su tabla. Los clubes de la IA quedan (otras tablas los referencian). Si la limpieza falla se
+   * avisa con un error que incluye el motivo original: si no, la división quedaría a medias y no se volvería a armar en la temporada.
+   */
+  async _discardCompetition(compId, cause) {
+    for (const [table, col] of [['fixtures', 'competition_id'], ['standings', 'competition_id'], ['competitions', 'id']]) {
+      const { error } = await supabase.from(table).delete().eq(col, compId)
+      if (error) throw new Error(`No se pudo borrar la competición ${compId} a medias (${table}: ${error.message}) tras: ${cause?.message || cause}`)
+    }
   },
 
   /**

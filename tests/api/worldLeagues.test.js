@@ -1,5 +1,5 @@
 // El mundo: las otras cuatro divisiones se arman una vez por temporada, con sus 20 clubes, tabla y partidos
-const { st } = vi.hoisted(() => ({ st: { existing: [], inserts: [], deletes: [], rpc: [], failStandings: false, scorers: [], nextId: 0 } }))
+const { st } = vi.hoisted(() => ({ st: { existing: [], inserts: [], deletes: [], rpc: [], failStandings: false, failFixturesAfter: null, failDelete: null, rows: {}, scorers: [], nextId: 0 } }))
 
 vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
@@ -12,12 +12,35 @@ vi.mock('../../src/api/supabase', () => {
       q._ins = list
       return q
     }
-    q.delete = () => { st.deletes.push({ table }); return Object.assign(q, { then: (r) => r({ error: null }) }) }
-    q.single = async () => ({ data: { id: `comp${++st.nextId}` }, error: null })
+    // Borra las filas guardadas que cumplen los filtros; como en la base, `fixtures` y `standings` no se borran en cascada
+    q.delete = () => {
+      st.deletes.push({ table, eq: q._eq })
+      return Object.assign(q, {
+        then: (r) => {
+          if (st.failDelete === table) return r({ error: { message: 'sin permiso' } })
+          const match = (row) => Object.entries(q._eq).every(([c, v]) => row[c] === v)
+          if (table === 'competitions' && ['fixtures', 'standings'].some(t => (st.rows[t] || []).some(x => x.competition_id === q._eq.id))) {
+            return r({ error: { message: 'violates foreign key constraint' } })
+          }
+          st.rows[table] = (st.rows[table] || []).filter(x => !match(x))
+          return r({ error: null })
+        }
+      })
+    }
+    q.single = async () => {
+      const id = `comp${++st.nextId}`
+      ;(st.rows.competitions ||= []).push({ id, ...q._ins[0] })
+      return { data: { id }, error: null }
+    }
     q.then = (resolve) => {
       if (q._ins) {
         if (table === 'standings' && st.failStandings) return resolve({ data: null, error: { message: 'fallo' } })
-        return resolve({ data: q._ins.map((_, i) => ({ id: `${table}${++st.nextId}-${i}` })), error: null })
+        if (table === 'fixtures' && st.failFixturesAfter != null && (st.rows.fixtures || []).length >= st.failFixturesAfter) {
+          return resolve({ data: null, error: { message: 'fallo partidos' } })
+        }
+        const out = q._ins.map((row, i) => ({ id: `${table}${++st.nextId}-${i}`, ...row }))
+        ;(st.rows[table] ||= []).push(...out)
+        return resolve({ data: out.map(r => ({ id: r.id })), error: null })
       }
       if (table === 'competitions') return resolve({ data: st.existing, error: null })
       if (table === 'league_scorers') return resolve({ data: st.scorers.filter(s => s.competition_id === q._eq.competition_id), error: null })
@@ -32,7 +55,10 @@ import { competitionApi } from '../../src/api/competition'
 import { queryCache } from '../../src/utils/cache'
 
 describe('ensureWorldLeagues', () => {
-  beforeEach(() => { st.existing = []; st.inserts = []; st.deletes = []; st.rpc = []; st.failStandings = false; st.scorers = []; st.nextId = 0; queryCache.clear() })
+  beforeEach(() => {
+    st.existing = []; st.inserts = []; st.deletes = []; st.rpc = []; st.failStandings = false; st.failFixturesAfter = null; st.failDelete = null
+    st.rows = {}; st.scorers = []; st.nextId = 0; queryCache.clear()
+  })
 
   it('arma las cuatro divisiones que el club no juega, cada una con 20 clubes de su categoría', async () => {
     const res = await competitionApi.ensureWorldLeagues({ clubId: 'me', userTier: 5, gameDate: '2026-09-02' })
@@ -94,6 +120,27 @@ describe('ensureWorldLeagues', () => {
     st.failStandings = true
     await expect(competitionApi.ensureWorldLeagues({ clubId: 'me', userTier: 5, gameDate: '2026-09-02' })).rejects.toThrow('fallo')
     expect(st.deletes.some(d => d.table === 'competitions')).toBe(true)
+  })
+
+  it('si fallan los partidos a mitad de carga borra partidos, tabla y competición', async () => {
+    // Las primeras tandas de partidos entran y la siguiente falla
+    st.failFixturesAfter = 200
+    await expect(competitionApi.ensureWorldLeagues({ clubId: 'me', userTier: 5, gameDate: '2026-09-02' })).rejects.toThrow('fallo partidos')
+    // Se intentaron tres tandas de 100: entraron dos
+    expect(st.inserts.filter(i => i.table === 'fixtures')).toHaveLength(3)
+    expect(st.rows.fixtures).toEqual([])
+    expect(st.rows.standings).toEqual([])
+    expect(st.rows.competitions).toEqual([])
+    // Los partidos y la tabla se borran antes que la competición
+    const order = st.deletes.filter(d => d.eq.competition_id === 'comp1' || d.eq.id === 'comp1').map(d => d.table)
+    expect(order.slice(-3)).toEqual(['fixtures', 'standings', 'competitions'])
+  })
+
+  it('si la limpieza falla lo avisa junto con el error original', async () => {
+    st.failStandings = true
+    st.failDelete = 'competitions'
+    await expect(competitionApi.ensureWorldLeagues({ clubId: 'me', userTier: 5, gameDate: '2026-09-02' }))
+      .rejects.toThrow(/No se pudo borrar la competición comp1 a medias \(competitions: sin permiso\) tras: fallo/)
   })
 
   it('es determinista: el mismo club y temporada arman los mismos rivales', async () => {
