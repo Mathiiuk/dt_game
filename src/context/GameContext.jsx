@@ -4,6 +4,7 @@ import { authApi, setupSessionVisibilityListener } from '../api/auth'
 import { managerApi } from '../api/manager'
 import { supabase } from '../api/supabase'
 import { clubApi } from '../api/club'
+import { playerApi } from '../api/player'
 import { queryCache } from '../utils/cache'
 import { readCache } from '../lib/readCache'
 import ActionSheet from '../components/ActionSheet'
@@ -100,6 +101,12 @@ export const GameProvider = ({ children }) => {
         if (manager.employment_status !== 'EMPLOYED') {
           supabase.from('managers').update({ employment_status: 'EMPLOYED' }).eq('id', manager.id).then(() => {}, () => {})
           manager.employment_status = 'EMPLOYED'
+        }
+
+        // Un club de la IA dirigido sin jugadores (se firmó antes de que la firma generara el plantel) recibe el suyo
+        // Solo clubes de la IA: los fundados por el usuario generan su plantel al crearse. Idempotente: si ya tiene jugadores solo los lee
+        if (club.history_type === 'bot') {
+          await playerApi.generateInitialSquad(club.id).catch(e => console.warn('No se pudo reparar el plantel del club:', e))
         }
 
         setGameState({ user, manager, club, retiredManager: null, loading: false })

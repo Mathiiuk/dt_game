@@ -2,6 +2,7 @@ import { pickVacancies } from '../domain/vacancies'
 import { negotiateJob } from '../domain/jobNegotiation'
 import { supabase } from './supabase'
 import { auditApi } from './audit'
+import { playerApi } from './player'
 import { queryCache } from '../utils/cache'
 
 export const CAREER_PROGRESSION_RULES = {
@@ -398,6 +399,10 @@ export const careerApi = {
     if (newClubErr || !newClub) {
       throw new Error('ERR_CLUB_NOT_FOUND: El club ofertante no existe o ha sido disuelto.')
     }
+
+    // 2b. Los clubes de la IA no tienen jugadores (juegan con su fuerza): se genera el plantel antes de vincular al DT,
+    // así el club nunca aparece dirigido y vacío. Idempotente: si el club ya tiene jugadores no se toca
+    await playerApi.generateInitialSquad(newClubId)
 
     // 3. Si estaba dirigiendo un club previo: cerrar ciclo en manager_career_stints
     if (oldClubId && oldClubId !== newClubId) {
