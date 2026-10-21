@@ -273,11 +273,10 @@ export const internationalCupApi = {
         .eq('club_id', userClubId)
         .limit(14)
 
-      if (squad) {
-        for (const p of squad) {
-          const newFit = Math.max(30, (p.state_fitness || 85) + INTERNATIONAL_CUPS_CONFIG.travel_fatigue_penalty)
-          await supabase.from('players').update({ state_fitness: newFit }).eq('id', p.id)
-        }
+      // Un solo request para todo el plantel (antes era uno por jugador)
+      if (squad?.length) {
+        const { playerApi } = await import('./player')
+        await playerApi.batchUpdate(squad.map(p => ({ id: p.id, state_fitness: Math.max(30, (p.state_fitness || 85) + INTERNATIONAL_CUPS_CONFIG.travel_fatigue_penalty) })))
       }
     } catch (e) {
       console.warn('Aviso fatiga continental:', e)

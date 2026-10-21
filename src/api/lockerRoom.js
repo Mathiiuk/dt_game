@@ -192,12 +192,11 @@ export const lockerRoomApi = {
           .neq('player_id', oldCaptainId)
 
         if (clanMembers && clanMembers.length > 0) {
-          for (const m of clanMembers) {
-            const { data: p } = await supabase.from('players').select('morale').eq('id', m.player_id).single()
-            if (p) {
-              await supabase.from('players').update({ morale: Math.max(15, (p.morale || 70) - 15) }).eq('id', m.player_id)
-            }
-          }
+          // Una sola lectura para todo el clan y las escrituras en paralelo (antes eran lectura y escritura por jugador, en fila)
+          const { data: clan } = await supabase.from('players').select('id, morale').in('id', clanMembers.map(m => m.player_id))
+          await Promise.all((clan || []).map(p =>
+            supabase.from('players').update({ morale: Math.max(15, (p.morale || 70) - 15) }).eq('id', p.id)
+          ))
         }
 
         // Bajar cohesión general

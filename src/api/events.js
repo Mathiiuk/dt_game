@@ -396,11 +396,10 @@ export const eventsApi = {
           .eq('club_id', event.club_id)
           .limit(16)
 
-        if (squad) {
-          for (const p of squad) {
-            const newMorale = Math.min(100, Math.max(10, (p.state_morale || 70) + effects.morale))
-            await supabase.from('players').update({ state_morale: newMorale }).eq('id', p.id)
-          }
+        // Un solo request para todo el plantel (antes era uno por jugador)
+        if (squad?.length) {
+          const { playerApi } = await import('./player')
+          await playerApi.batchUpdate(squad.map(p => ({ id: p.id, state_morale: Math.min(100, Math.max(10, (p.state_morale || 70) + effects.morale)) })))
         }
       } catch (morErr) {
         console.warn('Aviso actualizando moral de plantel por evento:', morErr)
