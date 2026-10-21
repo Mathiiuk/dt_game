@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 import { GraduationCap } from 'lucide-react'
 import { Dialog, DialogContent, DialogBody, DialogFooter, Card } from '../ui'
 import { useGameContext } from '../../context/GameContext'
-import DifficultySelector from '../../features/dashboard/DifficultySelector'
 import NotificationsCard from '../../features/notifications/NotificationsCard'
 import ThemeToggle from '../../features/more/ThemeToggle'
 import PublicRankingCard from '../../features/more/PublicRankingCard'
 import { EVENT_START_TOUR } from '../../features/tutorial/tourState'
 import { APP_VERSION } from '../../lib/appVersion'
+
+// El selector de dificultad trae el clima y el catálogo de historias (~150 KB): se carga al abrir los ajustes, no al arrancar el juego
+const DifficultySelector = lazy(() => import('../../features/dashboard/DifficultySelector'))
 
 /**
  * Menú de ajustes de escritorio (panel lateral): apariencia (claro por defecto), dificultad, avisos y privacidad.
@@ -30,7 +32,7 @@ export default function SettingsSheet({ open, onOpenChange }) {
           <section aria-labelledby="settings-game">
             <h2 id="settings-game" className="eyebrow mb-2 px-1">Ajustes de partida</h2>
             <Card as="div" className="p-4">
-              <DifficultySelector clubId={club?.id} />
+              <Suspense fallback={null}><DifficultySelector clubId={club?.id} /></Suspense>
             </Card>
           </section>
 

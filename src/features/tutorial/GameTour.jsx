@@ -1,32 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Joyride, EVENTS } from 'react-joyride'
+import React, { Suspense, lazy, useCallback, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useGameContext } from '../../context/GameContext'
-import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { supabase } from '../../api/supabase'
 import { track } from '../../lib/analytics'
-import { TOUR_STEPS } from './tourSteps'
-import { buildJoyrideSteps, TOUR_LOCALE } from './tour'
 import { EVENT_START_TOUR, shouldAutoStart, markTourDone } from './tourState'
 
-const TOUR_OPTIONS = {
-  buttons: ['back', 'skip', 'primary'],
-  showProgress: true,
-  overlayClickAction: false,
-  zIndex: 10000,
-  primaryColor: 'var(--color-primary)',
-  backgroundColor: 'var(--color-surface)',
-  textColor: 'var(--color-fg)',
-  arrowColor: 'var(--color-surface)',
-  overlayColor: 'rgba(0, 0, 0, 0.65)'
-}
+// react-joyride y los pasos pesan ~50 KB y casi nadie los usa: se cargan recién cuando arranca el tutorial
+const TourRunner = lazy(() => import('./TourRunner'))
 
 /** Tutorial de bienvenida: arranca solo la primera vez que una cuenta nueva entra, y se puede repetir desde "Más" */
 export default function GameTour() {
   const { user } = useGameContext()
-  const navigate = useNavigate()
   const { pathname } = useLocation()
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
   const [run, setRun] = useState(false)
   const [round, setRound] = useState(0)
   const [auto, setAuto] = useState(false)
@@ -45,18 +30,12 @@ export default function GameTour() {
     return () => window.removeEventListener(EVENT_START_TOUR, start)
   }, [])
 
-  const steps = useMemo(
-    () => buildJoyrideSteps(TOUR_STEPS, { isDesktop, navigate, getPathname: () => window.location.pathname }),
-    [isDesktop, navigate]
-  )
-
-  const onEvent = useCallback((data) => {
-    if (data.type !== EVENTS.TOUR_END) return
+  const onEnd = useCallback((status) => {
     setRun(false)
-    track('tutorial_end', { finished: data.status === 'finished' })
+    track('tutorial_end', { finished: status === 'finished' })
     markTourDone(user, (payload) => supabase.auth.updateUser(payload))
   }, [user])
 
   if (!run) return null
-  return <Joyride key={round} run steps={steps} continuous locale={TOUR_LOCALE} options={TOUR_OPTIONS} onEvent={onEvent} />
+  return <Suspense fallback={null}><TourRunner key={round} onEnd={onEnd} /></Suspense>
 }

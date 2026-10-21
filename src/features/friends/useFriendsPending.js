@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { friendsApi } from '../../api/friends'
 
 const REFRESH_MS = 5 * 60 * 1000
 
@@ -9,7 +8,11 @@ export function useFriendsPending(pathname, enabled = true) {
   useEffect(() => {
     if (!enabled) return undefined
     let alive = true
-    const load = () => friendsApi.getPending().then(list => { if (alive) setPending(list) }).catch(() => {})
+    // La API de amigos (con los datos de las ligas de amigos) se carga recién acá: no entra en el arranque del juego
+    const load = () => import('../../api/friends')
+      .then(({ friendsApi }) => friendsApi.getPending())
+      .then(list => { if (alive) setPending(list) })
+      .catch(() => {})
     load()
     const timer = setInterval(load, REFRESH_MS)
     return () => { alive = false; clearInterval(timer) }

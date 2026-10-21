@@ -27,11 +27,12 @@ const renderIt = (props = {}) => render(<MemoryRouter><SettingsSheet open onOpen
 describe('menú de ajustes de escritorio', () => {
   beforeEach(() => { window.localStorage.clear(); document.documentElement.removeAttribute('data-theme') })
 
-  it('es un panel con título "Ajustes" y todas las configuraciones juntas', () => {
+  it('es un panel con título "Ajustes" y todas las configuraciones juntas', async () => {
     renderIt()
     const dialog = screen.getByRole('dialog', { name: 'Ajustes' })
     expect(within(dialog).getByRole('radiogroup', { name: 'Apariencia' })).toBeInTheDocument()
-    expect(within(dialog).getByText('Selector de dificultad')).toBeInTheDocument()
+    // El selector de dificultad se carga aparte (lazy) al abrir los ajustes
+    expect(await within(dialog).findByText('Selector de dificultad')).toBeInTheDocument()
     expect(within(dialog).getByText('Tarjeta de avisos')).toBeInTheDocument()
     expect(within(dialog).getByText('Tarjeta de privacidad')).toBeInTheDocument()
   })
