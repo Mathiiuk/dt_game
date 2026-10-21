@@ -76,6 +76,92 @@ export const competitionApi = {
     return { created }
   },
 
+  /**
+   * De `clubIds`, los que tienen liga en curso desde `date` (su competición tiene algún partido programado desde esa fecha).
+   * Un club de la IA puede haber quedado en la liga de una temporada que ya terminó: ese no puede recibir a un DT.
+   */
+  async liveClubIds(clubIds = [], date) {
+    const ids = [...new Set((clubIds || []).filter(Boolean))]
+    if (ids.length === 0 || !date) return new Set()
+    const { data: rows, error } = await supabase.from('standings').select('club_id, competition_id').in('club_id', ids)
+    if (error) throw new Error(error.message)
+    const comps = [...new Set((rows || []).map(r => r.competition_id).filter(Boolean))]
+    const live = new Set()
+    await Promise.all(comps.map(async (compId) => {
+      const { data: next, error: fxErr } = await supabase
+        .from('fixtures').select('id').eq('competition_id', compId).eq('status', 'SCHEDULED').gte('match_date', date).limit(1)
+      if (fxErr) throw new Error(fxErr.message)
+      if ((next || []).length > 0) live.add(compId)
+    }))
+    return new Set((rows || []).filter(r => live.has(r.competition_id)).map(r => r.club_id))
+  },
+
+  /**
+   * Pone a un club en la liga de su categoría de la temporada de `gameDate` (solo en pretemporada: todavía no se jugó nada).
+   * Sirve cuando el DT firma con un club de la IA que había quedado en la liga de una temporada ya terminada.
+   * - Si el mundo ya armó la liga de esa categoría para la temporada, el club ocupa el lugar de un club de la IA (su fila en la
+   *   tabla y sus partidos); el reemplazado se queda con la fila vieja del club, así cada uno sigue teniendo una sola.
+   * - Si no, se arma una liga nueva con 19 rivales de la categoría y sus partidos.
+   */
+  async joinSeasonLeague({ clubId, tier, gameDate, country = 'Argentina' }) {
+    const seasonYear = seasonYearOf(gameDate)
+    const { data: club } = await supabase.from('clubs').select('id, name').eq('id', clubId).maybeSingle()
+    const { data: oldRow, error: rowErr } = await supabase.from('standings').select('id, competition_id').eq('club_id', clubId).limit(1).maybeSingle()
+    if (rowErr) throw new Error(rowErr.message)
+
+    const { data: worldComp } = await supabase.from('competitions').select('id').eq('level', tier).eq('season_year', seasonYear).limit(1).maybeSingle()
+    if (worldComp?.id && worldComp.id !== oldRow?.competition_id) {
+      // Un club de la IA sin DT de esa liga le deja el lugar
+      const { data: rows, error } = await supabase.from('standings').select('id, club_id, clubs(history_type, manager_id)').eq('competition_id', worldComp.id)
+      if (error) throw new Error(error.message)
+      const seat = (rows || []).filter(r => r.clubs?.history_type === 'bot' && !r.clubs?.manager_id && r.club_id !== clubId)
+        .sort((a, b) => String(a.club_id).localeCompare(String(b.club_id)))[0]
+      if (seat) {
+        for (const side of ['home_team_id', 'away_team_id']) {
+          const { error: fxErr } = await supabase.from('fixtures').update({ [side]: clubId })
+            .eq('competition_id', worldComp.id).eq(side, seat.club_id).eq('status', 'SCHEDULED')
+          if (fxErr) throw new Error(fxErr.message)
+        }
+        if (oldRow?.id) {
+          const { error: e1 } = await supabase.from('standings').update({ club_id: seat.club_id }).eq('id', oldRow.id)
+          if (e1) throw new Error(e1.message)
+        }
+        const { error: e2 } = await supabase.from('standings').update({ club_id: clubId }).eq('id', seat.id)
+        if (e2) throw new Error(e2.message)
+        queryCache.invalidate(`standings:${clubId}`)
+        queryCache.invalidate('leagues:')
+        return { competitionId: worldComp.id }
+      }
+    }
+
+    // Liga nueva de la categoría para la temporada
+    const rules = await leagueVoteApi.getRules(clubId, seasonYear).catch(() => normalizeRules(null))
+    const { data: comp, error: compErr } = await supabase
+      .from('competitions')
+      .insert([{ name: `${divisionName(tier)} (${country})`, level: tier, teams_count: TEAMS_PER_LEAGUE, season_year: seasonYear, rules }])
+      .select()
+      .single()
+    if (compErr || !comp) throw new Error(compErr?.message || 'No se pudo crear la liga del club.')
+    const seed = `${clubId}:join:${tier}:${seasonYear}`
+    const rand = seededRandom(`strength:${seed}`)
+    const rivals = pickRivalClubs(seed, TEAMS_PER_LEAGUE - 1, { tier, exclude: club?.name ? [club.name] : [] }).map((c, i) => worldClubRow(c, i, tier, rand, country))
+    const { data: aiClubs, error: clubsErr } = await supabase.from('clubs').insert(rivals).select('id')
+    if (clubsErr) throw new Error(clubsErr.message)
+    const ids = (aiClubs || []).map(c => c.id)
+    const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
+    const { error: standErr } = await supabase.from('standings').insert(ids.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
+    if (standErr) throw new Error(standErr.message)
+    await this.generateRoundRobinFixtures(comp.id, [clubId, ...ids], firstLeagueMatchDate(seasonYear), rules)
+    // El club se muda al final: si algo se corta antes, sigue en su liga vieja y se puede reintentar
+    const { error: moveErr } = oldRow?.id
+      ? await supabase.from('standings').update({ competition_id: comp.id, ...zero }).eq('id', oldRow.id)
+      : await supabase.from('standings').insert({ competition_id: comp.id, club_id: clubId, ...zero })
+    if (moveErr) throw new Error(moveErr.message)
+    queryCache.invalidate(`standings:${clubId}`)
+    queryCache.invalidate('leagues:')
+    return { competitionId: comp.id }
+  },
+
   /** Últimos partidos jugados de una liga (los más nuevos primero), con los nombres de los clubes. Solo lectura. */
   async getLeagueResults(competitionId, limit = 12) {
     if (!competitionId) return []

@@ -41,7 +41,7 @@ export default function ManagerCareerScreen() {
       const [statsData, jobOffers, vacancyList] = await Promise.all([
         careerApi.getCareerStats(manager.id, club?.id),
         careerApi.getAvailableJobOffers(manager.id, club?.id, manager.reputation || 10),
-        careerApi.getAvailableVacancies(club?.id, manager.reputation || 10)
+        careerApi.getAvailableVacancies(club?.id, manager.reputation || 10, manager.id)
       ])
       setStats(statsData)
       setOffers(jobOffers || [])

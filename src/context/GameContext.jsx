@@ -5,6 +5,7 @@ import { managerApi } from '../api/manager'
 import { supabase } from '../api/supabase'
 import { clubApi } from '../api/club'
 import { playerApi } from '../api/player'
+import { careerApi } from '../api/career'
 import { queryCache } from '../utils/cache'
 import { readCache } from '../lib/readCache'
 import ActionSheet from '../components/ActionSheet'
@@ -80,7 +81,7 @@ export const GameProvider = ({ children }) => {
           return
         }
 
-        const club = await queryCache.fetch(
+        let club = await queryCache.fetch(
           `club:${manager.id}`,
           () => clubApi.getClubByManager(manager.id),
           120000
@@ -106,6 +107,10 @@ export const GameProvider = ({ children }) => {
         // Un club de la IA dirigido sin jugadores (se firmó antes de que la firma generara el plantel) recibe el suyo
         // Solo clubes de la IA: los fundados por el usuario generan su plantel al crearse. Idempotente: si ya tiene jugadores solo los lee
         if (club.history_type === 'bot') {
+          // Un club de la IA que quedó atrás en el tiempo (se firmó antes de que la firma llevara la fecha de la carrera) pasa a la
+          // fecha de la carrera y a la liga de la temporada. Si no cambió nada no hace otra consulta
+          const synced = await careerApi.syncClubToCareer(manager.id, club.id).catch(e => { console.warn('No se pudo poner al día el club:', e); return false })
+          if (synced) club = (await clubApi.getClubByManager(manager.id)) || club
           await playerApi.generateInitialSquad(club.id).catch(e => console.warn('No se pudo reparar el plantel del club:', e))
         }
 

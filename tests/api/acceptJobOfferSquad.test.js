@@ -8,7 +8,7 @@ vi.mock('../../src/api/player', () => ({
 vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
     const q = {}
-    for (const m of ['select', 'eq', 'is', 'order', 'limit']) q[m] = () => q
+    for (const m of ['select', 'eq', 'is', 'in', 'gte', 'order', 'limit']) q[m] = () => q
     q.update = (row) => { state.calls.push({ table, update: row }); return q }
     q.insert = (row) => { state.calls.push({ table, insert: row }); return q }
     q.maybeSingle = async () => ({ data: { id: 'o1', offering_club_id: 'c2', wage_offered: 900 }, error: null })

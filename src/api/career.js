@@ -4,6 +4,10 @@ import { supabase } from './supabase'
 import { auditApi } from './audit'
 import { playerApi } from './player'
 import { queryCache } from '../utils/cache'
+import { seasonYearOf, firstLeagueMatchDate } from '../domain/gameWeek'
+
+/** En pretemporada todavía no se jugó ningún partido de liga: un club puede sumarse a la liga del año */
+const isPreseason = (date) => Boolean(date) && date <= firstLeagueMatchDate(seasonYearOf(date))
 
 export const CAREER_PROGRESSION_RULES = {
   reputation_required_tier_5: 10,
@@ -257,6 +261,62 @@ export const careerApi = {
   },
 
   /**
+   * Fecha de la carrera del DT: la más avanzada entre los clubes que dirigió (y `clubId`). Cada club guarda su propia fecha
+   * de juego y un club de la IA conserva la vieja, así que al cambiar de club la fecha sale de acá. Devuelve también el club
+   * de esa fecha (sirve de referencia para armar el mundo de la temporada).
+   */
+  async _careerContext(managerId, clubId = null) {
+    const { data: stints } = await supabase.from('manager_career_stints').select('club_id').eq('manager_id', managerId)
+    const ids = [...new Set([clubId, ...(stints || []).map(s => s.club_id)].filter(Boolean))]
+    if (ids.length === 0) return { careerDate: null, refClub: null }
+    const { data: clubs, error } = await supabase.from('clubs').select('id, game_date, league_tier, country').in('id', ids)
+    if (error) throw new Error(error.message)
+    const refClub = (clubs || []).filter(c => c.game_date).sort((a, b) => String(b.game_date).localeCompare(String(a.game_date)))[0] || null
+    return { careerDate: refClub ? String(refClub.game_date).slice(0, 10) : null, refClub }
+  },
+
+  /**
+   * Clubes que pueden ofrecerle trabajo al DT: solo los que tienen liga en curso en la fecha de su carrera. Antes se arma
+   * el mundo de la temporada (las divisiones que faltan), así hay candidatos de todas las categorías. Sin fecha conocida no filtra.
+   */
+  async _offerableClubs(managerId, currentClubId, clubs = []) {
+    if (!managerId || clubs.length === 0) return clubs
+    const { careerDate, refClub } = await this._careerContext(managerId, currentClubId)
+    if (!careerDate) return clubs
+    const { competitionApi } = await import('./competition')
+    await competitionApi.ensureWorldLeagues({ clubId: refClub.id, userTier: refClub.league_tier || 5, gameDate: careerDate, country: refClub.country || 'Argentina' })
+      .catch(e => console.warn('No se pudo armar el mundo de la temporada:', e))
+    const live = await competitionApi.liveClubIds(clubs.map(c => c.id), careerDate)
+    return clubs.filter(c => live.has(c.id))
+  },
+
+  /**
+   * Lleva un club al tiempo de la carrera del DT: le pone la fecha de la carrera y, si su liga ya terminó, lo suma a la liga
+   * de su categoría de la temporada (solo en pretemporada). A mitad de temporada un club sin liga en curso no puede recibirlo:
+   * tira ERR_JOB_OFFER_STALE. No hace nada si el club ya está al día. Devuelve true si cambió algo.
+   */
+  async syncClubToCareer(managerId, clubId) {
+    const { careerDate } = await this._careerContext(managerId, clubId)
+    const { data: club, error } = await supabase.from('clubs').select('id, game_date, league_tier, country').eq('id', clubId).maybeSingle()
+    if (error || !club) throw new Error(error?.message || 'ERR_CLUB_NOT_FOUND: El club no existe.')
+    if (!careerDate || String(club.game_date || '').slice(0, 10) >= careerDate) return false
+
+    const { competitionApi } = await import('./competition')
+    const live = (await competitionApi.liveClubIds([clubId], careerDate)).has(clubId)
+    if (!live && !isPreseason(careerDate)) {
+      throw new Error('ERR_JOB_OFFER_STALE: La temporada de ese club ya terminó. Buscá otra oferta.')
+    }
+    const { error: dateErr } = await supabase.from('clubs').update({ game_date: careerDate }).eq('id', clubId)
+    if (dateErr) throw new Error(dateErr.message)
+    if (!live) {
+      await competitionApi.joinSeasonLeague({ clubId, tier: club.league_tier || 5, gameDate: careerDate, country: club.country || 'Argentina' })
+    }
+    queryCache.invalidate('club:')
+    queryCache.invalidate(`standings:${clubId}`)
+    return true
+  },
+
+  /**
    * Generación procedural y autoritativa de ofertas de trabajo
    */
   async generateProceduralJobOffers(managerId, currentClubId, managerReputation = 10, currentWeek = 1, careerId = null) {
@@ -284,8 +344,11 @@ export const careerApi = {
       query = query.neq('id', currentClubId)
     }
 
-    const { data: candidateClubs, error } = await query.limit(6)
-    if (error || !candidateClubs || candidateClubs.length === 0) return []
+    const { data: allCandidates, error } = await query.limit(40)
+    if (error || !allCandidates || allCandidates.length === 0) return []
+    // Solo clubes con liga en curso: uno que quedó en una temporada terminada llevaría al DT a jugar un año que ya pasó
+    const candidateClubs = await this._offerableClubs(managerId, currentClubId, allCandidates)
+    if (candidateClubs.length === 0) return []
 
     // Barajar y tomar hasta 2 clubes
     const shuffled = [...candidateClubs].sort(() => 0.5 - Math.random()).slice(0, 2)
@@ -398,6 +461,17 @@ export const careerApi = {
 
     if (newClubErr || !newClub) {
       throw new Error('ERR_CLUB_NOT_FOUND: El club ofertante no existe o ha sido disuelto.')
+    }
+
+    // 2a. El club nuevo pasa a la fecha de la carrera (los de la IA guardan una vieja) y, si su liga ya terminó, se suma a la
+    // de la temporada. Una oferta de un club sin temporada en curso ya no vale: se da por vencida
+    try {
+      await this.syncClubToCareer(managerId, newClubId)
+    } catch (e) {
+      if (String(e?.message || '').startsWith('ERR_JOB_OFFER_STALE') && offer?.id) {
+        await supabase.from('manager_job_offers').update({ status: 'EXPIRED' }).eq('id', offer.id)
+      }
+      throw e
     }
 
     // 2b. Los clubes de la IA no tienen jugadores (juegan con su fuerza): se genera el plantel antes de vincular al DT,
@@ -592,7 +666,7 @@ export const careerApi = {
   /**
    * Consulta las vacantes disponibles en la pirámide de ligas para postulación
    */
-  async getAvailableVacancies(currentClubId, managerReputation = 10) {
+  async getAvailableVacancies(currentClubId, managerReputation = 10, managerId = null) {
     let query = supabase
       .from('clubs')
       .select('id, name, city, country, budget, reputation, league_tier')
@@ -602,8 +676,10 @@ export const careerApi = {
       query = query.neq('id', currentClubId)
     }
 
-    const { data: clubs, error } = await query.limit(80)
-    if (error || !clubs) return []
+    const { data: allClubs, error } = await query.limit(80)
+    if (error || !allClubs) return []
+    // Solo clubes con liga en curso en la fecha de la carrera
+    const clubs = await this._offerableClubs(managerId, currentClubId, allClubs)
 
     const all = clubs.map(c => {
       const tier = c.league_tier || 5
