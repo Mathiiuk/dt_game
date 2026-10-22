@@ -15,6 +15,8 @@ import { queryCache } from '../utils/cache'
 const leagueInit = new Map()
 // Armado del mundo en vuelo por club
 const worldInit = new Map()
+// Las divisiones a medias de temporadas pasadas se barren una sola vez por sesión
+let pastLeaguesSwept = false
 
 export const competitionApi = {
   /**
@@ -38,6 +40,16 @@ export const competitionApi = {
     if (readErr) throw new Error(readErr.message)
     // Una división que quedó a medias (tabla sin partidos) no cuenta: se descarta y se vuelve a armar
     const broken = await this._brokenWorldLeagues(existing || [])
+    // Las de temporadas pasadas (quedaron así antes de que la limpieza funcionara) ya no se rearman: solo se borran
+    if (!pastLeaguesSwept) {
+      pastLeaguesSwept = true
+      try {
+        const { data: past } = await supabase.from('competitions').select('id, created_at').lt('season_year', seasonYear)
+        await this._brokenWorldLeagues(past || [])
+      } catch (e) {
+        console.warn('No se pudieron barrer las divisiones viejas a medias:', e)
+      }
+    }
     const have = new Set((existing || []).filter(c => !broken.has(c.id)).map(c => c.level))
     const missing = worldTiers(userTier).filter(t => !have.has(t))
     let created = 0
@@ -181,9 +193,15 @@ export const competitionApi = {
     }
     const { error: compErr } = await supabase.from('competitions').delete().eq('id', competitionId)
     if (compErr) throw new Error(compErr.message)
-    // Sus clubes de la IA no juegan en ningún otro lado; si no se pueden borrar quedan sueltos sin molestar
-    if (clubIds.length > 0) {
-      const { error: clubsErr } = await supabase.from('clubs').delete().in('id', clubIds)
+    // Sus clubes de la IA no juegan en ningún otro lado; si no se pueden borrar quedan sueltos sin molestar. Los que
+    // figuran en una oferta de trabajo se dejan: borrarlos se llevaría la oferta del historial del DT
+    const { data: offered } = clubIds.length > 0
+      ? await supabase.from('manager_job_offers').select('offering_club_id').in('offering_club_id', clubIds)
+      : { data: [] }
+    const keep = new Set((offered || []).map(o => o.offering_club_id))
+    const removable = clubIds.filter(id => !keep.has(id))
+    if (removable.length > 0) {
+      const { error: clubsErr } = await supabase.from('clubs').delete().in('id', removable)
       if (clubsErr) console.warn('No se pudieron borrar los clubes de la división a medias:', clubsErr.message)
     }
   },

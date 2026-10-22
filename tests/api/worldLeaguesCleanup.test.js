@@ -45,6 +45,7 @@ vi.mock('../../src/api/supabase', () => {
       eq: (k, v) => { filters.push(r => r[k] === v); return q },
       in: (k, vs) => { filters.push(r => vs.includes(r[k])); return q },
       gte: (k, v) => { filters.push(r => String(r[k]) >= v); return q },
+      lt: (k, v) => { filters.push(r => r[k] < v); return q },
       order: () => q,
       limit: (n) => { max = n; return q },
       single: async () => { const res = run(); return { data: res.data?.[0] ?? null, error: res.error } },
@@ -122,5 +123,33 @@ describe('divisiones del mundo que quedan a medias', () => {
     db.clubs.find(x => x.id === db.standings.find(s => s.competition_id === c.id).club_id).manager_id = 'm1'
     expect((await ensure()).created).toBe(0)
     expect(db.standings.filter(s => s.competition_id === c.id)).toHaveLength(20)
+  })
+
+  it('una división a medias de una temporada pasada se borra (una vez por sesión) y no se rearma', async () => {
+    await ensure()
+    // La Primera C 2025 quedó con tabla y sin partidos antes del arreglo
+    db.competitions.push({ id: 'old-c', level: 4, season_year: 2025, created_at: hourAgo() })
+    db.clubs.push({ id: 'old-bot', name: 'Viejo', history_type: 'bot', manager_id: null })
+    db.standings.push({ id: 'old-row', competition_id: 'old-c', club_id: 'old-bot' })
+    vi.resetModules()
+    const { competitionApi: fresh } = await import('../../src/api/competition')
+    const res = await fresh.ensureWorldLeagues({ clubId: 'me', userTier: 5, gameDate: '2026-09-02' })
+    expect(res.created).toBe(0)
+    expect(db.competitions.find(c => c.id === 'old-c')).toBeUndefined()
+    expect(db.standings.find(s => s.id === 'old-row')).toBeUndefined()
+    expect(db.clubs.find(c => c.id === 'old-bot')).toBeUndefined()
+    expect(db.competitions.filter(c => c.season_year === 2025)).toHaveLength(0)
+  })
+
+  it('un club que figura en una oferta de trabajo no se borra (la oferta queda en el historial)', async () => {
+    await ensure()
+    const c = db.competitions.find(x => x.level === 4)
+    c.created_at = hourAgo()
+    db.fixtures = db.fixtures.filter(f => f.competition_id !== c.id)
+    const offered = db.standings.find(s => s.competition_id === c.id).club_id
+    db.manager_job_offers = [{ id: 'o1', offering_club_id: offered, status: 'REJECTED' }]
+    await ensure()
+    expect(db.clubs.find(x => x.id === offered)).toBeDefined()
+    expect(db.standings.filter(s => s.competition_id === c.id)).toHaveLength(0)
   })
 })

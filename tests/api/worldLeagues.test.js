@@ -4,7 +4,7 @@ const { st } = vi.hoisted(() => ({ st: { existing: [], inserts: [], deletes: [],
 vi.mock('../../src/api/supabase', () => {
   const chain = (table) => {
     const q = { _t: table, _eq: {} }
-    for (const m of ['select', 'order', 'limit', 'in', 'gte']) q[m] = () => q
+    for (const m of ['select', 'order', 'limit', 'in', 'gte', 'lt']) q[m] = () => q
     q.eq = (c, v) => { q._eq[c] = v; return q }
     q.insert = (rows) => {
       const list = Array.isArray(rows) ? rows : [rows]
