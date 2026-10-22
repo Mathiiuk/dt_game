@@ -34,9 +34,11 @@ export const competitionApi = {
 
   async _ensureWorldLeagues({ clubId, userTier, gameDate, country }) {
     const seasonYear = seasonYearOf(gameDate)
-    const { data: existing, error: readErr } = await supabase.from('competitions').select('id, level, season_year').eq('season_year', seasonYear)
+    const { data: existing, error: readErr } = await supabase.from('competitions').select('id, level, season_year, created_at').eq('season_year', seasonYear)
     if (readErr) throw new Error(readErr.message)
-    const have = new Set((existing || []).map(c => c.level))
+    // Una división que quedó a medias (tabla sin partidos) no cuenta: se descarta y se vuelve a armar
+    const broken = await this._brokenWorldLeagues(existing || [])
+    const have = new Set((existing || []).filter(c => !broken.has(c.id)).map(c => c.level))
     const missing = worldTiers(userTier).filter(t => !have.has(t))
     let created = 0
     // El reglamento que votó la Asamblea para este año rige también en las otras divisiones
@@ -49,6 +51,7 @@ export const competitionApi = {
         .select()
         .single()
       if (compErr) throw new Error(compErr.message)
+      let clubIds = []
       try {
         const seed = `${clubId}:world:${tier}:${seasonYear}`
         const rand = seededRandom(`strength:${seed}`)
@@ -56,14 +59,15 @@ export const competitionApi = {
         const { data: clubs, error: clubsErr } = await supabase.from('clubs').insert(rows).select('id')
         if (clubsErr) throw new Error(clubsErr.message)
         const ids = (clubs || []).map(c => c.id)
+        clubIds = ids
         const zero = { points: 0, played: 0, won: 0, drawn: 0, lost: 0, goals_for: 0, goals_against: 0, form: '' }
         const { error: standErr } = await supabase.from('standings').insert(ids.map(id => ({ competition_id: comp.id, club_id: id, ...zero })))
         if (standErr) throw new Error(standErr.message)
         await this.generateRoundRobinFixtures(comp.id, ids, firstLeagueMatchDate(seasonYear), rules)
         created++
       } catch (e) {
-        // Sin tabla ni partidos la competición no sirve: se borra para que el próximo intento la arme de nuevo
-        await supabase.from('competitions').delete().eq('id', comp.id)
+        // Sin tabla ni partidos la competición no sirve: se borra entera para que el próximo intento la arme de nuevo
+        await this._dropWorldLeague(comp.id, clubIds).catch(cleanErr => console.warn('No se pudo borrar la división a medias:', cleanErr))
         throw e
       }
     }
@@ -110,7 +114,11 @@ export const competitionApi = {
     if (rowErr) throw new Error(rowErr.message)
 
     const { data: worldComp } = await supabase.from('competitions').select('id').eq('level', tier).eq('season_year', seasonYear).limit(1).maybeSingle()
-    if (worldComp?.id && worldComp.id !== oldRow?.competition_id) {
+    // Solo una liga con partidos programados: una que quedó a medias se rearma sola y el club quedaría sin partidos
+    const { data: worldFixture } = worldComp?.id
+      ? await supabase.from('fixtures').select('id').eq('competition_id', worldComp.id).eq('status', 'SCHEDULED').limit(1)
+      : { data: [] }
+    if (worldComp?.id && worldComp.id !== oldRow?.competition_id && (worldFixture || []).length > 0) {
       // Un club de la IA sin DT de esa liga le deja el lugar
       const { data: rows, error } = await supabase.from('standings').select('id, club_id, clubs(history_type, manager_id)').eq('competition_id', worldComp.id)
       if (error) throw new Error(error.message)
@@ -160,6 +168,47 @@ export const competitionApi = {
     queryCache.invalidate(`standings:${clubId}`)
     queryCache.invalidate('leagues:')
     return { competitionId: comp.id }
+  },
+
+  /**
+   * Borra una división del mundo con todo lo suyo. La base no borra en cascada partidos ni tabla, así que van primero
+   * (si no, borrar la competición falla y la división queda a medias para siempre). Los errores cortan.
+   */
+  async _dropWorldLeague(competitionId, clubIds = []) {
+    for (const table of ['fixtures', 'standings']) {
+      const { error } = await supabase.from(table).delete().eq('competition_id', competitionId)
+      if (error) throw new Error(error.message)
+    }
+    const { error: compErr } = await supabase.from('competitions').delete().eq('id', competitionId)
+    if (compErr) throw new Error(compErr.message)
+    // Sus clubes de la IA no juegan en ningún otro lado; si no se pueden borrar quedan sueltos sin molestar
+    if (clubIds.length > 0) {
+      const { error: clubsErr } = await supabase.from('clubs').delete().in('id', clubIds)
+      if (clubsErr) console.warn('No se pudieron borrar los clubes de la división a medias:', clubsErr.message)
+    }
+  },
+
+  /**
+   * De las divisiones del mundo de la temporada, las que quedaron a medias (tabla sin ningún partido) y se pueden rearmar: las
+   * borra y devuelve sus ids. Solo las creadas hace más de 10 minutos (otra pestaña puede estar armándolas) y solo si todos sus
+   * clubes son de la IA sin DT (nunca toca el club de nadie).
+   */
+  async _brokenWorldLeagues(comps = []) {
+    const broken = new Set()
+    const old = comps.filter(c => c.created_at && Date.now() - new Date(c.created_at).getTime() > 10 * 60 * 1000)
+    for (const comp of old) {
+      const { data: anyFixture, error: fxErr } = await supabase.from('fixtures').select('id').eq('competition_id', comp.id).limit(1)
+      if (fxErr || (anyFixture || []).length > 0) continue
+      const { data: rows, error: rowsErr } = await supabase.from('standings').select('club_id, clubs(history_type, manager_id)').eq('competition_id', comp.id)
+      if (rowsErr || (rows || []).some(r => r.clubs?.history_type !== 'bot' || r.clubs?.manager_id)) continue
+      try {
+        await this._dropWorldLeague(comp.id, (rows || []).map(r => r.club_id))
+        broken.add(comp.id)
+      } catch (e) {
+        console.warn('No se pudo descartar la división a medias:', e)
+      }
+    }
+    return broken
   },
 
   /** Últimos partidos jugados de una liga (los más nuevos primero), con los nombres de los clubes. Solo lectura. */
